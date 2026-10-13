@@ -95,7 +95,6 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
     <ol class="line" style={`--total:${chapterNights}`}>
       {
         CHAPTERS.map((c) => {
-          const p = place(c.stay);
           const first = DAY_VIEWS[c.days[0] - 1].day;
           return (
             <li style={`--n:${c.nights}; --c:${c.color}`}>
@@ -104,9 +103,9 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
                 <span class="stn" aria-hidden="true" />
                 <strong class="t-3">{c.name}</strong>
                 <span class="t-small muted">
-                  {c.nights} đêm, từ {shortDate(first.date)}
+                  {c.nights} đêm từ {shortDate(first.date)}
                 </span>
-                <span class="t-small hotel">{p.name}</span>
+                <span class="t-small hotel">{c.short}</span>
               </a>
             </li>
           );
@@ -290,7 +289,7 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
   }
   .line li {
     flex: var(--n) 1 0;
-    min-width: 0;
+    min-width: 128px;
   }
   .line a {
     display: flex;
@@ -503,6 +502,9 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
     margin-top: 2px;
   }
 
+  .band .btn-quiet {
+    background: var(--bg);
+  }
   .budget-teaser .t-lead {
     margin-top: 12px;
   }

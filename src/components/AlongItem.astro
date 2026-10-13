@@ -1,0 +1,84 @@
+---
+import { fmtKm, imgSrc, type Place } from '../lib/trip';
+
+interface Props {
+  p: Place;
+  km: number;
+}
+const { p, km } = Astro.props;
+const img = p.images[0];
+const kicker =
+  p.role === 'detour' && p.detourMin
+    ? `Rẽ qua, thêm khoảng ${p.detourMin} phút`
+    : km < 0.15
+      ? 'Ngay trên đường đi'
+      : km < 5
+        ? `Cách đường đi ${fmtKm(km)}`
+        : 'Gần đó';
+const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
+---
+
+<li>
+  <button type="button" class="along-item" data-place={p.id}>
+    <span class="al-img">
+      {img && <img src={imgSrc(img.src)} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()" />}
+    </span>
+    <span class="al-text">
+      <span class="al-kicker t-micro">{kicker}{fee}</span>
+      <strong>{p.name}</strong>
+      {(p.note || p.why) && <span class="t-small muted al-why">{p.note ?? p.why}</span>}
+    </span>
+  </button>
+</li>
+
+<style>
+  .along-item {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    margin-inline: -10px;
+    border: 0;
+    border-radius: var(--r-m);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+  .along-item:hover {
+    background: var(--bg-2);
+  }
+  .along-item:active {
+    transform: scale(0.99);
+  }
+  .al-img {
+    width: 76px;
+    height: 76px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-2);
+  }
+  .al-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .al-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .al-kicker {
+    color: var(--sight);
+    font-weight: 600;
+  }
+  .al-why {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

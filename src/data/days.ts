@@ -308,7 +308,7 @@ export const DAYS: Day[] = [
       stop('7:45', 'st-toba', 'Gửi vali vào locker', 'Mang túi nhẹ, nước và một món ăn vặt.'),
       walk('st-toba', 'toba-marine-terminal', { min: '10' }),
       leg('tobaFerry', 'toba-marine-terminal', 'toshijima-wagu', {
-        path: [[34.49042, 136.84494], [34.4952, 136.8508], [34.5048, 136.8585], [34.5152, 136.8692], [34.5228, 136.8795], [34.5268, 136.8851]],
+        path: [[34.49042, 136.84494], [34.496, 136.852], [34.504, 136.864], [34.511, 136.878], [34.5165, 136.8905], [34.52274, 136.89897]],
         min: '20–25',
         note: '¥550/người/chiều. Trước khi lên phà xác nhận cảng về, chuyến về và một chuyến sau đó.',
       }, '8:15'),
@@ -316,7 +316,7 @@ export const DAYS: Day[] = [
       walk('toshijima-wagu', 'toshijima-toshi', { min: '20–30' }),
       stop('10:00', 'toshijima-toshi', 'Làng Tōshi', 'Đi bộ giữa hai làng là phần hay nhất của đảo.'),
       leg('tobaFerry', 'toshijima-toshi', 'toba-marine-terminal', {
-        path: [[34.5243, 136.8738], [34.5205, 136.8676], [34.5118, 136.8605], [34.5021, 136.8540], [34.4950, 136.8497], [34.49042, 136.84494]],
+        path: [[34.53039, 136.903], [34.5268, 136.9068], [34.5212, 136.9025], [34.516, 136.888], [34.51, 136.876], [34.503, 136.863], [34.4955, 136.8515], [34.49042, 136.84494]],
         min: '15–20',
       }, '11:15'),
       walk('toba-marine-terminal', 'sazanami-toba', { min: '8' }),

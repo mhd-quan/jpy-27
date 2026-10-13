@@ -24,6 +24,8 @@ const captions = read('captions.json') ?? {};
 const hotels = read('hotels-images.json') ?? {};
 const sights = [...(read('sights-east.json')?.places ?? []), ...(read('sights-west.json')?.places ?? [])];
 const fuji = read('fuji.json');
+const commons = read('commons-map.json') ?? {};
+const local = (u) => commons[u] ?? u;
 
 const KIND = { dish: 'dish', interior: 'interior', exterior: 'exterior', room: 'room', bath: 'bath', view: 'view', detail: 'detail', other: 'other' };
 const round = (n) => (typeof n === 'number' ? Math.round(n * 1e6) / 1e6 : undefined);
@@ -84,7 +86,7 @@ for (const p of sights) {
     .filter((im) => im?.url)
     .map((im) => ({
       kind: KIND[im.kind] ?? 'view',
-      src: im.url,
+      src: local(im.url),
       caption: clean(im.caption) ?? '',
       credit: clean(im.credit) ?? '',
       license: clean(im.license),

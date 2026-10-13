@@ -1,0 +1,147 @@
+{
+ "climate": {
+  "octoberVisibility": [
+   {
+    "place": "Thành phố Fuji, quan sát lúc 8h",
+    "stat": "41% số ngày tháng 10 thấy trọn núi, thêm 28% thấy một phần",
+    "years": "trung bình 1991–2025",
+    "source": "https://www.city.fuji.shizuoka.jp/"
+   },
+   {
+    "place": "Thành phố Fuji, tháng 10/2025",
+    "stat": "10 ngày thấy trọn núi, 8 ngày thấy một phần, 13 ngày không thấy",
+    "years": "2025",
+    "source": "https://www.city.fuji.shizuoka.jp/"
+   },
+   {
+    "place": "Thành phố Fuji, cả năm theo giờ",
+    "stat": "Thấy trọn núi 37% lúc 8h, 23% lúc 12h, 22% lúc 16h",
+    "years": "trung bình 1991–2025",
+    "source": "https://www.city.fuji.shizuoka.jp/"
+   },
+   {
+    "place": "Đài khí tượng Kōfu",
+    "stat": "Tuyết đầu mùa trước 21/10 ở 5 trong 10 năm gần nhất",
+    "years": "2016–2025",
+    "source": "https://www.data.jma.go.jp/kofu/"
+   }
+  ],
+  "timeOfDay": "Buổi sáng trong hơn hẳn: mây và hơi nước bốc lên từ trưa, nên cơ hội thấy trọn núi lúc 8h gần gấp rưỡi lúc 16h. Ngày 4 nên tới hồ Ashi trước 11h; ngày 5 đoạn tàu Mishima – Fujikawa rơi vào khoảng 10–11h, vẫn còn tốt.",
+  "snowcap": "Đài Kōfu ghi nhận tuyết đầu mùa trên đỉnh trung bình ngày 2/10, nhưng những năm gần đây muộn: 5/10/2023, 7/11/2024 (muộn nhất từng ghi), 23/10/2025. Vì vậy ngày 21–22/10 có khoảng một nửa khả năng thấy chóp trắng; đừng coi là chắc chắn.",
+  "sunrise": "Quanh 21/10 ở Hakone: mặt trời mọc khoảng 5:55, lặn khoảng 17:05.",
+  "sources": [
+   "Báo cáo 富士山観測の記録 2025, thành phố Fuji",
+   "Thông báo 富士山の初冠雪 của Đài khí tượng Kōfu 2023, 2024, 2025 và bảng ngày tuyết đầu mùa"
+  ]
+ },
+ "spots": [
+  {
+   "id": "onshi-hakone-park",
+   "day": 4,
+   "role": "planned",
+   "fujiNote": "Đứng ở sân thượng tầng 2 nhà ngắm hồ nhìn về hướng Tây Bắc qua mặt hồ; sáng sớm đến giữa buổi thường quang hơn chiều.",
+   "photoTips": "Lấy mặt hồ và rặng núi Hakone làm tiền cảnh; chóp Fuji nhô trên vành núi phía tây. Đến trước 11h.",
+   "bestTime": "Sáng, trước 11h",
+   "crowd": "Thường vắng hơn bờ hồ Moto-Hakone."
+  },
+  {
+   "id": "owakudani",
+   "day": 4,
+   "role": "planned",
+   "fujiNote": "Nhìn về phía Tây Tây Bắc từ khu cửa hàng quanh ga hoặc đường mòn lên cao; trời quang buổi sáng đến trưa là rõ nhất.",
+   "photoTips": "Cho cột khói lưu huỳnh và cabin ropeway vào khung; ống 2× khi trời trong.",
+   "bestTime": "Trước trưa",
+   "crowd": "Đông khách đoàn từ 10h."
+  },
+  {
+   "id": "lake-ashi-cruise-deck",
+   "nameVi": "Giữa hồ Ashi, trên thuyền",
+   "lat": 35.215,
+   "lng": 138.999,
+   "eye": 4,
+   "fixedElev": 725,
+   "day": 4,
+   "role": "planned",
+   "fujiNote": "Khi thuyền đi giữa hồ, vành núi phía tây ở rất gần nên che Fuji; núi hiện rõ hơn ở đoạn đầu gần Moto-Hakone và từ cabin ropeway.",
+   "photoTips": "Đứng boong sau bên trái khi rời Moto-Hakone để có hồ và cổng torii Hakone Jinja.",
+   "bestTime": "Chuyến trước 12h"
+  },
+  {
+   "id": "sounzan",
+   "day": 4,
+   "role": "planned"
+  },
+  {
+   "id": "mizunoto",
+   "day": 4,
+   "role": "planned",
+   "fujiNote": "Ryokan nằm trong thung lũng Kowakudani, không nhìn thấy Fuji."
+  },
+  {
+   "id": "satta-pass",
+   "nameVi": "Đèo Satta",
+   "lat": 35.07029,
+   "lng": 138.54126,
+   "day": 5,
+   "role": "detour",
+   "fujiNote": "Đứng ở điểm ngắm Satta-toge nhìn về Bắc–Đông Bắc qua vịnh Suruga; sáng sớm đến giữa buổi là rõ nhất.",
+   "photoTips": "Ống 2–3×, chờ lúc tàu Tōkaidō chạy qua bên dưới.",
+   "bestTime": "Sáng sớm",
+   "access": "Đi bộ khoảng 1 giờ từ ga Yui; muốn ghé phải bỏ bữa trưa ở Shimizu."
+  },
+  {
+   "id": "miho-no-matsubara",
+   "nameVi": "Miho no Matsubara",
+   "lat": 34.99474,
+   "lng": 138.5238,
+   "day": 5,
+   "role": "detour",
+   "fujiNote": "Đứng ở bãi hoặc lối rừng thông nhìn Đông Bắc qua vịnh; Fuji nằm trên rặng thông, buổi sáng thường rõ hơn chiều.",
+   "photoTips": "Đi ra bãi cát, lấy thân thông làm khung.",
+   "bestTime": "Sáng",
+   "access": "Bus từ ga Shimizu khoảng 25 phút mỗi chiều."
+  },
+  {
+   "id": "nihondaira-yume-terrace",
+   "nameVi": "Nihondaira Yume Terrace",
+   "lat": 34.97448,
+   "lng": 138.46586,
+   "day": 5,
+   "role": "detour",
+   "fujiNote": "Từ hành lang ngắm cảnh nhìn về Đông Bắc; buổi sáng sớm đến giữa buổi cho Fuji rõ, xa hơn là bán đảo Izu và vịnh Suruga.",
+   "access": "Bus từ ga Shizuoka khoảng 35 phút."
+  },
+  {
+   "id": "kaizan",
+   "day": 5,
+   "role": "planned",
+   "fujiNote": "Từ khu cảng Kashi no Ichi, Fuji ở hướng đông bắc phía sau bến cá nếu trời trong.",
+   "photoTips": "Ra cầu tàu S-Pulse Dream Plaza để có mặt nước làm tiền cảnh."
+  },
+  {
+   "id": "oishi-park",
+   "nameVi": "Công viên Ōishi",
+   "lat": 35.5234,
+   "lng": 138.7462,
+   "day": 3,
+   "role": "alt",
+   "fujiNote": "Bờ bắc hồ Kawaguchi, Fuji ở phía nam bên kia mặt hồ.",
+   "photoTips": "Mặt hồ yên buổi sáng cho bóng núi; hoa kochia đổi đỏ cuối tháng 10.",
+   "bestTime": "Sáng sớm",
+   "crowd": "Đông từ 10h."
+  },
+  {
+   "id": "chureito-pagoda",
+   "nameVi": "Tháp Chūreitō",
+   "lat": 35.5012,
+   "lng": 138.8015,
+   "day": 3,
+   "role": "alt",
+   "fujiNote": "Khung kinh điển: tháp năm tầng và Fuji, từ đài phía trên tháp.",
+   "photoTips": "Leo khoảng 400 bậc; ống 2× để nén tháp và núi.",
+   "crowd": "Rất đông, có thể xếp hàng ở đài chụp."
+  }
+ ],
+ "trainWindows": [],
+ "notes": "Tổng hợp từ nguồn sơ cấp do agent tải về (báo cáo quan sát Fuji của thành phố Fuji, thông báo của Đài khí tượng Kōfu); số liệu tầm nhìn tính lại bằng scripts/build-fuji.mjs."
+}

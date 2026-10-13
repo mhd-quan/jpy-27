@@ -1,5 +1,6 @@
 ---
 import type { Img } from '../data/catalog';
+import { imgSrc } from '../lib/trip';
 
 interface Props {
   images: Img[];
@@ -36,7 +37,7 @@ const isTabelog = (src: string) => src.includes('tblg.k-img.com');
           <figure class="shot" data-kind={im.kind}>
             <div class="frame">
               <img
-                src={im.src}
+                src={imgSrc(im.src)}
                 alt={im.text}
                 loading={i < 2 && size === 'lg' ? 'eager' : 'lazy'}
                 decoding="async"

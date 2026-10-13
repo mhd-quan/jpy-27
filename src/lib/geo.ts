@@ -75,7 +75,7 @@ export function distanceToLineKm(p: LatLng, line: LatLng[]) {
 /** Project lat/lng sets into an SVG box keeping aspect; returns path strings. */
 export function sparkPaths(lines: LatLng[][], width: number, height: number, pad = 4) {
   const all = lines.flat();
-  if (!all.length) return { paths: [] as string[], project: (p: LatLng) => [0, 0] as [number, number] };
+  if (!all.length) return { paths: [] as string[], project: (_: LatLng) => [0, 0] as [number, number] };
   const k = Math.cos(rad(all.reduce((s, p) => s + p[0], 0) / all.length));
   const xs = all.map((p) => p[1] * k);
   const ys = all.map((p) => p[0]);

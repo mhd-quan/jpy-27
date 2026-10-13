@@ -9,6 +9,8 @@ import type { Pin, RouteLeg } from './map.ts';
 export { DAYS, place, LINES, MODE_LABEL };
 
 export const url = (path = '') => `${import.meta.env.BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+/** Remote photos stay absolute; self-hosted ones live under the site base. */
+export const imgSrc = (src: string) => (/^https?:/.test(src) ? src : url(src));
 
 export interface LegView extends Leg {
   mode: Mode;
@@ -156,11 +158,11 @@ export { hasPlace };
 
 /** Chapters = consecutive nights in the same hotel. */
 export const CHAPTERS = [
-  { id: 'tokyo', name: 'Tokyo', nights: 3, days: [1, 2, 3], stay: 'resol-akihabara', color: '#F39700' },
-  { id: 'hakone', name: 'Hakone', nights: 1, days: [4], stay: 'mizunoto', color: '#D23A3A' },
-  { id: 'ise', name: 'Ise', nights: 2, days: [5, 6], stay: 'era-ise', color: '#C8323F' },
-  { id: 'kyoto', name: 'Kyoto', nights: 3, days: [7, 8, 9], stay: 'cross-kyoto', color: '#1E8A55' },
-  { id: 'osaka', name: 'Osaka', nights: 2, days: [10, 11, 12], stay: 'forza-osaka', color: '#E15A26' },
+  { id: 'tokyo', name: 'Tokyo', nights: 3, days: [1, 2, 3], stay: 'resol-akihabara', short: 'RESOL Akihabara', color: '#F39700' },
+  { id: 'hakone', name: 'Hakone', nights: 1, days: [4], stay: 'mizunoto', short: 'Mizunoto', color: '#D23A3A' },
+  { id: 'ise', name: 'Ise', nights: 2, days: [5, 6], stay: 'era-ise', short: 'ERA Ise', color: '#C8323F' },
+  { id: 'kyoto', name: 'Kyoto', nights: 3, days: [7, 8, 9], stay: 'cross-kyoto', short: 'Cross Hotel', color: '#1E8A55' },
+  { id: 'osaka', name: 'Osaka', nights: 2, days: [10, 11, 12], stay: 'forza-osaka', short: 'Forza Namba', color: '#E15A26' },
 ];
 
 export const allPlacesOf = (kind: Place['kind']) => allPlaces().filter((p) => p.kind === kind);

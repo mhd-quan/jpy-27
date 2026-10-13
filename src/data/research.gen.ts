@@ -2486,9 +2486,4276 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "Ảnh: website khách sạn"
    }
   ]
+ },
+ "manseibashi": {
+  "lat": 35.69722,
+  "lng": 139.77004,
+  "address": "東京都千代田区神田須田町1-25-4",
+  "hours": "11:00–22:00 (tuỳ quán)",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều muộn đến tối, lúc đèn dưới các vòm gạch sáng lên",
+  "station": "Awajicho (Marunouchi) 3 phút; Akihabara (JR) 5 phút",
+  "why": "Cầu cạn gạch đỏ của ga Manseibashi cũ (1912) nay là dãy quán cà phê, cửa hàng thủ công và nhà hàng soi bóng xuống sông Kanda. Không khí cũ kỹ, dễ đi bộ sau chuyến bay.",
+  "tips": "Có thể lên khu sân ga cũ ở tầng trên để nhìn tàu Chuo chạy ngang; tối đẹp hơn ban ngày.",
+  "official": "https://www.ecute.jp/maach/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/8af7d6f4a14f.webp",
+    "caption": "Mặt tiền mAAch ecute dưới vòm gạch buổi tối",
+    "credit": "Wei-Te Wong from Taipei City, Taiwan, Republic of China",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:MAAch_ecute_%E7%A5%9E%E7%94%B0%E8%90%AC%E4%B8%96%E6%A9%8B_(49292011986).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/2f70288a683d.webp",
+    "caption": "Cầu cạn gạch đỏ bên sông Kanda ban ngày",
+    "credit": "掬茶",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:MAAch_ecute_Kanda-Manseibashi_riverside_deck_20130721-1.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/c4e894602508.webp",
+    "caption": "Cầu cạn và toà nhà ga cũ lúc hoàng hôn",
+    "credit": "Ippukucho",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:ManseibashiStationMaachEcute.JPG"
+   }
+  ]
+ },
+ "kanda-myojin": {
+  "lat": 35.70194,
+  "lng": 139.76774,
+  "address": "東京都千代田区外神田2-16-2",
+  "hours": "Sân đền tự do; quầy bùa ~9:00–17:00",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng hoặc chiều muộn, tránh đông cuối tuần",
+  "station": "Ochanomizu (JR/Marunouchi) 5 phút; Suehirocho (Ginza) 5 phút; Akihabara (JR) 7 phút",
+  "why": "Đền hơn 1.200 năm tuổi, được coi là nơi che chở cho Akihabara và Edo cũ; cổng Zuishinmon và điện chính sơn đỏ nổi giữa các tòa nhà cao. Bùa 'IT' và bùa mang hình nhân vật anime rất quen mắt ở đây.",
+  "tips": "Tối vẫn vào được sân đền; đi từ Manseibashi lên theo hướng đông bắc mất khoảng 10 phút.",
+  "official": "https://www.kandamyoujin.or.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/9b2eeb6d28a0.webp",
+    "caption": "Cổng Zuishinmon sơn đỏ của đền Kanda Myojin",
+    "credit": "Tadill",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kanda_Jinja_entrance.JPG"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/9e2b33eae624.webp",
+    "caption": "Điện bái (haiden) của đền Kanda",
+    "credit": "Hyppolyte de Saint-Rambert",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kanda-my%C5%8Djin_haiden_vue_g%C3%A9n%C3%A9rale.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/e8c5936b398f.webp",
+    "caption": "Cổng đền Kanda Myojin nhìn từ phía đường",
+    "credit": "No machine-readable author provided. Fg2 assumed (based on copyright claims).",
+    "license": "Public domain (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:KandaMyojinGate8837.jpg"
+   }
+  ]
+ },
+ "yanaka-ginza": {
+  "lat": 35.72765,
+  "lng": 139.76717,
+  "address": "東京都台東区谷中3-13-1",
+  "hours": "~10:00–18:00 (tuỳ quán)",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều từ khoảng 16:00 khi nắng xuống bậc thang Yuyake Dandan",
+  "station": "Nippori (JR/Keisei/Toneri) 3 phút",
+  "why": "Phố mua sắm cũ dài khoảng 170 m bán đồ ăn vặt (croquette, menchi-katsu), tạp hoá và đồ thủ công. Bậc thang Yuyake Dandan ở đầu phố là chỗ ngắm hoàng hôn quen thuộc của khu Yanaka.",
+  "tips": "Ăn đứng tại quầy; nhiều quán chỉ nhận tiền mặt. Đi theo hướng từ bậc thang xuống phố để vào đúng cổng chính.",
+  "official": "https://www.yanakaginza.com/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/6aa4e9ec905b.webp",
+    "caption": "Phố Yanaka Ginza nhìn từ bậc thang Yuyake Dandan",
+    "credit": "1904.CC",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yanaka_Ginza_entrance.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/1b02c7c22dee.webp",
+    "caption": "Cổng phố Yanaka Ginza đông khách (tháng 10/2023)",
+    "credit": "Stephen Kelly from San Francisco, CA, USA",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yanaka_Ginza,_Yanaka_(53417016334).jpg"
+   }
+  ]
+ },
+ "nezu-shrine": {
+  "lat": 35.71997,
+  "lng": 139.76066,
+  "address": "東京都文京区根津1-28-9",
+  "hours": "~6:00–17:00",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng sớm, trước 9:00",
+  "station": "Nezu (Chiyoda) 5 phút; Sendagi (Chiyoda) 5 phút",
+  "why": "Đền xây năm 1706 còn gần như nguyên công trình kiểu Gongen-zukuri, được công nhận Di sản văn hoá trọng yếu quốc gia. Đường hầm torii đỏ của miếu Otome Inari nhỏ nhưng yên.",
+  "tips": "Tháng 10 vắng hơn mùa azalea (đầu tháng 4); chụp hàng torii đỏ trước khi khách đoàn đến.",
+  "official": "https://nedujinja.or.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/da2d567c417c.webp",
+    "caption": "Cổng Romon của đền Nezu",
+    "credit": "Zairon",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nezu-jinja_Romon_3.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/48bd98bba24e.webp",
+    "caption": "Điện chính sơn đỏ vàng, kiểu Gongen-zukuri",
+    "credit": "Zairon",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nezu-jinja_Honden_4.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/b5fff958be52.webp",
+    "caption": "Lối vào đường hầm torii đỏ Otome Inari",
+    "credit": "Charlie fong",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Entrance_to_The_Path_of_Torii_in_Nezu_Shrine_Tokyo.jpg"
+   }
+  ]
+ },
+ "sensoji": {
+  "lat": 35.71472,
+  "lng": 139.79675,
+  "address": "東京都台東区浅草2-3-1",
+  "hours": "Chính điện 6:30–17:00; sân tự do",
+  "fee": "Miễn phí",
+  "bestTime": "Trước 8:00 hoặc sau 17:00 khi đèn chiếu cổng và tháp",
+  "station": "Asakusa (Ginza/Asakusa/Tobu) 5 phút",
+  "why": "Ngôi chùa cổ nhất Tokyo (truyền thuyết lập năm 628), có cổng Kaminarimon đèn lồng đỏ, cổng Hozomon và tháp năm tầng. Đây là điểm đông nhất thành phố nên đi sớm hoặc tối sẽ dễ chịu hơn.",
+  "tips": "Tháp năm tầng và cổng Hozomon được chiếu sáng buổi tối; quẻ omikuji ¥100, quẻ xấu thì buộc lại ở giá.",
+  "official": "https://www.senso-ji.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/66a6640c4f38.webp",
+    "caption": "Cổng Hozomon và tháp năm tầng",
+    "credit": "Daderot",
+    "license": "Public domain (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hozomon_and_pagoda,_Sensoji_Temple,_Asakusa,_Tokyo.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/6f2d1f2aa8f3.webp",
+    "caption": "Chính điện nhìn từ phố Nakamise",
+    "credit": "そらみみ (Soramimi)",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hondo_(Main_Hall)_of_Sensoji_Temple_2.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/daba6f7a60cb.webp",
+    "caption": "Cổng Kaminarimon đèn lồng đỏ",
+    "credit": "Christophe95",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kaminarimon_in_2018.jpg"
+   }
+  ]
+ },
+ "sumida-river": {
+  "lat": 35.71194,
+  "lng": 139.80364,
+  "address": "東京都墨田区向島1丁目 隅田公園（墨田区側）",
+  "hours": "Tự do 24h",
+  "fee": "Miễn phí",
+  "bestTime": "Hoàng hôn đến tối, lúc Skytree lên đèn",
+  "station": "Asakusa (Ginza/Asakusa/Tobu) 5 phút; Tokyo Skytree 15 phút đi bộ",
+  "why": "Đi bộ ven sông Sumida, nhìn sang chùa Asakusa và tòa nhà Asahi có 'ngọn lửa vàng' cạnh cầu Azuma đỏ, Skytree ở ngay phía sau. Công viên rộng, ít đông hơn hẳn khu chùa.",
+  "tips": "Qua cầu Azuma sang bờ Mukojima để có khung nhìn đủ cả Asakusa; tàu Tokyo Cruise đi từ bến Asakusa nếu muốn ngắm từ mặt sông.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/6627b120a65a.webp",
+    "caption": "Tàu du ngoạn trên sông Sumida (tháng 10/2023)",
+    "credit": "Stephen Kelly from San Francisco, CA, USA",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tour_Boat_on_Sumida_River_and_Asakusa_Buildings_(53417020109).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/1381df411104.webp",
+    "caption": "Cầu Azuma, toà nhà Asahi và Skytree",
+    "credit": "Kakidai",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Azuma_Bridge_2.jpg"
+   }
+  ]
+ },
+ "nakamise": {
+  "lat": 35.71183,
+  "lng": 139.79645,
+  "address": "東京都台東区浅草1-36〜2-3（雷門〜宝蔵門）",
+  "hours": "~10:00–18:00 (tuỳ quán)",
+  "fee": "Miễn phí",
+  "bestTime": "Trước 9:00 hoặc sau 17:00",
+  "station": "Asakusa (Ginza/Asakusa/Tobu) 3 phút",
+  "why": "Con phố khoảng 250 m nối Kaminarimon với Hozomon, hơn 80 gian bán bánh nhân đậu (ningyo-yaki, agemanju), senbei và đồ lưu niệm. Ăn thử một hai món rồi đi tiếp, vì phố đông cả ngày.",
+  "tips": "Sau 17:00 nhiều quán kéo cửa sắt xuống, phố vắng và có vẻ khác hẳn; muốn mua đồ ăn thì đi trước giờ đó.",
+  "official": "https://www.asakusa-nakamise.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/dc5ed83cabcb.webp",
+    "caption": "Phố Nakamise đông khách (4/2024)",
+    "credit": "Alexeyevitch",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nakamise-dori_Street.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/d7757cf0fa0e.webp",
+    "caption": "Toàn cảnh Nakamise từ trên cao nối Kaminarimon và Hozomon",
+    "credit": "Marco Almbauer",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sens%C5%8D-ji_Tempel_mit_Nakamise-dor.jpg"
+   }
+  ]
+ },
+ "nihonbashi": {
+  "lat": 35.68407,
+  "lng": 139.7745,
+  "address": "東京都中央区日本橋1丁目・日本橋室町1丁目（日本橋川）",
+  "hours": "Tự do 24h",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng sớm hoặc cuối chiều, ít xe và ít người",
+  "station": "Nihombashi (Ginza/Tozai/Asakusa) 1 phút (lối B12)",
+  "why": "Cầu đá kiểu phương Tây xây năm 1911, giữa cầu có cột mốc 'Điểm 0 km' của hệ thống quốc lộ Nhật Bản. Tượng kỳ lân và sư tử ở hai đầu cầu rất tỉ mỉ.",
+  "tips": "Đường cao tốc vẫn chạy ngay trên đầu cầu; xuống bậc thang bên sông để chụp vòm đá. Maruzen và Tamai chỉ cách vài phút đi bộ.",
+  "official": "https://www.nihonbashi-tokyo.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/31dac1a3bd28.webp",
+    "caption": "Cầu đá Nihonbashi dưới đường cao tốc",
+    "credit": "Aimaimyi",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nihonbashi_12.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/d09715de80cb.webp",
+    "caption": "Tượng kỳ lân trên cầu",
+    "credit": "Phlizz",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kirin_Statue_(Nihonbashi_Bridge).jpg"
+   }
+  ]
+ },
+ "meiji-jingu": {
+  "lat": 35.67611,
+  "lng": 139.69917,
+  "address": "東京都渋谷区代々木神園町1-1",
+  "hours": "~5:40–16:40 (T10)",
+  "fee": "Miễn phí (vườn trong Gyoen ¥500)",
+  "bestTime": "Sáng sớm trước 9:00",
+  "station": "Harajuku (JR) 1 phút; Meiji-jingumae (Chiyoda/Fukutoshin) 2 phút",
+  "why": "Rừng nhân tạo rộng khoảng 70 ha, trồng từ năm 1915 ngay giữa Tokyo, đường sỏi chừng 10 phút dẫn qua các cổng torii gỗ cao tới điện thờ Thiên hoàng Minh Trị. Tới đây là thấy tiếng ồn Harajuku lùi lại hẳn.",
+  "tips": "Hay có đám cưới truyền thống đi qua vào ngày đẹp trời cuối tuần; đóng cửa sớm (khoảng 16:40 tháng 10) nên đi trước 15:30.",
+  "official": "https://www.meijijingu.or.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/e11a64bdc9fc.webp",
+    "caption": "Cổng torii thứ hai của Meiji Jingu (10/2018)",
+    "credit": "Kakidai",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Torii_of_Meiji_Shrine_2018.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/a2310da7434d.webp",
+    "caption": "Torii gỗ lớn dưới tán rừng",
+    "credit": "Asanagi",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Meiji_Shrine_Minami-sando-torii_2023-01-26.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/d6983a482009.webp",
+    "caption": "Cổng torii dẫn tới điện chính (11/2019)",
+    "credit": "Another Believer",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Torii_at_Meiji_Shrine_in_Shibuya,_Tokyo,_2019_-_115.jpg"
+   }
+  ]
+ },
+ "omotesando": {
+  "lat": 35.66721,
+  "lng": 139.7089,
+  "address": "東京都渋谷区神宮前4〜5丁目",
+  "hours": "Cửa hàng ~11:00–21:00",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều tà; lá zelkova đổi màu từ giữa tháng 11",
+  "station": "Omotesando (Ginza/Hanzomon/Chiyoda) 1 phút; Harajuku (JR) 5 phút",
+  "why": "Đại lộ dài khoảng 1 km hai hàng zelkova, hai bên là các công trình của Tadao Ando, Toyo Ito, SANAA, Herzog & de Meuron. Dạo từ Harajuku xuống ga Omotesando mất 15–20 phút.",
+  "tips": "Vào Omotesando Hills xem hành lang xoắn nghiêng của Ando; cuối tháng 10 lá còn xanh, ánh đèn đường đẹp nhất khoảng 17:00.",
+  "official": "https://omotesandohills.com/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/85a0266f7dca.webp",
+    "caption": "Đại lộ Omotesando hai hàng zelkova lúc hoàng hôn",
+    "credit": "gog.creator",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Omotesando_Avenue_at_sunset_from_pedestrian_bridge,_Jingumae,_Shibuya,_Tokyo.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/057f67e0b0c9.webp",
+    "caption": "Hàng zelkova và các cửa hàng hai bên đại lộ (11/2024)",
+    "credit": "Syced",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:November_2024,_Buildings_in_Omotesando_-17969.jpeg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/f6bc9c1904cd.webp",
+    "caption": "Toà nhà kiến trúc hiện đại dọc đại lộ (11/2024)",
+    "credit": "Syced",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:November_2024,_Buildings_in_Omotesando_-50165.jpeg"
+   }
+  ]
+ },
+ "shibuya-crossing": {
+  "lat": 35.6595,
+  "lng": 139.7005,
+  "address": "東京都渋谷区道玄坂2-1付近（渋谷駅前）",
+  "hours": "Tự do 24h",
+  "fee": "Miễn phí",
+  "bestTime": "Sau 17:30 khi trời tối và biển hiệu sáng",
+  "station": "Shibuya (JR/Metro/Tokyu/Keio) 1 phút (lối Hachiko)",
+  "why": "Ngã tư nổi tiếng nhất Tokyo: đèn xanh bật là người từ cả năm hướng băng qua cùng lúc, nhiều nghìn người mỗi lượt. Đứng xem từ trên cao rồi tự băng qua một lần là đủ.",
+  "tips": "Góc nhìn miễn phí: hành lang tầng 2 ga Shibuya Mark City nhìn xuống ngã tư; Shibuya Sky cần đặt vé trước. Giữ kỹ túi, nhất là tối cuối tuần.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/1f900ed360e7.webp",
+    "caption": "Ngã tư Shibuya lúc tối",
+    "credit": "Benh LIEU SONG (Flickr)",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/9c18b0e8a226.webp",
+    "caption": "Ngã tư Shibuya nhìn từ trên cao",
+    "credit": "David Kernan",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shibuya_Crossing,_Aerial.jpg"
+   }
+  ]
+ },
+ "onshi-hakone-park": {
+  "lat": 35.19632,
+  "lng": 139.02596,
+  "address": "神奈川県足柄下郡箱根町元箱根171",
+  "hours": "Công viên tự do; nhà ngắm hồ 9:00–16:30",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng, khi Fuji còn rõ",
+  "station": "Xe buýt Hakone Tozan 'Onshi Koen-mae' sát cổng; đi bộ khoảng 15 phút từ bến Moto-Hakone",
+  "why": "Công viên trên mũi đất ven hồ Ashi, trước kia là biệt thự của hoàng gia. Từ sân thượng nhà ngắm hồ nhìn được cả hồ và Fuji khi trời quang, ít khách hơn khu bến.",
+  "tips": "Cuối thu thường có triển lãm cúc rổ ở nhà ngắm hồ (năm 2026: 17/10–13/11, miễn phí). Đi bộ về Moto-Hakone qua hàng tuyết tùng cổ rất tiện.",
+  "fujiView": "yes",
+  "fujiNote": "Đứng ở sân thượng tầng 2 nhà ngắm hồ nhìn về hướng Tây Bắc qua mặt hồ; sáng sớm đến giữa buổi thường quang hơn chiều.",
+  "official": "https://www.pref.kanagawa.jp/docs/tu5/cnt/f6599/p19701.html",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/ba4e18c8010c.webp",
+    "caption": "Núi Komagatake nhìn từ công viên",
+    "credit": "Quercus acuta",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:View_of_Mount_HakoneKomagatake_from_Onshi-Hakone-Koen_Park.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/840a46558bc4.webp",
+    "caption": "Mặt hồ Ashi qua tán thông (cuối tháng 10/2013)",
+    "credit": "Guilhem Vellut from Annecy, France",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Onshi-Hakone-Koen_Park_@_Hakone_(10621253675).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/157fabdd4ca6.webp",
+    "caption": "Bờ hồ trong công viên cuối thu",
+    "credit": "Guilhem Vellut from Annecy, France",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Onshi-Hakone-Koen_Park_@_Hakone_(10621270754).jpg"
+   }
+  ]
+ },
+ "lake-ashi-cruise": {
+  "lat": 35.20095,
+  "lng": 139.03053,
+  "address": "神奈川県足柄下郡箱根町元箱根（元箱根港）",
+  "hours": "Theo bảng giờ, ~40 phút",
+  "fee": "¥1,700 một chiều Moto-Hakone → Togendai (từ 10/2025); miễn phí với Hakone Free Pass",
+  "bestTime": "Buổi sáng, hồ lặng và Fuji dễ hiện",
+  "station": "Bến Moto-Hakone (xe buýt Hakone Tozan 'Motohakone-ko' sát bến)",
+  "why": "Chuyến tàu hình thuyền cướp biển chạy dọc hồ Ashi, ngắm núi, cổng torii nổi trên mặt hồ và khói lưu huỳnh của Owakudani ở phía xa. Một cách đi chuyển điểm mà cũng là điểm tham quan.",
+  "tips": "Mua vé tại cổng bến, hoặc dùng Hakone Free Pass nếu đã có. Ngồi mạn trái khi đi về Togendai để nhìn về phía Fuji.",
+  "fujiView": "partial",
+  "fujiNote": "Khi tàu rời Moto-Hakone đi về phía bắc, Fuji ở phía Tây Bắc (bên trái); hay bị núi thấp và mây che một phần.",
+  "official": "https://www.hakonenavi.jp/hakone-kankosen/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/ebeb6d931aea.webp",
+    "caption": "Tàu 'cướp biển' trên hồ Ashi (tháng 11/2025)",
+    "credit": "Joli Rumi",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Pirate-themed_sightseeing_Cruise_at_Lake_Ashi,_Hakone,_Japan5.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/bcc1c1e9c0be.webp",
+    "caption": "Bến Moto-Hakone, thuyền thiên nga và núi Komagatake (cuối tháng 10/2013)",
+    "credit": "Guilhem Vellut from Annecy, France",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Lake_Ashi_@_Moto-Hakone_(10621550253).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/a0bccba45311.webp",
+    "caption": "Hai tàu tại bến",
+    "credit": "Joli Rumi",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Pirate-themed_sightseeing_Cruise_at_Lake_Ashi,_Hakone,_Japan3.jpg"
+   }
+  ]
+ },
+ "owakudani": {
+  "lat": 35.24442,
+  "lng": 139.01958,
+  "address": "神奈川県足柄下郡箱根町仙石原1251",
+  "hours": "Cửa hàng ~9:30–16:30",
+  "fee": "Miễn phí vào khu vực; trứng đen 5 quả ~¥500–600",
+  "bestTime": "Sáng đến đầu chiều khi trời quang và gió nhẹ",
+  "station": "Ga Owakudani (Hakone Ropeway)",
+  "why": "Thung lũng núi lửa với hơi lưu huỳnh phun ra từ sườn núi; trứng luộc nước suối nóng vỏ đen (kuro-tamago) là món phải thử. Cảnh đá vàng, khói trắng và Fuji phía xa tạo nên khung hình đặc biệt.",
+  "tips": "Kiểm tra trước tình trạng cáp treo và đường mòn ngày đi; người có bệnh hô hấp nên hỏi nhân viên về nồng độ khí. Mang áo khoác vì trên cao lạnh hơn Gora.",
+  "fujiView": "yes",
+  "fujiNote": "Nhìn về phía Tây Tây Bắc từ khu cửa hàng quanh ga hoặc đường mòn lên cao; trời quang buổi sáng đến trưa là rõ nhất.",
+  "official": "https://www.hakonenavi.jp/hakone-ropeway/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/fe4ef568ac91.webp",
+    "caption": "Thung lũng Owakudani cuối thu (31/10/2013)",
+    "credit": "Guilhem Vellut from Annecy, France",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Owakudani_@_Hakone_(10621413133).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/b8453563bc61.webp",
+    "caption": "Fuji nhìn từ Owakudani (tháng 11/2025)",
+    "credit": "Joli Rumi",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:View_of_Mount_Fuji_from_Owakudani,_Hakone,_Japan.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/ecb752bd2cbc.webp",
+    "caption": "Cáp treo qua đồi lá đỏ ở Owakudani (31/10/2013)",
+    "credit": "Guilhem Vellut from Annecy, France",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_@_Owakudani_@_Hakone_(10621122134).jpg"
+   }
+  ]
+ },
+ "gora": {
+  "lat": 35.25064,
+  "lng": 139.04822,
+  "address": "神奈川県足柄下郡箱根町強羅",
+  "hours": "Tuỳ quán",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều khoảng 15:00–16:00",
+  "station": "Ga Gora (Hakone Tozan Railway, cáp treo Hakone Tozan)",
+  "why": "Điểm chuyển từ cáp treo (cable car) sang tàu núi Tozan, quanh ga có quán cà phê, nhà nghỉ cũ và lối lên Gora Park. Gần đó có Gora Park và bảo tàng nghệ thuật Hakone với vườn rêu.",
+  "tips": "Nếu muốn ghé Gora Park thì tới Gora trước 16:00 vì công viên nhận khách đến 16:30. Từ Gora về Kowakidani bằng tàu Tozan mất khoảng 10 phút (hai ga).",
+  "fujiView": "no",
+  "fujiNote": "Gora nằm trong thung lũng, Fuji bị dãy núi phía Tây che.",
+  "official": "https://www.hakonenavi.jp/international/en/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/9a7800b23441.webp",
+    "caption": "Ga Gora (cuối tháng 10/2013)",
+    "credit": "Guilhem Vellut from Annecy, France",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Gora_Station_@_Hakone_Tozan_Railway_@_From_Hakone-Yumoto_to_Gora_(10621333433).jpg"
+   },
+   {
+    "kind": "other",
+    "src": "img/commons/878a8b5e6dca.webp",
+    "caption": "Tàu núi Hakone Tozan màu đỏ (tháng 11/2025)",
+    "credit": "Joli Rumi",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hakone_Tozan_Railway_at_Hakone,_Japan.jpg"
+   },
+   {
+    "kind": "other",
+    "src": "img/commons/7d601392664f.webp",
+    "caption": "Cáp treo Hakone Tozan",
+    "credit": "Suicasmo",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hakone_Tozan_Cable_Car_20211201.jpg"
+   }
+  ]
+ },
+ "shimizu-port": {
+  "lat": 35.02042,
+  "lng": 138.49065,
+  "address": "静岡県静岡市清水区島崎町149（河岸の市）",
+  "hours": "Chợ 9:30–17:30; nhà hàng tuỳ quán",
+  "fee": "Miễn phí vào khu chợ",
+  "bestTime": "Giờ trưa 11:00–13:00",
+  "station": "Shimizu (JR) 5 phút đi bộ (Kashi no Ichi); Dream Plaza khoảng 20 phút đi bộ hoặc xe buýt",
+  "why": "Chợ hải sản của Shimizu, nổi tiếng với cá ngừ và hải sản vịnh Suruga; Dream Plaza ở bến tàu cách đó khoảng 1,5 km có khu ẩm thực và vòng đu quay nhìn ra vịnh. Hợp để ăn trưa trước khi lên Shinkansen.",
+  "tips": "Đi từ ga Shimizu mất 5 phút nên dễ gộp bữa trưa với đoạn tàu địa phương; chọn Kashi no Ichi nếu ít thời gian, thêm Dream Plaza nếu muốn dạo bến tàu.",
+  "fujiView": "partial",
+  "fujiNote": "Fuji nằm hướng Bắc–Đông Bắc, cách khoảng 40 km; nhìn từ bến tàu/bờ kè phía Dream Plaza khi trời quang, buổi trưa thường mờ hơi.",
+  "official": "https://www.dream-plaza.co.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/8fdbf20703e2.webp",
+    "caption": "Chợ cá Kashi no Ichi (Maguro-kan) ở Shimizu",
+    "credit": "Halowand",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:KASHI_NO_ICHI_maguro_kan_in_shimizu_ward.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/f48ee4088a0a.webp",
+    "caption": "Fuji nhìn từ bến cảng Shimizu lúc chiều",
+    "credit": "オーイシ",
+    "license": "CC BY 2.1 jp (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shimizu-k%C5%8D_and_Mt._Fuji.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/0273e6fdb7fd.webp",
+    "caption": "S-Pulse Dream Plaza và vòng đu quay",
+    "credit": "Akahito Yamabe",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:S-PULSE_DREAM_PLAZA_and_Shimizu_Marine_Park_02.jpg"
+   }
+  ]
+ },
+ "ameyoko": {
+  "lat": 35.71002,
+  "lng": 139.77454,
+  "address": "東京都台東区上野6丁目（御徒町〜上野駅間の高架下）",
+  "hours": "~10:00–19:00 (quán nhậu muộn hơn)",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều đến đầu tối, trước khi ăn tối ở Okachimachi",
+  "station": "Okachimachi (JR) 1 phút; Ueno (JR) 3 phút",
+  "why": "Khu chợ ngoài trời dài khoảng 500 m dưới gầm đường ray JR, bán hải sản khô, kẹo, mỹ phẩm, giày và đồ ăn vặt, không khí chợ kiểu Showa. Nằm ngay cạnh Okachimachi nên ghé trước hoặc sau bữa tối rất tiện.",
+  "tips": "Phần lớn quầy chỉ nhận tiền mặt; hầu hết đóng khoảng 19:00–20:00, quán nhậu thì mở muộn.",
+  "official": "https://www.ameyoko.net/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/9a4a4cedc078.webp",
+    "caption": "Cổng Ameyoko ở Okachimachi",
+    "credit": "江戸村のとくぞう",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Okachimachi-3.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/9f25a35ad322.webp",
+    "caption": "Quầy hải sản khô trong chợ",
+    "credit": "Yoshikazu TAKADA from Tokyo, Japan",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ameya_Yokocho_(4042439970).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/3587bbdd6e5d.webp",
+    "caption": "Ameyoko lúc hoàng hôn",
+    "credit": "Yoshikazu TAKADA from Tokyo, Japan",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ameya_Yokocho_(4041694313).jpg"
+   }
+  ]
+ },
+ "yanaka-cemetery": {
+  "lat": 35.72437,
+  "lng": 139.77114,
+  "address": "東京都台東区谷中7-5-24",
+  "hours": "Tự do ban ngày",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng, khi nắng xuyên qua tán anh đào",
+  "station": "Nippori (JR/Keisei/Toneri) 3 phút",
+  "why": "Nghĩa trang công yên tĩnh với đại lộ anh đào cổ, mộ của Tokugawa Yoshinobu (tướng quân Mạc phủ cuối cùng). Lá anh đào chuyển cam đỏ nhẹ vào cuối tháng 10, đi bộ từ ga Nippori sang Yanaka rất hợp.",
+  "tips": "Đi dọc đại lộ chính rồi rẽ ra phía chùa Tennoji; giữ yên lặng và không chụp mộ phần.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/5e5e6257c435.webp",
+    "caption": "Đại lộ anh đào trong nghĩa trang Yanaka",
+    "credit": "Ka23 13",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yanaka_20130326_155108.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/cade400c3ccf.webp",
+    "caption": "Lối đi giữa các bia mộ (tháng 10/2023)",
+    "credit": "Stephen Kelly from San Francisco, CA, USA",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yanaka_Cemetery_(53432526829).jpg"
+   }
+  ]
+ },
+ "ueno-park": {
+  "lat": 35.71214,
+  "lng": 139.77115,
+  "address": "東京都台東区上野公園",
+  "hours": "Công viên tự do; Benten-do ~9:00–17:00",
+  "fee": "Miễn phí (bảo tàng trong công viên thu phí riêng)",
+  "bestTime": "Buổi sáng hoặc chiều muộn; lá bắt đầu đổi màu nhẹ cuối tháng 10, đẹp nhất giữa tháng 11",
+  "station": "Ueno (JR/Ginza/Hibiya) 5 phút; Nezu (Chiyoda) khoảng 12 phút đi bộ tới Shinobazu",
+  "why": "Ao Shinobazu có điện Benten-do giữa hồ, tiếp nối là công viên Ueno với đền Toshogu và nhiều bảo tàng lớn. Chỉ đi quanh ao và qua một đoạn công viên cũng mất 45–60 phút.",
+  "tips": "Từ Nezu Shrine đi bộ khoảng 20 phút tới ao, rồi lên Ginza line ở Ueno để sang Asakusa; không nên thêm bảo tàng nếu lịch D2 đã dày.",
+  "official": "https://www.kensetsu.metro.tokyo.lg.jp/jimusho/toubuk/ueno/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/8d679f60dba1.webp",
+    "caption": "Ao Shinobazu và điện Benten-do cuối thu",
+    "credit": "ReeveJ",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ueno_23.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/33c4d6a81a1f.webp",
+    "caption": "Sen trong ao Shinobazu (9/2024)",
+    "credit": "Klaasjeoranje",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ueno_Park_Lotus_Flowers_in_2024.jpg"
+   }
+  ]
+ },
+ "kappabashi": {
+  "lat": 35.71389,
+  "lng": 139.78798,
+  "address": "東京都台東区松が谷・西浅草（かっぱ橋本通り）",
+  "hours": "~9:00–17:00",
+  "fee": "Miễn phí",
+  "bestTime": "Ngày trong tuần, khoảng 10:00–15:30",
+  "station": "Tawaramachi (Ginza) 5 phút; Asakusa (Ginza/Asakusa) khoảng 15 phút đi bộ",
+  "why": "Phố dài khoảng 800 m chuyên đồ bếp: dao Nhật, chén đĩa gốm, khuôn bánh, noren và mô hình món ăn bằng nhựa. Nằm giữa Asakusa và ga Tawaramachi nên đi bộ qua thay vì lên tàu ở Asakusa.",
+  "tips": "Dao bếp phải để trong hành lý ký gửi khi bay; một số tiệm khắc tên miễn phí tại chỗ. Mang hộ chiếu nếu muốn mua miễn thuế.",
+  "official": "https://www.kappabashi.or.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/7f56dc40a60e.webp",
+    "caption": "Toà nhà Niimi với ban công hình tách cà phê",
+    "credit": "Basile Morin",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Coffee_cup-shaped_balconies,_Niimi_Tableware,_Kappabashi_Dougu_Street,_Tokyo,_Japan_(front_view).jpg"
+   }
+  ]
+ },
+ "azuma-skytree": {
+  "lat": 35.71011,
+  "lng": 139.79893,
+  "address": "東京都台東区雷門2丁目（吾妻橋西詰）",
+  "hours": "Tự do 24h",
+  "fee": "Miễn phí",
+  "bestTime": "Hoàng hôn và sau khi trời tối",
+  "station": "Asakusa (Ginza/Asakusa/Tobu) 2 phút",
+  "why": "Cầu đỏ qua sông Sumida cho khung nhìn quen thuộc: tòa nhà Asahi với 'ngọn lửa vàng' và Skytree cao 634 m ngay phía sau. Cách Kaminarimon chưa đến 5 phút nên đi vòng không đáng kể.",
+  "tips": "Đứng giữa cầu hoặc ở bậc thang cuối cầu phía Asakusa để lấy cả hai công trình vào khung; tối có thêm ánh đèn trên mặt nước.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/1f5e814eee8b.webp",
+    "caption": "Skytree và toà nhà Asahi nhìn từ cầu Azuma",
+    "credit": "Kakidai",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Skytree_%26_Asahi_Breweries_Building,_from_Azumabashi,_Asakusa_2012.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/5bc4eb41aa00.webp",
+    "caption": "Skytree về đêm nhìn từ đầu cầu Azuma phía Asakusa",
+    "credit": "4300streetcar",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tokyo_Skytree_at_night_from_Asakusa_June_2025.jpg"
+   }
+  ]
+ },
+ "coredo-muromachi": {
+  "lat": 35.68668,
+  "lng": 139.77421,
+  "address": "東京都中央区日本橋室町2-2-1（COREDO室町1）",
+  "hours": "Cửa hàng ~11:00–20:00",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều muộn sau khi xem cầu Nihonbashi",
+  "station": "Mitsukoshimae (Ginza/Hanzomon) 1 phút; Nihombashi 3 phút",
+  "why": "Khu thương mại mới trong dãy phố cổ Nihonbashi: cửa hàng thực phẩm, tiệm trà và nhà hàng soba, tempura trong các toà nhà hiện đại có chi tiết gỗ kiểu Nhật. Cạnh đó là vườn nhỏ Fukutoku no Mori với đền Fukutoku.",
+  "tips": "Rất gần Mitsui Main Building và Maruzen; đi bộ từ cầu Nihonbashi mất khoảng 5 phút.",
+  "official": "https://mitsui-shopping-park.com/urban/muromachi/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/c3625a454fe0.webp",
+    "caption": "Quảng trường Coredo Muromachi Terrace",
+    "credit": "Wpcpey",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Coredo_%E5%AE%A4%E7%94%BA_terrace_view_201912.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/7d98f79b51d7.webp",
+    "caption": "Toà nhà COREDO Muromachi 1",
+    "credit": "Kentin",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Coredo_muromachi_nihonbashi_tokyo_2014.jpg"
+   }
+  ]
+ },
+ "mitsui-main": {
+  "lat": 35.68631,
+  "lng": 139.77315,
+  "address": "東京都中央区日本橋室町2-1-1",
+  "hours": "Bên ngoài tự do; bảo tàng ~10:00–17:00",
+  "fee": "Miễn phí (ngắm bên ngoài); bảo tàng thu phí theo triển lãm",
+  "bestTime": "Chiều khi nắng nghiêng vào mặt cột đá",
+  "station": "Mitsukoshimae (Ginza/Hanzomon) 1 phút (lối A7)",
+  "why": "Toà nhà ngân hàng tân cổ điển năm 1929, hàng cột Corinth bằng đá chạy dọc phố Chuo-dori, là Di sản văn hoá trọng yếu quốc gia. Đối diện là cửa hàng Mitsukoshi chính.",
+  "tips": "Chỉ cần đứng bên kia đường là đủ; muốn xem nội thất thì dành thời gian cho bảo tàng Mitsui ở tầng 7 (kiểm tra triển lãm trước).",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/5020b6bda3ee.webp",
+    "caption": "Mặt chính toà Mitsui Main Building",
+    "credit": "Kakidai",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mitsui_Main_Building_02.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/d4a20282e2e4.webp",
+    "caption": "Hàng cột Corinth dọc phố Chuo-dori",
+    "credit": "Kakidai",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mitsui_Main_Building.jpg"
+   }
+  ]
+ },
+ "shinjuku-gyoen": {
+  "lat": 35.68677,
+  "lng": 139.71355,
+  "address": "東京都新宿区内藤町11",
+  "hours": "9:00–16:30 (vào đến 16:00)",
+  "fee": "¥500 (người lớn)",
+  "bestTime": "Sáng 9:00–11:30; triển lãm cúc ngoài trời diễn ra 1–15/11",
+  "station": "Shinjuku-gyoenmae (Marunouchi) 1 phút tới cổng Okido; Shinjuku (JR) khoảng 10 phút tới cổng Shinjuku",
+  "why": "Vườn quốc gia rộng 58,3 ha với vườn Nhật, vườn kiểu Pháp và vườn kiểu Anh cạnh nhà kính. Cuối tháng 10 nắng dịu, vắng hơn cuối tuần; lá đỏ đẹp nhất sau giữa tháng 11.",
+  "tips": "Vào cổng Shinjuku hoặc Okido, ra cổng Sendagaya cho đỡ đi lại. Cấm uống rượu bia trong vườn. Cần chừa ít nhất 90 phút.",
+  "official": "https://policies.env.go.jp/national-garden/shinjukugyoen/index.html",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/3d81f1cc2ba4.webp",
+    "caption": "Nhà Đài Loan bên ao, lá đổi màu",
+    "credit": "Terabita34",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinjuku_Gyoen_autumn_season.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/3514a0c27124.webp",
+    "caption": "Phong lá đỏ ở Shinjuku Gyoen (11/2016)",
+    "credit": "nesnad",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Autumn_leaves_-_Shinjuku_gyoen_-_nov_2016.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/9d7cb1fc18c7.webp",
+    "caption": "Vườn Nhật tản bộ (10/2021)",
+    "credit": "MaedaAkihiko",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinjuku-Gyoen_Japan-garden.jpg"
+   }
+  ]
+ },
+ "takeshita": {
+  "lat": 35.67116,
+  "lng": 139.70496,
+  "address": "東京都渋谷区神宮前1丁目",
+  "hours": "~10:00–20:00",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng ngày thường, trước 11:00",
+  "station": "Harajuku (JR) 1 phút (lối Takeshita)",
+  "why": "Phố đi bộ dài khoảng 350 m của thời trang tuổi teen: crepe, cửa hàng phụ kiện, đồ lưu niệm 'kawaii'. Đối diện cửa Harajuku nên chỉ tốn một vòng ngắn nếu muốn xem không khí.",
+  "tips": "Rất chen từ trưa và cuối tuần; ăn crepe ở quầy gần lối vào rồi đi tiếp sang Meiji Jingu cách đó vài phút.",
+  "official": "https://www.takeshita-street.com/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/f28ab3494953.webp",
+    "caption": "Cổng phố Takeshita",
+    "credit": "Syced",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Takeshita_Street.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/69373d63c2b1.webp",
+    "caption": "Lối ra phía đại lộ Meiji",
+    "credit": "Syced",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Takeshita_Street_entrance_on_Meiji_Avenue_side.jpg"
+   }
+  ]
+ },
+ "cat-street": {
+  "lat": 35.66586,
+  "lng": 139.70515,
+  "address": "東京都渋谷区神宮前6丁目",
+  "hours": "Cửa hàng ~11:00–20:00",
+  "fee": "Miễn phí",
+  "bestTime": "Giữa chiều ngày trong tuần",
+  "station": "Omotesando (Ginza/Hanzomon/Chiyoda) 5 phút; Shibuya (JR/Metro) 10 phút",
+  "why": "Lối đi bộ yên tĩnh trên lòng sông Shibuya đã lấp, hai bên là cửa hàng streetwear, quán cà phê và đồ vintage, dẫn thẳng xuống Shibuya. Đi bộ từ Omotesando sang Shibuya theo đường này mất khoảng 20 phút.",
+  "tips": "Đi từ khu Omotesando Hills xuống phía nam; kết thúc ở Miyashita Park hoặc ga Shibuya.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/5744108c4b3f.webp",
+    "caption": "Cat Street ban ngày",
+    "credit": "Aw1805",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Cat_Street,_Ura_Harajuku_1.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/25f6524a76ec.webp",
+    "caption": "Cat Street buổi tối",
+    "credit": "Rs1421",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Harajuku-Cat-street-05.jpg"
+   }
+  ]
+ },
+ "miyashita": {
+  "lat": 35.66193,
+  "lng": 139.7018,
+  "address": "東京都渋谷区神宮前6-20-10",
+  "hours": "Công viên ~8:00–23:00; cửa hàng ~11:00–21:00",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều muộn đến tối",
+  "station": "Shibuya (JR/Metro) 3 phút",
+  "why": "Công viên xanh trên mái trung tâm thương mại dọc đường ray Yamanote, có bãi cỏ, tường leo núi và dãy quán ăn RAYARD ở tầng dưới. Nhìn ra các tòa nhà Shibuya và đoàn tàu chạy ngang.",
+  "tips": "Nằm ngay phía bắc ga Shibuya; ghé trước khi tới ngã tư vì lúc hoàng hôn trên mái rất dễ chịu.",
+  "official": "https://www.miyashita-park.tokyo/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/d14fb9e2dbf1.webp",
+    "caption": "Miyashita Park nhìn từ Shibuya Stream",
+    "credit": "Syced",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Miyashita_Park_seen_from_Shibuya_Stream.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/9fc4f041016c.webp",
+    "caption": "Ga Shibuya nhìn từ Miyashita Park",
+    "credit": "Syced",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shibuya_station_seen_from_Miyashita_Park_2.jpg"
+   }
+  ]
+ },
+ "nezu-museum": {
+  "lat": 35.66224,
+  "lng": 139.71726,
+  "address": "東京都港区南青山6-5-1",
+  "hours": "10:00–17:00",
+  "fee": "Từ ¥1,600 (vé online) hoặc ¥1,800 (tại quầy), tuỳ triển lãm",
+  "bestTime": "Sáng ngày thường; vườn đẹp từ giữa tháng 11",
+  "station": "Omotesando (Ginza/Hanzomon/Chiyoda) 8 phút (lối A5)",
+  "why": "Bảo tàng tư nhân do Kengo Kuma thiết kế (2009), trưng bày tranh Nhật và đồ gốm cổ Đông Á, phía sau là vườn Nhật có nhiều nhà trà. Cách đại lộ Omotesando một đoạn phố yên tĩnh.",
+  "tips": "Vé đã gồm vườn; kiểm tra triển lãm đang diễn ra và lịch nghỉ trên trang chính thức trước khi đi. Không nên thêm nếu cần kịp Shibuya lúc tối.",
+  "official": "https://www.nezu-muse.or.jp/en/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/fe4e2e4cc91e.webp",
+    "caption": "Vườn bảo tàng Nezu với nhà trà (10/2009)",
+    "credit": "Ermell",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nezu_Museum_Garten-20091020-RM-114344.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/49df88b4936c.webp",
+    "caption": "Ao và nhà trà trong vườn",
+    "credit": "Wpcpey",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nezu_Museum_Garden_view_201805.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/586ec504ec37.webp",
+    "caption": "Đèn đá trong vườn",
+    "credit": "Ermell",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nezu_Museum_Laterne-20091020-RM-113122.jpg"
+   }
+  ]
+ },
+ "hakone-shrine": {
+  "lat": 35.20397,
+  "lng": 139.02558,
+  "address": "神奈川県足柄下郡箱根町元箱根80-1",
+  "hours": "Sân tự do; quầy bùa 8:15–17:00",
+  "fee": "Miễn phí (nhà bảo vật khoảng ¥500)",
+  "bestTime": "Sáng sớm trước 9:00 hoặc sau 16:00, ít người xếp hàng chụp torii",
+  "station": "Đi bộ khoảng 10 phút từ bến Moto-Hakone; xe buýt 'Hakone-jinja Iriguchi' sát cổng",
+  "why": "Đền gỗ cổ trong rừng tuyết tùng trên bờ hồ Ashi, nổi tiếng với cổng 'Heiwa no Torii' đỏ dựng giữa mặt nước. Đường lên đền qua nhiều bậc đá yên tĩnh, đáng đi hơn cảnh chụp ảnh ở cổng.",
+  "tips": "Cuối tuần và mùa lá đỏ có thể xếp hàng 30 phút để chụp ở chân cổng torii. Từ bến Moto-Hakone đi theo đường ven hồ, cộng ~45 phút nếu leo lên điện chính.",
+  "fujiView": "partial",
+  "fujiNote": "Fuji ở phía Tây Bắc xa sau dãy núi, hiếm khi lọt trọn vào khung torii; rõ hơn khi nhìn từ Onshi Park hoặc từ tàu giữa hồ lúc sáng sớm quang.",
+  "official": "https://hakonejinja.or.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/9b05c9a96242.webp",
+    "caption": "Fuji và cổng torii nhìn từ hồ Ashi",
+    "credit": "WorldContributor",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:View_of_the_Mt.Fuji_and_the_Hakone_shrine_from_the_lake_Ashinoko_during_spring,_Hakone,_Japan.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/397c3ff14713.webp",
+    "caption": "Cổng Heiwa no Torii giữa mặt hồ",
+    "credit": "Guilhem Vellut from Annecy, France",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Torii_on_Lake_Ashi_@_Hakone_Shrine_(13776878594).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/a1e45f6d621a.webp",
+    "caption": "Cổng torii và rừng quanh đền Hakone nhìn từ hồ",
+    "credit": "Celuici",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hakone_Shrine_from_Lake_Ashi,_May_2017.jpg"
+   }
+  ]
+ },
+ "hakone-sekisho": {
+  "lat": 35.19221,
+  "lng": 139.02635,
+  "address": "神奈川県足柄下郡箱根町箱根1",
+  "hours": "9:00–17:00",
+  "fee": "¥500 (¥400 với Hakone Free Pass)",
+  "bestTime": "Giữa ngày, khi nhà trưng bày mở đủ",
+  "station": "Xe buýt 'Hakone-seki-ato' 2 phút; đi bộ khoảng 12 phút từ bến Moto-Hakone",
+  "why": "Trạm kiểm soát phục dựng của đường Tokaido thời Edo, nơi lính canh kiểm tra người và hành lý đi qua dãy núi Hakone. Trong khuôn viên có nhà trưng bày đồ vật gốc và thuyết minh dễ hiểu.",
+  "tips": "Đã đi qua hàng tuyết tùng cổ ở Onshi Park thì nên đi tiếp bộ tới đây. Vé giảm giá khi có Hakone Free Pass.",
+  "fujiView": "unknown",
+  "fujiNote": "Nằm sát bờ nam hồ Ashi nhìn ra mặt hồ; chưa xác nhận Fuji có lọt vào tầm nhìn từ vị trí này.",
+  "official": "https://www.hakonesekisyo.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/915871fad1f6.webp",
+    "caption": "Trạm kiểm soát Hakone ven hồ Ashi",
+    "credit": "Steph Gray from London, United Kingdom",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hakone_Sekisho.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/e0b982e2817c.webp",
+    "caption": "Núi quanh Hakone cuối tháng 10/2013",
+    "credit": "Guilhem Vellut from Annecy, France",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Checkpoint_@_Hakone_Sekisho_@_Hakone_(10621512523).jpg"
+   }
+  ]
+ },
+ "cedar-avenue": {
+  "lat": 35.19668,
+  "lng": 139.02899,
+  "address": "神奈川県足柄下郡箱根町箱根（旧東海道・恩賜箱根公園前〜元箱根）",
+  "hours": "Tự do ban ngày",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng, khi nắng lọt qua tán tuyết tùng",
+  "station": "Nằm giữa bến Moto-Hakone và Onshi Park; xe buýt 'Onshi Koen-mae' hoặc 'Moto-Hakone'",
+  "why": "Khoảng 400 cây tuyết tùng 350–400 năm tuổi dọc 500 m đường Tokaido cổ, là di tích lịch sử quốc gia; đa số đường Tokaido trồng thông nên hàng tuyết tùng này hiếm gặp. Đi bộ giữa tán cây thấy hồ Ashi thấp thoáng qua kẽ lá.",
+  "tips": "Đi bộ từ Moto-Hakone tới Onshi Park mất khoảng 15 phút, nên đi theo hướng này thay vì ngồi xe buýt.",
+  "fujiView": "no",
+  "fujiNote": "Đi dưới tán cây, thỉnh thoảng thấy hồ nhưng không có tầm nhìn Fuji.",
+  "official": "https://www.hakonenavi.jp/international/en/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/1b05e7529989.webp",
+    "caption": "Đường Tokaido cổ dưới hàng tuyết tùng",
+    "credit": "Quercus acuta",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Old_Tokaido_-_Hakone.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/da060200dee0.webp",
+    "caption": "Tuyết tùng 400 năm tuổi dọc đường cũ",
+    "credit": "Aimaimyi",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Old_Tokaido_-01.jpg"
+   }
+  ]
+ },
+ "hakone-oam": {
+  "lat": 35.24428,
+  "lng": 139.05208,
+  "address": "神奈川県足柄下郡箱根町二ノ平1121",
+  "hours": "9:00–17:00",
+  "fee": "¥2,000 (mua tại chỗ); ¥1,800 nếu mua vé online",
+  "bestTime": "Sáng khi mở cửa, tránh trưa đông",
+  "station": "Chokoku-no-Mori (Hakone Tozan) 2 phút; cách Kowakidani một ga",
+  "why": "Bảo tàng điêu khắc ngoài trời đầu tiên của Nhật (1969), tượng Henry Moore, Rodin, Bourdelle ngay trên sườn đồi Hakone; có nhà Picasso với khoảng 300 tác phẩm. Trong khuôn viên có bồn ngâm chân nước nóng.",
+  "tips": "Ga cách khu ryokan Kowakidani đúng một ga, nên có thể ghé sáng ngày 22/10 lúc 9:00 rồi mới đi Odawara; ghé chiều 21/10 sau Gora thường chỉ còn dưới 1 giờ.",
+  "fujiView": "no",
+  "fujiNote": "Bảo tàng nằm trong thung lũng Ninotaira, tầm nhìn chủ yếu là núi Myojogatake.",
+  "official": "https://www.hakone-oam.or.jp/en/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/0b99647b29ac.webp",
+    "caption": "Cổng bảo tàng Điêu khắc Hakone",
+    "credit": "663highland",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:220622_Hakone_Open-air_Museum_Japan01s3.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/9cd860f53566.webp",
+    "caption": "Phong lá đỏ và tác phẩm điêu khắc đỏ (12/2021)",
+    "credit": "Suicasmo",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hakone_Open-air_Museum_20211202-7.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/d3455dc0186d.webp",
+    "caption": "Tượng Henry Moore trên bãi cỏ",
+    "credit": "ikm",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:The_Hakone_Open-Air_Museum_-_panoramio.jpg"
+   }
+  ]
+ },
+ "gora-park": {
+  "lat": 35.24864,
+  "lng": 139.04525,
+  "address": "神奈川県足柄下郡箱根町強羅1300",
+  "hours": "9:00–17:00 (vào đến 16:30)",
+  "fee": "¥650 (miễn phí với Hakone Free Pass và vé Owakudani)",
+  "bestTime": "Chiều khoảng 15:00–16:00, trước khi công viên đóng cửa",
+  "station": "Gora (Hakone Tozan/cáp treo) khoảng 5 phút đi bộ",
+  "why": "Công viên kiểu Pháp mở năm 1914 trên sườn dốc với vườn hồng, nhà kính nhiệt đới và các khu hoa theo mùa; có quán trà trong nhà gỗ cổ. Hồng thường nở lại vào mùa thu nên đúng vào lúc đi.",
+  "tips": "Có thể dùng thẻ Hakone Free Pass vào cổng; công viên dốc, đi giày thoải mái và để hành lý ở nơi gửi.",
+  "fujiView": "no",
+  "fujiNote": "Công viên nằm trong thung lũng Gora, Fuji bị dãy núi che.",
+  "official": "https://www.hakonenavi.jp/gorapark/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/bf5397f4bfc0.webp",
+    "caption": "Đài phun nước Gora Park mùa thu (26/11/2021)",
+    "credit": "663highland",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:211126_Gora_Park_Hakone_Japan02s3.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/04927319808e.webp",
+    "caption": "Khu vườn đá và hoa ở Gora Park",
+    "credit": "Daderot",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Rose_garden_-_Gora_Park_-_Hakone,_Kanagawa,_Japan_-_DSC08411.jpg"
+   }
+  ]
+ },
+ "sengokuhara": {
+  "lat": 35.2586,
+  "lng": 139.00094,
+  "address": "神奈川県足柄下郡箱根町仙石原（仙石高原バス停すぐ）",
+  "hours": "Tự do ban ngày",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều muộn khi cỏ ánh vàng; cuối tháng 10 đến đầu tháng 11 là cao điểm",
+  "station": "Xe buýt Hakone Tozan 'Sengoku-kogen' 3 phút đi bộ; từ Hakone-Yumoto khoảng 30 phút",
+  "why": "Cánh đồng cỏ susuki rộng ở độ cao khoảng 700 m, cuối thu chuyển bạc rồi vàng rực dưới nắng chiều. Là điểm ngắm mùa thu rất đặc trưng của Hakone nhưng ở xa tuyến cáp treo.",
+  "tips": "Cuối tuần giữa tháng 10 đến đầu tháng 11 rất đông; lịch D4 khó khớp giờ hoàng hôn, nên chỉ đi nếu bỏ Gora Park. Kiểm tra bảng giờ xe buýt từ Togendai và quay lại trước khi tối.",
+  "fujiView": "unknown",
+  "fujiNote": "Hướng nhìn chính là núi Myojogatake và Kintoki; chưa xác nhận Fuji lọt vào tầm nhìn từ cánh đồng.",
+  "official": "https://www.hakonenavi.jp/international/en/information/susuki",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/f5f575148247.webp",
+    "caption": "Cánh đồng susuki ngược sáng (24/10/2016)",
+    "credit": "Quercus acuta",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hakone_Sengokuhara_08.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/e071208b4580.webp",
+    "caption": "Cỏ susuki ở Sengokuhara (10/2017)",
+    "credit": "Quercus acuta",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hakone_Sengokuhara_05.jpg"
+   }
+  ]
+ },
+ "odawara-castle": {
+  "lat": 35.25105,
+  "lng": 139.15342,
+  "address": "神奈川県小田原市城内6-1",
+  "hours": "9:00–17:00 (vào đến 16:30)",
+  "fee": "Tháp chính ¥1,000 (đã gồm nhà SAMURAI); khuôn viên miễn phí",
+  "bestTime": "Buổi sáng, ngay sau khi tới Odawara",
+  "station": "Odawara (JR/Odakyu/Shinkansen) khoảng 10 phút đi bộ",
+  "why": "Lâu đài của dòng họ Hojo thời Sengoku, tháp chính phục dựng năm 1960 có bảo tàng và tầng thượng nhìn ra vịnh Sagami. Khuôn viên hào nước và các cổng gỗ rất hợp để dạo bộ; Odawara lại là ga chuyển tàu nên dễ ghé.",
+  "tips": "Gửi hành lý ở tủ khoá ga Odawara; nhà SAMURAI ở cổng Tokiwagi có trải nghiệm mặc thử giáp.",
+  "fujiView": "unknown",
+  "fujiNote": "Nhìn ra vịnh Sagami và dãy núi Hakone; chưa xác nhận Fuji có lộ trên đỉnh dãy núi từ tầng thượng tháp.",
+  "official": "https://odawaracastle.com/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/738f9381afa1.webp",
+    "caption": "Tháp chính lâu đài Odawara",
+    "credit": "Akonnchiroll",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Odawara-jo.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/33d9930cf56f.webp",
+    "caption": "Cổng và hào nước",
+    "credit": "Suicasmo",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Odawara_Castle_20211201.jpg"
+   }
+  ]
+ },
+ "atami": {
+  "lat": 35.09824,
+  "lng": 139.07686,
+  "address": "静岡県熱海市東海岸町",
+  "hours": "Tự do; đèn từ hoàng hôn đến 22:00",
+  "fee": "Miễn phí",
+  "bestTime": "Cuối chiều đến tối; hoặc buổi sáng nếu muốn đi bộ ven biển",
+  "station": "Atami (JR/Shinkansen) xe buýt 5 phút hoặc đi bộ khoảng 15 phút",
+  "why": "Dải bãi biển nhân tạo và công viên ven biển nhìn ra vịnh Sagami với đảo Hatsushima; buổi tối bãi cát được chiếu đèn xanh nhạt. Phố thị trấn onsen phía sau có nhiều quán hải sản và bánh ngọt.",
+  "tips": "Atami là ga đổi tàu giữa JR East và JR Central, nên nếu ghé bờ biển phải tính khoảng 90 phút và đi chuyến tàu sau. Đèn bãi cát tắt vào ngày bắn pháo hoa.",
+  "fujiView": "no",
+  "fujiNote": "Bãi biển quay về hướng Đông Nam ra vịnh, Fuji không nằm trong tầm nhìn.",
+  "official": "https://www.ataminews.gr.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/a052a27361c9.webp",
+    "caption": "Atami Sun Beach nhìn từ phía đông bắc",
+    "credit": "m-louis .®",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:View_of_Atami_Sun_Beach_from_northeast_-_Mar_14,_2024.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/3cc00c8446ac.webp",
+    "caption": "Atami Sun Beach về đêm có đèn",
+    "credit": "Ryohei Noda",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Atami_Sun_Beach_at_night_-_Jan_27,_2026.jpg"
+   }
+  ]
+ },
+ "satta-pass": {
+  "lat": 35.07029,
+  "lng": 138.54126,
+  "address": "静岡県静岡市清水区由比西倉沢〜興津（旧東海道）",
+  "hours": "Tự do ban ngày",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng 8:00–11:00, khi Fuji dễ hiện",
+  "station": "Từ Yui (JR Tokaido) khoảng 50 phút đi bộ; từ Okitsu (JR) khoảng 42–50 phút",
+  "why": "Đèo cổ nhìn xuống vịnh Suruga: cảnh 'Fuji, biển và đường Tokaido' trong tranh của Hiroshige. Điểm ngắm thấy cả đường ray JR, quốc lộ 1 và cao tốc ven biển bên dưới.",
+  "tips": "Đi Yui → đèo → Okitsu mất khoảng 2 giờ cả ngắm cảnh, mang nước và giày đi bộ; có thể rút ngắn bằng taxi từ ga (hỏi giá tại ga). Nằm ngay trước Shimizu nên hợp nếu bỏ Miho.",
+  "fujiView": "yes",
+  "fujiNote": "Đứng ở điểm ngắm Satta-toge nhìn về Bắc–Đông Bắc qua vịnh Suruga; sáng sớm đến giữa buổi là rõ nhất.",
+  "official": "https://www.city.shizuoka.lg.jp/000_001369.html",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/1631031bec99.webp",
+    "caption": "Fuji, vịnh Suruga và cao tốc nhìn từ đèo Satta",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_from_Satta_Pass.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/9c7c1564a672.webp",
+    "caption": "Fuji và vịnh Suruga từ đèo Satta",
+    "credit": "Mocchy (Mocchy at ja.wikipedia)",
+    "license": "Public domain (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sattatouge_mtfuji.jpg"
+   }
+  ]
+ },
+ "miho-matsubara": {
+  "lat": 34.99474,
+  "lng": 138.5238,
+  "address": "静岡県静岡市清水区三保",
+  "hours": "Bãi tự do; Miho Shirube ~9:00–16:30",
+  "fee": "Miễn phí",
+  "bestTime": "Buổi sáng, khi Fuji được chiếu sáng từ phía Đông",
+  "station": "Xe buýt Shizutetsu Justline từ Shimizu (JR) khoảng 25 phút tới 'Miho-matsubara-iriguchi', rồi đi bộ 15–20 phút qua rừng thông",
+  "why": "Di sản Thế giới (thành phần của Fuji-san, 2013), bãi cát đen dài với khoảng 30.000 cây thông và 'Hagoromo no Matsu' gắn với truyền thuyết áo lông thiên nữ; Fuji ở hậu cảnh. Hợp nếu muốn bỏ một điểm trong ngày để đổi lấy không khí biển.",
+  "tips": "Tính khoảng 2–2,5 giờ cả đi lẫn về từ ga Shimizu; kiểm tra bảng giờ xe buýt trước khi đi. Nên bỏ Sumpu Castle nếu đi.",
+  "fujiView": "yes",
+  "fujiNote": "Đứng ở bãi hoặc lối rừng thông nhìn Đông Bắc qua vịnh; Fuji nằm trên rặng thông, buổi sáng thường rõ hơn chiều.",
+  "official": "https://www.shizuoka-seiko.com/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/477c85819266.webp",
+    "caption": "Bãi Miho với Fuji ở hậu cảnh",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Miho_no_Matsubara_and_Mount_Fuji.JPG"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/42cf867f1310.webp",
+    "caption": "Cây thông Hagoromo no Matsu",
+    "credit": "Saigen Jiro",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Miho-no-Matsubara_Hagoromo-no-matsu.JPG"
+   }
+  ]
+ },
+ "nihondaira-yume-terrace": {
+  "lat": 34.97448,
+  "lng": 138.46586,
+  "address": "静岡県静岡市清水区草薙600-1",
+  "hours": "9:00–17:00 (thứ Bảy đến 21:00)",
+  "fee": "Hành lang ngắm cảnh miễn phí; vào trong Yume Terrace ¥100 (từ 1/10/2026)",
+  "bestTime": "Buổi sáng, khi Fuji rõ nhất",
+  "station": "Xe buýt Shizutetsu Justline từ ga Shizuoka khoảng 40 phút tới 'Nihondaira Yume Terrace-iriguchi', rồi đi bộ 5 phút",
+  "why": "Đài ngắm trên đỉnh đồi Nihondaira (công trình của Kengo Kuma) với hành lang 360 độ nhìn thấy Fuji, vịnh Suruga và bán đảo Izu. Một trong những điểm ngắm Fuji dễ dàng nhất vùng Shizuoka.",
+  "tips": "Cần khoảng 2,5–3 giờ cả đi lẫn về từ ga Shizuoka nên chỉ hợp nếu bỏ lịch Sumpu; chuyến buýt thưa, kiểm tra bảng giờ. Phương án rẻ thời gian hơn là Satta Pass hoặc Miho.",
+  "fujiView": "yes",
+  "fujiNote": "Từ hành lang ngắm cảnh nhìn về Đông Bắc; buổi sáng sớm đến giữa buổi cho Fuji rõ, xa hơn là bán đảo Izu và vịnh Suruga.",
+  "official": "https://nihondaira-yume-terrace.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/4fde5cca1448.webp",
+    "caption": "Fuji và cảng Shimizu nhìn từ Nihondaira",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_from_Nihondaira.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/7c7b72cba01a.webp",
+    "caption": "Fuji, vịnh Suruga và cảng Shimizu từ trên đồi Nihondaira",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Port_of_Shimizu_from_Nihondaira.jpg"
+   }
+  ]
+ },
+ "sumpu-castle": {
+  "lat": 34.97776,
+  "lng": 138.38474,
+  "address": "静岡県静岡市葵区駿府城公園1-1",
+  "hours": "Công viên tự do; công trình 9:00–16:30",
+  "fee": "Công viên miễn phí; Higashi-gomon + Tatsumi Yagura ¥200, Kon Yagura ¥100, vườn Momijiyama ¥150; vé gộp ba nơi ¥360",
+  "bestTime": "Trước 15:00 để vào được các công trình",
+  "station": "Shizuoka (JR/Shinkansen) khoảng 15 phút đi bộ; Shin-Shizuoka (Shizutetsu) khoảng 12 phút",
+  "why": "Nơi Tokugawa Ieyasu sống những năm cuối đời; còn hào nước, tường đá, cổng Higashi-gomon và Tatsumi Yagura phục dựng bằng gỗ, cùng vườn Momijiyama. Công viên nằm giữa phố, thuận đường tới ga Shizuoka.",
+  "tips": "Gửi hành lý ở ga Shizuoka trước khi đi bộ; tính 60–70 phút cả đi lại và vào một hai công trình, rồi quay lại ga lấy Shinkansen.",
+  "fujiView": "no",
+  "fujiNote": "Công viên nằm trong nội thành Shizuoka, không có điểm ngắm Fuji rõ.",
+  "official": "https://www.city.shizuoka.lg.jp/shisetsu/s0000239.html",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/e0b7e9c708c5.webp",
+    "caption": "Cổng Higashi-gomon và tháp Tatsumi",
+    "credit": "Akahito Yamabe",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sunpu_Castle_East_Gate_02.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/aab6891f250c.webp",
+    "caption": "Tháp Tatsumi Yagura và hào nước",
+    "credit": "by Monado",
+    "license": "CC BY-SA 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sunpu_castle_tatsumiyagura.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/17763f7c2f9d.webp",
+    "caption": "Cổng vườn Momijiyama mùa thu (11/2021)",
+    "credit": "Drivephotographer",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sumpu_castle_Momijiyama_park.jpg"
+   }
+  ]
+ },
+ "ise-geku": {
+  "lat": 34.48724,
+  "lng": 136.70293,
+  "address": "三重県伊勢市豊川町279",
+  "hours": "5:00–17:00",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng sớm trước 9:00, ít khách và ánh nắng xiên qua rừng tuyết tùng",
+  "station": "Iseshi (JR/Kintetsu), đi bộ 5 phút",
+  "why": "Đền thờ nữ thần lương thực Toyouke, theo thông lệ lễ Geku trước rồi mới sang Naiku. Rừng tuyết tùng, đường sỏi trắng và các đền phụ yên tĩnh hơn Naiku.",
+  "tips": "Vào qua cầu Hiyoke, đi theo lối sỏi trắng; không chụp ảnh ở chính điện.",
+  "official": "https://www.isejingu.or.jp/en/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/14d97a0970ba.webp",
+    "caption": "Khu chính điện Geku",
+    "credit": "Sakaori (talk) / Wikimedia Commons",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ise-jingu_Grand_Shrine_Geku_Maine_sanctuary._May,_2015.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/426c1261b615.webp",
+    "caption": "Đền phụ Kazenomiya trong Geku",
+    "credit": "Oilstreet / Wikimedia Commons",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Geku_Kazenomiya_Ise-jingu_Grand_Shrine_02-r.JPG"
+   }
+  ]
+ },
+ "sengukan": {
+  "lat": 34.48687,
+  "lng": 136.70671,
+  "address": "三重県伊勢市豊川町前野126-1",
+  "hours": "9:00–16:30",
+  "fee": "¥300",
+  "bestTime": "Khoảng 30 phút ngay sau khi lễ Geku",
+  "station": "Iseshi (JR/Kintetsu), đi bộ khoảng 10–15 phút",
+  "why": "Bảo tàng cạnh Geku trưng bày mô hình chính điện và đồ thờ phục chế, giải thích lễ Shikinen Sengu (xây lại đền mỗi 20 năm). Giúp hiểu vì sao Ise luôn mới mà vẫn cổ.",
+  "tips": "Giá vé người lớn chưa xác nhận được trên trang chính thức, thường là ¥300.",
+  "official": "https://www.sengukan.jp/en",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/83a7fb04da78.webp",
+    "caption": "Bảo tàng Sengukan",
+    "credit": "Miyuki Meinaka / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sengukan,_Ise_Geku.jpg"
+   }
+  ]
+ },
+ "ise-naiku": {
+  "lat": 34.455,
+  "lng": 136.72518,
+  "address": "三重県伊勢市宇治館町1",
+  "hours": "5:00–17:00",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng sớm; nắng xiên qua rừng khoảng 7:00–9:00",
+  "station": "Bus Mie Kotsu từ Iseshi tới Naiku-mae (khoảng 15 phút)",
+  "why": "Đền thờ nữ thần Amaterasu, trung tâm của quần thể Ise Jingu. Đi qua cầu Uji, bờ sông Isuzu và đường sỏi giữa rừng tuyết tùng đến bậc đá dẫn lên chính điện.",
+  "tips": "Rửa tay ở bậc đá bên sông Isuzu (Mitarashi); không chụp ảnh từ bậc đá trở lên.",
+  "official": "https://www.isejingu.or.jp/en/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/b66e46ebd61e.webp",
+    "caption": "Sông Isuzu bên Naiku (10/2023)",
+    "credit": "Zairon / Wikimedia Commons",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ise_Ise-jingu_Isuzugawa_1.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/a64988691c60.webp",
+    "caption": "Bậc đá bên sông Isuzu",
+    "credit": "Oilstreet / Wikimedia Commons",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Isuzu_River_Naiku_Ise-jingu_Grand_Shrine_01-r.jpg"
+   }
+  ]
+ },
+ "uji-bridge": {
+  "lat": 34.45872,
+  "lng": 136.72324,
+  "address": "三重県伊勢市宇治今在家町",
+  "hours": "24 giờ",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng sớm hoặc 16:00–17:00 khi nắng thấp chiếu lên sông Isuzu",
+  "station": "Naiku-mae (bus), đi bộ 2 phút",
+  "why": "Cầu gỗ bách Nhật dài khoảng 100 m bắc qua sông Isuzu, là cổng vào Naiku và được làm mới cùng chu kỳ 20 năm của đền. Từ giữa cầu nhìn ra rừng thông và dòng sông.",
+  "tips": "Chụp cầu từ bờ sông phía Okage Yokocho khi đi về, lúc nắng thấp.",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/fc37a1f6db1b.webp",
+    "caption": "Cầu Uji (10/2023)",
+    "credit": "Zairon / Wikimedia Commons",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ise_Ise-jingu_Ujibashi_Bridge_2.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/32d55cd24a4c.webp",
+    "caption": "Sông Isuzu nhìn từ cầu Uji, mùa thu",
+    "credit": "Alpsdake / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Isuzu_River_from_Uji_Bridge.jpg"
+   }
+  ]
+ },
+ "okage-yokocho": {
+  "lat": 34.46244,
+  "lng": 136.72291,
+  "address": "三重県伊勢市宇治中之切町52",
+  "hours": "9:30–17:00",
+  "fee": "Miễn phí",
+  "bestTime": "10:00–15:00 để kịp cả các quầy ăn",
+  "station": "Naiku-mae (bus), đi bộ 2 phút",
+  "why": "Phố dựng lại theo kiểu Edo–Meiji ngay trước cửa Naiku, có Akafuku, Fukusuke và hàng quán đặc sản Ise. Chỗ ăn nhẹ và nghỉ chân sau khi lễ.",
+  "tips": "Nhiều quán đóng khoảng 17:00, nên vào Akafuku và Fukusuke trước 16:00.",
+  "official": "https://www.okageyokocho.com/en/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/4476f0fe77a5.webp",
+    "caption": "Phố Okage Yokocho",
+    "credit": "Oilstreet / Wikimedia Commons",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Okage_Yokocho02-r.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/fb891623f5f3.webp",
+    "caption": "Mặt tiền quán trong Okage Yokocho",
+    "credit": "Brakeet / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ise_Mie_Okage_Yokocho_26.jpg"
+   }
+  ]
+ },
+ "ise-kawasaki": {
+  "lat": 34.49658,
+  "lng": 136.71761,
+  "address": "三重県伊勢市河崎2-21-14（伊勢河崎商人館）",
+  "hours": "Shonin-kan 9:30–17:00",
+  "fee": "Miễn phí (Shonin-kan khoảng ¥350)",
+  "bestTime": "15:00–17:00, trước khi trời tối",
+  "station": "Iseshi (JR/Kintetsu), đi bộ khoảng 15–20 phút",
+  "why": "Khu thương nhân cũ bên sông Seta với kho gỗ kiểu kura và nhà buôn Meiji–Taisho, nơi hàng hóa đổ về phục vụ khách hành hương. Yên tĩnh, khác hẳn Oharai-machi.",
+  "tips": "Kawasaki Shonin-kan giữ lại ngôi nhà buôn lương thực; giá và ngày nghỉ lấy từ thông báo thành phố 2025.",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/ea4c82841d3b.webp",
+    "caption": "Phố thương nhân Kawasaki",
+    "credit": "Asturio Cantabrio / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ise_Kawasaki_ac_(1).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/4aa49c121a89.webp",
+    "caption": "Kawasaki Shonin-kan",
+    "credit": "Asturio Cantabrio / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ise_Kawasaki_Syouninkan_ac_(1).jpg"
+   }
+  ]
+ },
+ "toba-marine-terminal": {
+  "lat": 34.49042,
+  "lng": 136.84494,
+  "address": "三重県鳥羽市鳥羽（佐田浜）",
+  "hours": "Theo giờ tàu",
+  "fee": "Miễn phí (vé tàu mua riêng)",
+  "bestTime": "Buổi sáng, theo giờ tàu ra đảo",
+  "station": "Toba (JR/Kintetsu), đi bộ khoảng 5–10 phút",
+  "why": "Bến tàu thành phố ra các đảo như Toshijima và tàu tham quan vịnh Toba. Điểm lên tàu trong kế hoạch D7.",
+  "tips": "Xem bảng giờ tàu mới nhất tại quầy, số chuyến ra đảo mỗi ngày không nhiều.",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/73580f5fd59a.webp",
+    "caption": "Toba Marine Terminal",
+    "credit": "Alpsdake / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Toba_Marine_Terminal.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/73a13f9eba79.webp",
+    "caption": "Bến Satahama",
+    "credit": "Alpsdake / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Toba_Marine_Terminal_Satahama.JPG"
+   }
+  ]
+ },
+ "toshijima-wagu": {
+  "lat": 34.52274,
+  "lng": 136.89897,
+  "address": "三重県鳥羽市答志町和具",
+  "hours": "Tàu ~20 phút",
+  "fee": "Miễn phí (tàu khoảng ¥550 một chiều)",
+  "bestTime": "Sáng; về lại Toba trước giờ ăn trưa",
+  "station": "Toba Marine Terminal (tàu khoảng 20 phút)",
+  "why": "Cảng phía nam đảo Toshijima, làng chài với ngõ hẹp và nhà dân kiểu cũ; gần Toba hơn Toshi nên đi về trong buổi sáng.",
+  "tips": "Giá và giờ tàu lấy từ nguồn không chính thức, kiểm tra lại trước khi đi.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/1bd4752b04b0.webp",
+    "caption": "Đảo Toshijima",
+    "credit": "merec0 from Kyoto, Japan / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:T%C5%8Dshijima_02.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/15975dde24a4.webp",
+    "caption": "Làng ven biển Toshijima",
+    "credit": "merec0 from Kyoto, Japan / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:T%C5%8Dshijima_01.jpg"
+   }
+  ]
+ },
+ "toshijima-toshi": {
+  "lat": 34.53039,
+  "lng": 136.903,
+  "address": "三重県鳥羽市答志町答志",
+  "hours": "Tàu ~30 phút",
+  "fee": "Miễn phí (vé tàu mua riêng)",
+  "bestTime": "Sáng sớm đến trưa",
+  "station": "Toba Marine Terminal (tàu khoảng 30 phút)",
+  "why": "Cảng lớn hơn ở phía bắc đảo, làng cá yên tĩnh với ngõ nhỏ và tàu cá. Chọn Wagu hoặc Toshi một cảng cho nửa buổi sáng.",
+  "tips": "Chọn một trong hai cảng; đi cả hai cần thêm thời gian di chuyển trên đảo.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/377620464eff.webp",
+    "caption": "Toshijima nhìn từ biển",
+    "credit": "Alpsdake / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:T%C5%8Dshijima.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/5b1ac031d666.webp",
+    "caption": "Đảo Toshijima (Alpsdake)",
+    "credit": "Alpsdake / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:T%C5%8Dshijima_(2015-02-28).jpg"
+   }
+  ]
+ },
+ "kashikojima": {
+  "lat": 34.30849,
+  "lng": 136.81859,
+  "address": "三重県志摩市阿児町神明",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "Cả ngày, tùy lịch tàu Espana",
+  "station": "Kashikojima (Kintetsu)",
+  "why": "Đảo cuối tuyến Kintetsu ở vịnh Ago, nối đất liền bằng cầu; từ ga đi bộ ra bến tàu Espana và công viên Maruyama. Phương án thay cho Toshijima.",
+  "tips": "Shimakaze chạy đến Kashikojima, kiểm tra giờ tàu đi Kyoto trước khi chọn phương án này.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/c8e5a1f97315.webp",
+    "caption": "Vịnh Ago",
+    "credit": "Alpsdake / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ago_Bay.JPG"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/f3a7e25692f2.webp",
+    "caption": "Cầu lớn Kashikojima",
+    "credit": "Miyuki Meinaka / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kashikojima_Great_Bridge.jpg"
+   }
+  ]
+ },
+ "espana-cruise": {
+  "lat": 34.30672,
+  "lng": 136.81779,
+  "address": "三重県志摩市阿児町神明（賢島港）",
+  "hours": "9:30–15:30 (theo chuyến)",
+  "fee": "¥1,900",
+  "bestTime": "Chuyến 13:30–15:30, nắng chiều trên vịnh",
+  "station": "Kashikojima (Kintetsu), đi bộ 3–5 phút",
+  "why": "Tàu mô phỏng thuyền buồm Tây Ban Nha chạy 50 phút qua vịnh Ago có nhiều đảo nhỏ và bè nuôi ngọc trai. Ngắm từ boong, không cần đặt trước.",
+  "tips": "Chuyến cuối 15:30; còn phải tính giờ lên Shimakaze nên chọn chuyến sớm hơn.",
+  "official": "https://shima-marineleisure.com/en/espana",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/dfb9b21ba56d.webp",
+    "caption": "Tàu Esperanza của Espana Cruise",
+    "credit": "Miyuki Meinaka / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Esperanza,_Kashikojima_Espa%C3%B1a_Cruise.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/b6f945aaa0ff.webp",
+    "caption": "Quầy vé Espana Cruise",
+    "credit": "Alpsdake / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kashikojima_Espana_Cruise_ship_ticket_office.JPG"
+   }
+  ]
+ },
+ "kiyomizudera": {
+  "lat": 34.99486,
+  "lng": 135.78505,
+  "address": "京都府京都市東山区清水1-294",
+  "hours": "6:00–18:00",
+  "fee": "¥500",
+  "bestTime": "6:00–8:30 khi chùa vừa mở, hoặc sau 16:00",
+  "station": "Kiyomizu-Gojo (Keihan), đi bộ khoảng 25 phút (dốc)",
+  "why": "Chùa gỗ dựng trên vách đá với sân khấu Butai nhìn ra thung lũng và thành phố. Cuối tháng 10 lá còn xanh vàng nhạt, màu đỏ rõ từ giữa tháng 11.",
+  "tips": "Vé trả tiền mặt; đêm đặc biệt mùa thu năm 2026 là 21–30/11, lịch năm 2027 chưa công bố.",
+  "official": "https://www.kiyomizudera.or.jp/en/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/9cf97fca6987.webp",
+    "caption": "Kiyomizudera giữa tháng 11",
+    "credit": "Martin Falbisoner / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kiyomizu-dera,_Kyoto,_November_2016_-01.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/5b20ff3c731e.webp",
+    "caption": "Kiyomizudera đêm thu",
+    "credit": "lumoplank / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kiyomizu-dera_autumn_night.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/03d28d917b86.webp",
+    "caption": "Tháp ba tầng",
+    "credit": "Suicasmo / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Three-storied_Pagoda,_Kiyomizu-dera_20211123.jpg"
+   }
+  ]
+ },
+ "sannenzaka": {
+  "lat": 34.9983,
+  "lng": 135.78,
+  "address": "京都府京都市東山区清水（産寧坂）",
+  "hours": "Cửa hàng ~10:00–17:00",
+  "fee": "Miễn phí",
+  "bestTime": "Trước 9:00 hoặc sau 17:00 để tránh đông",
+  "station": "Kiyomizu-Gojo (Keihan), đi bộ khoảng 25 phút; hoặc bus tới Kiyomizu-michi",
+  "why": "Hai con dốc lát đá nối Kiyomizudera xuống Yasaka, hai bên là nhà gỗ machiya bán gốm, trà và kẹo. Đi xuôi dốc nhẹ, hợp nối tiếp sau chùa.",
+  "tips": "Theo truyền thuyết, vấp ngã ở Sannenzaka sẽ gặp xui trong ba năm; đi chậm trên bậc đá.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/b7dc47331ee0.webp",
+    "caption": "Sannenzaka lúc hoàng hôn",
+    "credit": "そらみみ (Soramimi) / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sanneizaka_(Sannenzaka)_near_Kiyomizudera_Temple_at_dusk.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/259a7676a089.webp",
+    "caption": "Dốc Sannenzaka",
+    "credit": "Aporon999 / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sannenzaka-kyoto.JPG"
+   }
+  ]
+ },
+ "yasaka-shrine": {
+  "lat": 35.00361,
+  "lng": 135.77861,
+  "address": "京都府京都市東山区祇園町北側625",
+  "hours": "24 giờ",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều tối khi đèn lồng sáng",
+  "station": "Gion-Shijo (Keihan), đi bộ 5 phút",
+  "why": "Đền lớn ở cuối phố Shijo, chủ đền của lễ Gion, nổi bật với cổng Nishi-romon đỏ và sân khấu treo hàng trăm đèn lồng giấy. Nối sang công viên Maruyama phía sau.",
+  "tips": "Đền mở cả đêm, đèn lồng sáng buổi tối nên ghé lại lúc hoàng hôn.",
+  "official": "https://www.yasaka-jinja.or.jp/en/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/5064d6ccc785.webp",
+    "caption": "Cổng Nishi-romon",
+    "credit": "DXR / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nishiromon_Gate,_Yasaka_Shrine,_Kyoto,_West_view_20190416_1.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/14c873c29206.webp",
+    "caption": "Đèn lồng giấy ở sân khấu Buden",
+    "credit": "Basile Morin / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:White_paper_lanterns_hanging_in_Buden_Yasaka_Shrine_in_Kyoto_Japan.jpg"
+   }
+  ]
+ },
+ "gion-shirakawa": {
+  "lat": 35.00558,
+  "lng": 135.7745,
+  "address": "京都府京都市東山区元吉町（白川南通）",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "17:00–19:00 khi đèn đường sáng (hoàng hôn khoảng 17:10)",
+  "station": "Gion-Shijo (Keihan), đi bộ 5 phút",
+  "why": "Dòng Shirakawa chạy qua dãy nhà trà gỗ, cây liễu và cầu Tatsumi; yên tĩnh và ít đông hơn Hanamikoji. Khu bảo tồn kiến trúc truyền thống Gion Shinbashi.",
+  "tips": "Gion cấm chụp ảnh ở ngõ riêng và cấm làm phiền maiko; đi nhẹ, nói nhỏ.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/113c8bb0d552.webp",
+    "caption": "Kênh Shirakawa ở Gion",
+    "credit": "MichaelMaggs / Wikimedia Commons",
+    "license": "CC BY-SA 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shirakara_Canal,_Gion,_Kyoto.jpg"
+   }
+  ]
+ },
+ "okazaki": {
+  "lat": 35.01403,
+  "lng": 135.78318,
+  "address": "京都府京都市左京区岡崎",
+  "hours": "24 giờ",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều muộn, nắng thấp",
+  "station": "Higashiyama (subway Tozai), đi bộ 10 phút",
+  "why": "Kênh dẫn nước Biwa chạy dọc công viên Okazaki, hai bên là đường dạo với cây anh đào và phong, nối cổng torii Heian Jingu với Nanzenji. Cuối tuyến D8 đi chậm và yên tĩnh.",
+  "tips": "Đi thêm 15 phút về phía đông là Nanzenji và cầu dẫn nước Suirokaku.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/43fb1b340195.webp",
+    "caption": "Kênh Okazaki",
+    "credit": "KimonBerlin / Wikimedia Commons",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Okazaki_canal_(3477793760).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/3029509d22d8.webp",
+    "caption": "Cảnh quan Okazaki",
+    "credit": "Indiana jo / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E9%87%8D%E8%A6%81%E6%96%87%E5%8C%96%E7%9A%84%E6%99%AF%E8%A6%B3_%E5%B2%A1%E5%B4%8E(%E4%BA%AC%E9%83%BD)2.JPG"
+   }
+  ]
+ },
+ "kitano-tenmangu": {
+  "lat": 35.02919,
+  "lng": 135.735,
+  "address": "京都府京都市上京区馬喰町",
+  "hours": "5:30–17:30",
+  "fee": "Miễn phí (vườn Momijien thu phí riêng)",
+  "bestTime": "Chợ ngày 25: buổi sáng 8:00–12:00",
+  "station": "Bus Kitano Tenmangu-mae (bus 50/101 từ ga Kyoto)",
+  "why": "Đền thờ Sugawara no Michizane. Ngày 25 hằng tháng có chợ Tenjin-san với đồ cổ, đồ cũ, kimono và đồ ăn. 25/10/2027 rơi đúng D8.",
+  "tips": "Vườn lá đỏ Momijien thường mở từ khoảng cuối tháng 10 đến đầu tháng 11, ngày 25/10 có thể chưa mở.",
+  "official": "https://kitanotenmangu.or.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/a85864a663cd.webp",
+    "caption": "Kitano Tenmangu (11/2015)",
+    "credit": "くろふね / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E5%8C%97%E9%87%8E%E5%A4%A9%E6%BA%80%E5%AE%AE_02.jpg"
+   }
+  ]
+ },
+ "takasegawa": {
+  "lat": 35.00884,
+  "lng": 135.77041,
+  "address": "京都府京都市中京区木屋町通（三条〜四条）",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều tối, đèn quán phản chiếu xuống kênh",
+  "station": "Sanjo (Keihan), đi bộ 3 phút",
+  "why": "Kênh nhỏ đào từ đầu thế kỷ 17 chạy dọc phố Kiyamachi, hai bên là cây liễu, nhà gỗ và quán nhỏ. Đi bộ từ Sanjo xuống Shijo khoảng 10 phút, gần Hotel Cross Kyoto.",
+  "tips": "Đoạn Sanjo–Shijo về đêm nhiều quán rượu và nhóm khách đông.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/1f1a5014da9f.webp",
+    "caption": "Kênh Takase",
+    "credit": "Yanajin33 / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Takase-gawa_River2.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/27006bea7673.webp",
+    "caption": "Takase ở Kiyamachi",
+    "credit": "Jonashtand / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:202506_Takase-gawa,_Kyoto_03.jpg"
+   }
+  ]
+ },
+ "kamogawa-sanjo": {
+  "lat": 35.00907,
+  "lng": 135.77174,
+  "address": "京都府京都市中京区三条大橋町",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "Hoàng hôn 16:30–18:00",
+  "station": "Sanjo (Keihan), 1 phút",
+  "why": "Cầu Sanjo Ohashi là điểm cuối đường Tokaido xưa. Bờ sông Kamo có bậc đá để ngồi nghỉ, nhìn núi Higashiyama và đèn Pontocho.",
+  "tips": "Đi dọc bờ sông về phía nam đến Shijo là lối dạo buổi tối thoải mái.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/db397ff37645.webp",
+    "caption": "Sông Kamo nhìn từ cầu Sanjo Ohashi",
+    "credit": "そらみみ / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kamogawa_River_from_Sanjo-Ohashi_Bridge_1.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/d577f787c99c.webp",
+    "caption": "Sông Kamo về đêm",
+    "credit": "Thomas Roessler / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Night_in_Kyoto,_View_across_Kamo_River_south_of_Sanjo_Ohashi_Bridge_(165453637).jpg"
+   }
+  ]
+ },
+ "nishiki-market": {
+  "lat": 35.00502,
+  "lng": 135.76556,
+  "address": "京都府京都市中京区錦小路通（寺町〜高倉）",
+  "hours": "~10:00–18:00",
+  "fee": "Miễn phí",
+  "bestTime": "10:00–11:30 hoặc sau 15:00",
+  "station": "Shijo (subway) / Karasuma (Hankyu), đi bộ 5 phút",
+  "why": "Chợ thực phẩm dài khoảng 400 m với hàng trăm quầy: tsukemono, tamagoyaki, đậu phụ, hải sản nướng. Chỗ ăn nhẹ và mua quà.",
+  "tips": "Chợ yêu cầu không vừa đi vừa ăn; nhiều quầy đóng 17:00–18:00 nên ghé ngay sau khi nhận phòng ở D7.",
+  "official": "https://www.kyoto-nishiki.or.jp/",
+  "images": [
+   {
+    "kind": "detail",
+    "src": "img/commons/e5d7e1519b68.webp",
+    "caption": "Quầy trong chợ Nishiki",
+    "credit": "Hyppolyte de Saint-Rambert / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nishiki_market_Kyoto_hdsr_2019_06_02_9999_31.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/dd9772969879.webp",
+    "caption": "Phố chợ Nishiki",
+    "credit": "ignis / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nishiki_ichiba_Kyoto_JPN.jpg"
+   }
+  ]
+ },
+ "otagi-nenbutsuji": {
+  "lat": 35.03115,
+  "lng": 135.66123,
+  "address": "京都府京都市右京区嵯峨鳥居本深谷町2-5",
+  "hours": "8:00–16:30",
+  "fee": "¥500",
+  "bestTime": "Sáng, ngay sau chuyến bus đầu",
+  "station": "Bus Kyoto Bus 94 từ Arashiyama (theo kế hoạch)",
+  "why": "Chùa nhỏ có khoảng 1.200 tượng La Hán (rakan) mặt biểu cảm khác nhau, phủ rêu xanh, ở chân núi Atago. Yên tĩnh hơn trung tâm Arashiyama.",
+  "tips": "Lá phong ở khu cao thường chuyển màu sớm hơn trung tâm Arashiyama vài ngày.",
+  "official": "https://otagiji.com/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/b64391a18d87.webp",
+    "caption": "Otagi Nenbutsuji mùa thu",
+    "credit": "663highland / Wikimedia Commons",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Otagi_nenbutsuji09s3200.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/d141122a171d.webp",
+    "caption": "Chùa Otagi Nenbutsuji",
+    "credit": "Rturke / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Otagi_Nenbutsu-ji_Temple.jpg"
+   }
+  ]
+ },
+ "saga-toriimoto": {
+  "lat": 35.02704,
+  "lng": 135.66557,
+  "address": "京都府京都市右京区嵯峨鳥居本",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "Buổi sáng yên tĩnh hoặc chiều tà",
+  "station": "Bus Kyoto Bus 94, trạm Toriimoto",
+  "why": "Khu bảo tồn kiến trúc truyền thống ở cuối đường lên núi Atago, nhà gỗ và vài ngôi nhà mái tranh trên con phố dốc nhẹ. Ít khách, nằm trên đường xuống Adashino.",
+  "tips": "Con đường xuống dốc từ Otagi mất khoảng 10 phút, đi giày thoải mái.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/895a9c3a7d7a.webp",
+    "caption": "Lá phong ở Toriimoto (11/2013)",
+    "credit": "Nankou Oronain (as36… / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E9%B3%A5%E5%B1%85%E6%9C%AC%E3%81%AE%E3%82%82%E3%81%BF%E3%81%98_%E4%BA%AC%E9%83%BD%E5%B8%82%E5%8F%B3%E4%BA%AC%E5%8C%BA_Toriimoto,_Kyoto_2013.11.21_-_panoramio.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/e7a92cba6e8e.webp",
+    "caption": "Phố Toriimoto",
+    "credit": "Nankou Oronain (as36… / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E9%B3%A5%E5%B1%85%E6%9C%AC%E3%81%AB%E3%81%A6_%E4%BA%AC%E9%83%BD%E5%B8%82%E5%8F%B3%E4%BA%AC%E5%8C%BA_Toriimoto,_Kyoto_2013.11.21_-_panoramio_(1).jpg"
+   }
+  ]
+ },
+ "adashino-nenbutsuji": {
+  "lat": 35.02681,
+  "lng": 135.66452,
+  "address": "京都府京都市右京区嵯峨鳥居本化野町17",
+  "hours": "9:00–16:30",
+  "fee": "¥500",
+  "bestTime": "Sáng, tránh nhóm khách đông",
+  "station": "Bus Kyoto Bus 94, trạm Toriimoto (đi bộ vài phút)",
+  "why": "Nghĩa trang cổ với khoảng 8.000 tượng đá và tháp nhỏ (Sai-no-kawara), phía sau có rừng trúc nhỏ. Không khí trầm hơn Arashiyama.",
+  "tips": "Đoạn rừng trúc phía sau chùa đẹp và ít người, phí vào đã gồm sẵn.",
+  "official": "https://www.nenbutsuji.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/db6c76c46991.webp",
+    "caption": "Tượng đá ở Adashino",
+    "credit": "Dudva / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Adashino-nenbutsuji_(%E5%8C%96%E9%87%8E%E5%BF%B5%E4%BB%8F%E5%AF%BA),_Sagano,_Kyoto,_Japan.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/733c4066b40b.webp",
+    "caption": "Rừng trúc phía sau chùa",
+    "credit": "Dudva / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Bamboo_grove_at_Adashino-nenbutsuji,_2023.jpg"
+   }
+  ]
+ },
+ "bamboo-grove": {
+  "lat": 35.0168,
+  "lng": 135.6716,
+  "address": "京都府京都市右京区嵯峨小倉山田淵山町",
+  "hours": "24 giờ",
+  "fee": "Miễn phí",
+  "bestTime": "7:00–8:30 hoặc sau 16:30; ban ngày rất đông",
+  "station": "Arashiyama (Randen/Hankyu), đi bộ 8–10 phút; Saga-Arashiyama (JR)",
+  "why": "Lối đi dài khoảng 400 m giữa rừng trúc cao tới 20 m, nối cổng bắc Tenryu-ji với khu Okochi Sanso. Ánh sáng lọc qua lá rất dịu.",
+  "tips": "Đoạn này đông nhất từ 10:00 đến 15:00; nếu đi giữa ngày thì đi chậm và chụp theo chiều dọc.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/746c9c77f2ae.webp",
+    "caption": "Rừng trúc Sagano",
+    "credit": "Basile Morin / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Bamboo_Forest,_Arashiyama,_Kyoto,_Japan.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/4e6f989666d1.webp",
+    "caption": "Rừng trúc lúc hoàng hôn",
+    "credit": "Bjørn Christian Tørrissen / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Arashiyama-Bamboo-Grove-Sunset.jpg"
+   }
+  ]
+ },
+ "togetsukyo": {
+  "lat": 35.01287,
+  "lng": 135.67776,
+  "address": "京都府京都市右京区嵯峨天龍寺芒ノ馬場町",
+  "hours": "24 giờ",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng sớm hoặc 16:00–17:00; lá đỏ núi Arashiyama chủ yếu từ giữa tháng 11",
+  "station": "Arashiyama (Hankyu), đi bộ 5 phút",
+  "why": "Cầu dài khoảng 150 m bắc qua sông Katsura với nền là núi Arashiyama, biểu tượng của khu này. Ngắm từ bãi sông phía nam cho khung ảnh đẹp nhất.",
+  "tips": "Cuối tháng 10 núi còn xanh, màu vàng đỏ mới xuất hiện từng mảng.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/d1a2250aad06.webp",
+    "caption": "Núi Arashiyama và sông Hozu nhìn từ Togetsukyo (11/2008)",
+    "credit": "KimonBerlin / Wikimedia Commons",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Arashiyama_hills_and_Hozu_river_from_Togetsu_bridge_(3261758437).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/a402d3970782.webp",
+    "caption": "Togetsukyo dưới mưa, mùa thu",
+    "credit": "KimonBerlin / Wikimedia Commons",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Togetsu_bridge_and_Arashiyama_hills_under_the_rain_(Kyoto,_Japan)_(3262583370).jpg"
+   }
+  ]
+ },
+ "fushimi-sake": {
+  "lat": 34.92887,
+  "lng": 135.76162,
+  "address": "京都府京都市伏見区南浜町247",
+  "hours": "9:30–16:30",
+  "fee": "¥600",
+  "bestTime": "13:30–15:30, vào trước 16:00",
+  "station": "Chushojima (Keihan), đi bộ 5 phút",
+  "why": "Bảo tàng rượu sake trong nhà kho cũ của Gekkeikan (lập năm 1637), có một suất nếm rượu đi kèm. Dọc kênh Horikawa là hàng kho gỗ đen và thuyền Jikkokubune.",
+  "tips": "Thuyền Jikkokubune chạy mùa xuân đến thu, kiểm tra lịch và giá trên trang phát hành.",
+  "official": "https://gekkeikan.com/museum",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/a420cd8b445c.webp",
+    "caption": "Bảo tàng Gekkeikan Okura",
+    "credit": "663highland / Wikimedia Commons",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Gekkeikan_Okura_Sake_Museum01nt3200.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/7185fd71bc41.webp",
+    "caption": "Kênh Horikawa ở Fushimi",
+    "credit": "663highland / Wikimedia Commons",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kyoto_Fushimi_Horikawa04st3200.jpg"
+   }
+  ]
+ },
+ "teradaya": {
+  "lat": 34.93028,
+  "lng": 135.75955,
+  "address": "京都府京都市伏見区南浜町263",
+  "hours": "10:00–15:40",
+  "fee": "¥600",
+  "bestTime": "Trước 15:30",
+  "station": "Chushojima (Keihan), đi bộ 5 phút",
+  "why": "Nhà trọ gắn với sự kiện Teradaya năm 1866, khi Sakamoto Ryoma bị truy bắt. Tòa nhà hiện nay được xây lại sau 1868 nhưng vẫn là địa điểm lịch sử quen thuộc ở Fushimi.",
+  "tips": "Nhà trọ vẫn nhận khách nghỉ nên giờ tham quan ngắn, đến trước 15:30.",
+  "official": "https://www.teradaya.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/81b512f6c0f5.webp",
+    "caption": "Nhà trọ Teradaya",
+    "credit": "Fg2 / Wikimedia Commons",
+    "license": "Public domain (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Teradaya_fg2.jpg"
+   }
+  ]
+ },
+ "fushimi-inari": {
+  "lat": 34.96714,
+  "lng": 135.77323,
+  "address": "京都府京都市伏見区深草藪之内町68",
+  "hours": "24 giờ",
+  "fee": "Miễn phí",
+  "bestTime": "6:00–8:00 hoặc sau 16:30",
+  "station": "JR Inari (1 phút) / Keihan Fushimi-Inari (5 phút)",
+  "why": "Hàng nghìn cổng torii đỏ phủ sườn núi Inari. Đi Senbon Torii lên Yotsutsuji mất khoảng 40–60 phút một chiều, từ đó thấy Kyoto.",
+  "tips": "Nếu chỉ có 1 giờ, đi tới Yotsutsuji rồi quay lại; mang giày dễ đi.",
+  "official": "https://inari.jp/en/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/63a38f6ede0c.webp",
+    "caption": "Fushimi Inari mùa thu",
+    "credit": "Raita Futo from Tokyo, Japan / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Fushimi_Inari_Taisha_in_Autumn_(51471914557).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/a0e23cc3346e.webp",
+    "caption": "Senbon Torii (10/2016)",
+    "credit": "Luka Peternel / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Fushimi-Inari-Shrine-Senbon-Torii-2016-Luka-Peternel.jpg"
+   }
+  ]
+ },
+ "todaiji": {
+  "lat": 34.68899,
+  "lng": 135.83984,
+  "address": "奈良県奈良市雑司町406-1",
+  "hours": "7:30–17:30",
+  "fee": "¥800",
+  "bestTime": "Sáng 8:00–9:30 hoặc sau 16:00",
+  "station": "Kintetsu-Nara, đi bộ khoảng 20 phút",
+  "why": "Điện Daibutsuden là một trong những công trình gỗ lớn nhất thế giới, bên trong là tượng Phật Lô-xá-na cao khoảng 15 m. Cổng Nandaimon có hai tượng Kim Cương lực sĩ.",
+  "tips": "Vé điện chính ¥800, thường trả tiền mặt; Nigatsudo phía sau miễn phí.",
+  "official": "https://www.todaiji.or.jp/en/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/267a90bb5d62.webp",
+    "caption": "Điện Daibutsuden",
+    "credit": "Cun Cun / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:T%C5%8Ddai-ji_Daibutsuden,_June_2019.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/539b5ac30787.webp",
+    "caption": "Tượng Đại Phật bên trong",
+    "credit": "Zairon / Wikimedia Commons",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nara_Todai-ji_Daibutsuden_Interior_Daibutsu_05.jpg"
+   }
+  ]
+ },
+ "nara-park": {
+  "lat": 34.68556,
+  "lng": 135.84333,
+  "address": "奈良県奈良市春日野町",
+  "hours": "24 giờ",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng sớm; lá phong thường vàng đỏ từ giữa tháng 11",
+  "station": "Kintetsu-Nara, đi bộ 5 phút",
+  "why": "Công viên rộng với hơn 1.000 con hươu sika thả tự do, nối Kofukuji, Todaiji và Kasuga Taisha. Đi bộ giữa các điểm là một phần của trải nghiệm.",
+  "tips": "Bánh shika senbei khoảng ¥200; giấu đồ ăn trong túi nếu không muốn bị hươu đeo bám.",
+  "official": "https://narashikanko.or.jp/en/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/0d3fca6fb3c9.webp",
+    "caption": "Hươu Nara dưới lá thu",
+    "credit": "Marek Ślusarczyk (Tupungato) Photo portfolio / Wikimedia Commons",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:003_Nara_deer_in_Japan_-_deer_of_Nara_Park_under_autumn_leaves.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/6b51bf324864.webp",
+    "caption": "Hươu giữa mùa thu",
+    "credit": "Raita Futo from Tokyo, Japan / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Autumn_deer_(52541974760).jpg"
+   }
+  ]
+ },
+ "kasuga-taisha": {
+  "lat": 34.68139,
+  "lng": 135.84833,
+  "address": "奈良県奈良市春日野町160",
+  "hours": "6:30–17:00",
+  "fee": "Miễn phí (khu chính điện khoảng ¥500–700)",
+  "bestTime": "Sáng, nắng xiên qua đèn đá",
+  "station": "Bus từ Kintetsu-Nara, hoặc đi bộ 20–25 phút từ Todaiji",
+  "why": "Đền chính của họ Fujiwara, nổi tiếng với hàng nghìn đèn đá và đèn đồng dọc đường vào, nằm trong rừng nguyên sinh Kasugayama. Có trong di sản UNESCO Nara.",
+  "tips": "Đi đường rừng từ Todaiji qua Nigatsudo, cổ kính hơn lối nhựa; phí khu chính điện chưa xác nhận.",
+  "official": "https://www.kasugataisha.or.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/d51e55839160.webp",
+    "caption": "Hàng đèn đá Kasuga Taisha (10/2023)",
+    "credit": "Zairon / Wikimedia Commons",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nara_Kasuga-taisha_Lanterns_06.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/f33a883ffd16.webp",
+    "caption": "Đèn lồng ở Kasuga Taisha",
+    "credit": "Gzzz / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Lanterns_Kasuga-taisha_Nara.jpg"
+   }
+  ]
+ },
+ "naramachi": {
+  "lat": 34.67763,
+  "lng": 135.83131,
+  "address": "奈良県奈良市（元興寺町・中院町周辺）",
+  "hours": "~10:00–17:00",
+  "fee": "Miễn phí",
+  "bestTime": "10:00–15:00",
+  "station": "Kintetsu-Nara, đi bộ khoảng 10 phút",
+  "why": "Khu phố cũ của thương nhân với nhà machiya từ thời Edo–Meiji, phía nam hồ Sarusawa. Nhiều quán cà phê và cửa hàng thủ công nhỏ.",
+  "tips": "Cửa hiệu thường đóng 17:00 hoặc sớm hơn; ghé bữa trưa theo kế hoạch trước.",
+  "official": "https://narashikanko.or.jp/en/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/cb3d7591b351.webp",
+    "caption": "Phố cũ Naramachi",
+    "credit": "663highland / Wikimedia Commons",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Naramachii01n3200.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/09d67265d58f.webp",
+    "caption": "Ngõ Naramachi",
+    "credit": "Maarten Heerlien from Voorschoten, The Netherlands / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Street_in_Naramachi_area_(6156072416).jpg"
+   }
+  ]
+ },
+ "hozenji": {
+  "lat": 34.66784,
+  "lng": 135.5026,
+  "address": "大阪府大阪市中央区難波1-2-16",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều tối sau 17:30, đèn lồng sáng",
+  "station": "Namba (Nankai/Midosuji), đi bộ 5 phút",
+  "why": "Ngõ lát đá hẹp với tượng Mizukake Fudo phủ rêu xanh, người đến té nước cầu may; hai bên là quán ăn nhỏ.",
+  "tips": "Té nước lên tượng, không chạm tay; ngõ hẹp nên đi nhẹ.",
+  "images": [
+   {
+    "kind": "detail",
+    "src": "img/commons/d1e5224b3c59.webp",
+    "caption": "Tượng Mizukake Fudo",
+    "credit": "Ian G Shingler / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hozen-ji_Temple_Osaka.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/dbbb8d85d926.webp",
+    "caption": "Hozenji Yokocho về đêm",
+    "credit": "Choi2451 / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hozenji_Yokocho_at_night.jpg"
+   }
+  ]
+ },
+ "doguyasuji": {
+  "lat": 34.66393,
+  "lng": 135.50351,
+  "address": "大阪府大阪市中央区難波千日前",
+  "hours": "~10:00–18:00",
+  "fee": "Miễn phí",
+  "bestTime": "Buổi chiều",
+  "station": "Namba / Nipponbashi, đi bộ 5 phút",
+  "why": "Phố bán đồ bếp chuyên nghiệp dài khoảng 150 m: dao, nồi, khuôn takoyaki, mẫu thức ăn nhựa. Mua quà lưu niệm kiểu Osaka.",
+  "tips": "Dao mua ở đây phải để trong hành lý ký gửi khi lên máy bay ngày 29/10.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/7295935591f2.webp",
+    "caption": "Phố Doguyasuji",
+    "credit": "Dick Thomas Johnson from Tokyo, Japan / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sennichimae_Doguyasuji_Shopping_Street_(51769113871).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/18ecae640d7e.webp",
+    "caption": "Cửa vào phố Doguyasuji",
+    "credit": "BradBeattie / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Doguyasuji_South.jpg"
+   }
+  ]
+ },
+ "dotonbori": {
+  "lat": 34.66903,
+  "lng": 135.50157,
+  "address": "大阪府大阪市中央区道頓堀",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "Sau 17:30 khi đèn neon sáng",
+  "station": "Namba (Nankai/Midosuji/Sennichimae), đi bộ 5 phút",
+  "why": "Kênh Dotonbori với biển hiệu neon (Glico, cua Kani Doraku), phố takoyaki và okonomiyaki, trung tâm sầm uất của Minami. Gần khách sạn Forza Namba.",
+  "tips": "Chụp biển Glico từ cầu Ebisu; giờ đông thì tránh dừng ở lối đi hẹp.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/62b26268a175.webp",
+    "caption": "Dotonbori về đêm",
+    "credit": "Martin Falbisoner / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Dotonbori,_Osaka,_at_night,_November_2016.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/0c79412a25d5.webp",
+    "caption": "Kênh Dotonbori",
+    "credit": "Emma0mb / Wikimedia Commons",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Dotonbori_river_night.jpg"
+   }
+  ]
+ },
+ "nakazakicho": {
+  "lat": 34.70722,
+  "lng": 135.50562,
+  "address": "大阪府大阪市北区中崎",
+  "hours": "~12:00–18:00",
+  "fee": "Miễn phí",
+  "bestTime": "13:00–17:00",
+  "station": "Nakazakicho (subway Tanimachi), đi bộ 3 phút",
+  "why": "Khu nhà gỗ thấp may mắn còn sót lại sau chiến tranh, nay là quán cà phê, cửa hàng đồ cũ và gallery nhỏ ngay cạnh Umeda.",
+  "tips": "D11 là Thứ Năm (28/10/2027) nên hầu hết quán đã mở; vẫn kiểm tra từng quán trước.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/955175fe72e9.webp",
+    "caption": "Ngõ Nakazakicho",
+    "credit": "DVMG / Wikimedia Commons",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nakazakicho_-_panoramio.jpg"
+   }
+  ]
+ },
+ "amerikamura": {
+  "lat": 34.67209,
+  "lng": 135.49796,
+  "address": "大阪府大阪市中央区西心斎橋",
+  "hours": "~11:00–20:00",
+  "fee": "Miễn phí",
+  "bestTime": "Chiều đến tối",
+  "station": "Shinsaibashi / Yotsubashi, đi bộ 5 phút",
+  "why": "Khu mua sắm của giới trẻ quanh công viên Tam giác (Triangle Park): thời trang đồ cũ, sneakers, cà phê và tranh tường. Phương án thay cho Umeda.",
+  "tips": "Cuối tuần rất đông; D11 là ngày thường nên dễ đi hơn.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/f92d45f43662.webp",
+    "caption": "Amerikamura",
+    "credit": "BradBeattie at English Wikipedia / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Amerikamura.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/00fc11b1c119.webp",
+    "caption": "Phố Amerikamura",
+    "credit": "Bgabel / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:JP-osaka-amerikamura.jpg"
+   }
+  ]
+ },
+ "futami-meoto-iwa": {
+  "lat": 34.50834,
+  "lng": 136.7888,
+  "address": "三重県伊勢市二見町江575",
+  "hours": "Ngoài trời",
+  "fee": "Miễn phí",
+  "bestTime": "Buổi sáng, lúc thủy triều xuống; bình minh giữa hai tảng đá chỉ có tháng 5–7",
+  "station": "JR Futaminoura, đi bộ khoảng 15 phút",
+  "why": "Cặp đá Meoto-iwa nối bằng sợi dây rơm lớn giữa biển, biểu tượng hôn nhân của Ise. Nằm giữa Iseshi và Toba nên có thể ghé khi đi D7.",
+  "tips": "Từ Iseshi đi bus hướng Toba khoảng 20 phút tới trạm Meoto-iwa Higashiguchi rồi đi bộ 5 phút; hoặc JR tới Futaminoura.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/5023272ab377.webp",
+    "caption": "Cặp đá Meoto-iwa",
+    "credit": "Alpsdake / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Meoto-iwa.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/d36a85387a43.webp",
+    "caption": "Haiden Futami Okitama",
+    "credit": "Yanajin33 / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Futamiokitama_jinja_Haiden.jpg"
+   }
+  ]
+ },
+ "mikimoto-pearl-island": {
+  "lat": 34.48339,
+  "lng": 136.84688,
+  "address": "三重県鳥羽市鳥羽1-7-1",
+  "hours": "9:00–17:00",
+  "fee": "¥1,650",
+  "bestTime": "Theo giờ biểu diễn Ama; xem bảng giờ tại cổng",
+  "station": "Toba (JR/Kintetsu), đi bộ 5 phút",
+  "why": "Đảo nhỏ nối bằng cầu, nơi Mikimoto Kokichi nuôi cấy ngọc trai nhân tạo đầu tiên. Có bảo tàng ngọc trai và biểu diễn thợ lặn Ama.",
+  "tips": "Vé gồm bảo tàng ngọc trai và biểu diễn Ama; đi ngay sau ga Toba nhưng phải bớt giờ cho chuyến ra đảo Toshijima.",
+  "official": "https://www.mikimoto-pearl-island.jp/en/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/53f1ed58a2d6.webp",
+    "caption": "Đảo Mikimoto Pearl",
+    "credit": "Ganokure / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mikimoto_Pearl_Island_Wide.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/b4576a51cd99.webp",
+    "caption": "Đảo ngọc trai nhìn từ xa",
+    "credit": "Aguhiyorifan20 / Wikimedia Commons",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:View_of_Mikimoto_Pearl_Island.jpg"
+   }
+  ]
+ },
+ "yokoyama-observatory": {
+  "lat": 34.33186,
+  "lng": 136.79901,
+  "address": "三重県志摩市（伊勢志摩国立公園 横山）",
+  "hours": "Ngoài trời",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng nắng hoặc hoàng hôn; sương mù làm giảm tầm nhìn",
+  "station": "Ugata (Kintetsu), taxi khoảng 10 phút; hoặc Shima-Yokoyama đi bộ 30–45 phút",
+  "why": "Điểm ngắm vịnh Ago từ trên cao, thấy các đảo nhỏ nhấp nhô và bè nuôi ngọc trai, cảnh đại diện của Ise-Shima. Chỉ hợp khi chọn phương án Kashikojima.",
+  "tips": "Không có bus thuận tiện được xác nhận; đi taxi từ Ugata hoặc Kashikojima và hẹn xe về.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/2f422fd2f15a.webp",
+    "caption": "Vịnh Ago từ đài Yokoyama",
+    "credit": "Saigen Jiro / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ago_Bay_viewed_from_Yokoyama_Viewpoint.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/91b3515d8b5d.webp",
+    "caption": "Kashikojima nhìn từ Yokoyama",
+    "credit": "Alpsdake / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kashikojima_from_Yokoyama_Viewpoint.JPG"
+   }
+  ]
+ },
+ "kodaiji": {
+  "lat": 35.0003,
+  "lng": 135.78059,
+  "address": "京都府京都市東山区高台寺下河原町526",
+  "hours": "9:00–17:00",
+  "fee": "¥600",
+  "bestTime": "Buổi sáng",
+  "station": "Gion-Shijo (Keihan), đi bộ khoảng 15 phút",
+  "why": "Chùa của Nene (vợ Toyotomi Hideyoshi), có vườn đá và hồ, rừng trúc phía sau và tầm nhìn ra Kyoto. Nằm ngay trên đường từ Ninenzaka sang Yasaka.",
+  "tips": "Nếu thiếu giờ, chỉ cần ngắm cổng và tường chùa từ phố; vào vườn mất 30–40 phút.",
+  "official": "https://www.kodaiji.com/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/af9e914d781f.webp",
+    "caption": "Vườn Kodaiji",
+    "credit": "663highland / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:170923_Kodaiji_Kyoto_Japan39n.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/84db7e28c907.webp",
+    "caption": "Vườn đá Kodaiji",
+    "credit": "Qwert1234 / Wikimedia Commons",
+    "license": "Public domain (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kodaiji_Garden.JPG"
+   }
+  ]
+ },
+ "ishibe-koji": {
+  "lat": 34.99994,
+  "lng": 135.77968,
+  "address": "京都府京都市東山区下河原通（石塀小路）",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng sớm hoặc chiều tối",
+  "station": "Gion-Shijo (Keihan), đi bộ khoảng 15 phút",
+  "why": "Ngõ lát đá hẹp với tường đá ghép, nhà trà và ryokan, nằm ngay cạnh Ninenzaka và Kodaiji. Yên tĩnh hơn con đường chính.",
+  "tips": "Có nhà ở và ryokan tư nhân, không vào bên trong và giữ yên lặng.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/b4262694d614.webp",
+    "caption": "Ngõ Ishibe-koji",
+    "credit": "Tom Maisey / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ishibe_Alley_in_Kyoto_2015-03-19.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/5ab2020564cd.webp",
+    "caption": "Đèn lồng ở lối vào Ishibe-koji",
+    "credit": "R96340 / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ky%C5%8Dto_Ishibeik%C5%8Dji_Entrance_Latern_Night.jpg"
+   }
+  ]
+ },
+ "kenninji": {
+  "lat": 35.00025,
+  "lng": 135.77374,
+  "address": "京都府京都市東山区小松町584",
+  "hours": "10:00–17:00",
+  "fee": "¥800",
+  "bestTime": "Buổi sáng hoặc đầu chiều",
+  "station": "Gion-Shijo (Keihan), đi bộ 7 phút",
+  "why": "Thiền viện cổ nhất ở Kyoto (lập năm 1202), có tranh trần Song Long vẽ năm 2002 và vườn đá khô Chōon-tei. Yên tĩnh giữa khu Gion.",
+  "tips": "Trang chính thức có thông báo điều chỉnh phí tham quan; giá ¥800 có thể đã tăng.",
+  "official": "https://www.kenninji.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/fe2d8c4ba852.webp",
+    "caption": "Tiểu viện Ryosoku-in trong Kennin-ji",
+    "credit": "Hyppolyte de Saint-Rambert / Wikimedia Commons",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ry%C5%8Dsoku-in_Kennin-ji_(Higashiyama_Kyoto)_Sub-temple_hdsr_S5_01.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/255f6a77c8da.webp",
+    "caption": "Mặt tiền Kennin-ji",
+    "credit": "Adam Jones from Kelowna, BC, Canada / Wikimedia Commons",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Detail_of_Facade_of_Kennin-ji_Zen_Temple_-_Kyoto_-_Japan_-_02_(47928771947).jpg"
+   }
+  ]
+ },
+ "hanamikoji": {
+  "lat": 35.00447,
+  "lng": 135.77514,
+  "address": "京都府京都市東山区祇園町南側",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "17:00–18:30, thường thấy maiko đi làm",
+  "station": "Gion-Shijo (Keihan), đi bộ 3 phút",
+  "why": "Đường chính của Gion với hai dãy ochaya (nhà trà), nhà gỗ và đèn lồng, song song với Shirakawa. Đi thẳng từ Shijo xuống Kenninji.",
+  "tips": "Gion có quy định cấm chụp ở ngõ riêng, có thể bị phạt; không chặn đường maiko.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/e31fcdb0b578.webp",
+    "caption": "Phố Hanamikoji buổi sáng",
+    "credit": "HAGAT hOMSZE / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:JP_%E6%97%A5%E6%9C%AC_Japan_%E4%BA%AC%E9%83%BD_Kyoto_Higashiyama-ku_Gion_%E8%8A%B1%E8%A6%8B%E5%B0%8F%E8%B7%AF%E9%80%9A_Hanamikoji_Dori_10am_morning_June_2026_N13P_01.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/6a5bec24fc77.webp",
+    "caption": "Dãy nhà gỗ ở Hanamikoji",
+    "credit": "HAGAT hOMSZE / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:JP_%E6%97%A5%E6%9C%AC_Japan_%E4%BA%AC%E9%83%BD_Kyoto_Higashiyama-ku_Gion_%E8%8A%B1%E8%A6%8B%E5%B0%8F%E8%B7%AF%E9%80%9A_Hanamikoji_Dori_10am_morning_June_2026_N13P_08.jpg"
+   }
+  ]
+ },
+ "heian-jingu": {
+  "lat": 35.01606,
+  "lng": 135.78289,
+  "address": "京都府京都市左京区岡崎西天王町97",
+  "hours": "6:00–18:00",
+  "fee": "Miễn phí (vườn Shin'en ¥600)",
+  "bestTime": "Chiều muộn, nắng thấp chiếu lên cổng",
+  "station": "Higashiyama (subway Tozai), đi bộ 10 phút",
+  "why": "Đền dựng năm 1895 theo cung điện Heian, cổng torii đỏ cao khoảng 24 m là biểu tượng của Okazaki. Ngay trên đường dạo kênh, thêm 30 phút nếu vào vườn Shin'en.",
+  "tips": "Năm 2026 đền đang sửa chính điện, lối vào vườn đổi vị trí; tình trạng năm 2027 cần kiểm tra.",
+  "official": "https://www.heianjingu.or.jp/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/00dfdf471378.webp",
+    "caption": "Cổng torii lớn Heian Jingu",
+    "credit": "Zairon / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kyoto_Heian-jingu_Gro%C3%9Fes_Torii_5.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/5b734d2950b3.webp",
+    "caption": "Vườn Shin'en",
+    "credit": "Jakub Hałun / Wikimedia Commons",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Heian_Shrine_Garden,_Kyoto,_Japan,_20240820_0954_4946.jpg"
+   }
+  ]
+ },
+ "nanzenji": {
+  "lat": 35.01152,
+  "lng": 135.79272,
+  "address": "京都府京都市左京区南禅寺福地町86",
+  "hours": "8:40–17:00",
+  "fee": "Sân chùa và Suirokaku miễn phí; Hojo ¥600, Sanmon ¥600",
+  "bestTime": "Buổi sáng; chiều muộn cho ảnh Suirokaku",
+  "station": "Keage (subway Tozai), đi bộ 10 phút",
+  "why": "Thiền viện lớn có cổng Sanmon và cầu dẫn nước gạch đỏ Suirokaku (thời Meiji) ngay trong khuôn viên. Vườn Hojo kiểu đá khô.",
+  "tips": "Suirokaku miễn phí; nối được Philosopher's Path ở phía bắc nếu còn sức.",
+  "official": "https://www.nanzenji.or.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/306c401893f8.webp",
+    "caption": "Suirokaku (12/2025)",
+    "credit": "663highland / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:251213_Nanzen-ji_Suirokaku_Kyoto_Japan05s3.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/43e8bdc76934.webp",
+    "caption": "Cổng Sanmon",
+    "credit": "Hyppolyte de Saint-Rambert / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nanzen-ji_All%C3%A9e_et_porte_sanmon.jpg"
+   }
+  ]
+ },
+ "philosophers-path": {
+  "lat": 35.01536,
+  "lng": 135.79476,
+  "address": "京都府京都市左京区（若王子橋〜銀閣寺橋）",
+  "hours": "Tự do",
+  "fee": "Miễn phí",
+  "bestTime": "Buổi sáng yên tĩnh; lá phong rõ từ giữa tháng 11",
+  "station": "Keage (subway) hoặc bus tới Ginkakuji-michi",
+  "why": "Lối đi dạo dài khoảng 2 km ven kênh nhỏ từ Nyakuoji đến Ginkakuji, hai bên là cây anh đào, phong và các quán cà phê. Đi thong thả được từ Nanzenji.",
+  "tips": "Đi từ nam lên bắc để kết thúc ở Ginkakuji (có phí vào), cuối tháng 10 lá phong chưa đỏ.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/2b704094aa27.webp",
+    "caption": "Philosopher's Path",
+    "credit": "Gzzz / Wikimedia Commons",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tetsugaku-no-michi_-_Philosopher's_Walk_-_Kyoto.jpg"
+   }
+  ]
+ },
+ "tenryuji": {
+  "lat": 35.01596,
+  "lng": 135.67377,
+  "address": "京都府京都市右京区嵯峨天龍寺芒ノ馬場町68",
+  "hours": "8:30–17:00",
+  "fee": "¥500 (vườn); ¥800 gồm các sảnh",
+  "bestTime": "8:30–10:00, khi chùa mở cửa",
+  "station": "Arashiyama (Randen), 1 phút; Arashiyama (Hankyu) đi bộ 8 phút",
+  "why": "Thiền viện năm 1339 với vườn Sogenchi từ thời Muromachi (di sản UNESCO), núi Arashiyama làm cảnh mượn. Cổng bắc dẫn thẳng vào rừng trúc nên vào vườn xong là ra đúng tuyến.",
+  "tips": "Mua vé vườn rồi ra cổng bắc sang rừng trúc; tranh Rồng Mây ở sảnh Hatto có vé riêng.",
+  "official": "https://www.tenryuji.com/en/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/df394a9d6966.webp",
+    "caption": "Vườn Sogenchi (11/2008)",
+    "credit": "KimonBerlin / Wikimedia Commons",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tenryu-ji_garden_and_Arashiyama_(3262596496).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/791e057a59e4.webp",
+    "caption": "Hồ trong vườn Tenryu-ji",
+    "credit": "Andrew Kehoe / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tenryu-ji_Zen_Pond.jpg"
+   }
+  ]
+ },
+ "okochi-sanso": {
+  "lat": 35.01663,
+  "lng": 135.66959,
+  "address": "京都府京都市右京区嵯峨小倉山田淵山町8",
+  "hours": "9:00–17:00",
+  "fee": "¥1,000 (gồm matcha và bánh)",
+  "bestTime": "Buổi sáng hoặc đầu chiều",
+  "station": "Arashiyama (Randen/Hankyu), đi bộ khoảng 20 phút qua rừng trúc",
+  "why": "Biệt thự-vườn của diễn viên Okochi Denjiro trên sườn núi Ogura, có đường dạo nhìn xuống Arashiyama và sông Katsura, tách khỏi đám đông. Vé gồm trà và bánh ngọt.",
+  "tips": "Đường dốc, đi giày thoải mái; nằm ngay đầu bắc rừng trúc nên không cần đi vòng.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/f6cb94443b4b.webp",
+    "caption": "Okochi Sanso mùa thu",
+    "credit": "663highland / Wikimedia Commons",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Okochi_Sanso21s3s4592.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/b483e79dda57.webp",
+    "caption": "Vườn Okochi Sanso",
+    "credit": "wkc.1 / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%C5%8Ck%C5%8Dchi_Sans%C5%8D_garden,_Kyoto%3B_September_2014_(03).jpg"
+   }
+  ]
+ },
+ "gioji": {
+  "lat": 35.02339,
+  "lng": 135.66675,
+  "address": "京都府京都市右京区嵯峨鳥居本小坂町32",
+  "hours": "9:00–17:00",
+  "fee": "¥300",
+  "bestTime": "Buổi sáng; rêu đẹp nhất sau mưa",
+  "station": "Bus Kyoto Bus 94 trạm Toriimoto, đi bộ khoảng 10 phút",
+  "why": "Chùa nhỏ phủ rêu với lối mái tranh và vườn tối màu xanh, nằm trên đoạn đường từ Adashino xuống rừng trúc. Yên và ít khách.",
+  "tips": "Phí tham quan có nguồn ghi ¥300, một số nguồn 2026 ghi ¥500; nên kiểm tra.",
+  "official": "https://www.giouji.or.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/5d372a7a0b1a.webp",
+    "caption": "Vườn rêu Gio-ji",
+    "credit": "Daderot / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Gi%C5%8D-ji_-_Kyoto_-_DSC06265.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/972cedb1f5d4.webp",
+    "caption": "Vườn rêu (10/2011)",
+    "credit": "ttshr1970 / Wikimedia Commons",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Gio-ji,_Moss_Garden_-1_(October_2011)_-_panoramio.jpg"
+   }
+  ]
+ },
+ "jojakkoji": {
+  "lat": 35.01969,
+  "lng": 135.66864,
+  "address": "京都府京都市右京区嵯峨小倉山小倉町3",
+  "hours": "9:00–17:00",
+  "fee": "¥500",
+  "bestTime": "Buổi sáng; lá phong chuyển sớm hơn trung tâm",
+  "station": "Arashiyama (Randen), đi bộ khoảng 20 phút",
+  "why": "Chùa trên sườn núi Ogura, nổi tiếng với tháp Tahoto nhìn qua lá phong và lối vào phủ rêu. Là một trong những nơi có màu thu sớm ở Arashiyama.",
+  "tips": "Phí tham quan chưa xác nhận từ nguồn chính thức; leo thang đá khoảng 15 phút.",
+  "official": "https://www.jojakko-ji.or.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/0569a8e978da.webp",
+    "caption": "Jojakko-ji mùa thu",
+    "credit": "663highland / Wikimedia Commons",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Jojakkoji_Kyoto06s3s4500.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/75f99de132c3.webp",
+    "caption": "Tháp Tahoto",
+    "credit": "Casey Yee / Wikimedia Commons",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:J%C5%8Djakkoji_Tah%C5%8Dt%C5%8D_May_17,_2009.jpg"
+   }
+  ]
+ },
+ "kameyama-park": {
+  "lat": 35.01517,
+  "lng": 135.67081,
+  "address": "京都府京都市右京区嵯峨亀ノ尾町",
+  "hours": "24 giờ",
+  "fee": "Miễn phí",
+  "bestTime": "Cuối chiều, nắng thấp trên hẻm núi",
+  "station": "Arashiyama (Randen/Hankyu), đi bộ khoảng 10–15 phút",
+  "why": "Công viên trên đồi nhìn xuống sông Hozu và núi Arashiyama, có vài bia đá và tượng tưởng niệm. Ít khách hơn các điểm quanh Togetsukyo.",
+  "tips": "Đi từ rừng trúc lên qua lối nhỏ, mất thêm khoảng 30 phút; màu thu thường chậm hơn nhiều chùa.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/0421c34be55e.webp",
+    "caption": "Công viên Kameyama (11/2007)",
+    "credit": "KimonBerlin / Wikimedia Commons",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kameyama_Park_(2700621132).jpg"
+   }
+  ]
+ },
+ "tofukuji": {
+  "lat": 34.97717,
+  "lng": 135.77457,
+  "address": "京都府京都市東山区本町15-778",
+  "hours": "9:00–16:00",
+  "fee": "Sân chùa miễn phí; cầu Tsutenkyo/Kaisando ¥600, vườn Hojo ¥600",
+  "bestTime": "Buổi sáng, trước khi khởi hành Nara",
+  "station": "Tofukuji (Keihan/JR), 1 ga từ Fushimi-Inari",
+  "why": "Thiền viện lớn với cổng Sanmon cổ nhất Nhật và cầu gỗ Tsutenkyo bắc qua thung lũng toàn cây phong, nổi tiếng về màu thu cao điểm cuối tháng 11. Cuối tháng 10 ít khách, vẫn đáng ghé cho kiến trúc và vườn đá khô.",
+  "tips": "Giá Tsutenkyo tăng lên ¥1,000 trong mùa lá đỏ; 27/10 còn ngoài mùa, nhưng nhiều nguồn khác nhau về giá Hojo.",
+  "official": "https://tofukuji.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/21fadea9aef3.webp",
+    "caption": "Tofuku-ji (11/2025)",
+    "credit": "lumoplank / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tofuku-ji,_Kyoto_-_Tofukuji6592.jpg"
+   }
+  ]
+ },
+ "isuien-yoshikien": {
+  "lat": 34.68546,
+  "lng": 135.83791,
+  "address": "奈良県奈良市水門町74（依水園）／登大路町60-1（吉城園）",
+  "hours": "9:30–16:30",
+  "fee": "Isuien ¥1,200; Yoshikien miễn phí cho khách nước ngoài (mang hộ chiếu)",
+  "bestTime": "Buổi sáng hoặc đầu chiều",
+  "station": "Kintetsu-Nara, đi bộ khoảng 20 phút; Todaiji gần 5–10 phút",
+  "why": "Hai vườn cạnh Todaiji: Isuien lấy mái Nandaimon và núi Wakakusa làm cảnh mượn, Yoshikien là vườn rêu có hồ và quán trà. Yên tĩnh giữa hai điểm đông khách.",
+  "tips": "27/10/2027 là Thứ Tư nên Isuien mở; giá và giờ Yoshikien chưa xác nhận trên trang chính thức.",
+  "official": "https://isuien.or.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/05bc0e2816d8.webp",
+    "caption": "Vườn Isuien (10/2013)",
+    "credit": "KimonBerlin / Wikimedia Commons",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Isuien_garden_in_Nara_(11140703813).jpg"
+   }
+  ]
+ },
+ "nigatsudo": {
+  "lat": 34.68928,
+  "lng": 135.84428,
+  "address": "奈良県奈良市雑司町406-1",
+  "hours": "~7:30–17:30",
+  "fee": "Miễn phí",
+  "bestTime": "16:00–17:00, hoàng hôn từ ban công",
+  "station": "Kintetsu-Nara, đi bộ khoảng 25 phút; từ Daibutsuden 10 phút",
+  "why": "Sảnh gỗ trên sườn đồi phía đông Todaiji, ban công rộng nhìn xuống Nara và núi Ikoma, nổi tiếng với lễ Omizutori tháng 3. Nằm trên lối đi từ Todaiji sang Kasuga Taisha.",
+  "tips": "Leo bậc thang đá và đi dọc đường nhỏ; giờ vào cổng cần kiểm tra theo mùa.",
+  "official": "https://www.todaiji.or.jp/en/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/ad82b5cf7d82.webp",
+    "caption": "Nigatsu-do",
+    "credit": "Nekosuki / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Todai-ji_Nigatsu-do_National_Treasure_%E5%9B%BD%E5%AE%9D%E6%9D%B1%E5%A4%A7%E5%AF%BA%E4%BA%8C%E6%9C%88%E5%A0%8214.JPG"
+   }
+  ]
+ },
+ "kofukuji": {
+  "lat": 34.68251,
+  "lng": 135.83198,
+  "address": "奈良県奈良市登大路町48",
+  "hours": "9:00–17:00",
+  "fee": "Miễn phí (ngắm tháp); sảnh Chukondo ¥500",
+  "bestTime": "16:00–17:00, ảnh tháp phản chiếu bên hồ Sarusawa",
+  "station": "Kintetsu-Nara, đi bộ 5 phút",
+  "why": "Tháp 5 tầng cao khoảng 50 m, cao thứ hai Nhật Bản sau Toji, nằm ngay trên đường từ ga Kintetsu Nara vào công viên. Có thể ngắm miễn phí từ ngoài.",
+  "tips": "Chụp tháp từ bờ hồ Sarusawa; phí các sảnh bên trong chưa xác nhận sau điều chỉnh 2025.",
+  "official": "https://www.kohfukuji.com/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/41fc8bfbbc44.webp",
+    "caption": "Tháp 5 tầng Kofuku-ji",
+    "credit": "Nekosuki / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kofuku-ji_Five-story_Pagoda_National_Treasure_%E5%9B%BD%E5%AE%9D%E8%88%88%E7%A6%8F%E5%AF%BA%E4%BA%94%E9%87%8D%E5%A1%94102.JPG"
+   }
+  ]
+ },
+ "ukimido": {
+  "lat": 34.68013,
+  "lng": 135.83866,
+  "address": "奈良県奈良市登大路町（鷺池）",
+  "hours": "24 giờ",
+  "fee": "Miễn phí",
+  "bestTime": "Sáng sớm hoặc hoàng hôn khi mặt hồ phẳng",
+  "station": "Kintetsu-Nara, đi bộ khoảng 10 phút",
+  "why": "Đình lục giác nổi giữa hồ Sagi-ike ở rìa công viên Nara, phản chiếu trên mặt nước. Nằm trên đường tới Naramachi hoặc Isuien.",
+  "tips": "Đi từ ga Kintetsu-Nara qua Noborioji xuống bờ hồ, tiện nối sang Naramachi hoặc Isuien.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/1b8accb0f30b.webp",
+    "caption": "Đình nổi Ukimido",
+    "credit": "Christophe95 / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ukimi-d%C5%8D_(Nara).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/b07a9c752ddd.webp",
+    "caption": "Ukimido mùa thu",
+    "credit": "vera46 / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ukimi-d%C5%8D,_Nara_Park_-_Nov_23,_2007.jpg"
+   }
+  ]
+ },
+ "kuromon": {
+  "lat": 34.6652,
+  "lng": 135.507,
+  "address": "大阪府大阪市中央区日本橋2-4-1",
+  "hours": "~9:00–17:00",
+  "fee": "Miễn phí",
+  "bestTime": "9:30–11:00",
+  "station": "Nipponbashi, 2 phút; Namba đi bộ khoảng 10 phút",
+  "why": "Chợ thực phẩm dài khoảng 600 m: hải sản tươi, sashimi, cua nướng, thịt xiên, trái cây. Ăn đứng tại quầy, cách Dotonbori vài phút đi bộ.",
+  "tips": "Hỏi giá trước khi gọi hải sản; nhiều quầy dọn từ khoảng 14:00–15:00 nên đi sớm.",
+  "official": "https://kuromon.com/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/b13434c3328c.webp",
+    "caption": "Chợ Kuromon",
+    "credit": "Mr.ちゅらさん / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Osaka_Kuromon_Ichiba_Market_2017-12_(1).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/40389cbea036.webp",
+    "caption": "Phố chợ Kuromon",
+    "credit": "DVMG / Wikimedia Commons",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kuromon_Market_-_panoramio.jpg"
+   }
+  ]
+ },
+ "namba-yasaka": {
+  "lat": 34.66148,
+  "lng": 135.49673,
+  "address": "大阪府大阪市浪速区元町2-9-19",
+  "hours": "Ban ngày",
+  "fee": "Miễn phí",
+  "bestTime": "Buổi chiều",
+  "station": "Daikokucho (subway), đi bộ 5–6 phút; Namba đi bộ khoảng 10 phút",
+  "why": "Đền có sảnh haiden hình đầu sư tử khổng lồ, cao khoảng 12 m, nơi cầu thi cử và may mắn. Yên tĩnh dù chỉ cách khu Namba ít phút đi bộ.",
+  "tips": "Chụp đầu sư tử từ phía trước; đi cùng các điểm Namba để tiết kiệm đi lại.",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/60d01e1bc77f.webp",
+    "caption": "Đền Namba Yasaka",
+    "credit": "sailko / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nanba_yasaka_shrine_exterior.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/355efd95b511.webp",
+    "caption": "Haiden hình đầu sư tử",
+    "credit": "Ethan Doyle White / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Front_of_the_Haiden_at_Namba_Yasaka_Jinja_in_Osaka.jpg"
+   }
+  ]
+ },
+ "tsutenkaku": {
+  "lat": 34.65253,
+  "lng": 135.5063,
+  "address": "大阪府大阪市浪速区恵美須東1-18-6",
+  "hours": "9:00–22:00",
+  "fee": "¥1,500 (cập nhật 4/2026, cần kiểm tra)",
+  "bestTime": "Chiều tối sau 17:00, neon Shinsekai sáng",
+  "station": "Ebisucho (subway Sakaisuji), đi bộ 3 phút",
+  "why": "Tháp cao khoảng 108 m làm biểu tượng của Shinsekai, xung quanh là phố kushikatsu, biển hiệu retro và các quầy bình dân. Phong cách Osaka khác hẳn Dotonbori.",
+  "tips": "Quy tắc kushikatsu: chỉ chấm nước sốt một lần, không nhúng lại; giá vé tháp vừa thay đổi.",
+  "official": "https://www.tsutenkaku.co.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/85ce3cd08159.webp",
+    "caption": "Tháp Tsutenkaku và Shinsekai",
+    "credit": "Sakai Yayoi / Wikimedia Commons",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinsekai_and_Tsutenkaku_Tower.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/d4818354d248.webp",
+    "caption": "Tsutenkaku về đêm",
+    "credit": "Dick Thomas Johnson / Wikimedia Commons",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinsekai_Tsutenkaku_at_night_2022-04-23.jpg"
+   }
+  ]
+ },
+ "osaka-castle": {
+  "lat": 34.68722,
+  "lng": 135.52583,
+  "address": "大阪府大阪市中央区大阪城1-1",
+  "hours": "9:00–17:00",
+  "fee": "Công viên miễn phí; Tenshukaku ¥1,200",
+  "bestTime": "Buổi sáng; cây ginkgo vàng từ giữa tháng 11",
+  "station": "Osakajokoen (JR Loop), đi bộ 15 phút; Morinomiya; Tanimachi 4-chome",
+  "why": "Lâu đài do Toyotomi Hideyoshi dựng năm 1583, tháp chính hiện nay phục dựng năm 1931 với bảo tàng bên trong và tầng cao nhìn ra thành phố. Hào nước và tường đá rộng.",
+  "tips": "Cách Namba khoảng 25–30 phút; chỉ nên đi nếu cắt Umeda hoặc Amerikamura khỏi D11.",
+  "official": "https://www.osakacastle.net/",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/027d8a49e444.webp",
+    "caption": "Tháp chính lâu đài Osaka",
+    "credit": "Mc681 / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Osaka_Castle_Keep_Tower_in_201411_001.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/8c44c67ac375.webp",
+    "caption": "Hào ngoài lâu đài Osaka (11/2016)",
+    "credit": "Martin Falbisoner / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Osaka_Castle_Outer_Moat_and_Osaka_Business_Park,_November_2016.jpg"
+   }
+  ]
+ },
+ "umeda-sky": {
+  "lat": 34.70529,
+  "lng": 135.49053,
+  "address": "大阪府大阪市北区大淀中1-1-88",
+  "hours": "9:30–22:30",
+  "fee": "¥2,000",
+  "bestTime": "Hoàng hôn khoảng 17:00–18:00 (mặt trời lặn ngày 28/10 khoảng 17:20)",
+  "station": "Osaka / Umeda, đi bộ khoảng 10 phút",
+  "why": "Đài ngắm vòng tròn trên cao khoảng 173 m nối hai tòa tháp, có hành lang ngoài trời nhìn 360 độ Osaka. Hợp với buổi chiều ở Umeda rồi ngắm hoàng hôn.",
+  "tips": "Vé đặt trước online rẻ hơn khoảng ¥200; gió trên đài hơi lạnh vào cuối tháng 10.",
+  "official": "https://www.skybldg.co.jp/",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/ef6a89615f1c.webp",
+    "caption": "Đài ngắm Kuchu Teien",
+    "credit": "Laika ac from UK / Wikimedia Commons",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Floating_Garden_Observatory_(24848519271).jpg"
+   }
+  ]
  }
 };
 
-export const EXTRA_PLACES: ExtraPlace[] = [];
+export const EXTRA_PLACES: ExtraPlace[] = [
+ {
+  "id": "manseibashi",
+  "name": "mAAch ecute Kanda Manseibashi (former Manseibashi Station)",
+  "ja": "mAAch ecute 神田万世橋（旧万世橋駅）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 1,
+  "category": "landmark",
+  "detourMin": 0
+ },
+ {
+  "id": "kanda-myojin",
+  "name": "Kanda Myojin Shrine",
+  "ja": "神田神社（神田明神）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 1,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "yanaka-ginza",
+  "name": "Yanaka Ginza shopping street (Yuyake Dandan stairs)",
+  "ja": "谷中ぎんざ商店街（夕焼けだんだん）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 2,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "nezu-shrine",
+  "name": "Nezu Shrine",
+  "ja": "根津神社",
+  "kind": "sight",
+  "role": "plan",
+  "day": 2,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "sensoji",
+  "name": "Senso-ji",
+  "ja": "浅草寺",
+  "kind": "sight",
+  "role": "plan",
+  "day": 2,
+  "category": "temple",
+  "detourMin": 0
+ },
+ {
+  "id": "sumida-river",
+  "name": "Sumida Park and Sumida River terrace (near Azuma Bridge)",
+  "ja": "隅田公園・隅田川テラス（吾妻橋周辺）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 2,
+  "category": "viewpoint",
+  "detourMin": 0
+ },
+ {
+  "id": "nakamise",
+  "name": "Nakamise-dori",
+  "ja": "仲見世通り",
+  "kind": "sight",
+  "role": "plan",
+  "day": 2,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "nihonbashi",
+  "name": "Nihonbashi Bridge",
+  "ja": "日本橋",
+  "kind": "sight",
+  "role": "plan",
+  "day": 2,
+  "category": "landmark",
+  "detourMin": 0
+ },
+ {
+  "id": "meiji-jingu",
+  "name": "Meiji Jingu",
+  "ja": "明治神宮",
+  "kind": "sight",
+  "role": "plan",
+  "day": 3,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "omotesando",
+  "name": "Omotesando avenue (zelkova trees, Omotesando Hills)",
+  "ja": "表参道（ケヤキ並木・表参道ヒルズ）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 3,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "shibuya-crossing",
+  "name": "Shibuya Scramble Crossing",
+  "ja": "渋谷スクランブル交差点",
+  "kind": "sight",
+  "role": "plan",
+  "day": 3,
+  "category": "landmark",
+  "detourMin": 0
+ },
+ {
+  "id": "onshi-hakone-park",
+  "name": "Onshi Hakone Park",
+  "ja": "恩賜箱根公園",
+  "kind": "sight",
+  "role": "plan",
+  "day": 4,
+  "category": "garden",
+  "detourMin": 0
+ },
+ {
+  "id": "lake-ashi-cruise",
+  "name": "Lake Ashi sightseeing cruise (Moto-Hakone to Togendai)",
+  "ja": "箱根海賊船（元箱根港→桃源台港）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 4,
+  "category": "nature",
+  "detourMin": 0
+ },
+ {
+  "id": "owakudani",
+  "name": "Owakudani",
+  "ja": "大涌谷",
+  "kind": "sight",
+  "role": "plan",
+  "day": 4,
+  "category": "nature",
+  "detourMin": 0
+ },
+ {
+  "id": "gora",
+  "name": "Gora (around Gora Station)",
+  "ja": "強羅（強羅駅周辺）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 4,
+  "category": "landmark",
+  "detourMin": 0
+ },
+ {
+  "id": "shimizu-port",
+  "name": "Shimizu Fish Market Kashi no Ichi / S-Pulse Dream Plaza (Shimizu Port)",
+  "ja": "清水魚市場 河岸の市・エスパルスドリームプラザ（清水港）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 5,
+  "category": "market",
+  "detourMin": 0
+ },
+ {
+  "id": "ameyoko",
+  "name": "Ameyoko market street",
+  "ja": "アメヤ横丁（アメ横）",
+  "kind": "sight",
+  "role": "along",
+  "day": 1,
+  "category": "market",
+  "detourMin": 10
+ },
+ {
+  "id": "yanaka-cemetery",
+  "name": "Yanaka Cemetery (Sakura-dori avenue)",
+  "ja": "谷中霊園（桜通り）",
+  "kind": "sight",
+  "role": "along",
+  "day": 2,
+  "category": "nature",
+  "detourMin": 10
+ },
+ {
+  "id": "ueno-park",
+  "name": "Ueno Park and Shinobazu Pond (Benten-do)",
+  "ja": "上野恩賜公園・不忍池弁天堂",
+  "kind": "sight",
+  "role": "detour",
+  "day": 2,
+  "category": "garden",
+  "detourMin": 60
+ },
+ {
+  "id": "kappabashi",
+  "name": "Kappabashi Kitchen Town (Dougu street)",
+  "ja": "かっぱ橋道具街",
+  "kind": "sight",
+  "role": "detour",
+  "day": 2,
+  "category": "street",
+  "detourMin": 20
+ },
+ {
+  "id": "azuma-skytree",
+  "name": "Azuma Bridge (Skytree and Asahi building view)",
+  "ja": "吾妻橋（スカイツリー眺望）",
+  "kind": "sight",
+  "role": "along",
+  "day": 2,
+  "category": "viewpoint",
+  "detourMin": 5
+ },
+ {
+  "id": "coredo-muromachi",
+  "name": "COREDO Muromachi",
+  "ja": "COREDO室町（室町テラス）",
+  "kind": "sight",
+  "role": "along",
+  "day": 2,
+  "category": "landmark",
+  "detourMin": 5
+ },
+ {
+  "id": "mitsui-main",
+  "name": "Mitsui Main Building",
+  "ja": "三井本館",
+  "kind": "sight",
+  "role": "along",
+  "day": 2,
+  "category": "landmark",
+  "detourMin": 5
+ },
+ {
+  "id": "shinjuku-gyoen",
+  "name": "Shinjuku Gyoen National Garden",
+  "ja": "新宿御苑",
+  "kind": "sight",
+  "role": "detour",
+  "day": 3,
+  "category": "garden",
+  "detourMin": 100
+ },
+ {
+  "id": "takeshita",
+  "name": "Takeshita Street",
+  "ja": "竹下通り",
+  "kind": "sight",
+  "role": "along",
+  "day": 3,
+  "category": "street",
+  "detourMin": 10
+ },
+ {
+  "id": "cat-street",
+  "name": "Cat Street",
+  "ja": "キャットストリート",
+  "kind": "sight",
+  "role": "along",
+  "day": 3,
+  "category": "street",
+  "detourMin": 10
+ },
+ {
+  "id": "miyashita",
+  "name": "Miyashita Park",
+  "ja": "MIYASHITA PARK（宮下公園）",
+  "kind": "sight",
+  "role": "along",
+  "day": 3,
+  "category": "landmark",
+  "detourMin": 10
+ },
+ {
+  "id": "nezu-museum",
+  "name": "Nezu Museum",
+  "ja": "根津美術館",
+  "kind": "sight",
+  "role": "detour",
+  "day": 3,
+  "category": "museum",
+  "detourMin": 90
+ },
+ {
+  "id": "hakone-shrine",
+  "name": "Hakone Shrine and Heiwa no Torii",
+  "ja": "箱根神社・平和の鳥居",
+  "kind": "sight",
+  "role": "detour",
+  "day": 4,
+  "category": "shrine",
+  "detourMin": 45
+ },
+ {
+  "id": "hakone-sekisho",
+  "name": "Hakone Sekisho (Hakone Checkpoint)",
+  "ja": "箱根関所",
+  "kind": "sight",
+  "role": "detour",
+  "day": 4,
+  "category": "landmark",
+  "detourMin": 50
+ },
+ {
+  "id": "cedar-avenue",
+  "name": "Hakone Old Tokaido cedar avenue",
+  "ja": "箱根旧街道杉並木",
+  "kind": "sight",
+  "role": "along",
+  "day": 4,
+  "category": "nature",
+  "detourMin": 5
+ },
+ {
+  "id": "hakone-oam",
+  "name": "Hakone Open-Air Museum",
+  "ja": "箱根彫刻の森美術館",
+  "kind": "sight",
+  "role": "detour",
+  "day": 4,
+  "category": "museum",
+  "detourMin": 120
+ },
+ {
+  "id": "gora-park",
+  "name": "Hakone Gora Park",
+  "ja": "箱根強羅公園",
+  "kind": "sight",
+  "role": "detour",
+  "day": 4,
+  "category": "garden",
+  "detourMin": 60
+ },
+ {
+  "id": "sengokuhara",
+  "name": "Sengokuhara Susuki (pampas grass) field",
+  "ja": "仙石原すすき草原",
+  "kind": "sight",
+  "role": "detour",
+  "day": 4,
+  "category": "nature",
+  "detourMin": 100
+ },
+ {
+  "id": "odawara-castle",
+  "name": "Odawara Castle",
+  "ja": "小田原城",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "landmark",
+  "detourMin": 90
+ },
+ {
+  "id": "atami",
+  "name": "Atami seafront (Atami Sun Beach and Moon Terrace)",
+  "ja": "熱海サンビーチ・ムーンテラス",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "landmark",
+  "detourMin": 90
+ },
+ {
+  "id": "satta-pass",
+  "name": "Satta Pass (Satta-toge)",
+  "ja": "薩埵峠",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "viewpoint",
+  "detourMin": 120
+ },
+ {
+  "id": "miho-matsubara",
+  "name": "Miho no Matsubara",
+  "ja": "三保松原",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "nature",
+  "detourMin": 130
+ },
+ {
+  "id": "nihondaira-yume-terrace",
+  "name": "Nihondaira Yume Terrace",
+  "ja": "日本平夢テラス",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "viewpoint",
+  "detourMin": 150
+ },
+ {
+  "id": "sumpu-castle",
+  "name": "Sumpu Castle Park",
+  "ja": "駿府城公園",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "landmark",
+  "detourMin": 70
+ },
+ {
+  "id": "ise-geku",
+  "name": "Ise Jingu Geku (Toyouke Daijingu)",
+  "ja": "豊受大神宮（外宮）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 6,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "sengukan",
+  "name": "Sengukan Museum (Ise Jingu)",
+  "ja": "神宮せんぐう館",
+  "kind": "sight",
+  "role": "plan",
+  "day": 6,
+  "category": "museum",
+  "detourMin": 0
+ },
+ {
+  "id": "ise-naiku",
+  "name": "Ise Jingu Naiku (Kotai Jingu)",
+  "ja": "皇大神宮（内宮）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 6,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "uji-bridge",
+  "name": "Uji Bridge (Ise)",
+  "ja": "宇治橋",
+  "kind": "sight",
+  "role": "plan",
+  "day": 6,
+  "category": "landmark",
+  "detourMin": 0
+ },
+ {
+  "id": "okage-yokocho",
+  "name": "Okage Yokocho",
+  "ja": "おかげ横丁",
+  "kind": "sight",
+  "role": "plan",
+  "day": 6,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "ise-kawasaki",
+  "name": "Ise Kawasaki merchant district",
+  "ja": "河崎（伊勢河崎商人館周辺）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 6,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "toba-marine-terminal",
+  "name": "Toba Marine Terminal",
+  "ja": "鳥羽マリンターミナル",
+  "kind": "sight",
+  "role": "plan",
+  "day": 7,
+  "category": "landmark",
+  "detourMin": 0
+ },
+ {
+  "id": "toshijima-wagu",
+  "name": "Toshijima – Wagu Port",
+  "ja": "答志島 和具港",
+  "kind": "sight",
+  "role": "plan",
+  "day": 7,
+  "category": "island",
+  "detourMin": 0
+ },
+ {
+  "id": "toshijima-toshi",
+  "name": "Toshijima – Toshi Port",
+  "ja": "答志島 答志港",
+  "kind": "sight",
+  "role": "plan",
+  "day": 7,
+  "category": "island",
+  "detourMin": 0
+ },
+ {
+  "id": "kashikojima",
+  "name": "Kashikojima (alternative)",
+  "ja": "賢島",
+  "kind": "sight",
+  "role": "plan",
+  "day": 7,
+  "category": "island",
+  "detourMin": 0
+ },
+ {
+  "id": "espana-cruise",
+  "name": "Espana Cruise (Ago Bay)",
+  "ja": "賢島エスパーニャクルーズ",
+  "kind": "sight",
+  "role": "plan",
+  "day": 7,
+  "category": "nature",
+  "detourMin": 0
+ },
+ {
+  "id": "kiyomizudera",
+  "name": "Kiyomizu-dera",
+  "ja": "清水寺",
+  "kind": "sight",
+  "role": "plan",
+  "day": 8,
+  "category": "temple",
+  "detourMin": 0
+ },
+ {
+  "id": "sannenzaka",
+  "name": "Sannenzaka & Ninenzaka",
+  "ja": "三年坂（産寧坂）・二年坂",
+  "kind": "sight",
+  "role": "plan",
+  "day": 8,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "yasaka-shrine",
+  "name": "Yasaka Shrine",
+  "ja": "八坂神社",
+  "kind": "sight",
+  "role": "plan",
+  "day": 8,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "gion-shirakawa",
+  "name": "Gion Shirakawa (Tatsumi Bridge)",
+  "ja": "祇園白川（巽橋周辺）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 8,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "okazaki",
+  "name": "Okazaki Park & Lake Biwa Canal",
+  "ja": "岡崎公園・琵琶湖疏水",
+  "kind": "sight",
+  "role": "plan",
+  "day": 8,
+  "category": "nature",
+  "detourMin": 0
+ },
+ {
+  "id": "kitano-tenmangu",
+  "name": "Kitano Tenmangu (alt. 25th market)",
+  "ja": "北野天満宮",
+  "kind": "sight",
+  "role": "plan",
+  "day": 8,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "takasegawa",
+  "name": "Takase River (Kiyamachi)",
+  "ja": "高瀬川（木屋町）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 7,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "kamogawa-sanjo",
+  "name": "Kamo River at Sanjo Ohashi",
+  "ja": "鴨川・三条大橋",
+  "kind": "sight",
+  "role": "plan",
+  "day": 7,
+  "category": "nature",
+  "detourMin": 0
+ },
+ {
+  "id": "nishiki-market",
+  "name": "Nishiki Market",
+  "ja": "錦市場",
+  "kind": "sight",
+  "role": "plan",
+  "day": 7,
+  "category": "market",
+  "detourMin": 0
+ },
+ {
+  "id": "otagi-nenbutsuji",
+  "name": "Otagi Nenbutsu-ji",
+  "ja": "愛宕念仏寺",
+  "kind": "sight",
+  "role": "plan",
+  "day": 9,
+  "category": "temple",
+  "detourMin": 0
+ },
+ {
+  "id": "saga-toriimoto",
+  "name": "Saga-Toriimoto preserved street",
+  "ja": "嵯峨鳥居本（重要伝統的建造物群保存地区）",
+  "kind": "sight",
+  "role": "plan",
+  "day": 9,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "adashino-nenbutsuji",
+  "name": "Adashino Nenbutsu-ji",
+  "ja": "化野念仏寺",
+  "kind": "sight",
+  "role": "plan",
+  "day": 9,
+  "category": "temple",
+  "detourMin": 0
+ },
+ {
+  "id": "bamboo-grove",
+  "name": "Sagano Bamboo Grove",
+  "ja": "嵯峨野 竹林の小径",
+  "kind": "sight",
+  "role": "plan",
+  "day": 9,
+  "category": "nature",
+  "detourMin": 0
+ },
+ {
+  "id": "togetsukyo",
+  "name": "Togetsukyo Bridge",
+  "ja": "渡月橋",
+  "kind": "sight",
+  "role": "plan",
+  "day": 9,
+  "category": "landmark",
+  "detourMin": 0
+ },
+ {
+  "id": "fushimi-sake",
+  "name": "Gekkeikan Okura Sake Museum & Fushimi canal",
+  "ja": "月桂冠大倉記念館・伏見酒蔵地区",
+  "kind": "sight",
+  "role": "plan",
+  "day": 9,
+  "category": "museum",
+  "detourMin": 0
+ },
+ {
+  "id": "teradaya",
+  "name": "Teradaya",
+  "ja": "寺田屋",
+  "kind": "sight",
+  "role": "plan",
+  "day": 9,
+  "category": "landmark",
+  "detourMin": 0
+ },
+ {
+  "id": "fushimi-inari",
+  "name": "Fushimi Inari Taisha",
+  "ja": "伏見稲荷大社",
+  "kind": "sight",
+  "role": "plan",
+  "day": 10,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "todaiji",
+  "name": "Todai-ji Daibutsuden",
+  "ja": "東大寺 大仏殿",
+  "kind": "sight",
+  "role": "plan",
+  "day": 10,
+  "category": "temple",
+  "detourMin": 0
+ },
+ {
+  "id": "nara-park",
+  "name": "Nara Park",
+  "ja": "奈良公園",
+  "kind": "sight",
+  "role": "plan",
+  "day": 10,
+  "category": "nature",
+  "detourMin": 0
+ },
+ {
+  "id": "kasuga-taisha",
+  "name": "Kasuga Taisha",
+  "ja": "春日大社",
+  "kind": "sight",
+  "role": "plan",
+  "day": 10,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "naramachi",
+  "name": "Naramachi",
+  "ja": "ならまち",
+  "kind": "sight",
+  "role": "plan",
+  "day": 10,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "hozenji",
+  "name": "Hozenji Yokocho",
+  "ja": "法善寺横丁",
+  "kind": "sight",
+  "role": "plan",
+  "day": 11,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "doguyasuji",
+  "name": "Sennichimae Doguyasuji",
+  "ja": "千日前道具屋筋商店街",
+  "kind": "sight",
+  "role": "plan",
+  "day": 11,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "dotonbori",
+  "name": "Dotonbori",
+  "ja": "道頓堀",
+  "kind": "sight",
+  "role": "plan",
+  "day": 10,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "nakazakicho",
+  "name": "Nakazakicho",
+  "ja": "中崎町",
+  "kind": "sight",
+  "role": "plan",
+  "day": 11,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "amerikamura",
+  "name": "Amerikamura",
+  "ja": "アメリカ村",
+  "kind": "sight",
+  "role": "plan",
+  "day": 11,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "futami-meoto-iwa",
+  "name": "Futami Okitama Shrine (Meoto Iwa)",
+  "ja": "二見興玉神社（夫婦岩）",
+  "kind": "sight",
+  "role": "detour",
+  "day": 7,
+  "category": "shrine",
+  "detourMin": 70
+ },
+ {
+  "id": "mikimoto-pearl-island",
+  "name": "Mikimoto Pearl Island",
+  "ja": "ミキモト真珠島",
+  "kind": "sight",
+  "role": "detour",
+  "day": 7,
+  "category": "island",
+  "detourMin": 80
+ },
+ {
+  "id": "yokoyama-observatory",
+  "name": "Yokoyama Observatory (Ago Bay)",
+  "ja": "横山展望台",
+  "kind": "sight",
+  "role": "detour",
+  "day": 7,
+  "category": "viewpoint",
+  "detourMin": 110
+ },
+ {
+  "id": "kodaiji",
+  "name": "Kodai-ji",
+  "ja": "高台寺",
+  "kind": "sight",
+  "role": "detour",
+  "day": 8,
+  "category": "temple",
+  "detourMin": 30
+ },
+ {
+  "id": "ishibe-koji",
+  "name": "Ishibe-koji Lane",
+  "ja": "石塀小路",
+  "kind": "sight",
+  "role": "along",
+  "day": 8,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "kenninji",
+  "name": "Kennin-ji",
+  "ja": "建仁寺",
+  "kind": "sight",
+  "role": "detour",
+  "day": 8,
+  "category": "temple",
+  "detourMin": 45
+ },
+ {
+  "id": "hanamikoji",
+  "name": "Hanamikoji Street",
+  "ja": "花見小路通",
+  "kind": "sight",
+  "role": "along",
+  "day": 8,
+  "category": "street",
+  "detourMin": 0
+ },
+ {
+  "id": "heian-jingu",
+  "name": "Heian Jingu & Shin'en Garden",
+  "ja": "平安神宮・神苑",
+  "kind": "sight",
+  "role": "along",
+  "day": 8,
+  "category": "shrine",
+  "detourMin": 0
+ },
+ {
+  "id": "nanzenji",
+  "name": "Nanzen-ji & Suirokaku Aqueduct",
+  "ja": "南禅寺・水路閣",
+  "kind": "sight",
+  "role": "detour",
+  "day": 8,
+  "category": "temple",
+  "detourMin": 45
+ },
+ {
+  "id": "philosophers-path",
+  "name": "Philosopher's Path",
+  "ja": "哲学の道",
+  "kind": "sight",
+  "role": "detour",
+  "day": 8,
+  "category": "street",
+  "detourMin": 60
+ },
+ {
+  "id": "tenryuji",
+  "name": "Tenryu-ji",
+  "ja": "天龍寺",
+  "kind": "sight",
+  "role": "detour",
+  "day": 9,
+  "category": "temple",
+  "detourMin": 30
+ },
+ {
+  "id": "okochi-sanso",
+  "name": "Okochi Sanso Garden",
+  "ja": "大河内山荘庭園",
+  "kind": "sight",
+  "role": "detour",
+  "day": 9,
+  "category": "garden",
+  "detourMin": 45
+ },
+ {
+  "id": "gioji",
+  "name": "Gio-ji",
+  "ja": "祇王寺",
+  "kind": "sight",
+  "role": "detour",
+  "day": 9,
+  "category": "temple",
+  "detourMin": 30
+ },
+ {
+  "id": "jojakkoji",
+  "name": "Jojakko-ji",
+  "ja": "常寂光寺",
+  "kind": "sight",
+  "role": "detour",
+  "day": 9,
+  "category": "temple",
+  "detourMin": 40
+ },
+ {
+  "id": "kameyama-park",
+  "name": "Arashiyama Park Kameyama (viewpoint)",
+  "ja": "嵐山公園（亀山地区）",
+  "kind": "sight",
+  "role": "detour",
+  "day": 9,
+  "category": "viewpoint",
+  "detourMin": 30
+ },
+ {
+  "id": "tofukuji",
+  "name": "Tofuku-ji",
+  "ja": "東福寺",
+  "kind": "sight",
+  "role": "detour",
+  "day": 10,
+  "category": "temple",
+  "detourMin": 60
+ },
+ {
+  "id": "isuien-yoshikien",
+  "name": "Isuien & Yoshikien Gardens",
+  "ja": "依水園・吉城園",
+  "kind": "sight",
+  "role": "detour",
+  "day": 10,
+  "category": "garden",
+  "detourMin": 45
+ },
+ {
+  "id": "nigatsudo",
+  "name": "Todai-ji Nigatsu-do",
+  "ja": "東大寺 二月堂",
+  "kind": "sight",
+  "role": "along",
+  "day": 10,
+  "category": "temple",
+  "detourMin": 0
+ },
+ {
+  "id": "kofukuji",
+  "name": "Kofuku-ji Five-story Pagoda",
+  "ja": "興福寺 五重塔",
+  "kind": "sight",
+  "role": "along",
+  "day": 10,
+  "category": "temple",
+  "detourMin": 0
+ },
+ {
+  "id": "ukimido",
+  "name": "Ukimido (Sagi-ike Pond)",
+  "ja": "浮見堂",
+  "kind": "sight",
+  "role": "along",
+  "day": 10,
+  "category": "viewpoint",
+  "detourMin": 0
+ },
+ {
+  "id": "kuromon",
+  "name": "Kuromon Market",
+  "ja": "黒門市場",
+  "kind": "sight",
+  "role": "along",
+  "day": 11,
+  "category": "market",
+  "detourMin": 0
+ },
+ {
+  "id": "namba-yasaka",
+  "name": "Namba Yasaka Shrine",
+  "ja": "難波八阪神社",
+  "kind": "sight",
+  "role": "detour",
+  "day": 11,
+  "category": "shrine",
+  "detourMin": 25
+ },
+ {
+  "id": "tsutenkaku",
+  "name": "Tsutenkaku & Shinsekai",
+  "ja": "通天閣・新世界",
+  "kind": "sight",
+  "role": "detour",
+  "day": 11,
+  "category": "landmark",
+  "detourMin": 90
+ },
+ {
+  "id": "osaka-castle",
+  "name": "Osaka Castle",
+  "ja": "大阪城 天守閣",
+  "kind": "sight",
+  "role": "detour",
+  "day": 11,
+  "category": "landmark",
+  "detourMin": 120
+ },
+ {
+  "id": "umeda-sky",
+  "name": "Umeda Sky Building Kuchu Teien Observatory",
+  "ja": "梅田スカイビル 空中庭園展望台",
+  "kind": "sight",
+  "role": "detour",
+  "day": 11,
+  "category": "viewpoint",
+  "detourMin": 60
+ }
+];
 
-export const FUJI_RESEARCH: FujiResearch | null = null;
+export const FUJI_RESEARCH: FujiResearch | null = {
+ "climate": {
+  "octoberVisibility": [
+   {
+    "place": "Thành phố Fuji, quan sát lúc 8h",
+    "stat": "41% số ngày tháng 10 thấy trọn núi, thêm 28% thấy một phần",
+    "years": "trung bình 1991–2025",
+    "source": "https://www.city.fuji.shizuoka.jp/"
+   },
+   {
+    "place": "Thành phố Fuji, tháng 10/2025",
+    "stat": "10 ngày thấy trọn núi, 8 ngày thấy một phần, 13 ngày không thấy",
+    "years": "2025",
+    "source": "https://www.city.fuji.shizuoka.jp/"
+   },
+   {
+    "place": "Thành phố Fuji, cả năm theo giờ",
+    "stat": "Thấy trọn núi 37% lúc 8h, 23% lúc 12h, 22% lúc 16h",
+    "years": "trung bình 1991–2025",
+    "source": "https://www.city.fuji.shizuoka.jp/"
+   },
+   {
+    "place": "Đài khí tượng Kōfu",
+    "stat": "Tuyết đầu mùa trước 21/10 ở 5 trong 10 năm gần nhất",
+    "years": "2016–2025",
+    "source": "https://www.data.jma.go.jp/kofu/"
+   }
+  ],
+  "timeOfDay": "Buổi sáng trong hơn hẳn: mây và hơi nước bốc lên từ trưa, nên cơ hội thấy trọn núi lúc 8h gần gấp rưỡi lúc 16h. Ngày 4 nên tới hồ Ashi trước 11h; ngày 5 đoạn tàu Mishima – Fujikawa rơi vào khoảng 10–11h, vẫn còn tốt.",
+  "snowcap": "Đài Kōfu ghi nhận tuyết đầu mùa trên đỉnh trung bình ngày 2/10, nhưng những năm gần đây muộn: 5/10/2023, 7/11/2024 (muộn nhất từng ghi), 23/10/2025. Vì vậy ngày 21–22/10 có khoảng một nửa khả năng thấy chóp trắng; đừng coi là chắc chắn.",
+  "sunrise": "Quanh 21/10 ở Hakone: mặt trời mọc khoảng 5:55, lặn khoảng 17:05.",
+  "sources": [
+   "Báo cáo 富士山観測の記録 2025, thành phố Fuji",
+   "Thông báo 富士山の初冠雪 của Đài khí tượng Kōfu 2023, 2024, 2025 và bảng ngày tuyết đầu mùa"
+  ]
+ },
+ "spots": [
+  {
+   "id": "onshi-hakone-park",
+   "day": 4,
+   "role": "planned",
+   "fujiNote": "Đứng ở sân thượng tầng 2 nhà ngắm hồ nhìn về hướng Tây Bắc qua mặt hồ; sáng sớm đến giữa buổi thường quang hơn chiều.",
+   "photoTips": "Lấy mặt hồ và rặng núi Hakone làm tiền cảnh; chóp Fuji nhô trên vành núi phía tây. Đến trước 11h.",
+   "bestTime": "Sáng, trước 11h",
+   "crowd": "Thường vắng hơn bờ hồ Moto-Hakone."
+  },
+  {
+   "id": "owakudani",
+   "day": 4,
+   "role": "planned",
+   "fujiNote": "Nhìn về phía Tây Tây Bắc từ khu cửa hàng quanh ga hoặc đường mòn lên cao; trời quang buổi sáng đến trưa là rõ nhất.",
+   "photoTips": "Cho cột khói lưu huỳnh và cabin ropeway vào khung; ống 2× khi trời trong.",
+   "bestTime": "Trước trưa",
+   "crowd": "Đông khách đoàn từ 10h."
+  },
+  {
+   "id": "lake-ashi-cruise-deck",
+   "nameVi": "Giữa hồ Ashi, trên thuyền",
+   "lat": 35.215,
+   "lng": 138.999,
+   "eye": 4,
+   "fixedElev": 725,
+   "day": 4,
+   "role": "planned",
+   "fujiNote": "Khi thuyền đi giữa hồ, vành núi phía tây ở rất gần nên che Fuji; núi hiện rõ hơn ở đoạn đầu gần Moto-Hakone và từ cabin ropeway.",
+   "photoTips": "Đứng boong sau bên trái khi rời Moto-Hakone để có hồ và cổng torii Hakone Jinja.",
+   "bestTime": "Chuyến trước 12h"
+  },
+  {
+   "id": "sounzan",
+   "day": 4,
+   "role": "planned"
+  },
+  {
+   "id": "mizunoto",
+   "day": 4,
+   "role": "planned",
+   "fujiNote": "Ryokan nằm trong thung lũng Kowakudani, không nhìn thấy Fuji."
+  },
+  {
+   "id": "satta-pass",
+   "nameVi": "Đèo Satta",
+   "lat": 35.07029,
+   "lng": 138.54126,
+   "day": 5,
+   "role": "detour",
+   "fujiNote": "Đứng ở điểm ngắm Satta-toge nhìn về Bắc–Đông Bắc qua vịnh Suruga; sáng sớm đến giữa buổi là rõ nhất.",
+   "photoTips": "Ống 2–3×, chờ lúc tàu Tōkaidō chạy qua bên dưới.",
+   "bestTime": "Sáng sớm",
+   "access": "Đi bộ khoảng 1 giờ từ ga Yui; muốn ghé phải bỏ bữa trưa ở Shimizu."
+  },
+  {
+   "id": "miho-no-matsubara",
+   "nameVi": "Miho no Matsubara",
+   "lat": 34.99474,
+   "lng": 138.5238,
+   "day": 5,
+   "role": "detour",
+   "fujiNote": "Đứng ở bãi hoặc lối rừng thông nhìn Đông Bắc qua vịnh; Fuji nằm trên rặng thông, buổi sáng thường rõ hơn chiều.",
+   "photoTips": "Đi ra bãi cát, lấy thân thông làm khung.",
+   "bestTime": "Sáng",
+   "access": "Bus từ ga Shimizu khoảng 25 phút mỗi chiều."
+  },
+  {
+   "id": "nihondaira-yume-terrace",
+   "nameVi": "Nihondaira Yume Terrace",
+   "lat": 34.97448,
+   "lng": 138.46586,
+   "day": 5,
+   "role": "detour",
+   "fujiNote": "Từ hành lang ngắm cảnh nhìn về Đông Bắc; buổi sáng sớm đến giữa buổi cho Fuji rõ, xa hơn là bán đảo Izu và vịnh Suruga.",
+   "access": "Bus từ ga Shizuoka khoảng 35 phút."
+  },
+  {
+   "id": "kaizan",
+   "day": 5,
+   "role": "planned",
+   "fujiNote": "Từ khu cảng Kashi no Ichi, Fuji ở hướng đông bắc phía sau bến cá nếu trời trong.",
+   "photoTips": "Ra cầu tàu S-Pulse Dream Plaza để có mặt nước làm tiền cảnh."
+  },
+  {
+   "id": "oishi-park",
+   "nameVi": "Công viên Ōishi",
+   "lat": 35.5234,
+   "lng": 138.7462,
+   "day": 3,
+   "role": "alt",
+   "fujiNote": "Bờ bắc hồ Kawaguchi, Fuji ở phía nam bên kia mặt hồ.",
+   "photoTips": "Mặt hồ yên buổi sáng cho bóng núi; hoa kochia đổi đỏ cuối tháng 10.",
+   "bestTime": "Sáng sớm",
+   "crowd": "Đông từ 10h."
+  },
+  {
+   "id": "chureito-pagoda",
+   "nameVi": "Tháp Chūreitō",
+   "lat": 35.5012,
+   "lng": 138.8015,
+   "day": 3,
+   "role": "alt",
+   "fujiNote": "Khung kinh điển: tháp năm tầng và Fuji, từ đài phía trên tháp.",
+   "photoTips": "Leo khoảng 400 bậc; ống 2× để nén tháp và núi.",
+   "crowd": "Rất đông, có thể xếp hàng ở đài chụp."
+  }
+ ],
+ "trainWindows": [],
+ "notes": "Tổng hợp từ nguồn sơ cấp do agent tải về (báo cáo quan sát Fuji của thành phố Fuji, thông báo của Đài khí tượng Kōfu); số liệu tầm nhìn tính lại bằng scripts/build-fuji.mjs."
+};

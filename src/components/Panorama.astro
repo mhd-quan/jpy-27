@@ -11,7 +11,7 @@ const H = 300;
 const min = Math.min(...data.angles);
 const max = Math.max(...data.angles);
 const lo = min - (max - min) * 0.35;
-const hi = max + (max - min) * 0.25;
+const hi = max + (max - min) * 0.45;
 const x = (i: number) => (i / (data.angles.length - 1)) * W;
 const y = (a: number) => H - ((a - lo) / (hi - lo)) * H;
 const line = data.angles.map((a, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(a).toFixed(1)}`).join('');
@@ -22,6 +22,7 @@ const sx = x(si);
 let peak = si;
 for (let i = Math.max(0, si - 8); i <= Math.min(data.angles.length - 1, si + 8); i++) if (data.angles[i] > data.angles[peak]) peak = i;
 const py = y(data.angles[peak]);
+const ly = Math.max(18, py - 40);
 const ticks = [] as { x: number; label: string }[];
 const DIRS = ['B', 'ĐB', 'Đ', 'ĐN', 'N', 'TN', 'T', 'TB'];
 for (let az = Math.ceil(data.from / 5) * 5; az <= data.from + data.step * (data.angles.length - 1); az += 5) {
@@ -42,8 +43,8 @@ const id = `pg-${Math.round(data.summitAz * 100)}`;
     <rect x="0" y="0" width={W} height={H} fill={`url(#${id})`} rx="0" />
     <path d={fill} fill="var(--ridge)" />
     <path d={line} fill="none" stroke="var(--ridge-edge)" stroke-width="1.2" />
-    <line x1={sx} x2={sx} y1={py - 34} y2={py - 8} stroke="var(--ink)" stroke-width="1.2" />
-    <text x={sx} y={py - 40} text-anchor="middle" class="pk">Fuji</text>
+    <line x1={sx} x2={sx} y1={ly + 6} y2={py - 8} stroke="var(--ink)" stroke-width="1.2" />
+    <text x={sx} y={ly} text-anchor="middle" class="pk">Fuji</text>
     {
       ticks.map((t) => (
         <g>

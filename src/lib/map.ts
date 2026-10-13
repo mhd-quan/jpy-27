@@ -28,6 +28,9 @@ export interface TripMapOptions {
   legs: RouteLeg[];
   pins: Pin[];
   bounds?: [[number, number], [number, number]]; // [[w,s],[e,n]]
+  center?: [number, number];
+  zoom?: number;
+  labelMinZoom?: number;
   cooperative?: boolean;
   terrain?: boolean;
   pitch?: number;
@@ -86,8 +89,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
   const map: MLMap = new maplibregl.Map({
     container,
     style: baseStyle(theme),
-    bounds: opts.bounds as LngLatBoundsLike | undefined,
-    fitBoundsOptions: { padding: opts.padding ?? 48 },
+    ...(opts.center ? { center: opts.center, zoom: opts.zoom ?? 9 } : { bounds: opts.bounds as LngLatBoundsLike | undefined, fitBoundsOptions: { padding: opts.padding ?? 48 } }),
     pitch: opts.pitch ?? 0,
     bearing: opts.bearing ?? 0,
     maxPitch: 70,
@@ -106,7 +108,17 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
   const addOverlay = () => {
     const dark = theme === 'dark';
     const casing = dark ? '#000000' : '#ffffff';
-    if (opts.terrain) map.setTerrain({ source: 'dem', exaggeration: 1.35 });
+    if (opts.terrain) {
+      // a separate source for 3D terrain keeps the hillshade crisp
+      map.addSource('terrain', {
+        type: 'raster-dem',
+        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+        encoding: 'terrarium',
+        tileSize: 256,
+        maxzoom: 13,
+      });
+      map.setTerrain({ source: 'terrain', exaggeration: 1.35 });
+    }
 
     map.addSource('route', { type: 'geojson', data: routes, promoteId: 'id' });
     map.addSource('pins', { type: 'geojson', data: pins, promoteId: 'id' });
@@ -258,7 +270,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
         id: 'pin-label',
         type: 'symbol',
         source: 'pins',
-        minzoom: opts.labels === 'main' ? 5 : 11,
+        minzoom: opts.labelMinZoom ?? (opts.labels === 'main' ? 5 : 11),
         filter:
           opts.labels === 'main'
             ? ['==', ['get', 'kind'], 'stay']
@@ -335,6 +347,10 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
       if (p) map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), zoom), duration: duration(900), essential: false });
     },
     fit(bounds = opts.bounds, padding: maplibregl.PaddingOptions | number = opts.padding ?? 48) {
+      if (opts.center && bounds === opts.bounds) {
+        map.easeTo({ center: opts.center, zoom: opts.zoom, pitch: opts.pitch ?? 0, bearing: opts.bearing ?? 0, duration: duration(900) });
+        return;
+      }
       if (bounds) map.fitBounds(bounds as LngLatBoundsLike, { padding, duration: duration(900) });
     },
     clear() {

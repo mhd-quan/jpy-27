@@ -2,6 +2,12 @@
 import Base from '../../layouts/Base.astro';
 import { BOOKINGS, CHECKS, PASSES, PHRASES } from '../../data/trip';
 
+// "22/10, 0:00" in Japan time
+const jst = (iso: string) => {
+  const d = new Date(new Date(iso).getTime() + 9 * 3600_000);
+  return `${d.getUTCDate()}/${d.getUTCMonth() + 1}, ${d.getUTCHours()}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+};
+
 const STATIONS = [
   ['Iseshi', '伊勢市'],
   ['Ujiyamada', '宇治山田'],
@@ -37,7 +43,7 @@ const STATIONS = [
             <div class="when">
               {b.at ? (
                 <time datetime={b.at} data-countdown={b.at} class="tnum">
-                  {new Date(b.at).toLocaleString('vi-VN', { timeZone: 'Asia/Tokyo', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })} giờ Nhật
+                  {jst(b.at)} giờ Nhật
                 </time>
               ) : (
                 <span class="muted">{b.rule}</span>

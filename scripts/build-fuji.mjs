@@ -187,9 +187,7 @@ function panorama(o, eye = EYE, fixedElev, span = 22) {
 const research = existsSync(join(root, 'research/fuji.json')) ? JSON.parse(readFileSync(join(root, 'research/fuji.json'), 'utf8')) : null;
 const FALLBACK = [
   { id: 'onshi-hakone-park', lat: 35.19585, lng: 139.02475, day: 4, role: 'planned' },
-  { id: 'moto-hakone-viewpoint', nameVi: 'Bờ hồ Moto-Hakone', lat: 35.2032, lng: 139.0268, day: 4, role: 'along' },
   { id: 'lake-ashi-cruise-deck', nameVi: 'Giữa hồ Ashi, trên thuyền', lat: 35.215, lng: 138.999, day: 4, role: 'planned', eye: 4, fixedElev: 725 },
-  { id: 'togendai', lat: 35.2379, lng: 138.9953, day: 4, role: 'planned', fixedElev: 725 },
   { id: 'owakudani', lat: 35.2444, lng: 139.0196, day: 4, role: 'planned' },
   { id: 'sounzan', lat: 35.2464, lng: 139.0356, day: 4, role: 'planned' },
   { id: 'mizunoto', day: 4, role: 'planned' },
@@ -336,12 +334,11 @@ const outTracks = tracks.map((t) => ({
   id: t.id,
   line: t.line,
   day: t.day,
-  samples: t.samples.map((p, i, arr) => {
+  samples: t.samples.map((p) => {
     const st = nearestStation(t.stations ?? (t.stations = stationsFor(t.line)), p);
     const sl = sightline(p, 3);
     let rel = sl.bearing - p.heading;
     rel = ((rel + 540) % 360) - 180;
-    void arr;
     return { km: Math.round(p.km * 10) / 10, lat: Math.round(p.lat * 1e5) / 1e5, lng: Math.round(p.lng * 1e5) / 1e5, v: sl.visible ? 1 : 0, side: SIDE(rel), dist: sl.km, shown: sl.shownM, st };
   }),
 }));
