@@ -2,6 +2,8 @@
 import type { Img } from '../data/catalog';
 import { imgSrc } from '../lib/trip';
 
+const isTabelog = (src: string) => src.includes('tblg.k-img.com');
+
 interface Props {
   images: Img[];
   /** caption used when the photographer's caption is generic */
@@ -22,11 +24,22 @@ const KIND_LABEL: Record<string, string> = {
   detail: 'Chi tiết',
   other: 'Ảnh',
 };
-const list = images.slice(0, limit).map((im) => ({
-  ...im,
-  text: GENERIC.has(im.caption.trim()) ? (im.kind === 'dish' && dish ? dish : KIND_LABEL[im.kind]) : im.caption,
-}));
-const isTabelog = (src: string) => src.includes('tblg.k-img.com');
+let dishUsed = false;
+const list = images.slice(0, limit).map((im) => {
+  let text = im.caption;
+  if (GENERIC.has(im.caption.trim())) {
+    // name the planned dish once; later generic shots just say what kind of photo they are
+    text = im.kind === 'dish' && dish && !dishUsed ? dish : KIND_LABEL[im.kind];
+    if (im.kind === 'dish') dishUsed = true;
+  }
+  return { ...im, text };
+});
+const creditLabel = (im: Img) => {
+  if (!isTabelog(im.src)) return im.credit || 'Nguồn';
+  const who = im.credit.replace('/ Tabelog', '').trim();
+  return who ? `${who} · Tabelog` : 'Tabelog';
+};
+
 ---
 
 {
@@ -52,7 +65,7 @@ const isTabelog = (src: string) => src.includes('tblg.k-img.com');
               <span class="credit">
                 {im.page ? (
                   <a href={im.page} target="_blank" rel="noopener noreferrer">
-                    {isTabelog(im.src) ? `${im.credit.replace(' / Tabelog', '')} · Tabelog` : im.credit || 'Nguồn'}
+                    {creditLabel(im)}
                   </a>
                 ) : (
                   im.credit
@@ -81,8 +94,8 @@ const isTabelog = (src: string) => src.includes('tblg.k-img.com');
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--bleed, 0px);
-    padding-inline: var(--bleed, 0px);
+    scroll-padding-inline: var(--inset, var(--bleed, 0px));
+    padding-inline: var(--inset, var(--bleed, 0px));
     padding-bottom: 4px;
     scrollbar-width: none;
   }

@@ -42,7 +42,8 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
       p.dish && ['Gọi gì', p.dish],
       p.price && ['Mỗi người', p.price],
       p.fee && ['Vé', p.fee],
-      p.hours && ['Giờ mở', p.hours.length > 140 ? `${p.hours.slice(0, 140)}…` : p.hours],
+      // Tabelog's English opening-hours blurbs are long and untranslated; keep only short time strings
+      p.hours && !/[A-Za-z]{4,}/.test(p.hours) && p.hours.length < 90 && ['Giờ mở', p.hours],
       p.closed && ['Nghỉ', p.closed],
       p.pay && ['Thanh toán', PAY[p.pay]],
       p.bestTime && ['Nên đến', p.bestTime],
@@ -242,7 +243,7 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
     margin: 6px 0 0;
   }
   .s-gallery {
-    margin: 20px calc(-1 * var(--bleed)) 0;
+    margin-top: 20px;
   }
   .s-note {
     margin: 20px 0 0;

@@ -12,4 +12,6 @@ export default defineConfig({
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   devToolbar: { enabled: false },
   scopedStyleStrategy: 'class',
+  // maplibre-gl is imported lazily; pre-bundle it so the dev server does not re-optimise mid-load
+  vite: { optimizeDeps: { include: ['maplibre-gl'] } },
 });

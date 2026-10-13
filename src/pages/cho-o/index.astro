@@ -118,7 +118,7 @@ const total = STAYS.reduce((s, x) => s + x.target * (x.id === 'mizunoto' ? 1 : N
     margin: 4px 0 0;
   }
   .gal {
-    --bleed: max(var(--gutter), calc((100vw - var(--wrap)) / 2));
+    --inset: max(var(--gutter), calc((100% - var(--wrap)) / 2));
     margin-top: 24px;
   }
   .grid {

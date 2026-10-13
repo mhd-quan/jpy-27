@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import MapView from '../components/MapView.astro';
 import RouteSpark from '../components/RouteSpark.astro';
-import { DAY_VIEWS, CHAPTERS, place, routeLeg, tripTotals, fmtYen, shortDate, url } from '../lib/trip';
+import { DAY_VIEWS, CHAPTERS, place, routeLeg, tripTotals, fmtYen, shortDate, url, allPlacesOf } from '../lib/trip';
 import { boundsOf } from '../lib/geo';
 import { BUDGET, TRIP } from '../data/trip';
 import { LINES } from '../data/lines';
@@ -44,6 +44,7 @@ const foodStrip = foodIds
     return img ? { p, img } : null;
   })
   .filter(Boolean) as { p: ReturnType<typeof place>; img: ReturnType<typeof place>['images'][number] }[];
+const foodCount = allPlacesOf('food').filter((p) => p.role !== 'alt').length;
 const daysOf = (n: number[]) => (n.length > 1 ? `Ngày ${n[0]}–${n.at(-1)}` : `Ngày ${n[0]}`);
 const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
 ---
@@ -160,8 +161,8 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
 
   <section class="band section" aria-labelledby="food-title">
     <div class="wrap">
-      <h2 class="t-1" id="food-title">Ba mươi bữa đáng nhớ.</h2>
-      <p class="t-lead food-lead">Từ sandwich trứng ở Yanaka tới thịt nướng ở Namba. Ít sashimi liên tiếp, nhiều món nóng và món địa phương.</p>
+      <h2 class="t-1" id="food-title">Những bữa đáng nhớ.</h2>
+      <p class="t-lead food-lead">{foodCount} quán, từ sandwich trứng ở Yanaka tới thịt nướng ở Namba. Ít sashimi liên tiếp, nhiều món nóng và món địa phương.</p>
     </div>
     <div class="food-strip" role="list">
       {
