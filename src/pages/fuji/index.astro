@@ -1,0 +1,623 @@
+---
+import Base from '../../layouts/Base.astro';
+import MapView from '../../components/MapView.astro';
+import Panorama from '../../components/Panorama.astro';
+import Gallery from '../../components/Gallery.astro';
+import { FUJI_SPOTS, FUJI_PANORAMAS, FUJI_TRACKS, FUJI_SUMMIT } from '../../data/fuji.gen';
+import { FUJI_RESEARCH } from '../../data/research.gen';
+import { hasPlace, place, url, fmtKm } from '../../lib/trip';
+import { encodePolyline, compass } from '../../lib/geo';
+import { LINES } from '../../data/lines';
+import type { Pin, RouteLeg } from '../../lib/map';
+
+type Spot = (typeof FUJI_SPOTS)[number];
+const research = (FUJI_RESEARCH ?? {}) as Record<string, any>;
+const rSpots: Record<string, any> = Object.fromEntries((research.spots ?? []).map((s: any) => [s.id, s]));
+
+const NAMES: Record<string, string> = {
+  'lake-ashi-cruise-deck': 'Giữa hồ Ashi, trên thuyền',
+  'moto-hakone-viewpoint': 'Bờ hồ Moto-Hakone',
+  togendai: 'Bến Tōgendai',
+  sounzan: 'Ga Sōunzan',
+};
+const nameOf = (s: Spot) => NAMES[s.id] ?? (hasPlace(s.id) ? place(s.id).name : (s.name ?? rSpots[s.id]?.nameEn ?? s.id));
+const jaOf = (s: Spot) => (hasPlace(s.id) ? place(s.id).ja : (s.ja ?? rSpots[s.id]?.nameJa));
+const imagesOf = (s: Spot) => {
+  const r = rSpots[s.id]?.images ?? [];
+  const fromResearch = r
+    .filter((im: any) => im?.url)
+    .map((im: any) => ({ kind: 'view' as const, src: im.url, caption: im.caption ?? '', credit: im.credit ?? '', page: im.page }));
+  if (fromResearch.length) return fromResearch;
+  return hasPlace(s.id) ? place(s.id).images.filter((i) => i.kind === 'view' || i.kind === 'exterior').slice(0, 3) : [];
+};
+
+const size = (deg: number) =>
+  deg < 1.2 ? 'cỡ một ngón út giơ thẳng tay' : deg < 2.5 ? 'cỡ ngón cái giơ thẳng tay' : deg < 5.5 ? 'cỡ ba ngón tay khép lại' : 'cỡ nửa nắm tay';
+const LENSES: [string, number][] = [
+  ['1×', 69],
+  ['2×', 38],
+  ['3×', 26],
+  ['5×', 17],
+];
+const lens = (widthDeg: number) => {
+  const need = widthDeg / 0.5;
+  const pick = [...LENSES].reverse().find(([, fov]) => fov >= need);
+  return pick ? pick[0] : '1×';
+};
+const shown = (s: Spot) =>
+  !s.visible
+    ? `Bị địa hình che, cách ${fmtKm(s.blockKm ?? 0)}`
+    : s.shownM >= 2400
+      ? `Thấy gần trọn núi, khoảng ${s.shownM.toLocaleString('vi-VN')} m phần trên`
+      : s.shownM >= 1200
+        ? `Thấy nửa trên, khoảng ${s.shownM.toLocaleString('vi-VN')} m`
+        : `Thấy phần chóp, khoảng ${s.shownM.toLocaleString('vi-VN')} m`;
+
+const GROUPS = [
+  { day: 4, title: 'Ngày 4, Hakone', note: 'Hồ Ashi nằm trong lòng một miệng núi lửa cổ; vành núi phía tây che bớt chân Fuji, nên phần nhìn thấy phụ thuộc nhiều vào chỗ đứng.' },
+  { day: 5, title: 'Ngày 5, dọc Tōkaidō', note: 'Ngồi bên phải tàu từ Mishima tới Fujikawa. Rẽ qua Satta hoặc Miho chỉ khi đổi hẳn bữa trưa.' },
+  { day: 3, title: 'Phương án Kawaguchiko thay ngày 3', note: 'Gần núi nhất, Fuji lớn nhất, nhưng đổi cả ngày Tokyo và thêm khoảng ¥8.000–12.000.' },
+];
+const spotsBy = (day: number) => FUJI_SPOTS.filter((s) => s.day === day).sort((a, b) => Number(b.visible) - Number(a.visible) || a.km - b.km);
+
+// Map: summit, spots, lines of sight
+const pins: Pin[] = [
+  { id: 'fuji-summit', lat: FUJI_SUMMIT.lat, lng: FUJI_SUMMIT.lng, kind: 'fuji', label: 'Fuji 3.776 m' },
+  ...FUJI_SPOTS.map((s) => ({ id: s.id, lat: s.lat, lng: s.lng, kind: (s.visible ? 'sight' : 'along') as Pin['kind'], label: nameOf(s) })),
+];
+const sightLegs: RouteLeg[] = FUJI_SPOTS.map((s) => ({
+  id: `sight-${s.id}`,
+  p: encodePolyline([
+    [s.lat, s.lng],
+    [FUJI_SUMMIT.lat, FUJI_SUMMIT.lng],
+  ]),
+  color: '#1d1d1f',
+  mode: s.visible ? 'sight' : 'sightx',
+}));
+const trackLegs: RouteLeg[] = FUJI_TRACKS.map((t) => ({
+  id: t.id,
+  p: encodePolyline(t.samples.map((x) => [x.lat, x.lng])),
+  color: LINES[t.line as keyof typeof LINES].color,
+  mode: 'train',
+}));
+const mapConfig = {
+  legs: [...trackLegs, ...sightLegs],
+  pins,
+  bounds: [
+    [138.4, 34.95],
+    [139.2, 35.55],
+  ] as [[number, number], [number, number]],
+  terrain: true,
+  pitch: 48,
+  bearing: -40,
+  cooperative: true,
+  labels: 'all' as const,
+  padding: 40,
+};
+
+// Train window strips
+const TRACK_LABEL: Record<string, { title: string; from: string; to: string; skipUrbanKm?: number }> = {
+  romancecar: { title: 'Romancecar, sáng ngày 4', from: 'Shinjuku', to: 'Hakone-Yumoto', skipUrbanKm: 30 },
+  tokaido: { title: 'JR Tōkaidō, ngày 5', from: 'Odawara', to: 'Shimizu' },
+  shinkansen: { title: 'Shinkansen, chiều ngày 5', from: 'Shizuoka', to: '70 km đầu' },
+};
+const tracks = FUJI_TRACKS.filter((t) => t.samples.length > 10).map((t) => {
+  const info = TRACK_LABEL[t.line] ?? { title: t.line, from: '', to: '' };
+  const total = t.samples.at(-1)!.km;
+  // runs of consecutive visible samples on one side
+  const runs: { side: string; a: (typeof t.samples)[number]; b: (typeof t.samples)[number] }[] = [];
+  for (const s of t.samples) {
+    if (!s.v || (info.skipUrbanKm && s.km < info.skipUrbanKm) || s.dist > 75) continue;
+    const side = s.side === 'ahead' || s.side === 'behind' ? s.side : s.side;
+    const last = runs.at(-1);
+    if (last && last.side === side && s.km - last.b.km <= 3.1) last.b = s;
+    else runs.push({ side, a: s, b: s });
+  }
+  const best = runs.filter((r) => r.side === 'right' || r.side === 'left').sort((x, y) => y.b.km - y.a.km - (x.b.km - x.a.km));
+  return { ...t, info, total, runs: best.slice(0, 3) };
+});
+const SIDE_VI: Record<string, string> = { right: 'bên phải', left: 'bên trái', ahead: 'phía trước', behind: 'phía sau' };
+const climate = research.climate ?? null;
+const panoList = [
+  { id: 'onshi-hakone-park', label: 'Onshi Hakone Park' },
+  { id: 'owakudani', label: 'Ōwakudani' },
+  { id: 'satta-pass', label: 'Đèo Satta' },
+  { id: 'oishi-park', label: 'Hồ Kawaguchi' },
+].filter((p) => FUJI_PANORAMAS[p.id]);
+const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
+---
+
+<Base title="Fuji" description="Nhìn Fuji ở đâu trong chuyến đi: khoảng cách, hướng, phần núi lộ ra tính từ địa hình thật, cửa sổ tàu và cách chụp." sheets={FUJI_SPOTS.filter((s) => hasPlace(s.id)).map((s) => s.id)}>
+  <section class="wrap hero">
+    <h1 class="t-display">Fuji.</h1>
+    <p class="t-lead">
+      Đỉnh cao 3.776 m. Từ Onshi Hakone Park cách {onshi ? fmtKm(onshi.km) : '33 km'} về phía {onshi ? compass(onshi.bearing).toLowerCase() : 'tây bắc'}. Mọi con số dưới đây tính từ bản đồ địa hình thật — vẫn cần trời quang để thấy.
+    </p>
+  </section>
+
+  {
+    panoList.length > 0 && (
+      <section class="wrap pano-wrap" aria-label="Đường chân trời nhìn về Fuji">
+        <div class="pano-tabs" role="tablist">
+          {panoList.map((p, i) => (
+            <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-pano={p.id}>
+              {p.label}
+            </button>
+          ))}
+        </div>
+        {panoList.map((p, i) => (
+          <div class="pano-item" data-pano-item={p.id} hidden={i !== 0}>
+            <Panorama data={FUJI_PANORAMAS[p.id]} label={`Đường chân trời nhìn từ ${p.label} về phía Fuji`} />
+          </div>
+        ))}
+        <p class="t-small muted pano-note">
+          Đường chân trời thật tính từ dữ liệu độ cao, nhìn về phía Fuji trong khoảng ±22°. Trục đứng phóng đại để dễ thấy hình núi.
+        </p>
+      </section>
+    )
+  }
+
+  <section class="map-wrap" aria-label="Bản đồ địa hình vùng Fuji">
+    <MapView id="fuji" config={mapConfig} class="fuji-map" label="Bản đồ 3D vùng Fuji, với tia ngắm từ từng điểm tới đỉnh" />
+    <p class="wrap t-small muted map-note">
+      Đường liền: tầm nhìn thông tới đỉnh. Đường nét đứt: bị núi gần hơn che. Kéo hai ngón để nghiêng và xoay.
+    </p>
+  </section>
+
+  {
+    climate && (
+      <section class="band section-tight" aria-labelledby="climate-t">
+        <div class="wrap">
+          <h2 class="t-2" id="climate-t">
+            Khả năng thấy núi cuối tháng 10
+          </h2>
+          <div class="climate">
+            {(climate.octoberVisibility ?? []).slice(0, 4).map((c: any) => (
+              <div>
+                <strong>{c.stat}</strong>
+                <span class="t-small muted">
+                  {c.place}
+                  {c.years ? `, ${c.years}` : ''}
+                  {c.source && (
+                    <>
+                      {' '}
+                      <a href={c.source} target="_blank" rel="noopener">
+                        nguồn
+                      </a>
+                    </>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div class="climate-text">
+            {climate.timeOfDay && <p>{climate.timeOfDay}</p>}
+            {climate.snowcap && <p>{climate.snowcap}</p>}
+            {climate.sunrise && <p class="t-small muted">{climate.sunrise}</p>}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    GROUPS.map((g) => {
+      const list = spotsBy(g.day);
+      if (!list.length) return null;
+      return (
+        <section class="wrap section-tight group" aria-labelledby={`g${g.day}`}>
+          <h2 class="t-2" id={`g${g.day}`}>
+            {g.title}
+          </h2>
+          <p class="t-lead group-note">{g.note}</p>
+          <ul class="spots">
+            {list.map((s) => {
+              const r = rSpots[s.id] ?? {};
+              const imgs = imagesOf(s);
+              return (
+                <li class:list={['spot', !s.visible && 'is-blocked']}>
+                  <div class="spot-main">
+                    <div class="spot-head">
+                      <svg class="arrow" viewBox="0 0 40 40" aria-hidden="true" style={`--r:${s.bearing}deg`}>
+                        <circle cx="20" cy="20" r="18" fill="none" stroke="var(--hair)" stroke-width="2" />
+                        <path d="M20 6 L26 22 L20 19 L14 22 Z" fill="currentColor" />
+                      </svg>
+                      <div>
+                        <h3 class="t-3">
+                          {hasPlace(s.id) ? (
+                            <button type="button" class="link-title" data-place={s.id}>
+                              {nameOf(s)}
+                            </button>
+                          ) : (
+                            nameOf(s)
+                          )}
+                        </h3>
+                        {jaOf(s) && (
+                          <p class="ja t-small muted" lang="ja">
+                            {jaOf(s)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <dl class="nums tnum">
+                      <div>
+                        <dt>Tới đỉnh</dt>
+                        <dd>{fmtKm(s.km)}</dd>
+                      </div>
+                      <div>
+                        <dt>Hướng</dt>
+                        <dd>
+                          {compass(s.bearing)}, {s.bearing}°
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Độ cao chỗ đứng</dt>
+                        <dd>{s.elev.toLocaleString('vi-VN')} m</dd>
+                      </div>
+                    </dl>
+                    <p class:list={['verdict', s.visible ? 'ok' : 'no']}>{shown(s)}</p>
+                    {s.visible && (
+                      <p class="t-small">
+                        Núi cao {s.heightDeg.toLocaleString('vi-VN')}° trên đường chân trời — {size(s.heightDeg)}. Chụp iPhone: ống {lens(s.widthDeg)} cho núi chiếm khoảng nửa khung.
+                      </p>
+                    )}
+                    {(r.fujiNote || r.photoTips || r.bestTime) && (
+                      <div class="tips t-small">
+                        {r.fujiNote && <p>{r.fujiNote}</p>}
+                        {r.photoTips && <p>{r.photoTips}</p>}
+                        {r.bestTime && (
+                          <p class="muted">
+                            Nên đến: {r.bestTime}
+                            {r.crowd ? `. ${r.crowd}` : ''}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {imgs.length > 0 && (
+                    <div class="spot-gal">
+                      <Gallery images={imgs} name={nameOf(s)} limit={3} />
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      );
+    })
+  }
+
+  <section class="band section-tight" aria-labelledby="train-t">
+    <div class="wrap">
+      <h2 class="t-2" id="train-t">Cửa sổ tàu</h2>
+      <p class="t-lead group-note">Mỗi vạch là một quãng 1,5 km trên đường ray thật. Màu cho biết Fuji ở phía nào của toa nếu trời quang.</p>
+      <ul class="legend-row t-small">
+        <li><span class="sw right"></span>Bên phải</li>
+        <li><span class="sw left"></span>Bên trái</li>
+        <li><span class="sw ahead"></span>Phía trước hoặc sau</li>
+        <li><span class="sw none"></span>Bị núi che</li>
+      </ul>
+      {
+        tracks.map((t) => (
+          <div class="track">
+            <div class="track-head">
+              <strong>{t.info.title}</strong>
+              <span class="t-small muted">
+                {t.info.from} → {t.info.to}, {fmtKm(t.total)}
+              </span>
+            </div>
+            <div class="strip" role="img" aria-label={`${t.info.title}: các quãng thấy Fuji`}>
+              {t.samples.map((s) => (
+                <span
+                  class:list={[
+                    s.v && s.dist <= 75 && !(t.info.skipUrbanKm && s.km < t.info.skipUrbanKm) ? s.side : 'none',
+                  ]}
+                  title={`km ${s.km}${s.st ? `, gần ${s.st}` : ''}`}
+                />
+              ))}
+            </div>
+            <div class="strip-ends t-micro faint">
+              <span>{t.info.from}</span>
+              <span>{t.info.to}</span>
+            </div>
+            {t.runs.length > 0 && (
+              <ul class="runs t-small">
+                {t.runs.map((r) => (
+                  <li>
+                    <strong>{SIDE_VI[r.side]}</strong>
+                    {r.a.st && r.b.st && r.a.st !== r.b.st ? ` từ ${r.a.st} tới ${r.b.st}` : r.a.st ? ` quanh ${r.a.st}` : ` km ${r.a.km}–${r.b.km}`}, cách đỉnh {fmtKm(r.a.dist)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))
+      }
+      {
+        (research.trainWindows ?? []).length > 0 && (
+          <div class="tw">
+            <h3 class="t-3">Kinh nghiệm người đã đi</h3>
+            <ul>
+              {research.trainWindows.map((w: any) => (
+                <li>
+                  <strong>{w.line}</strong>
+                  <span class="muted">
+                    {' '}
+                    {w.from} → {w.to}, {w.side === 'right' ? 'bên phải' : w.side === 'left' ? 'bên trái' : w.side}.
+                  </span>{' '}
+                  {w.note}
+                  {w.source && (
+                    <>
+                      {' '}
+                      <a href={w.source} target="_blank" rel="noopener">
+                        nguồn
+                      </a>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+      <p class="t-small muted method">
+        Cách tính: đường ngắm từ chỗ đứng tới đỉnh trên dữ liệu độ cao 30 m (Mapzen/AWS), có tính độ cong Trái Đất và khúc xạ khí quyển chuẩn; bỏ qua nhà cửa và cây. Nội đô Tokyo và quãng xa hơn 75 km không tính.
+      </p>
+      <p><a class="btn btn-quiet" href={url('ngay/5/')}>Xem ngày 5</a></p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const tabs = document.querySelectorAll<HTMLButtonElement>('[data-pano]');
+  tabs.forEach((t) =>
+    t.addEventListener('click', () => {
+      tabs.forEach((x) => x.setAttribute('aria-selected', String(x === t)));
+      document.querySelectorAll<HTMLElement>('[data-pano-item]').forEach((p) => (p.hidden = p.dataset.panoItem !== t.dataset.pano));
+    }),
+  );
+</script>
+
+<style>
+  .hero {
+    padding-top: clamp(40px, 7vw, 96px);
+    padding-bottom: 28px;
+  }
+  .hero .t-lead {
+    margin-top: 18px;
+    max-width: 48ch;
+  }
+  .pano-tabs {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+    background: var(--bg-2);
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .pano-tabs button {
+    padding: 7px 14px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .pano-tabs button[aria-selected='true'] {
+    background: var(--bg);
+    box-shadow: var(--shadow-1);
+  }
+  .pano-note {
+    margin-top: 10px;
+  }
+  .map-wrap {
+    padding: 48px clamp(0px, 2vw, 24px) 0;
+  }
+  .fuji-map {
+    height: min(80vh, 760px);
+    min-height: 440px;
+    max-width: 1400px;
+    margin-inline: auto;
+    border-radius: clamp(0px, 2vw, var(--r-xl));
+  }
+  .map-note {
+    margin-top: 12px;
+    margin-bottom: 56px;
+  }
+  .climate {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px 32px;
+    margin-top: 24px;
+  }
+  .climate div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .climate strong {
+    font-size: 19px;
+    line-height: 1.3;
+  }
+  .climate-text {
+    max-width: 68ch;
+    margin-top: 24px;
+  }
+  .climate-text p {
+    margin: 0 0 12px;
+  }
+  .group-note {
+    margin-top: 12px;
+    max-width: 56ch;
+  }
+  .spots {
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .spot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px 36px;
+    padding: 24px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .spot-head {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .arrow {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    color: var(--ink);
+    transform: rotate(var(--r));
+  }
+  .is-blocked .arrow {
+    color: var(--ink-3);
+  }
+  .ja {
+    margin: 2px 0 0;
+  }
+  .nums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    margin: 14px 0 0;
+  }
+  .nums div {
+    display: flex;
+    flex-direction: column;
+  }
+  .nums dt {
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .nums dd {
+    margin: 0;
+    font-weight: 600;
+  }
+  .verdict {
+    display: inline-block;
+    margin: 14px 0 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .verdict.ok {
+    color: var(--good);
+    background: color-mix(in srgb, var(--good) 12%, transparent);
+  }
+  .verdict.no {
+    color: var(--ink-2);
+    background: var(--bg-2);
+  }
+  .tips p {
+    margin: 8px 0 0;
+  }
+  .spot-gal {
+    --bleed: 0px;
+  }
+  @media (max-width: 760px) {
+    .spot {
+      grid-template-columns: 1fr;
+    }
+  }
+  .link-title {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .link-title:hover {
+    color: var(--accent);
+  }
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin: 20px 0 8px;
+    padding: 0;
+    list-style: none;
+    color: var(--ink-2);
+  }
+  .legend-row li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sw {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+  .right {
+    background: #2f7de1;
+  }
+  .left {
+    background: #e9792b;
+  }
+  .ahead,
+  .behind {
+    background: #a1a1a6;
+  }
+  .none {
+    background: var(--bg-3);
+  }
+  .band .none {
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+  }
+  .track {
+    margin-top: 32px;
+  }
+  .track-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .strip {
+    display: flex;
+    gap: 2px;
+    height: 28px;
+  }
+  .strip span {
+    flex: 1;
+    border-radius: 3px;
+  }
+  .strip-ends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+  .runs {
+    margin: 10px 0 0;
+    padding-left: 1.1em;
+  }
+  .tw {
+    margin-top: 40px;
+    max-width: 72ch;
+  }
+  .tw ul {
+    margin: 12px 0 0;
+    padding-left: 1.1em;
+  }
+  .tw li + li {
+    margin-top: 8px;
+  }
+  .method {
+    margin-top: 32px;
+    max-width: 72ch;
+  }
+</style>

@@ -1,0 +1,291 @@
+---
+import Gallery from './Gallery.astro';
+import { place, hasPlace } from '../lib/trip';
+
+interface Props {
+  ids: string[];
+}
+const ids = [...new Set(Astro.props.ids)].filter(hasPlace);
+const KIND: Record<string, string> = { stay: 'Nơi ở', food: 'Ăn uống', sight: 'Tham quan', shop: 'Mua sắm', station: 'Ga, bến' };
+const ROLE: Record<string, string> = { along: 'Ngay trên đường', detour: 'Đáng rẽ qua', alt: 'Phương án thay thế' };
+const AREA: Record<string, string> = {
+  tokyo: 'Tokyo',
+  hakone: 'Hakone',
+  tokaido: 'Dọc Tōkaidō',
+  ise: 'Ise',
+  toba: 'Toba',
+  shima: 'Shima',
+  kyoto: 'Kyoto',
+  nara: 'Nara',
+  osaka: 'Osaka',
+  kawaguchiko: 'Kawaguchiko',
+};
+const PAY: Record<string, string> = { cash: 'Chỉ tiền mặt', card: 'Nhận thẻ', mixed: 'Tiền mặt và thẻ' };
+const gmapsLL = (lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(q)}`;
+---
+
+<dialog class="sheet" id="place-sheet" aria-labelledby="sheet-title">
+  <div class="panel" data-panel>
+    <div class="grab" data-grab aria-hidden="true"><span></span></div>
+    <button class="close" type="button" data-close aria-label="Đóng">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+    </button>
+    <div class="body" data-body></div>
+  </div>
+</dialog>
+
+{
+  ids.map((id) => {
+    const p = place(id);
+    const facts = [
+      p.dish && ['Gọi gì', p.dish],
+      p.price && ['Mỗi người', p.price],
+      p.fee && ['Vé', p.fee],
+      p.hours && ['Giờ mở', p.hours.length > 140 ? `${p.hours.slice(0, 140)}…` : p.hours],
+      p.closed && ['Nghỉ', p.closed],
+      p.pay && ['Thanh toán', PAY[p.pay]],
+      p.bestTime && ['Nên đến', p.bestTime],
+      p.station && ['Ga gần', p.station],
+      p.address && ['Địa chỉ', p.address],
+    ].filter(Boolean) as [string, string][];
+    return (
+      <template id={`tpl-${id}`}>
+        <header class="s-head">
+          <p class="s-kicker t-small">
+            <span class="dot" style={`--c: var(--${p.kind === 'station' ? 'ink-3' : p.kind})`} />
+            {KIND[p.kind]}
+            {p.role && ROLE[p.role] ? ` · ${ROLE[p.role]}` : ''}
+            {` · ${AREA[p.area]}`}
+          </p>
+          <h2 class="t-2" id="sheet-title">
+            {p.name}
+          </h2>
+          {p.ja && (
+            <p class="ja s-ja" lang="ja">
+              {p.ja}
+            </p>
+          )}
+          {p.rating && (
+            <p class="t-small muted">
+              Tabelog {p.rating.toFixed(2)}
+              {p.ratingCount ? ` từ ${p.ratingCount.toLocaleString('vi-VN')} đánh giá` : ''} (tham chiếu 10/2026)
+            </p>
+          )}
+        </header>
+        {p.images.length > 0 && (
+          <div class="s-gallery">
+            <Gallery images={p.images} dish={p.dish} name={p.name} size="lg" />
+          </div>
+        )}
+        {(p.note || p.why) && <p class="s-note t-body">{p.note ?? p.why}</p>}
+        {p.tips && <p class="s-tip t-small">{p.tips}</p>}
+        {p.fujiNote && (
+          <p class="s-tip t-small">
+            <strong>Fuji: </strong>
+            {p.fujiNote}
+          </p>
+        )}
+        {facts.length > 0 && (
+          <dl class="s-facts">
+            {facts.map(([k, v]) => (
+              <div>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        <div class="s-links">
+          <a class="btn btn-quiet" href={gmapsLL(p.lat, p.lng)} target="_blank" rel="noopener">
+            Google Maps
+          </a>
+          <a class="btn btn-quiet" href={amaps(p.lat, p.lng, p.ja ?? p.name)} target="_blank" rel="noopener">
+            Apple Maps
+          </a>
+          {p.tabelog && (
+            <a class="btn btn-quiet" href={p.tabelog} target="_blank" rel="noopener">
+              Tabelog
+            </a>
+          )}
+          {p.official && (
+            <a class="btn btn-quiet" href={p.official} target="_blank" rel="noopener">
+              Trang chính thức
+            </a>
+          )}
+          {p.review && (
+            <a class="btn btn-quiet" href={p.review} target="_blank" rel="noopener">
+              Review đã ở
+            </a>
+          )}
+        </div>
+      </template>
+    );
+  })
+}
+
+<script>
+  import { initSheet } from '../scripts/sheet';
+  initSheet();
+</script>
+
+<style is:global>
+  .sheet {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+  .sheet::backdrop {
+    background: var(--scrim);
+    opacity: 0;
+    transition: opacity 280ms var(--ease-out);
+  }
+  .sheet.is-open::backdrop {
+    opacity: 1;
+  }
+  .sheet .panel {
+    --bleed: 20px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: calc(100dvh - 40px);
+    display: flex;
+    flex-direction: column;
+    border-radius: 22px 22px 0 0;
+    background: var(--bg);
+    box-shadow: var(--shadow-2);
+    transform: translateY(100%);
+    will-change: transform;
+  }
+  .sheet .body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px 20px calc(28px + env(safe-area-inset-bottom));
+  }
+  .sheet .grab {
+    display: grid;
+    place-items: center;
+    height: 22px;
+    flex: none;
+    cursor: grab;
+    touch-action: none;
+  }
+  .sheet .grab span {
+    width: 38px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--line);
+  }
+  .sheet .close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--bg-2);
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .sheet .close:active {
+    transform: scale(0.94);
+  }
+  @media (min-width: 760px) {
+    .sheet .panel {
+      --bleed: 28px;
+      left: 50%;
+      right: auto;
+      bottom: auto;
+      top: 50%;
+      width: min(720px, calc(100vw - 48px));
+      max-height: min(86vh, 920px);
+      border-radius: var(--r-xl);
+      transform: translate(-50%, -46%) scale(0.97);
+      opacity: 0;
+    }
+    .sheet .grab {
+      display: none;
+    }
+    .sheet .body {
+      padding: 28px 28px 32px;
+    }
+  }
+  .s-head {
+    padding-right: 36px;
+  }
+  .s-kicker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0 6px;
+    color: var(--ink-2);
+  }
+  .s-ja {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+  .s-head .t-small {
+    margin: 6px 0 0;
+  }
+  .s-gallery {
+    margin: 20px calc(-1 * var(--bleed)) 0;
+  }
+  .s-note {
+    margin: 20px 0 0;
+  }
+  .s-tip {
+    margin: 12px 0 0;
+    padding: 12px 14px;
+    border-radius: var(--r-m);
+    background: var(--bg-2);
+    color: var(--ink);
+  }
+  .s-facts {
+    margin: 20px 0 0;
+    border-top: 1px solid var(--hair);
+  }
+  .s-facts > div {
+    display: grid;
+    grid-template-columns: 112px 1fr;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--hair);
+    font-size: 15px;
+  }
+  .s-facts dt {
+    color: var(--ink-2);
+  }
+  .s-facts dd {
+    margin: 0;
+  }
+  .s-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .s-links .btn {
+    min-height: 38px;
+    padding: 0 16px;
+    font-size: 15px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sheet .panel {
+      transition: opacity 180ms !important;
+    }
+  }
+</style>

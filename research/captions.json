@@ -1,0 +1,1044 @@
+{
+  "tsumugi": [
+    {
+      "i": 0,
+      "vi": "Mì ramen và trứng ngâm nước dùng dashi"
+    },
+    {
+      "i": 1,
+      "vi": "Ramen đơn giản nhưng đậm đà"
+    },
+    {
+      "i": 3,
+      "vi": "Chashu miếng to, dày dặn"
+    },
+    {
+      "i": 5,
+      "vi": "Mì ramen shio (vị muối)"
+    },
+    {
+      "i": 8,
+      "vi": "Ramen Tsumugi tô cỡ đại"
+    },
+    {
+      "i": 10,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 16,
+      "vi": "Quán nằm sâu trong tầng hầm"
+    },
+    {
+      "i": 17,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "yamabe": [
+    {
+      "i": 4,
+      "vi": "Cận cảnh tonkatsu thăn và cá aji chiên"
+    },
+    {
+      "i": 3,
+      "vi": "Set tonkatsu thăn và cá aji chiên"
+    },
+    {
+      "i": 2,
+      "vi": "Chiên mix và phần chiên thêm"
+    },
+    {
+      "i": 0,
+      "vi": "Thăn trên, phần thân thịt"
+    },
+    {
+      "i": 11,
+      "vi": "Quán sáng sạch, chỉ có ghế quầy"
+    },
+    {
+      "i": 12,
+      "vi": "Ghế dài bên phải dành cho khách chờ"
+    },
+    {
+      "i": 17,
+      "vi": "Noren, quán phía đông ga JR"
+    },
+    {
+      "i": 19,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "kayaba": [
+    {
+      "i": 6,
+      "vi": "Sandwich trứng và cà phê đá"
+    },
+    {
+      "i": 0,
+      "vi": "Gâteau chocolate matcha, cà phê nóng"
+    },
+    {
+      "i": 2,
+      "vi": "Cận cảnh mặt cắt gâteau matcha"
+    },
+    {
+      "i": 3,
+      "vi": "Bánh toast trứng"
+    },
+    {
+      "i": 10,
+      "vi": "Tầng 1 có 4 bàn, mỗi bàn 4 người"
+    },
+    {
+      "i": 13,
+      "vi": "Tầng 2 của quán"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán"
+    },
+    {
+      "i": 17,
+      "vi": "Mặt tiền tòa nhà (phần 2)"
+    }
+  ],
+  "nezu-taiyaki": [
+    {
+      "i": 9,
+      "vi": "Vỏ mỏng, nhiều nhân đậu đỏ"
+    },
+    {
+      "i": 2,
+      "vi": "Bánh nứt ra khi để nguội và cứng"
+    },
+    {
+      "i": 3,
+      "vi": "Bánh taiyaki"
+    },
+    {
+      "i": 4,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 11,
+      "vi": "Đang nướng bánh tại quán"
+    },
+    {
+      "i": 12,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán Taiyaki Nezu"
+    },
+    {
+      "i": 17,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "owariya": [
+    {
+      "i": 0,
+      "vi": "Cơm kakiage tempura tôm"
+    },
+    {
+      "i": 5,
+      "vi": "Soba tempura tôm lớn"
+    },
+    {
+      "i": 2,
+      "vi": "Cơm tempura đặc biệt"
+    },
+    {
+      "i": 9,
+      "vi": "Kake soba, soba với nước dùng nóng"
+    },
+    {
+      "i": 3,
+      "vi": "Dưa muối"
+    },
+    {
+      "i": 10,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán chính Owariya"
+    },
+    {
+      "i": 17,
+      "vi": "Chi nhánh chính, quán rất nổi tiếng"
+    }
+  ],
+  "umezono": [
+    {
+      "i": 3,
+      "vi": "Anmitsu với bánh shiratama"
+    },
+    {
+      "i": 1,
+      "vi": "Cận cảnh món Yukinko"
+    },
+    {
+      "i": 0,
+      "vi": "Shiruko kiểu quê (súp đậu đỏ)"
+    },
+    {
+      "i": 4,
+      "vi": "Yokan bí ngô"
+    },
+    {
+      "i": 5,
+      "vi": "Zenzai awase (đậu đỏ hỗn hợp)"
+    },
+    {
+      "i": 13,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 16,
+      "vi": "Biển hiệu quán"
+    },
+    {
+      "i": 17,
+      "vi": "Đèn lồng làm nổi bật quán"
+    }
+  ],
+  "tamai": [
+    {
+      "i": 1,
+      "vi": "Cơm anago nướng (lươn biển)"
+    },
+    {
+      "i": 5,
+      "vi": "Shirayaki (nướng trắng)"
+    },
+    {
+      "i": 6,
+      "vi": "Cuộn anago"
+    },
+    {
+      "i": 2,
+      "vi": "Trứng cuộn tamagoyaki"
+    },
+    {
+      "i": 9,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 11,
+      "vi": "Nội thất quán"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán trông rất đẹp"
+    },
+    {
+      "i": 15,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "sushi-ten": [
+    {
+      "i": 0,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 2,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 4,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 9,
+      "vi": "Nội thất quán đơn giản"
+    },
+    {
+      "i": 5,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 8,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "toritake": [
+    {
+      "i": 1,
+      "vi": "Món lươn"
+    },
+    {
+      "i": 2,
+      "vi": "Nikogori (món thạch hầm)"
+    },
+    {
+      "i": 3,
+      "vi": "Xiên rau củ"
+    },
+    {
+      "i": 4,
+      "vi": "Cà chua ướp lạnh"
+    },
+    {
+      "i": 6,
+      "vi": "Bên trong quán, tầng 2"
+    },
+    {
+      "i": 5,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 11,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "numazuko": [
+    {
+      "i": 0,
+      "vi": "Đặc sản uni tràn (kobore uni)"
+    },
+    {
+      "i": 2,
+      "vi": "Saba ngâm giấm tự làm"
+    },
+    {
+      "i": 3,
+      "vi": "Chutoro (cá ngừ béo vừa)"
+    },
+    {
+      "i": 4,
+      "vi": "Negitoro, món nhắm rượu"
+    },
+    {
+      "i": 7,
+      "vi": "Quán rất dài, chiều sâu lớn"
+    },
+    {
+      "i": 8,
+      "vi": "Bàn box cho tối đa 6 khách"
+    },
+    {
+      "i": 10,
+      "vi": "Ngay trước Otsuka Kagu, tiện đi lại"
+    },
+    {
+      "i": 11,
+      "vi": "Bắt đầu bán cá khô ngay tại quán"
+    }
+  ],
+  "bakery-table": [
+    {
+      "i": 1,
+      "vi": "Bánh Premium Soft Mix (anh đào, sữa)"
+    },
+    {
+      "i": 3,
+      "vi": "Bánh socola (shokora)"
+    },
+    {
+      "i": 7,
+      "vi": "Focaccia cà chua"
+    },
+    {
+      "i": 8,
+      "vi": "Bánh phô mai việt quất"
+    },
+    {
+      "i": 12,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 13,
+      "vi": "Không gian mở rất dễ chịu"
+    },
+    {
+      "i": 17,
+      "vi": "Biển quảng cáo Shine Muscat"
+    },
+    {
+      "i": 18,
+      "vi": "Nhìn ra Karatto từ sân thượng"
+    }
+  ],
+  "kaizan": [
+    {
+      "i": 2,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 3,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 4,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 5,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 8,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "kurasawaya": [
+    {
+      "i": 3,
+      "vi": "Kamameshi tôm sakura, canh miso"
+    },
+    {
+      "i": 0,
+      "vi": "Set các món tôm sakura"
+    },
+    {
+      "i": 1,
+      "vi": "Kakiage (tempura tổng hợp)"
+    },
+    {
+      "i": 2,
+      "vi": "Món Yuigahama"
+    },
+    {
+      "i": 4,
+      "vi": "Bánh manju tôm sakura"
+    },
+    {
+      "i": 8,
+      "vi": "Khu bếp của quán"
+    },
+    {
+      "i": 11,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 13,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "hoto-fudo": [
+    {
+      "i": 0,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 1,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 2,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 5,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 11,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 12,
+      "vi": "Bàn của chúng tôi"
+    },
+    {
+      "i": 17,
+      "vi": "Mặt tiền Hoto Fudo Kawaguchiko Bắc"
+    },
+    {
+      "i": 18,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "butasute": [
+    {
+      "i": 0,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 1,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 2,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 3,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 5,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 8,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "fukusuke": [
+    {
+      "i": 2,
+      "vi": "Ise udon bò Matsusaka và trứng onsen"
+    },
+    {
+      "i": 1,
+      "vi": "Ise udon tsukimi (kèm trứng)"
+    },
+    {
+      "i": 0,
+      "vi": "Ise udon tororo (củ mài)"
+    },
+    {
+      "i": 5,
+      "vi": "Ise udon làm thủ công"
+    },
+    {
+      "i": 6,
+      "vi": "Sợi mì rất dày"
+    },
+    {
+      "i": 3,
+      "vi": "Mì Ise udon"
+    },
+    {
+      "i": 10,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 15,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "akafuku": [
+    {
+      "i": 0,
+      "vi": "Bánh mochi Akafuku, quà lưu niệm"
+    },
+    {
+      "i": 2,
+      "vi": "Set khay, thưởng thức Akafuku mới làm"
+    },
+    {
+      "i": 4,
+      "vi": "Nhìn độ bóng láng này"
+    },
+    {
+      "i": 1,
+      "vi": "Set bon của Akafuku Honten"
+    },
+    {
+      "i": 11,
+      "vi": "Ăn tại chỗ, ngồi đâu cũng được"
+    },
+    {
+      "i": 12,
+      "vi": "Khu ngồi kiểu tatami"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán duyên dáng"
+    },
+    {
+      "i": 17,
+      "vi": "Mặt tiền Akafuku Honten"
+    }
+  ],
+  "manpuku": [
+    {
+      "i": 0,
+      "vi": "Set cơm karaage gà chiên"
+    },
+    {
+      "i": 2,
+      "vi": "Set Shinfuku: karaage, Ise udon, takuan"
+    },
+    {
+      "i": 3,
+      "vi": "Cơm karaage gà chiên"
+    },
+    {
+      "i": 1,
+      "vi": "Salad"
+    },
+    {
+      "i": 11,
+      "vi": "Tấm giấy có chữ ký đặt trên bàn"
+    },
+    {
+      "i": 15,
+      "vi": "Khu ghế quầy phía sau quán"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền, trong trung tâm thương mại"
+    },
+    {
+      "i": 17,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "sazanami-toba": [
+    {
+      "i": 0,
+      "vi": "Set tôm chiên xù cỡ lớn"
+    },
+    {
+      "i": 1,
+      "vi": "Set Nishiki gozen"
+    },
+    {
+      "i": 4,
+      "vi": "Tôm chiên xù cỡ lớn"
+    },
+    {
+      "i": 2,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 3,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 10,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 12,
+      "vi": "Phòng tatami (zashiki)"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "sazanami-shokudo": [
+    {
+      "i": 0,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 1,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 2,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 9,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 13,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "menami": [
+    {
+      "i": 2,
+      "vi": "Obanzai tổng hợp (món gia đình Kyoto)"
+    },
+    {
+      "i": 6,
+      "vi": "Hamo nanban-zuke (cá hamo ngâm giấm)"
+    },
+    {
+      "i": 7,
+      "vi": "Chả giò yuba tươi"
+    },
+    {
+      "i": 5,
+      "vi": "Otoshi: cải mibuna nấu đậu rán"
+    },
+    {
+      "i": 9,
+      "vi": "Bàn ngồi tầng 2"
+    },
+    {
+      "i": 10,
+      "vi": "Phòng tatami tầng 2"
+    },
+    {
+      "i": 12,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "yorozuya": [
+    {
+      "i": 4,
+      "vi": "Udon vừa đúng vị"
+    },
+    {
+      "i": 1,
+      "vi": "Hành lá, tuyệt vời nhất"
+    },
+    {
+      "i": 0,
+      "vi": "Toàn cảnh bữa ăn"
+    },
+    {
+      "i": 5,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 10,
+      "vi": "Quán có nét thanh lịch"
+    },
+    {
+      "i": 13,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 15,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "komori": [
+    {
+      "i": 0,
+      "vi": "Anmitsu kem shiratama, sốt đường đen"
+    },
+    {
+      "i": 1,
+      "vi": "Parfait bánh warabimochi matcha"
+    },
+    {
+      "i": 2,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 4,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 12,
+      "vi": "Nội thất có không khí riêng"
+    },
+    {
+      "i": 13,
+      "vi": "Chiếc điện thoại quay đen"
+    },
+    {
+      "i": 15,
+      "vi": "Mặt tiền quán Gion Komori"
+    }
+  ],
+  "menzo": [
+    {
+      "i": 0,
+      "vi": "Tsukemen nội tạng bò"
+    },
+    {
+      "i": 1,
+      "vi": "Nước chấm tsukemen"
+    },
+    {
+      "i": 3,
+      "vi": "Đậu hạnh nhân (annin) tặng kèm"
+    },
+    {
+      "i": 2,
+      "vi": "Udon"
+    },
+    {
+      "i": 4,
+      "vi": "Sợi mì"
+    },
+    {
+      "i": 11,
+      "vi": "Quầy 11 chỗ ngồi"
+    },
+    {
+      "i": 12,
+      "vi": "Bàn 4 chỗ ngồi"
+    },
+    {
+      "i": 17,
+      "vi": "Mặt tiền Yamamoto Menzou"
+    }
+  ],
+  "yoshimura": [
+    {
+      "i": 3,
+      "vi": "Soba 100% xay bằng cối đá"
+    },
+    {
+      "i": 4,
+      "vi": "Hai phần soba 100% xay cối đá"
+    },
+    {
+      "i": 0,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 5,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 7,
+      "vi": "Bàn ăn tầng 2"
+    },
+    {
+      "i": 9,
+      "vi": "Nhìn thấy cầu Togetsukyo từ quán"
+    },
+    {
+      "i": 13,
+      "vi": "Mặt tiền Arashiyama Yoshimura"
+    },
+    {
+      "i": 14,
+      "vi": "Lối đi vào quán"
+    }
+  ],
+  "torisei": [
+    {
+      "i": 0,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 2,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 4,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 5,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 8,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "tonkatsu-yamamoto": [
+    {
+      "i": 2,
+      "vi": "Mặt cắt rosukatsu"
+    },
+    {
+      "i": 1,
+      "vi": "Set rosukatsu, canh tonjiru, cơm"
+    },
+    {
+      "i": 0,
+      "vi": "Rosukatsu (đơn) kèm bia"
+    },
+    {
+      "i": 3,
+      "vi": "Kimo-ni (gan hầm) khai vị"
+    },
+    {
+      "i": 10,
+      "vi": "Phía trong dãy ghế quầy"
+    },
+    {
+      "i": 12,
+      "vi": "Nhiều quạt của maiko, geiko"
+    },
+    {
+      "i": 16,
+      "vi": "Vừa qua noren, lối vào phía trong"
+    },
+    {
+      "i": 17,
+      "vi": "Ban ngày trông không giống quán tonkatsu"
+    }
+  ],
+  "awa": [
+    {
+      "i": 1,
+      "vi": "Bò Yamato nướng tấm gốm (cận cảnh)"
+    },
+    {
+      "i": 0,
+      "vi": "Rau Yamato xếp giỏ (kagomori)"
+    },
+    {
+      "i": 4,
+      "vi": "Phần thịt nạc đỏ này rất ngon"
+    },
+    {
+      "i": 2,
+      "vi": "Rau củ hầm tổng hợp"
+    },
+    {
+      "i": 9,
+      "vi": "Tempura"
+    },
+    {
+      "i": 10,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 15,
+      "vi": "Tầng 2 của quán"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "hosekibako": [
+    {
+      "i": 0,
+      "vi": "Đá bào sữa Assam"
+    },
+    {
+      "i": 1,
+      "vi": "Đá bào hươu con"
+    },
+    {
+      "i": 3,
+      "vi": "Đá bào xoài"
+    },
+    {
+      "i": 4,
+      "vi": "Đá bào sữa chua hibiscus"
+    },
+    {
+      "i": 10,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 11,
+      "vi": "Nội thất quán"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "fukutaro": [
+    {
+      "i": 2,
+      "vi": "Okonomiyaki đặc trưng của Fukutarou"
+    },
+    {
+      "i": 1,
+      "vi": "Hàu nướng bơ (theo mùa)"
+    },
+    {
+      "i": 0,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 5,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 6,
+      "vi": "Tòa nhà Đông mới, 7 bàn cho 28 khách"
+    },
+    {
+      "i": 8,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 12,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "horai-551": [
+    {
+      "i": 8,
+      "vi": "Bánh bao thịt heo, xá xíu, anpan"
+    },
+    {
+      "i": 2,
+      "vi": "Tôm sốt mayonnaise (ebi mayo)"
+    },
+    {
+      "i": 3,
+      "vi": "Chả giò nhiều nhân"
+    },
+    {
+      "i": 1,
+      "vi": "Đang hấp trong lồng tre (seiro)"
+    },
+    {
+      "i": 10,
+      "vi": "Các quầy trình diễn xếp thành vòng"
+    },
+    {
+      "i": 15,
+      "vi": "Hình vẽ nhân vật bánh bao thú vị"
+    },
+    {
+      "i": 18,
+      "vi": "Quán chính đã cải tạo, rất đẹp"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "hanadako": [
+    {
+      "i": 4,
+      "vi": "Takoyaki tuyệt phẩm"
+    },
+    {
+      "i": 0,
+      "vi": "Takoyaki"
+    },
+    {
+      "i": 2,
+      "vi": "Negi mayo và bia tươi"
+    },
+    {
+      "i": 3,
+      "vi": "Cận cảnh negi mayo"
+    },
+    {
+      "i": 1,
+      "vi": "Nhân bên trong takoyaki"
+    },
+    {
+      "i": 10,
+      "vi": "Quầy chỉ có bệ nhỏ để đặt món"
+    },
+    {
+      "i": 11,
+      "vi": "Bên trong quán"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán"
+    }
+  ],
+  "tahei": [
+    {
+      "i": 4,
+      "vi": "Lưỡi bò loại thượng hạng (jō-tan)"
+    },
+    {
+      "i": 0,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 1,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 2,
+      "vi": "Món ăn"
+    },
+    {
+      "i": 14,
+      "vi": "Bếp nướng gas"
+    },
+    {
+      "i": 10,
+      "vi": "Nội thất quán"
+    },
+    {
+      "i": 16,
+      "vi": "Mặt tiền quán"
+    }
+  ]
+}

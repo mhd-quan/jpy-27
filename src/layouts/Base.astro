@@ -1,0 +1,85 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import PlaceSheet from '../components/PlaceSheet.astro';
+import { url } from '../lib/trip';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** place ids whose detail sheets this page can open */
+  sheets?: string[];
+}
+const { title, description = 'Mười hai ngày từ Tokyo đến Osaka, 18–29 tháng 10 năm 2027: lịch trình, bản đồ, nơi ăn, nơi ở và ngân sách.', sheets = [] } = Astro.props;
+const fullTitle = title ? `${title} — Nhật Bản 2027` : 'Nhật Bản 2027';
+---
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+    <meta name="description" content={description} />
+    <title>{fullTitle}</title>
+    <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
+    <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
+    <link rel="preconnect" href="https://tblg.k-img.com" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Đến nội dung</a>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="footer">
+      <div class="wrap t-micro faint">
+        <p>
+          Nghiên cứu ngày 13/10/2026. Giá phòng là mức mục tiêu khi đặt cho tháng 10/2027, chưa có đặt chỗ nào được thực hiện. Giờ tàu và giờ mở cửa năm 2027 cần kiểm tra lại.
+        </p>
+        <p>
+          Bản đồ © OpenStreetMap, OpenFreeMap; địa hình Mapzen/AWS. Tuyến đường sắt từ 国土数値情報 (MLIT), đường đi bộ và xe từ OSRM. Ảnh quán ăn từ người dùng Tabelog, ảnh khách sạn từ website chính thức, ảnh địa điểm từ Wikimedia Commons — mỗi ảnh ghi nguồn.
+        </p>
+      </div>
+    </footer>
+    <PlaceSheet ids={sheets} />
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 12px;
+    top: -60px;
+    z-index: 100;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .skip:focus {
+    top: 12px;
+  }
+  .footer {
+    padding-block: 40px 56px;
+    background: var(--bg-2);
+  }
+  .footer p {
+    margin: 0 0 8px;
+    max-width: 72ch;
+  }
+</style>
+
+<style is:global>
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 260ms;
+    animation-timing-function: var(--ease-out);
+  }
+</style>

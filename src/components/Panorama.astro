@@ -1,0 +1,92 @@
+---
+// Horizon silhouette computed from terrain (scripts/build-fuji.mjs). x = compass
+// bearing, y = elevation angle. Vertical scale is exaggerated so the shape reads.
+interface Props {
+  data: { from: number; step: number; angles: number[]; summitAz: number };
+  label: string;
+}
+const { data, label } = Astro.props;
+const W = 1000;
+const H = 300;
+const min = Math.min(...data.angles);
+const max = Math.max(...data.angles);
+const lo = min - (max - min) * 0.35;
+const hi = max + (max - min) * 0.25;
+const x = (i: number) => (i / (data.angles.length - 1)) * W;
+const y = (a: number) => H - ((a - lo) / (hi - lo)) * H;
+const line = data.angles.map((a, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(a).toFixed(1)}`).join('');
+const fill = `${line}L${W} ${H}L0 ${H}Z`;
+const si = Math.round((data.summitAz - data.from) / data.step);
+const sx = x(si);
+// local peak near the summit azimuth = Fuji's top in this view
+let peak = si;
+for (let i = Math.max(0, si - 8); i <= Math.min(data.angles.length - 1, si + 8); i++) if (data.angles[i] > data.angles[peak]) peak = i;
+const py = y(data.angles[peak]);
+const ticks = [] as { x: number; label: string }[];
+const DIRS = ['B', 'ĐB', 'Đ', 'ĐN', 'N', 'TN', 'T', 'TB'];
+for (let az = Math.ceil(data.from / 5) * 5; az <= data.from + data.step * (data.angles.length - 1); az += 5) {
+  const deg = ((az % 360) + 360) % 360;
+  ticks.push({ x: ((az - data.from) / (data.step * (data.angles.length - 1))) * W, label: deg % 45 === 0 ? DIRS[deg / 45] : `${deg}°` });
+}
+const id = `pg-${Math.round(data.summitAz * 100)}`;
+---
+
+<figure class="pano">
+  <svg viewBox={`0 0 ${W} ${H + 28}`} role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="var(--sky-top)" />
+        <stop offset="1" stop-color="var(--sky-bottom)" />
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width={W} height={H} fill={`url(#${id})`} rx="0" />
+    <path d={fill} fill="var(--ridge)" />
+    <path d={line} fill="none" stroke="var(--ridge-edge)" stroke-width="1.2" />
+    <line x1={sx} x2={sx} y1={py - 34} y2={py - 8} stroke="var(--ink)" stroke-width="1.2" />
+    <text x={sx} y={py - 40} text-anchor="middle" class="pk">Fuji</text>
+    {
+      ticks.map((t) => (
+        <g>
+          <line x1={t.x} x2={t.x} y1={H} y2={H + 6} stroke="var(--ink-3)" />
+          <text x={t.x} y={H + 22} text-anchor="middle" class="tk">
+            {t.label}
+          </text>
+        </g>
+      ))
+    }
+  </svg>
+</figure>
+
+<style>
+  .pano {
+    --sky-top: #cfe3f7;
+    --sky-bottom: #f4f8fc;
+    --ridge: #5d6b62;
+    --ridge-edge: #3f4a43;
+    margin: 0;
+  }
+  @media (prefers-color-scheme: dark) {
+    .pano {
+      --sky-top: #0b1a2c;
+      --sky-bottom: #1b2a3c;
+      --ridge: #0c0f0d;
+      --ridge-edge: #3a463f;
+    }
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--r-l);
+    overflow: hidden;
+  }
+  .pk {
+    fill: var(--ink);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .tk {
+    fill: var(--ink-3);
+    font-size: 12px;
+  }
+</style>
