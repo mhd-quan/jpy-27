@@ -9,7 +9,6 @@ export const TRIP = {
   people: 2,
   researched: '13/10/2026',
   rate: 175, // VND per yen, planning assumption
-  capVnd: 120_000_000,
 };
 
 export interface BudgetLine {

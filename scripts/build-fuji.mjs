@@ -18,6 +18,7 @@ import { place, hasPlace } from '../src/data/catalog.ts';
 import { DAYS, legsOf } from '../src/data/days.ts';
 import { GEO } from '../src/data/geo.gen.ts';
 import { LINES } from '../src/data/lines.ts';
+import { ROMAJI, stationsForNet } from './geo-tools.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const SUMMIT = { lat: 35.36064, lng: 138.72743, h: 3776 };
@@ -293,29 +294,6 @@ for (const id of PANORAMAS) {
   console.log(`panorama ${id}`);
 }
 
-// Nearest station on the same line, romanised for the common ones.
-const ROMAJI = {
-  新宿: 'Shinjuku', 代々木上原: 'Yoyogi-Uehara', 登戸: 'Noborito', 新百合ヶ丘: 'Shin-Yurigaoka', 町田: 'Machida', 相模大野: 'Sagami-Ōno',
-  海老名: 'Ebina', 本厚木: 'Hon-Atsugi', 愛甲石田: 'Aikō-Ishida', 伊勢原: 'Isehara', 鶴巻温泉: 'Tsurumaki-Onsen', 東海大学前: 'Tōkaidaigakumae',
-  秦野: 'Hadano', 渋沢: 'Shibusawa', 新松田: 'Shin-Matsuda', 開成: 'Kaisei', 栢山: 'Kayama', 螢田: 'Hotaruda', 足柄: 'Ashigara', 小田原: 'Odawara',
-  箱根板橋: 'Hakone-Itabashi', 風祭: 'Kazamatsuri', 入生田: 'Iriuda', 箱根湯本: 'Hakone-Yumoto', 経堂: 'Kyōdō', 成城学園前: 'Seijōgakuen-mae',
-  向ヶ丘遊園: 'Mukōgaoka-Yūen', 相模大塚: 'Sagami-Ōtsuka', 座間: 'Zama', 厚木: 'Atsugi',
-  早川: 'Hayakawa', 根府川: 'Nebukawa', 真鶴: 'Manazuru', 湯河原: 'Yugawara', 熱海: 'Atami', 函南: 'Kannami', 三島: 'Mishima', 沼津: 'Numazu',
-  片浜: 'Katahama', 原: 'Hara', 東田子の浦: 'Higashi-Tagonoura', 吉原: 'Yoshiwara', 富士: 'Fuji', 富士川: 'Fujikawa', 新蒲原: 'Shin-Kambara',
-  蒲原: 'Kambara', 由比: 'Yui', 興津: 'Okitsu', 清水: 'Shimizu', 草薙: 'Kusanagi', 東静岡: 'Higashi-Shizuoka', 静岡: 'Shizuoka',
-  掛川: 'Kakegawa', 浜松: 'Hamamatsu', 新富士: 'Shin-Fuji',
-};
-const stationFile = join(root, '.cache/n02/UTF-8/N02-23_Station.geojson');
-const stations = existsSync(stationFile) ? JSON.parse(readFileSync(stationFile, 'utf8')).features : [];
-function stationsFor(line) {
-  const net = new Set((LINES[line].net ?? []).map(([op, l]) => `${op}|${l}`));
-  return stations
-    .filter((f) => net.has(`${f.properties.N02_004}|${f.properties.N02_003}`))
-    .map((f) => {
-      const c = f.geometry.coordinates[Math.floor(f.geometry.coordinates.length / 2)];
-      return { name: f.properties.N02_005, lat: c[1], lng: c[0] };
-    });
-}
 function nearestStation(list, p) {
   let best = null;
   let bestD = 2500;
@@ -335,7 +313,7 @@ const outTracks = tracks.map((t) => ({
   line: t.line,
   day: t.day,
   samples: t.samples.map((p) => {
-    const st = nearestStation(t.stations ?? (t.stations = stationsFor(t.line)), p);
+    const st = nearestStation(t.stations ?? (t.stations = stationsForNet(LINES[t.line].net ?? [])), p);
     const sl = sightline(p, 3);
     let rel = sl.bearing - p.heading;
     rel = ((rel + 540) % 360) - 180;

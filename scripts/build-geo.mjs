@@ -12,107 +12,17 @@
 // Usage: node scripts/build-geo.mjs [--fresh]
 
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { allLegs } from '../src/data/days.ts';
 import { LINES } from '../src/data/lines.ts';
 import { place } from '../src/data/catalog.ts';
+import { encode, haversine, lengthKm, osrm as osrmCached, simplify } from './geo-tools.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const cache = join(root, '.cache');
-mkdirSync(join(cache, 'osrm'), { recursive: true });
 const fresh = process.argv.includes('--fresh');
-
-// ——— geometry helpers ———
-const R = 6371.0088;
-const rad = (d) => (d * Math.PI) / 180;
-function haversine([lat1, lng1], [lat2, lng2]) {
-  const dLat = rad(lat2 - lat1);
-  const dLng = rad(lng2 - lng1);
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
-const lengthKm = (pts) => pts.reduce((s, p, i) => (i ? s + haversine(pts[i - 1], p) : 0), 0);
-
-/** Douglas–Peucker on [lat, lng] with tolerance in degrees (approx). */
-function simplify(pts, tol) {
-  if (pts.length < 3) return pts;
-  const keep = new Uint8Array(pts.length);
-  keep[0] = keep[pts.length - 1] = 1;
-  const stack = [[0, pts.length - 1]];
-  while (stack.length) {
-    const [a, b] = stack.pop();
-    let max = 0;
-    let idx = -1;
-    const [ay, ax] = pts[a];
-    const [by, bx] = pts[b];
-    const dx = bx - ax;
-    const dy = by - ay;
-    const len2 = dx * dx + dy * dy || 1e-18;
-    for (let i = a + 1; i < b; i++) {
-      const [py, px] = pts[i];
-      const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / len2));
-      const d = Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
-      if (d > max) {
-        max = d;
-        idx = i;
-      }
-    }
-    if (max > tol && idx > 0) {
-      keep[idx] = 1;
-      stack.push([a, idx], [idx, b]);
-    }
-  }
-  return pts.filter((_, i) => keep[i]);
-}
-
-/** Google polyline encoding, precision 5, input [lat, lng]. */
-function encode(pts) {
-  let out = '';
-  let pLat = 0;
-  let pLng = 0;
-  const enc = (v) => {
-    v = v < 0 ? ~(v << 1) : v << 1;
-    let s = '';
-    while (v >= 0x20) {
-      s += String.fromCharCode((0x20 | (v & 0x1f)) + 63);
-      v >>= 5;
-    }
-    return s + String.fromCharCode(v + 63);
-  };
-  for (const [lat, lng] of pts) {
-    const iLat = Math.round(lat * 1e5);
-    const iLng = Math.round(lng * 1e5);
-    out += enc(iLat - pLat) + enc(iLng - pLng);
-    pLat = iLat;
-    pLng = iLng;
-  }
-  return out;
-}
-function decode(str) {
-  const pts = [];
-  let i = 0;
-  let lat = 0;
-  let lng = 0;
-  const next = () => {
-    let shift = 0;
-    let result = 0;
-    let b;
-    do {
-      b = str.charCodeAt(i++) - 63;
-      result |= (b & 0x1f) << shift;
-      shift += 5;
-    } while (b >= 0x20);
-    return result & 1 ? ~(result >> 1) : result >> 1;
-  };
-  while (i < str.length) {
-    lat += next();
-    lng += next();
-    pts.push([lat / 1e5, lng / 1e5]);
-  }
-  return pts;
-}
+const osrm = (profile, pts) => osrmCached(profile, pts, { fresh });
 
 /** Centripetal-ish Catmull–Rom smoothing for water paths. */
 function smooth(pts, steps = 8) {
@@ -289,31 +199,6 @@ function railPath(net, from, to) {
   const path = dijkstra(nodes, a, b);
   if (!path) throw new Error('no rail path');
   return path;
-}
-
-// ——— OSRM ———
-async function osrm(profile, pts) {
-  const coords = pts.map(([lat, lng]) => `${lng.toFixed(6)},${lat.toFixed(6)}`).join(';');
-  const svc = profile === 'foot' ? 'routed-foot/route/v1/foot' : 'routed-car/route/v1/driving';
-  const url = `https://routing.openstreetmap.de/${svc}/${coords}?overview=full&geometries=polyline`;
-  const file = join(cache, 'osrm', `${createHash('sha1').update(url).digest('hex')}.json`);
-  let json;
-  if (!fresh && existsSync(file)) json = JSON.parse(readFileSync(file, 'utf8'));
-  else {
-    for (let attempt = 0; attempt < 4; attempt++) {
-      const res = await fetch(url, { headers: { 'User-Agent': 'nb2027-trip-site/1.0 (personal itinerary)' } });
-      if (res.ok) {
-        json = await res.json();
-        break;
-      }
-      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
-    }
-    if (!json) throw new Error(`OSRM failed ${url}`);
-    writeFileSync(file, JSON.stringify(json));
-    await new Promise((r) => setTimeout(r, 400));
-  }
-  if (json.code !== 'Ok') throw new Error(`OSRM ${json.code}`);
-  return decode(json.routes[0].geometry);
 }
 
 // ——— build ———

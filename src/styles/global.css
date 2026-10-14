@@ -118,6 +118,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: 'kern';
+  /* long slash-joined names (Iseshi/Ujiyamada/Toba) wrap instead of widening the page */
+  overflow-wrap: break-word;
 }
 img {
   display: block;

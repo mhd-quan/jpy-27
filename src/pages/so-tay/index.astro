@@ -103,7 +103,7 @@ const STATIONS = [
       <div>
         <h3 class="t-3">Cân hành lý</h3>
         <p>
-          Giỏ mua sắm thêm khoảng 10–13 kg, chưa tính vali mới 3,3 kg. Mang túi gấp, zip bag, cân nhỏ; để trống một phần vali khi bay đi. Phí quá cân của hãng bay nằm ngoài 120 triệu.
+          Giỏ mua sắm thêm khoảng 10–13 kg, chưa tính vali mới 3,3 kg. Mang túi gấp, zip bag, cân nhỏ; để trống một phần vali khi bay đi. Phí quá cân của hãng bay không nằm trong ngân sách này.
         </p>
       </div>
     </div>
@@ -286,12 +286,12 @@ const STATIONS = [
   }
   @media (max-width: 640px) {
     .book li {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
   .passes {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
     gap: 16px;
     margin: 28px 0 0;
     padding: 0;
@@ -338,7 +338,7 @@ const STATIONS = [
   }
   .cols {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     gap: 28px 40px;
     margin-top: 28px;
   }
@@ -348,7 +348,7 @@ const STATIONS = [
   }
   .phrases {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
     gap: 12px;
     margin: 24px 0 0;
     padding: 0;
@@ -383,7 +383,7 @@ const STATIONS = [
   }
   .stations {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr));
     gap: 10px;
     margin: 16px 0 0;
     padding: 0;
@@ -411,7 +411,7 @@ const STATIONS = [
   }
   @media (max-width: 640px) {
     .checks div {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
   .show {

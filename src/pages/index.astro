@@ -54,7 +54,7 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
     <p class="kicker t-lead">18 – 29 tháng 10, 2027</p>
     <h1 class="t-display">Mười hai ngày,<br />Tokyo đến Osaka.</h1>
     <p class="t-lead intro">
-      Đi tàu dọc Tōkaidō, một đêm onsen ở Hakone, hai đêm bên đền Ise, ba đêm ở Kyoto. Hai người, khoảng 120 triệu đồng chi tại Nhật.
+      Hai người đi tàu dọc Tōkaidō: một đêm onsen ở Hakone, hai đêm bên đền Ise, ba đêm ở Kyoto.
     </p>
   </section>
 
@@ -184,7 +184,7 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
 
   <section class="section wrap budget-teaser" aria-labelledby="budget-title">
     <h2 class="t-2" id="budget-title">{fmtYen(totalYen)}, khoảng {((totalYen * TRIP.rate) / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu đồng.</h2>
-    <p class="t-lead">Dưới trần 120 triệu ở tỷ giá {TRIP.rate}. Đã giữ riêng ¥40.000 dự phòng.</p>
+    <p class="t-lead">Cho hai người, ở tỷ giá {TRIP.rate} đồng/yên.</p>
     <div class="stack-bar" role="img" aria-label="Tỷ trọng các khoản chi">
       {BUDGET.map((b) => <span style={`--w:${(b.yen / totalYen) * 100}%; --c:${b.color}`} title={`${b.label}: ${fmtYen(b.yen)}`} />)}
     </div>
@@ -523,7 +523,7 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
   }
   .stack-legend {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
     gap: 10px 24px;
     margin: 0 0 32px;
     padding: 0;

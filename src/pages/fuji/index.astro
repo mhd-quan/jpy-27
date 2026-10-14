@@ -93,7 +93,8 @@ const mapConfig = {
   terrain: true,
   pitch: 58,
   bearing: -52,
-  cooperative: true,
+  // one finger pans; two fingers pinch, twist and tilt
+  cooperative: false,
   labels: 'all' as const,
   padding: 40,
 };
@@ -163,7 +164,7 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
   <section class="map-wrap" aria-label="Bản đồ địa hình vùng Fuji">
     <MapView id="fuji" config={mapConfig} class="fuji-map" label="Bản đồ 3D vùng Fuji, với tia ngắm từ từng điểm tới đỉnh" />
     <p class="wrap t-small muted map-note">
-      Đường liền: tầm nhìn thông tới đỉnh. Đường nét đứt: bị núi gần hơn che. Kéo hai ngón để nghiêng và xoay.
+      Đường liền: tầm nhìn thông tới đỉnh. Đường nét đứt: bị núi gần hơn che. Một ngón để kéo bản đồ; hai ngón để phóng to, xoay, hoặc vuốt lên xuống để đổi góc nghiêng.
     </p>
   </section>
 
@@ -432,9 +433,20 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
     margin-top: 12px;
     margin-bottom: 56px;
   }
+  @media (max-width: 760px) {
+    /* one finger moves the map, so leave room above and below it to scroll the page */
+    .map-wrap {
+      padding-inline: 12px;
+    }
+    .fuji-map {
+      height: 64svh;
+      min-height: 360px;
+      border-radius: var(--r-l);
+    }
+  }
   .climate {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
     gap: 20px 32px;
     margin-top: 24px;
   }
@@ -530,7 +542,7 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
   }
   @media (max-width: 760px) {
     .spot {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
   .link-title {

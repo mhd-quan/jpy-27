@@ -24,9 +24,17 @@ export interface Pin {
   day?: number;
 }
 
+/** How to reach a sight off the plan: from where the day is on foot to the sight. */
+export interface DetourLine {
+  id: string; // the sight's place id, shared with its pin
+  p: string; // encoded polyline [lat, lng]
+  mode: 'walk' | 'car';
+}
+
 export interface TripMapOptions {
   legs: RouteLeg[];
   pins: Pin[];
+  detours?: DetourLine[];
   bounds?: [[number, number], [number, number]]; // [[w,s],[e,n]]
   center?: [number, number];
   zoom?: number;
@@ -85,6 +93,15 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
   let theme: Theme = prefersDark() ? 'dark' : 'light';
   const routes = legsToGeoJSON(opts.legs);
   const pins = pinsToGeoJSON(opts.pins);
+  const detours: GeoJSON.FeatureCollection<GeoJSON.LineString> = {
+    type: 'FeatureCollection',
+    features: (opts.detours ?? []).map((d) => ({
+      type: 'Feature',
+      id: d.id,
+      properties: { id: d.id, mode: d.mode },
+      geometry: { type: 'LineString', coordinates: decodePolyline(d.p).map(([lat, lng]) => [lng, lat]) },
+    })),
+  };
 
   const map: MLMap = new maplibregl.Map({
     container,
@@ -104,6 +121,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
 
   let activeLeg: string | null = null;
   let activePin: string | null = null;
+  let activeDetour: string | null = null;
 
   const addOverlay = () => {
     const dark = theme === 'dark';
@@ -199,17 +217,58 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
       paint: { 'line-color': '#8e8e93', 'line-width': width(1.4), 'line-dasharray': [2, 2], 'line-opacity': ['case', ['boolean', ['feature-state', 'dim'], false], 0.25, 0.8] },
     });
 
-    // Suggestions along the way: hollow rings
+    // Detours to the suggestions: faint dashes, the chosen one solid with arrows towards the sight
+    const sight = dark ? '#5aa2ff' : '#2f7de1';
+    const active: maplibregl.ExpressionSpecification = ['boolean', ['feature-state', 'active'], false];
+    map.addSource('detours', { type: 'geojson', data: detours, promoteId: 'id' });
+    for (const mode of ['walk', 'car'] as const) {
+      map.addLayer({
+        id: `detour-${mode}`,
+        type: 'line',
+        source: 'detours',
+        filter: ['==', ['get', 'mode'], mode],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': sight,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 10, ['case', active, 3, 1.6], 15, ['case', active, 4.5, 2.4]],
+          'line-dasharray': mode === 'walk' ? [1, 1.6] : [3, 1.6],
+          'line-opacity': ['case', active, 1, ['boolean', ['feature-state', 'dim'], false], 0.25, 0.6],
+        },
+      });
+    }
+    map.addLayer({
+      id: 'detour-arrow',
+      type: 'symbol',
+      source: 'detours',
+      layout: {
+        'symbol-placement': 'line',
+        'symbol-spacing': 56,
+        'text-field': '›',
+        'text-font': ['Noto Sans Bold'],
+        'text-size': 18,
+        'text-keep-upright': false,
+        'text-allow-overlap': true,
+        'text-ignore-placement': true,
+      },
+      paint: {
+        'text-color': sight,
+        'text-halo-color': casing,
+        'text-halo-width': 1.5,
+        'text-opacity': ['case', active, 1, 0],
+      },
+    });
+
+    // Suggestions along the way: rings, filled once chosen
     map.addLayer({
       id: 'pin-along',
       type: 'circle',
       source: 'pins',
       filter: ['==', ['get', 'kind'], 'along'],
       paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 3.5, 14, 6.5],
-        'circle-color': dark ? '#1c1c1e' : '#ffffff',
-        'circle-stroke-color': dark ? '#5aa2ff' : '#2f7de1',
-        'circle-stroke-width': ['case', ['boolean', ['feature-state', 'active'], false], 4, 2.2],
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 4, 14, 7.5],
+        'circle-color': ['case', active, sight, dark ? '#1c1c1e' : '#ffffff'],
+        'circle-stroke-color': ['case', active, casing, sight],
+        'circle-stroke-width': ['case', active, 2.5, 2.4],
       },
     });
     map.addLayer({
@@ -285,7 +344,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
           'text-optional': true,
         },
         paint: {
-          'text-color': dark ? '#f5f5f7' : '#1d1d1f',
+          'text-color': ['match', ['get', 'kind'], 'along', sight, dark ? '#f5f5f7' : '#1d1d1f'],
           'text-halo-color': dark ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.95)',
           'text-halo-width': 1.6,
         },
@@ -294,6 +353,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
 
     if (activeLeg) setLeg(activeLeg);
     if (activePin) map.setFeatureState({ source: 'pins', id: activePin }, { active: true });
+    if (activeDetour) setDetour(activeDetour);
   };
 
   map.on('style.load', addOverlay);
@@ -301,7 +361,9 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
   for (const layer of ['pin-main', 'pin-along', 'pin-label']) {
     map.on('click', layer, (e) => {
       const id = e.features?.[0]?.properties?.id;
-      if (id && opts.onPin) opts.onPin(String(id));
+      if (!id) return;
+      if (detours.features.some((f) => f.id === id)) api.highlightDetour(String(id), false);
+      opts.onPin?.(String(id));
     });
     map.on('mouseenter', layer, () => (map.getCanvas().style.cursor = 'pointer'));
     map.on('mouseleave', layer, () => (map.getCanvas().style.cursor = ''));
@@ -322,6 +384,12 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
       const fid = f.properties!.id as string;
       map.setFeatureState({ source: 'route', id: fid }, { active: id === fid, dim: id !== null && id !== fid });
     }
+  };
+
+  const setDetour = (id: string | null) => {
+    if (!map.getSource('detours')) return;
+    for (const f of detours.features) map.setFeatureState({ source: 'detours', id: f.id! }, { active: id === f.id, dim: id !== null && id !== f.id });
+    for (const f of pins.features) if (f.properties!.kind === 'along') map.setFeatureState({ source: 'pins', id: f.id! }, { active: id === f.id });
   };
 
   const duration = (ms: number) => (reduced() ? 0 : ms);
@@ -346,6 +414,18 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
       const p = opts.pins.find((x) => x.id === id);
       if (p) map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), zoom), duration: duration(900), essential: false });
     },
+    /** Show the way to a suggestion; with fit, frame its start, route and the sight. */
+    highlightDetour(id: string | null, fit = true) {
+      activeDetour = id;
+      setDetour(id);
+      if (!id || !fit) return;
+      const b = new maplibregl.LngLatBounds();
+      for (const c of detours.features.find((f) => f.id === id)?.geometry.coordinates ?? []) b.extend(c as [number, number]);
+      const p = opts.pins.find((x) => x.id === id);
+      if (p) b.extend([p.lng, p.lat]);
+      if (b.isEmpty()) return;
+      map.fitBounds(b, { padding: opts.padding ?? 64, maxZoom: 16, duration: duration(900) });
+    },
     fit(bounds = opts.bounds, padding: maplibregl.PaddingOptions | number = opts.padding ?? 48) {
       if (opts.center && bounds === opts.bounds) {
         map.easeTo({ center: opts.center, zoom: opts.zoom, pitch: opts.pitch ?? 0, bearing: opts.bearing ?? 0, duration: duration(900) });
@@ -356,6 +436,8 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
     clear() {
       activeLeg = null;
       setLeg(null);
+      activeDetour = null;
+      setDetour(null);
     },
   };
   return api;
