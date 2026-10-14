@@ -6,11 +6,11 @@ Trang hành trình 12 ngày Tokyo → Osaka (18–29/10/2027) cho hai người: 
 
 ```sh
 npm install
-npm run dev          # http://localhost:4321/.nb2027/
+npm run dev          # http://localhost:4321/
 npm run build        # dist/, trang tĩnh
 ```
 
-Site được build cho đường dẫn `delphyra.tech/.nb2027/`. Muốn phục vụ từ gốc tên miền: `BASE_PATH=/ npm run build`.
+Site chạy ở gốc tên miền `jpy27.delphyra.tech`, triển khai bằng Cloudflare Workers (chỉ phục vụ file tĩnh). `wrangler.jsonc` khai báo lệnh build và thư mục `dist/`; `npx wrangler deploy` sẽ build rồi đẩy lên. Tên miền gắn vào Worker trong Cloudflare: Settings → Domains & Routes → Add → Custom domain.
 
 ## Cấu trúc
 
