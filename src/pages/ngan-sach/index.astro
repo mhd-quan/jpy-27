@@ -19,34 +19,29 @@ const EXTRAS = [
   { label: 'Locker, cân hành lý nhỏ', yen: 1_800, note: 'Locker ở Toba' },
   { label: 'Lẻ phát sinh', yen: 200, note: '' },
 ];
-const breakEven = TRIP.capVnd / total;
 ---
 
 <Base title="Ngân sách">
   <section class="wrap hero">
     <h1 class="t-1">Ngân sách</h1>
     <p class="t-lead">
-      Mọi con số cho hai người, theo yên, giá gồm thuế. 120 triệu là tiền chi tại Nhật — chưa gồm vé máy bay, visa, bảo hiểm và phí hành lý của hãng bay.
+      Mọi con số cho hai người, theo yên, giá gồm thuế. Đây là tiền chi tại Nhật, chưa gồm vé máy bay, visa, bảo hiểm và phí hành lý của hãng bay.
     </p>
   </section>
 
-  <section class="wrap calc" data-calc data-total={total} data-cap={TRIP.capVnd} aria-labelledby="calc-t">
+  <section class="wrap calc" data-calc data-total={total} aria-labelledby="calc-t">
     <h2 class="visually-hidden" id="calc-t">Tính theo tỷ giá</h2>
     <div class="calc-top">
       <div class="big">
         <output class="tnum" data-out="vnd">{((total * TRIP.rate) / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu</output>
         <span class="muted"><span data-out="yen" class="tnum">{fmtYen(total)}</span> ở <span data-out="rate" class="tnum">{TRIP.rate}</span> đồng/yên</span>
       </div>
-      <p class="status" data-out="status"></p>
     </div>
     <label class="slider">
       <span class="t-small muted">Tỷ giá thực trả (đồng/yên)</span>
-      <input type="range" min="160" max="200" step="1" value={TRIP.rate} data-in="rate" aria-describedby="rate-note" />
+      <input type="range" min="160" max="200" step="1" value={TRIP.rate} data-in="rate" />
       <span class="ticks t-micro faint" aria-hidden="true"><span>160</span><span>170</span><span>180</span><span>190</span><span>200</span></span>
     </label>
-    <p class="t-small muted" id="rate-note">
-      Kế hoạch nằm dưới trần khi tỷ giá khoảng {breakEven.toLocaleString('vi-VN', { maximumFractionDigits: 1 })} đồng/yên trở xuống — đã tính cả dự phòng.
-    </p>
     <fieldset class="savings">
       <legend class="t-small muted">Nếu cần bớt</legend>
       {
@@ -226,7 +221,6 @@ const breakEven = TRIP.capVnd / total;
   const calc = document.querySelector<HTMLElement>('[data-calc]');
   if (calc) {
     const total = Number(calc.dataset.total);
-    const cap = Number(calc.dataset.cap);
     const rate = calc.querySelector<HTMLInputElement>('[data-in="rate"]')!;
     const saves = [...calc.querySelectorAll<HTMLInputElement>('[data-in="save"]')];
     const out = (k: string) => calc.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
@@ -238,13 +232,6 @@ const breakEven = TRIP.capVnd / total;
       out('vnd').textContent = `${(vnd / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu`;
       out('yen').textContent = fmt(yen);
       out('rate').textContent = String(r);
-      const diff = cap - vnd;
-      const st = out('status');
-      st.textContent =
-        diff >= 0
-          ? `Dưới trần ${(diff / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu`
-          : `Vượt trần ${(-diff / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu — bật các khoản bớt bên dưới`;
-      st.dataset.state = diff >= 0 ? 'ok' : 'over';
     };
     rate.addEventListener('input', update);
     saves.forEach((s) => s.addEventListener('change', update));
@@ -310,21 +297,6 @@ const breakEven = TRIP.capVnd / total;
     letter-spacing: -0.04em;
     line-height: 1;
   }
-  .status {
-    margin: 0;
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: 15px;
-  }
-  .status[data-state='ok'] {
-    color: var(--good);
-    background: color-mix(in srgb, var(--good) 12%, transparent);
-  }
-  .status[data-state='over'] {
-    color: #d70015;
-    background: color-mix(in srgb, #ff3b30 12%, transparent);
-  }
   .slider {
     display: flex;
     flex-direction: column;
@@ -342,7 +314,7 @@ const breakEven = TRIP.capVnd / total;
   }
   .savings {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     gap: 4px 24px;
     margin: 24px 0 0;
     padding: 0;
@@ -547,7 +519,7 @@ const breakEven = TRIP.capVnd / total;
   }
   @media (max-width: 800px) {
     .two {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>

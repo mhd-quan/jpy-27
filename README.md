@@ -37,12 +37,14 @@ research/            dữ liệu nghiên cứu thô (JSON)
 | Gộp nghiên cứu | `node scripts/merge-research.mjs` | `src/data/research.gen.ts` |
 | Tự host ảnh Commons | `node scripts/localize-images.mjs` | `public/img/commons/*.webp`, `research/commons-map.json` |
 | Hình học tuyến | `node scripts/build-geo.mjs` | `src/data/geo.gen.ts` |
+| Đường rẽ tới các điểm gợi ý | `node scripts/build-detours.mjs` | `src/data/detours.gen.ts` |
 | Phân tích Fuji | `node scripts/build-fuji.mjs` | `src/data/fuji.gen.ts` |
 
-Thứ tự khi sửa dữ liệu: merge → localize → merge → geo → fuji.
+Thứ tự khi sửa dữ liệu: merge → localize → merge → geo → detours → fuji. `npm run geo` chạy liền geo và detours.
 
 - **Đường sắt** đi theo ray thật: đường ngắn nhất trên mạng ray của đúng hãng/tuyến trong 国土数値情報 鉄道データ (MLIT N02-23), tải tự động về `.cache/`.
 - **Đi bộ, xe buýt, shuttle** theo đường thật từ OSRM (routing.openstreetmap.de, dữ liệu OpenStreetMap); phản hồi được cache.
+- **Điểm gợi ý dọc đường** (mục "Trên đường đi"): chỉ tính từ những chỗ đang đi bộ (điểm dừng, khách sạn, các đoạn đi bộ), không tính đoạn ngồi tàu. Đường rẽ vào lấy từ OSRM đi bộ, hoặc đường ô tô khi đi bộ quá 2,5 km. Điểm ở xa thì xuất phát từ ga gần nhất trên chính tuyến tàu của ngày đó. Bỏ những chỗ phải đi xe quá 25 phút.
 - **Phà, thuyền hồ Ashi** theo lộ trình vẽ tay trên mặt nước; **cáp treo** là các nhịp thẳng giữa ga.
 - **Fuji**: đường ngắm từng điểm tới đỉnh trên dữ liệu độ cao Terrarium z12 (~30 m), có tính độ cong Trái Đất và khúc xạ; ra khoảng cách, hướng, phần núi lộ ra, kích thước biểu kiến, đường chân trời, và phía cửa sổ tàu thấy núi dọc Romancecar/Tōkaidō/Shinkansen.
 - **Quán ăn**: thông tin và ảnh người dùng từ trang Tabelog tiếng Anh (`research/food-tabelog.json`), ảnh được lọc và chú thích tiếng Việt (`research/captions.json`). Ảnh hiển thị trực tiếp từ Tabelog, ghi tên người chụp và liên kết nguồn.

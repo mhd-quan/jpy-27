@@ -53,12 +53,13 @@ export function boundsOf(points: LatLng[]): [[number, number], [number, number]]
   ];
 }
 
-/** Distance from a point to a polyline, km (equirectangular, fine at city scale). */
-export function distanceToLineKm(p: LatLng, line: LatLng[]) {
+/** Closest point of a polyline to p and its distance, km (equirectangular, fine at city scale). */
+export function nearestOnLine(p: LatLng, line: LatLng[]): { km: number; pt: LatLng } {
   const k = Math.cos(rad(p[0]));
   const toXY = ([lat, lng]: LatLng) => [lng * k * 111.32, lat * 110.57];
   const [px, py] = toXY(p);
-  let best = Infinity;
+  if (line.length === 1) return { km: Math.hypot(px - toXY(line[0])[0], py - toXY(line[0])[1]), pt: line[0] };
+  let best = { km: Infinity, pt: line[0] };
   for (let i = 1; i < line.length; i++) {
     const [ax, ay] = toXY(line[i - 1]);
     const [bx, by] = toXY(line[i]);
@@ -67,10 +68,15 @@ export function distanceToLineKm(p: LatLng, line: LatLng[]) {
     const len2 = dx * dx + dy * dy || 1e-12;
     const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / len2));
     const d = Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
-    if (d < best) best = d;
+    if (d < best.km) {
+      const [alat, alng] = line[i - 1];
+      const [blat, blng] = line[i];
+      best = { km: d, pt: [alat + t * (blat - alat), alng + t * (blng - alng)] };
+    }
   }
   return best;
 }
+
 
 /** Project lat/lng sets into an SVG box keeping aspect; returns path strings. */
 export function sparkPaths(lines: LatLng[][], width: number, height: number, pad = 4) {

@@ -1,9 +1,10 @@
 // Keeps the day map in step with the timeline: whatever sits in the middle band of
-// the viewport is highlighted on the map (a leg is fitted, a stop is centred).
+// the viewport is highlighted on the map (a leg is fitted, a stop is centred, a
+// suggestion shows the way to it).
 import type { TripMap } from '../lib/map';
 
 export function initDaySync() {
-  const items = [...document.querySelectorAll<HTMLElement>('.timeline > li[data-leg], .timeline > li[data-pin]')];
+  const items = [...document.querySelectorAll<HTMLElement>('.timeline > li[data-leg], .timeline > li[data-pin], .along-list > li[data-detour]')];
   const head = document.querySelector<HTMLElement>('[data-fit]');
   const aside = document.querySelector<HTMLElement>('.day-map');
   let map: TripMap | undefined;
@@ -23,7 +24,11 @@ export function initDaySync() {
     el.classList.add('is-active');
     // Don't fight the person if they just panned the map themselves.
     const fly = performance.now() - userMovedAt > 4000;
-    if (el.dataset.leg) {
+    if (el.dataset.detour) {
+      map.focusPin(null);
+      map.clear();
+      map.highlightDetour(el.dataset.detour, fly);
+    } else if (el.dataset.leg) {
       map.focusPin(null);
       map.highlightLeg(el.dataset.leg, fly);
     } else if (el.dataset.pin) {
@@ -68,6 +73,15 @@ export function initDaySync() {
   window.addEventListener('map-ready', (e) => {
     if ((e as CustomEvent<string>).detail === 'day') attach();
   });
+
+  // Pointing at a suggestion shows the way to it, wherever it sits on screen.
+  for (const li of items.filter((i) => i.dataset.detour)) {
+    li.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse' || !map) return;
+      userMovedAt = 0;
+      apply(li);
+    });
+  }
 
   // Tapping a transit row fits that leg even if it is not centred.
   document.addEventListener('click', (e) => {

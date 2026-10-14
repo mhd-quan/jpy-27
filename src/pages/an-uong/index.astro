@@ -182,7 +182,7 @@ const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + 
   }
   @media (max-width: 720px) {
     .info {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
   .alts {
@@ -194,7 +194,7 @@ const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + 
   }
   .alts ul {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
     gap: 8px;
     margin: 0;
     padding: 0;

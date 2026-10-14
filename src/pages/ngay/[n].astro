@@ -21,6 +21,7 @@ const stay = day.stay ? place(day.stay) : null;
 const mapConfig = {
   legs: v.legs.map((l) => routeLeg(l, n)),
   pins: v.pins,
+  detours: v.along.flatMap(({ p, detour }) => (detour?.p ? [{ id: p.id, p: detour.p, mode: detour.mode }] : [])),
   bounds: v.bounds,
   cooperative: true,
   labels: 'all' as const,
@@ -192,15 +193,21 @@ const DOW_SHORT: Record<string, string> = { 'Thứ Hai': 'T2', 'Thứ Ba': 'T3',
             <h2 class="t-2" id="along-title">
               Trên đường đi
             </h2>
-            <p class="muted t-body">Những chỗ nằm ngay trên tuyến hoặc đáng rẽ qua, chưa có trong lịch. Ghé khi còn thời gian.</p>
+            <p class="muted t-body">
+              Những chỗ nằm ngay trên đường hoặc chỉ cần rẽ một đoạn ngắn, chưa có trong lịch. Cuộn tới chỗ nào, bản đồ chỉ đường rẽ vào chỗ đó.
+            </p>
+            <p class="along-key t-small muted" aria-hidden="true">
+              <span><span class="key-ring" />chỗ gợi ý</span>
+              <span><span class="key-dash" />đường rẽ vào</span>
+            </p>
             <ul class="along-list">
-              {v.along.slice(0, 6).map(({ p, km }) => <AlongItem p={p} km={km} />)}
+              {v.along.slice(0, 6).map((a) => <AlongItem a={a} />)}
             </ul>
             {v.along.length > 6 && (
               <details class="more">
                 <summary>Thêm {v.along.length - 6} chỗ gần tuyến</summary>
                 <ul class="along-list">
-                  {v.along.slice(6).map(({ p, km }) => <AlongItem p={p} km={km} />)}
+                  {v.along.slice(6).map((a) => <AlongItem a={a} />)}
                 </ul>
               </details>
             )}
@@ -667,6 +674,29 @@ const DOW_SHORT: Record<string, string> = { 'Thứ Hai': 'T2', 'Thứ Ba': 'T3',
     margin: 20px 0 0;
     padding: 0;
     list-style: none;
+  }
+  .along-list > li.is-active :global(.along-item) {
+    background: var(--bg-2);
+  }
+  .along-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+  }
+  .along-key > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .key-ring {
+    width: 12px;
+    height: 12px;
+    border: 2.4px solid var(--sight);
+    border-radius: 50%;
+  }
+  .key-dash {
+    width: 24px;
+    border-top: 3px dashed var(--sight);
   }
   .more {
     margin-top: 8px;

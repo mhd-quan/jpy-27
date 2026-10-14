@@ -3,7 +3,8 @@ import { DAYS, legsOf, foodTotal, type Day, type Leg, type Stop } from '../data/
 import { LINES, MODE_LABEL, type Mode } from '../data/lines.ts';
 import { place, allPlaces, hasPlace, type Place } from '../data/catalog.ts';
 import { GEO } from '../data/geo.gen.ts';
-import { decodePolyline, boundsOf, distanceToLineKm, type LatLng } from './geo.ts';
+import { DETOURS } from '../data/detours.gen.ts';
+import { decodePolyline, boundsOf, haversineKm, nearestOnLine, type LatLng } from './geo.ts';
 import type { Pin, RouteLeg } from './map.ts';
 
 export { DAYS, place, LINES, MODE_LABEL };
@@ -52,19 +53,81 @@ export function stopsOf(day: Day) {
   return order;
 }
 
-const ALONG_KM = 1.6;
+/** Straight-line reach from wherever the day is on foot; further sights only when research tied them to the day. */
+const ALONG_KM = 1.2;
 
-/** Sights the research tied to this day, or that sit close to today's path, not already in the plan. */
-export function alongOf(day: Day, legs: LegView[]) {
+/** Where a detour would start: a place the day stops at, or a point on one of its walks. */
+export interface Origin {
+  pt: LatLng;
+  label: string;
+  onWalk: boolean;
+}
+
+export type Detour = (typeof DETOURS)[string]; // origin → sight, encoded polyline [lat, lng]
+
+/** "ga Kanda", but piers and airports keep their own word. */
+export const stationLabel = (name: string) => (/^(Bến|Sân bay|Ga )/.test(name) ? name : `ga ${name}`);
+
+export interface Along {
+  p: Place;
+  km: number; // straight line from the origin
+  from: Origin;
+  detour?: Detour;
+}
+
+function footOrigins(day: Day, legs: LegView[]) {
+  const places: Origin[] = [];
+  const ids = new Set<string>();
+  const add = (id: string) => {
+    if (ids.has(id)) return;
+    ids.add(id);
+    const p = place(id);
+    places.push({ pt: [p.lat, p.lng], label: p.kind === 'station' ? stationLabel(p.name) : p.name, onWalk: false });
+  };
+  // on a day that changes hotel, the morning walk out of last night's one is just checking out
+  const leaving = DAYS[day.n - 2]?.stay;
+  const left = leaving && leaving !== day.stay ? leaving : undefined;
+  for (const item of day.items) if (item.type === 'stop' && item.place && item.place !== left && place(item.place).kind !== 'station') add(item.place);
+  if (day.stay) add(day.stay);
+  const walks = legs.filter((l) => l.mode === 'walk' && l.pts.length > 1 && l.from !== left && l.to !== left);
+  // stations count once you walk out of them
+  for (const l of walks) for (const id of [l.from, l.to]) add(id);
+  return { places, walks };
+}
+
+function nearestOrigin(at: LatLng, { places, walks }: ReturnType<typeof footOrigins>) {
+  let best: { km: number; from: Origin } = { km: Infinity, from: { pt: at, label: '', onWalk: false } };
+  for (const o of places) {
+    const km = haversineKm(at, o.pt);
+    if (km < best.km) best = { km, from: o };
+  }
+  for (const l of walks) {
+    const near = nearestOnLine(at, l.pts);
+    // a walk only wins when the sight lies beside it, not near either end (those are places already)
+    if (near.km < best.km - 0.05) best = { km: near.km, from: { pt: near.pt, label: `${l.fromName} → ${l.toName}`, onWalk: true } };
+  }
+  return best;
+}
+
+/** Sights the research tied to this day, or within a short walk of where the day is on foot, not already in the plan. */
+export function alongCandidates(day: Day, legs: LegView[]): Along[] {
   const planned = new Set(day.items.flatMap((i) => (i.type === 'stop' && i.place ? [i.place] : [])));
-  const path = legs.filter((l) => l.mode !== 'shinkansen').flatMap((l) => l.pts);
+  const origins = footOrigins(day, legs);
   return allPlaces()
     .filter((p) => (p.kind === 'sight' || p.kind === 'shop') && !planned.has(p.id))
     .filter((p) => p.role === 'along' || p.role === 'detour' || p.day === day.n)
-    .map((p) => ({ p, km: path.length ? distanceToLineKm([p.lat, p.lng], path) : Infinity }))
-    .filter(({ p, km }) => p.day === day.n || km < ALONG_KM)
-    .filter(({ p }) => p.role !== 'alt')
-    .sort((a, b) => a.km - b.km);
+    .filter((p) => p.role !== 'alt')
+    .map((p) => ({ p, ...nearestOrigin([p.lat, p.lng], origins), detour: DETOURS[`${day.n}.${p.id}`] }))
+    .filter(({ p, km }) => p.day === day.n || km < ALONG_KM);
+}
+
+export function alongOf(day: Day, legs: LegView[]): Along[] {
+  return (
+    alongCandidates(day, legs)
+      // a long ride there is an outing of its own, not a detour
+      .filter(({ detour }) => !(detour?.mode === 'car' && detour.min > 25))
+      .sort((a, b) => (a.detour?.km ?? a.km) - (b.detour?.km ?? b.km))
+  );
 }
 
 export interface DayView {
@@ -75,7 +138,7 @@ export interface DayView {
   bounds: [[number, number], [number, number]];
   km: { rail: number; walk: number; road: number; water: number; air: number };
   food: number;
-  along: { p: Place; km: number }[];
+  along: Along[];
 }
 
 export function dayView(day: Day): DayView {

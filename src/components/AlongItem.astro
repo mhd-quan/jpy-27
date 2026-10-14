@@ -1,24 +1,29 @@
 ---
-import { fmtKm, imgSrc, type Place } from '../lib/trip';
+import { fmtKm, imgSrc, type Along } from '../lib/trip';
 
 interface Props {
-  p: Place;
-  km: number;
+  a: Along;
 }
-const { p, km } = Astro.props;
+const { a } = Astro.props;
+const { p, km, detour: d } = Astro.props.a;
 const img = p.images[0];
-const kicker =
-  p.role === 'detour' && p.detourMin
-    ? `Rẽ qua, thêm khoảng ${p.detourMin} phút`
-    : km < 0.15
-      ? 'Ngay trên đường đi'
-      : km < 5
-        ? `Cách đường đi ${fmtKm(km)}`
-        : 'Gần đó';
+const kicker = d
+  ? d.km === 0
+    ? d.from.onWalk
+      ? 'Ngay trên đường đi bộ'
+      : `Ngay cạnh ${d.from.label}`
+    : d.mode === 'car'
+      ? `Từ ${d.from.onWalk ? 'đường đi bộ' : d.from.label}, đi xe khoảng ${d.min} phút`
+      : d.from.onWalk
+        ? `Rẽ ${d.min} phút khỏi đường đi bộ`
+        : `Từ ${d.from.label}, đi bộ ${d.min} phút`
+  : km < 0.15
+    ? 'Ngay trên đường đi'
+    : `Cách đường đi ${fmtKm(km)}`;
 const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
 ---
 
-<li>
+<li data-detour={a.p.id}>
   <button type="button" class="along-item" data-place={p.id}>
     <span class="al-img">
       {img && <img src={imgSrc(img.src)} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()" />}

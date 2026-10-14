@@ -166,16 +166,16 @@ const total = STAYS.reduce((s, x) => s + x.target * (x.id === 'mizunoto' ? 1 : N
   }
   @media (max-width: 760px) {
     .grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
     .facts div {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 2px;
     }
   }
   .steps {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
     gap: 28px;
     margin: 32px 0 0;
     padding: 0;
