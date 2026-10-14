@@ -14,7 +14,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
-const UA = 'nb2027-trip-site/1.0 (personal itinerary site; https://delphyra.tech/.nb2027/)';
+const UA = 'nb2027-trip-site/1.0 (personal itinerary site; https://jpy27.delphyra.tech/)';
 const cacheDir = join(root, '.cache/commons');
 const outDir = join(root, 'public/img/commons');
 mkdirSync(cacheDir, { recursive: true });

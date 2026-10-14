@@ -1,12 +1,9 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-// The site lives under delphyra.tech/.nb2027/. Override with BASE_PATH=/ to serve from a domain root.
-const base = process.env.BASE_PATH ?? '/.nb2027';
-
+// Served from the root of jpy27.delphyra.tech (a Cloudflare Worker, see wrangler.jsonc).
 export default defineConfig({
-  site: 'https://delphyra.tech',
-  base,
+  site: 'https://jpy27.delphyra.tech',
   trailingSlash: 'always',
   build: { format: 'directory' },
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },

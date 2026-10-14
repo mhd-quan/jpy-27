@@ -1,0 +1,12 @@
+// Cloudflare Workers: a static-assets-only Worker serving the Astro build in dist/.
+// Without this file `wrangler deploy` auto-configures the project with `astro add cloudflare`
+// and deploys a different build output.
+{
+  "name": "jpy-27",
+  "compatibility_date": "2026-09-01",
+  "build": { "command": "npm run build" },
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash"
+  }
+}
