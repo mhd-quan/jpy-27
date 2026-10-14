@@ -1,0 +1,47 @@
+---
+import { sparkPaths } from '../lib/geo';
+import type { LegView } from '../lib/trip';
+
+interface Props {
+  legs: LegView[];
+  width?: number;
+  height?: number;
+}
+const { legs, width = 120, height = 64 } = Astro.props;
+const drawn = legs.filter((l) => l.pts.length > 1);
+const { paths, project } = sparkPaths(
+  drawn.map((l) => l.pts),
+  width,
+  height,
+  6,
+);
+const first = drawn[0]?.pts[0];
+const last = drawn.at(-1)?.pts.at(-1);
+const [fx, fy] = first ? project(first) : [0, 0];
+const [lx, ly] = last ? project(last) : [0, 0];
+---
+
+<svg class="spark" viewBox={`0 0 ${width} ${height}`} width={width} height={height} aria-hidden="true">
+  {
+    drawn.map((l, i) => (
+      <path
+        d={paths[i]}
+        fill="none"
+        stroke={l.mode === 'walk' ? 'var(--ink-3)' : l.color}
+        stroke-width={l.mode === 'walk' ? 1.4 : 2.4}
+        stroke-dasharray={l.mode === 'walk' ? '0.1 3' : l.mode === 'ferry' || l.mode === 'cruise' || l.mode === 'ropeway' ? '3 2.5' : undefined}
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    ))
+  }
+  {first && <circle cx={fx} cy={fy} r="3" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6" />}
+  {last && <circle cx={lx} cy={ly} r="3" fill="var(--ink)" />}
+</svg>
+
+<style>
+  .spark {
+    display: block;
+    overflow: visible;
+  }
+</style>

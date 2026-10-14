@@ -1,0 +1,226 @@
+---
+import Base from '../../layouts/Base.astro';
+import Gallery from '../../components/Gallery.astro';
+import { DAYS, allPlacesOf, usesOf, fmtYen, url } from '../../lib/trip';
+
+const GROUPS = [
+  { id: 'tokyo', title: 'Tokyo', areas: ['tokyo'] },
+  { id: 'hakone', title: 'Hakone và Shizuoka', areas: ['hakone', 'tokaido', 'kawaguchiko'] },
+  { id: 'ise', title: 'Ise, Toba, Shima', areas: ['ise', 'toba', 'shima'] },
+  { id: 'kyoto', title: 'Kyoto', areas: ['kyoto'] },
+  { id: 'osaka', title: 'Nara và Osaka', areas: ['nara', 'osaka'] },
+];
+const food = allPlacesOf('food');
+const uses = usesOf();
+const groups = GROUPS.map((g) => {
+  const list = food.filter((p) => g.areas.includes(p.area));
+  const order = (id: string) => uses.get(id)?.[0]?.order ?? 999;
+  list.sort((a, b) => order(a.id) - order(b.id));
+  return { ...g, main: list.filter((p) => p.role !== 'alt'), alt: list.filter((p) => p.role === 'alt') };
+});
+const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + d.meals.s, 0);
+---
+
+<Base title="Ăn uống" sheets={food.map((p) => p.id)}>
+  <section class="wrap hero">
+    <h1 class="t-1">Ăn uống</h1>
+    <p class="t-lead">
+      {food.filter((p) => p.role !== 'alt').length} quán trên tuyến, chọn theo bài ăn thực có ghi ngày và món gọi. Ít bữa sashimi nối nhau, nhiều món nóng và món địa phương. Cả chuyến khoảng {fmtYen(totalFood)} cho hai người.
+    </p>
+    <nav class="seg" aria-label="Vùng">
+      {groups.map((g) => <a href={`#${g.id}`}>{g.title}</a>)}
+    </nav>
+  </section>
+
+  {
+    groups.map((g) => (
+      <section class="group" id={g.id} aria-labelledby={`${g.id}-t`}>
+        <div class="wrap">
+          <h2 class="t-2" id={`${g.id}-t`}>
+            {g.title}
+          </h2>
+        </div>
+        <ul class="list">
+          {g.main.map((p) => {
+            const u = uses.get(p.id) ?? [];
+            return (
+              <li class="item">
+                <div class="wrap info">
+                  <div class="name">
+                    <h3 class="t-3">
+                      <button type="button" class="link-title" data-place={p.id}>
+                        {p.name}
+                      </button>
+                    </h3>
+                    {p.ja && (
+                      <p class="ja muted" lang="ja">
+                        {p.ja}
+                      </p>
+                    )}
+                  </div>
+                  <div class="meta">
+                    <p class="dish">{p.dish}</p>
+                    <p class="t-small muted">
+                      {[p.price && `${p.price}/người`, p.closed && `Nghỉ ${p.closed.toLowerCase()}`, p.pay === 'cash' && 'Tiền mặt'].filter(Boolean).join(' — ')}
+                    </p>
+                    <p class="t-small when">
+                      {u.map((x, i) => (
+                        <>
+                          {i > 0 && ', '}
+                          <a href={url(`ngay/${x.day}/`)}>
+                            Ngày {x.day}
+                            {x.at ? `, ${x.at}` : ''}
+                          </a>
+                        </>
+                      ))}
+                    </p>
+                  </div>
+                </div>
+                <div class="gal">
+                  <Gallery images={p.images} dish={p.dish} name={p.name} limit={8} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        {g.alt.length > 0 && (
+          <div class="wrap alts">
+            <h3 class="t-small muted">Phương án thay thế</h3>
+            <ul>
+              {g.alt.map((p) => (
+                <li>
+                  <button type="button" class="alt-btn" data-place={p.id}>
+                    {p.images[0] && <img src={p.images[0].src} alt="" loading="lazy" referrerpolicy="no-referrer" />}
+                    <span>
+                      <strong>{p.name}</strong>
+                      <span class="t-small muted">{p.note}</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+    ))
+  }
+</Base>
+
+<style>
+  .hero {
+    padding-top: clamp(40px, 7vw, 96px);
+    padding-bottom: 24px;
+  }
+  .hero .t-lead {
+    margin-top: 16px;
+    max-width: 52ch;
+  }
+  .seg {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+  }
+  .seg a {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--bg-2);
+    color: var(--ink);
+    font-size: 15px;
+  }
+  .seg a:hover {
+    text-decoration: none;
+    background: var(--bg-3);
+  }
+  .group {
+    padding-top: clamp(48px, 7vw, 88px);
+  }
+  .list {
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .item {
+    padding: 24px 0 28px;
+    border-top: 1px solid var(--hair);
+  }
+  .info {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 8px 32px;
+    align-items: start;
+  }
+  .ja {
+    margin: 2px 0 0;
+    font-size: 14px;
+  }
+  .dish {
+    margin: 0;
+    font-weight: 500;
+  }
+  .meta .t-small {
+    margin: 4px 0 0;
+  }
+  .when a {
+    font-weight: 500;
+  }
+  .gal {
+    --inset: max(var(--gutter), calc((100% - var(--wrap)) / 2));
+    margin-top: 16px;
+  }
+  .link-title {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .link-title:hover {
+    color: var(--accent);
+  }
+  @media (max-width: 720px) {
+    .info {
+      grid-template-columns: 1fr;
+    }
+  }
+  .alts {
+    padding-top: 12px;
+  }
+  .alts h3 {
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+  .alts ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .alt-btn {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    padding: 8px;
+    border: 0;
+    border-radius: var(--r-m);
+    background: var(--bg-2);
+    text-align: left;
+    cursor: pointer;
+  }
+  .alt-btn img {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+  .alt-btn span {
+    display: flex;
+    flex-direction: column;
+  }
+</style>

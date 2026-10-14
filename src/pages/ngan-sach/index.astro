@@ -1,0 +1,553 @@
+---
+import Base from '../../layouts/Base.astro';
+import { BUDGET, SAVINGS, SHOPPING, SHOP_GROUPS, TRANSPORT_LINES, TRIP, RATE_SCENARIOS } from '../../data/trip';
+import { DAYS, fmtYen, url, shortDate } from '../../lib/trip';
+
+const total = BUDGET.reduce((s, b) => s + b.yen, 0);
+const groups = Object.entries(SHOP_GROUPS).map(([key, label]) => ({
+  key,
+  label,
+  items: SHOPPING.filter((i) => i.group === key),
+}));
+const shopTotal = SHOPPING.reduce((s, i) => s + i.qty * i.unit, 0);
+const transportTotal = TRANSPORT_LINES.reduce((s, t) => s + t.yen, 0);
+const EXTRAS = [
+  { label: 'Thuế lưu trú và thuế tắm', yen: 3_500, note: 'Kyoto ¥400/người/đêm, Osaka ¥200, Hakone ¥150 — kiểm tra đã gồm trong giá chưa' },
+  { label: 'Gửi vali hai chặng', yen: 6_600, note: 'Một vali lớn dùng chung, Tokyo → Ise và Kyoto → Osaka' },
+  { label: 'eSIM data', yen: 4_500, note: 'Hai máy, đủ 12 ngày' },
+  { label: 'Giặt sấy', yen: 1_400, note: 'Khoảng hai lượt' },
+  { label: 'Locker, cân hành lý nhỏ', yen: 1_800, note: 'Locker ở Toba' },
+  { label: 'Lẻ phát sinh', yen: 200, note: '' },
+];
+const breakEven = TRIP.capVnd / total;
+---
+
+<Base title="Ngân sách">
+  <section class="wrap hero">
+    <h1 class="t-1">Ngân sách</h1>
+    <p class="t-lead">
+      Mọi con số cho hai người, theo yên, giá gồm thuế. 120 triệu là tiền chi tại Nhật — chưa gồm vé máy bay, visa, bảo hiểm và phí hành lý của hãng bay.
+    </p>
+  </section>
+
+  <section class="wrap calc" data-calc data-total={total} data-cap={TRIP.capVnd} aria-labelledby="calc-t">
+    <h2 class="visually-hidden" id="calc-t">Tính theo tỷ giá</h2>
+    <div class="calc-top">
+      <div class="big">
+        <output class="tnum" data-out="vnd">{((total * TRIP.rate) / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu</output>
+        <span class="muted"><span data-out="yen" class="tnum">{fmtYen(total)}</span> ở <span data-out="rate" class="tnum">{TRIP.rate}</span> đồng/yên</span>
+      </div>
+      <p class="status" data-out="status"></p>
+    </div>
+    <label class="slider">
+      <span class="t-small muted">Tỷ giá thực trả (đồng/yên)</span>
+      <input type="range" min="160" max="200" step="1" value={TRIP.rate} data-in="rate" aria-describedby="rate-note" />
+      <span class="ticks t-micro faint" aria-hidden="true"><span>160</span><span>170</span><span>180</span><span>190</span><span>200</span></span>
+    </label>
+    <p class="t-small muted" id="rate-note">
+      Kế hoạch nằm dưới trần khi tỷ giá khoảng {breakEven.toLocaleString('vi-VN', { maximumFractionDigits: 1 })} đồng/yên trở xuống — đã tính cả dự phòng.
+    </p>
+    <fieldset class="savings">
+      <legend class="t-small muted">Nếu cần bớt</legend>
+      {
+        SAVINGS.map((s) => (
+          <label class="switch">
+            <input type="checkbox" value={s.yen} data-in="save" />
+            <span class="track" aria-hidden="true" />
+            <span>{s.label}</span>
+            <span class="muted tnum">−{fmtYen(s.yen)}</span>
+          </label>
+        ))
+      }
+    </fieldset>
+  </section>
+
+  <section class="wrap section-tight" aria-labelledby="split-t">
+    <h2 class="t-2" id="split-t">Chia theo khoản</h2>
+    <div class="stack-bar" role="img" aria-label="Tỷ trọng các khoản chi">
+      {BUDGET.map((b) => <span style={`--w:${(b.yen / total) * 100}%; --c:${b.color}`} />)}
+    </div>
+    <dl class="rows">
+      {
+        BUDGET.map((b) => (
+          <div>
+            <dt>
+              <span class="dot" style={`--c:${b.color}`} />
+              <span>
+                <strong>{b.label}</strong>
+                <span class="t-small muted">{b.note}</span>
+              </span>
+            </dt>
+            <dd class="tnum">
+              {fmtYen(b.yen)}
+              <span class="t-small muted">{Math.round((b.yen / total) * 100)}%</span>
+            </dd>
+          </div>
+        ))
+      }
+      <div class="sum">
+        <dt><strong>Tổng</strong></dt>
+        <dd class="tnum">{fmtYen(total)}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="band section-tight" aria-labelledby="food-t">
+    <div class="wrap">
+      <h2 class="t-2" id="food-t">Tiền ăn từng ngày</h2>
+      <p class="muted">Tối ngày 4 và sáng ngày 5 nằm trong giá ryokan. Không giả định uống nhiều rượu mỗi tối.</p>
+      <div class="table-wrap">
+        <table class="tnum">
+          <thead>
+            <tr><th scope="col">Ngày</th><th scope="col">Sáng</th><th scope="col">Trưa</th><th scope="col">Tối</th><th scope="col">Vặt, nước</th><th scope="col">Cả ngày</th></tr>
+          </thead>
+          <tbody>
+            {
+              DAYS.map((d) => (
+                <tr>
+                  <th scope="row">
+                    <a href={url(`ngay/${d.n}/`)}>
+                      {d.n} <span class="muted">· {shortDate(d.date)}</span>
+                    </a>
+                  </th>
+                  <td>{d.meals.b ? fmtYen(d.meals.b) : '—'}</td>
+                  <td>{d.meals.l ? fmtYen(d.meals.l) : '—'}</td>
+                  <td>{d.meals.d ? fmtYen(d.meals.d) : '—'}</td>
+                  <td>{d.meals.s ? fmtYen(d.meals.s) : '—'}</td>
+                  <td><strong>{fmtYen(d.meals.b + d.meals.l + d.meals.d + d.meals.s)}</strong></td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section-tight shop" aria-labelledby="shop-t" data-shop>
+    <div class="shop-head">
+      <h2 class="t-2" id="shop-t">Giỏ mua sắm</h2>
+      <p class="muted">
+        Giả định quà cho khoảng 10–12 người, gộp theo hộ. Đánh dấu khi đã mua — lưu trên máy này. <span class="tnum" data-out="bought">0</span> / {fmtYen(shopTotal)} đã mua.
+      </p>
+      <div class="progress" aria-hidden="true"><span data-out="bar"></span></div>
+    </div>
+    {
+      groups.map((g) => (
+        <div class="shop-group">
+          <h3 class="t-small muted">{g.label}</h3>
+          <ul>
+            {g.items.map((i) => (
+              <li>
+                <label>
+                  <input type="checkbox" data-item={i.id} data-yen={i.qty * i.unit} />
+                  <span class="check" aria-hidden="true" />
+                  <span class="it">
+                    <span>
+                      {i.name} <span class="muted">× {i.qty}</span>
+                    </span>
+                    <span class="t-small muted">{i.where}</span>
+                  </span>
+                  <span class="tnum amt">{fmtYen(i.qty * i.unit)}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+    <p class="t-small muted note">
+      Từ 1/11/2026 Nhật đổi sang hoàn thuế sau khi xác nhận hàng xuất khỏi Nhật: trả giá có thuế ở quầy, hoàn sau. Tách hóa đơn đồ mang về và đồ dùng trong chuyến; đừng coi tiền hoàn là tiền đã có để tiêu.
+    </p>
+  </section>
+
+  <section class="band section-tight" aria-labelledby="move-t">
+    <div class="wrap two">
+      <div>
+        <h2 class="t-2" id="move-t">Di chuyển</h2>
+        <dl class="rows compact">
+          {
+            TRANSPORT_LINES.map((t) => (
+              <div>
+                <dt>{t.label}</dt>
+                <dd class="tnum">{fmtYen(t.yen)}</dd>
+              </div>
+            ))
+          }
+          <div class="sum">
+            <dt><strong>Tổng</strong></dt>
+            <dd class="tnum">{fmtYen(transportTotal)}</dd>
+          </div>
+        </dl>
+      </div>
+      <div>
+        <h2 class="t-2">Chi phí phụ</h2>
+        <dl class="rows compact">
+          {
+            EXTRAS.map((t) => (
+              <div>
+                <dt>
+                  <span>
+                    {t.label}
+                    {t.note && <span class="t-small muted">{t.note}</span>}
+                  </span>
+                </dt>
+                <dd class="tnum">{fmtYen(t.yen)}</dd>
+              </div>
+            ))
+          }
+          <div class="sum">
+            <dt><strong>Tổng</strong></dt>
+            <dd class="tnum">{fmtYen(18_000)}</dd>
+          </div>
+        </dl>
+        <h3 class="t-3 sc-title">Khi tỷ giá đổi</h3>
+        <dl class="rows compact">
+          {
+            RATE_SCENARIOS.map((r) => (
+              <div>
+                <dt>
+                  <span>
+                    <strong class="tnum">{r.rate} đồng</strong>
+                    <span class="t-small muted">{r.note}</span>
+                  </span>
+                </dt>
+                <dd class="tnum">{((total * r.rate) / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} tr</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const calc = document.querySelector<HTMLElement>('[data-calc]');
+  if (calc) {
+    const total = Number(calc.dataset.total);
+    const cap = Number(calc.dataset.cap);
+    const rate = calc.querySelector<HTMLInputElement>('[data-in="rate"]')!;
+    const saves = [...calc.querySelectorAll<HTMLInputElement>('[data-in="save"]')];
+    const out = (k: string) => calc.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
+    const fmt = (n: number) => `¥${n.toLocaleString('vi-VN')}`;
+    const update = () => {
+      const r = Number(rate.value);
+      const yen = total - saves.filter((s) => s.checked).reduce((s, x) => s + Number(x.value), 0);
+      const vnd = yen * r;
+      out('vnd').textContent = `${(vnd / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu`;
+      out('yen').textContent = fmt(yen);
+      out('rate').textContent = String(r);
+      const diff = cap - vnd;
+      const st = out('status');
+      st.textContent =
+        diff >= 0
+          ? `Dưới trần ${(diff / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu`
+          : `Vượt trần ${(-diff / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu — bật các khoản bớt bên dưới`;
+      st.dataset.state = diff >= 0 ? 'ok' : 'over';
+    };
+    rate.addEventListener('input', update);
+    saves.forEach((s) => s.addEventListener('change', update));
+    update();
+  }
+
+  const shop = document.querySelector<HTMLElement>('[data-shop]');
+  if (shop) {
+    const KEY = 'nb2027-shop';
+    let saved: string[] = [];
+    try {
+      saved = JSON.parse(localStorage.getItem(KEY) ?? '[]');
+    } catch {}
+    const boxes = [...shop.querySelectorAll<HTMLInputElement>('[data-item]')];
+    const all = boxes.reduce((s, b) => s + Number(b.dataset.yen), 0);
+    const refresh = () => {
+      const got = boxes.filter((b) => b.checked).reduce((s, b) => s + Number(b.dataset.yen), 0);
+      shop.querySelector('[data-out="bought"]')!.textContent = `¥${got.toLocaleString('vi-VN')}`;
+      (shop.querySelector('[data-out="bar"]') as HTMLElement).style.width = `${(got / all) * 100}%`;
+    };
+    boxes.forEach((b) => {
+      b.checked = saved.includes(b.dataset.item!);
+      b.addEventListener('change', () => {
+        const ids = boxes.filter((x) => x.checked).map((x) => x.dataset.item!);
+        try {
+          localStorage.setItem(KEY, JSON.stringify(ids));
+        } catch {}
+        refresh();
+      });
+    });
+    refresh();
+  }
+</script>
+
+<style>
+  .hero {
+    padding-top: clamp(40px, 7vw, 96px);
+    padding-bottom: 24px;
+  }
+  .hero .t-lead {
+    margin-top: 16px;
+    max-width: 54ch;
+  }
+  .calc {
+    margin-top: 16px;
+  }
+  .calc-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+  }
+  .big {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .big output {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 8vw, 88px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .status {
+    margin: 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .status[data-state='ok'] {
+    color: var(--good);
+    background: color-mix(in srgb, var(--good) 12%, transparent);
+  }
+  .status[data-state='over'] {
+    color: #d70015;
+    background: color-mix(in srgb, #ff3b30 12%, transparent);
+  }
+  .slider {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 32px;
+    max-width: 560px;
+  }
+  .slider input {
+    width: 100%;
+    accent-color: var(--accent-bright);
+  }
+  .ticks {
+    display: flex;
+    justify-content: space-between;
+  }
+  .savings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 4px 24px;
+    margin: 24px 0 0;
+    padding: 0;
+    border: 0;
+  }
+  .savings legend {
+    margin-bottom: 8px;
+    padding: 0;
+  }
+  .switch {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--hair);
+    cursor: pointer;
+  }
+  .switch input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .switch .track {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    border-radius: 13px;
+    background: var(--bg-3);
+    transition: background-color 200ms;
+  }
+  .switch .track::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 260ms var(--ease-out);
+  }
+  .switch input:checked + .track {
+    background: #34c759;
+  }
+  .switch input:checked + .track::after {
+    transform: translateX(18px);
+  }
+  .switch input:focus-visible + .track {
+    outline: 3px solid color-mix(in srgb, var(--accent-bright) 60%, transparent);
+    outline-offset: 2px;
+  }
+
+  .stack-bar {
+    display: flex;
+    height: 14px;
+    margin: 24px 0 8px;
+    border-radius: 7px;
+    overflow: hidden;
+    gap: 2px;
+  }
+  .stack-bar span {
+    width: var(--w);
+    background: var(--c);
+  }
+  .rows {
+    margin: 12px 0 0;
+  }
+  .rows > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .rows dt {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .rows dt > span:last-child {
+    display: flex;
+    flex-direction: column;
+  }
+  .rows dd {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    white-space: nowrap;
+  }
+  .rows .sum {
+    border-bottom: 0;
+  }
+  .rows .dot {
+    transform: translateY(-1px);
+  }
+  .compact > div {
+    padding: 10px 0;
+  }
+  .table-wrap {
+    margin-top: 20px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  th,
+  td {
+    padding: 10px 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--hair);
+    white-space: nowrap;
+  }
+  th:first-child {
+    text-align: left;
+  }
+  thead th {
+    color: var(--ink-2);
+    font-weight: 500;
+    font-size: 13px;
+  }
+  .shop-head .t-2 + p {
+    margin: 8px 0 0;
+  }
+  .progress {
+    height: 6px;
+    margin-top: 14px;
+    border-radius: 3px;
+    background: var(--bg-2);
+    overflow: hidden;
+  }
+  .progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: #34c759;
+    transition: width 300ms var(--ease-out);
+  }
+  .shop-group {
+    margin-top: 28px;
+  }
+  .shop-group h3 {
+    margin: 0 0 4px;
+    font-weight: 600;
+  }
+  .shop-group ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .shop-group label {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--hair);
+    cursor: pointer;
+  }
+  .shop-group input {
+    position: absolute;
+    opacity: 0;
+  }
+  .check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    transition: background-color 150ms, border-color 150ms;
+  }
+  .shop-group input:checked + .check {
+    border-color: #34c759;
+    background: #34c759 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat;
+  }
+  .shop-group input:focus-visible + .check {
+    outline: 3px solid color-mix(in srgb, var(--accent-bright) 60%, transparent);
+    outline-offset: 2px;
+  }
+  .shop-group input:checked ~ .it > span:first-child {
+    color: var(--ink-2);
+    text-decoration: line-through;
+  }
+  .it {
+    display: flex;
+    flex-direction: column;
+  }
+  .note {
+    margin-top: 24px;
+    max-width: 70ch;
+  }
+  .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+  .sc-title {
+    margin-top: 32px;
+  }
+  @media (max-width: 800px) {
+    .two {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

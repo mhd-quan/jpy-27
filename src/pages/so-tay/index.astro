@@ -1,0 +1,458 @@
+---
+import Base from '../../layouts/Base.astro';
+import { BOOKINGS, CHECKS, PASSES, PHRASES } from '../../data/trip';
+
+// "22/10, 0:00" in Japan time
+const jst = (iso: string) => {
+  const d = new Date(new Date(iso).getTime() + 9 * 3600_000);
+  return `${d.getUTCDate()}/${d.getUTCMonth() + 1}, ${d.getUTCHours()}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+};
+
+const STATIONS = [
+  ['Iseshi', '伊勢市'],
+  ['Ujiyamada', '宇治山田'],
+  ['Toba', '鳥羽'],
+  ['Kashikojima', '賢島'],
+  ['Tambabashi', '丹波橋'],
+  ['Chūshojima', '中書島'],
+  ['Kowakudani', '小涌谷'],
+  ['Kintetsu Nagoya', '近鉄名古屋'],
+];
+---
+
+<Base title="Sổ tay">
+  <section class="wrap hero">
+    <h1 class="t-1">Sổ tay</h1>
+    <p class="t-lead">Những thứ cần làm trước khi đi và cần mở nhanh trong chuyến: lịch đặt chỗ, vé, onsen, vài câu tiếng Nhật.</p>
+    <nav class="seg" aria-label="Mục">
+      <a href="#dat-cho">Đặt chỗ</a>
+      <a href="#ve">Vé và thẻ</a>
+      <a href="#hanh-ly">Hành lý, hoàn thuế</a>
+      <a href="#onsen">Onsen</a>
+      <a href="#tieng-nhat">Tiếng Nhật</a>
+      <a href="#truoc-khi-di">Trước khi đi</a>
+    </nav>
+  </section>
+
+  <section class="wrap block" id="dat-cho" aria-labelledby="b1">
+    <h2 class="t-2" id="b1">Lịch đặt chỗ</h2>
+    <ol class="book">
+      {
+        BOOKINGS.map((b) => (
+          <li>
+            <div class="when">
+              {b.at ? (
+                <time datetime={b.at} data-countdown={b.at} class="tnum">
+                  {jst(b.at)} giờ Nhật
+                </time>
+              ) : (
+                <span class="muted">{b.rule}</span>
+              )}
+            </div>
+            <div>
+              <strong>{b.title}</strong>
+              {b.at && <span class="t-small muted rule">{b.rule}</span>}
+              <p>{b.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="band" id="ve" aria-labelledby="b2">
+    <div class="wrap block">
+      <h2 class="t-2" id="b2">Vé và thẻ</h2>
+      <ul class="passes">
+        {
+          PASSES.map((p) => (
+            <li>
+              <span class:list={['verdict', p.verdict === 'Mua' ? 'yes' : 'no']}>{p.verdict}</span>
+              <strong>{p.name}</strong>
+              <p>{p.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="prose">
+        <p>
+          Thẻ IC dùng cho JR trong vùng, metro, nhiều tàu tư và cửa hàng. Khi đi JR local qua ranh Suica–TOICA (Atami → Shizuoka ngày 5), mua vé giấy đúng chặng. Mỗi người một thẻ; điện thoại Android mua ngoài Nhật thường không hỗ trợ Mobile Suica.
+        </p>
+        <p>
+          Không dùng taxi trong tuyến chính. Taxi ngắn để dành cho lúc trời xấu, chân mệt hoặc shuttle thay đổi. Night bus và tàu ngủ Sunrise không hợp tuyến này.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap block" id="hanh-ly" aria-labelledby="b3">
+    <h2 class="t-2" id="b3">Hành lý và hoàn thuế</h2>
+    <div class="cols">
+      <div>
+        <h3 class="t-3">Gửi vali</h3>
+        <p>
+          Gửi một vali lớn dùng chung hai chặng: Tokyo → Ise (sáng ngày 3, nhận 22/10) và Kyoto → Osaka (sáng ngày 9, nhận 27/10). Cỡ 160 khoảng ¥3.000/chặng. Xác nhận khách sạn nhận kiện, ghi tên người đặt và ngày đến; giữ đồ cần dùng trong túi đi cùng.
+        </p>
+      </div>
+      <div>
+        <h3 class="t-3">Hoàn thuế từ 1/11/2026</h3>
+        <p>
+          Trả giá có thuế ở cửa hàng, hoàn sau khi xác nhận hàng mang ra khỏi Nhật. Một hóa đơn phải đủ hàng để xác nhận — tách đồ mang về với đồ dùng trong chuyến. Thuế 10% tương ứng tối đa khoảng 9,09% giá gross trước phí.
+        </p>
+      </div>
+      <div>
+        <h3 class="t-3">Cân hành lý</h3>
+        <p>
+          Giỏ mua sắm thêm khoảng 10–13 kg, chưa tính vali mới 3,3 kg. Mang túi gấp, zip bag, cân nhỏ; để trống một phần vali khi bay đi. Phí quá cân của hãng bay nằm ngoài 120 triệu.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="onsen" aria-labelledby="b4">
+    <div class="wrap block">
+      <h2 class="t-2" id="b4">Onsen</h2>
+      <div class="cols">
+        <div>
+          <h3 class="t-3">Ở Mizunoto</h3>
+          <p>
+            Dùng phòng từ chiều: bồn riêng, đổi không gian ở bồn garden 貸切, ăn đúng lượt, rồi quay lại bồn tối hoặc sáng. Bồn garden miễn phí, ai tới khi trống dùng trước, không có khu vòi tắm đầy đủ — tắm sạch ở phòng trước.
+          </p>
+        </div>
+        <div>
+          <h3 class="t-3">Nhà tắm chung</h3>
+          <p>
+            Thường tách nam nữ. Tắm rửa trước khi ngâm, không để khăn xuống nước, nói nhỏ, không chụp người khác. Hỏi trước về hình xăm nếu có. Ngâm từng lượt ngắn, uống nước, tránh rượu trước khi tắm nóng.
+          </p>
+        </div>
+        <div>
+          <h3 class="t-3">Bồn ngoài trời</h3>
+          <p>
+            露天 nghĩa là ngoài trời, không hứa mọi góc đều kín. Kiểm tra rèm khi nhận phòng; thấy chưa yên tâm thì hỏi nhân viên.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap block" id="tieng-nhat" aria-labelledby="b5">
+    <h2 class="t-2" id="b5">Tiếng Nhật</h2>
+    <p class="muted">Chạm vào một câu để hiện chữ lớn cho nhân viên đọc.</p>
+    <ul class="phrases">
+      {
+        PHRASES.map((p) => (
+          <li>
+            <button type="button" class="phrase" data-phrase={p.ja} data-vi={p.vi}>
+              <span class="t-small muted">{p.use}</span>
+              <span class="ja jp" lang="ja">
+                {p.ja}
+              </span>
+              <span class="t-small">{p.vi}</span>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+    <h3 class="t-3 st-title">Tên ga nên nhớ</h3>
+    <ul class="stations">
+      {
+        STATIONS.map(([vi, ja]) => (
+          <li>
+            <button type="button" class="phrase st" data-phrase={ja} data-vi={vi}>
+              <span class="ja" lang="ja">
+                {ja}
+              </span>
+              <span class="t-small muted">{vi}</span>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="band" id="truoc-khi-di" aria-labelledby="b6">
+    <div class="wrap block">
+      <h2 class="t-2" id="b6">Trước khi đi</h2>
+      <dl class="checks">
+        {
+          CHECKS.map((c) => (
+            <div>
+              <dt>{c.when}</dt>
+              <dd>{c.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <div class="prose">
+        <h3 class="t-3">Lá đỏ và thời tiết</h3>
+        <p>
+          Kyoto cuối tháng 10 thường chưa đỏ rực như ảnh tháng 11 — kỳ vọng cây xanh, vài mảng vàng đỏ sớm, và đổi màu rõ hơn ở vùng cao Hakone. Khoảng 18–29/10 tránh kỳ nghỉ Sports Day 11/10, Hakone rơi vào thứ Năm và Kyoto sau lễ Jidai Matsuri 22/10.
+        </p>
+        <h3 class="t-3">Nguồn đã dùng</h3>
+        <p>
+          Để chọn nơi đáng đến: bài kể chuyến đi có ảnh và ngày ở 4travel, review Tabelog ghi ngày ăn và món gọi, Reddit sau chuyến, blog cá nhân Nhật, mục người mua thật trên @cosme. Để xác nhận giá, giờ, vé và tuyến: chính khách sạn, cửa hàng, nhà vận hành tàu và cơ quan công quyền.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <dialog class="show" id="show-phrase" aria-label="Câu tiếng Nhật phóng to">
+    <button type="button" class="show-close" data-close-show aria-label="Đóng">Xong</button>
+    <p class="show-ja ja" lang="ja" data-show-ja></p>
+    <p class="show-vi" data-show-vi></p>
+  </dialog>
+</Base>
+
+<script>
+  const dlg = document.getElementById('show-phrase') as HTMLDialogElement;
+  document.querySelectorAll<HTMLButtonElement>('[data-phrase]').forEach((b) =>
+    b.addEventListener('click', () => {
+      dlg.querySelector('[data-show-ja]')!.textContent = b.dataset.phrase!;
+      dlg.querySelector('[data-show-vi]')!.textContent = b.dataset.vi!;
+      dlg.showModal();
+    }),
+  );
+  dlg.addEventListener('click', (e) => {
+    if (e.target === dlg || (e.target as HTMLElement).closest('[data-close-show]')) dlg.close();
+  });
+
+  // Countdown to booking windows (shown once the date is within a year)
+  const now = Date.now();
+  document.querySelectorAll<HTMLElement>('[data-countdown]').forEach((t) => {
+    const at = Date.parse(t.dataset.countdown!);
+    const days = Math.ceil((at - now) / 86_400_000);
+    if (days > 0 && days < 400) {
+      const s = document.createElement('span');
+      s.className = 't-small muted';
+      s.textContent = ` còn ${days} ngày`;
+      t.after(s);
+    }
+  });
+</script>
+
+<style>
+  .hero {
+    padding-top: clamp(40px, 7vw, 96px);
+    padding-bottom: 16px;
+  }
+  .hero .t-lead {
+    margin-top: 16px;
+    max-width: 50ch;
+  }
+  .seg {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+  }
+  .seg a {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--bg-2);
+    color: var(--ink);
+    font-size: 15px;
+  }
+  .seg a:hover {
+    text-decoration: none;
+    background: var(--bg-3);
+  }
+  .block {
+    padding-block: clamp(48px, 7vw, 88px);
+  }
+  .block > p.muted {
+    margin: 8px 0 0;
+  }
+  .book {
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .book li {
+    display: grid;
+    grid-template-columns: minmax(140px, 0.6fr) 2fr;
+    gap: 8px 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .book .when time {
+    font-weight: 600;
+  }
+  .book p {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+  }
+  .rule {
+    display: block;
+  }
+  @media (max-width: 640px) {
+    .book li {
+      grid-template-columns: 1fr;
+    }
+  }
+  .passes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .passes li {
+    padding: 20px;
+    border-radius: var(--r-l);
+    background: var(--bg);
+  }
+  .passes p {
+    margin: 6px 0 0;
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+  .verdict {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .verdict.yes {
+    color: var(--good);
+    background: color-mix(in srgb, var(--good) 14%, transparent);
+  }
+  .verdict.no {
+    color: var(--ink-2);
+    background: var(--bg-2);
+  }
+  .passes strong {
+    display: block;
+  }
+  .prose {
+    max-width: 68ch;
+    margin-top: 28px;
+  }
+  .prose p {
+    margin: 0 0 14px;
+  }
+  .prose h3 {
+    margin: 28px 0 8px;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 28px 40px;
+    margin-top: 28px;
+  }
+  .cols p {
+    margin: 8px 0 0;
+    color: var(--ink-2);
+  }
+  .phrases {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .phrase {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+    padding: 18px;
+    border: 0;
+    border-radius: var(--r-l);
+    background: var(--bg-2);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 120ms var(--ease-out), background-color 150ms;
+  }
+  .phrase:hover {
+    background: var(--bg-3);
+  }
+  .phrase:active {
+    transform: scale(0.98);
+  }
+  .jp {
+    font-size: 20px;
+    line-height: 1.45;
+  }
+  .st-title {
+    margin-top: 40px;
+  }
+  .stations {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .st .ja {
+    font-size: 24px;
+  }
+  .checks {
+    margin: 24px 0 0;
+  }
+  .checks div {
+    display: grid;
+    grid-template-columns: minmax(160px, 0.6fr) 2fr;
+    gap: 8px 24px;
+    padding: 14px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .checks dt {
+    font-weight: 600;
+  }
+  .checks dd {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  @media (max-width: 640px) {
+    .checks div {
+      grid-template-columns: 1fr;
+    }
+  }
+  .show {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: max(24px, env(safe-area-inset-top)) 24px 24px;
+    border: 0;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .show[open] {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .show-close {
+    position: absolute;
+    top: max(16px, env(safe-area-inset-top));
+    right: 16px;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bg-2);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .show-ja {
+    margin: 0;
+    max-width: 16em;
+    font-size: clamp(36px, 9vw, 72px);
+    line-height: 1.35;
+    font-weight: 600;
+  }
+  .show-vi {
+    margin: 24px 0 0;
+    color: var(--ink-2);
+    font-size: 17px;
+  }
+</style>

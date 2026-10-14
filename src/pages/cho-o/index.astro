@@ -1,0 +1,206 @@
+---
+import Base from '../../layouts/Base.astro';
+import Gallery from '../../components/Gallery.astro';
+import { place, fmtYen } from '../../lib/trip';
+import { STAYS } from '../../data/trip';
+
+const total = STAYS.reduce((s, x) => s + x.target * (x.id === 'mizunoto' ? 1 : Number(x.nights[0])), 0);
+---
+
+<Base title="Chỗ ở" sheets={[...STAYS.map((s) => s.id), 'resol-kyoto']}>
+  <section class="wrap hero">
+    <h1 class="t-1">Chỗ ở</h1>
+    <p class="t-lead">
+      Năm nơi, mười một đêm, tổng mục tiêu {fmtYen(total)}. Phòng riêng gọn gần ga ở Tokyo, Ise, Osaka; nâng hạng ở Kyoto; một đêm onsen riêng ở Hakone. Giá là mức nhắm khi đặt, chưa phải phòng đang giữ.
+    </p>
+  </section>
+
+  {
+    STAYS.map((s, i) => {
+      const p = place(s.id);
+      return (
+        <section class:list={['stay', i % 2 === 1 && 'band']} aria-labelledby={`${s.id}-t`}>
+          <div class="wrap head">
+            <p class="t-small muted">
+              {s.nights}, {s.dates}
+            </p>
+            <h2 class="t-2" id={`${s.id}-t`}>
+              {p.name}
+            </h2>
+            {p.ja && (
+              <p class="ja muted" lang="ja">
+                {p.ja}
+              </p>
+            )}
+          </div>
+          <div class="gal">
+            <Gallery images={p.images} name={p.name} size="lg" />
+          </div>
+          <div class="wrap grid">
+            <div class="price">
+              <strong class="tnum">{fmtYen(s.target)}</strong>
+              <span class="muted t-small">mỗi phòng mỗi đêm, hai người{s.id === 'mizunoto' ? ', gồm hai bữa' : ''}</span>
+              <span class="muted t-small">Tìm trong khoảng {s.range}</span>
+            </div>
+            <dl class="facts">
+              <div>
+                <dt>Phòng</dt>
+                <dd>{s.room}</dd>
+              </div>
+              <div>
+                <dt>Vì sao</dt>
+                <dd>{s.good}</dd>
+              </div>
+              <div>
+                <dt>Cần biết</dt>
+                <dd>{s.know}</dd>
+              </div>
+              <div>
+                <dt>Khi giá cao</dt>
+                <dd>{s.switchAt}</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="wrap links">
+            <button type="button" class="btn btn-quiet" data-place={s.id}>
+              Bản đồ và liên kết
+            </button>
+            {s.id === 'cross-kyoto' && (
+              <button type="button" class="btn btn-quiet" data-place="resol-kyoto">
+                Phương án RESOL Kyoto
+              </button>
+            )}
+          </div>
+        </section>
+      );
+    })
+  }
+
+  <section class="section wrap hunt" aria-labelledby="hunt-t">
+    <h2 class="t-2" id="hunt-t">Săn giá mà vẫn giữ chất lượng</h2>
+    <ol class="steps">
+      <li>
+        <strong>Giữ ryokan và Ise trước.</strong>
+        <span>Tuyến phụ thuộc hai nơi này. Sau đó Kyoto, Tokyo, Osaka. Đặt loại có thể hủy khi lịch mở.</span>
+      </li>
+      <li>
+        <strong>So cùng điều kiện.</strong>
+        <span>Cùng ngày, hai người, cùng hạng phòng, cùng bữa ăn, cùng điều kiện hủy — trên trang chính thức, Booking hoặc Agoda, và Jalan.</span>
+      </li>
+      <li>
+        <strong>Xem lại 90, 60, 30 ngày trước.</strong>
+        <span>Đọc review mới nhất đúng cơ sở. Khi thấy early booking hoặc 連泊, tính tổng sau thuế cả 11 đêm.</span>
+      </li>
+      <li>
+        <strong>Không đặt phòng một người.</strong>
+        <span>Mỗi phòng tính cho hai người; phải có phòng tắm và WC riêng, không hút thuốc.</span>
+      </li>
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-top: clamp(40px, 7vw, 96px);
+    padding-bottom: 32px;
+  }
+  .hero .t-lead {
+    margin-top: 16px;
+    max-width: 54ch;
+  }
+  .stay {
+    padding-block: clamp(48px, 7vw, 88px);
+  }
+  .head .t-2 {
+    margin-top: 4px;
+  }
+  .ja {
+    margin: 4px 0 0;
+  }
+  .gal {
+    --inset: max(var(--gutter), calc((100% - var(--wrap)) / 2));
+    margin-top: 24px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr);
+    gap: 24px 40px;
+    margin-top: 28px;
+  }
+  .price {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .price strong {
+    font-family: var(--font-display);
+    font-size: 34px;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .facts {
+    margin: 0;
+  }
+  .facts div {
+    display: grid;
+    grid-template-columns: 112px 1fr;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .facts dt {
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+  .facts dd {
+    margin: 0;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .band .btn-quiet {
+    background: var(--bg);
+  }
+  @media (max-width: 760px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+    .facts div {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 28px;
+    margin: 32px 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: s;
+  }
+  .steps li {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    counter-increment: s;
+  }
+  .steps li::before {
+    content: counter(s);
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .steps span {
+    color: var(--ink-2);
+  }
+</style>

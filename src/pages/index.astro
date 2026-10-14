@@ -1,0 +1,540 @@
+---
+import Base from '../layouts/Base.astro';
+import MapView from '../components/MapView.astro';
+import RouteSpark from '../components/RouteSpark.astro';
+import { DAY_VIEWS, CHAPTERS, place, routeLeg, tripTotals, fmtYen, shortDate, url, allPlacesOf } from '../lib/trip';
+import { boundsOf } from '../lib/geo';
+import { BUDGET, TRIP } from '../data/trip';
+import { LINES } from '../data/lines';
+import type { Pin } from '../lib/map';
+
+const totals = tripTotals();
+const allLegs = DAY_VIEWS.flatMap((v) => v.legs.map((l) => routeLeg(l, v.day.n)));
+const uniqueLegs = [...new Map(allLegs.map((l) => [l.id, l])).values()];
+const allPts = DAY_VIEWS.flatMap((v) => v.legs.flatMap((l) => l.pts));
+const stayPins: Pin[] = CHAPTERS.map((c) => {
+  const p = place(c.stay);
+  return { id: p.id, lat: p.lat, lng: p.lng, kind: 'stay', label: c.name };
+});
+const mapConfig = {
+  legs: uniqueLegs,
+  pins: stayPins,
+  bounds: boundsOf(allPts),
+  cooperative: true,
+  labels: 'main' as const,
+  padding: { top: 48, bottom: 48, left: 40, right: 40 },
+};
+
+const totalYen = BUDGET.reduce((s, b) => s + b.yen, 0);
+const legend = [
+  { label: 'Tàu thường', color: LINES.tokaido.color, style: 'solid' },
+  { label: 'Shinkansen', color: LINES.shinkansen.color, style: 'solid' },
+  { label: 'Tàu điện ngầm', color: LINES.ginza.color, style: 'solid' },
+  { label: 'Xe buýt', color: LINES.tozanBus.color, style: 'solid' },
+  { label: 'Phà, thuyền', color: LINES.tobaFerry.color, style: 'dash' },
+  { label: 'Cáp treo', color: LINES.hakoneRopeway.color, style: 'dash' },
+  { label: 'Đi bộ', color: 'var(--ink-3)', style: 'dot' },
+];
+
+const foodIds = ['kayaba', 'owariya', 'tamai', 'sushi-ten', 'kaizan', 'butasute', 'fukusuke', 'sazanami-toba', 'menami', 'menzo', 'yoshimura', 'awa', 'hosekibako', 'fukutaro', 'tahei'];
+const foodStrip = foodIds
+  .map((id) => {
+    const p = place(id);
+    const img = p.images.find((i) => i.kind === 'dish');
+    return img ? { p, img } : null;
+  })
+  .filter(Boolean) as { p: ReturnType<typeof place>; img: ReturnType<typeof place>['images'][number] }[];
+const foodCount = allPlacesOf('food').filter((p) => p.role !== 'alt').length;
+const daysOf = (n: number[]) => (n.length > 1 ? `Ngày ${n[0]}–${n.at(-1)}` : `Ngày ${n[0]}`);
+const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
+---
+
+<Base sheets={[...CHAPTERS.map((c) => c.stay), ...foodIds]}>
+  <section class="hero wrap">
+    <p class="kicker t-lead">18 – 29 tháng 10, 2027</p>
+    <h1 class="t-display">Mười hai ngày,<br />Tokyo đến Osaka.</h1>
+    <p class="t-lead intro">
+      Đi tàu dọc Tōkaidō, một đêm onsen ở Hakone, hai đêm bên đền Ise, ba đêm ở Kyoto. Hai người, khoảng 120 triệu đồng chi tại Nhật.
+    </p>
+  </section>
+
+  <section class="map-wrap" aria-label="Toàn tuyến trên bản đồ">
+    <MapView id="trip" config={mapConfig} class="trip-map" label="Bản đồ toàn tuyến, từ Tokyo tới Osaka" />
+    <ul class="legend wrap t-small" aria-label="Chú giải">
+      {
+        legend.map((l) => (
+          <li>
+            <span class:list={['swatch', `swatch-${l.style}`]} style={`--c:${l.color}`} />
+            {l.label}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="wrap facts" aria-label="Con số của chuyến đi">
+    <div>
+      <strong class="tnum">{Math.round(totals.rail).toLocaleString('vi-VN')} km</strong>
+      <span>đi tàu, theo đường ray thật</span>
+    </div>
+    <div>
+      <strong class="tnum">{Math.round(totals.walk)} km</strong>
+      <span>đi bộ giữa các điểm</span>
+    </div>
+    <div>
+      <strong class="tnum">{totals.legs}</strong>
+      <span>chặng, từ phà tới cáp treo</span>
+    </div>
+    <div>
+      <strong class="tnum">{fmtYen(totalYen)}</strong>
+      <span>cả chuyến, gồm dự phòng</span>
+    </div>
+  </section>
+
+  <section class="section wrap chapters" aria-labelledby="chapters-title">
+    <h2 class="t-2" id="chapters-title">Năm nơi ngủ, mười một đêm.</h2>
+    <ol class="line" style={`--total:${chapterNights}`}>
+      {
+        CHAPTERS.map((c) => {
+          const first = DAY_VIEWS[c.days[0] - 1].day;
+          return (
+            <li style={`--n:${c.nights}; --c:${c.color}`}>
+              <a href={url(`ngay/${c.days[0]}/`)}>
+                <span class="bar" aria-hidden="true" />
+                <span class="stn" aria-hidden="true" />
+                <strong class="t-3">{c.name}</strong>
+                <span class="t-small muted">
+                  {c.nights} đêm từ {shortDate(first.date)}
+                </span>
+                <span class="t-small hotel">{c.short}</span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ol>
+  </section>
+
+  <section class="band section" aria-labelledby="days-title">
+    <div class="wrap">
+      <h2 class="t-2" id="days-title">Từng ngày.</h2>
+      <p class="t-lead days-lead">Mỗi ngày có giờ, chặng tàu, bữa ăn và những chỗ đáng rẽ qua trên đường.</p>
+      <ol class="days">
+        {
+          DAY_VIEWS.map((v) => (
+            <li>
+              <a href={url(`ngay/${v.day.n}/`)} class="day-row">
+                <span class="d-num tnum">{String(v.day.n).padStart(2, '0')}</span>
+                <span class="d-date">
+                  <span class="t-small muted">{v.day.dow}</span>
+                  <span class="tnum">{shortDate(v.day.date)}</span>
+                </span>
+                <span class="d-main">
+                  <strong class="t-3">{v.day.title}</strong>
+                  <span class="t-small muted">{v.day.route}</span>
+                </span>
+                <span class="d-spark">
+                  <RouteSpark legs={v.legs} />
+                </span>
+                <span class="d-meta t-small muted tnum">
+                  <span>{v.day.walk ? `Đi bộ ${v.day.walk}` : ''}</span>
+                  <span>Ăn {fmtYen(v.food)}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="t-small muted chapter-note">{daysOf([1, 12])}. Tất cả giá cho hai người. Tỷ giá tính {TRIP.rate} đồng mỗi yên.</p>
+    </div>
+  </section>
+
+  <section class="section wrap fuji-teaser" aria-labelledby="fuji-title">
+    <div class="ft-text">
+      <h2 class="t-1" id="fuji-title">Fuji, nếu trời cho phép.</h2>
+      <p class="t-lead">
+        Ba cơ hội nhìn núi: hồ Ashi ngày 4, cửa sổ tàu Tōkaidō ngày 5, và phương án Kawaguchiko. Mỗi điểm có khoảng cách tới đỉnh, hướng nhìn, phần núi lộ ra tính từ địa hình thật, và cách chụp.
+      </p>
+      <a class="btn" href={url('fuji/')}>Xem Fuji</a>
+    </div>
+  </section>
+
+  <section class="band section" aria-labelledby="food-title">
+    <div class="wrap">
+      <h2 class="t-1" id="food-title">Những bữa đáng nhớ.</h2>
+      <p class="t-lead food-lead">{foodCount} quán, từ sandwich trứng ở Yanaka tới thịt nướng ở Namba. Ít sashimi liên tiếp, nhiều món nóng và món địa phương.</p>
+    </div>
+    <div class="food-strip" role="list">
+      {
+        foodStrip.map(({ p, img }) => (
+          <button type="button" class="food-card" data-place={p.id} role="listitem">
+            <span class="fc-img">
+              <img src={img.src} alt={p.dish ?? p.name} loading="lazy" decoding="async" referrerpolicy="no-referrer" width="640" height="480" />
+            </span>
+            <span class="fc-name">{p.name}</span>
+            <span class="fc-dish t-small muted">{p.dish}</span>
+          </button>
+        ))
+      }
+    </div>
+    <div class="wrap">
+      <a class="btn btn-quiet" href={url('an-uong/')}>Tất cả nơi ăn</a>
+    </div>
+  </section>
+
+  <section class="section wrap budget-teaser" aria-labelledby="budget-title">
+    <h2 class="t-2" id="budget-title">{fmtYen(totalYen)}, khoảng {((totalYen * TRIP.rate) / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} triệu đồng.</h2>
+    <p class="t-lead">Dưới trần 120 triệu ở tỷ giá {TRIP.rate}. Đã giữ riêng ¥40.000 dự phòng.</p>
+    <div class="stack-bar" role="img" aria-label="Tỷ trọng các khoản chi">
+      {BUDGET.map((b) => <span style={`--w:${(b.yen / totalYen) * 100}%; --c:${b.color}`} title={`${b.label}: ${fmtYen(b.yen)}`} />)}
+    </div>
+    <ul class="stack-legend t-small">
+      {
+        BUDGET.map((b) => (
+          <li>
+            <span class="dot" style={`--c:${b.color}`} />
+            <span>{b.label}</span>
+            <span class="muted tnum">{fmtYen(b.yen)}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <a class="btn btn-quiet" href={url('ngan-sach/')}>Mở ngân sách</a>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-top: clamp(48px, 9vw, 120px);
+    padding-bottom: clamp(32px, 5vw, 56px);
+  }
+  .kicker {
+    color: var(--ink);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .intro {
+    max-width: 34ch;
+    margin-top: 22px;
+  }
+  .map-wrap {
+    padding-inline: clamp(0px, 2vw, 24px);
+  }
+  .trip-map {
+    height: min(78vh, 760px);
+    min-height: 420px;
+    max-width: 1400px;
+    margin-inline: auto;
+    border-radius: clamp(0px, 2vw, var(--r-xl));
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 14px auto 0;
+    padding-block: 0;
+    list-style: none;
+    color: var(--ink-2);
+  }
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .swatch {
+    width: 22px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--c);
+  }
+  .swatch-dash {
+    background: repeating-linear-gradient(90deg, var(--c) 0 5px, transparent 5px 8px);
+  }
+  .swatch-dot {
+    height: 4px;
+    background: radial-gradient(circle, var(--c) 1.6px, transparent 2px) 0 50% / 6px 4px repeat-x;
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    padding-block: clamp(40px, 6vw, 72px) 0;
+  }
+  .facts div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .facts strong {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3.4vw, 40px);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .facts span {
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+  @media (max-width: 720px) {
+    .facts {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Chapters as a transit line diagram */
+  .line {
+    display: flex;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .line li {
+    flex: var(--n) 1 0;
+    min-width: 128px;
+  }
+  .line a {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+    padding-top: 30px;
+    padding-right: 12px;
+    color: var(--ink);
+  }
+  .line a:hover {
+    text-decoration: none;
+  }
+  .line a:hover strong {
+    color: var(--accent);
+  }
+  .bar {
+    position: absolute;
+    top: 9px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--c);
+  }
+  .line li:first-child .bar {
+    border-radius: 3px 0 0 3px;
+  }
+  .line li:last-child .bar {
+    border-radius: 0 3px 3px 0;
+  }
+  .stn {
+    position: absolute;
+    top: 3px;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 4px solid var(--ink);
+  }
+  .hotel {
+    color: var(--ink-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media (max-width: 720px) {
+    .line {
+      flex-direction: column;
+      gap: 0;
+    }
+    .line a {
+      padding: 0 0 22px 34px;
+    }
+    .bar {
+      top: 0;
+      bottom: 0;
+      left: 6px;
+      right: auto;
+      width: 6px;
+      height: auto;
+      border-radius: 0 !important;
+    }
+    .stn {
+      top: 2px;
+    }
+  }
+
+  .days-lead {
+    margin-top: 12px;
+    max-width: 40ch;
+  }
+  .days {
+    margin: 36px 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--hair);
+  }
+  .day-row {
+    display: grid;
+    grid-template-columns: 40px 64px 1fr 120px 150px;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 8px;
+    border-bottom: 1px solid var(--hair);
+    color: var(--ink);
+    transition: background-color 160ms;
+    border-radius: 2px;
+  }
+  .day-row:hover {
+    text-decoration: none;
+    background: color-mix(in srgb, var(--ink) 3%, transparent);
+  }
+  .day-row:active {
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+  .d-num {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+  .d-date,
+  .d-main,
+  .d-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .d-main strong {
+    font-size: 19px;
+  }
+  .d-meta {
+    text-align: right;
+  }
+  @media (max-width: 760px) {
+    .day-row {
+      grid-template-columns: 30px 1fr 84px;
+      gap: 12px;
+      padding: 16px 0;
+    }
+    .d-date {
+      display: none;
+    }
+    .d-meta {
+      grid-column: 2;
+      text-align: left;
+      flex-direction: row;
+      gap: 12px;
+    }
+    .d-spark {
+      grid-row: 1 / span 2;
+      grid-column: 3;
+    }
+    .d-spark :global(svg) {
+      width: 84px;
+      height: 56px;
+    }
+  }
+  .chapter-note {
+    margin-top: 16px;
+  }
+
+  .fuji-teaser {
+    text-align: center;
+  }
+  .ft-text {
+    max-width: 760px;
+    margin-inline: auto;
+  }
+  .ft-text .t-lead {
+    margin: 20px auto 28px;
+    max-width: 46ch;
+  }
+
+  .food-lead {
+    margin: 16px 0 32px;
+    max-width: 44ch;
+  }
+  .food-strip {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 4px max(var(--gutter), calc((100vw - var(--wrap)) / 2)) 24px;
+    scroll-padding-inline: max(var(--gutter), calc((100vw - var(--wrap)) / 2));
+    scrollbar-width: none;
+  }
+  .food-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .food-card {
+    flex: none;
+    width: 260px;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    scroll-snap-align: start;
+  }
+  .fc-img {
+    display: block;
+    height: 195px;
+    border-radius: var(--r-l);
+    overflow: hidden;
+    background: var(--bg-3);
+  }
+  .fc-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 500ms var(--ease-out);
+  }
+  .food-card:hover img {
+    transform: scale(1.04);
+  }
+  .food-card:active .fc-img {
+    transform: scale(0.98);
+    transition: transform 100ms;
+  }
+  .fc-name {
+    display: block;
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 17px;
+  }
+  .fc-dish {
+    display: block;
+    margin-top: 2px;
+  }
+
+  .band .btn-quiet {
+    background: var(--bg);
+  }
+  .budget-teaser .t-lead {
+    margin-top: 12px;
+  }
+  .stack-bar {
+    display: flex;
+    height: 14px;
+    margin: 36px 0 20px;
+    border-radius: 7px;
+    overflow: hidden;
+    gap: 2px;
+  }
+  .stack-bar span {
+    width: var(--w);
+    background: var(--c);
+  }
+  .stack-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px 24px;
+    margin: 0 0 32px;
+    padding: 0;
+    list-style: none;
+  }
+  .stack-legend li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stack-legend li span:nth-child(2) {
+    flex: 1;
+  }
+</style>

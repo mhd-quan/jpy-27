@@ -1,0 +1,757 @@
+---
+import Base from '../../layouts/Base.astro';
+import MapView from '../../components/MapView.astro';
+import Gallery from '../../components/Gallery.astro';
+import AlongItem from '../../components/AlongItem.astro';
+import { DAY_VIEWS, place, routeLeg, fmtKm, fmtYen, dateLabel, url } from '../../lib/trip';
+import type { LegView } from '../../lib/trip';
+
+export function getStaticPaths() {
+  return DAY_VIEWS.map((v) => ({ params: { n: String(v.day.n) } }));
+}
+
+const n = Number(Astro.params.n);
+const v = DAY_VIEWS[n - 1];
+const { day } = v;
+const prev = DAY_VIEWS[n - 2];
+const next = DAY_VIEWS[n];
+const legById = new Map(v.legs.map((l) => [l.id, l]));
+const stay = day.stay ? place(day.stay) : null;
+
+const mapConfig = {
+  legs: v.legs.map((l) => routeLeg(l, n)),
+  pins: v.pins,
+  bounds: v.bounds,
+  cooperative: true,
+  labels: 'all' as const,
+  padding: { top: 56, bottom: 56, left: 48, right: 48 },
+};
+
+const sheetIds = [
+  ...v.pins.filter((p) => p.kind !== 'station').map((p) => p.id),
+  ...(day.alt?.places ?? []),
+];
+const meals = [
+  ['Sáng', day.meals.b],
+  ['Trưa', day.meals.l],
+  ['Tối', day.meals.d],
+  ['Ăn vặt, nước', day.meals.s],
+] as const;
+const railKm = v.km.rail;
+const minutes = (l: LegView) => (l.min ? `${l.min}${/\d$/.test(l.min) ? ' phút' : ''}` : '');
+const kindOf = (id?: string) => (id ? place(id).kind : undefined);
+const firstImages = (id: string) => {
+  const p = place(id);
+  const dishes = p.images.filter((i) => i.kind === 'dish' || i.kind === 'room' || i.kind === 'bath' || i.kind === 'view');
+  const rest = p.images.filter((i) => !dishes.includes(i));
+  return [...dishes.slice(0, 4), ...rest.slice(0, 2)];
+};
+const DOW_SHORT: Record<string, string> = { 'Thứ Hai': 'T2', 'Thứ Ba': 'T3', 'Thứ Tư': 'T4', 'Thứ Năm': 'T5', 'Thứ Sáu': 'T6', 'Thứ Bảy': 'T7', 'Chủ Nhật': 'CN' };
+---
+
+<Base title={`Ngày ${n}: ${day.title}`} description={day.lead} sheets={sheetIds}>
+  <nav class="days-strip" aria-label="Chọn ngày">
+    <ol>
+      {
+        DAY_VIEWS.map((d) => {
+          const [, , dd] = d.day.date.split('-');
+          return (
+            <li>
+              <a href={url(`ngay/${d.day.n}/`)} aria-current={d.day.n === n ? 'page' : undefined} aria-label={`Ngày ${d.day.n}, ${d.day.title}`}>
+                <span class="ds-dow">{DOW_SHORT[d.day.dow]}</span>
+                <span class="ds-d tnum">{Number(dd)}</span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ol>
+  </nav>
+
+  <div class="day-grid">
+    <aside class="day-map" data-collapsed="false">
+      <MapView id="day" config={mapConfig} class="day-mapview" label={`Bản đồ ngày ${n}`} />
+      <button class="map-toggle" type="button" data-map-toggle aria-expanded="true">Thu bản đồ</button>
+      <button class="map-fit" type="button" data-map-fit>Cả ngày</button>
+    </aside>
+
+    <article class="day-col">
+      <header class="day-head" data-fit>
+        <p class="t-small muted">Ngày {n} trên 12</p>
+        <h1 class="t-1">{day.title}</h1>
+        <p class="when t-lead">{day.dow}, {dateLabel(day.date)}</p>
+        <p class="lead t-body">{day.lead}</p>
+        <dl class="day-facts">
+          {
+            stay && (
+              <div>
+                <dt>Ngủ</dt>
+                <dd>
+                  <button type="button" class="link-btn" data-place={stay.id}>
+                    {stay.name}
+                  </button>
+                </dd>
+              </div>
+            )
+          }
+          {
+            day.walk && (
+              <div>
+                <dt>Đi bộ</dt>
+                <dd>{day.walk}</dd>
+              </div>
+            )
+          }
+          {
+            railKm > 0 && (
+              <div>
+                <dt>Tàu</dt>
+                <dd class="tnum">{fmtKm(railKm)}</dd>
+              </div>
+            )
+          }
+          <div>
+            <dt>Ăn uống</dt>
+            <dd class="tnum">{fmtYen(v.food)}</dd>
+          </div>
+        </dl>
+      </header>
+
+      <ol class="timeline">
+        {
+          day.items.map((item) => {
+            if (item.type === 'move') {
+              const l = legById.get(item.leg.id)!;
+              return (
+                <li class:list={['move', `mode-${l.mode}`]} data-leg={l.id} style={`--c:${l.mode === 'walk' ? 'var(--ink-3)' : l.color}`}>
+                  <span class="at tnum">{item.at ?? ''}</span>
+                  <span class="rail" aria-hidden="true" />
+                  <button type="button" class="move-body" data-focus-leg={l.id}>
+                    <span class="move-line">
+                      <span class="chip">
+                        <span class="dot" />
+                        {l.mode === 'walk' ? 'Đi bộ' : l.lineName}
+                      </span>
+                      <span class="t-small muted tnum">
+                        {[minutes(l), l.km ? fmtKm(l.km) : ''].filter(Boolean).join(', ')}
+                      </span>
+                    </span>
+                    <span class="move-to t-small">
+                      {l.mode === 'walk' ? `Tới ${l.toName}` : `${l.fromName} → ${l.toName}`}
+                    </span>
+                    {l.note && <span class="move-note t-small muted">{l.note}</span>}
+                  </button>
+                </li>
+              );
+            }
+            const p = item.place ? place(item.place) : null;
+            const num = item.place ? v.stops.get(item.place) : undefined;
+            const kind = kindOf(item.place) ?? 'sight';
+            const showGallery = p && (p.kind === 'food' || p.kind === 'sight' || p.kind === 'stay') && p.images.length > 0;
+            return (
+              <li class:list={['stop', `kind-${kind}`, item.optional && 'is-optional']} data-pin={item.place}>
+                <span class="at tnum">{item.at ?? ''}</span>
+                <span class="node" aria-hidden="true" style={`--c: var(--${kind === 'station' ? 'ink-3' : kind})`}>
+                  {num ?? ''}
+                </span>
+                <div class="stop-body">
+                  <h3 class="stop-title">
+                    {p && p.kind !== 'station' ? (
+                      <button type="button" class="link-title" data-place={p.id}>
+                        {item.title}
+                      </button>
+                    ) : (
+                      item.title
+                    )}
+                    {item.optional && <span class="opt t-micro">nếu còn sức</span>}
+                  </h3>
+                  {p && p.kind === 'food' && (
+                    <p class="t-small muted stop-meta">
+                      {[p.dish, p.price ? `${p.price}/người` : '', p.closed ? `Nghỉ ${p.closed.toLowerCase()}` : '', p.pay === 'cash' ? 'Tiền mặt' : '']
+                        .filter(Boolean)
+                        .join(' — ')}
+                    </p>
+                  )}
+                  {item.text && <p class="stop-text">{item.text}</p>}
+                  {item.cost ? <p class="cost t-small tnum">{fmtYen(item.cost)} cho hai người</p> : null}
+                  {showGallery && (
+                    <div class="stop-gallery">
+                      <Gallery images={firstImages(p!.id)} dish={p!.dish} name={p!.name} limit={6} />
+                    </div>
+                  )}
+                </div>
+              </li>
+            );
+          })
+        }
+      </ol>
+
+      {
+        v.along.length > 0 && (
+          <section class="along" aria-labelledby="along-title">
+            <h2 class="t-2" id="along-title">
+              Trên đường đi
+            </h2>
+            <p class="muted t-body">Những chỗ nằm ngay trên tuyến hoặc đáng rẽ qua, chưa có trong lịch. Ghé khi còn thời gian.</p>
+            <ul class="along-list">
+              {v.along.slice(0, 6).map(({ p, km }) => <AlongItem p={p} km={km} />)}
+            </ul>
+            {v.along.length > 6 && (
+              <details class="more">
+                <summary>Thêm {v.along.length - 6} chỗ gần tuyến</summary>
+                <ul class="along-list">
+                  {v.along.slice(6).map(({ p, km }) => <AlongItem p={p} km={km} />)}
+                </ul>
+              </details>
+            )}
+          </section>
+        )
+      }
+
+      <section class="side-notes">
+        <div>
+          <h2 class="t-3">Nếu mệt hoặc trễ</h2>
+          <ul>{day.trims.map((t) => <li>{t}</li>)}</ul>
+        </div>
+        {
+          day.alt && (
+            <div class="alt">
+              <h2 class="t-3">{day.alt.title}</h2>
+              <p>{day.alt.text}</p>
+              <p class="alt-links">
+                {day.alt.places.map((id) => (
+                  <button type="button" class="chip" data-place={id}>
+                    {place(id).name}
+                  </button>
+                ))}
+              </p>
+            </div>
+          )
+        }
+        <div>
+          <h2 class="t-3">Tiền ăn hôm nay</h2>
+          <dl class="meals tnum">
+            {meals.map(([k, val]) => (
+              <div>
+                <dt>{k}</dt>
+                <dd>{val ? fmtYen(val) : '—'}</dd>
+              </div>
+            ))}
+            <div class="total">
+              <dt>Cả ngày, hai người</dt>
+              <dd>{fmtYen(v.food)}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <nav class="pager" aria-label="Ngày trước và sau">
+        {
+          prev ? (
+            <a href={url(`ngay/${prev.day.n}/`)} rel="prev">
+              <span class="t-small muted">Ngày {prev.day.n}</span>
+              <strong>{prev.day.title}</strong>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+        {
+          next ? (
+            <a href={url(`ngay/${next.day.n}/`)} rel="next" class="next">
+              <span class="t-small muted">Ngày {next.day.n}</span>
+              <strong>{next.day.title}</strong>
+            </a>
+          ) : (
+            <a href={url('')} class="next">
+              <span class="t-small muted">Hết hành trình</span>
+              <strong>Về trang đầu</strong>
+            </a>
+          )
+        }
+      </nav>
+    </article>
+  </div>
+</Base>
+
+<script>
+  import { initDaySync } from '../../scripts/daySync';
+  initDaySync();
+</script>
+
+<style>
+  .days-strip {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 40;
+    background: var(--glass);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 1px 0 var(--hair);
+  }
+  .days-strip ol {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin: 0;
+    padding: 6px var(--gutter);
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .days-strip ol::-webkit-scrollbar {
+    display: none;
+  }
+  .days-strip a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 44px;
+    padding: 4px 0 5px;
+    border-radius: 12px;
+    color: var(--ink);
+    transition: background-color 150ms;
+  }
+  .days-strip a:hover {
+    text-decoration: none;
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+  .ds-dow {
+    font-size: 11px;
+    color: var(--ink-3);
+    line-height: 1.2;
+  }
+  .ds-d {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .days-strip a[aria-current='page'] {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .days-strip a[aria-current='page'] .ds-dow {
+    color: color-mix(in srgb, var(--bg) 70%, transparent);
+  }
+  @media (max-width: 640px) {
+    .days-strip ol {
+      justify-content: flex-start;
+    }
+  }
+
+  /* Layout: content left, sticky map right on wide screens; map on top on phones */
+  .day-grid {
+    --strip: 62px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+    grid-template-areas: 'col map';
+  }
+  .day-col {
+    grid-area: col;
+    min-width: 0;
+    padding: clamp(32px, 4vw, 56px) clamp(20px, 3.4vw, 56px) 64px max(var(--gutter), calc((100vw - 1400px) / 2));
+  }
+  .day-map {
+    grid-area: map;
+    position: sticky;
+    top: calc(var(--nav-h) + var(--strip));
+    height: calc(100vh - var(--nav-h) - var(--strip));
+    height: calc(100dvh - var(--nav-h) - var(--strip));
+  }
+  .day-mapview {
+    position: absolute;
+    inset: 0;
+  }
+  .map-toggle,
+  .map-fit {
+    position: absolute;
+    z-index: 2;
+    height: 34px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: var(--shadow-1);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .map-fit {
+    left: 12px;
+    bottom: 12px;
+  }
+  .map-toggle {
+    display: none;
+  }
+  .map-toggle:active,
+  .map-fit:active {
+    transform: scale(0.96);
+  }
+
+  @media (max-width: 900px) {
+    .day-grid {
+      display: block;
+    }
+    .day-map {
+      top: calc(var(--nav-h) + var(--strip));
+      z-index: 30;
+      height: 38svh;
+      box-shadow: 0 1px 0 var(--hair);
+      transition: height 320ms var(--ease-out);
+    }
+    .day-map[data-collapsed='true'] {
+      height: 0;
+    }
+    .day-map[data-collapsed='true'] .map-fit {
+      display: none;
+    }
+    .map-toggle {
+      display: block;
+      right: 12px;
+      bottom: 12px;
+    }
+    .day-map[data-collapsed='true'] .map-toggle {
+      bottom: -46px;
+    }
+    .day-col {
+      padding: 32px var(--gutter) 56px;
+    }
+  }
+
+  .day-head h1 {
+    margin-top: 6px;
+  }
+  .when {
+    margin-top: 8px;
+    color: var(--ink);
+  }
+  .lead {
+    margin: 16px 0 0;
+    max-width: 60ch;
+    color: var(--ink-2);
+  }
+  .day-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    margin: 24px 0 0;
+    padding: 16px 0;
+    border-block: 1px solid var(--hair);
+  }
+  .day-facts div {
+    display: flex;
+    flex-direction: column;
+  }
+  .day-facts dt {
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .day-facts dd {
+    margin: 0;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .link-btn,
+  .link-title {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .link-btn {
+    color: var(--accent);
+  }
+  .link-title:hover,
+  .link-btn:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  /* Timeline */
+  .timeline {
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .timeline > li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 46px 28px minmax(0, 1fr);
+    column-gap: 10px;
+  }
+  .at {
+    grid-column: 1;
+    padding-top: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    text-align: right;
+  }
+  .stop {
+    padding: 14px 0 18px;
+  }
+  .node {
+    grid-column: 2;
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--c);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 0 0 3px var(--bg);
+    transition: transform 220ms var(--ease-out);
+  }
+  .kind-station .node {
+    width: 14px;
+    height: 14px;
+    margin: 6px 0 0 6px;
+    background: var(--bg);
+    border: 2.5px solid var(--ink-2);
+  }
+  .stop.is-active .node {
+    transform: scale(1.18);
+  }
+  .stop::before,
+  .move .rail {
+    content: '';
+    position: absolute;
+    left: calc(46px + 10px + 12px);
+    width: 2px;
+    background: var(--hair);
+  }
+  .stop::before {
+    top: 0;
+    bottom: 0;
+  }
+  .timeline > li:first-child::before {
+    top: 20px;
+  }
+  .timeline > li:last-child::before {
+    bottom: calc(100% - 20px);
+  }
+  .move .rail {
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    left: calc(46px + 10px + 11px);
+    background: var(--c);
+    border-radius: 2px;
+  }
+  .mode-walk .rail {
+    width: 3px;
+    background: radial-gradient(circle, var(--ink-3) 1.3px, transparent 1.6px) 50% 0 / 3px 7px repeat-y;
+  }
+  .mode-ferry .rail,
+  .mode-cruise .rail,
+  .mode-ropeway .rail {
+    background: repeating-linear-gradient(180deg, var(--c) 0 6px, transparent 6px 10px);
+  }
+  .stop-body,
+  .move-body {
+    grid-column: 3;
+    min-width: 0;
+  }
+  .stop-title {
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.018em;
+  }
+  .opt {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--bg-2);
+    color: var(--ink-2);
+    font-weight: 500;
+    vertical-align: 3px;
+  }
+  .stop-meta {
+    margin: 4px 0 0;
+  }
+  .stop-text {
+    margin: 6px 0 0;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  .cost {
+    margin: 6px 0 0;
+    color: var(--ink-2);
+  }
+  .stop-gallery {
+    --bleed: 0px;
+    margin-top: 12px;
+    margin-right: calc(-1 * clamp(20px, 3.4vw, 56px));
+  }
+  @media (max-width: 900px) {
+    .stop-gallery {
+      margin-right: calc(-1 * var(--gutter));
+    }
+  }
+  .move {
+    padding: 4px 0;
+  }
+  .move-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+    margin: 0;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: var(--r-s);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+  .move-body:hover {
+    background: var(--bg-2);
+  }
+  .move.is-active .move-body {
+    background: color-mix(in srgb, var(--c) 10%, var(--bg));
+  }
+  .move-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+  }
+  .move-line .chip {
+    --c: inherit;
+    background: color-mix(in srgb, var(--c) 12%, var(--bg));
+  }
+  .move-line .dot {
+    background: var(--c);
+  }
+  .move-to {
+    color: var(--ink);
+  }
+  .mode-walk .move-body {
+    padding-block: 4px;
+  }
+  .mode-walk .move-line .chip {
+    background: transparent;
+    padding-left: 0;
+    color: var(--ink-2);
+  }
+  .mode-walk .move-to {
+    display: none;
+  }
+
+  /* Along the way */
+  .along {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--hair);
+  }
+  .along > p {
+    margin: 8px 0 0;
+  }
+  .along-list {
+    display: grid;
+    gap: 2px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .more {
+    margin-top: 8px;
+  }
+  .more summary {
+    padding: 10px 0;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+  }
+  .more summary::-webkit-details-marker {
+    display: none;
+  }
+  .more[open] summary {
+    color: var(--ink-2);
+  }
+
+  .side-notes {
+    display: grid;
+    gap: 32px;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--hair);
+  }
+  .side-notes ul {
+    margin: 10px 0 0;
+    padding-left: 1.1em;
+  }
+  .side-notes li + li {
+    margin-top: 6px;
+  }
+  .side-notes .alt p {
+    margin: 10px 0 0;
+  }
+  .alt-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .alt-links .chip {
+    border: 0;
+    cursor: pointer;
+  }
+  .meals {
+    margin: 12px 0 0;
+    max-width: 360px;
+  }
+  .meals div {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .meals dt {
+    color: var(--ink-2);
+  }
+  .meals dd {
+    margin: 0;
+  }
+  .meals .total dt,
+  .meals .total dd {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 56px;
+  }
+  .pager a {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 16px 18px;
+    border-radius: var(--r-l);
+    background: var(--bg-2);
+    color: var(--ink);
+  }
+  .pager a:hover {
+    text-decoration: none;
+    background: var(--bg-3);
+  }
+  .pager .next {
+    text-align: right;
+  }
+</style>
