@@ -1,0 +1,402 @@
+---
+import Base from '../../layouts/Base.astro';
+import SayButton from '../../components/SayButton.astro';
+import RideStrip from '../../components/RideStrip.astro';
+import { RIDES, ALT_RIDES, type Ride } from '../../lib/rides';
+import { fmtKm, url, dateLabel } from '../../lib/trip';
+
+const MODE: Record<string, string> = { cruise: 'Thuyền', ferry: 'Phà', ropeway: 'Cáp treo', cable: 'Tàu cáp kéo' };
+const featured = RIDES.filter((r) => r.researched || r.km >= 20);
+const short = RIDES.filter((r) => !featured.includes(r));
+const days = [...new Set(featured.map((r) => r.day.n))];
+const sideOf = (r: Ride) => {
+  const w = { left: 0, right: 0 };
+  for (const e of r.events) {
+    if (e.side !== 'left' && e.side !== 'right') continue;
+    w[e.side] += (e.to - e.from + 1) * (e.fuji ? 1.5 : 1);
+  }
+  if (!w.left && !w.right) return null;
+  if (Math.abs(w.left - w.right) < 1) return 'Hai bên đều có cảnh';
+  return w.right > w.left ? 'Ngồi bên phải' : 'Ngồi bên trái';
+};
+const minutes = (r: Ride) => (r.min ? `${r.min}${/\d$/.test(r.min) ? ' phút' : ''}` : '');
+const anchor = (r: Ride) => `r-${r.day.id ?? r.day.n}-${r.legs[0].line}-${r.legs[0].from}`;
+const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs[0].from))];
+---
+
+<Base title="Trên tàu" description="Từng chuyến tàu, thuyền và cáp treo: ngồi bên nào, nhìn gì, lúc nào chuẩn bị đổi tàu hay xuống." say={sayIds}>
+  <section class="wrap hero">
+    <h1 class="t-display">Trên tàu.</h1>
+    <p class="t-lead">
+      {featured.length} chuyến đáng ngồi đúng chỗ. Ngồi bên nào, nhìn gì giữa hai ga nào, và lúc nào cần đứng dậy lấy đồ để đổi tàu hay xuống.
+    </p>
+    <ul class="legend t-small" aria-label="Chú thích">
+      <li><span class="sw sw-l"></span>Cửa sổ bên trái</li>
+      <li><span class="sw sw-r"></span>Cửa sổ bên phải</li>
+      <li><span class="sw sw-f"></span>Thấy Fuji</li>
+      <li><span class="sw sw-a"></span>Chuẩn bị xuống</li>
+    </ul>
+    <p class="t-small muted hint">Trái và phải tính khi nhìn về phía tàu chạy.</p>
+  </section>
+
+  <nav class="wrap index" aria-label="Các chuyến">
+    {
+      days.map((n) => {
+        const list = featured.filter((r) => r.day.n === n);
+        const d = list[0].day;
+        return (
+          <div class="idx-day">
+            <a class="idx-d" href={url(`ngay/${n}/`)}>
+              <strong>Ngày {n}</strong>
+              <span class="t-small muted">{dateLabel(d.date)}</span>
+            </a>
+            <ul>
+              {list.map((r) => (
+                <li>
+                  <a href={`#${anchor(r)}`}>
+                    <span class="dot" style={`--c:${r.color}`} />
+                    <span class="idx-t">
+                      <span>{r.title}</span>
+                      <span class="t-small muted">
+                        {r.fromName} → {r.toName}
+                      </span>
+                    </span>
+                    {sideOf(r) && <span class="idx-side t-micro">{sideOf(r)}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })
+    }
+  </nav>
+
+  {
+    featured.map((r, i) => (
+      <section class:list={['ride', i % 2 === 1 && 'band']} id={anchor(r)} aria-labelledby={`${anchor(r)}-t`}>
+        <div class="wrap ride-in">
+          <header class="ride-head">
+            <p class="t-small muted">
+              <a href={url(`ngay/${r.day.n}/`)}>Ngày {r.day.n}</a>, {r.day.dow.toLowerCase()} {dateLabel(r.day.date)}
+              {r.at ? ` · ${r.at}` : ''}
+            </p>
+            <h2 class="t-2" id={`${anchor(r)}-t`}>
+              {r.fromName} → {r.toName}
+            </h2>
+            <p class="ride-line">
+              <span class="chip" style={`--c:${r.color}`}>
+                <span class="dot" />
+                {MODE[r.legs[0].mode] ? `${MODE[r.legs[0].mode]} · ` : ''}
+                {r.title}
+              </span>
+              <span class="t-small muted tnum">{[minutes(r), fmtKm(r.km)].filter(Boolean).join(', ')}</span>
+              <SayButton tags={r.legs[0].mode === 'cruise' || r.legs[0].mode === 'ferry' ? ['ferry'] : ['station', 'ticket', 'platform']} place={r.legs[0].from} station={{ name: r.fromName, ja: r.stations[0]?.ja }} />
+            </p>
+          </header>
+
+          <div class="ride-grid">
+            <div class="ride-side">
+              {(r.seat || sideOf(r)) && (
+                <div class="seat">
+                  <p class="seat-k t-micro">Chỗ ngồi</p>
+                  {sideOf(r) && <p class="seat-v">{sideOf(r)}</p>}
+                  {r.seat && <p class="t-small">{r.seat}</p>}
+                </div>
+              )}
+              {r.train && <p class="t-small muted train">{r.train}</p>}
+              {r.onboard && (
+                <div class="onboard">
+                  <p class="seat-k t-micro">Trên tàu</p>
+                  <p class="t-small">{r.onboard}</p>
+                </div>
+              )}
+              {r.sources.length > 0 && (
+                <p class="t-micro faint srcs">
+                  Nguồn:{' '}
+                  {r.sources.slice(0, 4).map((s, k) => (
+                    <>
+                      {k > 0 && ', '}
+                      <a href={s} target="_blank" rel="noopener">
+                        {new URL(s).hostname.replace(/^www\./, '')}
+                      </a>
+                    </>
+                  ))}
+                </p>
+              )}
+            </div>
+            <RideStrip r={r} />
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  {
+    short.length > 0 && (
+      <section class="wrap section-tight shorts" aria-labelledby="short-t">
+        <h2 class="t-3" id="short-t">
+          Chặng ngắn trong thành phố
+        </h2>
+        <ul>
+          {short.map((r) => (
+            <li>
+              <span class="dot" style={`--c:${r.color}`} />
+              <span>
+                <strong>{r.title}</strong> <span class="muted">{r.fromName} → {r.toName}</span>
+              </span>
+              <span class="t-small muted tnum">
+                Ngày {r.day.n}
+                {r.at ? `, ${r.at}` : ''} · {r.stations.length - 1} ga
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    ALT_RIDES.length > 0 && (
+      <section class="band section-tight" aria-labelledby="alt-t">
+        <div class="wrap">
+          <h2 class="t-2" id="alt-t">
+            Nếu đi Kawaguchiko
+          </h2>
+          <p class="t-lead alt-lead">Chuyến tàu của phương án thay ngày 3.</p>
+        </div>
+        {ALT_RIDES.filter((r) => r.researched || r.km >= 20).map((r) => (
+          <div class="wrap ride-in alt-ride" id={anchor(r)}>
+            <p class="ride-line">
+              <span class="chip" style={`--c:${r.color}`}>
+                <span class="dot" />
+                {r.title}
+              </span>
+              <strong>
+                {r.fromName} → {r.toName}
+              </strong>
+              <span class="t-small muted tnum">{fmtKm(r.km)}</span>
+            </p>
+            <div class="ride-grid">
+              <div class="ride-side">
+                {r.seat && (
+                  <div class="seat">
+                    <p class="seat-k t-micro">Chỗ ngồi</p>
+                    {sideOf(r) && <p class="seat-v">{sideOf(r)}</p>}
+                    <p class="t-small">{r.seat}</p>
+                  </div>
+                )}
+              </div>
+              <RideStrip r={r} />
+            </div>
+          </div>
+        ))}
+      </section>
+    )
+  }
+</Base>
+
+<script>
+  // Announcements: read the Japanese aloud with the device voice
+  document.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-speak]');
+    if (!b || !('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(b.dataset.speak!);
+    u.lang = 'ja-JP';
+    u.rate = 0.9;
+    const v = speechSynthesis.getVoices().find((x) => x.lang.toLowerCase().startsWith('ja'));
+    if (v) u.voice = v;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  });
+</script>
+
+<style>
+  .hero {
+    padding-top: clamp(40px, 7vw, 96px);
+    padding-bottom: 24px;
+  }
+  .hero .t-lead {
+    margin-top: 18px;
+    max-width: 50ch;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--ink-2);
+  }
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sw {
+    width: 6px;
+    height: 18px;
+    border-radius: 3px;
+  }
+  .sw-l {
+    background: var(--side-l);
+  }
+  .sw-r {
+    background: var(--side-r);
+  }
+  .sw-f {
+    background: var(--side-f);
+  }
+  .sw-a {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--warn);
+  }
+  .hint {
+    margin: 8px 0 0;
+  }
+  :global(:root) {
+    --side-l: #e9792b;
+    --side-r: #2f7de1;
+    --side-f: #6b4fd8;
+  }
+
+  .index {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: 8px 32px;
+    padding-block: 24px 56px;
+  }
+  .idx-day {
+    padding-top: 14px;
+    border-top: 1px solid var(--hair);
+  }
+  .idx-d {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    color: var(--ink);
+  }
+  .idx-day ul {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .idx-day li a {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 8px;
+    margin-inline: -8px;
+    border-radius: 10px;
+    color: var(--ink);
+  }
+  .idx-day li a:hover {
+    text-decoration: none;
+    background: var(--bg-2);
+  }
+  .idx-t {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .idx-side {
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+
+  .ride {
+    padding-block: clamp(40px, 6vw, 72px);
+  }
+  .ride-head .t-2 {
+    margin-top: 6px;
+  }
+  .ride-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin: 12px 0 0;
+  }
+  .ride-line .chip {
+    background: color-mix(in srgb, var(--c) 13%, var(--bg));
+  }
+  .ride-line .dot {
+    background: var(--c);
+  }
+  .ride-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 24px 48px;
+    margin-top: 28px;
+    align-items: start;
+  }
+  .ride-side {
+    position: sticky;
+    top: calc(var(--nav-h) + 20px);
+  }
+  @media (max-width: 860px) {
+    .ride-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .ride-side {
+      position: static;
+    }
+  }
+  .seat,
+  .onboard {
+    padding: 16px 18px;
+    border-radius: var(--r-l);
+    background: var(--bg-2);
+  }
+  .band .seat,
+  .band .onboard {
+    background: var(--bg);
+  }
+  .onboard {
+    margin-top: 12px;
+  }
+  .seat-k {
+    margin: 0 0 4px;
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  .seat-v {
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .seat p:last-child,
+  .onboard p:last-child {
+    margin-bottom: 0;
+  }
+  .train {
+    margin: 12px 4px 0;
+  }
+  .srcs {
+    margin: 14px 4px 0;
+  }
+  .shorts ul {
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .shorts li {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .alt-lead {
+    margin-top: 10px;
+  }
+  .alt-ride {
+    margin-top: 32px;
+  }
+</style>

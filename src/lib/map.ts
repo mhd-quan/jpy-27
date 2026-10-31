@@ -48,6 +48,8 @@ export interface TripMapOptions {
   labels?: 'all' | 'main' | 'none';
   onPin?: (id: string) => void;
   padding?: maplibregl.PaddingOptions | number;
+  /** a georeferenced picture under the routes (Fuji viewshed); bounds [[w,s],[e,n]] */
+  image?: { src: string; bounds: [[number, number], [number, number]]; opacity?: number };
 }
 
 const prefersDark = () => {
@@ -140,6 +142,12 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
       map.setTerrain({ source: 'terrain', exaggeration: 1.35 });
     }
 
+    if (opts.image) {
+      const [[w, so], [e, n]] = opts.image.bounds;
+      map.addSource('overlay', { type: 'image', url: opts.image.src, coordinates: [[w, n], [e, n], [e, so], [w, so]] });
+      map.addLayer({ id: 'overlay', type: 'raster', source: 'overlay', paint: { 'raster-opacity': opts.image.opacity ?? 0.85, 'raster-resampling': 'linear', 'raster-fade-duration': 0 } });
+    }
+
     map.addSource('route', { type: 'geojson', data: routes, promoteId: 'id' });
     map.addSource('pins', { type: 'geojson', data: pins, promoteId: 'id' });
 
@@ -201,6 +209,32 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
         'line-dasharray': [0, 1.9],
         'line-opacity': dim,
       },
+    });
+
+    // Walks around a hotel: a wide soft band where Fuji is in line of sight, then the walk itself
+    map.addLayer({
+      id: 'route-glow',
+      type: 'line',
+      source: 'route',
+      filter: isMode(['glow']),
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': ['get', 'color'], 'line-width': width(14), 'line-opacity': ['case', ['boolean', ['feature-state', 'dim'], false], 0.12, 0.32], 'line-blur': 2 },
+    });
+    map.addLayer({
+      id: 'route-stroll-case',
+      type: 'line',
+      source: 'route',
+      filter: isMode(['stroll']),
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': casing, 'line-width': width(6), 'line-opacity': dim },
+    });
+    map.addLayer({
+      id: 'route-stroll',
+      type: 'line',
+      source: 'route',
+      filter: isMode(['stroll']),
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': ['get', 'color'], 'line-width': width(3.6), 'line-opacity': dim },
     });
 
     // Lines of sight to Fuji: solid when clear, dashed when terrain is in the way

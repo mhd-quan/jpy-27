@@ -1,0 +1,291 @@
+---
+// A ride drawn top to bottom like the line map above a train door: stations on a vertical line,
+// coloured bands beside it for the stretches worth watching on each side, notes where they start,
+// and the stops where you change or should get ready to get off.
+import type { Ride, Side } from '../lib/rides';
+
+interface Props {
+  r: Ride;
+}
+const { r } = Astro.props;
+const SIDE: Record<Side, string> = { left: 'Trái', right: 'Phải', both: 'Hai bên', front: 'Phía trước', down: 'Nhìn xuống' };
+const covers = (i: number, sides: Side[], fuji?: boolean) =>
+  r.events.find((e) => sides.includes(e.side) && e.from <= i && e.to > i && (fuji === undefined || e.fuji === fuji));
+const startsAt = (i: number) => r.events.filter((e) => e.from === i);
+const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFractionDigits: 1 }) : Math.round(km).toString());
+---
+
+<ol class="strip" aria-label={`Các ga từ ${r.fromName} tới ${r.toName}`}>
+  {
+    r.stations.map((s, i) => {
+      const last = i === r.stations.length - 1;
+      const L = !last && covers(i, ['left', 'both']);
+      const R = !last && covers(i, ['right', 'both', 'front', 'down']);
+      const evs = startsAt(i);
+      const tr = r.transfers.filter((t) => t.idx === i);
+      const prev = r.alight && r.alight.idx === i;
+      return (
+        <li class:list={['st', s.stop ? 'is-stop' : 'is-pass', last && 'is-last', s.marks.map((m) => `m-${m}`)]}>
+          {L && <span class:list={['bar bar-l', L.fuji && 'is-fuji']} aria-hidden="true" />}
+          {R && <span class:list={['bar bar-r', R.fuji && 'is-fuji']} aria-hidden="true" />}
+          <span class="node" aria-hidden="true" />
+          <div class="st-body">
+            <p class="st-name">
+              <strong>{s.en}</strong>
+              {s.ja !== s.en && (
+                <span class="ja" lang="ja">
+                  {s.ja}
+                </span>
+              )}
+              <span class="km tnum">{i === 0 ? 'lên tàu' : `${kmFmt(s.km)} km`}</span>
+            </p>
+            {i > 0 && i === 1 && r.hidden > 0 && <p class="t-micro faint hid">Chỉ hiện ga tàu dừng và ga có cảnh; {r.hidden} ga khác chạy qua.</p>}
+            {prev && r.alight && (
+              <div class="alert">
+                <p class="alert-k">Chuẩn bị xuống — ga sau là {r.stations.at(-1)!.en}</p>
+                {r.alight.text && <p class="t-small">{r.alight.text}</p>}
+                {r.alight.announce && (
+                  <p class="announce">
+                    <span class="ja" lang="ja">
+                      {r.alight.announce}
+                    </span>
+                    {r.alight.announceRomaji && <span class="ro">{r.alight.announceRomaji}</span>}
+                    <button type="button" class="speak" data-speak={r.alight.announce} aria-label="Nghe thông báo">
+                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" />
+                        <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                      </svg>
+                    </button>
+                  </p>
+                )}
+              </div>
+            )}
+            {tr.map((t) => (
+              <div class="transfer">
+                <p class="alert-k">Đổi tàu</p>
+                <p class="t-small">{t.text}</p>
+              </div>
+            ))}
+            {evs.map((e) => (
+              <div class:list={['ev', `ev-${e.side}`, e.fuji && 'ev-fuji']}>
+                <p class="ev-k t-micro">
+                  <span class="side">{SIDE[e.side]}</span>
+                  {e.fuji && <span class="fuji">Fuji</span>}
+                  {e.to > e.from && <span class="span">tới {r.stations[e.to].en}</span>}
+                </p>
+                <p class="t-small">{e.what}</p>
+                {e.tip && <p class="t-small muted">{e.tip}</p>}
+              </div>
+            ))}
+          </div>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .strip {
+    --node: 14px;
+    --rail-x: 19px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .st {
+    position: relative;
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    min-height: 44px;
+    padding-bottom: 14px;
+  }
+  /* the line from this station's node down to the next one */
+  .st::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--rail-x) - 2px);
+    top: 10px;
+    bottom: -10px;
+    width: 4px;
+    border-radius: 2px;
+    background: var(--line);
+  }
+  .st.is-last::before {
+    display: none;
+  }
+  .bar {
+    position: absolute;
+    top: 10px;
+    bottom: -10px;
+    width: 5px;
+    border-radius: 3px;
+  }
+  .bar-l {
+    left: calc(var(--rail-x) - 11px);
+    background: var(--side-l);
+  }
+  .bar-r {
+    left: calc(var(--rail-x) + 6px);
+    background: var(--side-r);
+  }
+  .bar.is-fuji {
+    background: var(--side-f);
+  }
+  .node {
+    position: relative;
+    z-index: 1;
+    grid-column: 1;
+    justify-self: center;
+    width: var(--node);
+    height: var(--node);
+    margin-top: 3px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 3px solid var(--ink);
+  }
+  .is-pass .node {
+    width: 8px;
+    height: 8px;
+    margin-top: 6px;
+    border: 0;
+    background: var(--ink-3);
+  }
+  .m-board .node,
+  .m-alight .node {
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .m-transfer .node {
+    border-color: var(--accent-bright);
+  }
+  .m-prev .node {
+    border-color: var(--warn);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--warn) 25%, transparent);
+  }
+  .st-body {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .st-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    margin: 0;
+    line-height: 1.35;
+  }
+  .is-pass .st-name strong {
+    font-weight: 500;
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+  .st-name .ja {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .km {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .hid {
+    margin: 4px 0 0;
+  }
+  .ev,
+  .alert,
+  .transfer {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--bg-2);
+    border-left: 4px solid var(--ev, var(--line));
+  }
+  :global(.band) .ev,
+  :global(.band) .alert,
+  :global(.band) .transfer {
+    background: var(--bg);
+  }
+  .ev p,
+  .alert p,
+  .transfer p {
+    margin: 0;
+  }
+  .ev p + p {
+    margin-top: 3px;
+  }
+  .ev-left {
+    --ev: var(--side-l);
+  }
+  .ev-right,
+  .ev-front,
+  .ev-down {
+    --ev: var(--side-r);
+  }
+  .ev-both {
+    --ev: var(--ink-3);
+  }
+  .ev-fuji {
+    --ev: var(--side-f);
+  }
+  .ev-k {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 3px !important;
+    font-weight: 600;
+  }
+  .side {
+    color: var(--ev);
+  }
+  .ev-both .side {
+    color: var(--ink-2);
+  }
+  .fuji {
+    color: var(--side-f);
+  }
+  .span {
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .alert {
+    --ev: var(--warn);
+    background: color-mix(in srgb, var(--warn) 10%, var(--bg));
+  }
+  .transfer {
+    --ev: var(--accent-bright);
+  }
+  .alert-k {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px !important;
+  }
+  .announce {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 10px;
+    margin-top: 8px !important;
+  }
+  .announce .ja {
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .ro {
+    font-size: 14px;
+    color: var(--accent);
+  }
+  .speak {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--bg);
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+</style>
