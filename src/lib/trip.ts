@@ -1,5 +1,5 @@
 // Build-time view models that join days, places, lines and geometry.
-import { DAYS, legsOf, foodTotal, type Day, type Leg, type Stop } from '../data/days.ts';
+import { DAYS, ALT_DAYS, legsOf, foodTotal, dayKey, type Day, type Leg, type Stop } from '../data/days.ts';
 import { LINES, MODE_LABEL, type Mode } from '../data/lines.ts';
 import { place, allPlaces, hasPlace, type Place } from '../data/catalog.ts';
 import { GEO } from '../data/geo.gen.ts';
@@ -7,7 +7,7 @@ import { DETOURS } from '../data/detours.gen.ts';
 import { decodePolyline, boundsOf, haversineKm, nearestOnLine, type LatLng } from './geo.ts';
 import type { Pin, RouteLeg } from './map.ts';
 
-export { DAYS, place, LINES, MODE_LABEL };
+export { DAYS, ALT_DAYS, dayKey, place, LINES, MODE_LABEL };
 
 export const url = (path = '') => `${import.meta.env.BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 /** Remote photos stay absolute; self-hosted ones live under the site base. */
@@ -113,12 +113,16 @@ function nearestOrigin(at: LatLng, { places, walks }: ReturnType<typeof footOrig
 export function alongCandidates(day: Day, legs: LegView[]): Along[] {
   const planned = new Set(day.items.flatMap((i) => (i.type === 'stop' && i.place ? [i.place] : [])));
   const origins = footOrigins(day, legs);
+  const key = dayKey(day);
+  const mine = (p: Place) => p.day != null && String(p.day) === key;
   return allPlaces()
-    .filter((p) => (p.kind === 'sight' || p.kind === 'shop') && !planned.has(p.id))
-    .filter((p) => p.role === 'along' || p.role === 'detour' || p.day === day.n)
+    .filter((p) => (p.kind === 'sight' || p.kind === 'shop' || (p.kind === 'food' && p.snack)) && !planned.has(p.id))
+    .filter((p) => p.role === 'along' || p.role === 'detour' || mine(p))
     .filter((p) => p.role !== 'alt')
-    .map((p) => ({ p, ...nearestOrigin([p.lat, p.lng], origins), detour: DETOURS[`${day.n}.${p.id}`] }))
-    .filter(({ p, km }) => p.day === day.n || km < ALONG_KM);
+    // a snack is tied to the day it was picked for; elsewhere it would be open at the wrong hour
+    .filter((p) => !p.snack || mine(p))
+    .map((p) => ({ p, ...nearestOrigin([p.lat, p.lng], origins), detour: DETOURS[`${key}.${p.id}`] }))
+    .filter(({ p, km }) => mine(p) || km < ALONG_KM);
 }
 
 export function alongOf(day: Day, legs: LegView[]): Along[] {
@@ -169,7 +173,7 @@ export function dayView(day: Day): DayView {
   }
   for (const { p } of along) {
     if (seen.has(p.id)) continue;
-    pins.push({ id: p.id, lat: p.lat, lng: p.lng, kind: 'along', label: p.name, day: day.n });
+    pins.push({ id: p.id, lat: p.lat, lng: p.lng, kind: p.snack ? 'snack' : 'along', label: p.name, day: day.n });
     seen.add(p.id);
   }
   const pts = legs.flatMap((l) => l.pts);
@@ -194,6 +198,7 @@ export function dayView(day: Day): DayView {
 }
 
 export const DAY_VIEWS = DAYS.map(dayView);
+export const ALT_VIEWS = ALT_DAYS.map(dayView);
 
 export function tripTotals() {
   const t = { rail: 0, walk: 0, road: 0, water: 0, air: 0, legs: 0 };
@@ -229,6 +234,13 @@ export const CHAPTERS = [
 ];
 
 export const allPlacesOf = (kind: Place['kind']) => allPlaces().filter((p) => p.kind === kind);
+
+/** Phrase-sheet context for a place: its kind first, then scenario ids that fit it best. */
+const SAY_EXTRA: Record<string, string[]> = { mizunoto: ['ryokan'], 'wargo-gion': ['kimono'], 'st-toba': ['locker'], kix: ['checkout'] };
+export function sayTags(p: Place): string[] {
+  const kind = p.kind === 'station' ? (/Bến|bến|Marine|港/.test(p.name + (p.ja ?? '')) ? 'ferry' : 'station') : p.kind;
+  return [kind, ...(SAY_EXTRA[p.id] ?? []), ...(p.menu ? ['order'] : [])];
+}
 
 /** Where each place is used in the plan: day, time and a global order for sorting. */
 export function usesOf() {

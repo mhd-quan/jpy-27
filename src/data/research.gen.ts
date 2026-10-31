@@ -26,13 +26,49 @@ export interface Detail {
   fujiNote?: string;
   official?: string;
   images: Img[];
+  menu?: Menu;
+  snack?: Snack;
+}
+
+export interface MenuItem {
+  ja: string;
+  romaji: string | null;
+  vi: string;
+  yen: number | null;
+  yenNote: string | null;
+  pick: 'signature' | 'popular' | 'value' | 'light' | 'side' | 'dessert' | 'drink';
+  note: string | null;
+  src: string | null;
+}
+
+export interface Menu {
+  items: MenuItem[];
+  orderTip: string | null;
+  ticketMachine: boolean | null;
+  menuEn: boolean | null;
+  sources: string[];
+}
+
+export interface Snack {
+  type: 'snack' | 'dessert' | 'bakery' | 'cafe' | 'market' | 'street-food' | 'ekiben';
+  get: { ja: string; romaji: string | null; vi: string; yen: number | null }[];
+  when: string | null;
+  open: string | null;
+  close: string | null;
+  closedDow: number[];
+  closedNote: string | null;
+  queue: string | null;
+  pay: 'cash' | 'card' | 'mixed' | null;
+  tabelog: { url: string; rating: number | null; count: number | null; award: string | null } | null;
+  social: { platform: string; url: string; note: string | null }[];
 }
 
 export interface ExtraPlace {
   id: string;
   name: string;
   ja?: string;
-  kind: 'sight';
+  kind: 'sight' | 'food';
+  near?: string;
   role: 'plan' | 'along' | 'detour' | 'alt';
   day?: number;
   category?: string;

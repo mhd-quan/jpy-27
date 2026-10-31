@@ -3,9 +3,18 @@ import { fmtKm, imgSrc, type Along } from '../lib/trip';
 
 interface Props {
   a: Along;
+  /** weekday of the day shown, 0 = Sunday, to flag a shop that is closed */
+  dow?: number;
 }
-const { a } = Astro.props;
+const { a, dow } = Astro.props;
 const { p, km, detour: d } = Astro.props.a;
+const sn = p.snack;
+const closed = sn && dow != null && sn.closedDow.includes(dow);
+const DOW_VI = ['Chủ nhật', 'thứ Hai', 'thứ Ba', 'thứ Tư', 'thứ Năm', 'thứ Sáu', 'thứ Bảy'];
+const social = [...new Set((sn?.social ?? []).map((x) => x.platform))].filter((x) => ['instagram', 'tiktok', 'youtube'].includes(x));
+const SOCIAL_LABEL: Record<string, string> = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
+const get = sn?.get[0];
+const hours = sn?.open && sn?.close ? `${sn.open}–${sn.close}` : '';
 const img = p.images[0];
 const kicker = d
   ? d.km === 0
@@ -23,14 +32,29 @@ const kicker = d
 const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
 ---
 
-<li data-detour={a.p.id}>
+<li data-detour={a.p.id} class:list={[closed && 'is-closed']}>
   <button type="button" class="along-item" data-place={p.id}>
     <span class="al-img">
       {img && <img src={imgSrc(img.src)} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()" />}
     </span>
     <span class="al-text">
-      <span class="al-kicker t-micro">{kicker}{fee}</span>
+      <span class:list={['al-kicker t-micro', sn && 'is-food']}>{kicker}{fee}</span>
       <strong>{p.name}</strong>
+      {sn && (
+        <span class="al-tags">
+          {closed && <span class="tag tag-closed">Nghỉ {DOW_VI[dow!]}</span>}
+          {sn.tabelog?.rating && <span class="tag tag-tb tnum">Tabelog {sn.tabelog.rating.toFixed(2)}</span>}
+          {sn.tabelog?.award && <span class="tag tag-tb">{sn.tabelog.award}</span>}
+          {social.map((x) => <span class="tag tag-sns">{SOCIAL_LABEL[x]}</span>)}
+          {hours && <span class="tag tnum">{hours}</span>}
+        </span>
+      )}
+      {get && (
+        <span class="t-small al-get">
+          {get.vi}
+          {get.yen ? <span class="tnum"> · ¥{get.yen.toLocaleString('vi-VN')}</span> : null}
+        </span>
+      )}
       {(p.note || p.why) && <span class="t-small muted al-why">{p.note ?? p.why}</span>}
     </span>
   </button>
@@ -79,6 +103,49 @@ const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
   .al-kicker {
     color: var(--sight);
     font-weight: 600;
+  }
+  .al-kicker.is-food {
+    color: var(--food);
+  }
+  .al-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 3px 0 2px;
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 6px;
+    background: var(--bg-2);
+    color: var(--ink-2);
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .along-item:hover .tag {
+    background: var(--bg);
+  }
+  .tag-tb {
+    color: #b85c00;
+    background: color-mix(in srgb, #f39800 14%, transparent);
+  }
+  .tag-sns {
+    color: #c13584;
+    background: color-mix(in srgb, #c13584 11%, transparent);
+  }
+  .tag-closed {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--warn) 22%, transparent);
+  }
+  .is-closed .al-img,
+  .is-closed strong {
+    opacity: 0.55;
+  }
+  .al-get {
+    color: var(--ink);
   }
   .al-why {
     display: -webkit-box;

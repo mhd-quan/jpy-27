@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import PlaceSheet from '../components/PlaceSheet.astro';
+import SayBook from '../components/SayBook.astro';
 import { url } from '../lib/trip';
 
 interface Props {
@@ -9,8 +10,10 @@ interface Props {
   description?: string;
   /** place ids whose detail sheets this page can open */
   sheets?: string[];
+  /** place ids the phrase sheet may need; omit on pages without phrase buttons */
+  say?: string[];
 }
-const { title, description = 'Mười hai ngày từ Tokyo đến Osaka, 18–29 tháng 10 năm 2027: lịch trình, bản đồ, nơi ăn, nơi ở và ngân sách.', sheets = [] } = Astro.props;
+const { title, description = 'Mười hai ngày từ Tokyo đến Osaka, 18–29 tháng 10 năm 2027: lịch trình, bản đồ, nơi ăn, nơi ở và ngân sách.', sheets = [], say } = Astro.props;
 const fullTitle = title ? `${title} — Nhật Bản 2027` : 'Nhật Bản 2027';
 ---
 
@@ -46,6 +49,7 @@ const fullTitle = title ? `${title} — Nhật Bản 2027` : 'Nhật Bản 2027'
       </div>
     </footer>
     <PlaceSheet ids={sheets} />
+    {say && <SayBook ids={say} />}
   </body>
 </html>
 

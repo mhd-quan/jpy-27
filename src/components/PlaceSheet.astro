@@ -7,6 +7,7 @@ interface Props {
 }
 const ids = [...new Set(Astro.props.ids)].filter(hasPlace);
 const KIND: Record<string, string> = { stay: 'Nơi ở', food: 'Ăn uống', sight: 'Tham quan', shop: 'Mua sắm', station: 'Ga, bến' };
+const kindLabel = (p: ReturnType<typeof place>) => (p.snack ? SNACK[p.snack.type] ?? 'Ăn vặt' : KIND[p.kind]);
 const ROLE: Record<string, string> = { along: 'Ngay trên đường', detour: 'Đáng rẽ qua', alt: 'Phương án thay thế' };
 const AREA: Record<string, string> = {
   tokyo: 'Tokyo',
@@ -21,6 +22,11 @@ const AREA: Record<string, string> = {
   kawaguchiko: 'Kawaguchiko',
 };
 const PAY: Record<string, string> = { cash: 'Chỉ tiền mặt', card: 'Nhận thẻ', mixed: 'Tiền mặt và thẻ' };
+const SNACK: Record<string, string> = { snack: 'Ăn vặt', dessert: 'Đồ ngọt', bakery: 'Tiệm bánh', cafe: 'Cà phê', market: 'Chợ', 'street-food': 'Ăn đứng, đường phố', ekiben: 'Cơm hộp ga tàu' };
+const SOCIAL: Record<string, string> = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', blog: 'Bài viết' };
+const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+const PICK: Record<string, string> = { signature: 'Món chính', popular: 'Hay gọi', value: 'Đáng tiền', light: 'Nhẹ bụng', side: 'Gọi kèm', dessert: 'Tráng miệng', drink: 'Đồ uống' };
+const yen = (n: number | null | undefined) => (n ? `¥${n.toLocaleString('vi-VN')}` : '—');
 const gmapsLL = (lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(q)}`;
 ---
@@ -45,6 +51,10 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
       // Tabelog's English opening-hours blurbs are long and untranslated; keep only short time strings
       p.hours && !/[A-Za-z]{4,}/.test(p.hours) && p.hours.length < 90 && ['Giờ mở', p.hours],
       p.closed && ['Nghỉ', p.closed],
+      p.snack?.open && p.snack?.close && ['Mở', `${p.snack.open}–${p.snack.close}`],
+      p.snack && p.snack.closedDow.length > 0 && ['Nghỉ', p.snack.closedDow.map((d) => DOW[d]).join(', ') + (p.snack.closedNote ? ` — ${p.snack.closedNote}` : '')],
+      p.snack?.queue && ['Chờ', p.snack.queue],
+      p.snack?.pay && ['Thanh toán', PAY[p.snack.pay]],
       p.pay && ['Thanh toán', PAY[p.pay]],
       p.bestTime && ['Nên đến', p.bestTime],
       p.station && ['Ga gần', p.station],
@@ -55,8 +65,8 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
         <header class="s-head">
           <p class="s-kicker t-small">
             <span class="dot" style={`--c: var(--${p.kind === 'station' ? 'ink-3' : p.kind})`} />
-            {KIND[p.kind]}
-            {p.role && ROLE[p.role] ? ` · ${ROLE[p.role]}` : ''}
+            {kindLabel(p)}
+            {p.role && ROLE[p.role] && !p.snack ? ` · ${ROLE[p.role]}` : ''}
             {` · ${AREA[p.area]}`}
           </p>
           <h2 class="t-2" id="sheet-title">
@@ -80,6 +90,56 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
           </div>
         )}
         {(p.note || p.why) && <p class="s-note t-body">{p.note ?? p.why}</p>}
+        {p.snack && p.snack.get.length > 0 && (
+          <div class="s-menu">
+            <h3 class="s-sub">Nên mua</h3>
+            <ul>
+              {p.snack.get.map((g) => (
+                <li>
+                  <span>
+                    <span class="s-mvi">{g.vi}</span>
+                    {g.ja && (
+                      <span class="s-mja ja" lang="ja">
+                        {g.ja}
+                        {g.romaji ? ` · ${g.romaji}` : ''}
+                      </span>
+                    )}
+                  </span>
+                  <span class="tnum s-myen">{yen(g.yen)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {p.menu && p.menu.items.length > 0 && (
+          <div class="s-menu">
+            <h3 class="s-sub">Món nên gọi</h3>
+            <ul>
+              {p.menu.items.map((m) => (
+                <li>
+                  <span>
+                    <span class="s-pick t-micro">{PICK[m.pick] ?? ''}</span>
+                    <span class="s-mvi">{m.vi}</span>
+                    {m.ja && (
+                      <span class="s-mja ja" lang="ja">
+                        {m.ja}
+                        {m.romaji ? ` · ${m.romaji}` : ''}
+                      </span>
+                    )}
+                    {(m.note || m.yenNote) && <span class="s-mnote">{[m.yenNote, m.note].filter(Boolean).join('. ')}</span>}
+                  </span>
+                  <span class="tnum s-myen">{yen(m.yen)}</span>
+                </li>
+              ))}
+            </ul>
+            {p.menu.orderTip && <p class="t-small muted s-otip">{p.menu.orderTip}</p>}
+            <p class="t-micro faint">
+              Giá tham chiếu 2025–2026, gồm thuế
+              {p.menu.ticketMachine ? '. Quán dùng máy bán vé 食券' : ''}
+              {p.menu.menuEn ? '. Có menu tiếng Anh' : ''}.
+            </p>
+          </div>
+        )}
         {p.tips && <p class="s-tip t-small">{p.tips}</p>}
         {p.fujiNote && (
           <p class="s-tip t-small">
@@ -114,6 +174,16 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
               Trang chính thức
             </a>
           )}
+          {p.snack?.tabelog && !p.tabelog && (
+            <a class="btn btn-quiet" href={p.snack.tabelog.url} target="_blank" rel="noopener">
+              Tabelog
+            </a>
+          )}
+          {p.snack?.social.slice(0, 3).map((x) => (
+            <a class="btn btn-quiet" href={x.url} target="_blank" rel="noopener">
+              {SOCIAL[x.platform] ?? 'Nguồn'}
+            </a>
+          ))}
           {p.review && (
             <a class="btn btn-quiet" href={p.review} target="_blank" rel="noopener">
               Review đã ở
@@ -254,6 +324,58 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
     border-radius: var(--r-m);
     background: var(--bg-2);
     color: var(--ink);
+  }
+  .s-menu {
+    margin: 20px 0 0;
+  }
+  .s-sub {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--food);
+  }
+  .s-menu ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--hair);
+  }
+  .s-menu li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .s-menu li > span:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+  .s-pick {
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  .s-mvi {
+    font-size: 16px;
+    line-height: 1.35;
+  }
+  .s-mja {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .s-mnote {
+    font-size: 12.5px;
+    color: var(--ink-3);
+  }
+  .s-myen {
+    flex: none;
+    font-weight: 600;
+  }
+  .s-otip {
+    margin: 10px 0 4px;
   }
   .s-facts {
     margin: 20px 0 0;

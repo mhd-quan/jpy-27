@@ -5,12 +5,12 @@
 // the day's own train lines is used instead, so a sight beside the Tōkaidō line is reached by
 // getting off there. The route is OSRM on foot, or by road when the walk would pass 2.5 km.
 //
-// Output: src/data/detours.gen.ts  { "<day>.<placeId>": { p, km, min, mode, from } }
+// Output: src/data/detours.gen.ts  { "<day number or alt-day slug>.<placeId>": { p, km, min, mode, from } }
 // Usage: node scripts/build-detours.mjs [--fresh]
 
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { DAY_VIEWS, alongCandidates, stationLabel } from '../src/lib/trip.ts';
+import { DAY_VIEWS, ALT_VIEWS, alongCandidates, stationLabel, dayKey } from '../src/lib/trip.ts';
 import { LINES } from '../src/data/lines.ts';
 import { allPlaces } from '../src/data/catalog.ts';
 import { nearestOnLine } from '../src/lib/geo.ts';
@@ -50,7 +50,7 @@ function stationsOnDay(v) {
 }
 
 const out = {};
-for (const v of DAY_VIEWS) {
+for (const v of [...DAY_VIEWS, ...ALT_VIEWS]) {
   let stations;
   for (const a of alongCandidates(v.day, v.legs)) {
     const sight = [a.p.lat, a.p.lng];
@@ -68,7 +68,7 @@ for (const v of DAY_VIEWS) {
       }
       if (best) from = { label: stationName(best), pt: [best.lat, best.lng], onWalk: false };
     }
-    const key = `${v.day.n}.${a.p.id}`;
+    const key = `${dayKey(v.day)}.${a.p.id}`;
     const fromOut = { label: from.label, lat: from.pt[0], lng: from.pt[1], onWalk: from.onWalk };
     if (haversine(from.pt, sight) < 0.05) {
       out[key] = { p: '', km: 0, min: 0, mode: 'walk', from: fromOut };
@@ -96,7 +96,7 @@ for (const v of DAY_VIEWS) {
     const km = lengthKm(pts);
     const min = mode === 'walk' ? Math.max(1, Math.round((km / WALK_KMH) * 60)) : Math.round((km / ROAD_KMH) * 60 + 3);
     out[key] = { p: encode(simplify(pts, 0.00002)), km: Math.round(km * 100) / 100, min, mode, from: fromOut };
-    console.log(`day ${String(v.day.n).padStart(2)} ${a.p.id.padEnd(26)} ${mode.padEnd(4)} ${km.toFixed(2)} km ${String(min).padStart(3)} min  from ${from.label}`);
+    console.log(`day ${dayKey(v.day).padStart(2)} ${a.p.id.padEnd(26)} ${mode.padEnd(4)} ${km.toFixed(2)} km ${String(min).padStart(3)} min  from ${from.label}`);
   }
 }
 

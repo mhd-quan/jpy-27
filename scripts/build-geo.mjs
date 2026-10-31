@@ -9,6 +9,9 @@
 // Output: src/data/geo.gen.ts  { [legId]: { p: encodedPolyline, km } }
 // Responses are cached in .cache/ so re-runs are fast and polite.
 //
+// A leg id hashes its line, ends and waypoints, so an id already in geo.gen.ts keeps its geometry
+// (routing data drifts between runs); --fresh rebuilds everything.
+//
 // Usage: node scripts/build-geo.mjs [--fresh]
 
 import { execFileSync } from 'node:child_process';
@@ -17,6 +20,7 @@ import { join } from 'node:path';
 import { allLegs } from '../src/data/days.ts';
 import { LINES } from '../src/data/lines.ts';
 import { place } from '../src/data/catalog.ts';
+import { GEO as PREV } from '../src/data/geo.gen.ts';
 import { encode, haversine, lengthKm, osrm as osrmCached, simplify } from './geo-tools.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
@@ -209,6 +213,10 @@ const seen = new Set();
 for (const leg of allLegs()) {
   if (seen.has(leg.id)) continue;
   seen.add(leg.id);
+  if (!fresh && PREV[leg.id]) {
+    out[leg.id] = PREV[leg.id];
+    continue;
+  }
   const line = LINES[leg.line];
   const a = pt(leg.from);
   const b = pt(leg.to);

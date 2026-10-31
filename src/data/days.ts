@@ -44,6 +44,9 @@ export interface Meals {
 
 export interface Day {
   n: number;
+  /** slug for alternative days, which reuse the number of the day they replace */
+  id?: string;
+  replaces?: number;
   date: string;
   dow: string;
   title: string;
@@ -506,6 +509,11 @@ export const DAYS: Day[] = [
   },
 ];
 
+/** Whole-day alternatives with their own routed plan (see ALT_DAYS below the main plan). */
+export const ALT_DAYS: Day[] = [];
+
 export const legsOf = (day: Day): Leg[] => day.items.filter((i): i is Move => i.type === 'move').map((i) => i.leg);
-export const allLegs = (): Leg[] => DAYS.flatMap(legsOf);
+export const allLegs = (): Leg[] => [...DAYS, ...ALT_DAYS].flatMap(legsOf);
+/** Key for per-day generated data: the day number, or the slug of an alternative day. */
+export const dayKey = (day: Day) => day.id ?? String(day.n);
 export const foodTotal = (m: Meals) => m.b + m.l + m.d + m.s;

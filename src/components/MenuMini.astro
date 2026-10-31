@@ -1,0 +1,95 @@
+---
+// The dishes worth ordering at a restaurant stop, with prices; the full menu is in the place sheet.
+import type { Place } from '../lib/trip';
+
+interface Props {
+  p: Place;
+  limit?: number;
+}
+const { p, limit = 4 } = Astro.props;
+const ORDER = ['signature', 'popular', 'value', 'light', 'side', 'dessert', 'drink'];
+const items = [...(p.menu?.items ?? [])].sort((a, b) => ORDER.indexOf(a.pick) - ORDER.indexOf(b.pick)).slice(0, limit);
+const yen = (n: number | null) => (n ? `¥${n.toLocaleString('vi-VN')}` : '');
+---
+
+{
+  items.length > 0 && (
+    <div class="menu-mini">
+      <p class="mm-k t-micro">Nên gọi</p>
+      <ul>
+        {items.map((m) => (
+          <li class:list={[m.pick === 'signature' && 'is-sig']}>
+            <span class="mm-name">
+              <span class="mm-vi">{m.vi}</span>
+              {m.ja && (
+                <span class="mm-ja ja" lang="ja">
+                  {m.ja}
+                </span>
+              )}
+            </span>
+            <span class="mm-yen tnum">{yen(m.yen)}</span>
+          </li>
+        ))}
+      </ul>
+      {p.menu?.orderTip && <p class="mm-tip t-small muted">{p.menu.orderTip}</p>}
+    </div>
+  )
+}
+
+<style>
+  .menu-mini {
+    margin-top: 10px;
+    padding: 10px 14px 12px;
+    border-radius: var(--r-m);
+    background: var(--bg-2);
+  }
+  .mm-k {
+    margin: 0 0 4px;
+    color: var(--food);
+    font-weight: 600;
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  li:last-child {
+    border-bottom: 0;
+  }
+  .mm-name {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .mm-vi {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+  .is-sig .mm-vi {
+    font-weight: 600;
+  }
+  .is-sig .mm-vi::before {
+    content: '★ ';
+    color: var(--food);
+  }
+  .mm-ja {
+    font-size: 12.5px;
+    color: var(--ink-3);
+  }
+  .mm-yen {
+    flex: none;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .mm-tip {
+    margin: 8px 0 0;
+  }
+</style>
