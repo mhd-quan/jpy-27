@@ -131,7 +131,7 @@ export const PLACES: PlaceBase[] = [
   },
   {
     id: 'yamabe', name: 'Tonkatsu Yamabe Okachimachi', ja: 'とんかつ やまべ 御徒町店', kind: 'food', area: 'tokyo',
-    dish: 'Set rosu hoặc hire katsu', price: '¥1.300–1.800',
+    dish: 'Set rosu hoặc hire katsu', price: '¥1.000–1.400',
     note: 'Bình dân, tiện đường, có cơm và bắp cải thêm thoải mái.',
     pay: 'cash', tips: 'Không nhận đặt chỗ.', tabelog: tb('tokyo/A1311/A131101/13138428'),
   },
@@ -212,13 +212,13 @@ export const PLACES: PlaceBase[] = [
   // ——— Food: Ise, Toba, Shima ———
   {
     id: 'butasute', name: 'Butasute Gekū-mae', ja: '豚捨 外宮前店', kind: 'food', area: 'ise',
-    dish: 'Gyūdon bò Ise', price: '¥1.800–2.500',
+    dish: 'Gyūdon bò Ise', price: '¥1.400–2.000',
     note: 'Gần Gekū và khách sạn. Bò Ise khác bò Matsusaka.',
     closed: 'Thứ Tư, thứ Năm', tips: 'Tối đóng sớm, gọi món cuối khoảng 19h.', tabelog: tb('mie/A2403/A240301/24011334'),
   },
   {
     id: 'fukusuke', name: 'Fukusuke', ja: 'ふくすけ', kind: 'food', area: 'ise',
-    dish: 'Ise udon', price: '¥900–1.400',
+    dish: 'Ise udon', price: '¥650–1.100',
     note: 'Sợi rất mềm, nước sốt đậm — món địa phương, khác hẳn udon dai kiểu Sanuki.',
     tips: 'Cuối tuần nên ăn trước 12h.', tabelog: tb('mie/A2403/A240301/24000009'),
   },
@@ -230,7 +230,7 @@ export const PLACES: PlaceBase[] = [
   },
   {
     id: 'manpuku', name: 'Manpuku Shokudō', ja: 'まんぷく食堂', kind: 'food', area: 'ise',
-    dish: 'Cơm gà karaage', price: '¥1.000–1.300',
+    dish: 'Cơm gà karaage', price: '¥850–1.200',
     note: 'Quán cơm bình dân gần Ujiyamada, phần lớn, nhiều khách quen.',
     pay: 'cash', closed: 'Không cố định', tabelog: tb('mie/A2403/A240301/24000115'),
   },

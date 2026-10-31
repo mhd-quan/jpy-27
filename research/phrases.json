@@ -172,9 +172,9 @@
         },
         {
           "id": "table-n",
-          "ja": "{n}人です。",
-          "romaji": "{n}-nin desu.",
-          "vi": "Chúng tôi đi … người ạ.",
+          "ja": "全部で{n}人です。",
+          "romaji": "Zenbu de {n}-nin desu.",
+          "vi": "Tổng cộng chúng tôi có … người ạ.",
           "note": "1 người: hitori, 2: futari, 3: san-nin, 4: yo-nin, 5: go-nin, 6: roku-nin.",
           "slot": "n",
           "example": {
@@ -1995,7 +1995,8 @@
       "vi": "Đi xe buýt",
       "hint": "Hỏi tuyến xe, trạm dừng, cách trả tiền và xuống xe.",
       "for": [
-        "station"
+        "station",
+        "sight"
       ],
       "phrases": [
         {
@@ -2441,14 +2442,15 @@
       "hint": "Gọi taxi, nói điểm đến, hỏi thời gian và giá.",
       "for": [
         "station",
-        "stay"
+        "stay",
+        "sight"
       ],
       "phrases": [
         {
           "id": "taxi-to",
-          "ja": "{place}までお願いします。",
-          "romaji": "{place} made onegai shimasu.",
-          "vi": "Cho tôi đi đến … ạ.",
+          "ja": "では、{place}までお願いします。",
+          "romaji": "De wa, {place} made onegai shimasu.",
+          "vi": "Vậy cho tôi đi đến … ạ.",
           "note": "Nên đưa địa chỉ hoặc bản đồ trên điện thoại cho tài xế.",
           "slot": "place",
           "example": {
@@ -2467,9 +2469,9 @@
         },
         {
           "id": "taxi-station",
-          "ja": "{station}駅までお願いします。",
-          "romaji": "{station}-eki made onegai shimasu.",
-          "vi": "Cho tôi đi đến ga … ạ.",
+          "ja": "では、{station}駅までお願いします。",
+          "romaji": "De wa, {station}-eki made onegai shimasu.",
+          "vi": "Vậy cho tôi đi đến ga … ạ.",
           "note": null,
           "slot": "station",
           "example": {

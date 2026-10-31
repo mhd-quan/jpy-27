@@ -20,7 +20,9 @@ const places = Object.fromEntries(
         name: p.name,
         ja: p.ja ?? p.name,
         kind: p.kind,
-        menu: (p.menu?.items ?? []).filter((m) => m.ja).map((m) => ({ ja: m.ja, romaji: m.romaji ?? '', vi: m.vi, yen: m.yen ?? null })),
+        menu: (p.menu?.items ?? [])
+          .filter((m) => m.ja)
+          .map((m) => ({ ja: m.ja, romaji: m.romaji ?? '', vi: m.vi.split(/[;,(（]| — /)[0].trim(), yen: m.yen ?? null })),
       },
     ];
   }),

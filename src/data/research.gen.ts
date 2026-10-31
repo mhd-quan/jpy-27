@@ -151,7 +151,69 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "axis green / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1310/A131001/13120606/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "中華そば",
+     "romaji": "chūka soba",
+     "vi": "Mì chūka soba, bát cơ bản của quán; mì tự làm, khẩu phần thường 160 g",
+     "yen": 1200,
+     "yenNote": "chưa thêm topping",
+     "pick": "signature",
+     "note": "Ba bát cơ bản (ラーメン, 塩ラーメン, 中華そば) cùng giá ¥1.200.",
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    },
+    {
+     "ja": "塩ラーメン",
+     "romaji": "shio rāmen",
+     "vi": "Mì nước dùng vị muối",
+     "yen": 1200,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Có trong ảnh Tabelog với giá ¥1.200.",
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    },
+    {
+     "ja": "つむぎラーメン",
+     "romaji": "Tsumugi rāmen",
+     "vi": "Bát mang tên quán, đắt hơn bát thường ¥100",
+     "yen": 1300,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    },
+    {
+     "ja": "セットかつ丼",
+     "romaji": "setto katsu-don",
+     "vi": "Suất cơm thịt heo chiên trứng nhỏ, gọi kèm với bát mì",
+     "yen": 400,
+     "yenNote": "chỉ gọi kèm mì",
+     "pick": "side",
+     "note": "Quán còn nổi tiếng với わらじかつ丼 (¥1.300, bát to).",
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    },
+    {
+     "ja": "だし味玉子",
+     "romaji": "dashi aji-tamago",
+     "vi": "Trứng lòng đào ngâm nước dùng, thêm vào mì",
+     "yen": 100,
+     "yenNote": null,
+     "pick": "side",
+     "note": "Mua riêng một vé ¥100 ở máy.",
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    }
+   ],
+   "orderTip": "Mua vé ở máy bán vé (券売機) ngay lối vào, chỉ tiền mặt; đưa vé cho nhân viên ở quầy, trứng là một vé ¥100 riêng. Thứ Hai 18/10/2027 mở 11:30–14:30; quán nghỉ Chủ nhật, lễ và vài thứ Bảy.",
+   "ticketMachine": true,
+   "menuEn": null,
+   "sources": [
+    "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html",
+    "https://tx-tsukuba.hatenablog.jp/entry/2024/09/21/063000",
+    "https://tabelog.com/en/tokyo/A1310/A131001/13120606/"
+   ]
+  }
  },
  "yamabe": {
   "lat": 35.708301,
@@ -225,7 +287,71 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "サプレマシー / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlphotolst/4/smp2/"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ロースかつ定食",
+     "romaji": "rōsu katsu teishoku",
+     "vi": "Set cốt lết heo chiên dày, kèm cơm, súp, rau bắp cải",
+     "yen": 950,
+     "yenNote": "giá 5/2026; một blog 9/2026 ghi ¥800 nhưng có vẻ cũ",
+     "pick": "signature",
+     "note": null,
+     "src": "https://irohameguri.jp/food/yamabe-ueno/"
+    },
+    {
+     "ja": "ロースかつ定食（大）",
+     "romaji": "rōsu katsu teishoku (ō)",
+     "vi": "Set cốt lết suất lớn",
+     "yen": 1150,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Khách 9/2026 trên Tabelog gọi suất này, ghi ¥1.150.",
+     "src": "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlrvwlst/"
+    },
+    {
+     "ja": "ひれかつ定食",
+     "romaji": "hire katsu teishoku",
+     "vi": "Set thăn heo (phần nạc) chiên",
+     "yen": 1050,
+     "yenNote": "giá 2023, nay có thể cao hơn",
+     "pick": "light",
+     "note": null,
+     "src": "https://kitasenjunin.com/tonkatsuyamabe1"
+    },
+    {
+     "ja": "ミックス定食",
+     "romaji": "mikkusu teishoku",
+     "vi": "Set chiên hỗn hợp (xiên katsu, tôm, cá aji)",
+     "yen": 1100,
+     "yenNote": "theo một đánh giá 9/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlrvwlst/"
+    },
+    {
+     "ja": "海老フライ",
+     "romaji": "ebi furai",
+     "vi": "Một con tôm chiên gọi thêm",
+     "yen": 300,
+     "yenNote": "một con",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlrvwlst/"
+    }
+   ],
+   "orderTip": "Không có máy vé: nhân viên đến ghi món khi bạn đang xếp hàng hoặc ngồi ghế chờ; chỉ có ghế quầy, trả tiền mặt sau khi ăn (thẻ, IC, QR không nhận). Giá trong kế hoạch (¥1.300–1.800) đang cao hơn giá thật, một set thường ¥950–1.150. Chờ khoảng 15–30 phút lúc cao điểm.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://irohameguri.jp/food/yamabe-ueno/",
+    "https://b-lunch.com/tonkatsu-yamabe-ueno-okachimachi2.html",
+    "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlrvwlst/",
+    "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlmenu/",
+    "https://kitasenjunin.com/tonkatsuyamabe1"
+   ]
+  }
  },
  "kayaba": {
   "lat": 35.721166,
@@ -299,7 +425,70 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "トントンマン / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "カヤバクラシックたまごサンド",
+     "romaji": "Kayaba kurashikku tamago sando",
+     "vi": "Sandwich trứng cổ điển của quán, số lượng có hạn, kèm súp và salad",
+     "yen": 1500,
+     "yenNote": "đánh giá 10/2026; trước đó ¥1.400",
+     "pick": "signature",
+     "note": "Có hôm hết suất; bản thường dùng sốt dill-mayo.",
+     "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlrvwlst/"
+    },
+    {
+     "ja": "モーニングセット",
+     "romaji": "mōningu setto",
+     "vi": "Set sáng có sandwich trứng và đồ uống",
+     "yen": 1000,
+     "yenNote": "chú thích ảnh Tabelog, không rõ năm",
+     "pick": "value",
+     "note": "Hỏi lại khi gọi: kế hoạch đến lúc 8:30.",
+     "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/"
+    },
+    {
+     "ja": "ルシアン",
+     "romaji": "rushian",
+     "vi": "Đồ uống nửa cà phê nửa cacao, món riêng của quán",
+     "yen": 730,
+     "yenNote": "đánh giá 10/2026",
+     "pick": "drink",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlrvwlst/"
+    },
+    {
+     "ja": "コーヒー",
+     "romaji": "kōhī",
+     "vi": "Cà phê",
+     "yen": 700,
+     "yenNote": "chú thích ảnh Tabelog 9/2026, đã thuế",
+     "pick": "drink",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlrvwlst/"
+    },
+    {
+     "ja": "カスタードプリン",
+     "romaji": "kasutādo purin",
+     "vi": "Bánh flan kiểu cổ điển",
+     "yen": 750,
+     "yenNote": "bài 11/2025",
+     "pick": "dessert",
+     "note": null,
+     "src": "https://machi-cafe.com/cafe-review-cayaba-coffee/"
+    }
+   ],
+   "orderTip": "Đặt bàn online trước (Tabelog; ngày thường vẫn kín, không đặt có thể phải chờ nhiều giờ theo blog 2023). Có menu tiếng Anh; nhận thẻ, Suica/iD và PayPay. Thứ Ba 19/10/2027 mở 8:00; nghỉ Thứ Hai.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1311/A131104/13019585/",
+    "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlrvwlst/",
+    "https://machi-cafe.com/cafe-review-cayaba-coffee/",
+    "https://note.com/morningmania/n/n333139fbd2da"
+   ]
+  }
  },
  "nezu-taiyaki": {
   "lat": 35.720292,
@@ -373,7 +562,29 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "カフェモカ男 / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131106/13003570/dtlphotolst/4/smp2/"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "たいやき",
+     "romaji": "taiyaki",
+     "vi": "Bánh cá taiyaki nhân đậu đỏ hạt, vỏ mỏng, nướng từng chiếc (khoảng 93 g)",
+     "yen": 260,
+     "yenNote": "từ 1/10/2026; trước đó ¥230",
+     "pick": "signature",
+     "note": "Chỉ có một loại; chỉ bán mang đi, hết khoảng 12:30–14:00.",
+     "src": "https://tabelog.com/en/tokyo/A1311/A131106/13003570/dtlmenu/"
+    }
+   ],
+   "orderTip": "Chỉ có một món (taiyaki), bán mang đi, trả tiền mặt; thường có hàng chờ 5–10 phút. Mở thứ Hai–thứ Sáu từ 10:00 đến khi hết (khoảng 12:30–14:00), nghỉ cuối tuần; Thứ Ba 19/10/2027 10:15 là ổn.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1311/A131106/13003570/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1311/A131106/13003570/dtlrvwlst/",
+    "https://tabelog.com/en/tokyo/A1311/A131106/13003570/"
+   ]
+  }
  },
  "owariya": {
   "lat": 35.711368,
@@ -447,7 +658,69 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "taro.474 / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131102/13003714/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "天ぷらそば",
+     "romaji": "tenpura soba",
+     "vi": "Soba nóng có tôm tempura to đặt trên bát",
+     "yen": 2000,
+     "yenNote": "theo thực đơn chính thức; vài ảnh Tabelog ghi ¥2.400, nên chuẩn bị ¥2.000–2.400",
+     "pick": "signature",
+     "note": "Món nổi tiếng nhất của quán.",
+     "src": "https://owariya-asakusa.com/menu/"
+    },
+    {
+     "ja": "上天ぷらそば（車えび）",
+     "romaji": "jō tenpura soba (kuruma ebi)",
+     "vi": "Soba tempura bản cao cấp dùng tôm kuruma",
+     "yen": 3400,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://owariya-asakusa.com/menu/"
+    },
+    {
+     "ja": "天せいろ",
+     "romaji": "ten-seiro",
+     "vi": "Soba lạnh chấm nước, tempura ăn riêng",
+     "yen": 1500,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://owariya-asakusa.com/menu/"
+    },
+    {
+     "ja": "もりそば",
+     "romaji": "mori soba",
+     "vi": "Soba lạnh chấm nước, không topping",
+     "yen": 800,
+     "yenNote": null,
+     "pick": "light",
+     "note": null,
+     "src": "https://owariya-asakusa.com/menu/"
+    },
+    {
+     "ja": "鴨せいろ",
+     "romaji": "kamo-seiro",
+     "vi": "Soba lạnh chấm nước nóng nấu thịt vịt",
+     "yen": 1800,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Món mùa lạnh (khoảng tháng 10–3).",
+     "src": "https://owariya-asakusa.com/menu/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt (thẻ, IC, QR đều không), có menu tiếng Anh theo Tabelog; giá đã gồm thuế. Mở 11:30–20:00, nghỉ thứ Sáu; Thứ Ba 19/10/2027 mở bình thường. Ở menu có thêm món matsutake theo mùa.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://owariya-asakusa.com/menu/",
+    "https://asakusakanko.com/oawariya/",
+    "https://tabelog.com/en/tokyo/A1311/A131102/13003714/"
+   ]
+  }
  },
  "umezono": {
   "lat": 35.712377,
@@ -521,7 +794,59 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ないとうトウガラシ / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131102/13003670/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "あんみつ",
+     "romaji": "anmitsu",
+     "vi": "Thạch agar cắt hạt lựu, đậu đỏ, trái cây, rưới siro đen",
+     "yen": 870,
+     "yenNote": null,
+     "pick": "signature",
+     "note": null,
+     "src": "https://www.jalan.net/news/article/621048/"
+    },
+    {
+     "ja": "白玉クリームあんみつ",
+     "romaji": "shiratama kurīmu anmitsu",
+     "vi": "Anmitsu thêm bánh gạo shiratama và kem",
+     "yen": 1090,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.jalan.net/news/article/621048/"
+    },
+    {
+     "ja": "あわぜんざい",
+     "romaji": "awa zenzai",
+     "vi": "Chè đậu đỏ với bánh kê giã mềm, món gốc của quán",
+     "yen": 930,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://asakusaumezono.foodre.jp/"
+    },
+    {
+     "ja": "田舎しるこ",
+     "romaji": "inaka shiruko",
+     "vi": "Chè đậu đỏ nóng kèm bánh mochi nướng",
+     "yen": 880,
+     "yenNote": null,
+     "pick": "dessert",
+     "note": null,
+     "src": "https://asakusaumezono.foodre.jp/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt (thẻ, IC, QR không). Thứ Ba 19/10/2027 mở 10:00–17:00 (gọi cuối 16:30); quán nghỉ vài thứ Tư mỗi tháng, xem lịch trên trang chính thức.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://www.jalan.net/news/article/621048/",
+    "https://asakusaumezono.foodre.jp/",
+    "https://tabelog.com/en/tokyo/A1311/A131102/13003670/"
+   ]
+  }
  },
  "tamai": {
   "lat": 35.681238,
@@ -595,7 +920,69 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "slm-mtu / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "箱めし 中箱",
+     "romaji": "hakomeshi chūbako",
+     "vi": "Hộp cơm cỡ vừa với hai lát anago; chọn hầm (煮上げ), nướng (焼き上げ) hoặc mỗi loại một nửa (合いのせ), kèm dưa muối và súp",
+     "yen": 3800,
+     "yenNote": null,
+     "pick": "signature",
+     "note": "Chọn 合いのせ nếu muốn thử cả hai cách.",
+     "src": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/"
+    },
+    {
+     "ja": "箱めし 小箱",
+     "romaji": "hakomeshi kobako",
+     "vi": "Hộp cơm anago cỡ nhỏ",
+     "yen": 2500,
+     "yenNote": null,
+     "pick": "light",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/"
+    },
+    {
+     "ja": "箱めし 大箱",
+     "romaji": "hakomeshi ōbako",
+     "vi": "Hộp cơm anago cỡ lớn",
+     "yen": 4600,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/"
+    },
+    {
+     "ja": "めそ箱めし",
+     "romaji": "meso hakomeshi",
+     "vi": "Hộp cơm làm từ anago non (meso), thịt mềm",
+     "yen": 2500,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Khách 8–9/2026 trên Tabelog gọi món này.",
+     "src": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/"
+    },
+    {
+     "ja": "穴子のお出汁",
+     "romaji": "anago no odashi",
+     "vi": "Nước dùng từ xương anago, chan vào cơm ăn cuối bữa như ochazuke",
+     "yen": 200,
+     "yenNote": "gọi thêm",
+     "pick": "side",
+     "note": null,
+     "src": "https://chawanbushi.com/post-58737/"
+    }
+   ],
+   "orderTip": "Chỉ nhận đặt bàn cho buổi tối (qua Tabelog, Gurunavi hoặc HotPepper); buổi tối có お通し ¥400 mỗi người. 中箱 + dashi + phụ thu tối khoảng ¥4.400 mỗi người. Nhận thẻ tín dụng, không nhận IC/QR; menu tiếng Anh chưa kiểm được.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1302/A130202/13019904/",
+    "https://chawanbushi.com/post-58737/"
+   ]
+  }
  },
  "sushi-ten": {
   "lat": 35.688463,
@@ -653,7 +1040,51 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1304/A130403/13193560/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "お昼のおまかせ",
+     "romaji": "o-hiru no omakase",
+     "vi": "Omakase trưa (Chef's Choice Lunch): nigiri theo mùa là chính, kèm vài món phụ như chawanmushi, súp miso và trái cây tráng miệng",
+     "yen": 5500,
+     "yenNote": "đã gồm thuế và phí phục vụ; 9/2025 là ¥4.950",
+     "pick": "signature",
+     "note": "Chỉ có buổi trưa.",
+     "src": "https://restaurant.ikyu.com/112767/plan12736003"
+    },
+    {
+     "ja": "Chef's Selection Course (A Plan to Savor Seasonal Ingredients)",
+     "romaji": "omakase kōsu",
+     "vi": "Course omakase ¥9.900, có cả buổi trưa lẫn tối",
+     "yen": 9900,
+     "yenNote": "đã gồm thuế",
+     "pick": "popular",
+     "note": "Tên trên ResReserve (chưa thấy tên tiếng Nhật).",
+     "src": "https://res-reserve.com/en/restaurants/sushi-tokyo-ten-shinjuku"
+    },
+    {
+     "ja": "Chef's Selection Course (including drinks)",
+     "romaji": "omakase kōsu (nomimono komi)",
+     "vi": "Course ¥13.200 đã gồm đồ uống; Tabelog nói bản 'Special Omakase' có tôm hùm Ise",
+     "yen": 13200,
+     "yenNote": "đã gồm thuế",
+     "pick": "drink",
+     "note": "Tên trên ResReserve; Tabelog gọi là 'Special Omakase / All Omakase'.",
+     "src": "https://res-reserve.com/en/restaurants/sushi-tokyo-ten-shinjuku"
+    }
+   ],
+   "orderTip": "Phải đặt trước qua ResReserve và chọn đúng plan Chef's Choice Lunch ¥5.500 (course này không gọi món lẻ); đến muộn quá 15 phút bị tính là no-show, hủy hoặc đổi số người trong ngày bị thu 100% phí course. Nhận thẻ, IC và QR; có thể cộng phí phục vụ theo Tabelog.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://res-reserve.com/en/restaurants/sushi-tokyo-ten-shinjuku",
+    "https://restaurant.ikyu.com/112767/plan12736003",
+    "https://tabelog.com/en/tokyo/A1304/A130403/13193560/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1304/A130403/13193560/",
+    "https://fuwari-x.hatenablog.com/entry/2025/11/28/121500"
+   ]
+  }
  },
  "toritake": {
   "lat": 35.65804,
@@ -719,7 +1150,70 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "大串やきとり",
+     "romaji": "ōgushi yakitori",
+     "vi": "Xiên gà nướng cỡ lớn, chọn tare hoặc muối",
+     "yen": 350,
+     "yenNote": "giá một xiên (Tabelog 11/2024); trang chính thức ghi ¥333 cho bán mang đi",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    },
+    {
+     "ja": "つくね",
+     "romaji": "tsukune",
+     "vi": "Xiên thịt gà viên",
+     "yen": 363,
+     "yenNote": "một xiên",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    },
+    {
+     "ja": "やき鳥丼",
+     "romaji": "yakitori-don",
+     "vi": "Cơm phủ xiên gà nướng",
+     "yen": 1200,
+     "yenNote": "Tabelog 11/2024; bữa trưa ¥1.000 theo blog 10/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    },
+    {
+     "ja": "チキンライス",
+     "romaji": "chikin raisu",
+     "vi": "Cơm gà chiên kiểu Nhật",
+     "yen": 1000,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    },
+    {
+     "ja": "親子丼",
+     "romaji": "oyako-don",
+     "vi": "Cơm gà trứng",
+     "yen": 1000,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    }
+   ],
+   "orderTip": "Đặt chỗ chỉ qua điện thoại (03-3461-1627) và chỉ cho nhóm từ 5 người đến trước 19:00; nhóm hai người nên đến sớm. Nhận thẻ tín dụng, Suica và iD, QR không nhận. Nhân viên hỏi có ăn gan không. Tabelog có mục 'Appetizer' ¥220 (có thể là お通し). Menu tiếng Anh chưa kiểm được.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1303/A130301/13001702/",
+    "https://toritake.jp/foods/",
+    "https://b-lunch.com/toridon-yakitori-toritake-shibuya.html"
+   ]
+  }
  },
  "numazuko": {
   "lat": 35.690395,
@@ -793,7 +1287,70 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "生うに富士山盛り",
+     "romaji": "nama uni Fujisan-mori",
+     "vi": "Đĩa nhím biển sống chất cao như núi Phú Sĩ, món nổi tiếng nhất của quán",
+     "yen": 1500,
+     "yenNote": "một đĩa; trang cũ ghi ¥1.000",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    },
+    {
+     "ja": "生しらす富士山盛り",
+     "romaji": "nama shirasu Fujisan-mori",
+     "vi": "Cá cơm con sống xếp hình núi Phú Sĩ",
+     "yen": 760,
+     "yenNote": "một đĩa",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    },
+    {
+     "ja": "桜えび富士山盛り",
+     "romaji": "sakura-ebi Fujisan-mori",
+     "vi": "Tôm sakura sống xếp hình núi Phú Sĩ (đặc sản Suruga)",
+     "yen": 620,
+     "yenNote": "một đĩa",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    },
+    {
+     "ja": "本マグロ赤身",
+     "romaji": "hon maguro akami",
+     "vi": "Cá ngừ vây xanh phần nạc",
+     "yen": 420,
+     "yenNote": "Tabelog ghi 'một miếng'",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    },
+    {
+     "ja": "中トロ",
+     "romaji": "chūtoro",
+     "vi": "Cá ngừ vây xanh phần béo vừa",
+     "yen": 520,
+     "yenNote": "Tabelog ghi 'một miếng'",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    }
+   ],
+   "orderTip": "Băng chuyền, tính theo đĩa (180–960 yen; vài món Tabelog ghi 'một miếng'), không phụ thu hay cover; có thể gọi trực tiếp đầu bếp. Không đặt chỗ, có thể phải xếp hàng 10–20 phút (blog cũ). Có menu tiếng Anh; nhận thẻ, Suica và PayPay.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1304/A130401/13004192/",
+    "https://map.yahoo.co.jp/v3/place/6O9NDWlQ-zs/menu",
+    "https://otonano-shumatsu.com/articles/230597"
+   ]
+  }
  },
  "bakery-table": {
   "lat": 35.201767,
@@ -867,7 +1424,72 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "マダム・チェチーリア / Tabelog",
     "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/dtlphotolst/4/smp2/"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "フォカッチャサンドプレート",
+     "romaji": "fokaccha sando purēto",
+     "vi": "Đĩa sandwich focaccia hoặc croissant (cá hồi, prosciutto, vịt), kèm súp theo mùa và khoai chiên mỏng",
+     "yen": 1870,
+     "yenNote": "Tabelog 10/2024",
+     "pick": "signature",
+     "note": "Ở tầng 3 (Coffee & Vista). Tên tiếng Nhật phỏng theo bản dịch Tabelog.",
+     "src": "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/dtlmenu/"
+    },
+    {
+     "ja": "米粉のカレードーナツ",
+     "romaji": "komeko no karē dōnatsu",
+     "vi": "Bánh donut bột gạo nhân cà ri, đề mục Tabelog ghi là bánh cà ri từng đoạt giải",
+     "yen": 440,
+     "yenNote": "giá do người dùng đăng trên Yahoo!マップ, không rõ năm; blog 2022 ghi ¥380",
+     "pick": "popular",
+     "note": "Mua ở tầng 1.",
+     "src": "https://map.yahoo.co.jp/v3/place/4BqIKn3t2yw/menu"
+    },
+    {
+     "ja": "富士山パン",
+     "romaji": "Fujisan pan",
+     "vi": "Bánh mì hình núi Phú Sĩ",
+     "yen": 290,
+     "yenNote": "giá do người dùng đăng trên Yahoo!マップ, không rõ năm",
+     "pick": "value",
+     "note": null,
+     "src": "https://map.yahoo.co.jp/v3/place/4BqIKn3t2yw/menu"
+    },
+    {
+     "ja": "バスクチーズケーキ",
+     "romaji": "basuku chīzukēki",
+     "vi": "Bánh phô mai kiểu Basque",
+     "yen": 770,
+     "yenNote": "Tabelog 10/2024",
+     "pick": "dessert",
+     "note": null,
+     "src": "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/dtlmenu/"
+    },
+    {
+     "ja": "カフェラテ",
+     "romaji": "kafe rate",
+     "vi": "Cà phê sữa (illy)",
+     "yen": 790,
+     "yenNote": "giá do người dùng đăng trên Yahoo!マップ, không rõ năm",
+     "pick": "drink",
+     "note": null,
+     "src": "https://map.yahoo.co.jp/v3/place/4BqIKn3t2yw/menu"
+    }
+   ],
+   "orderTip": "Ba tầng: tầng 1 là tiệm bánh (tự chọn bánh rồi tính tiền), tầng 2 là cà phê và phải gọi ít nhất một món mỗi người dù mang bánh từ tầng 1 lên, tầng 3 là Coffee & Vista có đĩa sandwich. Không nhận đặt chỗ tầng 2 và 3; có menu tiếng Anh; nhận thẻ, IC và QR. Blog 2022 ghi tầng 1 có giới hạn 2 cái mỗi lần tính tiền (không rõ món nào).",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/dtlmenu/",
+    "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/",
+    "https://map.yahoo.co.jp/v3/place/4BqIKn3t2yw/menu",
+    "https://sakuran-sanpo.com/bakerytable/",
+    "https://www.hotpepper.jp/strJ001280875/",
+    "https://willie.hatenablog.jp/entry/bakeryandtable"
+   ]
+  }
  },
  "kaizan": {
   "lat": 35.021142,
@@ -917,7 +1539,58 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "天然まぐろ三色丼",
+     "romaji": "tennen maguro sanshoku-don",
+     "vi": "Cơm cá ngừ tự nhiên ba lớp: nạc đỏ, negitoro và cá ngừ ngâm tương (zuke)",
+     "yen": 1980,
+     "yenNote": "Tabelog 4/2026",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/"
+    },
+    {
+     "ja": "渡し船御膳",
+     "romaji": "watashibune gozen",
+     "vi": "Set cơm nhiều món nhỏ, rẻ nhất trong các set của quán",
+     "yen": 1680,
+     "yenNote": "Tabelog 4/2026",
+     "pick": "value",
+     "note": null,
+     "src": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/"
+    },
+    {
+     "ja": "生しらす丼",
+     "romaji": "nama shirasu-don",
+     "vi": "Cơm cá cơm con sống, đặc sản vùng Shimizu",
+     "yen": 1680,
+     "yenNote": "Tabelog 4/2026",
+     "pick": "popular",
+     "note": "Tên tiếng Nhật phỏng theo bản dịch Tabelog; còn bản luộc (釜揚げ) ¥1.480.",
+     "src": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/"
+    },
+    {
+     "ja": "ねぎとろ丼",
+     "romaji": "negitoro-don",
+     "vi": "Cơm cá ngừ băm với hành lá",
+     "yen": 1680,
+     "yenNote": "Tabelog 4/2026",
+     "pick": "light",
+     "note": "Tên tiếng Nhật phỏng theo bản dịch Tabelog.",
+     "src": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/"
+    }
+   ],
+   "orderTip": "Có thể đặt bàn online; có menu tiếng Anh, Trung phồn thể và giản thể; nhận thẻ, Suica và PayPay. Tabelog cảnh báo quán có thể đóng tạm khi thời tiết xấu. Thực đơn dài (Tabelog liệt kê 71 món, gồm set tôm và hàu chiên ¥1.680, nigiri, sashimi); chọn nhanh một món ở trên là đủ.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/",
+    "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/"
+   ]
+  }
  },
  "kurasawaya": {
   "lat": 35.086448,
@@ -991,7 +1664,69 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "しのきち / Tabelog",
     "page": "https://tabelog.com/en/shizuoka/A2201/A220102/22000573/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "桜えびセット",
+     "romaji": "sakura-ebi setto",
+     "vi": "Set tôm sakura: tôm sống, kamaage, kakiage chiên và cơm nồi kamameshi",
+     "yen": 3575,
+     "yenNote": "theo trang chính thức; Rurubu 10/2025 cũng ghi ¥3.575",
+     "pick": "signature",
+     "note": null,
+     "src": "https://sakuraebi.org/menu/menu1/"
+    },
+    {
+     "ja": "桜えび釜めしセット",
+     "romaji": "sakura-ebi kamameshi setto",
+     "vi": "Một miếng kakiage tôm sakura và cơm nồi kamameshi tôm sakura",
+     "yen": 2365,
+     "yenNote": "trang chính thức, không ghi năm",
+     "pick": "popular",
+     "note": null,
+     "src": "https://sakuraebi.org/menu/menu1/"
+    },
+    {
+     "ja": "かき揚げ（1枚）",
+     "romaji": "kakiage (ichimai)",
+     "vi": "Một miếng kakiage tôm sakura chiên giòn, gọi lẻ",
+     "yen": 715,
+     "yenNote": "Rurubu 10/2025 xác nhận",
+     "pick": "side",
+     "note": null,
+     "src": "https://rurubu.jp/andmore/article/23874"
+    },
+    {
+     "ja": "しずまえ天ぷら定食",
+     "romaji": "shizumae tenpura teishoku",
+     "vi": "Set tempura gồm kakiage tôm sakura, hai loại cá và rau",
+     "yen": 1727,
+     "yenNote": "trang chính thức, không ghi năm",
+     "pick": "value",
+     "note": null,
+     "src": "https://sakuraebi.org/menu/menu1/"
+    },
+    {
+     "ja": "由比の浜",
+     "romaji": "Yui no hama",
+     "vi": "Set sashimi và một miếng kakiage tôm sakura",
+     "yen": 2992,
+     "yenNote": "trang chính thức, không ghi năm",
+     "pick": "popular",
+     "note": null,
+     "src": "https://sakuraebi.org/menu/menu1/"
+    }
+   ],
+   "orderTip": "Không đặt chỗ; Tabelog ghi danh sách chờ có thể đóng sớm hơn dự kiến, nên đến sớm. Mở 11:00–14:00 và 17:00–19:00, nghỉ Thứ Hai; Thứ Sáu 22/10/2027 mở. Nhận thẻ, Suica và PayPay. Hỏi quán hôm đó có 生桜えび (tôm sống) hay không vì phụ thuộc mùa đánh bắt.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://sakuraebi.org/menu/menu1/",
+    "https://rurubu.jp/andmore/article/23874",
+    "https://tabelog.com/en/shizuoka/A2201/A220102/22000573/"
+   ]
+  }
  },
  "hoto-fudo": {
   "lat": 35.522686,
@@ -1065,7 +1800,49 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "志 味 麦 食 / Tabelog",
     "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19000116/dtlphotolst/4/smp2/"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "不動ほうとう",
+     "romaji": "Fudō hōtō",
+     "vi": "Mì dẹt hōtō tự làm hầm với bí đỏ và rau, món chính của quán",
+     "yen": 1320,
+     "yenNote": "theo Tabiiro/chính thức, không ghi năm; PORTA 3/2026 ghi ¥1.080 nhiều khả năng là giá cũ",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabiiro.jp/gourmet/s/309267-minamitsuru-houtou-fudou_honten/menu/"
+    },
+    {
+     "ja": "馬刺し",
+     "romaji": "basashi",
+     "vi": "Thịt ngựa sống thái mỏng, đặc sản Yamanashi",
+     "yen": 1320,
+     "yenNote": "theo Tabiiro, không ghi năm",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabiiro.jp/gourmet/s/309267-minamitsuru-houtou-fudou_honten/menu/"
+    },
+    {
+     "ja": "黒糖炊きいなり",
+     "romaji": "kokutō-daki inari",
+     "vi": "Cơm cuộn đậu hũ chiên ngọt nấu đường đen",
+     "yen": 550,
+     "yenNote": "theo Tabiiro, không ghi năm",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabiiro.jp/gourmet/s/309267-minamitsuru-houtou-fudou_honten/menu/"
+    }
+   ],
+   "orderTip": "Chỉ có một loại hōtō nên không cần chọn; chỉ nhận tiền mặt (thẻ, IC, QR không). Quán mở 11:00–20:00 nhưng có thể đóng sớm khi hết mì. Từ 10/2025 chỉ nhận đặt chỗ nhóm từ 10 người.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabiiro.jp/gourmet/s/309267-minamitsuru-houtou-fudou_honten/menu/",
+    "https://www.porta-y.jp/gourmet/57367",
+    "https://tabelog.com/en/yamanashi/A1903/A190303/19000116/"
+   ]
+  }
  },
  "butasute": {
   "lat": 34.488522,
@@ -1123,7 +1900,68 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "牛丼",
+     "romaji": "gyūdon",
+     "vi": "Cơm bò Ise, suất thường",
+     "yen": 1380,
+     "yenNote": "Tabelog 1/2026",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    },
+    {
+     "ja": "牛丼 上",
+     "romaji": "gyūdon jō",
+     "vi": "Cơm bò suất cao cấp, nhiều thịt hơn",
+     "yen": 1980,
+     "yenNote": "Tabelog 1/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    },
+    {
+     "ja": "ローストビーフ丼",
+     "romaji": "rōsuto bīfu don",
+     "vi": "Cơm phủ bò nướng lát mỏng",
+     "yen": 2300,
+     "yenNote": "Tabelog 1/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    },
+    {
+     "ja": "コロッケ",
+     "romaji": "korokke",
+     "vi": "Bánh croquette, món nổi tiếng của tiệm",
+     "yen": 130,
+     "yenNote": "một cái; bản wagyu kem ¥350",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    },
+    {
+     "ja": "生卵",
+     "romaji": "nama tamago",
+     "vi": "Trứng sống thêm vào cơm bò",
+     "yen": 100,
+     "yenNote": null,
+     "pick": "side",
+     "note": "Tên tiếng Nhật phỏng theo bản dịch Tabelog.",
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    }
+   ],
+   "orderTip": "Không đặt chỗ, khách vào theo thứ tự đến và hiện chỉ có chỗ tầng 1 (quầy và bàn). Mở 11:00–15:00 và 17:00–20:00 (gọi cuối 19:00), nghỉ thứ Tư và thứ Năm; Thứ Sáu 22/10/2027 18:00 là mở. Nhận thẻ, IC và QR. Giá cơm bò thường ¥1.380, thấp hơn ước tính trong kế hoạch.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/",
+    "https://tabelog.com/en/mie/A2403/A240301/24011334/"
+   ]
+  }
  },
  "fukusuke": {
   "lat": 34.462372,
@@ -1197,7 +2035,49 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "16uk_ / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240301/24000009/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "伊勢うどん",
+     "romaji": "Ise udon",
+     "vi": "Udon sợi rất mềm, rưới nước sốt tamari đậm vị dashi",
+     "yen": 650,
+     "yenNote": null,
+     "pick": "signature",
+     "note": null,
+     "src": "https://okageyokocho.com/tenpo/fukusuke/"
+    },
+    {
+     "ja": "手打ち伊勢うどん",
+     "romaji": "teuchi Ise udon",
+     "vi": "Udon đánh tay bằng bột mì Mie, sợi mềm dẻo hơn",
+     "yen": 850,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Bán số lượng giới hạn, có hôm đã hết (đánh giá 7/2026).",
+     "src": "https://okageyokocho.com/tenpo/fukusuke/"
+    },
+    {
+     "ja": "月見伊勢うどん",
+     "romaji": "tsukimi Ise udon",
+     "vi": "Ise udon thêm lòng đỏ trứng",
+     "yen": 750,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://okageyokocho.com/tenpo/fukusuke/"
+    }
+   ],
+   "orderTip": "Gọi món xong nhận thẻ số rồi cầm thẻ ngồi xuống chiếu tatami; không đặt chỗ. Mở 10:00–16:30 mỗi ngày (có thể đổi theo mùa); nhận thẻ, Suica và QR. Giá thực ¥650 thấp hơn ước tính ¥900–1.400 trong kế hoạch.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://okageyokocho.com/tenpo/fukusuke/",
+    "https://www.hotpepper.jp/strJ000873118/",
+    "https://tabelog.com/en/mie/A2403/A240301/24000009/"
+   ]
+  }
  },
  "akafuku": {
   "lat": 34.462671,
@@ -1271,7 +2151,39 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "爆発五郎 / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240301/24000008/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "赤福餅（2個・ほうじ茶付き）",
+     "romaji": "akafuku mochi (nikko, hōjicha-tsuki)",
+     "vi": "Hai viên bánh mochi phủ đậu đỏ nghiền, kèm trà hōjicha, ăn tại chỗ",
+     "yen": 400,
+     "yenNote": "đã thuế",
+     "pick": "signature",
+     "note": null,
+     "src": "https://harimap.com/akafuku-honten-ise-mochi-guide/"
+    },
+    {
+     "ja": "赤福ぜんざい",
+     "romaji": "akafuku zenzai",
+     "vi": "Chè đậu đỏ nóng với bánh mochi, bán theo mùa lạnh",
+     "yen": 800,
+     "yenNote": null,
+     "pick": "dessert",
+     "note": "Bán từ giữa tháng 10 đến đầu tháng 4 (mùa 2025–26: 18/10–12/4); ngày bắt đầu năm 2027 chưa biết.",
+     "src": "https://plus.rurubu.jp/article/2e0d03nqe0w3"
+    }
+   ],
+   "orderTip": "Mua vé (食券) ở quầy vé trước cửa rồi vào ngồi; nhận thẻ tín dụng và Suica, QR không nhận. Mở 5:00–17:00 mỗi ngày. 赤福氷 (¥800) chỉ bán khoảng cuối tháng 4 đến đầu tháng 10, nên sẽ không có vào 23/10.",
+   "ticketMachine": true,
+   "menuEn": null,
+   "sources": [
+    "https://harimap.com/akafuku-honten-ise-mochi-guide/",
+    "https://plus.rurubu.jp/article/2e0d03nqe0w3",
+    "https://tabelog.com/en/mie/A2403/A240301/24000008/"
+   ]
+  }
  },
  "manpuku": {
   "lat": 34.48756,
@@ -1345,7 +2257,58 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "鉄道王 / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240301/24000115/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "からあげ丼",
+     "romaji": "karaage-don",
+     "vi": "Cơm gà rán, gà tẩm vị đậm phủ trên cơm; xin thêm mayonnaise",
+     "yen": 850,
+     "yenNote": "chú thích ảnh Tabelog 12/2025; bài 2023 ghi ¥730",
+     "pick": "signature",
+     "note": "Nhớ nói 'マヨネーズもお願いします'.",
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24000115/"
+    },
+    {
+     "ja": "プチからあげ丼",
+     "romaji": "puchi karaage-don",
+     "vi": "Suất nhỏ của cơm gà rán",
+     "yen": 650,
+     "yenNote": "giá 2022–23, nay có thể cao hơn",
+     "pick": "light",
+     "note": null,
+     "src": "https://www.kankomie.or.jp/report/1294"
+    },
+    {
+     "ja": "からあげ丼定食",
+     "romaji": "karaage-don teishoku",
+     "vi": "Cơm gà rán kèm súp và món phụ",
+     "yen": 780,
+     "yenNote": "giá 2022–23, nay có thể cao hơn",
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.kankomie.or.jp/report/1294"
+    },
+    {
+     "ja": "伊勢うどん",
+     "romaji": "Ise udon",
+     "vi": "Ise udon, bát nhỏ rẻ",
+     "yen": 480,
+     "yenNote": "giá 2022–23, nay có thể cao hơn",
+     "pick": "side",
+     "note": null,
+     "src": "https://www.kankomie.or.jp/report/1294"
+    }
+   ],
+   "orderTip": "Không đặt chỗ; thẻ và IC không nhận, chỉ tiền mặt. Mở 11:00–20:30, ngày nghỉ không cố định. Giá thực ¥850 thấp hơn ước tính ¥1.000–1.300 trong kế hoạch.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/mie/A2403/A240301/24000115/",
+    "https://www.kankomie.or.jp/report/1294"
+   ]
+  }
  },
  "sazanami-toba": {
   "lat": 34.483587,
@@ -1419,7 +2382,59 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "お京。 / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240302/24000445/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "海老フライ定食",
+     "romaji": "ebi furai teishoku",
+     "vi": "Set tôm chiên xẻ bướm, kèm súp miso, cơm và dưa muối; sốt tartar và cơm được thêm",
+     "yen": 3410,
+     "yenNote": "giá chính thức đã thuế (¥3.100 chưa thuế)",
+     "pick": "signature",
+     "note": "Số con tôm tùy theo trọng lượng.",
+     "src": "https://sazanami.co.jp/sazanamimenu/"
+    },
+    {
+     "ja": "大海老フライ定食",
+     "romaji": "ō-ebi furai teishoku",
+     "vi": "Set tôm chiên cỡ lớn (khoảng 2 con)",
+     "yen": 5060,
+     "yenNote": "giá chính thức đã thuế",
+     "pick": "popular",
+     "note": "Giới hạn 20 suất mỗi ngày.",
+     "src": "https://sazanami.co.jp/sazanamimenu/"
+    },
+    {
+     "ja": "お造り定食",
+     "romaji": "otsukuri teishoku",
+     "vi": "Set sashimi theo mùa, kèm món phụ nhỏ, súp và cơm",
+     "yen": 3410,
+     "yenNote": "giá chính thức đã thuế",
+     "pick": "light",
+     "note": null,
+     "src": "https://sazanami.co.jp/sazanamimenu/"
+    },
+    {
+     "ja": "あこや御膳",
+     "romaji": "akoya gozen",
+     "vi": "Set có 3 loại sashimi, tôm chiên, món phụ và tráng miệng",
+     "yen": 3960,
+     "yenNote": "giá chính thức đã thuế",
+     "pick": "popular",
+     "note": null,
+     "src": "https://sazanami.co.jp/sazanamimenu/"
+    }
+   ],
+   "orderTip": "Không đặt chỗ, thường xếp hàng 20–30 phút; đến sớm nếu muốn 大海老フライ定食 (20 suất mỗi ngày). Mở 11:00–14:30 và 16:30–18:30 (cuối tuần từ 10:30), nghỉ Thứ Ba; Chủ nhật 24/10/2027 là mở. Nhận thẻ, iD và QR.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://sazanami.co.jp/sazanamimenu/",
+    "http://www.sazanami.co.jp/",
+    "https://tabelog.com/en/mie/A2403/A240302/24000445/"
+   ]
+  }
  },
  "sazanami-shokudo": {
   "lat": 34.306547,
@@ -1469,7 +2484,50 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ななしょう / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240303/24021124/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "海鮮丼",
+     "romaji": "kaisen-don",
+     "vi": "Cơm hải sản tổng hợp (có loại phủ cá cơm shirasu), món khách Tabelog hay nhắc",
+     "yen": null,
+     "yenNote": "chưa tìm được giá 2025–26",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240303/24021124/dtlrvwlst/"
+    },
+    {
+     "ja": "本まぐろ丼",
+     "romaji": "hon maguro-don",
+     "vi": "Cơm cá ngừ vây xanh",
+     "yen": 2500,
+     "yenNote": "blog khoảng 3/2025, không ghi thuế",
+     "pick": "popular",
+     "note": null,
+     "src": "https://ameblo.jp/ichijoikuno/entry-12961229133.html"
+    },
+    {
+     "ja": "まぐろ丼",
+     "romaji": "maguro-don",
+     "vi": "Cơm cá ngừ thường",
+     "yen": 1980,
+     "yenNote": "blog ghi ¥1.800 chưa thuế (khoảng 3/2025) nên quy đổi ≈¥1.980",
+     "pick": "value",
+     "note": null,
+     "src": "https://ameblo.jp/ichijoikuno/entry-12961229133.html"
+    }
+   ],
+   "orderTip": "Quán chỉ bán các món cơm donburi, không có hải sản nướng. Tabelog ghi mùa cao điểm mở hàng ngày, mùa thấp điểm nghỉ thứ Sáu, thứ Bảy, Chủ nhật, ngày trước lễ và ngày lễ, nên Chủ nhật 24/10/2027 có thể đóng: gọi 0599-77-0018 trước. Giờ 11:00–16:00 (gọi cuối 15:30); không tìm được thực đơn có giá chính thức.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/mie/A2403/A240303/24021124/",
+    "https://tabelog.com/en/mie/A2403/A240303/24021124/dtlrvwlst/",
+    "https://ameblo.jp/ichijoikuno/entry-12961229133.html",
+    "https://map.yahoo.co.jp/v3/place/ePg_FfXdLWo"
+   ]
+  }
  },
  "menami": {
   "lat": 35.00921,
@@ -1535,7 +2593,83 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260201/26001266/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "おばんざい盛り合わせ（5種）",
+     "romaji": "obanzai moriawase (go-shu)",
+     "vi": "Đĩa 5 món rau và đồ nấu kiểu Kyoto, nội dung đổi theo ngày",
+     "yen": 1430,
+     "yenNote": null,
+     "pick": "signature",
+     "note": "Nên gọi đầu tiên; quán bán obanzai hơn 80 năm.",
+     "src": "https://www.menami.jp/menu1"
+    },
+    {
+     "ja": "出汁巻",
+     "romaji": "dashimaki",
+     "vi": "Trứng cuộn nước dùng dashi",
+     "yen": 770,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://www.menami.jp/menu1"
+    },
+    {
+     "ja": "生ゆば春巻",
+     "romaji": "nama yuba harumaki",
+     "vi": "Chả giò cuốn váng đậu tươi",
+     "yen": 1100,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.menami.jp/menu1"
+    },
+    {
+     "ja": "お造り盛り合わせ（2人前）",
+     "romaji": "otsukuri moriawase (futari-mae)",
+     "vi": "Sashimi tổng hợp cho hai người, cá đổi theo ngày",
+     "yen": 3300,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.menami.jp/menu2"
+    },
+    {
+     "ja": "ぐじ塩焼",
+     "romaji": "guji shioyaki",
+     "vi": "Cá ngói (guji) nướng muối, đặc sản cá của Kyoto",
+     "yen": 2860,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Món cá đắt nhất trong nhóm cá nướng; có thể bỏ nếu muốn giữ ngân sách.",
+     "src": "https://www.menami.jp/menu2"
+    },
+    {
+     "ja": "壬生菜とお揚げ煮",
+     "romaji": "mibuna to oage ni",
+     "vi": "Cải mibuna hầm với đậu phụ chiên, món rau Kyoto cổ truyền",
+     "yen": 660,
+     "yenNote": null,
+     "pick": "side",
+     "note": "Tabelog nêu đây là món nên thử nhưng ảnh Tabelog cho thấy nó cũng là otoshi tặng kèm phí chỗ ngồi, nên có thể không cần gọi thêm.",
+     "src": "https://www.menami.jp/menu3"
+    }
+   ],
+   "orderTip": "Đặt bàn chỉ qua điện thoại 080-9308-5905 (10:00–17:00), ngồi gọi món lẻ theo thực đơn có chú thích tiếng Anh; Tabelog ghi phí chỗ ngồi ¥550, quán nhận thẻ Visa/Master/JCB/Amex/Diners và nghỉ Thứ Tư.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://www.menami.jp/menu1",
+    "https://www.menami.jp/menu2",
+    "https://www.menami.jp/menu3",
+    "https://www.menami.jp/menu4",
+    "https://www.menami.jp/about",
+    "https://www.menami.jp/course",
+    "https://tabelog.com/en/kyoto/A2601/A260201/26001266/"
+   ]
+  }
  },
  "yorozuya": {
   "lat": 35.002766,
@@ -1601,7 +2735,62 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ちゃご / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ねぎうどん",
+     "romaji": "negi udon",
+     "vi": "Udon phủ kín hành Kujō (hành lá Kyoto) trong nước dùng thanh",
+     "yen": 1500,
+     "yenNote": "giá 7/2026 theo một đánh giá Tabelog",
+     "pick": "signature",
+     "note": "Món nổi tiếng nhất của quán.",
+     "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B532320348/"
+    },
+    {
+     "ja": "えびな",
+     "romaji": "ebina",
+     "vi": "Udon sợi mảnh với đậu phụ chiên thái sợi, một lát gừng ở giữa",
+     "yen": 1650,
+     "yenNote": "giá 2/2025 theo đánh giá Tabelog",
+     "pick": "popular",
+     "note": "Trộn gừng vào nước dùng rồi ăn.",
+     "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B500956139/"
+    },
+    {
+     "ja": "つのだ",
+     "romaji": "tsunoda",
+     "vi": "Udon hành kèm thịt gà",
+     "yen": 1400,
+     "yenNote": "giá 2013 (Tabelog); ねぎうどん tăng từ ¥1.100 (2013) lên ¥1.500 (2026) nên giá này chắc chắn đã tăng",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlmenu/"
+    },
+    {
+     "ja": "親子丼",
+     "romaji": "oyakodon",
+     "vi": "Cơm gà trứng, gọi thêm nếu đói",
+     "yen": 1000,
+     "yenNote": "giá 2013 (Tabelog); một khách 7/2026 vẫn gọi món này nhưng không ghi giá",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlmenu/"
+    }
+   ],
+   "orderTip": "Quán 14 chỗ, chỉ nhận tiền mặt và không đặt bàn nên phải xếp hàng (có hôm chờ 1 giờ 20 phút lúc 12:30); giờ mở cửa ngày thường là 12:30 nên đến sớm xếp hàng.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlmenu/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B532320348/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B500956139/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B536753084/",
+    "https://www.mapple.net/region/a0502010200_g03050e00/spot/"
+   ]
+  }
  },
  "komori": {
   "lat": 35.005848,
@@ -1667,7 +2856,80 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ｻｲｹﾝ8700 / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000280/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "わらびもち",
+     "romaji": "warabimochi",
+     "vi": "Bánh warabi (bột dong) mềm, rắc kinako rang thơm",
+     "yen": 1400,
+     "yenNote": "giá niêm yết đã gồm thuế; quán tăng giá một số món từ 1/4/2025",
+     "pick": "signature",
+     "note": "Món quán nổi tiếng nhất; kinako dùng loại 'kogashi' rang kỹ.",
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "わらびもちパフェ",
+     "romaji": "warabimochi pafe",
+     "vi": "Parfait có warabi mochi, ăn kèm đường đen kuromitsu",
+     "yen": 1800,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Tabelog có ảnh món này kèm kuromitsu.",
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "抹茶わらびもち",
+     "romaji": "matcha warabimochi",
+     "vi": "Warabi mochi vị matcha",
+     "yen": 1500,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "あんみつ",
+     "romaji": "anmitsu",
+     "vi": "Món ngọt anmitsu (thạch và topping kiểu Nhật), quán dùng bột kuzu",
+     "yen": 1400,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "わらびもちぜんざい",
+     "romaji": "warabimochi zenzai",
+     "vi": "Súp đậu đỏ ngọt với warabi mochi, phần nhẹ hơn parfait",
+     "yen": 1200,
+     "yenNote": null,
+     "pick": "light",
+     "note": null,
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "抹茶のみ",
+     "romaji": "matcha nomi",
+     "vi": "Một bát matcha, gọi kèm món ngọt",
+     "yen": 1000,
+     "yenNote": null,
+     "pick": "drink",
+     "note": null,
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    }
+   ],
+   "orderTip": "Quán không nhận đặt chỗ, chỉ nhận tiền mặt và thường xếp hàng 25–40 phút; quán nghỉ Thứ Hai và 25/10/2027 là Thứ Hai nên cần dời sang ngày khác.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://www.giwon-komori.com/?mode=f2",
+    "https://www.giwon-komori.com/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000280/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000280/dtlrvwlst/B536278415/"
+   ]
+  }
  },
  "menzo": {
   "lat": 35.014274,
@@ -1741,7 +3003,72 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ｻｲｹﾝ8700 / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002504/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "土ゴボウ天ざるうどん",
+     "romaji": "tsuchi-gobō ten zaru udon",
+     "vi": "Udon lạnh chấm kèm tempura ngưu bàng 'đất' giòn, món đặc trưng của quán",
+     "yen": 1200,
+     "yenNote": "giá 3/2024 (rurubu); mì rau tempura cùng loại đã ¥1.250 vào 3/2025 nên giá nay có thể ¥1.250–1.350",
+     "pick": "signature",
+     "note": "Mì dài, có kéo kèm để cắt; có thể rắc bột cà ri lên tempura ngưu bàng.",
+     "src": "https://rurubu.jp/andmore/article/21315"
+    },
+    {
+     "ja": "野菜てんざるうどん",
+     "romaji": "yasai ten zaru udon",
+     "vi": "Udon lạnh chấm kèm tempura rau",
+     "yen": 1250,
+     "yenNote": "giá 3/2025",
+     "pick": "popular",
+     "note": null,
+     "src": "https://mashichan.com/entry/yamamotomenzo"
+    },
+    {
+     "ja": "京カレーうどん",
+     "romaji": "Kyō karē udon",
+     "vi": "Udon cà ri kiểu Kyoto, chỉnh được độ cay",
+     "yen": 1100,
+     "yenNote": "giá 3/2024",
+     "pick": "popular",
+     "note": null,
+     "src": "https://rurubu.jp/andmore/article/21315"
+    },
+    {
+     "ja": "香味油の牛と土ゴボウのおうどん",
+     "romaji": "kōmi-abura no gyū to tsuchi-gobō no oudon",
+     "vi": "Udon nóng với thịt bò, ngưu bàng bào và dầu thơm, tô lớn",
+     "yen": null,
+     "yenNote": "chưa xác nhận giá hiện tại",
+     "pick": "popular",
+     "note": "Blog gọi đây là món chủ lực của quán.",
+     "src": "https://umaimono-daisuki.com/kyoto-higashiyama-yamamotomenzou/"
+    },
+    {
+     "ja": "ちょっと小さな鶏ささみ天丼",
+     "romaji": "chotto chiisana tori-sasami tendon",
+     "vi": "Cơm tempura thăn gà cỡ nhỏ, để hai người chia",
+     "yen": 580,
+     "yenNote": "giá 3/2024",
+     "pick": "side",
+     "note": null,
+     "src": "https://rurubu.jp/andmore/article/21315"
+    }
+   ],
+   "orderTip": "Phải đặt chỗ qua TableCheck (mở 0h giờ Nhật, trước 3 ngày), mỗi người gọi ít nhất một món mì, chỉ trả tiền mặt và hủy muộn bị phạt ¥1.000/người; Thứ Hai vào muộn nhất 16:30 nên giờ kế hoạch 16:00 khá sát.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://rurubu.jp/andmore/article/21315",
+    "https://mashichan.com/entry/yamamotomenzo",
+    "https://www.tablecheck.com/ja/shops/yamamotomenzou/reserve",
+    "https://umaimono-daisuki.com/kyoto-higashiyama-yamamotomenzou/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26002504/dtlrvwlst/B535862077/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26002504/dtlmenu/"
+   ]
+  }
  },
  "yoshimura": {
   "lat": 35.013655,
@@ -1815,7 +3142,80 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "misam54 / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260403/26000403/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "天ざる膳",
+     "romaji": "ten-zaru zen",
+     "vi": "Set soba lạnh (zaru) kèm tempura, món trang chủ quảng bá",
+     "yen": 2780,
+     "yenNote": "giá trên trang chính thức (không ghi năm); 3 đánh giá Tabelog 7–9/2026 ghi ¥2.560",
+     "pick": "signature",
+     "note": "Gần nhất với 'soba tempura' trong kế hoạch.",
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "天ぷらそば",
+     "romaji": "tenpura soba",
+     "vi": "Soba nóng hoặc lạnh kèm tempura, có kèm obanzai",
+     "yen": 2240,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "そば麹漬け 鴨汁そば",
+     "romaji": "soba kōji-zuke kamo-jiru soba",
+     "vi": "Soba chấm nước dùng vịt, vịt ướp men soba-koji",
+     "yen": 2100,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "二八そば",
+     "romaji": "nihachi soba",
+     "vi": "Soba 2:8 (khoảng 80% bột soba), nóng hoặc lạnh, kèm obanzai",
+     "yen": 1440,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "value",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "おろしそば",
+     "romaji": "oroshi soba",
+     "vi": "Soba với củ cải bào, ăn nhẹ",
+     "yen": 1700,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "light",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "そば茶ロール",
+     "romaji": "sobacha rōru",
+     "vi": "Bánh cuộn vị trà soba, tráng miệng của quán",
+     "yen": 600,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "dessert",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    }
+   ],
+   "orderTip": "Không nhận đặt bàn: đến, ghi tên rồi chờ (một khách thứ Sáu 10/2026 đến 12:00 và vào chỗ lúc 13:00), quán nhận thẻ tín dụng và cộng thêm phí dịch vụ; nên đến lúc 11:00 mở cửa.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://yoshimura-gr.com/arashiyama/menu/",
+    "https://yoshimura-gr.com/arashiyama/",
+    "https://tabelog.com/en/kyoto/A2601/A260403/26000403/",
+    "https://tabelog.com/en/kyoto/A2601/A260403/26000403/dtlrvwlst/"
+   ]
+  }
  },
  "torisei": {
   "lat": 34.931095,
@@ -1865,7 +3265,83 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260601/26001213/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "六串盛合せ",
+     "romaji": "roku-kushi moriawase",
+     "vi": "6 xiên yakitori tổng hợp do bếp trưởng chọn",
+     "yen": 1100,
+     "yenNote": "giá 10/2026, khớp Tabelog cập nhật 9/2026 (đã gồm thuế)",
+     "pick": "signature",
+     "note": "Trên menu ghi kèm '[料理長のおすすめ]'.",
+     "src": "https://r.gnavi.co.jp/k006500/menu7/"
+    },
+    {
+     "ja": "ほろ酔いセット【A】",
+     "romaji": "horoyoi setto (A)",
+     "vi": "Otoshi, 5 món nướng và 1 ly bia tươi hoặc 1 ly sake genshu",
+     "yen": 1300,
+     "yenNote": "chỉ ngày thường 15:00–18:30; set B ¥1.500 có thêm thịt gà sống kiểu prosciutto",
+     "pick": "value",
+     "note": "Thứ Ba 26/10/2027 17:30 nằm trong khung giờ này.",
+     "src": "https://r.gnavi.co.jp/k006500/menu7/"
+    },
+    {
+     "ja": "[自慢の品]手羽唐（4個）",
+     "romaji": "tebakara (yon-ko)",
+     "vi": "4 cánh gà chiên, món quán tự hào",
+     "yen": 700,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://r.gnavi.co.jp/k006500/menu8/"
+    },
+    {
+     "ja": "蔵出し「原酒」",
+     "romaji": "kuradashi 'genshu'",
+     "vi": "Sake nguyên chất lấy thẳng từ kho của hãng Yamamoto Honke",
+     "yen": 520,
+     "yenNote": null,
+     "pick": "drink",
+     "note": "Có thể đổi sang tare-kuchi (rượu mới ép) với phụ thu ¥100.",
+     "src": "https://r.gnavi.co.jp/k006500/menu1/"
+    },
+    {
+     "ja": "とりめし（みそ汁付）",
+     "romaji": "torimeshi (misoshiru-tsuki)",
+     "vi": "Cơm gà kèm súp miso, món cơm đặc trưng của quán",
+     "yen": 750,
+     "yenNote": null,
+     "pick": "side",
+     "note": null,
+     "src": "https://r.gnavi.co.jp/k006500/menu8/"
+    },
+    {
+     "ja": "豆腐とゆばのあんかけ（みやまくず使用）",
+     "romaji": "tōfu to yuba no ankake (Miyama-kuzu shiyō)",
+     "vi": "Đậu phụ và váng đậu sốt bột kuzu, ăn nhẹ giữa các xiên",
+     "yen": 620,
+     "yenNote": null,
+     "pick": "light",
+     "note": null,
+     "src": "https://r.gnavi.co.jp/k006500/menu8/"
+    }
+   ],
+   "orderTip": "Gọi món lẻ trong thực đơn dài (xiên yakitori ¥180–360 mỗi xiên), 6 xiên tổng hợp là cách gọn nhất cho hai người; nhận thẻ và IC, đặt bàn qua mạng, và nghỉ Thứ Hai.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://r.gnavi.co.jp/k006500/menu7/",
+    "https://r.gnavi.co.jp/k006500/menu8/",
+    "https://r.gnavi.co.jp/k006500/menu1/",
+    "https://r.gnavi.co.jp/k006500/lunch/",
+    "https://tabelog.com/en/kyoto/A2601/A260601/26001213/dtlmenu/",
+    "https://toriseihonten.com/",
+    "https://tabelog.com/en/kyoto/A2601/A260601/26001213/"
+   ]
+  }
  },
  "tonkatsu-yamamoto": {
   "lat": 35.014344,
@@ -1939,7 +3415,61 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ｻｲｹﾝ8700 / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260202/26006075/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "へれかつ定食",
+     "romaji": "herekatsu teishoku",
+     "vi": "Set thăn nạc (hire) tẩm bột chiên, kèm súp heo, cơm, món hầm và dưa muối",
+     "yen": 2500,
+     "yenNote": "giá bữa trưa theo bài 9–10/2026; bữa tối đắt hơn, chưa có giá tối hiện hành",
+     "pick": "signature",
+     "note": "Cơm ăn thêm miễn phí.",
+     "src": "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/"
+    },
+    {
+     "ja": "ろーすかつ定食",
+     "romaji": "rōsukatsu teishoku",
+     "vi": "Set thăn lưng (loin) chiên, nhiều mỡ hơn hire",
+     "yen": 2500,
+     "yenNote": "trưa ¥2.500 (9–10/2026); tối ¥3.800 theo bài 2/2025 (lúc đó trưa ¥2.090)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/"
+    },
+    {
+     "ja": "へれびーふかつ定食",
+     "romaji": "here-bīfukatsu teishoku",
+     "vi": "Set thăn bò chiên kiểu katsu",
+     "yen": null,
+     "yenNote": "chưa có giá; một khách 5/2026 gọi đây là món đắt nhất của thực đơn trưa",
+     "pick": "popular",
+     "note": null,
+     "src": "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/"
+    },
+    {
+     "ja": "豚肉角煮定食",
+     "romaji": "butaniku kakuni teishoku",
+     "vi": "Set thịt ba chỉ heo hầm mềm",
+     "yen": null,
+     "yenNote": "chưa có giá hiện hành",
+     "pick": "popular",
+     "note": null,
+     "src": "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt, quán 13 ghế (quầy và phòng tatami), đặt bàn qua mạng hoặc điện thoại; trưa 11:30–13:30, tối 17:00–21:00, nghỉ Chủ Nhật, bữa tối đắt hơn hẳn bữa trưa (set thăn lưng tối ¥3.800 theo bài 2/2025).",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/",
+    "https://gcjapan-kyoto.com/tonkatsu-yamamoto/",
+    "https://tabelog.com/en/kyoto/A2601/A260202/26006075/dtlrvwlst/",
+    "https://tabelog.com/en/kyoto/A2601/A260202/26006075/dtlmenu/lunch/",
+    "https://kyoto-hannarism.com/tonkatsuyamamoto-kyoto/"
+   ]
+  }
  },
  "awa": {
   "lat": 34.678649,
@@ -2013,7 +3543,58 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ぱたぱたぱたごにあ / Tabelog",
     "page": "https://tabelog.com/en/nara/A2901/A290101/29001643/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "粟「収穫祭」御膳",
+     "romaji": "Awa 'shūkakusai' gozen",
+     "vi": "Set rau truyền thống trồng ở Kiyosumi no Sato kèm ba loại thịt bò Yamato, có tráng miệng và đồ uống",
+     "yen": 3800,
+     "yenNote": "giá bữa trưa trên trang chính thức (đã gồm thuế, không ghi năm)",
+     "pick": "signature",
+     "note": "Hợp người ít ăn cá vì có thịt bò.",
+     "src": "https://www.kiyosumi.jp/naramachiten"
+    },
+    {
+     "ja": "粟「大和と世界の野菜」コース",
+     "romaji": "Awa 'Yamato to sekai no yasai' kōsu",
+     "vi": "Bữa toàn rau: rau truyền thống Yamato và rau cổ truyền khắp thế giới, kèm tráng miệng và đồ uống",
+     "yen": 4800,
+     "yenNote": "giá bữa trưa trên trang chính thức (đã gồm thuế, không ghi năm)",
+     "pick": "light",
+     "note": null,
+     "src": "https://www.kiyosumi.jp/naramachiten"
+    },
+    {
+     "ja": "粟「大和牛と野菜」コース",
+     "romaji": "Awa 'Yamato-gyū to yasai' kōsu",
+     "vi": "Như khóa rau nhưng thêm thịt bò Yamato, kèm tráng miệng và đồ uống",
+     "yen": 4800,
+     "yenNote": "giá bữa trưa trên trang chính thức (đã gồm thuế, không ghi năm)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.kiyosumi.jp/naramachiten"
+    },
+    {
+     "ja": "粟「ならまち店」昼のフルコース",
+     "romaji": "Awa 'Naramachi-ten' hiru no furu kōsu",
+     "vi": "Khóa đầy đủ có bít tết thăn bò Yamato và tempura rau theo mùa, kèm tráng miệng và đồ uống",
+     "yen": 6800,
+     "yenNote": "giá bữa trưa trên trang chính thức (đã gồm thuế, không ghi năm)",
+     "pick": "popular",
+     "note": "Chỉ cần nếu muốn bữa trưa thịnh soạn hơn kế hoạch.",
+     "src": "https://www.kiyosumi.jp/naramachiten"
+    }
+   ],
+   "orderTip": "Quán chỉ nhận khách đã đặt trước (điện thoại 0742-24-5699 hoặc TableCheck) và thực đơn chỉ gồm các set/khóa, mỗi người một suất; bữa trưa 11:30–14:30, vào muộn nhất 13:00, nghỉ Thứ Ba, nhận thẻ tín dụng.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://www.kiyosumi.jp/naramachiten",
+    "https://tabelog.com/en/nara/A2901/A290101/29001643/"
+   ]
+  }
  },
  "hosekibako": {
   "lat": 34.68017,
@@ -2079,7 +3660,73 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "鉄道王 / Tabelog",
     "page": "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ベリーベリーヨーグルト",
+     "romaji": "berī berī yōguruto",
+     "vi": "Đá bào sữa chua với các loại berry",
+     "yen": 1800,
+     "yenNote": "giá 2025 (bài Lemon8); bài 6/2023 ghi ¥1.500 nên giá đã tăng dần",
+     "pick": "signature",
+     "note": "Vị xuất hiện trong nhiều bài đánh giá 2023–2025 nhưng menu đổi theo mùa nên có thể không còn vào tháng 10/2027.",
+     "src": "https://www.lemon8-app.com/@user4157040802311/7535769789705355832?region=jp"
+    },
+    {
+     "ja": "香茶氷 柿の葉茶と和紅茶",
+     "romaji": "kōcha-gōri kaki no ha-cha to wakōcha",
+     "vi": "Đá bào trà lá hồng (kaki no ha) và hồng trà Nhật",
+     "yen": 1800,
+     "yenNote": "giá 8/2026 (Serai), bài không ghi đã gồm thuế hay chưa",
+     "pick": "popular",
+     "note": "Món mới của mùa hè 2026; tên đọc theo chữ Hán, nếu không chắc cứ chỉ vào menu.",
+     "src": "https://serai.jp/gourmet/1279625"
+    },
+    {
+     "ja": "パステルフルーツ",
+     "romaji": "pasuteru furūtsu",
+     "vi": "Đá bào trái cây kiểu 'pastel'",
+     "yen": 1700,
+     "yenNote": "giá 5/2025 theo đánh giá Tabelog",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlrvwlst/B507489102/"
+    },
+    {
+     "ja": "リトマス試験紙氷",
+     "romaji": "ritomasu shiken-shi kōri",
+     "vi": "Đá bào 'giấy quỳ', món biểu tượng của quán",
+     "yen": null,
+     "yenNote": "chưa có giá mới; năm 2022 là ¥920 và giá cả quán đã tăng từ đó",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tyoitosiawase.com/2022/08/25/housekibako/"
+    },
+    {
+     "ja": "桜桃和紅茶キャラメル氷",
+     "romaji": "ōtō wakōcha kyarameru-gōri",
+     "vi": "Đá bào cherry, hồng trà Nhật và caramel",
+     "yen": null,
+     "yenNote": "chưa có giá; thấy trong đánh giá Tabelog 9/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlrvwlst/"
+    }
+   ],
+   "orderTip": "Menu luân phiên theo mùa (trang chính thức: dâu mùa xuân, trái cây mùa hè, hạt dẻ mùa thu, món nóng mùa đông) với 7–9 vị giá ¥1.300–1.850, thực đơn mới nhất đăng trên Instagram @housekibaco. Phải đặt chỗ online trên airrsv từ 21:00 hôm trước, trả tiền mặt tại quầy trước khi ngồi và mỗi người gọi một món; quán nghỉ Thứ Năm.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://kakigori.netlify.app/",
+    "https://www.lemon8-app.com/@user4157040802311/7535769789705355832?region=jp",
+    "https://serai.jp/gourmet/1279625",
+    "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlrvwlst/B507489102/",
+    "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlrvwlst/",
+    "https://ameblo.jp/kimu935/entry-12928553101.html",
+    "https://tyoitosiawase.com/2022/08/25/housekibako/"
+   ]
+  }
  },
  "fukutaro": {
   "lat": 34.6656,
@@ -2145,7 +3792,80 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "鉄道王 / Tabelog",
     "page": "https://tabelog.com/en/osaka/A2701/A270202/27002665/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "すじねぎ焼き",
+     "romaji": "suji negiyaki",
+     "vi": "Bánh hành (negiyaki) với gân bò hầm, ăn với nước tương tự làm",
+     "yen": 1580,
+     "yenNote": "giá đã gồm thuế; Tabelog cập nhật thực đơn 4/2026 cùng giá",
+     "pick": "signature",
+     "note": null,
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "豚ねぎ焼き",
+     "romaji": "buta negiyaki",
+     "vi": "Negiyaki thịt heo",
+     "yen": 1280,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "豚玉",
+     "romaji": "butatama",
+     "vi": "Okonomiyaki thịt heo kiểu Osaka cổ điển",
+     "yen": 1080,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "大人気！山いも焼",
+     "romaji": "daininki! yamaimo-yaki",
+     "vi": "Khoai mài (yamaimo) nướng teppan, mềm xốp",
+     "yen": 980,
+     "yenNote": null,
+     "pick": "light",
+     "note": "Tên trên menu có kèm chữ 'đang rất được ưa chuộng'.",
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "生たこポン酢",
+     "romaji": "nama tako ponzu",
+     "vi": "Bạch tuộc tươi chấm sốt ponzu, ăn nhắm trước khi tới bánh",
+     "yen": 980,
+     "yenNote": null,
+     "pick": "side",
+     "note": null,
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "黒毛和牛の鉄板焼",
+     "romaji": "kuroge wagyū no teppanyaki",
+     "vi": "Bò wagyū đen nướng teppan",
+     "yen": 2480,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Chỉ có ở cơ sở Honten; nếu hai người ăn nhẹ thì có thể bỏ.",
+     "src": "https://2951.jp/menu.html"
+    }
+   ],
+   "orderTip": "Bếp nướng trên teppan trước mặt khách, không nhận đặt chỗ nên ngày thường mở từ 17:00 là lúc nên có mặt, giá trong menu đã gồm thuế và nhận thẻ/IC; nhiều khách quen gọi món lẻ trước rồi chốt bằng negiyaki hoặc okonomiyaki.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://2951.jp/menu.html",
+    "https://2951.jp/",
+    "https://tabelog.com/en/osaka/A2701/A270202/27002665/dtlmenu/",
+    "https://tabelog.com/en/osaka/A2701/A270202/27002665/"
+   ]
+  }
  },
  "horai-551": {
   "lat": 34.666413,
@@ -2219,7 +3939,80 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "眼鏡屋さん / Tabelog",
     "page": "https://tabelog.com/en/osaka/A2701/A270202/27001312/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "豚まん",
+     "romaji": "butaman",
+     "vi": "Bánh bao nhân thịt heo, món làm nên tên tuổi 551",
+     "yen": 330,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác; giá mỗi cái",
+     "pick": "signature",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "エビ焼売",
+     "romaji": "ebi shūmai",
+     "vi": "Sủi mại tôm, 4 viên",
+     "yen": 360,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "海鮮焼そば",
+     "romaji": "kaisen yakisoba",
+     "vi": "Mì xào hải sản (tôm, mực, sò điệp), chọn loại mì giòn hoặc mì áp chảo",
+     "yen": 1300,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "551点心セット",
+     "romaji": "gō-gō-ichi tenshin setto",
+     "vi": "Set gồm bánh bao, sủi mại tôm, chả giò, viên chua ngọt, mì tantan và đậu hũ hạnh nhân mini",
+     "yen": 1980,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "popular",
+     "note": "Hợp hai người chia nhau để nếm nhiều món.",
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "焼餃子",
+     "romaji": "yaki gyōza",
+     "vi": "Há cảo áp chảo, 5 cái",
+     "yen": 300,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "side",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "551担仔麺（ハーフサイズ）",
+     "romaji": "gō-gō-ichi tantanmen (hāfu saizu)",
+     "vi": "Mì tantan kiểu Đài Loan, cỡ nhỏ",
+     "yen": 750,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "light",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    }
+   ],
+   "orderTip": "Nhà hàng ngồi bàn ở tầng 2–3 (11:00–21:30, nghỉ Thứ Ba thứ nhất và thứ ba mỗi tháng), giá trên thực đơn là giá ăn tại chỗ còn mua mang về ở tầng dưới có giá khác.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf",
+    "https://www.551horai.co.jp/shop/list/13/",
+    "https://www.551horai.co.jp/menu/butaman/",
+    "https://www.traicy.com/posts/20260817379385/"
+   ]
+  }
  },
  "hanadako": {
   "lat": 34.703165,
@@ -2293,7 +4086,49 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "fujimo123 / Tabelog",
     "page": "https://tabelog.com/en/osaka/A2701/A270101/27012248/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ネギマヨ",
+     "romaji": "negi mayo",
+     "vi": "Takoyaki phủ hành lá và sốt mayonnaise thật nhiều, món chủ lực của quán",
+     "yen": 670,
+     "yenNote": "6 viên; 8 viên ¥860, 10 viên ¥1.050 (giá 9/2026, đã gồm thuế)",
+     "pick": "signature",
+     "note": "Điểm dừng phụ: hai người chia một phần 8–10 viên là đủ.",
+     "src": "https://tripmate.news/posts/osaka-hanadako-takoyaki-umeda/"
+    },
+    {
+     "ja": "たこ焼き",
+     "romaji": "takoyaki",
+     "vi": "Takoyaki cổ điển, chọn một trong 5 vị: sốt, ponzu, nước tương dashi, muối, shio-dare",
+     "yen": 570,
+     "yenNote": "6 viên; 8 viên ¥760, 10 viên ¥950 (giá 9/2026, đã gồm thuế)",
+     "pick": "value",
+     "note": null,
+     "src": "https://tripmate.news/posts/osaka-hanadako-takoyaki-umeda/"
+    },
+    {
+     "ja": "たこせん",
+     "romaji": "takosen",
+     "vi": "Takoyaki kẹp giữa hai lớp bánh senbei mỏng, cầm đi vừa đi vừa ăn",
+     "yen": 240,
+     "yenNote": "giá mỗi cái (9/2026)",
+     "pick": "side",
+     "note": null,
+     "src": "https://tripmate.news/posts/osaka-hanadako-takoyaki-umeda/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt, xếp hàng trong khu vực kẻ sẵn (khoảng 20–30 phút), tới quầy gọi số viên và chọn vị rồi trả tiền, sau đó đứng ăn ở quầy 6 chỗ hoặc mang đi.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://tripmate.news/posts/osaka-hanadako-takoyaki-umeda/",
+    "https://www.timeout.jp/osaka/ja/%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3/hana-dako",
+    "https://tabelog.com/en/osaka/A2701/A270101/27012248/dtlrvwlst/"
+   ]
+  }
  },
  "tahei": {
   "lat": 34.664144,
@@ -2359,7 +4194,81 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "亀ちぁん / Tabelog",
     "page": "https://tabelog.com/en/osaka/A2701/A270202/27005087/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ハラミ",
+     "romaji": "harami",
+     "vi": "Thăn hoành bò (skirt), món được nhắc nhiều nhất của quán, ăn với cơm trắng",
+     "yen": 1600,
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc); blog 8/2023 ghi ¥1.450; Tabelog 10/2026 có khách báo giá lại vừa tăng",
+     "pick": "signature",
+     "note": null,
+     "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
+    },
+    {
+     "ja": "上タン",
+     "romaji": "jō tan",
+     "vi": "Lưỡi bò wagyū loại ngon, thường hết ngay sau vòng gọi món đầu",
+     "yen": 1600,
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc); Retty ghi tên 黒毛和牛の上タン; blog 8/2023 ghi ¥1.450",
+     "pick": "popular",
+     "note": "Một khách khuyên ăn với muối.",
+     "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
+    },
+    {
+     "ja": "上ロース",
+     "romaji": "jō rōsu",
+     "vi": "Thăn lưng bò loại ngon",
+     "yen": 1850,
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc); blog 8/2023 ghi ¥1.800",
+     "pick": "popular",
+     "note": null,
+     "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
+    },
+    {
+     "ja": "テッチャン",
+     "romaji": "tecchan",
+     "vi": "Ruột non bò, món nội tạng dễ ăn",
+     "yen": 800,
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
+    },
+    {
+     "ja": "ホルモン盛り合わせ",
+     "romaji": "horumon moriawase",
+     "vi": "Đĩa nội tạng bò tổng hợp, nếm nhiều loại cùng lúc",
+     "yen": 900,
+     "yenNote": "giá 8/2023 (blog); chắc đã tăng",
+     "pick": "side",
+     "note": null,
+     "src": "https://genjitsutouhi.com/tahei-osaka/"
+    },
+    {
+     "ja": "ご飯",
+     "romaji": "gohan",
+     "vi": "Cơm trắng, được khen là rất ngon khi ăn cùng thịt",
+     "yen": null,
+     "yenNote": "chưa xác nhận giá; năm 2017 cỡ vừa là ¥230 và Tabelog 9/2026 khen cơm rất ngon",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabelog.com/en/osaka/A2701/A270202/27005087/dtlrvwlst/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt, gọi từng đĩa thịt lẻ (hai người thường gọi 5–6 đĩa kèm cơm); quán chỉ nhận đặt bàn ngày thường khi từ 3 người nên với hai người hãy đến lúc mở cửa 16:00 hoặc chờ, và quán nghỉ Thứ Tư.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/",
+    "https://genjitsutouhi.com/tahei-osaka/",
+    "https://ee-lunch.jp/9555.html",
+    "https://tabelog.com/en/osaka/A2701/A270202/27005087/",
+    "https://tabelog.com/en/osaka/A2701/A270202/27005087/dtlrvwlst/"
+   ]
+  }
  },
  "resol-akihabara": {
   "images": [

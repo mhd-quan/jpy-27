@@ -10,6 +10,8 @@ const { p, limit = 4 } = Astro.props;
 const ORDER = ['signature', 'popular', 'value', 'light', 'side', 'dessert', 'drink'];
 const items = [...(p.menu?.items ?? [])].sort((a, b) => ORDER.indexOf(a.pick) - ORDER.indexOf(b.pick)).slice(0, limit);
 const yen = (n: number | null) => (n ? `¥${n.toLocaleString('vi-VN')}` : '');
+/** "Mì chūka soba, bát cơ bản…" → "Mì chūka soba" for the compact list */
+const short = (vi: string) => vi.split(/[;,(（]| — /)[0].trim();
 ---
 
 {
@@ -20,7 +22,7 @@ const yen = (n: number | null) => (n ? `¥${n.toLocaleString('vi-VN')}` : '');
         {items.map((m) => (
           <li class:list={[m.pick === 'signature' && 'is-sig']}>
             <span class="mm-name">
-              <span class="mm-vi">{m.vi}</span>
+              <span class="mm-vi">{short(m.vi)}</span>
               {m.ja && (
                 <span class="mm-ja ja" lang="ja">
                   {m.ja}

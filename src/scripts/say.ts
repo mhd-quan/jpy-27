@@ -106,7 +106,11 @@ export function initSay() {
   let pl: PlaceInfo | null = null;
   let stationName: { ja: string; romaji: string } | null = null;
 
-  /** Fill {place}, {station}, {name}, {n}, {time}, {dish}: the place on screen when it fits, else the example. */
+  /**
+   * Fill the slot tokens: {place}/{station} from the place on screen, {name} from the saved name,
+   * {n} as two people (the trip size; 二人 reads futari, not ni-nin), anything else from the example,
+   * which replaces just the token.
+   */
   const fill = (p: Phrase) => {
     let ja = p.ja;
     let ro = p.romaji;
@@ -116,10 +120,18 @@ export function initSay() {
     };
     if (pl) sub('place', pl.ja, pl.name);
     if (stationName) sub('station', stationName.ja, stationName.romaji);
+    else if (pl && pl.kind === 'station') sub('station', pl.ja, pl.name);
     const name = readName();
     if (name) sub('name', name, name);
+    ja = ja.split('{n}人').join('二人');
+    ro = ro.split('{n}-nin').join('futari');
     sub('n', '2', 'ni');
-    if (/\{\w+\}/.test(ja) && p.example) return { ja: p.example.ja, romaji: p.example.romaji };
+    if (p.example && p.slot) sub(p.slot, p.example.ja, p.example.romaji);
+    // anything still unfilled falls back to the first example token-wise
+    if (p.example) {
+      ja = ja.replace(/\{\w+\}/g, p.example.ja);
+      ro = ro.replace(/\{\w+\}/g, p.example.romaji);
+    }
     return { ja, romaji: ro };
   };
 

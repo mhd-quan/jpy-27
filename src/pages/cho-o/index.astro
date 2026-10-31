@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Gallery from '../../components/Gallery.astro';
+import StayAround from '../../components/StayAround.astro';
 import { place, fmtYen } from '../../lib/trip';
 import { STAYS } from '../../data/trip';
 
@@ -70,6 +71,9 @@ const total = STAYS.reduce((s, x) => s + x.target * (x.id === 'mizunoto' ? 1 : N
                 Phương án RESOL Kyoto
               </button>
             )}
+          </div>
+          <div class="wrap">
+            <StayAround id={s.id} />
           </div>
         </section>
       );

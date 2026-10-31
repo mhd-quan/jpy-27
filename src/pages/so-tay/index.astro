@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { BOOKINGS, CHECKS, PASSES, PHRASES } from '../../data/trip';
+import { PHRASES as BOOK } from '../../data/enrich.gen';
 
 // "22/10, 0:00" in Japan time
 const jst = (iso: string) => {
@@ -18,9 +19,22 @@ const STATIONS = [
   ['Kowakudani', '小涌谷'],
   ['Kintetsu Nagoya', '近鉄名古屋'],
 ];
+// Scenario groups for the phrase launcher; ids come from research/phrases.json
+const SCENARIO_GROUPS = [
+  { title: 'Ăn uống', ids: ['table', 'order', 'shokken', 'ask-food', 'diet', 'izakaya', 'cafe', 'reserve', 'takeout', 'pay'] },
+  { title: 'Đi lại', ids: ['ticket', 'platform', 'bus', 'taxi', 'ferry', 'locker', 'lost', 'directions'] },
+  { title: 'Nơi ở', ids: ['checkin', 'forward', 'ryokan', 'onsen', 'room-problem', 'checkout'] },
+  { title: 'Tham quan, mua sắm', ids: ['temple', 'kimono', 'shop', 'souvenir'] },
+  { title: 'Chung, sức khoẻ', ids: ['greet', 'pharmacy', 'health', 'emergency'] },
+];
+const byId = new Map(BOOK.scenarios.map((x) => [x.id, x]));
+const grouped = new Set(SCENARIO_GROUPS.flatMap((g) => g.ids));
+const others = BOOK.scenarios.filter((x) => !grouped.has(x.id));
+const groups = [...SCENARIO_GROUPS.map((g) => ({ title: g.title, list: g.ids.flatMap((id) => (byId.has(id) ? [byId.get(id)!] : [])) })), ...(others.length ? [{ title: 'Khác', list: others }] : [])];
+const phraseCount = BOOK.scenarios.reduce((t, x) => t + x.phrases.length, 0);
 ---
 
-<Base title="Sổ tay">
+<Base title="Sổ tay" say={[]}>
   <section class="wrap hero">
     <h1 class="t-1">Sổ tay</h1>
     <p class="t-lead">Những thứ cần làm trước khi đi và cần mở nhanh trong chuyến: lịch đặt chỗ, vé, onsen, vài câu tiếng Nhật.</p>
@@ -137,16 +151,36 @@ const STATIONS = [
 
   <section class="wrap block" id="tieng-nhat" aria-labelledby="b5">
     <h2 class="t-2" id="b5">Tiếng Nhật</h2>
+    <p class="muted lead-say">
+      {BOOK.scenarios.length} tình huống, {phraseCount} câu, mỗi câu có romaji để đọc to và nút phát âm. Trong lịch từng ngày, nút <strong>Nói</strong> ở mỗi điểm dừng mở sẵn tình huống hợp với chỗ đó.
+    </p>
+    {
+      groups.map((g) => (
+        <div class="scn-group">
+          <h3 class="t-small muted">{g.title}</h3>
+          <div class="scn-grid">
+            {g.list.map((x) => (
+              <button type="button" class="scn" data-say="any" data-say-scenario={x.id}>
+                <strong>{x.vi}</strong>
+                <span class="t-small muted">{x.phrases.length} câu</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+    <h3 class="t-3 st-title">Câu riêng cho chuyến này</h3>
     <p class="muted">Chạm vào một câu để hiện chữ lớn cho nhân viên đọc.</p>
     <ul class="phrases">
       {
         PHRASES.map((p) => (
           <li>
-            <button type="button" class="phrase" data-phrase={p.ja} data-vi={p.vi}>
+            <button type="button" class="phrase" data-phrase={p.ja} data-ro={p.romaji} data-vi={p.vi}>
               <span class="t-small muted">{p.use}</span>
               <span class="ja jp" lang="ja">
                 {p.ja}
               </span>
+              <span class="ro">{p.romaji}</span>
               <span class="t-small">{p.vi}</span>
             </button>
           </li>
@@ -158,7 +192,7 @@ const STATIONS = [
       {
         STATIONS.map(([vi, ja]) => (
           <li>
-            <button type="button" class="phrase st" data-phrase={ja} data-vi={vi}>
+            <button type="button" class="phrase st" data-phrase={ja} data-ro={vi} data-vi={vi}>
               <span class="ja" lang="ja">
                 {ja}
               </span>
@@ -199,6 +233,7 @@ const STATIONS = [
   <dialog class="show" id="show-phrase" aria-label="Câu tiếng Nhật phóng to">
     <button type="button" class="show-close" data-close-show aria-label="Đóng">Xong</button>
     <p class="show-ja ja" lang="ja" data-show-ja></p>
+    <p class="show-ro" data-show-ro></p>
     <p class="show-vi" data-show-vi></p>
   </dialog>
 </Base>
@@ -208,6 +243,7 @@ const STATIONS = [
   document.querySelectorAll<HTMLButtonElement>('[data-phrase]').forEach((b) =>
     b.addEventListener('click', () => {
       dlg.querySelector('[data-show-ja]')!.textContent = b.dataset.phrase!;
+      dlg.querySelector('[data-show-ro]')!.textContent = b.dataset.ro ?? '';
       dlg.querySelector('[data-show-vi]')!.textContent = b.dataset.vi!;
       dlg.showModal();
     }),
@@ -345,6 +381,48 @@ const STATIONS = [
   .cols p {
     margin: 8px 0 0;
     color: var(--ink-2);
+  }
+  .lead-say {
+    max-width: 62ch;
+  }
+  .scn-group {
+    margin-top: 24px;
+  }
+  .scn-group h3 {
+    margin: 0 0 10px;
+  }
+  .scn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(170px, 46%), 1fr));
+    gap: 8px;
+  }
+  .scn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: var(--r-m);
+    background: var(--bg-2);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 150ms, transform 120ms var(--ease-out);
+  }
+  .scn:hover {
+    background: var(--bg-3);
+  }
+  .scn:active {
+    transform: scale(0.98);
+  }
+  .ro {
+    color: var(--accent);
+    font-size: 15px;
+  }
+  .show-ro {
+    margin: 0;
+    color: var(--accent);
+    font-size: clamp(18px, 4.5vw, 26px);
   }
   .phrases {
     display: grid;

@@ -129,16 +129,16 @@ export const PASSES = [
 ];
 
 export const PHRASES = [
-  { use: 'Xin bàn', ja: '二人です。', vi: 'Chúng tôi hai người.' },
-  { use: 'Hỏi chờ', ja: '待ち時間はどのくらいですか。', vi: 'Cần đợi khoảng bao lâu?' },
-  { use: 'Thanh toán thẻ', ja: 'カードは使えますか。', vi: 'Có dùng thẻ được không?' },
-  { use: 'Món chín', ja: '生より、焼いた料理が好きです。', vi: 'Tôi thích món nướng hơn món sống.' },
-  { use: 'Mua vé đi Ise', ja: '伊勢市まで、特急券と乗車券を二人分お願いします。', vi: 'Cho hai vé cơ bản và limited express tới Iseshi.' },
-  { use: 'Hỏi phà', ja: '鳥羽に戻る船は、何時で、どの港からですか。', vi: 'Tàu về Toba lúc nào, từ cảng nào?' },
-  { use: 'Bồn onsen', ja: 'この部屋の露天風呂は温泉ですか。', vi: 'Bồn ngoài trời phòng này có phải onsen không?' },
-  { use: 'Bồn riêng', ja: '二人で使える貸切風呂はありますか。', vi: 'Có bồn riêng cho hai người không?' },
-  { use: 'Tổng tiền phòng', ja: '二人一泊二食で、税金を含めた総額はいくらですか。', vi: 'Hai người, một đêm hai bữa, gồm thuế là bao nhiêu?' },
-  { use: 'Gửi vali', ja: '予約名と到着日を書いて、ホテルへ荷物を送れますか。', vi: 'Có thể gửi hành lý tới khách sạn với tên đặt và ngày đến không?' },
+  { use: 'Xin bàn', ja: '二人です。', romaji: 'Futari desu.', vi: 'Chúng tôi hai người.' },
+  { use: 'Hỏi chờ', ja: '待ち時間はどのくらいですか。', romaji: 'Machijikan wa dono kurai desu ka?', vi: 'Cần đợi khoảng bao lâu?' },
+  { use: 'Thanh toán thẻ', ja: 'カードは使えますか。', romaji: 'Kādo wa tsukaemasu ka?', vi: 'Có dùng thẻ được không?' },
+  { use: 'Món chín', ja: '生より、焼いた料理が好きです。', romaji: 'Nama yori, yaita ryōri ga suki desu.', vi: 'Tôi thích món nướng hơn món sống.' },
+  { use: 'Mua vé đi Ise', ja: '伊勢市まで、特急券と乗車券を二人分お願いします。', romaji: 'Iseshi made, tokkyūken to jōshaken o futari-bun onegaishimasu.', vi: 'Cho hai vé cơ bản và limited express tới Iseshi.' },
+  { use: 'Hỏi phà', ja: '鳥羽に戻る船は、何時で、どの港からですか。', romaji: 'Toba ni modoru fune wa, nanji de, dono minato kara desu ka?', vi: 'Tàu về Toba lúc nào, từ cảng nào?' },
+  { use: 'Bồn onsen', ja: 'この部屋の露天風呂は温泉ですか。', romaji: 'Kono heya no rotenburo wa onsen desu ka?', vi: 'Bồn ngoài trời phòng này có phải onsen không?' },
+  { use: 'Bồn riêng', ja: '二人で使える貸切風呂はありますか。', romaji: 'Futari de tsukaeru kashikiri-buro wa arimasu ka?', vi: 'Có bồn riêng cho hai người không?' },
+  { use: 'Tổng tiền phòng', ja: '二人一泊二食で、税金を含めた総額はいくらですか。', romaji: 'Futari ippaku nishoku de, zeikin o fukumeta sōgaku wa ikura desu ka?', vi: 'Hai người, một đêm hai bữa, gồm thuế là bao nhiêu?' },
+  { use: 'Gửi vali', ja: '予約名と到着日を書いて、ホテルへ荷物を送れますか。', romaji: 'Yoyaku-mei to tōchaku-bi o kaite, hoteru e nimotsu o okuremasu ka?', vi: 'Có thể gửi hành lý tới khách sạn với tên đặt và ngày đến không?' },
 ];
 
 export interface Booking {
