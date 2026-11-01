@@ -322,6 +322,10 @@ const slimDay = (d) => ({
   along: [],
   slots: [],
 });
+// walks that pass several stops keep their geometry, so the widget's clock spends their time like the app's
+const viaPaths = Object.fromEntries(
+  [...days, ...altDays].flatMap((d) => d.items).filter((it) => it.type === 'move' && it.leg.via?.length && paths[it.leg.id]).map((it) => [it.leg.id, paths[it.leg.id]]),
+);
 const schedule = clean({
   version: 1,
   meta: trip.meta,
@@ -333,8 +337,9 @@ const schedule = clean({
     .map((p) => ({ id: p.id, name: p.name, ja: p.ja, kind: p.kind, area: p.area, lat: p.lat, lng: p.lng, pay: p.pay, images: p.images.slice(0, 1), uses: [] })),
   days: days.map(slimDay),
   altDays: altDays.map(slimDay),
-  paths: {},
+  paths: viaPaths,
   rides: [],
+  bookings: BOOKINGS,
   altRides: [],
   reserved: RESERVED,
   rules: trip.rules,

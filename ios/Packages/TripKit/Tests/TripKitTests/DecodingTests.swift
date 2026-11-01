@@ -21,6 +21,13 @@ import Testing
         #expect(slim.guide == nil)
         let day2 = try #require(slim.day("2"))
         #expect(day2.items.count == Bundle_.store.day("2")!.items.count)
+        #expect(!slim.trip.bookings.isEmpty)
+        // the widget's clock agrees with the app's on every day
+        for day in slim.trip.days {
+            let a = Itinerary(store: slim).waypoints(day).map(\.setOff)
+            let b = Itinerary(store: Bundle_.store).waypoints(Bundle_.store.day(day.key)!).map(\.setOff)
+            #expect(a == b, "day \(day.key)")
+        }
     }
 
     @Test func everyPlanPlaceResolves() {

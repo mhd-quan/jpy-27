@@ -15,6 +15,8 @@ public struct Trip: Codable, Sendable {
     @Many public var altRides: [Ride]
     @Many public var reserved: [String]
     public let rules: PlanRules
+    /// booking windows, carried in the slim schedule for the widget's before-trip view
+    @Many public var bookings: [Booking]
 }
 
 /// What the plan clock assumes (scripts/plan-rules.mjs).
