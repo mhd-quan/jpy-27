@@ -97,6 +97,15 @@
           "note": null,
           "slot": null,
           "example": null
+        },
+        {
+          "id": "greet-write",
+          "ja": "ここに書いてもらえますか？",
+          "romaji": "Koko ni kaite moraemasu ka?",
+          "vi": "Anh/chị viết ra đây giúp tôi được không ạ?",
+          "note": "Đưa giấy hoặc điện thoại; tiện khi hỏi giá, giờ, số sân ga.",
+          "slot": null,
+          "example": null
         }
       ],
       "hear": [
@@ -220,8 +229,8 @@
         },
         {
           "id": "table-counter",
-          "ja": "カウンターでもいいです。",
-          "romaji": "Kauntā demo ii desu.",
+          "ja": "カウンター席でも大丈夫です。",
+          "romaji": "Kauntā seki demo daijōbu desu.",
           "vi": "Ngồi quầy cũng được ạ.",
           "note": null,
           "slot": null,
@@ -247,8 +256,8 @@
         },
         {
           "id": "table-luggage",
-          "ja": "荷物を置いてもいいですか？",
-          "romaji": "Nimotsu o oite mo ii desu ka?",
+          "ja": "ここに荷物を置いてもいいですか？",
+          "romaji": "Koko ni nimotsu o oite mo ii desu ka?",
           "vi": "Tôi để hành lý ở đây được không ạ?",
           "note": null,
           "slot": null,
@@ -435,8 +444,8 @@
           "romaji": "Onomimono wa ikaga nasaimasu ka?",
           "vi": "Quý khách dùng đồ uống gì ạ?",
           "reply": {
-            "ja": "お水でお願いします。",
-            "romaji": "Omizu de onegai shimasu."
+            "ja": "お水で大丈夫です。",
+            "romaji": "Omizu de daijōbu desu."
           }
         },
         {
@@ -476,10 +485,13 @@
           }
         },
         {
-          "ja": "ラストオーダーですが、ご注文はありますか？",
-          "romaji": "Rasuto ōdā desu ga, gochūmon wa arimasu ka?",
+          "ja": "ラストオーダーになりますが、ご注文はよろしいですか？",
+          "romaji": "Rasuto ōdā ni narimasu ga, gochūmon wa yoroshii desu ka?",
           "vi": "Sắp hết giờ nhận gọi món, quý khách còn gọi gì nữa không ạ?",
-          "reply": null
+          "reply": {
+            "ja": "大丈夫です。",
+            "romaji": "Daijōbu desu."
+          }
         }
       ]
     },
@@ -511,9 +523,9 @@
         },
         {
           "id": "shokken-recommend",
-          "ja": "おすすめのボタンはどれですか？",
-          "romaji": "Osusume no botan wa dore desu ka?",
-          "vi": "Nút nào là món nên gọi ạ?",
+          "ja": "おすすめはどのボタンですか？",
+          "romaji": "Osusume wa dono botan desu ka?",
+          "vi": "Món nên gọi là nút nào ạ?",
           "note": null,
           "slot": null,
           "example": null
@@ -1105,8 +1117,8 @@
         },
         {
           "id": "cafe-milk",
-          "ja": "牛乳と砂糖をください。",
-          "romaji": "Gyūnyū to satō o kudasai.",
+          "ja": "ミルクと砂糖をください。",
+          "romaji": "Miruku to satō o kudasai.",
           "vi": "Cho tôi sữa và đường.",
           "note": null,
           "slot": null,
@@ -1150,9 +1162,9 @@
         },
         {
           "id": "cafe-herehere",
-          "ja": "ここでいただきます。",
-          "romaji": "Koko de itadakimasu.",
-          "vi": "Tôi dùng tại chỗ ạ.",
+          "ja": "店内でお願いします。",
+          "romaji": "Tennai de onegai shimasu.",
+          "vi": "Tôi dùng tại quán ạ.",
           "note": null,
           "slot": null,
           "example": null
@@ -1187,7 +1199,10 @@
           "ja": "ミルクと砂糖はお付けしますか？",
           "romaji": "Miruku to satō wa otsuke shimasu ka?",
           "vi": "Quý khách có lấy sữa và đường không ạ?",
-          "reply": null
+          "reply": {
+            "ja": "はい、お願いします。",
+            "romaji": "Hai, onegai shimasu."
+          }
         },
         {
           "ja": "先にお会計をお願いします。",
@@ -1332,17 +1347,17 @@
           "reply": null
         },
         {
-          "ja": "別々にしますか？",
-          "romaji": "Betsubetsu ni shimasu ka?",
-          "vi": "Quý khách có tính riêng không ạ?",
+          "ja": "お会計はご一緒でよろしいですか？",
+          "romaji": "Okaikei wa goissho de yoroshii desu ka?",
+          "vi": "Quý khách thanh toán chung một lần phải không ạ?",
           "reply": {
-            "ja": "一緒でお願いします。",
-            "romaji": "Issho de onegai shimasu."
+            "ja": "いいえ、別々でお願いします。",
+            "romaji": "Iie, betsubetsu de onegai shimasu."
           }
         },
         {
-          "ja": "レシートはご利用ですか？",
-          "romaji": "Reshīto wa goriyō desu ka?",
+          "ja": "レシートはご入用ですか？",
+          "romaji": "Reshīto wa goiriyō desu ka?",
           "vi": "Quý khách có cần hoá đơn không ạ?",
           "reply": {
             "ja": "はい、お願いします。",
@@ -1356,9 +1371,9 @@
           "reply": null
         },
         {
-          "ja": "サインをお願いします。",
-          "romaji": "Sain o onegai shimasu.",
-          "vi": "Xin quý khách ký tên ạ.",
+          "ja": "暗証番号を入力してください。",
+          "romaji": "Anshō bangō o nyūryoku shite kudasai.",
+          "vi": "Xin nhập mã PIN của thẻ ạ.",
           "reply": null
         }
       ]
@@ -1636,8 +1651,8 @@
           "romaji": "Tennai de omeshiagari desu ka?",
           "vi": "Quý khách ăn tại chỗ phải không ạ?",
           "reply": {
-            "ja": "はい、店内で。",
-            "romaji": "Hai, tennai de."
+            "ja": "はい、店内でお願いします。",
+            "romaji": "Hai, tennai de onegai shimasu."
           }
         },
         {
@@ -1645,8 +1660,8 @@
           "romaji": "Omochikaeri desu ka?",
           "vi": "Quý khách mang về phải không ạ?",
           "reply": {
-            "ja": "はい、持ち帰りです。",
-            "romaji": "Hai, mochikaeri desu."
+            "ja": "はい、持ち帰りでお願いします。",
+            "romaji": "Hai, mochikaeri de onegai shimasu."
           }
         },
         {
@@ -1763,7 +1778,7 @@
           "ja": "右側の窓側の席をお願いします。",
           "romaji": "Migigawa no madogawa no seki o onegai shimasu.",
           "vi": "Cho tôi ghế cửa sổ bên phải ạ.",
-          "note": "Bên phải tính theo hướng tàu chạy.",
+          "note": "Bên phải tính theo hướng tàu chạy. Shinkansen đi từ Tokyo về Nagoya/Kyoto: núi Phú Sĩ ở bên phải (ghế E).",
           "slot": null,
           "example": null
         },
@@ -1788,7 +1803,7 @@
         {
           "id": "ticket-charge",
           "ja": "Suicaにチャージしたいです。",
-          "romaji": "Suika ni chājī shitai desu.",
+          "romaji": "Suika ni chāji shitai desu.",
           "vi": "Tôi muốn nạp tiền vào Suica.",
           "note": "Cũng có thể tự nạp ở máy bán vé: chọn チャージ rồi bỏ tiền mặt.",
           "slot": null,
@@ -1834,7 +1849,7 @@
         },
         {
           "ja": "チャージは券売機でできます。",
-          "romaji": "Chājī wa kenbaiki de dekimasu.",
+          "romaji": "Chāji wa kenbaiki de dekimasu.",
           "vi": "Quý khách có thể nạp tiền ở máy bán vé ạ.",
           "reply": null
         }
@@ -1869,7 +1884,7 @@
           "slot": "station",
           "example": {
             "ja": "伊勢市",
-            "romaji": "Iseshi"
+            "romaji": "Ise-shi"
           }
         },
         {
@@ -2013,9 +2028,9 @@
         },
         {
           "id": "bus-stop",
-          "ja": "すみません、{place}のバス停はどこですか？",
-          "romaji": "Sumimasen, {place} no basutei wa doko desu ka?",
-          "vi": "Xin lỗi, trạm xe buýt đi … ở đâu ạ?",
+          "ja": "すみません、{place}へ行くバスの乗り場はどこですか？",
+          "romaji": "Sumimasen, {place} e iku basu no noriba wa doko desu ka?",
+          "vi": "Xin lỗi, chỗ lên xe buýt đi … ở đâu ạ?",
           "note": null,
           "slot": "place",
           "example": {
@@ -2076,7 +2091,7 @@
           "ja": "両替をお願いします。",
           "romaji": "Ryōgae o onegai shimasu.",
           "vi": "Cho tôi đổi tiền lẻ ạ.",
-          "note": "Trên xe thường có máy đổi tiền cạnh chỗ tài xế.",
+          "note": "Máy đổi tiền cạnh tài xế thường chỉ nhận tờ 1.000 yên và tiền xu.",
           "slot": null,
           "example": null
         },
@@ -2193,8 +2208,8 @@
         },
         {
           "id": "lost-when",
-          "ja": "電車は{time}ごろに乗りました。",
-          "romaji": "Densha wa {time} goro ni norimashita.",
+          "ja": "電車には{time}ごろ乗りました。",
+          "romaji": "Densha ni wa {time} goro norimashita.",
           "vi": "Tôi lên tàu khoảng … giờ.",
           "note": null,
           "slot": "time",
@@ -2205,8 +2220,8 @@
         },
         {
           "id": "lost-from",
-          "ja": "電車は{station}から乗りました。",
-          "romaji": "Densha wa {station} kara norimashita.",
+          "ja": "電車には{station}から乗りました。",
+          "romaji": "Densha ni wa {station} kara norimashita.",
           "vi": "Tôi lên tàu từ ga … ạ.",
           "note": null,
           "slot": "station",
@@ -2227,7 +2242,7 @@
         {
           "id": "lost-staff",
           "ja": "駅員さんを呼んでください。",
-          "romaji": "Eki'in-san o yonde kudasai.",
+          "romaji": "Ekiin-san o yonde kudasai.",
           "vi": "Xin gọi nhân viên nhà ga giúp tôi.",
           "note": null,
           "slot": null,
@@ -2412,8 +2427,8 @@
           "romaji": "Nimotsu wa nan-ko desu ka?",
           "vi": "Quý khách có mấy món hành lý ạ?",
           "reply": {
-            "ja": "二個です。",
-            "romaji": "Ni-ko desu."
+            "ja": "二つです。",
+            "romaji": "Futatsu desu."
           }
         },
         {
@@ -2448,9 +2463,9 @@
       "phrases": [
         {
           "id": "taxi-to",
-          "ja": "では、{place}までお願いします。",
-          "romaji": "De wa, {place} made onegai shimasu.",
-          "vi": "Vậy cho tôi đi đến … ạ.",
+          "ja": "すみません、{place}までお願いします。",
+          "romaji": "Sumimasen, {place} made onegai shimasu.",
+          "vi": "Xin chào, cho tôi đi đến … ạ.",
           "note": "Nên đưa địa chỉ hoặc bản đồ trên điện thoại cho tài xế.",
           "slot": "place",
           "example": {
@@ -2469,9 +2484,9 @@
         },
         {
           "id": "taxi-station",
-          "ja": "では、{station}駅までお願いします。",
-          "romaji": "De wa, {station}-eki made onegai shimasu.",
-          "vi": "Vậy cho tôi đi đến ga … ạ.",
+          "ja": "すみません、{station}駅までお願いします。",
+          "romaji": "Sumimasen, {station}-eki made onegai shimasu.",
+          "vi": "Xin chào, cho tôi đi đến ga … ạ.",
           "note": null,
           "slot": "station",
           "example": {
@@ -2499,9 +2514,9 @@
         },
         {
           "id": "taxi-trunk",
-          "ja": "荷物をトランクに入れてください。",
-          "romaji": "Nimotsu o toranku ni irete kudasai.",
-          "vi": "Xin cho hành lý vào cốp xe.",
+          "ja": "荷物をトランクに入れてもらえますか？",
+          "romaji": "Nimotsu o toranku ni irete moraemasu ka?",
+          "vi": "Cho hành lý vào cốp xe giúp tôi được không ạ?",
           "note": null,
           "slot": null,
           "example": null
@@ -2545,8 +2560,8 @@
       ],
       "hear": [
         {
-          "ja": "どちらまで行きますか？",
-          "romaji": "Dochira made ikimasu ka?",
+          "ja": "どちらまでですか？",
+          "romaji": "Dochira made desu ka?",
           "vi": "Quý khách đi đâu ạ?",
           "reply": {
             "ja": "清水寺までお願いします。",
@@ -2625,9 +2640,9 @@
         },
         {
           "id": "checkin-luggage",
-          "ja": "チェックインの前に、荷物を預かってもらえますか？",
-          "romaji": "Chekkuin no mae ni, nimotsu o azukatte moraemasu ka?",
-          "vi": "Trước giờ nhận phòng, gửi hành lý được không ạ?",
+          "ja": "チェックインまで、荷物を預かってもらえますか？",
+          "romaji": "Chekkuin made, nimotsu o azukatte moraemasu ka?",
+          "vi": "Gửi hành lý ở đây đến giờ nhận phòng được không ạ?",
           "note": null,
           "slot": null,
           "example": null
@@ -2652,8 +2667,8 @@
         },
         {
           "id": "checkin-breakfastwhere",
-          "ja": "朝食はどこで食べますか？",
-          "romaji": "Chōshoku wa doko de tabemasu ka?",
+          "ja": "朝食会場はどこですか？",
+          "romaji": "Chōshoku kaijō wa doko desu ka?",
           "vi": "Ăn sáng ở đâu ạ?",
           "note": null,
           "slot": null,
@@ -2707,8 +2722,8 @@
           }
         },
         {
-          "ja": "パスポートを見せてください。",
-          "romaji": "Pasupōto o misete kudasai.",
+          "ja": "パスポートをお願いします。",
+          "romaji": "Pasupōto o onegai shimasu.",
           "vi": "Xin cho tôi xem hộ chiếu ạ.",
           "reply": {
             "ja": "はい、どうぞ。",
@@ -2820,8 +2835,8 @@
         },
         {
           "id": "forward-days",
-          "ja": "何日に着きますか？",
-          "romaji": "Nan-nichi ni tsukimasu ka?",
+          "ja": "いつ届きますか？",
+          "romaji": "Itsu todokimasu ka?",
           "vi": "Hành lý sẽ đến vào ngày nào ạ?",
           "note": null,
           "slot": null,
@@ -3017,11 +3032,11 @@
       "hear": [
         {
           "ja": "夕食は6時半と8時のどちらがよろしいですか？",
-          "romaji": "Yūshoku wa rokuji-han to hachi-ji no dochira ga yoroshii desu ka?",
+          "romaji": "Yūshoku wa roku-ji han to hachi-ji no dochira ga yoroshii desu ka?",
           "vi": "Bữa tối 6 giờ rưỡi hay 8 giờ, quý khách chọn giờ nào ạ?",
           "reply": {
             "ja": "6時半でお願いします。",
-            "romaji": "Rokuji-han de onegai shimasu."
+            "romaji": "Roku-ji han de onegai shimasu."
           }
         },
         {
@@ -3303,7 +3318,7 @@
           "vi": "Phòng số mấy ạ?",
           "reply": {
             "ja": "502号室です。",
-            "romaji": "Go-maru-ni gōshitsu desu."
+            "romaji": "Gohyaku-ni gōshitsu desu."
           }
         },
         {
@@ -3319,9 +3334,9 @@
           "reply": null
         },
         {
-          "ja": "修理の者を向かわせます。",
-          "romaji": "Shūri no mono o mukawasemasu.",
-          "vi": "Chúng tôi sẽ cho người đến sửa ạ.",
+          "ja": "係の者が伺います。",
+          "romaji": "Kakari no mono ga ukagaimasu.",
+          "vi": "Nhân viên phụ trách sẽ đến ngay ạ.",
           "reply": null
         }
       ]
@@ -3345,8 +3360,8 @@
         },
         {
           "id": "checkout-key",
-          "ja": "鍵を返します。",
-          "romaji": "Kagi o kaeshimasu.",
+          "ja": "鍵をお返しします。",
+          "romaji": "Kagi o okaeshi shimasu.",
           "vi": "Tôi trả chìa khoá (thẻ phòng).",
           "note": null,
           "slot": null,
@@ -3363,8 +3378,8 @@
         },
         {
           "id": "checkout-keep",
-          "ja": "チェックアウトの後も、荷物を預かってもらえますか？",
-          "romaji": "Chekkuauto no ato mo, nimotsu o azukatte moraemasu ka?",
+          "ja": "チェックアウトの後、荷物を預かってもらえますか？",
+          "romaji": "Chekkuauto no ato, nimotsu o azukatte moraemasu ka?",
           "vi": "Sau khi trả phòng, giữ hành lý giúp tôi được không ạ?",
           "note": null,
           "slot": null,
@@ -3393,8 +3408,8 @@
         },
         {
           "id": "checkout-taximin",
-          "ja": "タクシーは何分で来ますか？",
-          "romaji": "Takushī wa nan-pun de kimasu ka?",
+          "ja": "タクシーは何分くらいで来ますか？",
+          "romaji": "Takushī wa nan-pun kurai de kimasu ka?",
           "vi": "Taxi đến trong bao lâu ạ?",
           "note": null,
           "slot": null,
@@ -3442,9 +3457,9 @@
           "reply": null
         },
         {
-          "ja": "追加のご利用はありますか？",
-          "romaji": "Tsuika no goriyō wa arimasu ka?",
-          "vi": "Quý khách có dùng thêm dịch vụ nào không ạ?",
+          "ja": "冷蔵庫のご利用はございますか？",
+          "romaji": "Reizōko no goriyō wa gozaimasu ka?",
+          "vi": "Quý khách có dùng đồ trong tủ lạnh (minibar) không ạ?",
           "reply": {
             "ja": "いいえ、ありません。",
             "romaji": "Iie, arimasen."
@@ -3753,7 +3768,7 @@
         {
           "ja": "信号を渡ってください。",
           "romaji": "Shingō o watatte kudasai.",
-          "vi": "Hãy qua đèn giao thông ạ.",
+          "vi": "Hãy băng qua đường ở chỗ đèn giao thông ạ.",
           "reply": null
         },
         {
@@ -3852,7 +3867,7 @@
           "ja": "免税できますか？",
           "romaji": "Menzei dekimasu ka?",
           "vi": "Mua ở đây có miễn thuế được không ạ?",
-          "note": "Chuẩn bị hộ chiếu. Quy định miễn thuế có thể thay đổi, hãy hỏi nhân viên cách làm hiện hành.",
+          "note": "Mang hộ chiếu. Từ 11/2026: trả đủ tiền gồm thuế, được hoàn thuế sau khi hải quan sân bay xác nhận hàng mang ra nước ngoài.",
           "slot": null,
           "example": null
         },
@@ -3904,8 +3919,8 @@
           }
         },
         {
-          "ja": "パスポートを見せてください。",
-          "romaji": "Pasupōto o misete kudasai.",
+          "ja": "パスポートをお願いします。",
+          "romaji": "Pasupōto o onegai shimasu.",
           "vi": "Xin cho tôi xem hộ chiếu ạ.",
           "reply": null
         },
@@ -3970,8 +3985,8 @@
         },
         {
           "id": "souvenir-himochi",
-          "ja": "日持ちしますか？",
-          "romaji": "Himochi shimasu ka?",
+          "ja": "どのくらい日持ちしますか？",
+          "romaji": "Dono kurai himochi shimasu ka?",
           "vi": "Để được bao lâu ạ?",
           "note": null,
           "slot": null,
@@ -4008,7 +4023,7 @@
           "id": "souvenir-cold",
           "ja": "保冷剤をつけてもらえますか？",
           "romaji": "Horeizai o tsukete moraemasu ka?",
-          "vi": "Cho thêm túi giữ lạnh được không ạ?",
+          "vi": "Cho thêm gói đá giữ lạnh được không ạ?",
           "note": null,
           "slot": null,
           "example": null
@@ -4026,7 +4041,7 @@
           "id": "souvenir-plane",
           "ja": "飛行機に持ち込めますか？",
           "romaji": "Hikōki ni mochikomemasu ka?",
-          "vi": "Mang lên máy bay được không ạ?",
+          "vi": "Mang lên khoang máy bay (xách tay) được không ạ?",
           "note": null,
           "slot": null,
           "example": null
@@ -4049,9 +4064,9 @@
           "reply": null
         },
         {
-          "ja": "賞味期限は三日です。",
-          "romaji": "Shōmi kigen wa mikka desu.",
-          "vi": "Hạn dùng là ba ngày ạ (ví dụ).",
+          "ja": "日持ちは三日ほどです。",
+          "romaji": "Himochi wa mikka hodo desu.",
+          "vi": "Để được khoảng ba ngày ạ (ví dụ).",
           "reply": null
         },
         {
@@ -4060,13 +4075,13 @@
           "vi": "Quý khách mang đi trong khoảng bao lâu ạ?",
           "reply": {
             "ja": "三時間くらいです。",
-            "romaji": "Sanjikan kurai desu."
+            "romaji": "San-jikan kurai desu."
           }
         },
         {
           "ja": "保冷剤はお付けしますか？",
           "romaji": "Horeizai wa otsuke shimasu ka?",
-          "vi": "Quý khách có lấy túi giữ lạnh không ạ?",
+          "vi": "Quý khách có lấy gói đá giữ lạnh không ạ?",
           "reply": {
             "ja": "はい、お願いします。",
             "romaji": "Hai, onegai shimasu."
@@ -4129,8 +4144,8 @@
         },
         {
           "id": "kimono-returnwhen",
-          "ja": "何時までに返しますか？",
-          "romaji": "Nan-ji made ni kaeshimasu ka?",
+          "ja": "何時までに返せばいいですか？",
+          "romaji": "Nan-ji made ni kaeseba ii desu ka?",
           "vi": "Tôi phải trả kimono trước mấy giờ ạ?",
           "note": null,
           "slot": null,
@@ -4218,7 +4233,7 @@
         },
         {
           "ja": "返却は夕方5時までにお願いします。",
-          "romaji": "Henkyaku wa yūgata goji made ni onegai shimasu.",
+          "romaji": "Henkyaku wa yūgata go-ji made ni onegai shimasu.",
           "vi": "Xin trả kimono trước 5 giờ chiều ạ.",
           "reply": null
         },
@@ -4536,8 +4551,8 @@
           }
         },
         {
-          "ja": "こちらの問診票に記入してください。",
-          "romaji": "Kochira no monshinhyō ni kinyū shite kudasai.",
+          "ja": "こちらの問診票にご記入ください。",
+          "romaji": "Kochira no monshinhyō ni gokinyū kudasai.",
           "vi": "Xin điền phiếu hỏi bệnh này ạ.",
           "reply": null
         },
@@ -4675,7 +4690,7 @@
         },
         {
           "ja": "一日三回、一回一錠です。",
-          "romaji": "Ichinichi sankai, ikkai ichijō desu.",
+          "romaji": "Ichinichi san-kai, ikkai ichi-jō desu.",
           "vi": "Một ngày ba lần, mỗi lần một viên ạ.",
           "reply": null
         },

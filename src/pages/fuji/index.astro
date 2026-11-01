@@ -5,7 +5,7 @@ import Panorama from '../../components/Panorama.astro';
 import Gallery from '../../components/Gallery.astro';
 import { FUJI_SPOTS, FUJI_PANORAMAS, FUJI_TRACKS, FUJI_SUMMIT } from '../../data/fuji.gen';
 import { FUJI_RESEARCH } from '../../data/research.gen';
-import { hasPlace, place, url, fmtKm } from '../../lib/trip';
+import { hasPlace, place, url, fmtKm, DAY_VIEWS, ALT_VIEWS, routeLeg } from '../../lib/trip';
 import { encodePolyline, compass } from '../../lib/geo';
 import { LINES } from '../../data/lines';
 import type { Pin, RouteLeg } from '../../lib/map';
@@ -74,15 +74,24 @@ const sightLegs: RouteLeg[] = FUJI_SPOTS.map((s) => ({
   color: '#1d1d1f',
   mode: s.visible ? 'sight' : 'sightx',
 }));
-const trackLegs: RouteLeg[] = FUJI_TRACKS.map((t) => ({
-  id: t.id,
-  p: encodePolyline(t.samples.map((x) => [x.lat, x.lng])),
-  color: LINES[t.line as keyof typeof LINES].color,
-  mode: 'train',
-}));
+// The plan's own routes on the Fuji days: day 4 (Hakone), day 5 (Tōkaidō) and the Kawaguchiko
+// alternative (drawn as day 3, the day it would replace)
+const fujiDays = [DAY_VIEWS[3], DAY_VIEWS[4], ...ALT_VIEWS];
+const dayLegs: RouteLeg[] = [...new Map(fujiDays.flatMap((v) => v.legs.map((l) => routeLeg(l, v.day.n))).map((l) => [l.id, l])).values()];
+const dayPins: Pin[] = fujiDays.flatMap((v) =>
+  v.pins
+    .filter((p) => p.kind === 'stay' || p.kind === 'food' || (p.kind === 'sight' && !FUJI_SPOTS.some((s) => s.id === p.id)))
+    .map((p) => ({ ...p, n: undefined, day: v.day.n })),
+);
+const DAY_TABS = [
+  { label: 'Cả vùng', days: [] as number[] },
+  { label: 'Ngày 4, Hakone', days: [4] },
+  { label: 'Ngày 5, Tōkaidō', days: [5] },
+  ...(ALT_VIEWS.length ? [{ label: 'Kawaguchiko', days: [3] }] : []),
+];
 const mapConfig = {
-  legs: [...trackLegs, ...sightLegs],
-  pins,
+  legs: [...dayLegs, ...sightLegs],
+  pins: [...pins, ...dayPins.filter((p) => !pins.some((x) => x.id === p.id))],
   bounds: [
     [138.4, 34.95],
     [139.2, 35.55],
@@ -162,9 +171,18 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
   }
 
   <section class="map-wrap" aria-label="Bản đồ địa hình vùng Fuji">
-    <MapView id="fuji" config={mapConfig} class="fuji-map" label="Bản đồ 3D vùng Fuji, với tia ngắm từ từng điểm tới đỉnh" />
+    <div class="fuji-map-wrap">
+      <MapView id="fuji" config={mapConfig} class="fuji-map" label="Bản đồ 3D vùng Fuji, với tia ngắm từ từng điểm tới đỉnh" />
+      <div class="day-tabs" role="tablist" aria-label="Lộ trình">
+        {DAY_TABS.map((t, i) => (
+          <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-fuji-days={JSON.stringify(t.days)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+    </div>
     <p class="wrap t-small muted map-note">
-      Đường liền: tầm nhìn thông tới đỉnh. Đường nét đứt: bị núi gần hơn che. Một ngón để kéo bản đồ; hai ngón để phóng to, xoay, hoặc vuốt lên xuống để đổi góc nghiêng.
+      Màu theo tuyến tàu, xe, thuyền của lịch trình. Tia mảnh tới đỉnh: liền là tầm nhìn thông, nét đứt là bị núi gần hơn che. Một ngón để kéo bản đồ; hai ngón để phóng to, xoay, hoặc vuốt lên xuống để đổi góc nghiêng.
     </p>
   </section>
 
@@ -374,6 +392,14 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
 </Base>
 
 <script>
+  // Route tabs: fade every leg that is not on the chosen day and frame what is left
+  const dayTabs = [...document.querySelectorAll<HTMLButtonElement>('[data-fuji-days]')];
+  dayTabs.forEach((t) =>
+    t.addEventListener('click', () => {
+      dayTabs.forEach((x) => x.setAttribute('aria-selected', String(x === t)));
+      window.__maps?.fuji?.focusDays(JSON.parse(t.dataset.fujiDays!));
+    }),
+  );
   const tabs = document.querySelectorAll<HTMLButtonElement>('[data-pano]');
   tabs.forEach((t) =>
     t.addEventListener('click', () => {
@@ -421,6 +447,41 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
   }
   .map-wrap {
     padding: 48px clamp(0px, 2vw, 24px) 0;
+  }
+  .fuji-map-wrap {
+    position: relative;
+    max-width: 1400px;
+    margin-inline: auto;
+  }
+  .day-tabs {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 2;
+    display: flex;
+    gap: 2px;
+    max-width: calc(100% - 64px);
+    overflow-x: auto;
+    padding: 3px;
+    border-radius: 12px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: var(--shadow-1);
+    scrollbar-width: none;
+  }
+  .day-tabs button {
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: none;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .day-tabs button[aria-selected='true'] {
+    background: var(--bg);
   }
   .fuji-map {
     height: min(80vh, 760px);

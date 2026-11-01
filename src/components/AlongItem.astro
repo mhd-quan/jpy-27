@@ -1,5 +1,5 @@
 ---
-import { fmtKm, imgSrc, type Along } from '../lib/trip';
+import { fmtKm, imgSrc, shortVi, type Along } from '../lib/trip';
 
 interface Props {
   a: Along;
@@ -51,7 +51,7 @@ const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
       )}
       {get && (
         <span class="t-small al-get">
-          {get.vi}
+          {shortVi(get.vi)}
           {get.yen ? <span class="tnum"> · ¥{get.yen.toLocaleString('vi-VN')}</span> : null}
         </span>
       )}

@@ -209,6 +209,9 @@ export function tripTotals() {
   return t;
 }
 
+/** "Kem đậu phụ, nhẹ ít ngọt. Giá cỡ trẻ em…" → "Kem đậu phụ" for compact lists; full text stays in the sheet. */
+export const shortVi = (vi: string) => vi.split(/[.;,(（]\s| — |[;(（]/)[0].trim();
+
 export const fmtKm = (km: number) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toLocaleString('vi-VN', { maximumFractionDigits: km < 10 ? 1 : 0 })} km`);
 export const fmtYen = (n: number) => `¥${n.toLocaleString('vi-VN')}`;
 

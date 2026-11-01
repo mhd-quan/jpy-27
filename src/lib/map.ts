@@ -464,6 +464,19 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
       if (b.isEmpty()) return;
       map.fitBounds(b, { padding: opts.padding ?? 64, maxZoom: 16, duration: duration(900) });
     },
+    /** Keep the legs and pins of these days bright, fade the rest, and frame them; [] shows everything. */
+    focusDays(days: number[]) {
+      if (!map.getSource('route')) return;
+      const on = (d: unknown) => !days.length || days.includes(Number(d));
+      const b = new maplibregl.LngLatBounds();
+      for (const f of routes.features) {
+        const keep = on(f.properties!.day) || ['sight', 'sightx'].includes(String(f.properties!.mode));
+        map.setFeatureState({ source: 'route', id: f.properties!.id as string }, { active: false, dim: !keep });
+        if (keep && days.length && !['sight', 'sightx'].includes(String(f.properties!.mode))) for (const c of f.geometry.coordinates) b.extend(c as [number, number]);
+      }
+      if (!days.length) return api.fit();
+      if (!b.isEmpty()) map.fitBounds(b, { padding: opts.padding ?? 48, duration: duration(900), pitch: map.getPitch() });
+    },
     fit(bounds = opts.bounds, padding: maplibregl.PaddingOptions | number = opts.padding ?? 48) {
       if (opts.center && bounds === opts.bounds) {
         map.easeTo({ center: opts.center, zoom: opts.zoom, pitch: opts.pitch ?? 0, bearing: opts.bearing ?? 0, duration: duration(900) });

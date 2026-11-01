@@ -4,7 +4,7 @@
 // Tapping a line shows it full screen for staff; the speaker button reads it with the device's
 // Japanese voice. Restaurants with a researched menu get one-tap order lines for their dishes.
 import { PHRASES } from '../data/enrich.gen';
-import { place, hasPlace } from '../lib/trip';
+import { place, hasPlace, shortVi } from '../lib/trip';
 
 interface Props {
   /** place ids whose name and menu the sheet may need on this page */
@@ -22,7 +22,7 @@ const places = Object.fromEntries(
         kind: p.kind,
         menu: (p.menu?.items ?? [])
           .filter((m) => m.ja)
-          .map((m) => ({ ja: m.ja, romaji: m.romaji ?? '', vi: m.vi.split(/[;,(（]| — /)[0].trim(), yen: m.yen ?? null })),
+          .map((m) => ({ ja: m.ja, romaji: m.romaji ?? '', vi: shortVi(m.vi), yen: m.yen ?? null })),
       },
     ];
   }),

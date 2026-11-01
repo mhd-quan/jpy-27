@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Gallery from '../../components/Gallery.astro';
 import MenuMini from '../../components/MenuMini.astro';
 import SayButton from '../../components/SayButton.astro';
-import { DAYS, allPlacesOf, usesOf, fmtYen, url, sayTags, imgSrc } from '../../lib/trip';
+import { DAYS, allPlacesOf, usesOf, fmtYen, url, sayTags, imgSrc, shortVi } from '../../lib/trip';
 
 const GROUPS = [
   { id: 'tokyo', title: 'Tokyo', areas: ['tokyo'] },
@@ -111,7 +111,7 @@ const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + 
                         <strong>{p.name}</strong>
                         {g0 && (
                           <span class="t-small">
-                            {g0.vi}
+                            {shortVi(g0.vi)}
                             {g0.yen ? ` · ¥${g0.yen.toLocaleString('vi-VN')}` : ''}
                           </span>
                         )}

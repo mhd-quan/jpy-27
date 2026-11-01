@@ -61,15 +61,15 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
   <section class="wrap budget" aria-label="Ngân sách mua sắm" data-budget={SHOP_BUDGET} data-basket={BASKET_TOTAL}>
     <div class="b-row">
       <div>
-        <span class="t-small muted">Giỏ đã tính trong ngân sách</span>
+        <span class="t-small muted">Giỏ trong ngân sách</span>
         <strong class="tnum">{fmtYen(BASKET_TOTAL)}</strong>
       </div>
       <div>
-        <span class="t-small muted">Bạn chọn thêm ở dưới</span>
+        <span class="t-small muted">Chọn thêm</span>
         <strong class="tnum" data-picked>¥0</strong>
       </div>
       <div>
-        <span class="t-small muted">So với {fmtYen(SHOP_BUDGET)}</span>
+        <span class="t-small muted">Ngân sách {fmtYen(SHOP_BUDGET)}</span>
         <strong class="tnum" data-left>{fmtYen(SHOP_BUDGET - BASKET_TOTAL)}</strong>
       </div>
     </div>
@@ -193,11 +193,21 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
                     <strong>{it.name}</strong>
                     <span class="tnum it-yen">{yen(it.yen)}</span>
                   </p>
-                  <p class="t-small muted">
-                    {[it.brand, it.ja, it.yenNote].filter(Boolean).join(' · ')}
-                  </p>
+                  {(it.brand || it.ja) && (
+                    <p class="it-sub t-small muted">
+                      {it.brand}
+                      {it.brand && it.ja && ' · '}
+                      {it.ja && <span lang="ja">{it.ja}</span>}
+                    </p>
+                  )}
                   {it.why && <p class="t-small">{it.why}</p>}
-                  {it.tip && <p class="t-small muted">{it.tip}</p>}
+                  {(it.yenNote || it.tip) && (
+                    <details class="it-more t-small">
+                      <summary>Giá, size, lưu ý</summary>
+                      {it.yenNote && <p class="muted">{it.yenNote}</p>}
+                      {it.tip && <p class="muted">{it.tip}</p>}
+                    </details>
+                  )}
                   {whenOf(it).length > 0 && (
                     <p class="it-when">
                       {whenOf(it).map((s) => (
@@ -663,6 +673,26 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
   }
   .it-body p + p {
     margin-top: 4px;
+  }
+  .it-sub {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .it-more summary {
+    width: max-content;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+  }
+  .it-more summary::-webkit-details-marker {
+    display: none;
+  }
+  .it-more p {
+    margin-top: 4px !important;
+  }
+  section[id] {
+    scroll-margin-top: calc(var(--nav-h) + 96px);
   }
   .it-top {
     display: flex;

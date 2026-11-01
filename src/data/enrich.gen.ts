@@ -110,6 +110,15 @@ export const PHRASES: PhraseBook = {
      "note": null,
      "slot": null,
      "example": null
+    },
+    {
+     "id": "greet-write",
+     "ja": "ここに書いてもらえますか？",
+     "romaji": "Koko ni kaite moraemasu ka?",
+     "vi": "Anh/chị viết ra đây giúp tôi được không ạ?",
+     "note": "Đưa giấy hoặc điện thoại; tiện khi hỏi giá, giờ, số sân ga.",
+     "slot": null,
+     "example": null
     }
    ],
    "hear": [
@@ -233,8 +242,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "table-counter",
-     "ja": "カウンターでもいいです。",
-     "romaji": "Kauntā demo ii desu.",
+     "ja": "カウンター席でも大丈夫です。",
+     "romaji": "Kauntā seki demo daijōbu desu.",
      "vi": "Ngồi quầy cũng được ạ.",
      "note": null,
      "slot": null,
@@ -260,8 +269,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "table-luggage",
-     "ja": "荷物を置いてもいいですか？",
-     "romaji": "Nimotsu o oite mo ii desu ka?",
+     "ja": "ここに荷物を置いてもいいですか？",
+     "romaji": "Koko ni nimotsu o oite mo ii desu ka?",
      "vi": "Tôi để hành lý ở đây được không ạ?",
      "note": null,
      "slot": null,
@@ -448,8 +457,8 @@ export const PHRASES: PhraseBook = {
      "romaji": "Onomimono wa ikaga nasaimasu ka?",
      "vi": "Quý khách dùng đồ uống gì ạ?",
      "reply": {
-      "ja": "お水でお願いします。",
-      "romaji": "Omizu de onegai shimasu."
+      "ja": "お水で大丈夫です。",
+      "romaji": "Omizu de daijōbu desu."
      }
     },
     {
@@ -489,10 +498,13 @@ export const PHRASES: PhraseBook = {
      }
     },
     {
-     "ja": "ラストオーダーですが、ご注文はありますか？",
-     "romaji": "Rasuto ōdā desu ga, gochūmon wa arimasu ka?",
+     "ja": "ラストオーダーになりますが、ご注文はよろしいですか？",
+     "romaji": "Rasuto ōdā ni narimasu ga, gochūmon wa yoroshii desu ka?",
      "vi": "Sắp hết giờ nhận gọi món, quý khách còn gọi gì nữa không ạ?",
-     "reply": null
+     "reply": {
+      "ja": "大丈夫です。",
+      "romaji": "Daijōbu desu."
+     }
     }
    ]
   },
@@ -524,9 +536,9 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "shokken-recommend",
-     "ja": "おすすめのボタンはどれですか？",
-     "romaji": "Osusume no botan wa dore desu ka?",
-     "vi": "Nút nào là món nên gọi ạ?",
+     "ja": "おすすめはどのボタンですか？",
+     "romaji": "Osusume wa dono botan desu ka?",
+     "vi": "Món nên gọi là nút nào ạ?",
      "note": null,
      "slot": null,
      "example": null
@@ -1118,8 +1130,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "cafe-milk",
-     "ja": "牛乳と砂糖をください。",
-     "romaji": "Gyūnyū to satō o kudasai.",
+     "ja": "ミルクと砂糖をください。",
+     "romaji": "Miruku to satō o kudasai.",
      "vi": "Cho tôi sữa và đường.",
      "note": null,
      "slot": null,
@@ -1163,9 +1175,9 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "cafe-herehere",
-     "ja": "ここでいただきます。",
-     "romaji": "Koko de itadakimasu.",
-     "vi": "Tôi dùng tại chỗ ạ.",
+     "ja": "店内でお願いします。",
+     "romaji": "Tennai de onegai shimasu.",
+     "vi": "Tôi dùng tại quán ạ.",
      "note": null,
      "slot": null,
      "example": null
@@ -1200,7 +1212,10 @@ export const PHRASES: PhraseBook = {
      "ja": "ミルクと砂糖はお付けしますか？",
      "romaji": "Miruku to satō wa otsuke shimasu ka?",
      "vi": "Quý khách có lấy sữa và đường không ạ?",
-     "reply": null
+     "reply": {
+      "ja": "はい、お願いします。",
+      "romaji": "Hai, onegai shimasu."
+     }
     },
     {
      "ja": "先にお会計をお願いします。",
@@ -1345,17 +1360,17 @@ export const PHRASES: PhraseBook = {
      "reply": null
     },
     {
-     "ja": "別々にしますか？",
-     "romaji": "Betsubetsu ni shimasu ka?",
-     "vi": "Quý khách có tính riêng không ạ?",
+     "ja": "お会計はご一緒でよろしいですか？",
+     "romaji": "Okaikei wa goissho de yoroshii desu ka?",
+     "vi": "Quý khách thanh toán chung một lần phải không ạ?",
      "reply": {
-      "ja": "一緒でお願いします。",
-      "romaji": "Issho de onegai shimasu."
+      "ja": "いいえ、別々でお願いします。",
+      "romaji": "Iie, betsubetsu de onegai shimasu."
      }
     },
     {
-     "ja": "レシートはご利用ですか？",
-     "romaji": "Reshīto wa goriyō desu ka?",
+     "ja": "レシートはご入用ですか？",
+     "romaji": "Reshīto wa goiriyō desu ka?",
      "vi": "Quý khách có cần hoá đơn không ạ?",
      "reply": {
       "ja": "はい、お願いします。",
@@ -1369,9 +1384,9 @@ export const PHRASES: PhraseBook = {
      "reply": null
     },
     {
-     "ja": "サインをお願いします。",
-     "romaji": "Sain o onegai shimasu.",
-     "vi": "Xin quý khách ký tên ạ.",
+     "ja": "暗証番号を入力してください。",
+     "romaji": "Anshō bangō o nyūryoku shite kudasai.",
+     "vi": "Xin nhập mã PIN của thẻ ạ.",
      "reply": null
     }
    ]
@@ -1649,8 +1664,8 @@ export const PHRASES: PhraseBook = {
      "romaji": "Tennai de omeshiagari desu ka?",
      "vi": "Quý khách ăn tại chỗ phải không ạ?",
      "reply": {
-      "ja": "はい、店内で。",
-      "romaji": "Hai, tennai de."
+      "ja": "はい、店内でお願いします。",
+      "romaji": "Hai, tennai de onegai shimasu."
      }
     },
     {
@@ -1658,8 +1673,8 @@ export const PHRASES: PhraseBook = {
      "romaji": "Omochikaeri desu ka?",
      "vi": "Quý khách mang về phải không ạ?",
      "reply": {
-      "ja": "はい、持ち帰りです。",
-      "romaji": "Hai, mochikaeri desu."
+      "ja": "はい、持ち帰りでお願いします。",
+      "romaji": "Hai, mochikaeri de onegai shimasu."
      }
     },
     {
@@ -1776,7 +1791,7 @@ export const PHRASES: PhraseBook = {
      "ja": "右側の窓側の席をお願いします。",
      "romaji": "Migigawa no madogawa no seki o onegai shimasu.",
      "vi": "Cho tôi ghế cửa sổ bên phải ạ.",
-     "note": "Bên phải tính theo hướng tàu chạy.",
+     "note": "Bên phải tính theo hướng tàu chạy. Shinkansen đi từ Tokyo về Nagoya/Kyoto: núi Phú Sĩ ở bên phải (ghế E).",
      "slot": null,
      "example": null
     },
@@ -1801,7 +1816,7 @@ export const PHRASES: PhraseBook = {
     {
      "id": "ticket-charge",
      "ja": "Suicaにチャージしたいです。",
-     "romaji": "Suika ni chājī shitai desu.",
+     "romaji": "Suika ni chāji shitai desu.",
      "vi": "Tôi muốn nạp tiền vào Suica.",
      "note": "Cũng có thể tự nạp ở máy bán vé: chọn チャージ rồi bỏ tiền mặt.",
      "slot": null,
@@ -1847,7 +1862,7 @@ export const PHRASES: PhraseBook = {
     },
     {
      "ja": "チャージは券売機でできます。",
-     "romaji": "Chājī wa kenbaiki de dekimasu.",
+     "romaji": "Chāji wa kenbaiki de dekimasu.",
      "vi": "Quý khách có thể nạp tiền ở máy bán vé ạ.",
      "reply": null
     }
@@ -1882,7 +1897,7 @@ export const PHRASES: PhraseBook = {
      "slot": "station",
      "example": {
       "ja": "伊勢市",
-      "romaji": "Iseshi"
+      "romaji": "Ise-shi"
      }
     },
     {
@@ -2026,9 +2041,9 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "bus-stop",
-     "ja": "すみません、{place}のバス停はどこですか？",
-     "romaji": "Sumimasen, {place} no basutei wa doko desu ka?",
-     "vi": "Xin lỗi, trạm xe buýt đi … ở đâu ạ?",
+     "ja": "すみません、{place}へ行くバスの乗り場はどこですか？",
+     "romaji": "Sumimasen, {place} e iku basu no noriba wa doko desu ka?",
+     "vi": "Xin lỗi, chỗ lên xe buýt đi … ở đâu ạ?",
      "note": null,
      "slot": "place",
      "example": {
@@ -2089,7 +2104,7 @@ export const PHRASES: PhraseBook = {
      "ja": "両替をお願いします。",
      "romaji": "Ryōgae o onegai shimasu.",
      "vi": "Cho tôi đổi tiền lẻ ạ.",
-     "note": "Trên xe thường có máy đổi tiền cạnh chỗ tài xế.",
+     "note": "Máy đổi tiền cạnh tài xế thường chỉ nhận tờ 1.000 yên và tiền xu.",
      "slot": null,
      "example": null
     },
@@ -2206,8 +2221,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "lost-when",
-     "ja": "電車は{time}ごろに乗りました。",
-     "romaji": "Densha wa {time} goro ni norimashita.",
+     "ja": "電車には{time}ごろ乗りました。",
+     "romaji": "Densha ni wa {time} goro norimashita.",
      "vi": "Tôi lên tàu khoảng … giờ.",
      "note": null,
      "slot": "time",
@@ -2218,8 +2233,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "lost-from",
-     "ja": "電車は{station}から乗りました。",
-     "romaji": "Densha wa {station} kara norimashita.",
+     "ja": "電車には{station}から乗りました。",
+     "romaji": "Densha ni wa {station} kara norimashita.",
      "vi": "Tôi lên tàu từ ga … ạ.",
      "note": null,
      "slot": "station",
@@ -2240,7 +2255,7 @@ export const PHRASES: PhraseBook = {
     {
      "id": "lost-staff",
      "ja": "駅員さんを呼んでください。",
-     "romaji": "Eki'in-san o yonde kudasai.",
+     "romaji": "Ekiin-san o yonde kudasai.",
      "vi": "Xin gọi nhân viên nhà ga giúp tôi.",
      "note": null,
      "slot": null,
@@ -2425,8 +2440,8 @@ export const PHRASES: PhraseBook = {
      "romaji": "Nimotsu wa nan-ko desu ka?",
      "vi": "Quý khách có mấy món hành lý ạ?",
      "reply": {
-      "ja": "二個です。",
-      "romaji": "Ni-ko desu."
+      "ja": "二つです。",
+      "romaji": "Futatsu desu."
      }
     },
     {
@@ -2461,9 +2476,9 @@ export const PHRASES: PhraseBook = {
    "phrases": [
     {
      "id": "taxi-to",
-     "ja": "では、{place}までお願いします。",
-     "romaji": "De wa, {place} made onegai shimasu.",
-     "vi": "Vậy cho tôi đi đến … ạ.",
+     "ja": "すみません、{place}までお願いします。",
+     "romaji": "Sumimasen, {place} made onegai shimasu.",
+     "vi": "Xin chào, cho tôi đi đến … ạ.",
      "note": "Nên đưa địa chỉ hoặc bản đồ trên điện thoại cho tài xế.",
      "slot": "place",
      "example": {
@@ -2482,9 +2497,9 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "taxi-station",
-     "ja": "では、{station}駅までお願いします。",
-     "romaji": "De wa, {station}-eki made onegai shimasu.",
-     "vi": "Vậy cho tôi đi đến ga … ạ.",
+     "ja": "すみません、{station}駅までお願いします。",
+     "romaji": "Sumimasen, {station}-eki made onegai shimasu.",
+     "vi": "Xin chào, cho tôi đi đến ga … ạ.",
      "note": null,
      "slot": "station",
      "example": {
@@ -2512,9 +2527,9 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "taxi-trunk",
-     "ja": "荷物をトランクに入れてください。",
-     "romaji": "Nimotsu o toranku ni irete kudasai.",
-     "vi": "Xin cho hành lý vào cốp xe.",
+     "ja": "荷物をトランクに入れてもらえますか？",
+     "romaji": "Nimotsu o toranku ni irete moraemasu ka?",
+     "vi": "Cho hành lý vào cốp xe giúp tôi được không ạ?",
      "note": null,
      "slot": null,
      "example": null
@@ -2558,8 +2573,8 @@ export const PHRASES: PhraseBook = {
    ],
    "hear": [
     {
-     "ja": "どちらまで行きますか？",
-     "romaji": "Dochira made ikimasu ka?",
+     "ja": "どちらまでですか？",
+     "romaji": "Dochira made desu ka?",
      "vi": "Quý khách đi đâu ạ?",
      "reply": {
       "ja": "清水寺までお願いします。",
@@ -2638,9 +2653,9 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "checkin-luggage",
-     "ja": "チェックインの前に、荷物を預かってもらえますか？",
-     "romaji": "Chekkuin no mae ni, nimotsu o azukatte moraemasu ka?",
-     "vi": "Trước giờ nhận phòng, gửi hành lý được không ạ?",
+     "ja": "チェックインまで、荷物を預かってもらえますか？",
+     "romaji": "Chekkuin made, nimotsu o azukatte moraemasu ka?",
+     "vi": "Gửi hành lý ở đây đến giờ nhận phòng được không ạ?",
      "note": null,
      "slot": null,
      "example": null
@@ -2665,8 +2680,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "checkin-breakfastwhere",
-     "ja": "朝食はどこで食べますか？",
-     "romaji": "Chōshoku wa doko de tabemasu ka?",
+     "ja": "朝食会場はどこですか？",
+     "romaji": "Chōshoku kaijō wa doko desu ka?",
      "vi": "Ăn sáng ở đâu ạ?",
      "note": null,
      "slot": null,
@@ -2720,8 +2735,8 @@ export const PHRASES: PhraseBook = {
      }
     },
     {
-     "ja": "パスポートを見せてください。",
-     "romaji": "Pasupōto o misete kudasai.",
+     "ja": "パスポートをお願いします。",
+     "romaji": "Pasupōto o onegai shimasu.",
      "vi": "Xin cho tôi xem hộ chiếu ạ.",
      "reply": {
       "ja": "はい、どうぞ。",
@@ -2833,8 +2848,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "forward-days",
-     "ja": "何日に着きますか？",
-     "romaji": "Nan-nichi ni tsukimasu ka?",
+     "ja": "いつ届きますか？",
+     "romaji": "Itsu todokimasu ka?",
      "vi": "Hành lý sẽ đến vào ngày nào ạ?",
      "note": null,
      "slot": null,
@@ -3030,11 +3045,11 @@ export const PHRASES: PhraseBook = {
    "hear": [
     {
      "ja": "夕食は6時半と8時のどちらがよろしいですか？",
-     "romaji": "Yūshoku wa rokuji-han to hachi-ji no dochira ga yoroshii desu ka?",
+     "romaji": "Yūshoku wa roku-ji han to hachi-ji no dochira ga yoroshii desu ka?",
      "vi": "Bữa tối 6 giờ rưỡi hay 8 giờ, quý khách chọn giờ nào ạ?",
      "reply": {
       "ja": "6時半でお願いします。",
-      "romaji": "Rokuji-han de onegai shimasu."
+      "romaji": "Roku-ji han de onegai shimasu."
      }
     },
     {
@@ -3316,7 +3331,7 @@ export const PHRASES: PhraseBook = {
      "vi": "Phòng số mấy ạ?",
      "reply": {
       "ja": "502号室です。",
-      "romaji": "Go-maru-ni gōshitsu desu."
+      "romaji": "Gohyaku-ni gōshitsu desu."
      }
     },
     {
@@ -3332,9 +3347,9 @@ export const PHRASES: PhraseBook = {
      "reply": null
     },
     {
-     "ja": "修理の者を向かわせます。",
-     "romaji": "Shūri no mono o mukawasemasu.",
-     "vi": "Chúng tôi sẽ cho người đến sửa ạ.",
+     "ja": "係の者が伺います。",
+     "romaji": "Kakari no mono ga ukagaimasu.",
+     "vi": "Nhân viên phụ trách sẽ đến ngay ạ.",
      "reply": null
     }
    ]
@@ -3358,8 +3373,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "checkout-key",
-     "ja": "鍵を返します。",
-     "romaji": "Kagi o kaeshimasu.",
+     "ja": "鍵をお返しします。",
+     "romaji": "Kagi o okaeshi shimasu.",
      "vi": "Tôi trả chìa khoá (thẻ phòng).",
      "note": null,
      "slot": null,
@@ -3376,8 +3391,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "checkout-keep",
-     "ja": "チェックアウトの後も、荷物を預かってもらえますか？",
-     "romaji": "Chekkuauto no ato mo, nimotsu o azukatte moraemasu ka?",
+     "ja": "チェックアウトの後、荷物を預かってもらえますか？",
+     "romaji": "Chekkuauto no ato, nimotsu o azukatte moraemasu ka?",
      "vi": "Sau khi trả phòng, giữ hành lý giúp tôi được không ạ?",
      "note": null,
      "slot": null,
@@ -3406,8 +3421,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "checkout-taximin",
-     "ja": "タクシーは何分で来ますか？",
-     "romaji": "Takushī wa nan-pun de kimasu ka?",
+     "ja": "タクシーは何分くらいで来ますか？",
+     "romaji": "Takushī wa nan-pun kurai de kimasu ka?",
      "vi": "Taxi đến trong bao lâu ạ?",
      "note": null,
      "slot": null,
@@ -3455,9 +3470,9 @@ export const PHRASES: PhraseBook = {
      "reply": null
     },
     {
-     "ja": "追加のご利用はありますか？",
-     "romaji": "Tsuika no goriyō wa arimasu ka?",
-     "vi": "Quý khách có dùng thêm dịch vụ nào không ạ?",
+     "ja": "冷蔵庫のご利用はございますか？",
+     "romaji": "Reizōko no goriyō wa gozaimasu ka?",
+     "vi": "Quý khách có dùng đồ trong tủ lạnh (minibar) không ạ?",
      "reply": {
       "ja": "いいえ、ありません。",
       "romaji": "Iie, arimasen."
@@ -3766,7 +3781,7 @@ export const PHRASES: PhraseBook = {
     {
      "ja": "信号を渡ってください。",
      "romaji": "Shingō o watatte kudasai.",
-     "vi": "Hãy qua đèn giao thông ạ.",
+     "vi": "Hãy băng qua đường ở chỗ đèn giao thông ạ.",
      "reply": null
     },
     {
@@ -3865,7 +3880,7 @@ export const PHRASES: PhraseBook = {
      "ja": "免税できますか？",
      "romaji": "Menzei dekimasu ka?",
      "vi": "Mua ở đây có miễn thuế được không ạ?",
-     "note": "Chuẩn bị hộ chiếu. Quy định miễn thuế có thể thay đổi, hãy hỏi nhân viên cách làm hiện hành.",
+     "note": "Mang hộ chiếu. Từ 11/2026: trả đủ tiền gồm thuế, được hoàn thuế sau khi hải quan sân bay xác nhận hàng mang ra nước ngoài.",
      "slot": null,
      "example": null
     },
@@ -3917,8 +3932,8 @@ export const PHRASES: PhraseBook = {
      }
     },
     {
-     "ja": "パスポートを見せてください。",
-     "romaji": "Pasupōto o misete kudasai.",
+     "ja": "パスポートをお願いします。",
+     "romaji": "Pasupōto o onegai shimasu.",
      "vi": "Xin cho tôi xem hộ chiếu ạ.",
      "reply": null
     },
@@ -3983,8 +3998,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "souvenir-himochi",
-     "ja": "日持ちしますか？",
-     "romaji": "Himochi shimasu ka?",
+     "ja": "どのくらい日持ちしますか？",
+     "romaji": "Dono kurai himochi shimasu ka?",
      "vi": "Để được bao lâu ạ?",
      "note": null,
      "slot": null,
@@ -4021,7 +4036,7 @@ export const PHRASES: PhraseBook = {
      "id": "souvenir-cold",
      "ja": "保冷剤をつけてもらえますか？",
      "romaji": "Horeizai o tsukete moraemasu ka?",
-     "vi": "Cho thêm túi giữ lạnh được không ạ?",
+     "vi": "Cho thêm gói đá giữ lạnh được không ạ?",
      "note": null,
      "slot": null,
      "example": null
@@ -4039,7 +4054,7 @@ export const PHRASES: PhraseBook = {
      "id": "souvenir-plane",
      "ja": "飛行機に持ち込めますか？",
      "romaji": "Hikōki ni mochikomemasu ka?",
-     "vi": "Mang lên máy bay được không ạ?",
+     "vi": "Mang lên khoang máy bay (xách tay) được không ạ?",
      "note": null,
      "slot": null,
      "example": null
@@ -4062,9 +4077,9 @@ export const PHRASES: PhraseBook = {
      "reply": null
     },
     {
-     "ja": "賞味期限は三日です。",
-     "romaji": "Shōmi kigen wa mikka desu.",
-     "vi": "Hạn dùng là ba ngày ạ (ví dụ).",
+     "ja": "日持ちは三日ほどです。",
+     "romaji": "Himochi wa mikka hodo desu.",
+     "vi": "Để được khoảng ba ngày ạ (ví dụ).",
      "reply": null
     },
     {
@@ -4073,13 +4088,13 @@ export const PHRASES: PhraseBook = {
      "vi": "Quý khách mang đi trong khoảng bao lâu ạ?",
      "reply": {
       "ja": "三時間くらいです。",
-      "romaji": "Sanjikan kurai desu."
+      "romaji": "San-jikan kurai desu."
      }
     },
     {
      "ja": "保冷剤はお付けしますか？",
      "romaji": "Horeizai wa otsuke shimasu ka?",
-     "vi": "Quý khách có lấy túi giữ lạnh không ạ?",
+     "vi": "Quý khách có lấy gói đá giữ lạnh không ạ?",
      "reply": {
       "ja": "はい、お願いします。",
       "romaji": "Hai, onegai shimasu."
@@ -4142,8 +4157,8 @@ export const PHRASES: PhraseBook = {
     },
     {
      "id": "kimono-returnwhen",
-     "ja": "何時までに返しますか？",
-     "romaji": "Nan-ji made ni kaeshimasu ka?",
+     "ja": "何時までに返せばいいですか？",
+     "romaji": "Nan-ji made ni kaeseba ii desu ka?",
      "vi": "Tôi phải trả kimono trước mấy giờ ạ?",
      "note": null,
      "slot": null,
@@ -4231,7 +4246,7 @@ export const PHRASES: PhraseBook = {
     },
     {
      "ja": "返却は夕方5時までにお願いします。",
-     "romaji": "Henkyaku wa yūgata goji made ni onegai shimasu.",
+     "romaji": "Henkyaku wa yūgata go-ji made ni onegai shimasu.",
      "vi": "Xin trả kimono trước 5 giờ chiều ạ.",
      "reply": null
     },
@@ -4549,8 +4564,8 @@ export const PHRASES: PhraseBook = {
      }
     },
     {
-     "ja": "こちらの問診票に記入してください。",
-     "romaji": "Kochira no monshinhyō ni kinyū shite kudasai.",
+     "ja": "こちらの問診票にご記入ください。",
+     "romaji": "Kochira no monshinhyō ni gokinyū kudasai.",
      "vi": "Xin điền phiếu hỏi bệnh này ạ.",
      "reply": null
     },
@@ -4688,7 +4703,7 @@ export const PHRASES: PhraseBook = {
     },
     {
      "ja": "一日三回、一回一錠です。",
-     "romaji": "Ichinichi sankai, ikkai ichijō desu.",
+     "romaji": "Ichinichi san-kai, ikkai ichi-jō desu.",
      "vi": "Một ngày ba lần, mỗi lần một viên ạ.",
      "reply": null
     },
@@ -4867,8 +4882,1810 @@ export const FUJI_SPOTS_R: any = {
 };
 
 export const SHOP_ITEMS: any = {
- "categories": [],
- "chains": []
+ "categories": [
+  {
+   "id": "basics",
+   "vi": "Quần áo cơ bản",
+   "items": [
+    {
+     "id": "it-uniqlo-airism-cotton-tee",
+     "name": "UNIQLO AIRism Cotton Crew Neck T-Shirt",
+     "ja": "エアリズムコットンクルーネックTシャツ",
+     "brand": "UNIQLO",
+     "yen": 1990,
+     "yenNote": "Nam ¥1.990; nữ (エアリズムコットンT) ¥1.500; có đợt giảm còn ¥990. Giá web 31/10/2026.",
+     "why": "Đúng mẫu đang có trong giỏ (dự trù ¥2.000/chiếc), giá web đang ¥1.990 cho nam và ¥1.500 cho nữ.",
+     "tip": "Mua theo đợt giảm nếu gặp; thử size tại cửa hàng lớn.",
+     "where": [
+      "uniqlo"
+     ],
+     "weightG": null,
+     "src": "https://www.uniqlo.com/jp/ja/search?q=%E3%82%A8%E3%82%A2%E3%83%AA%E3%82%BA%E3%83%A0%E3%82%B3%E3%83%83%E3%83%88%E3%83%B3%E3%82%AF%E3%83%AB%E3%83%BC%E3%83%8D%E3%83%83%E3%82%AFT"
+    },
+    {
+     "id": "it-uniqlo-heattech-crew",
+     "name": "UNIQLO HEATTECH Crew Neck T",
+     "ja": "ヒートテッククルーネックT",
+     "brand": "UNIQLO",
+     "yen": 1290,
+     "yenNote": "Bản thường ¥1.290; 極暖 pha cashmere ¥2.490; 超極暖 ¥2.990. Giá web 31/10/2026.",
+     "why": "Áo giữ nhiệt mỏng, giá thấp, hợp mang về dùng mùa lạnh miền Bắc.",
+     "tip": "Tháng 10 ở Nhật chưa cần mặc; chỉ mua nếu có kế hoạch dùng sau chuyến đi.",
+     "where": [
+      "uniqlo"
+     ],
+     "weightG": null,
+     "src": "https://www.uniqlo.com/jp/ja/search?q=%E3%83%92%E3%83%BC%E3%83%88%E3%83%86%E3%83%83%E3%82%AF"
+    },
+    {
+     "id": "it-uniqlo-heattech-legging",
+     "name": "UNIQLO HEATTECH Leggings / Tights",
+     "ja": "ヒートテックレギンス/10分丈",
+     "brand": "UNIQLO",
+     "yen": 1290,
+     "yenNote": "Legging nữ 10 phân ¥1.290; tights mở trước nam ¥1.290; tất HEATTECH ¥590. Giá web 31/10/2026.",
+     "why": "Quần giữ nhiệt mặc trong, rẻ và nhẹ.",
+     "tip": null,
+     "where": [
+      "uniqlo"
+     ],
+     "weightG": null,
+     "src": "https://www.uniqlo.com/jp/ja/search?q=%E3%83%92%E3%83%BC%E3%83%88%E3%83%86%E3%83%83%E3%82%AF"
+    },
+    {
+     "id": "it-uniqlo-ultra-light-down",
+     "name": "UNIQLO Ultra Light Down Jacket",
+     "ja": "ウルトラライトダウンジャケット/NANODESIGN",
+     "brand": "UNIQLO",
+     "yen": 7990,
+     "yenNote": "¥7.990 cho cả nam và nữ. Giá web 31/10/2026.",
+     "why": "Áo phao siêu nhẹ (Ultra Light Down) dùng cho cả nam và nữ; vượt giỏ hiện tại nên chỉ đổi nếu bỏ món khác.",
+     "tip": "Trên web, size nam XS–4XL, nữ XS–3XL và mẫu nữ chỉ có ở một số cửa hàng.",
+     "where": [
+      "uniqlo"
+     ],
+     "weightG": null,
+     "src": "https://www.uniqlo.com/jp/ja/search?q=%E3%82%A6%E3%83%AB%E3%83%88%E3%83%A9%E3%83%A9%E3%82%A4%E3%83%88%E3%83%80%E3%82%A6%E3%83%B3"
+    },
+    {
+     "id": "it-uniqlo-ut",
+     "name": "UNIQLO UT (áo phông in hình) Pokémon, Chiikawa, Peanuts, mofusand",
+     "ja": "UT グラフィックTシャツ",
+     "brand": "UNIQLO",
+     "yen": 1990,
+     "yenNote": "Phần lớn ¥1.990; có mẫu ¥1.500. Giá web 31/10/2026.",
+     "why": "Nhiều mẫu nhân vật Nhật (Chiikawa, mofusand, Pokémon); trên web Nhật có 289 kết quả UT.",
+     "tip": "Mẫu hợp tác theo mùa, hết mẫu là hết; nếu thích thì mua ngay.",
+     "where": [
+      "uniqlo"
+     ],
+     "weightG": null,
+     "src": "https://www.uniqlo.com/jp/ja/search?q=UT"
+    },
+    {
+     "id": "it-uniqlo-socks-3pack",
+     "name": "UNIQLO tất 3 đôi (ソックス/3足組)",
+     "ja": "ソックス/3足組",
+     "brand": "UNIQLO",
+     "yen": 990,
+     "yenNote": "Set 3 đôi ¥990 (¥330/đôi); tất lẻ 50 màu ¥290; tất thể thao ¥390. Giá web 31/10/2026.",
+     "why": "Rẻ hơn mức ¥400/đôi trong giỏ (6 đôi = ¥2.400).",
+     "tip": "Set 3 đôi tiện cho hai người; chỉ nặng vài chục gram mỗi đôi.",
+     "where": [
+      "uniqlo",
+      "gu",
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://www.uniqlo.com/jp/ja/search?q=%E3%82%BD%E3%83%83%E3%82%AF%E3%82%B9"
+    },
+    {
+     "id": "it-uniqlo-stetteco",
+     "name": "UNIQLO AIRism Deodorant Steteco (quần ngắn mặc nhà, mở trước)",
+     "ja": "エアリズムデオドラントステテコ/前開き",
+     "brand": "UNIQLO",
+     "yen": 1500,
+     "yenNote": "Steteco thường ¥1.500; vài mẫu giảm ¥990. Chỉ có đồ nam S–4XL. Giá web 31/10/2026.",
+     "why": "Kiểu quần mặc nhà của Nhật (ステテコ), chỉ có đồ nam.",
+     "tip": "Dòng nữ cùng nhóm trong kết quả là レーヨンリラコ ¥1.500.",
+     "where": [
+      "uniqlo"
+     ],
+     "weightG": null,
+     "src": "https://www.uniqlo.com/jp/ja/search?q=%E3%82%B9%E3%83%86%E3%83%86%E3%82%B3"
+    },
+    {
+     "id": "it-uniqlo-airism-bra-t",
+     "name": "UNIQLO AIRism Bra T-Shirt / Bra Tank",
+     "ja": "エアリズムブラTシャツ半袖",
+     "brand": "UNIQLO",
+     "yen": 2990,
+     "yenNote": "Bra T tay ngắn ¥2.990; bra tank ¥2.490; bra camisole ¥2.490. Giá web 31/10/2026.",
+     "why": "Áo có cúp sẵn, mặc một lớp, UNIQLO bán nhiều kiểu cho nữ.",
+     "tip": "Thử size tại cửa hàng; có kiểu chỉ bán ở một số cửa hàng.",
+     "where": [
+      "uniqlo"
+     ],
+     "weightG": null,
+     "src": "https://www.uniqlo.com/jp/ja/search?q=%E3%82%A8%E3%82%A2%E3%83%AA%E3%82%BA%E3%83%A0%E3%83%96%E3%83%A9"
+    },
+    {
+     "id": "it-uniqlo-jeans",
+     "name": "UNIQLO Jeans (Straight / EZY / Wide)",
+     "ja": "ストレートジーンズ / EZYジーンズ",
+     "brand": "UNIQLO",
+     "yen": 3990,
+     "yenNote": "EZY, wide, slim ¥3.990; straight, barrel ¥4.990; vài mẫu giảm còn ¥2.990. Giá web 31/10/2026.",
+     "why": "Có phiên bản 丈長め (dài thêm) cho người cao; vài mẫu đang giảm xuống ¥2.990.",
+     "tip": "Đồ giảm giá có thể chỉ còn một số màu và size; thử ở cửa hàng.",
+     "where": [
+      "uniqlo"
+     ],
+     "weightG": null,
+     "src": "https://www.uniqlo.com/jp/ja/search?q=%E3%82%B8%E3%83%BC%E3%83%B3%E3%82%BA"
+    },
+    {
+     "id": "it-gu-sweat-pullover",
+     "name": "GU Smooth Sweat Pullover / Parka",
+     "ja": "スムーススウェットプルオーバー",
+     "brand": "GU",
+     "yen": 1990,
+     "yenNote": "Pullover ¥1.990; parka ¥2.990; full-zip parka ¥3.990 (giá web GU 31/10/2026).",
+     "why": "Sweat cơ bản; áo GU trong giỏ dự trù ¥1.500 nên pullover ¥1.990 cao hơn một chút.",
+     "tip": "Giá app hội viên có thể thấp hơn giá niêm yết.",
+     "where": [
+      "gu"
+     ],
+     "weightG": null,
+     "src": "https://www.gu-global.com/jp/ja/search?q=%E3%82%B9%E3%82%A6%E3%82%A7%E3%83%83%E3%83%88"
+    },
+    {
+     "id": "it-gu-sweat-pants",
+     "name": "GU Sweat 3D Barrel Pants / Jogger",
+     "ja": "スウェット3Dバレルパンツ",
+     "brand": "GU",
+     "yen": 1990,
+     "yenNote": "Jogger ¥1.990; barrel ¥2.990; short ¥1.290 (giá web GU 31/10/2026).",
+     "why": "Quần jogger ¥1.990 và barrel ¥2.990 đều thấp hơn hoặc bằng ¥3.000 dự trù cho quần GU trong giỏ.",
+     "tip": "Có bản dài thêm và ngắn bớt ở nhiều mẫu.",
+     "where": [
+      "gu"
+     ],
+     "weightG": null,
+     "src": "https://www.gu-global.com/jp/ja/search?q=%E3%82%B9%E3%82%A6%E3%82%A7%E3%83%83%E3%83%88"
+    }
+   ]
+  },
+  {
+   "id": "value-fashion",
+   "vi": "Thời trang giá tốt",
+   "items": [
+    {
+     "id": "it-workman-windshell-hoodie",
+     "name": "WORKMAN Premium Super Water-Repellent Windshell Hike Hoodie",
+     "ja": "プレミアム超撥水ウィンドシェルハイクフーディ",
+     "brand": "WORKMAN",
+     "yen": 1990,
+     "yenNote": "¥1.990. Giá web WORKMAN 31/10/2026.",
+     "why": "Áo khoác chống nước giá dưới ¥2.000.",
+     "tip": "Chỉ nên mua nếu trời mưa hoặc cần áo khoác; thử size tại cửa hàng.",
+     "where": [
+      "workman"
+     ],
+     "weightG": null,
+     "src": "https://workman.jp/shop/c/c20/"
+    },
+    {
+     "id": "it-workman-windbreaker",
+     "name": "WORKMAN Durable Water-Repellent Stretch Windbreaker",
+     "ja": "耐久撥水ストレッチ ウィンドブレーカー",
+     "brand": "WORKMAN",
+     "yen": 1500,
+     "yenNote": "¥1.500. Giá web WORKMAN 31/10/2026.",
+     "why": "Áo gió chống nước, giá thấp.",
+     "tip": null,
+     "where": [
+      "workman"
+     ],
+     "weightG": null,
+     "src": "https://workman.jp/shop/c/c20/"
+    },
+    {
+     "id": "it-workman-stretch-cardigan",
+     "name": "WORKMAN Versatile Stretch Cardigan",
+     "ja": "万能ストレッチカーディガン",
+     "brand": "WORKMAN",
+     "yen": 1290,
+     "yenNote": "¥1.290. Giá web WORKMAN 31/10/2026.",
+     "why": "Cardigan co giãn rẻ, mặc lớp ngoài khi trời mát.",
+     "tip": null,
+     "where": [
+      "workman"
+     ],
+     "weightG": null,
+     "src": "https://workman.jp/shop/c/c20/"
+    },
+    {
+     "id": "it-workman-wonder-stretch-tee",
+     "name": "WORKMAN Wonder Stretch Short-Sleeve T-Shirt",
+     "ja": "ワンダーストレッチ半袖Tシャツ",
+     "brand": "WORKMAN",
+     "yen": 780,
+     "yenNote": "¥780. Giá web WORKMAN 31/10/2026.",
+     "why": "Thấp hơn áo phông UNIQLO AIRism (¥1.500–¥1.990).",
+     "tip": null,
+     "where": [
+      "workman"
+     ],
+     "weightG": null,
+     "src": "https://workman.jp/shop/c/c20/"
+    },
+    {
+     "id": "it-workman-wonder-stretch-cargo",
+     "name": "WORKMAN Wonder Stretch Cargo Pants",
+     "ja": "ワンダーストレッチカーゴパンツ",
+     "brand": "WORKMAN",
+     "yen": 1500,
+     "yenNote": "¥1.500. Giá web WORKMAN 31/10/2026 (trang đồ công sở).",
+     "why": "Quần co giãn giá thấp hơn quần GU ¥3.000 trong giỏ.",
+     "tip": "Đây là đồ công sở nên form có thể khác đồ thời trang; thử trước khi mua.",
+     "where": [
+      "workman"
+     ],
+     "weightG": null,
+     "src": "https://workman.jp/shop/c/c3010/"
+    },
+    {
+     "id": "it-workman-half-zip-knit",
+     "name": "WORKMAN Bakunetsu Warm Half-Zip Knit",
+     "ja": "爆熱温感ハーフジップニット",
+     "brand": "WORKMAN",
+     "yen": 1490,
+     "yenNote": "¥1.490. Giá web WORKMAN 31/10/2026.",
+     "why": "Áo len nửa khóa ấm giá thấp.",
+     "tip": null,
+     "where": [
+      "workman"
+     ],
+     "weightG": null,
+     "src": "https://workman.jp/shop/c/c20/"
+    },
+    {
+     "id": "it-workman-boa-fleece-cardigan",
+     "name": "WORKMAN Unsta Boa Fleece Cardigan",
+     "ja": "アンスタボアフリースカーディガン",
+     "brand": "WORKMAN",
+     "yen": 990,
+     "yenNote": "¥990. Giá web WORKMAN 31/10/2026.",
+     "why": "Fleece dưới ¥1.000, mỏng nhẹ.",
+     "tip": null,
+     "where": [
+      "workman"
+     ],
+     "weightG": null,
+     "src": "https://workman.jp/shop/c/c20/"
+    },
+    {
+     "id": "it-3coins-folding-umbrella",
+     "name": "3COINS Tough-Frame Auto Open/Close Folding Umbrella",
+     "ja": "骨が強い逆閉まり自動開閉折りたたみ傘",
+     "brand": "3COINS",
+     "yen": 1650,
+     "yenNote": "¥1.650 (BIG 75 cm ¥1.980). Giá trên PAL CLOSET, trang chưa ghi rõ có thuế.",
+     "why": "Ô gấp rẻ, đỡ phải mua ô ở ga khi mưa.",
+     "tip": null,
+     "where": [
+      "3coins"
+     ],
+     "weightG": null,
+     "src": "https://www.palcloset.jp/3coins/"
+    },
+    {
+     "id": "it-3coins-hooded-muffler",
+     "name": "3COINS Hoodie Muffler",
+     "ja": "フーディーマフラー",
+     "brand": "3COINS",
+     "yen": 1650,
+     "yenNote": "¥1.650, giặt tay được. Giá trên PAL CLOSET, trang chưa ghi rõ có thuế.",
+     "why": "Khăn có mũ, hợp những ngày se lạnh cuối tháng 10.",
+     "tip": null,
+     "where": [
+      "3coins"
+     ],
+     "weightG": null,
+     "src": "https://www.palcloset.jp/3coins/"
+    },
+    {
+     "id": "it-3coins-compression-socks",
+     "name": "3COINS Compression Socks",
+     "ja": "着圧ソックス",
+     "brand": "3COINS",
+     "yen": 660,
+     "yenNote": "¥660. Giá trên PAL CLOSET, trang chưa ghi rõ có thuế.",
+     "why": "Tất nén cho ngày đi bộ nhiều.",
+     "tip": null,
+     "where": [
+      "3coins"
+     ],
+     "weightG": null,
+     "src": "https://www.palcloset.jp/3coins/"
+    },
+    {
+     "id": "it-3coins-rain-poncho",
+     "name": "3COINS Unisex Rain Poncho",
+     "ja": "ユニセックスレインポンチョ",
+     "brand": "3COINS",
+     "yen": 880,
+     "yenNote": "¥880. Giá trên PAL CLOSET, trang chưa ghi rõ có thuế.",
+     "why": "Áo mưa gọn cho cả hai người.",
+     "tip": null,
+     "where": [
+      "3coins"
+     ],
+     "weightG": null,
+     "src": "https://www.palcloset.jp/3coins/"
+    },
+    {
+     "id": "it-honeys-womenswear",
+     "name": "Honeys (áo, váy, quần nữ theo mùa)",
+     "ja": "ハニーズ",
+     "brand": "Honeys",
+     "yen": null,
+     "yenNote": "Phần lớn khoảng ¥1.000–¥6.000, giá đã gồm thuế; ví dụ mẫu giảm ¥2.412 từ ¥2.680. Giá web 31/10/2026.",
+     "why": "Thời trang nữ theo mùa, giá trung bình thấp; dùng để so với GU.",
+     "tip": "Chưa lấy được giá từng món vì trang web lỗi mã hoá tên hàng.",
+     "where": [
+      "honeys"
+     ],
+     "weightG": null,
+     "src": "https://www.honeys-onlineshop.com/"
+    }
+   ]
+  },
+  {
+   "id": "shoes-bags",
+   "vi": "Giày và túi",
+   "items": [
+    {
+     "id": "it-onitsuka-mexico66",
+     "name": "Onitsuka Tiger MEXICO 66 (1183C102)",
+     "ja": "オニツカタイガー メキシコ66",
+     "brand": "Onitsuka Tiger",
+     "yen": 16500,
+     "yenNote": "¥16.500 trên web chính hãng Nhật 31/10/2026 (nhiều màu).",
+     "why": "Thấp hơn ¥17.000 dự trù trong giỏ; giá chính hãng Nhật niêm yết ngay trên web.",
+     "tip": "Chưa kiểm được size hay chất liệu; thử đúng size tại cửa hàng.",
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://www.onitsukatiger.com/jp/ja-jp/product/mexico-66/1183c102_751.html"
+    },
+    {
+     "id": "it-onitsuka-mexico66-sd-vin",
+     "name": "Onitsuka Tiger MEXICO 66 SD VIN",
+     "ja": "メキシコ66 SD VIN",
+     "brand": "Onitsuka Tiger",
+     "yen": 19800,
+     "yenNote": "¥19.800 (mẫu mới 31/10/2026).",
+     "why": "Giá cao hơn MEXICO 66 cơ bản ¥3.300.",
+     "tip": null,
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://www.onitsukatiger.com/jp/ja-jp/"
+    },
+    {
+     "id": "it-onitsuka-mexico66-tgrs",
+     "name": "Onitsuka Tiger MEXICO 66 TGRS / PARATY (nữ)",
+     "ja": "メキシコ66 TGRS / PARATY",
+     "brand": "Onitsuka Tiger",
+     "yen": 18700,
+     "yenNote": "¥18.700 (mẫu mới 31/10/2026).",
+     "why": "Bản dành cho nữ, cao hơn MEXICO 66 cơ bản.",
+     "tip": null,
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://www.onitsukatiger.com/jp/ja-jp/"
+    },
+    {
+     "id": "it-asics-gel-ds-trainer-loop",
+     "name": "ASICS GEL-DS TRAINER LOOP",
+     "ja": "ゲルディーエス トレーナー ループ",
+     "brand": "ASICS",
+     "yen": 18700,
+     "yenNote": "¥18.700, ra mắt 15/10/2026.",
+     "why": "Giày sport-style dễ xỏ; bán tại ASICS Flagship Shinjuku, ASICS Grand Front Osaka và ASICS Online Store.",
+     "tip": "Cao hơn ¥14.000 dành cho ASICS trong giỏ.",
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://corp.asics.com/jp/press/article/2026-10-09_gel-ds-trainer-loop"
+    },
+    {
+     "id": "it-asics-gel-slowcush",
+     "name": "ASICS GEL-SLOWCUSH",
+     "ja": "ゲルスロークッシュ",
+     "brand": "ASICS",
+     "yen": 26400,
+     "yenNote": "¥26.400, ra mắt 8/10/2026.",
+     "why": "Giày chạy đệm dày; chỉ ASICS Online Store và cửa hàng trực tiếp (trừ outlet).",
+     "tip": "Vượt xa ¥14.000 trong giỏ, chỉ xem như mốc tham khảo.",
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://corp.asics.com/jp/press/article/2026-10-01_gel-slowcush"
+    },
+    {
+     "id": "it-moonstar-810s-trasden",
+     "name": "MOONSTAR 810s ET041 TRASDEN",
+     "ja": "ムーンスター 810s ET041 TRASDEN",
+     "brand": "MOONSTAR",
+     "yen": 8800,
+     "yenNote": "¥8.800 theo bài đánh giá 16/10/2026 (Rakuten ¥8.800, Amazon ¥8.081).",
+     "why": "Sneaker Nhật, giá bằng khoảng 53% MEXICO 66.",
+     "tip": "Chưa kiểm bán lẻ ở cửa hàng nào trên tuyến.",
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://www.roomie.jp/2026/10/1894801/"
+    },
+    {
+     "id": "it-moonstar-fine-vulcanized-loafy",
+     "name": "MOONSTAR FINE VULCANIZED LOAFY W",
+     "ja": "LOAFY W BLACK",
+     "brand": "MOONSTAR",
+     "yen": 12100,
+     "yenNote": "¥12.100 trên cửa hàng online MoonStar (31/10/2026). Đế cao su, upper cotton suede.",
+     "why": "Giày lười vải; lựa chọn giá giữa ¥10.000–¥13.000.",
+     "tip": null,
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://store.moonstar.co.jp/products/detail/321"
+    },
+    {
+     "id": "it-anello-cross-bottle-s",
+     "name": "anello CROSS BOTTLE Backpack (S) kiểu miệng khung",
+     "ja": "口金リュック(S) CROSS BOTTLE",
+     "brand": "anello",
+     "yen": 5720,
+     "yenNote": "¥5.720 giá chính hãng theo bài ねとらぼ 27/2/2026 (Amazon ¥4.680 cùng thời điểm).",
+     "why": "Balo 10 lít miệng khung, chống nước, có ngăn laptop, thấp hơn ¥7.000 dự trù trong giỏ.",
+     "tip": "Bản R (ATB0193Z) bán qua trang tax-free giá ¥7.713 và nặng khoảng 590 g; bản S nhỏ hơn, chưa kiểm cân.",
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://nlab.itmedia.co.jp/research/articles/3749350/"
+    },
+    {
+     "id": "it-abc-mart-converse-all-star-es-ox",
+     "name": "CONVERSE ALL STAR ES OX (đặt riêng cho ABC-MART)",
+     "ja": "オールスター ES OX",
+     "brand": "CONVERSE",
+     "yen": 10450,
+     "yenNote": "¥10.450, ra mắt 23/4/2026 trong bộ CITY SHINE PACK.",
+     "why": "ABC-MART đặt riêng mẫu cho cửa hàng của mình, rẻ hơn ONE STAR ES ¥16.500 cùng bộ.",
+     "tip": "Mẫu ra mắt 4/2026 có thể đã đổi hoặc hết đến tháng 10/2027.",
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://zaikei.co.jp/releases/3406465/"
+    },
+    {
+     "id": "it-abc-mart-adidas-samba-lt",
+     "name": "adidas Originals SAMBA LT (đặt riêng cho ABC-MART)",
+     "ja": "SAMBA LT",
+     "brand": "adidas Originals",
+     "yen": 16500,
+     "yenNote": "¥16.500, ra mắt 9/4/2026.",
+     "why": "Mẫu đặt riêng cho ABC-MART, bán tại cửa hàng và online của ABC-MART.",
+     "tip": "Mẫu ra mắt 4/2026 có thể đã đổi hoặc hết đến tháng 10/2027.",
+     "where": [
+      "shoes"
+     ],
+     "weightG": null,
+     "src": "https://zaikei.co.jp/releases/3383102/"
+    }
+   ]
+  },
+  {
+   "id": "beauty",
+   "vi": "Mỹ phẩm",
+   "items": [
+    {
+     "id": "it-melano-cc-premium",
+     "name": "Rohto Melano CC Premium Essence 20 ml",
+     "ja": "メラノCC 薬用プレミアム美容液 20ml",
+     "brand": "Rohto",
+     "yen": 1359,
+     "yenNote": "¥1.359 (Sundrug online 31/10/2026); Deep Day Care UV 50 g ¥1.210.",
+     "why": "Thấp hơn ¥1.800/chai dự trù trong giỏ, cùng loại bản Premium.",
+     "tip": "Kiểm đúng bản Premium trên hộp. Chai 20 ml mang xách tay được.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%A1%E3%83%A9%E3%83%8ECC"
+    },
+    {
+     "id": "it-hada-labo-gokujun-premium",
+     "name": "Hada Labo Gokujun Premium Hyaluronic Lotion 170 ml",
+     "ja": "肌ラボ 極潤プレミアム ヒアルロン液",
+     "brand": "Rohto",
+     "yen": 1100,
+     "yenNote": "¥1.100 (Sundrug online 31/10/2026); bản Medicated Skin Conditioner refill ¥924.",
+     "why": "Lotion cấp ẩm quen thuộc, giá thấp.",
+     "tip": "Chai 170 ml: Quá 100 ml hoặc 100 g mỗi vật chứa thì phải ký gửi.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%8F%E3%83%80%E3%83%A9%E3%83%9C%20%E6%A5%B5%E6%BD%A4"
+    },
+    {
+     "id": "it-anessa-perfect-uv-milk",
+     "name": "Shiseido Anessa Perfect UV Sunscreen Skincare Milk 60 ml",
+     "ja": "アネッサ パーフェクトUV スキンケアミルク NA",
+     "brand": "Shiseido",
+     "yen": 3058,
+     "yenNote": "¥3.058 (Sundrug online 31/10/2026).",
+     "why": "Thấp hơn ¥3.500 dự trù trong giỏ.",
+     "tip": "Chai 60 ml mang xách tay được.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%A2%E3%83%8D%E3%83%83%E3%82%B5%20%E3%83%91%E3%83%BC%E3%83%95%E3%82%A7%E3%82%AF%E3%83%88UV"
+    },
+    {
+     "id": "it-anessa-perfect-uv-gel",
+     "name": "Shiseido Anessa Perfect UV Sunscreen Skincare Gel 90 g",
+     "ja": "アネッサ パーフェクトUV スキンケアジェル NB",
+     "brand": "Shiseido",
+     "yen": 2508,
+     "yenNote": "¥2.508 (Sundrug online 31/10/2026).",
+     "why": "Rẻ hơn bản Milk ¥550, dạng gel.",
+     "tip": "Tuýp 90 g: xách tay được nếu mỗi vật chứa ≤100 g/ml.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%A2%E3%83%8D%E3%83%83%E3%82%B5%20%E3%83%91%E3%83%BC%E3%83%95%E3%82%A7%E3%82%AF%E3%83%88UV"
+    },
+    {
+     "id": "it-biore-uv-aqua-rich-essence",
+     "name": "Kao Biore UV Aqua Rich Watery Essence 70 g",
+     "ja": "ビオレUV アクアリッチ ウォータリーエッセンス",
+     "brand": "Kao",
+     "yen": 1089,
+     "yenNote": "¥1.089 (Sundrug online 31/10/2026); Aqua Protect Lotion 70 ml ¥1.080.",
+     "why": "Kem chống nắng dạng nước, giá thấp hơn Anessa gần ba lần.",
+     "tip": null,
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%93%E3%82%AA%E3%83%ACUV%20%E3%82%A2%E3%82%AF%E3%82%A2%E3%83%AA%E3%83%83%E3%83%81"
+    },
+    {
+     "id": "it-curel-intensive-moisture-cream",
+     "name": "Curél Intensive Moisture Care Face Cream 40 g",
+     "ja": "キュレル 潤浸保湿 フェイスクリーム",
+     "brand": "Kao",
+     "yen": 2180,
+     "yenNote": "¥2.180 (Sundrug online 31/10/2026); nhóm mỹ phẩm dược 医薬部外品.",
+     "why": "Kem dưỡng dòng Curél của Kao.",
+     "tip": "Có bản 70 g nhưng giá trên Sundrug online lại ¥4.950, nên so lại với nơi khác.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%AD%E3%83%A5%E3%83%AC%E3%83%AB%20%E6%BD%A4%E6%B5%B8%E4%BF%9D%E6%B9%BF"
+    },
+    {
+     "id": "it-softymo-speedy-cleansing-oil",
+     "name": "Kose Softymo Speedy Cleansing Oil 240 ml",
+     "ja": "ソフティモ スピーディ クレンジングオイル",
+     "brand": "Kose",
+     "yen": 735,
+     "yenNote": "¥735 (Sundrug online 31/10/2026); refill 210 ml ¥638.",
+     "why": "Dầu tẩy trang giá thấp, bản refill rẻ hơn khoảng ¥100.",
+     "tip": "Chai 240 ml nặng và quá 100 ml: Quá 100 ml hoặc 100 g mỗi vật chứa thì phải ký gửi. Bản refill gọn hơn khi đóng vali.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%BD%E3%83%95%E3%83%86%E3%82%A3%E3%83%A2%20%E3%82%B9%E3%83%94%E3%83%BC%E3%83%87%E3%82%A3%E3%82%AF%E3%83%AC%E3%83%B3%E3%82%B8%E3%83%B3%E3%82%B0%E3%82%AA%E3%82%A4%E3%83%AB"
+    },
+    {
+     "id": "it-canmake-cream-cheek",
+     "name": "CANMAKE Cream Cheek",
+     "ja": "キャンメイク クリームチーク",
+     "brand": "CANMAKE",
+     "yen": 638,
+     "yenNote": "¥638 (Sundrug online 31/10/2026).",
+     "why": "Thấp hơn ¥800 dự trù trong giỏ.",
+     "tip": "Thử màu trên tester ở Loft hoặc cửa hàng trước khi mua.",
+     "where": [
+      "drugstore",
+      "donki",
+      "loft"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%A1%E3%82%A4%E3%82%AF%20%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%A0%E3%83%81%E3%83%BC%E3%82%AF"
+    },
+    {
+     "id": "it-fino-premium-touch-hair-mask",
+     "name": "Fino Premium Touch Rich Essence Hair Mask 230 g",
+     "ja": "フィーノ プレミアムタッチ 濃厚美容液ヘアマスク",
+     "brand": "Fine Today",
+     "yen": 798,
+     "yenNote": "¥798/hũ 230 g (Sundrug online 31/10/2026).",
+     "why": "Thấp hơn ¥1.200 dự trù trong giỏ.",
+     "tip": "Hũ 230 g quá 100 g: ký gửi, không để xách tay.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%95%E3%82%A3%E3%83%BC%E3%83%8E%20%E3%83%97%E3%83%AC%E3%83%9F%E3%82%A2%E3%83%A0%E3%82%BF%E3%83%83%E3%83%81%20%E6%B5%B8%E9%80%8F%E7%BE%8E%E5%AE%B9%E6%B6%B2%E3%83%98%E3%82%A2%E3%83%9E%E3%82%B9%E3%82%AF%20230g"
+    },
+    {
+     "id": "it-kiss-me-heroine-mascara",
+     "name": "Kiss Me Heroine Make SP Long & Curl Mascara Advanced Film",
+     "ja": "ヒロインメイクSP ロング&カールマスカラ アドバンストフィルム",
+     "brand": "Isehan",
+     "yen": 1320,
+     "yenNote": "¥1.320 (Sundrug online 31/10/2026).",
+     "why": "Mascara dòng Heroine Make, giá dưới ¥1.500.",
+     "tip": "Chọn đen hoặc nâu (01 hoặc 02).",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%92%E3%83%AD%E3%82%A4%E3%83%B3%E3%83%A1%E3%82%A4%E3%82%AF%20%E3%83%AD%E3%83%B3%E3%82%B0&%E3%82%AB%E3%83%BC%E3%83%AB%E3%83%9E%E3%82%B9%E3%82%AB%E3%83%A9"
+    },
+    {
+     "id": "it-kate-lip-monster",
+     "name": "KATE Lip Monster",
+     "ja": "ケイト リップモンスター",
+     "brand": "Kanebo",
+     "yen": 1540,
+     "yenNote": "¥1.540 (Sundrug online 31/10/2026); Crystal Pod ¥1.650.",
+     "why": "Son môi của Kanebo, giá trung bình trong nhóm.",
+     "tip": "Nhớ thử màu trên tester vì lên màu khác nhau.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%B1%E3%82%A4%E3%83%88%20%E3%83%AA%E3%83%83%E3%83%97%E3%83%A2%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%BC"
+    },
+    {
+     "id": "it-elixir-superieur-tone-up",
+     "name": "Shiseido Elixir Superieur Day Care Revolution Tone-Up 35 g",
+     "ja": "エリクシール シュペリエル デーケアレボリューション トーンアップ",
+     "brand": "Shiseido",
+     "yen": 3410,
+     "yenNote": "¥3.410 (Sundrug online 31/10/2026).",
+     "why": "Kem dưỡng tone-up của Shiseido, mức giá mid-range nhất trong danh sách.",
+     "tip": "Chọn SP+aa hoặc BE+ca tuỳ tone da.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%A8%E3%83%AA%E3%82%AF%E3%82%B7%E3%83%BC%E3%83%AB"
+    }
+   ]
+  },
+  {
+   "id": "health",
+   "vi": "Thuốc không kê đơn và chăm sóc sức khoẻ",
+   "items": [
+    {
+     "id": "it-eve-a-60",
+     "name": "SS Pharmaceutical Eve A Tablets 60 viên",
+     "ja": "イブA錠 60錠",
+     "brand": "SS Pharmaceutical",
+     "yen": 798,
+     "yenNote": "¥798/60 viên; hộp 90 viên ¥1.038 (Sundrug online 31/10/2026). Thuốc 指定第2類.",
+     "why": "Thuốc giảm đau phổ biến; hộp 90 viên rẻ hơn mỗi viên (¥11,5) so với hộp 60 viên (¥13,3).",
+     "tip": "Một số thuốc cảm, ho, giảm đau chứa codeine, ephedrine hoặc bromvalerylurea bị giới hạn 1 hộp/người ở Nhật. Mang thuốc trong bao bì gốc; tham khảo canibringto: tối đa khoảng 30 ngày dùng hoặc trị giá 200 USD/lần, không quá 3 lần/năm. Thuốc chưa đăng ký ở Việt Nam có thể cần giấy phép; chưa đối chiếu với văn bản luật.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%A4%E3%83%96A%E9%8C%A0EX"
+    },
+    {
+     "id": "it-eve-quick-dx-60",
+     "name": "SS Pharmaceutical Eve Quick Headache Medicine DX 60 viên",
+     "ja": "イブクイック頭痛薬DX",
+     "brand": "SS Pharmaceutical",
+     "yen": 1580,
+     "yenNote": "¥1.580/60 viên; bản 40 viên ¥1.180 (Sundrug online 31/10/2026). Thuốc 指定第2類.",
+     "why": "Bản tác dụng nhanh của Eve.",
+     "tip": "Kiểm tra bao bì gốc và hạn dùng. Mang thuốc trong bao bì gốc; tham khảo canibringto: tối đa khoảng 30 ngày dùng hoặc trị giá 200 USD/lần, không quá 3 lần/năm. Thuốc chưa đăng ký ở Việt Nam có thể cần giấy phép; chưa đối chiếu với văn bản luật.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%A4%E3%83%96%E3%82%AF%E3%82%A4%E3%83%83%E3%82%AF%E9%A0%AD%E7%97%9B%E8%96%ACDX"
+    },
+    {
+     "id": "it-salonpas-ae-140",
+     "name": "Hisamitsu Salonpas Ae 140 miếng",
+     "ja": "サロンパスAe 140枚",
+     "brand": "Hisamitsu",
+     "yen": 1380,
+     "yenNote": "¥1.380/140 miếng (Sundrug online 31/10/2026, giá 'từ'); 240 miếng ¥2.378. Thuốc 第3類.",
+     "why": "Miếng dán giảm đau, nhẹ và gọn.",
+     "tip": "Hộp 140 miếng đủ cho hai người. Mang thuốc trong bao bì gốc; tham khảo canibringto: tối đa khoảng 30 ngày dùng hoặc trị giá 200 USD/lần, không quá 3 lần/năm. Thuốc chưa đăng ký ở Việt Nam có thể cần giấy phép; chưa đối chiếu với văn bản luật.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%B5%E3%83%AD%E3%83%B3%E3%83%91%E3%82%B9Ae"
+    },
+    {
+     "id": "it-rohto-z-12ml",
+     "name": "Rohto Z! Eye Drops 12 ml",
+     "ja": "ロートジー 12ml",
+     "brand": "Rohto",
+     "yen": 396,
+     "yenNote": "¥396 (Sundrug online 31/10/2026, giá 'từ'); Z! Contact b ¥515. Thuốc 第2類.",
+     "why": "Nhỏ mắt giá thấp, chai nhỏ.",
+     "tip": "Chai 12 ml xách tay được; đã mở nắp thì chỉ dùng trong thời hạn trên nhãn.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%AD%E3%83%BC%E3%83%88%E3%82%B8%E3%83%BC"
+    },
+    {
+     "id": "it-rohto-z-contact-b",
+     "name": "Rohto Z! Contact b Eye Drops 12 ml",
+     "ja": "ロートジーコンタクトb 12ml",
+     "brand": "Rohto",
+     "yen": 515,
+     "yenNote": "¥515 (Sundrug online 31/10/2026). Thuốc 第3類.",
+     "why": "Bản dùng với kính áp tròng.",
+     "tip": "Kiểm tra nhãn trước khi dùng với kính áp tròng mềm.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%AD%E3%83%BC%E3%83%88%E3%82%B8%E3%83%BC"
+    },
+    {
+     "id": "it-kowa-cabagin-alpha-plus-200",
+     "name": "Kowa Cabagin Kowa α Plus 200 viên",
+     "ja": "キャベジンコーワαプラス 200錠",
+     "brand": "Kowa",
+     "yen": 1881,
+     "yenNote": "¥1.881/200 viên; 300 viên ¥2.198 (Sundrug online 31/10/2026). Thuốc 第2類.",
+     "why": "Thuốc dạ dày dùng ngày ăn nhiều; hộp lớn đỡ mua nhiều lần.",
+     "tip": "Hộp lớn chiếm chỗ vali; có thể chuyển sang vỉ nhỏ. Mang thuốc trong bao bì gốc; tham khảo canibringto: tối đa khoảng 30 ngày dùng hoặc trị giá 200 USD/lần, không quá 3 lần/năm. Thuốc chưa đăng ký ở Việt Nam có thể cần giấy phép; chưa đối chiếu với văn bản luật.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%AD%E3%83%A3%E3%83%99%E3%82%B8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%AF%CE%B1"
+    },
+    {
+     "id": "it-oronine-h-30g",
+     "name": "Otsuka Oronine H Ointment 30 g",
+     "ja": "オロナインH軟膏 30g",
+     "brand": "Otsuka",
+     "yen": 368,
+     "yenNote": "¥368/30 g; 250 g ¥1.780 (Sundrug online 31/10/2026). Thuốc 第2類.",
+     "why": "Thuốc mỡ đa dụng, chai nhỏ gọn.",
+     "tip": "Tuýp 30 g xách tay được. Mang thuốc trong bao bì gốc; tham khảo canibringto: tối đa khoảng 30 ngày dùng hoặc trị giá 200 USD/lần, không quá 3 lần/năm. Thuốc chưa đăng ký ở Việt Nam có thể cần giấy phép; chưa đối chiếu với văn bản luật.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%AA%E3%83%AD%E3%83%8A%E3%82%A4%E3%83%B3H%E8%BB%9F%E8%86%8F"
+    },
+    {
+     "id": "it-transino-white-c-clear-240",
+     "name": "Daiichi Sankyo Transino White C Clear 240 viên",
+     "ja": "トランシーノ ホワイトCクリア 240錠",
+     "brand": "Daiichi Sankyo Healthcare",
+     "yen": 3280,
+     "yenNote": "¥3.280/240 viên (Sundrug online 31/10/2026, giá 'từ'). Thuốc 第3類.",
+     "why": "Thuốc uống dòng 'White' của Daiichi Sankyo Healthcare, hộp lớn 240 viên.",
+     "tip": "Hộp lớn; cân nhắc số lượng khi mang về vì có thể bị hải quan hỏi. Mang thuốc trong bao bì gốc; tham khảo canibringto: tối đa khoảng 30 ngày dùng hoặc trị giá 200 USD/lần, không quá 3 lần/năm. Thuốc chưa đăng ký ở Việt Nam có thể cần giấy phép; chưa đối chiếu với văn bản luật.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/products/4987107627667"
+    },
+    {
+     "id": "it-chocola-bb-plus-60",
+     "name": "Eisai Chocola BB Plus 60 viên",
+     "ja": "チョコラBBプラス 60錠",
+     "brand": "Eisai",
+     "yen": 1188,
+     "yenNote": "¥1.188/60 viên; 120 viên ¥2.280 (Sundrug online 31/10/2026). Thuốc 第3類.",
+     "why": "Viên vitamin nhóm B của Eisai.",
+     "tip": "Hộp 120 viên có giá/viên thấp hơn nếu dùng lâu. Mang thuốc trong bao bì gốc; tham khảo canibringto: tối đa khoảng 30 ngày dùng hoặc trị giá 200 USD/lần, không quá 3 lần/năm. Thuốc chưa đăng ký ở Việt Nam có thể cần giấy phép; chưa đối chiếu với văn bản luật.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%81%E3%83%A7%E3%82%B3%E3%83%A9BB%E3%83%97%E3%83%A9%E3%82%B9"
+    },
+    {
+     "id": "it-hythiol-c-plus2-180",
+     "name": "SS Pharmaceutical Hythiol-C Plus 2 180 viên",
+     "ja": "ハイチオールCプラス2 180錠",
+     "brand": "SS Pharmaceutical",
+     "yen": 2200,
+     "yenNote": "¥2.200/180 viên (Sundrug online 31/10/2026). Thuốc 第3類.",
+     "why": "Thuốc uống nhóm 第3類 của SS Pharmaceutical, dùng dài ngày.",
+     "tip": "Hộp 270 viên giá ¥8.539 trên Sundrug online, đắt bất thường; chỉ nên mua hộp 180 viên. Mang thuốc trong bao bì gốc; tham khảo canibringto: tối đa khoảng 30 ngày dùng hoặc trị giá 200 USD/lần, không quá 3 lần/năm. Thuốc chưa đăng ký ở Việt Nam có thể cần giấy phép; chưa đối chiếu với văn bản luật.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%8F%E3%82%A4%E3%83%81%E3%82%AA%E3%83%BC%E3%83%ABC%E3%83%97%E3%83%A9%E3%82%B92"
+    },
+    {
+     "id": "it-loxonin-s-12",
+     "name": "Daiichi Sankyo Loxonin S 12 viên",
+     "ja": "ロキソニンS 12錠",
+     "brand": "Daiichi Sankyo Healthcare",
+     "yen": 558,
+     "yenNote": "¥558/12 viên; Loxonin S Quick ¥768 (Sundrug online 31/10/2026). Thuốc 第1類.",
+     "why": "Thuốc giảm đau, hạ sốt hay được tìm mua ở Nhật.",
+     "tip": "Là thuốc loại 1 (第1類): phải qua dược sĩ tư vấn tại quầy, mua tại tiệm thuốc có dược sĩ. Mang thuốc trong bao bì gốc; tham khảo canibringto: tối đa khoảng 30 ngày dùng hoặc trị giá 200 USD/lần, không quá 3 lần/năm. Thuốc chưa đăng ký ở Việt Nam có thể cần giấy phép; chưa đối chiếu với văn bản luật.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%AD%E3%82%AD%E3%82%BD%E3%83%8B%E3%83%B3S"
+    },
+    {
+     "id": "it-kao-megurhythm-eye-mask",
+     "name": "Kao Megurhythm Steam Eye Mask (12 miếng)",
+     "ja": "めぐりズム 蒸気でホットアイマスク",
+     "brand": "Kao",
+     "yen": 1180,
+     "yenNote": "¥1.180/12 miếng (Sundrug online 31/10/2026, giá 'từ'), nhiều mùi.",
+     "why": "Miếng chườm mắt hơi nóng dùng một lần, nhẹ.",
+     "tip": "Không phải thuốc nên không vướng quy định thuốc khi mang về.",
+     "where": [
+      "drugstore",
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%81%E3%81%90%E3%82%8A%E3%82%BA%E3%83%A0%20%E8%92%B8%E6%B0%97%E3%81%A7%E3%83%9B%E3%83%83%E3%83%88%E3%82%A2%E3%82%A4%E3%83%9E%E3%82%B9%E3%82%AF"
+    }
+   ]
+  },
+  {
+   "id": "home-stationery",
+   "vi": "Đồ dùng và văn phòng phẩm",
+   "items": [
+    {
+     "id": "it-uni-jetstream-05",
+     "name": "Mitsubishi Pencil Jetstream 0.5 mm đen",
+     "ja": "ジェットストリーム 0.5mm 黒",
+     "brand": "Mitsubishi Pencil",
+     "yen": 118,
+     "yenNote": "¥118 (Sundrug online 31/10/2026, giá giảm của tiệm thuốc); Jetstream 2&1 ¥550 và 4&1 ¥1.100 ở Maruzen.",
+     "why": "Bút bi Jetstream, giá Sundrug online ¥118.",
+     "tip": "Mua lẻ vài cây làm quà; nhẹ và gọn.",
+     "where": [
+      "drugstore",
+      "loft",
+      "daiso"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%B8%E3%82%A7%E3%83%83%E3%83%88%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0%200.5mm%20%E9%BB%92"
+    },
+    {
+     "id": "it-uni-jetstream-2in1",
+     "name": "Mitsubishi Pencil Jetstream 2&1 0.5 mm",
+     "ja": "ジェットストリーム2&1 0.5mm",
+     "brand": "Mitsubishi Pencil",
+     "yen": 550,
+     "yenNote": "¥550 giá Maruzen Junkudo (4&1 là ¥1.100).",
+     "why": "Bút đa chức năng bi và chì trong một cây.",
+     "tip": "Maruzen Nihonbashi nằm trong lịch ngày 2 (16:30).",
+     "where": [
+      "maruzen"
+     ],
+     "weightG": null,
+     "src": "https://www.maruzenjunkudo.co.jp/products/4902778042250"
+    },
+    {
+     "id": "it-uni-kuru-toga",
+     "name": "Mitsubishi Pencil Kuru Toga 0.5 mm",
+     "ja": "クルトガ 0.5",
+     "brand": "Mitsubishi Pencil",
+     "yen": 372,
+     "yenNote": "¥372; Kuru Toga Advance ¥418 (Sundrug online 31/10/2026).",
+     "why": "Bút chì bấm tự xoay ruột, nét đều.",
+     "tip": null,
+     "where": [
+      "drugstore",
+      "loft"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%82%AF%E3%83%AB%E3%83%88%E3%82%AC"
+    },
+    {
+     "id": "it-pilot-frixion-ball3-slim",
+     "name": "Pilot FriXion Ball 3 Slim",
+     "ja": "フリクションボール3スリム",
+     "brand": "Pilot",
+     "yen": 453,
+     "yenNote": "¥453 (Sundrug online 31/10/2026).",
+     "why": "Bút xoá được, 3 màu trong một cây.",
+     "tip": "Mực xoá bằng nhiệt, dễ mất nét nếu để trong xe nóng.",
+     "where": [
+      "drugstore",
+      "loft"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/search?q=%E3%83%95%E3%83%AA%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%9C%E3%83%BC%E3%83%AB"
+    },
+    {
+     "id": "it-zebra-sarasa-clip",
+     "name": "Zebra Sarasa Clip 0.5",
+     "ja": "サラサクリップ",
+     "brand": "Zebra",
+     "yen": 132,
+     "yenNote": "Giá niêm yết ¥132 (Zebra); Sundrug online ¥82 (31/10/2026).",
+     "why": "Bút gel quen thuộc, dòng 3 màu Sarasa 3 ¥385, Sarasa Grand kim loại ¥1.650.",
+     "tip": "Mua nhiều cây một lần ở tiệm thuốc rẻ hơn giá niêm yết.",
+     "where": [
+      "drugstore",
+      "loft",
+      "daiso"
+     ],
+     "weightG": null,
+     "src": "https://www.zebra.co.jp/pro/sarasa/"
+    },
+    {
+     "id": "it-zebra-sarasa-grand",
+     "name": "Zebra Sarasa Grand 0.5 (thân kim loại)",
+     "ja": "サラサグランド",
+     "brand": "Zebra",
+     "yen": 1650,
+     "yenNote": "¥1.650 giá niêm yết Zebra.",
+     "why": "Bút gel thân kim loại, hợp làm quà.",
+     "tip": null,
+     "where": [
+      "loft"
+     ],
+     "weightG": null,
+     "src": "https://www.zebra.co.jp/pro/sarasa/"
+    },
+    {
+     "id": "it-kokuyo-campus-b5",
+     "name": "Kokuyo Campus Notebook B5 (kẻ ô 8 mm)",
+     "ja": "コクヨ キャンパスノート(用途別)",
+     "brand": "Kokuyo",
+     "yen": 118,
+     "yenNote": "¥118 (B5, kẻ ô 8 mm); A4 kẻ ô ¥398 (Sundrug online 31/10/2026).",
+     "why": "Vở Campus thông dụng của Nhật, giá thấp hơn so với vở thiết kế.",
+     "tip": null,
+     "where": [
+      "drugstore",
+      "loft",
+      "daiso"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/products/4901480073019"
+    },
+    {
+     "id": "it-hobonichi-one-piece-a6",
+     "name": "Hobonichi Techo 2027 bản ONE PIECE (A6, 1 ngày/trang)",
+     "ja": "ほぼ日手帳 2027 ONE PIECE 特別版 A6",
+     "brand": "Hobonichi",
+     "yen": 3410,
+     "yenNote": "¥3.410 (bản đặc biệt, bán từ 1/10/2026); bản Original thường chưa lấy được giá.",
+     "why": "Sổ tay kiểu Nhật bán tại Loft, TOBICHI và cửa hàng Tokyo Station.",
+     "tip": "Giả định: đến 10/2027 sẽ bán bản 2028 (bản 2027 ra 1/9/2026), giá có thể khác; chỉ dùng ¥3.410 làm mốc tham khảo.",
+     "where": [
+      "loft"
+     ],
+     "weightG": null,
+     "src": "https://www.gamespark.jp/release/prtimes/20260925/316504.html"
+    },
+    {
+     "id": "it-daiso-standard-usb-c-cable",
+     "name": "Daiso Standard Products cáp sạc Type-C 1,0 m",
+     "ja": "スタンダードプロダクツ Type-C充電ケーブル 1.0m",
+     "brand": "Daiso",
+     "yen": 330,
+     "yenNote": "¥330 (mức giá 300 yên + thuế) theo Daiso Net Store.",
+     "why": "Cáp sạc dự phòng rẻ.",
+     "tip": null,
+     "where": [
+      "daiso"
+     ],
+     "weightG": null,
+     "src": "https://jp.daisonet.com/pages/standardproductsec"
+    },
+    {
+     "id": "it-daiso-standard-eco-bag",
+     "name": "Daiso Standard Products túi mua sắm gấp gọn",
+     "ja": "スタンダードプロダクツ コンパクトエコバッグ",
+     "brand": "Daiso",
+     "yen": 330,
+     "yenNote": "¥330; túi zip gọn ¥550; ly giữ nhiệt 2,2 lít ¥550 theo Daiso Net Store.",
+     "why": "Túi gấp gọn tiện cho ngày mua sắm.",
+     "tip": "Standard Products có các mức ¥110, ¥220, ¥330, ¥550, ¥770, ¥1.100 và ¥1.650.",
+     "where": [
+      "daiso"
+     ],
+     "weightG": null,
+     "src": "https://jp.daisonet.com/pages/standardproductsec"
+    }
+   ]
+  },
+  {
+   "id": "kitchen",
+   "vi": "Đồ bếp",
+   "items": [
+    {
+     "id": "it-tojiro-pro-santoku-170",
+     "name": "TOJIRO PRO Santoku 170 mm",
+     "ja": "TOJIRO PRO 三徳 170mm",
+     "brand": "Tojiro",
+     "yen": 13200,
+     "yenNote": "¥13.200 trên cửa hàng online Tojiro 31/10/2026.",
+     "why": "Dao santoku đa năng của Tojiro, hợp ngân sách trung bình.",
+     "tip": "Dao mang theo phải ký gửi vali, không xách tay; quấn kỹ lưỡi. Mang dao về Việt Nam chưa kiểm quy định.",
+     "where": [
+      "kitchen"
+     ],
+     "weightG": null,
+     "src": "https://store.tojiro.net/"
+    },
+    {
+     "id": "it-tojiro-first-3-set",
+     "name": "Tojiro Saisho no 3-hon Stainless Knife Set (3 dao)",
+     "ja": "藤次郎 最初の3本 ステンレス包丁セット",
+     "brand": "Tojiro",
+     "yen": 24000,
+     "yenNote": "¥24.000, bán online; không có ở cửa hàng.",
+     "why": "Bộ 3 dao cho người mới.",
+     "tip": "Mặt hàng chỉ bán online theo trang Tojiro.",
+     "where": [
+      "kitchen"
+     ],
+     "weightG": null,
+     "src": "https://store.tojiro.net/"
+    },
+    {
+     "id": "it-tojiro-classic-damascus-santoku",
+     "name": "Tojiro CLASSIC Damascus Santoku 170 mm",
+     "ja": "藤次郎 CLASSICダマスカス 三徳 170mm",
+     "brand": "Tojiro",
+     "yen": 22000,
+     "yenNote": "¥22.000 trên cửa hàng online Tojiro 31/10/2026.",
+     "why": "Dao có vân damascus, đắt hơn TOJIRO PRO ¥8.800.",
+     "tip": null,
+     "where": [
+      "kitchen"
+     ],
+     "weightG": null,
+     "src": "https://store.tojiro.net/"
+    },
+    {
+     "id": "it-tojiro-dp-gyuto-180",
+     "name": "Tojiro DP Cobalt Gyuto 180 mm (FU-807)",
+     "ja": "藤寅作 牛刀 FU-807 DPコバルト合金鋼割込 口金付 180mm",
+     "brand": "Tojiro",
+     "yen": 8250,
+     "yenNote": "Giá thấp nhất trên Kakaku.com ¥8.250 (Rakuten); lên tới ¥11.000, cập nhật 31/10/2026.",
+     "why": "Dao gyuto mức vào cửa; giá online thấp nhất.",
+     "tip": "Giá ở cửa hàng Kappabashi hoặc Dōguyasuji chưa kiểm; dao phải ký gửi.",
+     "where": [
+      "kitchen"
+     ],
+     "weightG": null,
+     "src": "https://kakaku.com/item/S0001041707/"
+    },
+    {
+     "id": "it-sakai-ichimonji-fv10-santoku",
+     "name": "Sakai Ichimonji Mitsuhide FV10 Santoku",
+     "ja": "堺一文字光秀 FV10 三徳包丁",
+     "brand": "Sakai Ichimonji Mitsuhide",
+     "yen": 30300,
+     "yenNote": "¥30.300 trên cửa hàng online (trang chưa ghi rõ thuế); gyuto FV10 ¥26.900–¥45.200.",
+     "why": "Mốc giá cho dao Sakai; trên ngân sách trung bình.",
+     "tip": "Dao phải ký gửi. Cửa hàng này chưa kiểm có nằm ở Dōguyasuji hay không.",
+     "where": [
+      "kitchen"
+     ],
+     "weightG": null,
+     "src": "https://www.ichimonji.co.jp/"
+    },
+    {
+     "id": "it-ishida-dishwasher-chopsticks",
+     "name": "Ishida đũa dùng được máy rửa bát (1 đôi)",
+     "ja": "イシダ 食洗箸",
+     "brand": "Ishida",
+     "yen": 598,
+     "yenNote": "¥598/đôi, Sundrug online 31/10/2026.",
+     "why": "Đũa nhẹ, giá thấp.",
+     "tip": "Mua đôi để làm quà; đũa rất nhẹ.",
+     "where": [
+      "drugstore",
+      "daiso"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/products/4970736110099"
+    },
+    {
+     "id": "it-thermos-insulated-bento-dbq257",
+     "name": "Thermos hộp cơm giữ nhiệt DBQ-257",
+     "ja": "サーモス 保温弁当箱 DBQ-257",
+     "brand": "Thermos",
+     "yen": 4680,
+     "yenNote": "¥4.680 (Sundrug online 31/10/2026, hàng giao thẳng, không đổi trả).",
+     "why": "Hộp cơm giữ nhiệt.",
+     "tip": "Hàng giao thẳng nên không đổi trả; nặng hơn hộp nhựa.",
+     "where": [
+      "drugstore"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/products/4562344406208"
+    },
+    {
+     "id": "it-rice-boy-bento",
+     "name": "CB Japan hộp cơm kháng khuẩn Rice Boy",
+     "ja": "シービージャパン 弁当箱抗菌ライスボーイ",
+     "brand": "CB Japan",
+     "yen": 998,
+     "yenNote": "¥998 (Sundrug online 31/10/2026).",
+     "why": "Hộp cơm nhựa giá thấp.",
+     "tip": null,
+     "where": [
+      "drugstore"
+     ],
+     "weightG": null,
+     "src": "https://sundrug-online.com/products/4573306867517"
+    }
+   ]
+  },
+  {
+   "id": "food-gifts",
+   "vi": "Quà ăn được và trà",
+   "items": [
+    {
+     "id": "it-tokyo-banana-8",
+     "name": "Tokyo Banana \"Mitsuketa\" 8 cái",
+     "ja": "東京ばな奈「見ぃつけたっ」8個入",
+     "brand": "Grapestone",
+     "yen": 1296,
+     "yenNote": "¥1.296/8 cái; 12 cái ¥1.944; ở Tokyo Station và sân bay thường +¥100–¥200 (pricey.jp 2026).",
+     "why": "Bánh quà phổ biến, mua ở Tokyo Station First Avenue.",
+     "tip": "Chưa kiểm hạn dùng; hãy xem ngày ghi trên hộp.",
+     "where": [
+      "depachika"
+     ],
+     "weightG": null,
+     "src": "https://www.pricey.jp/web/articles/1587"
+    },
+    {
+     "id": "it-tokyo-banana-pokemon-8",
+     "name": "Tokyo Banana bản hợp tác nhân vật (Pokémon, Doraemon, ...) 8 cái",
+     "ja": "ポケモン東京ばな奈",
+     "brand": "Grapestone",
+     "yen": 1512,
+     "yenNote": "¥1.512/8 cái (pricey.jp 2026).",
+     "why": "Bản hợp tác nhân vật, chỉ đắt hơn bản thường ¥216.",
+     "tip": "Chưa kiểm hạn dùng; xem ngày trên hộp.",
+     "where": [
+      "depachika"
+     ],
+     "weightG": null,
+     "src": "https://www.pricey.jp/web/articles/1587"
+    },
+    {
+     "id": "it-royce-nama-au-lait",
+     "name": "Royce Nama Chocolate [Au Lait] 20 viên",
+     "ja": "ロイズ 生チョコレート[オーレ]",
+     "brand": "Royce",
+     "yen": 1215,
+     "yenNote": "¥1.215 theo royce.com; bản Bitter đang tạm ngừng bán từ 10/6/2026.",
+     "why": "Chocolate Hokkaidō của Royce, giá niêm yết ¥1.215.",
+     "tip": "Phải để lạnh dưới 10°C, hạn khoảng 10 ngày theo trang bán lẻ (chưa xác nhận từ hãng); không hợp mang đi cả chuyến.",
+     "where": [
+      "depachika"
+     ],
+     "weightG": null,
+     "src": "https://www.royce.com/"
+    },
+    {
+     "id": "it-yokumoku-cigare-20",
+     "name": "Yoku Moku Cigare 20 điếu",
+     "ja": "ヨックモック シガール 20本入",
+     "brand": "Yoku Moku",
+     "yen": 1998,
+     "yenNote": "¥1.998/20 điếu theo yokumoku.co.jp.",
+     "why": "Thấp hơn ¥2.200 dự trù cho hộp Yoku Moku trong giỏ.",
+     "tip": "Chưa lấy được hạn dùng; xem ngày trên hộp.",
+     "where": [
+      "depachika"
+     ],
+     "weightG": null,
+     "src": "https://www.yokumoku.co.jp/"
+    },
+    {
+     "id": "it-ippodo-hojicha-80g",
+     "name": "Ippodo Hōjicha 80 g",
+     "ja": "一保堂 ほうじ茶 80g袋",
+     "brand": "Ippodo",
+     "yen": 1080,
+     "yenNote": "¥1.080/80 g (bán từ 1/11/2026; hiện 'hết hàng' trên web).",
+     "why": "Cao hơn ¥900/100 g dự trù trong giỏ vì chỉ có túi 80 g.",
+     "tip": "Không còn túi 100 g trong danh mục; có túi trà hōjicha 12 gói ¥1.080 gọn hơn.",
+     "where": [
+      "craft"
+     ],
+     "weightG": null,
+     "src": "https://www.ippodo-tea.co.jp/collections/bancha"
+    },
+    {
+     "id": "it-ippodo-hojicha-teabag-12",
+     "name": "Ippodo Hōjicha Tea Bag 12 gói",
+     "ja": "一保堂 ほうじ茶ティーバッグ12袋入",
+     "brand": "Ippodo",
+     "yen": 1080,
+     "yenNote": "¥1.080/12 gói; 22 gói ¥1.944; hōjicha 8 gói tam giác ¥1.188.",
+     "why": "Dễ chia nhiều người làm quà.",
+     "tip": null,
+     "where": [
+      "craft"
+     ],
+     "weightG": null,
+     "src": "https://www.ippodo-tea.co.jp/collections/bancha"
+    },
+    {
+     "id": "it-ippodo-matcha-ikuyo-20g",
+     "name": "Ippodo Matcha Ikuyo no Mukashi 20 g",
+     "ja": "一保堂 抹茶 幾世の昔 20g箱",
+     "brand": "Ippodo",
+     "yen": 1512,
+     "yenNote": "¥1.512/20 g (ippodo-tea.co.jp, 31/10/2026).",
+     "why": "Hộp matcha nhỏ dễ mang.",
+     "tip": null,
+     "where": [
+      "craft"
+     ],
+     "weightG": null,
+     "src": "https://www.ippodo-tea.co.jp/"
+    },
+    {
+     "id": "it-akafuku-8",
+     "name": "Akafuku Mochi hộp 8 cái",
+     "ja": "赤福餅 折箱 8個入",
+     "brand": "Akafuku",
+     "yen": 900,
+     "yenNote": "¥900/8 cái; 12 cái ¥1.300; 20 cái ¥2.200 (trang không ghi rõ thuế).",
+     "why": "Bánh đặc sản Ise, nhưng hạn dùng rất ngắn.",
+     "tip": "Hạn dùng tính bằng ngày; trang Akafuku có thông báo 'chuyển đổi hạn dùng' ngày 5/10/2026 nhưng không ghi số ngày. Xem nhãn trên hộp, không phải quà mang về Việt Nam.",
+     "where": [
+      "akafuku"
+     ],
+     "weightG": null,
+     "src": "https://www.akafuku.co.jp/product/"
+    },
+    {
+     "id": "it-551-horai-butaman",
+     "name": "551 Hōrai bánh bao thịt heo (butaman)",
+     "ja": "551蓬莱 豚まん",
+     "brand": "551 Hōrai",
+     "yen": 250,
+     "yenNote": "¥250/cái; 4 cái ¥1.000; 4 cái ướp lạnh ¥1.080.",
+     "why": "Món Osaka phải ăn ngay.",
+     "tip": "Làm và bán trong ngày, trang không có hạn dài hơn, nên không phải quà mang về.",
+     "where": [
+      "551"
+     ],
+     "weightG": null,
+     "src": "https://www.551horai.co.jp/menu/butaman/"
+    },
+    {
+     "id": "it-shiroi-koibito",
+     "name": "Ishiya Shiroi Koibito",
+     "ja": "石屋製菓 白い恋人",
+     "brand": "Ishiya",
+     "yen": null,
+     "yenNote": "Chưa lấy được giá hiện hành.",
+     "why": "Bánh quy Hokkaidō nổi tiếng.",
+     "tip": "Trang cửa hàng của ISHIYA chỉ liệt kê Langue de chat, Aigateau, ... tại Tokyo, Kyoto, Osaka, không liệt kê Shiroi Koibito; hỏi trước hoặc đừng tính vào giỏ.",
+     "where": [
+      "depachika"
+     ],
+     "weightG": null,
+     "src": "https://www.ishiya.co.jp/shop/"
+    }
+   ]
+  },
+  {
+   "id": "electronics-hobby",
+   "vi": "Điện tử và sở thích",
+   "items": [
+    {
+     "id": "it-gashapon-capsule",
+     "name": "Gashapon (máy bán đồ chơi viên nang)",
+     "ja": "ガシャポン",
+     "brand": "Bandai",
+     "yen": 300,
+     "yenNote": "Phần lớn ¥300; mức giữa ¥400–¥500; dòng cao cấp ¥800 (gashapon.jp 31/10/2026).",
+     "why": "Nhân vật Nhật theo mùa: Sanrio, Chiikawa, Pokémon, Gundam.",
+     "tip": "Chuẩn bị nhiều tiền xu; viên nang tròn nên chiếm chỗ.",
+     "where": [
+      "hobby"
+     ],
+     "weightG": null,
+     "src": "https://gashapon.jp/"
+    },
+    {
+     "id": "it-tamiya-1-24-kit",
+     "name": "TAMIYA mô hình nhựa 1/24 (ví dụ BMW 320i)",
+     "ja": "タミヤ 1/24 スポーツカーシリーズ",
+     "brand": "Tamiya",
+     "yen": 3740,
+     "yenNote": "¥3.740 cho kit BMW 320i 1/24 trên trang Tamiya Nhật.",
+     "why": "Tamiya Plamodel Factory Tokyo bán khoảng 6.000 mặt hàng.",
+     "tip": "Cửa hàng ở Shimbashi 4-3-1, thứ Hai–thứ Sáu 11:00–20:00, cuối tuần 10:00–19:00; ngày nghỉ không ghi trên trang, hãy kiểm tra.",
+     "where": [
+      "hobby"
+     ],
+     "weightG": null,
+     "src": "http://www.tamiya.com/japan/index.html"
+    },
+    {
+     "id": "it-super-potato-retro",
+     "name": "Super Potato máy và băng game cũ (Famicom, Super Famicom, PlayStation)",
+     "ja": "スーパーポテト",
+     "brand": "Super Potato",
+     "yen": null,
+     "yenNote": "Giá khác nhau theo món; chưa lấy được giá cụ thể.",
+     "why": "Cửa hàng ở Akihabara, cùng khu với khách sạn ngày 1–3.",
+     "tip": "Băng Nhật thường cần máy bản Nhật; giờ mở cửa từng cửa hàng chưa kiểm.",
+     "where": [
+      "hobby"
+     ],
+     "weightG": null,
+     "src": "https://www.superpotato.com/"
+    },
+    {
+     "id": "it-nintendo-tokyo-osaka",
+     "name": "Nintendo TOKYO / Nintendo OSAKA (đồ lưu niệm Nintendo)",
+     "ja": "Nintendo TOKYO / OSAKA",
+     "brand": "Nintendo",
+     "yen": null,
+     "yenNote": "Trang không ghi giá hàng.",
+     "why": "Nintendo TOKYO ở Shibuya PARCO tầng 6 (10:00–21:00); Nintendo OSAKA ở LUCUA tầng 13, ga Osaka (10:00–20:00).",
+     "tip": "Ngày cuối tuần và lễ có thể phát phiếu số thứ tự; đồng hồ Alarmo giới hạn một chiếc/người; có nơi yêu cầu tài khoản Nintendo khi thanh toán.",
+     "where": [
+      "hobby"
+     ],
+     "weightG": null,
+     "src": "https://www.nintendo.com/jp/officialstore/"
+    },
+    {
+     "id": "it-bookoff-used",
+     "name": "Book-Off (sách, manga, CD, game cũ)",
+     "ja": "ブックオフ",
+     "brand": "Book-Off",
+     "yen": null,
+     "yenNote": "Giá khác nhau theo món; chưa lấy được giá cụ thể.",
+     "why": "Chuỗi bán đồ cũ ngoài sách, có cả phần mềm Switch.",
+     "tip": "Chưa kiểm khu giá rẻ cố định; tìm cửa hàng gần ga.",
+     "where": [
+      "vintage"
+     ],
+     "weightG": null,
+     "src": "https://www.bookoff.co.jp/"
+    },
+    {
+     "id": "it-japan-voltage-electronics",
+     "name": "Đồ điện gia dụng bản Nhật (Yodobashi, Bic Camera)",
+     "ja": null,
+     "brand": "Nhiều hãng",
+     "yen": null,
+     "yenNote": "Chưa lấy được giá trong đợt này (Yodobashi và Bic Camera đều chặn truy cập).",
+     "why": "Chỉ nên mua máy dùng pin hoặc sạc USB.",
+     "tip": "Nhật dùng điện 100 V; thiết bị gia dụng bản Nhật cần kiểm tra điện áp trước khi mua. Chưa có nguồn trong đợt này, cần xác nhận lại.",
+     "where": [
+      "yodobashi",
+      "bic"
+     ],
+     "weightG": null,
+     "src": null
+    }
+   ]
+  },
+  {
+   "id": "craft-traditional",
+   "vi": "Thủ công truyền thống",
+   "items": [
+    {
+     "id": "it-nm-kaya-fukin",
+     "name": "Nakagawa Masashichi Kaya-ori Fukin (khăn lau vải kaya)",
+     "ja": "中川政七商店 かや織ふきん",
+     "brand": "Nakagawa Masashichi",
+     "yen": 550,
+     "yenNote": "¥550/chiếc (nhiều họa tiết); bản treo ¥550; bộ 3 chiếc online ¥1.650.",
+     "why": "Thấp hơn ¥700 dự trù trong giỏ.",
+     "tip": "Mua nhiều họa tiết để chia quà; rất nhẹ.",
+     "where": [
+      "craft"
+     ],
+     "weightG": null,
+     "src": "http://www.nakagawa-masashichi.jp/shop/c/c020305/"
+    },
+    {
+     "id": "it-nm-hana-fukin",
+     "name": "Nakagawa Masashichi Hana Fukin (khăn lau hoa)",
+     "ja": "中川政七商店 花ふきん",
+     "brand": "Nakagawa Masashichi",
+     "yen": 880,
+     "yenNote": "¥880 (họa tiết thường); bản lanh ¥1.320; thêu ¥2.200.",
+     "why": "Dòng khăn lau hoa nhiều họa tiết, giá ¥880.",
+     "tip": null,
+     "where": [
+      "craft"
+     ],
+     "weightG": null,
+     "src": "http://www.nakagawa-masashichi.jp/shop/c/c020305/"
+    },
+    {
+     "id": "it-nm-chusen-tenugui",
+     "name": "Nakagawa Masashichi tenugui (chūsen và các kiểu nhuộm khác)",
+     "ja": "中川政七商店 注染てぬぐい",
+     "brand": "Nakagawa Masashichi",
+     "yen": 1760,
+     "yenNote": "¥1.760 (chūsen thường); kiểu itajime, shibori, hakezome ¥2.200.",
+     "why": "Khăn tenugui nhuộm thủ công theo mùa.",
+     "tip": null,
+     "where": [
+      "craft"
+     ],
+     "weightG": null,
+     "src": "http://www.nakagawa-masashichi.jp/shop/c/c010404/"
+    },
+    {
+     "id": "it-kamawanu-tenugui",
+     "name": "Kamawanu tenugui",
+     "ja": "かまわぬ 手ぬぐい",
+     "brand": "Kamawanu",
+     "yen": 1430,
+     "yenNote": "¥1.430–¥1.980 trong đợt giá khuyến mại; giá thường chưa lấy được.",
+     "why": "Tenugui họa tiết hiện đại, có cửa hàng ở Daikanyama và Gransta Tokyo (mở 16/9/2026).",
+     "tip": "Cảnh báo trên trang chủ: có tài khoản giả mạo Kamawanu.",
+     "where": [
+      "craft"
+     ],
+     "weightG": null,
+     "src": "https://kamawanu-store.jp/"
+    },
+    {
+     "id": "it-shoyeido-horikawa-stick",
+     "name": "Shoyeido Hōrin Horikawa Stick (20 que)",
+     "ja": "松栄堂 芳輪 堀川 スティック",
+     "brand": "Shoyeido",
+     "yen": 1100,
+     "yenNote": "¥1.100/20 que; Shirakawa ¥880; Nijō ¥660 (shop.shoyeido.co.jp 31/10/2026).",
+     "why": "Hương Kyoto, giá thấp trong dòng Hōrin.",
+     "tip": "Cửa hàng Kyoto Honten mở 9:00–18:00 quanh năm trừ Tết.",
+     "where": [
+      "craft"
+     ],
+     "weightG": null,
+     "src": "https://shop.shoyeido.co.jp/"
+    },
+    {
+     "id": "it-shoyeido-kanon-sachet",
+     "name": "Shoyeido Kanon Nioi-bukuro (túi thơm)",
+     "ja": "松栄堂 香音 匂い袋",
+     "brand": "Shoyeido",
+     "yen": 682,
+     "yenNote": "¥682, ¥715 hoặc ¥1.012 tuỳ mùi.",
+     "why": "Túi thơm nhỏ, nhẹ, hợp làm quà.",
+     "tip": "Kanon ở JR Kyoto Isetan tầng 10 (10:00–20:00) và Daimaru Kyoto tầng 6 (10:00–19:00).",
+     "where": [
+      "craft"
+     ],
+     "weightG": null,
+     "src": "http://wa-kanon.jp/"
+    }
+   ]
+  }
+ ],
+ "chains": [
+  {
+   "id": "uniqlo",
+   "name": "UNIQLO",
+   "vi": "Chuỗi quần áo cơ bản; trong giỏ ghi Harajuku (ngày 3) hoặc Shinsaibashi (ngày 11), giá web đã gồm thuế và có đợt giảm có thời hạn.",
+   "taxFreeMinYen": null,
+   "src": "https://www.uniqlo.com/jp/ja/search?q=UT"
+  },
+  {
+   "id": "gu",
+   "name": "GU",
+   "vi": "Nhãn thời trang giá thấp hơn UNIQLO, sweat và quần phần lớn ¥1.290–¥3.990 trên web, có giá riêng cho hội viên app.",
+   "taxFreeMinYen": null,
+   "src": "https://www.gu-global.com/jp/ja/search?q=%E3%82%B9%E3%82%A6%E3%82%A7%E3%83%83%E3%83%88"
+  },
+  {
+   "id": "muji",
+   "name": "MUJI",
+   "vi": "Chuỗi đồ gia dụng, quần áo và văn phòng phẩm thiết kế tối giản; chưa kiểm được giá vì trang web không truy cập được trong đợt này.",
+   "taxFreeMinYen": null,
+   "src": null
+  },
+  {
+   "id": "workman",
+   "name": "WORKMAN / Workman Colors",
+   "vi": "Chuỗi đồ công sở và outdoor giá rất thấp (phần lớn ¥780–¥2.990 trên web), Workman Colors là tên mới của #ワークマン女子 từ 23/1/2025, bán đồ thường ngày cho cả nữ và nam và có cửa hàng đầu tiên ở Ginza, ngoài tuyến chính.",
+   "taxFreeMinYen": null,
+   "src": "https://workman.jp/shop/c/c20/"
+  },
+  {
+   "id": "shimamura",
+   "name": "Shimamura / Avail",
+   "vi": "Chuỗi quần áo giá thấp của Nhật; chưa kiểm giá vì trang web chặn truy cập trong đợt này.",
+   "taxFreeMinYen": null,
+   "src": null
+  },
+  {
+   "id": "3coins",
+   "name": "3COINS",
+   "vi": "Chuỗi đồ lặt vặt giá thấp, ô, tất, phụ kiện khoảng ¥220–¥1.980 trên trang PAL CLOSET.",
+   "taxFreeMinYen": null,
+   "src": "https://www.palcloset.jp/3coins/"
+  },
+  {
+   "id": "honeys",
+   "name": "Honeys",
+   "vi": "Thời trang nữ theo mùa, phần lớn ¥1.000–¥6.000, giá đã gồm thuế.",
+   "taxFreeMinYen": null,
+   "src": "https://www.honeys-onlineshop.com/"
+  },
+  {
+   "id": "daiso",
+   "name": "Daiso / Standard Products / THREEPPY",
+   "vi": "Đồng giá ¥110; dòng Standard Products có các mức ¥110, ¥220, ¥330, ¥550, ¥770, ¥1.100, ¥1.650, THREEPPY là dòng riêng.",
+   "taxFreeMinYen": null,
+   "src": "https://jp.daisonet.com/pages/standardproductsec"
+  },
+  {
+   "id": "donki",
+   "name": "Don Quijote",
+   "vi": "Chuỗi tạp hóa tổng hợp; trong giỏ ghi mua vali ở Donki Osaka; chưa kiểm giá trong đợt này.",
+   "taxFreeMinYen": null,
+   "src": null
+  },
+  {
+   "id": "drugstore",
+   "name": "Drugstore (Sundrug, Matsumoto Kiyoshi, ...)",
+   "vi": "Nhóm drugstore bán thuốc, mỹ phẩm và cả bút; giá trong danh mục này lấy từ Sundrug online ngày 31/10/2026, chưa có giá Matsumoto Kiyoshi hay Donki để so nên hãy so 2–3 tiệm trước khi mua nhiều.",
+   "taxFreeMinYen": null,
+   "src": "https://sundrug-online.com/"
+  },
+  {
+   "id": "loft",
+   "name": "Loft",
+   "vi": "Chuỗi tạp hóa và văn phòng phẩm, bán Hobonichi; Loft Hanshin Umeda nằm trong lịch ngày 11, và Nakagawa Masashichi cũng có cửa hàng Hanshin Umeda.",
+   "taxFreeMinYen": null,
+   "src": "https://www.gamespark.jp/release/prtimes/20260925/316504.html"
+  },
+  {
+   "id": "hands",
+   "name": "Hands",
+   "vi": "Chuỗi tạp hóa và đồ thủ công; chưa kiểm giá vì trang web chặn truy cập trong đợt này.",
+   "taxFreeMinYen": null,
+   "src": null
+  },
+  {
+   "id": "maruzen",
+   "name": "Maruzen",
+   "vi": "Hiệu sách và văn phòng phẩm; Maruzen Nihonbashi nằm trong lịch ngày 2 lúc 16:30, trang Maruzen Junkudo niêm yết Jetstream 2&1 ¥550.",
+   "taxFreeMinYen": null,
+   "src": "https://www.maruzenjunkudo.co.jp/products/4902778042250"
+  },
+  {
+   "id": "yodobashi",
+   "name": "Yodobashi",
+   "vi": "Chuỗi điện máy lớn; chưa lấy được giá vì trang web không truy cập được trong đợt này.",
+   "taxFreeMinYen": null,
+   "src": null
+  },
+  {
+   "id": "bic",
+   "name": "Bic Camera",
+   "vi": "Chuỗi điện máy lớn; chưa lấy được giá vì trang web không truy cập được trong đợt này.",
+   "taxFreeMinYen": null,
+   "src": null
+  },
+  {
+   "id": "depachika",
+   "name": "Depachika và cửa hàng ga (Takashimaya, Tokyo Banana, Royce, Yoku Moku, ISHIYA)",
+   "vi": "Quà đóng hộp bán ở tầng thực phẩm trung tâm thương mại và cửa hàng ga: Takashimaya Osaka nằm trong lịch ngày 11 lúc 12:00, Tokyo Banana ở Tokyo Station First Avenue, Yoku Moku bán ở các cửa hàng trung tâm thương mại toàn quốc, ISHIYA có cửa hàng ở Daimaru Kyoto và Daimaru Shinsaibashi.",
+   "taxFreeMinYen": null,
+   "src": "https://www.ishiya.co.jp/shop/"
+  },
+  {
+   "id": "kitchen",
+   "name": "Đồ bếp (Tojiro, Sakai Ichimonji, Kappabashi, Dōguyasuji)",
+   "vi": "Dao và đồ bếp: Tojiro online niêm yết TOJIRO PRO santoku 170 mm ¥13.200, Sakai Ichimonji santoku FV10 ¥30.300, phố Kappabashi (Tokyo) ngoài tuyến chính và Sennichimae Dōguyasuji (Osaka) nằm trong lịch ngày 11 lúc 9:00 nên cần kiểm tra giờ mở cửa từng tiệm.",
+   "taxFreeMinYen": null,
+   "src": "https://store.tojiro.net/"
+  },
+  {
+   "id": "vintage",
+   "name": "Đồ cũ (Book-Off, 2nd Street)",
+   "vi": "Chuỗi bán lại sách, manga, CD, game; Book-Off không ghi giá trên trang chủ, 2nd Street chặn truy cập nên chưa kiểm.",
+   "taxFreeMinYen": null,
+   "src": "https://www.bookoff.co.jp/"
+  },
+  {
+   "id": "hobby",
+   "name": "Sở thích (Gashapon, Tamiya, Super Potato, Nintendo)",
+   "vi": "Gashapon phần lớn ¥300, Tamiya Plamodel Factory ở Shimbashi bán khoảng 6.000 mặt hàng, Super Potato có cửa hàng ở Akihabara, Nintendo TOKYO ở Shibuya PARCO tầng 6 và Nintendo OSAKA ở LUCUA tầng 13.",
+   "taxFreeMinYen": null,
+   "src": "https://www.tamiya-plamodelfactory.co.jp/"
+  },
+  {
+   "id": "shoes",
+   "name": "Giày và túi (Onitsuka Tiger, ASICS, ABC-MART, MOONSTAR, anello)",
+   "vi": "Onitsuka Tiger niêm yết MEXICO 66 ¥16.500, ASICS có Flagship Shinjuku và Grand Front Osaka với mẫu mới ¥18.700–¥26.400, ABC-MART có mẫu đặt riêng ¥10.450–¥16.500, MOONSTAR 810s ¥8.800 và anello CROSS BOTTLE (S) ¥5.720.",
+   "taxFreeMinYen": null,
+   "src": "https://www.onitsukatiger.com/jp/ja-jp/"
+  },
+  {
+   "id": "craft",
+   "name": "Thủ công và trà (Nakagawa Masashichi, Kamawanu, Shoyeido, Ippodo)",
+   "vi": "Nakagawa Masashichi Nara Honten mở 10:00–19:00 không nghỉ (còn Hanshin Umeda, Kyoto Isetan, Namba Parks, Lucua Ire), Kamawanu có Daikanyama và Gransta Tokyo, Shoyeido Kyoto Honten mở 9:00–18:00 và Kanon ở JR Kyoto Isetan, Ippodo có Kyoto Honten và Tokyo nhưng không thấy cửa hàng ở Osaka.",
+   "taxFreeMinYen": null,
+   "src": "http://www.nakagawa-masashichi.jp/staffblog/storelist/"
+  },
+  {
+   "id": "akafuku",
+   "name": "Akafuku",
+   "vi": "Bánh mochi đặc sản Ise, hộp 8 cái ¥900 nhưng hạn dùng ngắn.",
+   "taxFreeMinYen": null,
+   "src": "https://www.akafuku.co.jp/product/"
+  },
+  {
+   "id": "551",
+   "name": "551 Hōrai",
+   "vi": "Chuỗi bánh bao Osaka, butaman ¥250/cái, làm và bán trong ngày; Honten nằm trong lịch ngày 11.",
+   "taxFreeMinYen": null,
+   "src": "https://www.551horai.co.jp/menu/butaman/"
+  }
+ ],
+ "taxFree": "Từ 1/11/2026, tax-free chuyển sang mô hình hoàn thuế: trả giá đã gồm thuế 10% tại quầy rồi nhận lại số thuế sau khi rời Nhật. Mức tối thiểu vẫn là ¥5.000 trước thuế (¥5.500 sau thuế) trong cùng một cửa hàng, cùng một ngày. Không còn túi niêm phong và không còn hạn mức ¥500.000 cho đồ tiêu dùng, nhưng không được dùng hoặc ăn trước khi rời Nhật. Hàng phải mua trong 90 ngày trước ngày bay, nên cả chuyến 18–29/10/2027 đều nằm trong khoảng này. Trước khi check-in ở sân bay (Kansai có làm trước qua Visit Japan Web), quét hộ chiếu ở máy tax-free: xanh là xong, đỏ phải ra quầy hải quan cho kiểm hàng. Vì vậy giữ hàng tax-free trong túi xách tay, đừng ký gửi trước khi làm xong, và đến sân bay sớm; hải quan và hãng bay không bồi thường nếu lỡ chuyến. Giữ hộ chiếu, mọi hóa đơn và hàng đã mua; nếu một hóa đơn nhiều món mà thiếu một món lúc làm thủ tục thì cả hóa đơn mất quyền hoàn thuế. Nếu nhập cảnh qua cổng tự động, hãy xin đóng dấu vào hộ chiếu vì một số cửa hàng vẫn kiểm. Hoàn thuế theo cách mỗi cửa hàng quy định sau khi hải quan xác nhận hàng rời Nhật; các trang tham khảo chưa nói ai hoàn, phí và thời gian. Hàng cửa hàng gửi thẳng ra nước ngoài được xử lý riêng như miễn thuế xuất khẩu. Chưa kiểm chuỗi nào trong danh sách tham gia tax-free; hãy tìm biển Tax-free tại cửa hàng.",
+ "sources": [
+  "https://www.japan-guide.com/news/tax-free-shopping.html",
+  "https://www.japan.travel/en/us/blog/everything-you-need-to-know-japans-new-tax-free-shopping-system/",
+  "https://www.canibringto.com/vi/can-i-bring/otc-medication-to-vietnam/",
+  "https://www.yakuji.co.jp/entry34758.html",
+  "https://www.fashionsnap.com/article/2025-01-23/workman-colors/",
+  "https://www.uniqlo.com/jp/ja/search?q=%E3%82%A8%E3%82%A2%E3%83%AA%E3%82%BA%E3%83%A0%E3%82%B3%E3%83%83%E3%83%88%E3%83%B3%E3%82%AF%E3%83%AB%E3%83%BC%E3%83%8D%E3%83%83%E3%82%AFT",
+  "https://www.uniqlo.com/jp/ja/search?q=%E3%83%92%E3%83%BC%E3%83%88%E3%83%86%E3%83%83%E3%82%AF",
+  "https://www.uniqlo.com/jp/ja/search?q=%E3%82%A6%E3%83%AB%E3%83%88%E3%83%A9%E3%83%A9%E3%82%A4%E3%83%88%E3%83%80%E3%82%A6%E3%83%B3",
+  "https://www.uniqlo.com/jp/ja/search?q=UT",
+  "https://www.uniqlo.com/jp/ja/search?q=%E3%82%BD%E3%83%83%E3%82%AF%E3%82%B9",
+  "https://www.uniqlo.com/jp/ja/search?q=%E3%82%B9%E3%83%86%E3%83%86%E3%82%B3",
+  "https://www.uniqlo.com/jp/ja/search?q=%E3%82%A8%E3%82%A2%E3%83%AA%E3%82%BA%E3%83%A0%E3%83%96%E3%83%A9",
+  "https://www.uniqlo.com/jp/ja/search?q=%E3%82%B8%E3%83%BC%E3%83%B3%E3%82%BA",
+  "https://www.gu-global.com/jp/ja/search?q=%E3%82%B9%E3%82%A6%E3%82%A7%E3%83%83%E3%83%88",
+  "https://workman.jp/shop/c/c20/",
+  "https://workman.jp/shop/c/c3010/",
+  "https://www.palcloset.jp/3coins/",
+  "https://www.honeys-onlineshop.com/",
+  "https://www.onitsukatiger.com/jp/ja-jp/product/mexico-66/1183c102_751.html",
+  "https://www.onitsukatiger.com/jp/ja-jp/",
+  "https://corp.asics.com/jp/press/article/2026-10-09_gel-ds-trainer-loop",
+  "https://corp.asics.com/jp/press/article/2026-10-01_gel-slowcush",
+  "https://www.roomie.jp/2026/10/1894801/",
+  "https://store.moonstar.co.jp/products/detail/321",
+  "https://nlab.itmedia.co.jp/research/articles/3749350/",
+  "https://zaikei.co.jp/releases/3406465/",
+  "https://zaikei.co.jp/releases/3383102/",
+  "https://sundrug-online.com/search?q=%E3%83%A1%E3%83%A9%E3%83%8ECC",
+  "https://sundrug-online.com/search?q=%E3%83%8F%E3%83%80%E3%83%A9%E3%83%9C%20%E6%A5%B5%E6%BD%A4",
+  "https://sundrug-online.com/search?q=%E3%82%A2%E3%83%8D%E3%83%83%E3%82%B5%20%E3%83%91%E3%83%BC%E3%83%95%E3%82%A7%E3%82%AF%E3%83%88UV",
+  "https://sundrug-online.com/search?q=%E3%83%93%E3%82%AA%E3%83%ACUV%20%E3%82%A2%E3%82%AF%E3%82%A2%E3%83%AA%E3%83%83%E3%83%81",
+  "https://sundrug-online.com/search?q=%E3%82%AD%E3%83%A5%E3%83%AC%E3%83%AB%20%E6%BD%A4%E6%B5%B8%E4%BF%9D%E6%B9%BF",
+  "https://sundrug-online.com/search?q=%E3%82%BD%E3%83%95%E3%83%86%E3%82%A3%E3%83%A2%20%E3%82%B9%E3%83%94%E3%83%BC%E3%83%87%E3%82%A3%E3%82%AF%E3%83%AC%E3%83%B3%E3%82%B8%E3%83%B3%E3%82%B0%E3%82%AA%E3%82%A4%E3%83%AB",
+  "https://sundrug-online.com/search?q=%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%A1%E3%82%A4%E3%82%AF%20%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%A0%E3%83%81%E3%83%BC%E3%82%AF",
+  "https://sundrug-online.com/search?q=%E3%83%95%E3%82%A3%E3%83%BC%E3%83%8E%20%E3%83%97%E3%83%AC%E3%83%9F%E3%82%A2%E3%83%A0%E3%82%BF%E3%83%83%E3%83%81%20%E6%B5%B8%E9%80%8F%E7%BE%8E%E5%AE%B9%E6%B6%B2%E3%83%98%E3%82%A2%E3%83%9E%E3%82%B9%E3%82%AF%20230g",
+  "https://sundrug-online.com/search?q=%E3%83%92%E3%83%AD%E3%82%A4%E3%83%B3%E3%83%A1%E3%82%A4%E3%82%AF%20%E3%83%AD%E3%83%B3%E3%82%B0&%E3%82%AB%E3%83%BC%E3%83%AB%E3%83%9E%E3%82%B9%E3%82%AB%E3%83%A9",
+  "https://sundrug-online.com/search?q=%E3%82%B1%E3%82%A4%E3%83%88%20%E3%83%AA%E3%83%83%E3%83%97%E3%83%A2%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%BC",
+  "https://sundrug-online.com/search?q=%E3%82%A8%E3%83%AA%E3%82%AF%E3%82%B7%E3%83%BC%E3%83%AB",
+  "https://sundrug-online.com/search?q=%E3%82%A4%E3%83%96A%E9%8C%A0EX",
+  "https://sundrug-online.com/search?q=%E3%82%A4%E3%83%96%E3%82%AF%E3%82%A4%E3%83%83%E3%82%AF%E9%A0%AD%E7%97%9B%E8%96%ACDX",
+  "https://sundrug-online.com/search?q=%E3%82%B5%E3%83%AD%E3%83%B3%E3%83%91%E3%82%B9Ae",
+  "https://sundrug-online.com/search?q=%E3%83%AD%E3%83%BC%E3%83%88%E3%82%B8%E3%83%BC",
+  "https://sundrug-online.com/search?q=%E3%82%AD%E3%83%A3%E3%83%99%E3%82%B8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%AF%CE%B1",
+  "https://sundrug-online.com/search?q=%E3%82%AA%E3%83%AD%E3%83%8A%E3%82%A4%E3%83%B3H%E8%BB%9F%E8%86%8F",
+  "https://sundrug-online.com/products/4987107627667",
+  "https://sundrug-online.com/search?q=%E3%83%81%E3%83%A7%E3%82%B3%E3%83%A9BB%E3%83%97%E3%83%A9%E3%82%B9",
+  "https://sundrug-online.com/search?q=%E3%83%8F%E3%82%A4%E3%83%81%E3%82%AA%E3%83%BC%E3%83%ABC%E3%83%97%E3%83%A9%E3%82%B92",
+  "https://sundrug-online.com/search?q=%E3%83%AD%E3%82%AD%E3%82%BD%E3%83%8B%E3%83%B3S",
+  "https://sundrug-online.com/search?q=%E3%82%81%E3%81%90%E3%82%8A%E3%82%BA%E3%83%A0%20%E8%92%B8%E6%B0%97%E3%81%A7%E3%83%9B%E3%83%83%E3%83%88%E3%82%A2%E3%82%A4%E3%83%9E%E3%82%B9%E3%82%AF",
+  "https://sundrug-online.com/search?q=%E3%82%B8%E3%82%A7%E3%83%83%E3%83%88%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0%200.5mm%20%E9%BB%92",
+  "https://www.maruzenjunkudo.co.jp/products/4902778042250",
+  "https://sundrug-online.com/search?q=%E3%82%AF%E3%83%AB%E3%83%88%E3%82%AC",
+  "https://sundrug-online.com/search?q=%E3%83%95%E3%83%AA%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%9C%E3%83%BC%E3%83%AB",
+  "https://www.zebra.co.jp/pro/sarasa/",
+  "https://sundrug-online.com/products/4901480073019",
+  "https://www.gamespark.jp/release/prtimes/20260925/316504.html",
+  "https://jp.daisonet.com/pages/standardproductsec",
+  "https://store.tojiro.net/",
+  "https://kakaku.com/item/S0001041707/",
+  "https://www.ichimonji.co.jp/",
+  "https://sundrug-online.com/products/4970736110099",
+  "https://sundrug-online.com/products/4562344406208",
+  "https://sundrug-online.com/products/4573306867517",
+  "https://www.pricey.jp/web/articles/1587",
+  "https://www.royce.com/",
+  "https://www.yokumoku.co.jp/",
+  "https://www.ippodo-tea.co.jp/collections/bancha",
+  "https://www.ippodo-tea.co.jp/",
+  "https://www.akafuku.co.jp/product/",
+  "https://www.551horai.co.jp/menu/butaman/",
+  "https://www.ishiya.co.jp/shop/",
+  "https://gashapon.jp/",
+  "http://www.tamiya.com/japan/index.html",
+  "https://www.superpotato.com/",
+  "https://www.nintendo.com/jp/officialstore/",
+  "https://www.bookoff.co.jp/",
+  "http://www.nakagawa-masashichi.jp/shop/c/c020305/",
+  "http://www.nakagawa-masashichi.jp/shop/c/c010404/",
+  "https://kamawanu-store.jp/",
+  "https://shop.shoyeido.co.jp/",
+  "http://wa-kanon.jp/",
+  "https://sundrug-online.com/",
+  "https://www.tamiya-plamodelfactory.co.jp/",
+  "http://www.nakagawa-masashichi.jp/staffblog/storelist/"
+ ]
 };
 
 export const SHOP_PLAN: any = {

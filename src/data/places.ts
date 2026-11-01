@@ -331,7 +331,7 @@ export const PLACES: PlaceBase[] = [
   { id: 'maruzen-nihonbashi', name: 'Maruzen Nihonbashi', ja: '丸善 日本橋店', kind: 'shop', area: 'tokyo', lat: 35.682, lng: 139.7745, note: 'Văn phòng phẩm, sổ, bút.' },
   { id: 'nakagawa-masashichi-nara', name: 'Nakagawa Masashichi Nara', ja: '中川政七商店 奈良本店', kind: 'shop', area: 'nara', lat: 34.6793, lng: 135.8277, note: 'Khăn kaya fukin và đồ gia dụng thủ công.' },
   { id: 'ichizawa', name: 'Ichizawa Shinzaburō Hanpu', ja: '一澤信三郎帆布', kind: 'shop', area: 'kyoto', role: 'along', lat: 35.007759, lng: 135.777603, note: 'Túi canvas may tay; mẫu 148 khoảng ¥16.500. Nghỉ thứ Ba.' },
-  { id: 'ippodo-kyoto', name: 'Ippodo Kyoto Honten', ja: '一保堂茶舗 京都本店', kind: 'shop', area: 'kyoto', lat: 35.014042, lng: 135.767441, note: 'Hōjicha 極上 100 g khoảng ¥756.' },
+  { id: 'ippodo-kyoto', name: 'Ippodo Kyoto Honten', ja: '一保堂茶舗 京都本店', kind: 'shop', area: 'kyoto', lat: 35.014042, lng: 135.767441, note: 'Hōjicha gói 80 g khoảng ¥1.080 (giá 2026, tuỳ loại).' },
   { id: 'doguyasuji', name: 'Sennichimae Dōguyasuji', ja: '千日前道具屋筋商店街', kind: 'shop', area: 'osaka', lat: 34.663935, lng: 135.503517, note: 'Phố đồ bếp: bát, đũa, dao.' },
   { id: 'takashimaya-osaka', name: 'Takashimaya Osaka', ja: '高島屋 大阪店', kind: 'shop', area: 'osaka', lat: 34.664, lng: 135.5017, note: 'Tầng hầm thực phẩm: hộp bánh có hạn dùng dài.' },
   { id: 'loft-umeda', name: 'Loft Hanshin Umeda', ja: 'ロフト 阪神梅田本店', kind: 'shop', area: 'osaka', lat: 34.701165, lng: 135.498607, note: 'Tầng 6 Hanshin Umeda Honten.' },

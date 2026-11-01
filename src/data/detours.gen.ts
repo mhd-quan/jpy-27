@@ -348,6 +348,66 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": false
   }
  },
+ "4.sn-sawamura-shinjuku": {
+  "p": "euyxEwgtsYLB~BKjAMZ@CSYBYcDSDAE",
+  "km": 0.25,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "ga Shinjuku",
+   "lat": 35.68995,
+   "lng": 139.7006,
+   "onWalk": false
+  }
+ },
+ "4.sn-chimoto-ekimae": {
+  "p": "ko`vEqt_pYL@^j@RHRTF?JKr@z@tBlDLGDHLh@LpAZG",
+  "km": 0.31,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "ga Hakone-Yumoto",
+   "lat": 35.23334,
+   "lng": 139.10361,
+   "onWalk": false
+  }
+ },
+ "4.sn-kurotama-shop": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ōwakudani",
+   "lat": 35.24442,
+   "lng": 139.01958,
+   "onWalk": false
+  }
+ },
+ "4.sn-yu-land": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ōwakudani",
+   "lat": 35.24442,
+   "lng": 139.01958,
+   "onWalk": false
+  }
+ },
+ "4.sn-pan-no-mimi": {
+  "p": "}|cvEsztoYAG^EKLLJRC@VQ@q@TCGc@LKeAWUd@aAWgAIu@DqAIu@?}CIIU@cAvAIAYkAHmAE]c@R`@iAt@{@iA]BKJBTU\\ONSLsAQm@uBnAi@Na@Qc@|@c@TU??dA",
+  "km": 1.07,
+  "min": 14,
+  "mode": "walk",
+  "from": {
+   "label": "ga Gōra",
+   "lat": 35.25087,
+   "lng": 139.04826,
+   "onWalk": false
+  }
+ },
  "5.shimizu-port": {
   "p": "cawtEi~glY?d@~@?VTv@??c@",
   "km": 0.12,
@@ -432,6 +492,90 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": false
   }
  },
+ "5.sn-tokaken-odawara-higashiguchi": {
+  "p": "wzdvEeuipYcAvBcFiE}ByBGH|CxCG@}DyD_@_CB{@`AkC|GxCp@^RVtBrAX?Hm@",
+  "km": 1.07,
+  "min": 14,
+  "mode": "walk",
+  "from": {
+   "label": "ga Odawara",
+   "lat": 35.25564,
+   "lng": 139.15491,
+   "onWalk": false
+  }
+ },
+ "5.sn-suzuhiro-odawara-ekimae": {
+  "p": "wzdvEeuipYcAvBcFiE}ByBGH|CxCG@}DyD_@_CB{@`AkC|GxCp@^RVtBrAX?@EJD@G",
+  "km": 1.06,
+  "min": 14,
+  "mode": "walk",
+  "from": {
+   "label": "ga Odawara",
+   "lat": 35.25564,
+   "lng": 139.15491,
+   "onWalk": false
+  }
+ },
+ "5.sn-atami-pudding": {
+  "p": "g`guEskzoYc@tA^|@xB`El@JfBcBj@DLKNQuAiBEY?oAG_@c@w@IcAM]ED@D",
+  "km": 0.55,
+  "min": 7,
+  "mode": "walk",
+  "from": {
+   "label": "ga Atami",
+   "lat": 35.10292,
+   "lng": 139.07658,
+   "onWalk": false
+  }
+ },
+ "5.sn-tochuken-numazu": {
+  "p": "{`guE_dpnYG??_@t@ABnDn@ABnAHJAx@c@@?p@LPA`Bg@CgDFCUg@I@oByBEHeJAeCrDCPS",
+  "km": 0.93,
+  "min": 12,
+  "mode": "walk",
+  "from": {
+   "label": "ga Numazu",
+   "lat": 35.10302,
+   "lng": 138.86032,
+   "onWalk": false
+  }
+ },
+ "5.sn-kashi-no-ichi-ichibakan": {
+  "p": "cawtEi~glYOrAu@IgA@K{@",
+  "km": 0.14,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Kaizan · Kashi no Ichi",
+   "lat": 35.021142,
+   "lng": 138.490774,
+   "onWalk": false
+  }
+ },
+ "5.sn-tokaken-shizuoka": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "ga Shizuoka",
+   "lat": 34.97177,
+   "lng": 138.38892,
+   "onWalk": false
+  }
+ },
+ "5.sn-fujita-ya-kintetsu-nagoya": {
+  "p": "i}suEkbnbYDXXMa@cEgATEF",
+  "km": 0.17,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "ga Kintetsu Nagoya",
+   "lat": 35.16901,
+   "lng": 136.88374,
+   "onWalk": false
+  }
+ },
  "6.uji-bridge": {
   "p": "",
   "km": 0,
@@ -441,6 +585,90 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "label": "Bến xe Naikū-mae → Ise Naikū",
    "lat": 34.45872966216758,
    "lng": 136.7232477313232,
+   "onWalk": true
+  }
+ },
+ "6.sn-dandelion-chocolate-ise": {
+  "p": "saoqEenkaYHF@VSd@HHpBkEk@YPgANF",
+  "km": 0.23,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Comfort Hotel ERA Ise → Ise Gekū",
+   "lat": 34.48874150579487,
+   "lng": 136.70642726842067,
+   "onWalk": true
+  }
+ },
+ "6.sn-tofuan-yamanaka": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ise Naikū → Fukusuke",
+   "lat": 34.461263044838425,
+   "lng": 136.72341874955364,
+   "onWalk": true
+  }
+ },
+ "6.sn-dango-ya-okage": {
+  "p": "y|iqEwvnaY[JOaAdCIEe@MH",
+  "km": 0.15,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Fukusuke",
+   "lat": 34.462372,
+   "lng": 136.723158,
+   "onWalk": false
+  }
+ },
+ "6.sn-maruyoshi-oharai": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ise Naikū → Fukusuke",
+   "lat": 34.460763675941514,
+   "lng": 136.7233092988365,
+   "onWalk": true
+  }
+ },
+ "6.sn-henbaya-oharai": {
+  "p": "u~iqEkynaYPCD^uBb@mF|AG]",
+  "km": 0.25,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Akafuku Honten",
+   "lat": 34.462671,
+   "lng": 136.723576,
+   "onWalk": false
+  }
+ },
+ "6.sn-ise-purin-tetsujin": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ise Naikū → Fukusuke",
+   "lat": 34.460763675941514,
+   "lng": 136.7233092988365,
+   "onWalk": true
+  }
+ },
+ "6.sn-kawasaki-gura": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Bến xe Gekū-mae → Phố kho Kawasaki",
+   "lat": 34.49480670273253,
+   "lng": 136.7154186809274,
    "onWalk": true
   }
  },
@@ -553,7 +781,7 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   }
  },
  "7.kenninji": {
-  "p": "ypttEoqt{XQ@@kBhROrG??HbCBzB?BIh@Nt@mC?QGCJc@DMRDF[TgEzC^L_Bf@eA~ARF_B",
+  "p": "ypttEoqt{XQ@@kBhROrG??HbCBzB?BIh@Nt@mCEUJe@DKPFF[TiEzC^L_Bf@eA~ARF_B",
   "km": 1.23,
   "min": 16,
   "mode": "walk",
@@ -574,6 +802,54 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "lat": 35.008294,
    "lng": 135.769995,
    "onWalk": false
+  }
+ },
+ "7.sn-minerva-toba": {
+  "p": "uunqE}kfbYeAxCUZSMEP",
+  "km": 0.12,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Toba → Bến Toba Marine Terminal",
+   "lat": 34.48683,
+   "lng": 136.84431,
+   "onWalk": true
+  }
+ },
+ "7.sn-kamome-bay-terrace-toba": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Toba → Bến Toba Marine Terminal",
+   "lat": 34.48628188587901,
+   "lng": 136.8426693889048,
+   "onWalk": true
+  }
+ },
+ "7.sn-musea-coffee-toba-eki": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Toba → Bến Toba Marine Terminal",
+   "lat": 34.48628188587901,
+   "lng": 136.8426693889048,
+   "onWalk": true
+  }
+ },
+ "7.sn-gion-tsujiri-kyoto-hachijoguchi": {
+  "p": "c`ptEgtr{XCwBIyAD?K{@D?L`A",
+  "km": 0.16,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Kyoto (Kintetsu) → Kyoto (Karasuma Line)",
+   "lat": 34.985142,
+   "lng": 135.7602,
+   "onWalk": true
   }
  },
  "8.ichizawa": {
@@ -757,7 +1033,7 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   }
  },
  "9.kenninji": {
-  "p": "eqstEw}t{X`AT@KvDfAJm@PuDzC^L_Bf@eA~ARF_B",
+  "p": "eqstEw}t{X`AT@KvDhAJo@PuDzC^L_Bf@eA~ARF_B",
   "km": 0.53,
   "min": 7,
   "mode": "walk",
@@ -877,9 +1153,9 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   }
  },
  "10.tofukuji": {
-  "p": "wwltE}lt{X?Y[A@kCkM^aDXGc@u@TCSeCG}@U@iC_NB@}ALIJuJFMOD[A{@c@]ADiCsCGDsByBMAp@",
+  "p": "wwltE}lt{X?Y[A@kCkM^aDXGc@u@TCSeCG}@U@iC_NB@}ALIJuJFMOD[A{@c@]A@aAu@C@gA{ACDsByBMAp@",
   "km": 1.54,
-  "min": 21,
+  "min": 20,
   "mode": "walk",
   "from": {
    "label": "ga Fushimi-Inari (Keihan)",
@@ -997,8 +1273,8 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   }
  },
  "11.tsutenkaku": {
-  "p": "obqrEmj`zXsCpBh@bB|B{AAh@pDyBlAe@jBWhBN@ON@Hy@hEr@B[V?T}Fz@gHLKtBHDC?e@fDFRCJDfCDRCTFhCD`@ClCRXQb@JBOLLHAhH_BD_@`@F",
-  "km": 1.73,
+  "p": "obqrEmj`zXsCpBh@bB|B{AAh@pDyBlAe@jBWhBN@ON@Hy@hEr@B[V?T}Fz@gHLKbHNNFTElCFBDVE~DH?g@lABl@HXQb@JBOLLHAhH_BD_@`@F",
+  "km": 1.74,
   "min": 23,
   "mode": "walk",
   "from": {
