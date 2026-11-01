@@ -5,3 +5,8 @@ dist/
 .DS_Store
 *.log
 .wrangler
+# iOS: the Xcode project is generated from ios/project.yml (xcodegen)
+ios/*.xcodeproj/
+ios/**/xcuserdata/
+ios/Packages/TripKit/.build/
+ios/Packages/TripKit/.swiftpm/

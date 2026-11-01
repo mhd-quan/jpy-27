@@ -1,0 +1,117 @@
+# XcodeGen spec — `brew install xcodegen && xcodegen` in ios/ writes JP27.xcodeproj.
+# Set DEVELOPMENT_TEAM below (or in Xcode) before running on a device.
+name: JP27
+
+options:
+  bundleIdPrefix: tech.delphyra
+  deploymentTarget:
+    iOS: "26.0"
+  developmentLanguage: vi
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: ""
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "6.0"
+    # Xcode 26 defaults for app code: everything on the main actor unless it says otherwise
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    TARGETED_DEVICE_FAMILY: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+
+packages:
+  TripKit:
+    path: Packages/TripKit
+  MapLibre:
+    url: https://github.com/maplibre/maplibre-gl-native-distribution
+    from: 6.17.0
+
+targets:
+  JP27:
+    type: application
+    platform: iOS
+    sources:
+      - path: JP27
+      - path: Shared
+      # the site's self-hosted Commons photos ship inside the app, as one folder
+      - path: ../public/img/commons
+        type: folder
+        buildPhase: resources
+      - path: ../public/map
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: TripKit
+      - package: MapLibre
+      - target: JP27Widgets
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: tech.delphyra.jp27
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: JP27/JP27.entitlements
+        INFOPLIST_FILE: JP27/Info.plist
+    info:
+      path: JP27/Info.plist
+      properties:
+        CFBundleDisplayName: JP27
+        CFBundleDevelopmentRegion: vi
+        UILaunchScreen: {}
+        UIApplicationSupportsIndirectInputEvents: true
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        ITSAppUsesNonExemptEncryption: false
+        NSSupportsLiveActivities: true
+        CFBundleURLTypes:
+          - CFBundleURLName: tech.delphyra.jp27
+            CFBundleURLSchemes: [jp27]
+        UIBackgroundModes: [location, fetch]
+        BGTaskSchedulerPermittedIdentifiers: [tech.delphyra.jp27.refresh]
+        NSLocationWhenInUseUsageDescription: Chấm vị trí của bạn trên lịch hôm nay, tính quãng còn lại tới điểm tiếp theo và những chỗ gần đó.
+        NSLocationAlwaysAndWhenInUseUsageDescription: Báo món nên gọi khi tới gần quán, theo dõi ga trên tàu kể cả khi khoá màn hình, và tự ghi nhật ký những nơi đã ghé.
+        NSMotionUsageDescription: Đo tốc độ đi bộ thật để tính giờ đi bộ cho đúng với hai bạn.
+        NSCameraUsageDescription: Quét thực đơn và tìm hướng núi Fuji qua camera.
+        NSMicrophoneUsageDescription: Nghe câu tiếng Nhật để dịch sang tiếng Việt ngay trên máy.
+        NSSpeechRecognitionUsageDescription: Chuyển lời nói tiếng Nhật thành chữ ngay trên máy để dịch.
+        NSPhotoLibraryUsageDescription: Gắn ảnh bạn chụp vào nhật ký từng điểm dừng theo giờ và nơi chụp.
+        NSAlarmKitUsageDescription: Báo thức trước ga cần xuống, kể cả khi điện thoại đang im lặng.
+        NSUserActivityTypes: [tech.delphyra.jp27.place]
+
+  JP27Widgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: JP27Widgets
+      - path: Shared
+    dependencies:
+      - package: TripKit
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: tech.delphyra.jp27.widgets
+        CODE_SIGN_ENTITLEMENTS: JP27Widgets/JP27Widgets.entitlements
+        INFOPLIST_FILE: JP27Widgets/Info.plist
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    info:
+      path: JP27Widgets/Info.plist
+      properties:
+        CFBundleDisplayName: JP27
+        NSSupportsLiveActivities: true
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+
+schemes:
+  JP27:
+    build:
+      targets:
+        JP27: all
+        JP27Widgets: all
+    run:
+      config: Debug
+    test:
+      config: Debug

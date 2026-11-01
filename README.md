@@ -1,6 +1,6 @@
 # JP27
 
-Trang hành trình 12 ngày Tokyo → Osaka (18–29/10/2027) cho hai người: lịch từng ngày với bản đồ đi theo khi cuộn, món nên gọi và giá ở từng quán, ăn vặt dọc đường, chỗ ở và đường đi dạo quanh khách sạn, Fuji (kể cả một ngày Kawaguchiko thay ngày 3), từng chuyến tàu, kế hoạch mua sắm theo ngày, ngân sách và sổ tay có câu tiếng Nhật theo tình huống. Astro + TypeScript + CSS thuần, MapLibre GL cho bản đồ.
+Trang hành trình 12 ngày Tokyo → Osaka (18–29/10/2027) cho hai người, và app iPhone đi kèm (`ios/`, xem [ios/README.md](ios/README.md)): lịch từng ngày với bản đồ đi theo khi cuộn, món nên gọi và giá ở từng quán, ăn vặt dọc đường, chỗ ở và đường đi dạo quanh khách sạn, Fuji (kể cả một ngày Kawaguchiko thay ngày 3), từng chuyến tàu, kế hoạch mua sắm theo ngày, ngân sách và sổ tay có câu tiếng Nhật theo tình huống. Astro + TypeScript + CSS thuần, MapLibre GL cho bản đồ.
 
 ## Chạy
 
@@ -22,6 +22,7 @@ src/
     lines.ts         các tuyến tàu/xe với màu chính thức của từng hãng
     trip.ts          ngân sách, giỏ mua sắm, vé, câu tiếng Nhật, lịch đặt chỗ
     catalog.ts       gộp places.ts với dữ liệu nghiên cứu
+    notes.ts         chữ của Sổ tay (vé, hành lý, onsen…), nhóm tình huống, chỗ đã đặt bàn — dùng chung site và app
     *.gen.ts         sinh ra bởi scripts/, không sửa tay
   lib/               map.ts (MapLibre), mapStyle.ts (basemap riêng), trip.ts (view model), geo.ts
   components/        MapView, Gallery, PlaceSheet, Panorama, RouteSpark, AlongItem, RideStrip, Nav (wordmark JP27: Anybody 150% / 900, vẽ thành đường nét)
@@ -29,6 +30,7 @@ src/
   pages/             trang chủ, ngay/[n], fuji, fuji/kawaguchiko, tren-tau, an-uong, cho-o, mua-sam, ngan-sach, so-tay
 scripts/             pipeline dữ liệu (bên dưới)
 research/            dữ liệu nghiên cứu thô (JSON)
+ios/                 app iPhone (SwiftUI, iOS 26): lõi TripKit, app, widget
 ```
 
 ## Dữ liệu và pipeline
@@ -45,11 +47,12 @@ research/            dữ liệu nghiên cứu thô (JSON)
 | Đường đi bộ của các khung mua sắm | `node scripts/build-shopping.mjs` | `src/data/shopping.gen.ts` |
 | Thời gian đi bộ có tính dốc | `node scripts/build-walk.mjs` | `src/data/walk.gen.ts` |
 | Kiểm tra lịch có kịp giờ | `npm run check:plan` | báo những điểm dừng hoặc chuyến tàu lên lịch sớm hơn lúc tới được |
+| Dữ liệu cho app iPhone | `npm run ios:data` | `ios/JP27/Resources/Trip/*.json`, `ios/Shared/schedule.json`, `public/map/jp27-*.json` |
 
-Thứ tự khi sửa dữ liệu: merge → localize → merge → geo → detours → rides → fuji → stays → shopping → walk → check:plan. `npm run geo` chạy liền geo, detours và walk.
+Thứ tự khi sửa dữ liệu: merge → localize → merge → geo → detours → rides → fuji → stays → shopping → walk → check:plan → ios:data. `npm run geo` chạy liền geo, detours và walk.
 
 - **Đi bộ**: độ cao lấy mỗi 15 m trên Terrarium z14 (~10 m), làm mượt 105 m và bỏ dao động dưới 4 m (dữ liệu bề mặt thấy cả nhà và cầu vượt); tốc độ theo hàm Tobler nhân 0,78 — khoảng 3,9 km/h trên đường phẳng, chậm hơn khi leo hoặc xuống dốc gắt. Cộng 1 phút định hướng mỗi đoạn và thời gian từ sân ga ra đường ở các ga lớn (Shinjuku, Nagoya, Kyoto, Namba… 3–5 phút; đổi giữa hai ga tính một lần). Thời gian này hiện ở từng đoạn đi bộ, đường rẽ, đường dạo quanh khách sạn và khung mua sắm.
-- **Kiểm tra lịch**: chạy đồng hồ qua từng ngày — đi bộ theo mô hình trên, tàu xe theo cận dưới của thời gian ghi trong lịch cộng thời gian chờ khi không có giờ chạy cụ thể, mỗi điểm dừng có thời gian ở tối thiểu theo loại (bữa chính 45–60 phút, đền chùa lớn 40–50, chỗ chụp ảnh 10–20). Geometry của chặng đã có trong `geo.gen.ts` được giữ lại (id chặng băm theo tuyến, hai đầu và điểm đi qua); `--fresh` để tính lại hết.
+- **Kiểm tra lịch**: chạy đồng hồ qua từng ngày — đi bộ theo mô hình trên, tàu xe theo cận dưới của thời gian ghi trong lịch cộng thời gian chờ khi không có giờ chạy cụ thể, mỗi điểm dừng có thời gian ở tối thiểu theo loại (bữa chính 45–60 phút, đền chùa lớn 40–50, chỗ chụp ảnh 10–20). Geometry của chặng đã có trong `geo.gen.ts` được giữ lại (id chặng băm theo tuyến, hai đầu và điểm đi qua); `--fresh` để tính lại hết. Thời gian ở và thời gian chờ nằm ở `scripts/plan-rules.mjs`, dùng chung với app iPhone — app chạy cùng đồng hồ này bằng Swift để tính lại lịch khi đang trễ.
 
 `merge-research` ghi thêm `src/data/enrich.gen.ts` (câu tiếng Nhật, chỗ ở, Fuji, mua sắm, tàu) từ các file nghiên cứu:
 
