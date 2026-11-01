@@ -44,8 +44,9 @@ struct TripMap: UIViewRepresentable {
     var insets = UIEdgeInsets(top: 80, left: 40, bottom: 80, right: 40)
     /// change it to frame the content again
     var frameID = ""
-    /// centre on this when it changes
+    /// centre on this when it changes, or when focusID changes (to recentre on the same point)
     var focus: Coordinate?
+    var focusID = 0
     var onSelect: ((String) -> Void)?
 
     @Environment(\.colorScheme) private var scheme
@@ -90,8 +91,9 @@ struct TripMap: UIViewRepresentable {
             c.frameID = frameID
             c.frame(map, animated: true)
         }
-        if let focus, focus != c.focus {
+        if let focus, focus != c.focus || focusID != c.focusID {
             c.focus = focus
+            c.focusID = focusID
             map.setCenter(CLLocationCoordinate2D(latitude: focus.lat, longitude: focus.lng), zoomLevel: max(map.zoomLevel, 15), animated: true)
         }
     }
@@ -102,6 +104,7 @@ struct TripMap: UIViewRepresentable {
         var loaded = false
         var frameID: String
         var focus: Coordinate?
+        var focusID = 0
         private var applied: MapContent?
         private var layers: [String] = []
         private var sources: [String] = []
@@ -112,6 +115,7 @@ struct TripMap: UIViewRepresentable {
             self.dark = dark
             frameID = parent.frameID
             focus = parent.focus
+            focusID = parent.focusID
         }
 
         nonisolated func mapView(_ mapView: MLNMapView, didFinishLoading style: MLNStyle) {
