@@ -50,6 +50,9 @@ export interface Ride {
   transfers: { at: string; text: string; idx: number }[];
   alight?: { prevSt: string; announce?: string; announceRomaji?: string; text?: string; idx: number } | null;
   onboard?: string | null;
+  /** buses: how to board and pay */
+  board?: string | null;
+  pay?: string | null;
   sources: string[];
   researched: boolean;
 }
@@ -57,7 +60,13 @@ export interface Ride {
 const SCENIC = new Set(['train', 'shinkansen', 'cable', 'ropeway', 'cruise', 'ferry']);
 
 // Names research uses for places the plan names differently
-const ALIAS: Record<string, string> = { 佐田浜: '鳥羽マリンターミナル', 佐田浜港: '鳥羽マリンターミナル', 鳥羽港: '鳥羽マリンターミナル' };
+const ALIAS: Record<string, string> = {
+  佐田浜: '鳥羽マリンターミナル',
+  佐田浜港: '鳥羽マリンターミナル',
+  鳥羽港: '鳥羽マリンターミナル',
+  恩賜公園前: '恩賜箱根公園',
+  河口湖自然生活館: '大石公園',
+};
 /** 大阪難波駅 (Kintetsu) → 大阪難波 */
 const norm = (s: string) => {
   const n = s
@@ -102,6 +111,8 @@ interface RRide {
   transfers?: { at: string; text: string }[];
   alight?: { prevSt: string; announce?: string; announceRomaji?: string; text?: string };
   onboard?: string | null;
+  board?: string | null;
+  pay?: string | null;
   sources?: string[];
 }
 
@@ -251,6 +262,8 @@ function build(day: Day, legs: LegView[], r: RRide | null, at?: string): Ride {
     transfers: transfers.map((t) => ({ ...t, idx: remap.get(t.idx)! })),
     alight: alight ? { ...alight, idx: remap.get(alight.idx)! } : null,
     onboard: r?.onboard ?? null,
+    board: r?.board ?? null,
+    pay: r?.pay ?? null,
     sources: r?.sources ?? [],
     researched: Boolean(r),
   };
@@ -262,7 +275,8 @@ function ridesOf(day: Day): Ride[] {
   const items = day.items;
   const research = (RIDES_R as RRide[]).filter((r) => String(r.day) === (day.id ?? String(day.n)));
   const used = new Set<string>();
-  const moves = items.flatMap((it) => (it.type === 'move' ? [{ at: it.at, l: legView(it.leg) }] : [])).filter(({ l }) => SCENIC.has(l.mode));
+  // buses join only when research describes them; other buses stay out of the trains page
+  const moves = items.flatMap((it) => (it.type === 'move' ? [{ at: it.at, l: legView(it.leg) }] : [])).filter(({ l }) => SCENIC.has(l.mode) || l.mode === 'bus');
   for (const r of research) {
     // first leg that boards at the research's "from", then legs until one reaches its "to"
     const fromN = norm(r.from);
@@ -284,7 +298,7 @@ function ridesOf(day: Day): Ride[] {
     out.push(build(day, chosen.map((c) => c.l), r, chosen[0].at));
   }
   for (const { at, l } of moves) {
-    if (used.has(l.id) || (l.km < 3 && l.mode !== 'cable')) continue;
+    if (used.has(l.id) || l.mode === 'bus' || (l.km < 3 && l.mode !== 'cable')) continue;
     out.push(build(day, [l], null, at));
   }
   const order = (r: Ride) => items.findIndex((it) => it.type === 'move' && it.leg.id === r.legs[0].id);

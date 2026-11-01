@@ -5,7 +5,7 @@ import RideStrip from '../../components/RideStrip.astro';
 import { RIDES, ALT_RIDES, rideAnchor, seatVerdict, type Ride } from '../../lib/rides';
 import { fmtKm, url, dateLabel } from '../../lib/trip';
 
-const MODE: Record<string, string> = { cruise: 'Thuyền', ferry: 'Phà', ropeway: 'Cáp treo', cable: 'Tàu cáp kéo' };
+const MODE: Record<string, string> = { cruise: 'Thuyền', ferry: 'Phà', ropeway: 'Cáp treo', cable: 'Tàu cáp kéo', bus: 'Xe buýt' };
 const featured = RIDES.filter((r) => r.researched || r.km >= 20);
 const short = RIDES.filter((r) => !featured.includes(r));
 const days = [...new Set(featured.map((r) => r.day.n))];
@@ -30,7 +30,7 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs.at(-1)!.to
     <p class="t-small muted hint">Trái và phải tính khi nhìn về phía tàu chạy.</p>
   </section>
 
-  <nav class="wrap index" aria-label="Các chuyến">
+  <nav class="wrap index" id="danh-sach" aria-label="Các chuyến">
     {
       days.map((n) => {
         const list = featured.filter((r) => r.day.n === n);
@@ -95,6 +95,13 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs.at(-1)!.to
                   {r.seat && <p class="t-small">{r.seat}</p>}
                 </div>
               )}
+              {(r.board || r.pay) && (
+                <div class="onboard">
+                  <p class="seat-k t-micro">Lên xe, trả tiền</p>
+                  {r.board && <p class="t-small">{r.board}</p>}
+                  {r.pay && <p class="t-small">{r.pay}</p>}
+                </div>
+              )}
               {r.train && (
                 <details class="train t-small">
                   <summary>Chuyến tàu, giờ mẫu</summary>
@@ -107,6 +114,9 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs.at(-1)!.to
                   <p class="t-small">{r.onboard}</p>
                 </div>
               )}
+              <p class="t-small back">
+                <a href="#danh-sach">↑ Danh sách chuyến</a>
+              </p>
               {r.sources.length > 0 && (
                 <p class="t-micro faint srcs">
                   Nguồn:{' '}
@@ -306,6 +316,15 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs.at(-1)!.to
 
   .ride {
     padding-block: clamp(40px, 6vw, 72px);
+    /* a long page of rides: skip layout and paint for the ones off screen */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1400px;
+  }
+  .back {
+    margin: 14px 4px 0;
+  }
+  #danh-sach {
+    scroll-margin-top: calc(var(--nav-h) + 12px);
   }
   .ride-head .t-2 {
     margin-top: 6px;
