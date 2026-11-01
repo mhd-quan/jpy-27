@@ -174,7 +174,7 @@ const firstImages = (id: string) => {
                       .join(' — ')}
                   </p>
                 )}
-                {p && p.kind === 'food' && p.menu && <MenuMini p={p} />}
+                {p && p.kind === 'food' && (p.menu || p.snack) && <MenuMini p={p} />}
                 {item.text && <p class="stop-text">{item.text}</p>}
                 {item.cost ? <p class="cost t-small tnum">{fmtYen(item.cost)} cho hai người</p> : null}
                 {p && (

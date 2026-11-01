@@ -336,13 +336,13 @@ export const GEO: Record<string, { p: string; km: number }> = {
   "p": "kustEsyt{XAwBWKBq@RAGcQDW@eFFqBWq@Hi@OKk@gAFu@PBd@OAEVMDcBFG?Mh@BAj@@k@i@C?LGFEbBWL@De@NQCGt@j@fANJIh@Vp@A\\yBCATiA?EnDc@ASpGoACnABDgCvCNrA@F\\b@??SfA?jCZWtDF@?E",
   "km": 1.99
  },
- "walk.yorozuya.komori.gjs5kp": {
-  "p": "instEmju{X?DGAVuDkC[gA??Rc@?G]sAAcGYOBCpAJ\\?NWC",
-  "km": 0.53
+ "walk.yorozuya.sn-gion-tokuya.gjs5kp": {
+  "p": "instEmju{X?DGAVuDb@F@I",
+  "km": 0.12
  },
- "walk.komori.wargo-gion.gjs5kp": {
-  "p": "qattEanu{XVBEn@R@r@jGF?B`CvA@?GnBHLFr@FCp@VJ@vB",
-  "km": 0.48
+ "walk.sn-gion-tokuya.wargo-gion.gjs5kp": {
+  "p": "slstEapu{XAHoDc@gA?@|Kc@?@pCS@Cp@VJ@vB",
+  "km": 0.53
  },
  "walk.wargo-gion.menzo.1aqljry": {
   "p": "kustEsyt{XAwBWKBq@s@GMGoBI?FwAACaCG?w@qHUy@BqAQC?SwA@iAIJsDKAP{GEE]C@_@SADm@G_@y@{@Le@qBoBwCaEABcAgA{Au@@O_@CBwBeCD?eAaCDcAk@q@SkBK@aAeA@WL{AFDjA_@@?Oo@B?FS@CcAy@B?cAM??uDFa@Ec@@cBY?IQ?MkB??W",

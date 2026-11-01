@@ -8,7 +8,8 @@ interface Props {
 }
 const { p, limit = 4 } = Astro.props;
 const ORDER = ['signature', 'popular', 'value', 'light', 'side', 'dessert', 'drink'];
-const items = [...(p.menu?.items ?? [])].sort((a, b) => ORDER.indexOf(a.pick) - ORDER.indexOf(b.pick)).slice(0, limit);
+const fromSnack = (p.snack?.get ?? []).map((g, i) => ({ ja: g.ja, vi: g.vi, yen: g.yen, pick: i === 0 ? 'signature' : 'popular', note: null }));
+const items = [...(p.menu?.items ?? fromSnack)].sort((a, b) => ORDER.indexOf(a.pick) - ORDER.indexOf(b.pick)).slice(0, limit);
 const yen = (n: number | null) => (n ? `¥${n.toLocaleString('vi-VN')}` : '');
 const short = shortVi;
 ---
@@ -16,7 +17,7 @@ const short = shortVi;
 {
   items.length > 0 && (
     <div class="menu-mini">
-      <p class="mm-k t-micro">Nên gọi</p>
+      <p class="mm-k t-micro">{p.menu ? 'Nên gọi' : 'Nên mua'}</p>
       <ul>
         {items.map((m) => (
           <li class:list={[m.pick === 'signature' && 'is-sig']}>

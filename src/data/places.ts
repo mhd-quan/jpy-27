@@ -260,9 +260,9 @@ export const PLACES: PlaceBase[] = [
     tabelog: tb('kyoto/A2601/A260301/26000254'),
   },
   {
-    id: 'komori', name: 'Gion Komori', ja: 'ぎをん小森', kind: 'food', area: 'kyoto',
+    id: 'komori', name: 'Gion Komori', ja: 'ぎをん小森', kind: 'food', area: 'kyoto', role: 'alt',
     dish: 'Warabi mochi, parfait', price: '¥1.400–2.000',
-    note: 'Trà quán trong nhà machiya bên kênh Shirakawa.', tabelog: tb('kyoto/A2601/A260301/26000280'),
+    note: 'Trà quán trong nhà machiya bên kênh Shirakawa. Nghỉ thứ Hai nên không hợp ngày 8; dùng nếu đổi lịch Gion sang ngày khác.', closed: 'Thứ Hai', tabelog: tb('kyoto/A2601/A260301/26000280'),
   },
   {
     id: 'menzo', name: 'Yamamoto Menzō', ja: '山元麺蔵', kind: 'food', area: 'kyoto',
