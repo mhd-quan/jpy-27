@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import MapView from '../../components/MapView.astro';
 import SayButton from '../../components/SayButton.astro';
-import { SLOTS, STORES, CATEGORIES, CHAINS, TAX_FREE, RULES, SOURCES, slotsFor, itemsFor, BASKET_TOTAL, SHOP_BUDGET, type Item } from '../../lib/shopping';
+import { SLOTS, STORES, CATEGORIES, CHAINS, TAX_FREE, RULES, slotsFor, itemsFor, BASKET_TOTAL, SHOP_BUDGET, type Item } from '../../lib/shopping';
 import { DAYS, place, hasPlace, fmtYen, fmtKm, url, dateLabel, CHAPTERS } from '../../lib/trip';
 import { boundsOf, type LatLng } from '../../lib/geo';
 import type { Pin, RouteLeg } from '../../lib/map';
@@ -113,54 +113,57 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
               const items = itemsFor(s).slice(0, 6);
               return (
                 <div class="slot" data-slot={s.id} data-slot-day={s.day} data-slot-bounds={slotBounds(s)} style={`--c:${COLORS[SLOTS.indexOf(s) % COLORS.length]}`}>
-                  <p class="slot-when">
-                    <span class="tnum">
-                      {s.start}
-                      {s.end ? `–${s.end}` : ''}
-                    </span>
-                    <span>{[s.area, s.city].filter(Boolean).join(', ')}</span>
-                  </p>
-                  {(s.after || s.before) && (
-                    <p class="t-small muted">
-                      {s.after && `Sau ${nameOf(s.after)}`}
-                      {s.after && s.before && ', '}
-                      {s.before && `trước ${nameOf(s.before)}`}
-                      {s.route && s.route.km > 0 ? ` · đi bộ ${fmtKm(s.route.km)}, khoảng ${s.route.min} phút` : ''}
+                  <span class="s-bar" aria-hidden="true" />
+                  <div class="s-body">
+                    <p class="slot-when">
+                      <span class="tnum">
+                        {s.start}
+                        {s.end ? `–${s.end}` : ''}
+                      </span>
+                      <span>{[s.area, s.city].filter(Boolean).join(', ')}</span>
                     </p>
-                  )}
-                  {s.focus && <p class="slot-focus">{s.focus}</p>}
-                  {s.stores.length > 0 && (
-                    <ul class="stores">
-                      {s.stores.map((p) => (
-                        <li>
-                          <button type="button" class="store" data-place={p.id}>
-                            <strong>{p.name}</strong>
-                            <span class="t-micro muted">
-                              {[p.store?.open && p.store?.close ? `${p.store.open}–${p.store.close}` : p.hours, p.store?.taxFree ? 'miễn thuế' : ''].filter(Boolean).join(' · ')}
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {items.length > 0 && (
-                    <ul class="slot-items">
-                      {items.map((it) => (
-                        <li>
-                          <span>{it.name}</span>
-                          <span class="tnum">{yen(it.yen)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {s.why && <p class="t-small muted">{s.why}</p>}
-                  {s.skipIf && <p class="t-small skip">Bỏ khi: {s.skipIf}</p>}
-                  <p class="slot-actions">
-                    <button type="button" class="btn btn-quiet sm" data-show-slot={s.id}>
-                      Xem trên bản đồ
-                    </button>
-                    <SayButton tags={['shop']} scenario="shop" />
-                  </p>
+                    {(s.after || s.before) && (
+                      <p class="t-small muted">
+                        {s.after && `Sau ${nameOf(s.after)}`}
+                        {s.after && s.before && ', '}
+                        {s.before && `trước ${nameOf(s.before)}`}
+                        {s.route && s.route.km > 0 ? ` · đi bộ ${fmtKm(s.route.km)}, khoảng ${s.route.min} phút` : ''}
+                      </p>
+                    )}
+                    {s.focus && <p class="slot-focus">{s.focus}</p>}
+                    {s.stores.length > 0 && (
+                      <ul class="stores">
+                        {s.stores.map((p) => (
+                          <li>
+                            <button type="button" class="store" data-place={p.id}>
+                              <strong>{p.name}</strong>
+                              <span class="t-micro muted">
+                                {[p.store?.open && p.store?.close ? `${p.store.open}–${p.store.close}` : p.hours, p.store?.taxFree ? 'miễn thuế' : ''].filter(Boolean).join(' · ')}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {items.length > 0 && (
+                      <ul class="slot-items">
+                        {items.map((it) => (
+                          <li>
+                            <span>{it.name}</span>
+                            <span class="tnum">{yen(it.yen)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {s.why && <p class="t-small muted">{s.why}</p>}
+                    {s.skipIf && <p class="t-small skip">Bỏ khi: {s.skipIf}</p>}
+                    <p class="slot-actions">
+                      <button type="button" class="btn btn-quiet sm" data-show-slot={s.id}>
+                        Xem trên bản đồ
+                      </button>
+                      <SayButton tags={['shop']} scenario="shop" />
+                    </p>
+                  </div>
                 </div>
               );
             })}
@@ -267,32 +270,12 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
         )
       }
     </div>
-    {
-      SOURCES.length > 0 && (
-        <p class="wrap t-micro faint srcs">
-          Nguồn:{' '}
-          {SOURCES.slice(0, 14).map((s, k) => (
-            <>
-              {k > 0 && ', '}
-              <a href={s} target="_blank" rel="noopener">
-                {(() => {
-                  try {
-                    return new URL(s).hostname.replace(/^www\./, '');
-                  } catch {
-                    return s;
-                  }
-                })()}
-              </a>
-            </>
-          ))}
-        </p>
-      )
-    }
   </section>
 </Base>
 
 <script>
   import type { TripMap } from '../../lib/map';
+  import { watchReading } from '../../scripts/reading';
   const KEY = 'nb27-shop-picks';
   const box = document.querySelector<HTMLElement>('[data-budget]')!;
   const budget = Number(box.dataset.budget);
@@ -338,18 +321,49 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
       map()?.fit(JSON.parse(t.dataset.cityBounds!), 48);
     }),
   );
-  document.addEventListener('click', (e) => {
-    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-show-slot]');
-    if (!b) return;
-    const slot = b.closest<HTMLElement>('[data-slot]')!;
+  const slots = [...document.querySelectorAll<HTMLElement>('[data-slot]')];
+  let shown: HTMLElement | null = null;
+  let movedAt = 0;
+  // fit the slot's walk, and keep the city tab in step with it
+  const showSlot = (slot: HTMLElement, fit = true) => {
+    shown?.classList.remove('is-active');
+    shown = slot;
+    slot.classList.add('is-active');
     const m = map();
     if (!m) return;
     m.clear();
-    m.highlightLeg(`${b.dataset.showSlot}#0`, false);
-    m.fit(JSON.parse(slot.dataset.slotBounds!), 64);
-    // keep the city tab in step with the slot shown
+    m.highlightLeg(`${slot.dataset.slot}#0`, false);
+    if (fit) m.fit(JSON.parse(slot.dataset.slotBounds!), 64);
     const day = slot.dataset.slotDay!;
-    tabs.forEach((x) => x.setAttribute('aria-selected', String(x.dataset.cityDays!.split(' ').includes(day) && x === tabs.find((y) => y.dataset.cityDays!.split(' ').includes(day)))));
+    const tab = tabs.find((y) => y.dataset.cityDays!.split(' ').includes(day));
+    tabs.forEach((x) => x.setAttribute('aria-selected', String(x === tab)));
+  };
+  // Scrolling through the days shows the slot being read, unless the map was just moved by hand
+  const reading = watchReading(slots, {
+    column: document.querySelector<HTMLElement>('.plan-list')!,
+    covers: () => [document.querySelector('.nav'), document.querySelector('.budget'), document.querySelector('.plan-map')],
+    share: (stacked) => (stacked ? 0.2 : 0.4),
+    onChange: (slot) => slot && showSlot(slot, performance.now() - movedAt > 4000),
+  });
+  const attach = () => {
+    const m = map();
+    if (!m) return;
+    m.map.on('dragstart', () => (movedAt = performance.now()));
+    m.map.on('zoomstart', (e) => {
+      if ((e as { originalEvent?: Event }).originalEvent) movedAt = performance.now();
+    });
+    reading.reset();
+  };
+  if (map()) attach();
+  window.addEventListener('map-ready', (e) => {
+    if ((e as CustomEvent<string>).detail === 'shop') attach();
+  });
+  tabs.forEach((t) => t.addEventListener('click', () => (movedAt = performance.now())));
+  document.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-show-slot]');
+    if (!b) return;
+    movedAt = 0;
+    showSlot(b.closest<HTMLElement>('[data-slot]')!);
     if (matchMedia('(max-width: 900px)').matches) document.querySelector('.plan-map')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 </script>
@@ -517,7 +531,8 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
   .plan-list {
     order: 1;
     min-width: 0;
-    padding: 0 clamp(20px, 3.4vw, 48px) 64px max(var(--gutter), calc((100vw - 1400px) / 2));
+    /* left edge lines up with the page heading above */
+    padding: 0 clamp(20px, 3.4vw, 48px) 64px max(var(--gutter), calc((100vw - var(--wrap)) / 2));
   }
   @media (max-width: 900px) {
     .plan-grid {
@@ -553,24 +568,37 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
     letter-spacing: -0.02em;
     color: var(--ink);
   }
+  /* a slot reads like a walk on the stays page: a rounded bar in the slot's map colour beside it */
   .slot {
-    margin-top: 16px;
-    padding: 16px 18px;
-    border-radius: var(--r-l);
-    background: var(--bg-2);
-    border-left: 5px solid var(--c);
+    display: grid;
+    grid-template-columns: 6px minmax(0, 1fr);
+    gap: 14px;
+    margin-top: 22px;
   }
-  .slot p {
+  .s-bar {
+    border-radius: 3px;
+    background: var(--c);
+    transition: box-shadow 200ms var(--ease-out);
+  }
+  .slot.is-active .s-bar {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 26%, transparent);
+  }
+  .s-body {
+    min-width: 0;
+  }
+  .s-body p {
     margin: 0;
   }
-  .slot > * + * {
+  .s-body > * + * {
     margin-top: 8px !important;
   }
   .slot-when {
     display: flex;
     flex-wrap: wrap;
     gap: 2px 12px;
+    font-size: 18px;
     font-weight: 600;
+    letter-spacing: -0.015em;
   }
   .slot-when .tnum {
     color: var(--c);
@@ -596,7 +624,7 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
     padding: 7px 11px;
     border: 0;
     border-radius: 12px;
-    background: var(--bg);
+    background: var(--bg-2);
     text-align: left;
     font-size: 14px;
     cursor: pointer;
@@ -625,10 +653,6 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
     min-height: 30px;
     padding: 0 12px;
     font-size: 13px;
-  }
-  .slot .btn-quiet,
-  .slot :global(.say-btn) {
-    background: var(--bg);
   }
 
   .cats {
@@ -761,8 +785,5 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
   }
   .rules li + li {
     margin-top: 6px;
-  }
-  .srcs {
-    margin-top: 32px;
   }
 </style>

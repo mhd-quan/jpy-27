@@ -4,6 +4,7 @@ import SayButton from '../../components/SayButton.astro';
 import RideStrip from '../../components/RideStrip.astro';
 import { RIDES, ALT_RIDES, rideAnchor, seatVerdict, type Ride } from '../../lib/rides';
 import { fmtKm, url, dateLabel } from '../../lib/trip';
+import { sourceTags } from '../../lib/sources';
 
 const MODE: Record<string, string> = { cruise: 'Thuyền', ferry: 'Phà', ropeway: 'Cáp treo', cable: 'Tàu cáp kéo', bus: 'Xe buýt' };
 const featured = RIDES.filter((r) => r.researched || r.km >= 20);
@@ -24,6 +25,7 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs.at(-1)!.to
     <ul class="legend t-small" aria-label="Chú thích">
       <li><span class="sw sw-l"></span>Cửa sổ bên trái</li>
       <li><span class="sw sw-r"></span>Cửa sổ bên phải</li>
+      <li><span class="sw sw-b"></span>Hai bên</li>
       <li><span class="sw sw-f"></span>Thấy Fuji</li>
       <li><span class="sw sw-a"></span>Chuẩn bị xuống</li>
     </ul>
@@ -118,15 +120,11 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs.at(-1)!.to
                 <a href="#danh-sach">↑ Danh sách chuyến</a>
               </p>
               {r.sources.length > 0 && (
-                <p class="t-micro faint srcs">
-                  Nguồn:{' '}
-                  {r.sources.slice(0, 4).map((s, k) => (
-                    <>
-                      {k > 0 && ', '}
-                      <a href={s} target="_blank" rel="noopener">
-                        {new URL(s).hostname.replace(/^www\./, '')}
-                      </a>
-                    </>
+                <p class="src-tags srcs">
+                  {sourceTags(r.sources).map((t) => (
+                    <a class="src-tag" href={t.href} target="_blank" rel="noopener">
+                      {t.label}
+                    </a>
                   ))}
                 </p>
               )}
@@ -253,6 +251,9 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs.at(-1)!.to
   }
   .sw-f {
     background: var(--side-f);
+  }
+  .sw-b {
+    background: linear-gradient(90deg, var(--side-l) 50%, var(--side-r) 50%);
   }
   .sw-a {
     width: 14px;

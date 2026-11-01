@@ -27,6 +27,7 @@
   --shop: #d9487a;
   --good: #1e8a55;
   --warn: #c77800;
+  --sun: #e8202a;
 
   --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
   --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Variable', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
@@ -300,6 +301,35 @@ button {
 }
 .btn-quiet:hover {
   background: var(--bg-3);
+}
+/* where a claim comes from: one word, tap to open the page */
+.src-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+.src-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+.src-tag:hover {
+  color: var(--ink);
+  background: var(--bg-3);
+  text-decoration: none;
+}
+.band .src-tag {
+  background: var(--bg);
 }
 .hr {
   height: 1px;

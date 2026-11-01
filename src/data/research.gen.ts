@@ -195,7 +195,7 @@ export const DETAILS: Record<string, Detail> = {
      "yen": 1200,
      "yenNote": null,
      "pick": "popular",
-     "note": "Có trong ảnh Tabelog với giá ¥1.200.",
+     "note": "",
      "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
     },
     {
@@ -467,7 +467,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "mōningu setto",
      "vi": "Set sáng có sandwich trứng và đồ uống",
      "yen": 1000,
-     "yenNote": "chú thích ảnh Tabelog, không rõ năm",
+     "yenNote": "",
      "pick": "value",
      "note": "Hỏi lại khi gọi: kế hoạch đến lúc 8:30.",
      "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/"
@@ -487,7 +487,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "kōhī",
      "vi": "Cà phê",
      "yen": 700,
-     "yenNote": "chú thích ảnh Tabelog 9/2026, đã thuế",
+     "yenNote": "",
      "pick": "drink",
      "note": null,
      "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlrvwlst/"
@@ -503,7 +503,7 @@ export const DETAILS: Record<string, Detail> = {
      "src": "https://machi-cafe.com/cafe-review-cayaba-coffee/"
     }
    ],
-   "orderTip": "Đặt bàn online trước (Tabelog; ngày thường vẫn kín, không đặt có thể phải chờ nhiều giờ theo blog 2023). Có menu tiếng Anh; nhận thẻ, Suica/iD và PayPay. Thứ Ba 19/10/2027 mở 8:00; nghỉ Thứ Hai.",
+   "orderTip": "Đặt bàn online trước (ngày thường vẫn kín). Có menu tiếng Anh; nhận thẻ, Suica/iD và PayPay. Thứ Ba 19/10/2027 mở 8:00; nghỉ Thứ Hai.",
    "ticketMachine": null,
    "menuEn": true,
    "sources": [
@@ -690,7 +690,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "tenpura soba",
      "vi": "Soba nóng có tôm tempura to đặt trên bát",
      "yen": 2000,
-     "yenNote": "theo thực đơn chính thức; vài ảnh Tabelog ghi ¥2.400, nên chuẩn bị ¥2.000–2.400",
+     "yenNote": "theo thực đơn chính thức; nên chuẩn bị ¥2.000–2.400",
      "pick": "signature",
      "note": "Món nổi tiếng nhất của quán.",
      "src": "https://owariya-asakusa.com/menu/"
@@ -736,7 +736,7 @@ export const DETAILS: Record<string, Detail> = {
      "src": "https://owariya-asakusa.com/menu/"
     }
    ],
-   "orderTip": "Chỉ nhận tiền mặt (thẻ, IC, QR đều không), có menu tiếng Anh theo Tabelog; giá đã gồm thuế. Mở 11:30–20:00, nghỉ thứ Sáu; Thứ Ba 19/10/2027 mở bình thường. Ở menu có thêm món matsutake theo mùa.",
+   "orderTip": "Chỉ nhận tiền mặt (thẻ, IC, QR đều không), có menu tiếng Anh; giá đã gồm thuế. Mở 11:30–20:00, nghỉ thứ Sáu; Thứ Ba 19/10/2027 mở bình thường. Ở menu có thêm món matsutake theo mùa.",
    "ticketMachine": null,
    "menuEn": true,
    "sources": [
@@ -998,7 +998,7 @@ export const DETAILS: Record<string, Detail> = {
      "src": "https://chawanbushi.com/post-58737/"
     }
    ],
-   "orderTip": "Chỉ nhận đặt bàn cho buổi tối (qua Tabelog, Gurunavi hoặc HotPepper); buổi tối có お通し ¥400 mỗi người. 中箱 + dashi + phụ thu tối khoảng ¥4.400 mỗi người. Nhận thẻ tín dụng, không nhận IC/QR; menu tiếng Anh chưa kiểm được.",
+   "orderTip": "Chỉ nhận đặt bàn cho buổi tối (Gurunavi hoặc HotPepper); buổi tối có お通し ¥400 mỗi người. 中箱 + dashi + phụ thu tối khoảng ¥4.400 mỗi người. Nhận thẻ tín dụng, không nhận IC/QR.",
    "ticketMachine": null,
    "menuEn": null,
    "sources": [
@@ -1084,13 +1084,13 @@ export const DETAILS: Record<string, Detail> = {
      "yen": 9900,
      "yenNote": "đã gồm thuế",
      "pick": "popular",
-     "note": "Tên trên ResReserve (chưa thấy tên tiếng Nhật).",
+     "note": "Tên trên ResReserve.",
      "src": "https://res-reserve.com/en/restaurants/sushi-tokyo-ten-shinjuku"
     },
     {
      "ja": "Chef's Selection Course (including drinks)",
      "romaji": "omakase kōsu (nomimono komi)",
-     "vi": "Course ¥13.200 đã gồm đồ uống; Tabelog nói bản 'Special Omakase' có tôm hùm Ise",
+     "vi": "Course ¥13.200 đã gồm đồ uống; bản 'Special Omakase' có tôm hùm Ise",
      "yen": 13200,
      "yenNote": "đã gồm thuế",
      "pick": "drink",
@@ -1098,7 +1098,7 @@ export const DETAILS: Record<string, Detail> = {
      "src": "https://res-reserve.com/en/restaurants/sushi-tokyo-ten-shinjuku"
     }
    ],
-   "orderTip": "Phải đặt trước qua ResReserve và chọn đúng plan Chef's Choice Lunch ¥5.500 (course này không gọi món lẻ); đến muộn quá 15 phút bị tính là no-show, hủy hoặc đổi số người trong ngày bị thu 100% phí course. Nhận thẻ, IC và QR; có thể cộng phí phục vụ theo Tabelog.",
+   "orderTip": "Phải đặt trước qua ResReserve và chọn đúng plan Chef's Choice Lunch ¥5.500 (course này không gọi món lẻ); đến muộn quá 15 phút bị tính là no-show, hủy hoặc đổi số người trong ngày bị thu 100% phí course. Nhận thẻ, IC và QR; có thể cộng phí phục vụ.",
    "ticketMachine": false,
    "menuEn": null,
    "sources": [
@@ -1182,7 +1182,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "ōgushi yakitori",
      "vi": "Xiên gà nướng cỡ lớn, chọn tare hoặc muối",
      "yen": 350,
-     "yenNote": "giá một xiên (Tabelog 11/2024); trang chính thức ghi ¥333 cho bán mang đi",
+     "yenNote": "giá một xiên; ¥333 cho bán mang đi",
      "pick": "signature",
      "note": null,
      "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
@@ -1202,7 +1202,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "yakitori-don",
      "vi": "Cơm phủ xiên gà nướng",
      "yen": 1200,
-     "yenNote": "Tabelog 11/2024; bữa trưa ¥1.000 theo blog 10/2026",
+     "yenNote": "Tabelog 11/2024; bữa trưa ¥1.000",
      "pick": "popular",
      "note": null,
      "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
@@ -1228,7 +1228,7 @@ export const DETAILS: Record<string, Detail> = {
      "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
     }
    ],
-   "orderTip": "Đặt chỗ chỉ qua điện thoại (03-3461-1627) và chỉ cho nhóm từ 5 người đến trước 19:00; nhóm hai người nên đến sớm. Nhận thẻ tín dụng, Suica và iD, QR không nhận. Nhân viên hỏi có ăn gan không. Tabelog có mục 'Appetizer' ¥220 (có thể là お通し). Menu tiếng Anh chưa kiểm được.",
+   "orderTip": "Đặt chỗ chỉ qua điện thoại (03-3461-1627) và chỉ cho nhóm từ 5 người đến trước 19:00; nhóm hai người nên đến sớm. Nhận thẻ tín dụng, Suica và iD, QR không nhận. Nhân viên hỏi có ăn gan không. Tabelog có mục 'Appetizer' ¥220 (có thể là お通し).",
    "ticketMachine": null,
    "menuEn": null,
    "sources": [
@@ -1319,7 +1319,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "nama uni Fujisan-mori",
      "vi": "Đĩa nhím biển sống chất cao như núi Phú Sĩ, món nổi tiếng nhất của quán",
      "yen": 1500,
-     "yenNote": "một đĩa; trang cũ ghi ¥1.000",
+     "yenNote": "một đĩa; ¥1.000",
      "pick": "signature",
      "note": null,
      "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
@@ -1349,7 +1349,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "hon maguro akami",
      "vi": "Cá ngừ vây xanh phần nạc",
      "yen": 420,
-     "yenNote": "Tabelog ghi 'một miếng'",
+     "yenNote": "'một miếng'",
      "pick": "popular",
      "note": null,
      "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
@@ -1359,13 +1359,13 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "chūtoro",
      "vi": "Cá ngừ vây xanh phần béo vừa",
      "yen": 520,
-     "yenNote": "Tabelog ghi 'một miếng'",
+     "yenNote": "'một miếng'",
      "pick": "popular",
      "note": null,
      "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
     }
    ],
-   "orderTip": "Băng chuyền, tính theo đĩa (180–960 yen; vài món Tabelog ghi 'một miếng'), không phụ thu hay cover; có thể gọi trực tiếp đầu bếp. Không đặt chỗ, có thể phải xếp hàng 10–20 phút (blog cũ). Có menu tiếng Anh; nhận thẻ, Suica và PayPay.",
+   "orderTip": "Băng chuyền, tính theo đĩa (180–960 yen), không phụ thu hay cover; có thể gọi trực tiếp đầu bếp. Không đặt chỗ, có thể phải xếp hàng 10–20 phút. Có menu tiếng Anh; nhận thẻ, Suica và PayPay.",
    "ticketMachine": null,
    "menuEn": true,
    "sources": [
@@ -1607,7 +1607,7 @@ export const DETAILS: Record<string, Detail> = {
      "src": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/"
     }
    ],
-   "orderTip": "Có thể đặt bàn online; có menu tiếng Anh, Trung phồn thể và giản thể; nhận thẻ, Suica và PayPay. Tabelog cảnh báo quán có thể đóng tạm khi thời tiết xấu. Thực đơn dài (Tabelog liệt kê 71 món, gồm set tôm và hàu chiên ¥1.680, nigiri, sashimi); chọn nhanh một món ở trên là đủ.",
+   "orderTip": "Có thể đặt bàn online; có menu tiếng Anh, Trung phồn thể và giản thể; nhận thẻ, Suica và PayPay. Tabelog cảnh báo quán có thể đóng tạm khi thời tiết xấu. Thực đơn dài (gồm set tôm và hàu chiên ¥1.680, nigiri, sashimi); chọn nhanh một món ở trên là đủ.",
    "ticketMachine": null,
    "menuEn": true,
    "sources": [
@@ -1696,7 +1696,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "sakura-ebi setto",
      "vi": "Set tôm sakura: tôm sống, kamaage, kakiage chiên và cơm nồi kamameshi",
      "yen": 3575,
-     "yenNote": "theo trang chính thức; Rurubu 10/2025 cũng ghi ¥3.575",
+     "yenNote": "Rurubu 10/2025 cũng ghi ¥3.575",
      "pick": "signature",
      "note": null,
      "src": "https://sakuraebi.org/menu/menu1/"
@@ -1742,7 +1742,7 @@ export const DETAILS: Record<string, Detail> = {
      "src": "https://sakuraebi.org/menu/menu1/"
     }
    ],
-   "orderTip": "Không đặt chỗ; Tabelog ghi danh sách chờ có thể đóng sớm hơn dự kiến, nên đến sớm. Mở 11:00–14:00 và 17:00–19:00, nghỉ Thứ Hai; Thứ Sáu 22/10/2027 mở. Nhận thẻ, Suica và PayPay. Hỏi quán hôm đó có 生桜えび (tôm sống) hay không vì phụ thuộc mùa đánh bắt.",
+   "orderTip": "Không đặt chỗ; danh sách chờ có thể đóng sớm hơn dự kiến, nên đến sớm. Mở 11:00–14:00 và 17:00–19:00, nghỉ Thứ Hai; Thứ Sáu 22/10/2027 mở. Nhận thẻ, Suica và PayPay. Hỏi quán hôm đó có 生桜えび (tôm sống) hay không vì phụ thuộc mùa đánh bắt.",
    "ticketMachine": null,
    "menuEn": null,
    "sources": [
@@ -2289,7 +2289,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "karaage-don",
      "vi": "Cơm gà rán, gà tẩm vị đậm phủ trên cơm; xin thêm mayonnaise",
      "yen": 850,
-     "yenNote": "chú thích ảnh Tabelog 12/2025; bài 2023 ghi ¥730",
+     "yenNote": "Bài 2023 ghi ¥730",
      "pick": "signature",
      "note": "Nhớ nói 'マヨネーズもお願いします'.",
      "src": "https://tabelog.com/en/mie/A2403/A240301/24000115/"
@@ -2516,7 +2516,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "kaisen-don",
      "vi": "Cơm hải sản tổng hợp (có loại phủ cá cơm shirasu), món khách Tabelog hay nhắc",
      "yen": null,
-     "yenNote": "chưa tìm được giá 2025–26",
+     "yenNote": "",
      "pick": "signature",
      "note": null,
      "src": "https://tabelog.com/en/mie/A2403/A240303/24021124/dtlrvwlst/"
@@ -2536,13 +2536,13 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "maguro-don",
      "vi": "Cơm cá ngừ thường",
      "yen": 1980,
-     "yenNote": "blog ghi ¥1.800 chưa thuế (khoảng 3/2025) nên quy đổi ≈¥1.980",
+     "yenNote": "¥1.800 chưa thuế (khoảng 3/2025) nên quy đổi ≈¥1.980",
      "pick": "value",
      "note": null,
      "src": "https://ameblo.jp/ichijoikuno/entry-12961229133.html"
     }
    ],
-   "orderTip": "Quán chỉ bán các món cơm donburi, không có hải sản nướng. Tabelog ghi mùa cao điểm mở hàng ngày, mùa thấp điểm nghỉ thứ Sáu, thứ Bảy, Chủ nhật, ngày trước lễ và ngày lễ, nên Chủ nhật 24/10/2027 có thể đóng: gọi 0599-77-0018 trước. Giờ 11:00–16:00 (gọi cuối 15:30); không tìm được thực đơn có giá chính thức.",
+   "orderTip": "Quán chỉ bán các món cơm donburi, không có hải sản nướng. Mùa cao điểm mở hàng ngày, mùa thấp điểm nghỉ thứ Sáu, thứ Bảy, Chủ nhật, ngày trước lễ và ngày lễ, nên Chủ nhật 24/10/2027 có thể đóng: gọi 0599-77-0018 trước. Giờ 11:00–16:00 (gọi cuối 15:30); không tìm được thực đơn có giá chính thức.",
    "ticketMachine": null,
    "menuEn": null,
    "sources": [
@@ -2677,11 +2677,11 @@ export const DETAILS: Record<string, Detail> = {
      "yen": 660,
      "yenNote": null,
      "pick": "side",
-     "note": "Tabelog nêu đây là món nên thử nhưng ảnh Tabelog cho thấy nó cũng là otoshi tặng kèm phí chỗ ngồi, nên có thể không cần gọi thêm.",
+     "note": "Nên có thể không cần gọi thêm.",
      "src": "https://www.menami.jp/menu3"
     }
    ],
-   "orderTip": "Đặt bàn chỉ qua điện thoại 080-9308-5905 (10:00–17:00), ngồi gọi món lẻ theo thực đơn có chú thích tiếng Anh; Tabelog ghi phí chỗ ngồi ¥550, quán nhận thẻ Visa/Master/JCB/Amex/Diners và nghỉ Thứ Tư.",
+   "orderTip": "Đặt bàn chỉ qua điện thoại 080-9308-5905 (10:00–17:00), ngồi gọi món lẻ theo thực đơn có chú thích tiếng Anh; phí chỗ ngồi ¥550, quán nhận thẻ Visa/Master/JCB/Amex/Diners và nghỉ Thứ Tư.",
    "ticketMachine": null,
    "menuEn": true,
    "sources": [
@@ -2787,7 +2787,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "tsunoda",
      "vi": "Udon hành kèm thịt gà",
      "yen": 1400,
-     "yenNote": "giá 2013 (Tabelog); ねぎうどん tăng từ ¥1.100 (2013) lên ¥1.500 (2026) nên giá này chắc chắn đã tăng",
+     "yenNote": "giá 2013; ねぎうどん tăng từ ¥1.100 (2013) lên ¥1.500 (2026) nên giá này chắc chắn đã tăng",
      "pick": "popular",
      "note": null,
      "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlmenu/"
@@ -2797,7 +2797,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "oyakodon",
      "vi": "Cơm gà trứng, gọi thêm nếu đói",
      "yen": 1000,
-     "yenNote": "giá 2013 (Tabelog); một khách 7/2026 vẫn gọi món này nhưng không ghi giá",
+     "yenNote": "giá 2013; một khách 7/2026 vẫn gọi món này nhưng không ghi giá",
      "pick": "side",
      "note": null,
      "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlmenu/"
@@ -3065,7 +3065,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "kōmi-abura no gyū to tsuchi-gobō no oudon",
      "vi": "Udon nóng với thịt bò, ngưu bàng bào và dầu thơm, tô lớn",
      "yen": null,
-     "yenNote": "chưa xác nhận giá hiện tại",
+     "yenNote": "",
      "pick": "popular",
      "note": "Blog gọi đây là món chủ lực của quán.",
      "src": "https://umaimono-daisuki.com/kyoto-higashiyama-yamamotomenzou/"
@@ -3738,7 +3738,7 @@ export const DETAILS: Record<string, Detail> = {
      "src": "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlrvwlst/"
     }
    ],
-   "orderTip": "Menu luân phiên theo mùa (trang chính thức: dâu mùa xuân, trái cây mùa hè, hạt dẻ mùa thu, món nóng mùa đông) với 7–9 vị giá ¥1.300–1.850, thực đơn mới nhất đăng trên Instagram @housekibaco. Phải đặt chỗ online trên airrsv từ 21:00 hôm trước, trả tiền mặt tại quầy trước khi ngồi và mỗi người gọi một món; quán nghỉ Thứ Năm.",
+   "orderTip": "Menu luân phiên theo mùa (dâu mùa xuân, trái cây mùa hè, hạt dẻ mùa thu, món nóng mùa đông) với 7–9 vị giá ¥1.300–1.850, thực đơn mới nhất đăng trên Instagram @housekibaco. Phải đặt chỗ online trên airrsv từ 21:00 hôm trước, trả tiền mặt tại quầy trước khi ngồi và mỗi người gọi một món; quán nghỉ Thứ Năm.",
    "ticketMachine": false,
    "menuEn": null,
    "sources": [
@@ -3772,7 +3772,7 @@ export const DETAILS: Record<string, Detail> = {
     "kind": "dish",
     "src": "https://tblg.k-img.com/restaurant/images/Rvw/166814/640x640_rect_cfde2c24b98fad971128321e65663244.jpg",
     "full": "https://tblg.k-img.com/restaurant/images/Rvw/166814/cfde2c24b98fad971128321e65663244.jpg",
-    "caption": "Hàu nướng bơ (theo mùa)",
+    "caption": "Hàu nướng bơ",
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/osaka/A2701/A270202/27002665/dtlphotolst/1/smp2/?sby=D&srt=like"
    },
@@ -4226,7 +4226,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "harami",
      "vi": "Thăn hoành bò (skirt), món được nhắc nhiều nhất của quán, ăn với cơm trắng",
      "yen": 1600,
-     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc); blog 8/2023 ghi ¥1.450; Tabelog 10/2026 có khách báo giá lại vừa tăng",
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm); blog 8/2023 ghi ¥1.450; Tabelog 10/2026 có khách báo giá lại vừa tăng",
      "pick": "signature",
      "note": null,
      "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
@@ -4236,7 +4236,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "jō tan",
      "vi": "Lưỡi bò wagyū loại ngon, thường hết ngay sau vòng gọi món đầu",
      "yen": 1600,
-     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc); Retty ghi tên 黒毛和牛の上タン; blog 8/2023 ghi ¥1.450",
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm); Retty ghi tên 黒毛和牛の上タン; blog 8/2023 ghi ¥1.450",
      "pick": "popular",
      "note": "Một khách khuyên ăn với muối.",
      "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
@@ -4246,7 +4246,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "jō rōsu",
      "vi": "Thăn lưng bò loại ngon",
      "yen": 1850,
-     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc); blog 8/2023 ghi ¥1.800",
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm); blog 8/2023 ghi ¥1.800",
      "pick": "popular",
      "note": null,
      "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
@@ -4256,7 +4256,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "tecchan",
      "vi": "Ruột non bò, món nội tạng dễ ăn",
      "yen": 800,
-     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc)",
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm)",
      "pick": "popular",
      "note": null,
      "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
@@ -4266,7 +4266,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "horumon moriawase",
      "vi": "Đĩa nội tạng bò tổng hợp, nếm nhiều loại cùng lúc",
      "yen": 900,
-     "yenNote": "giá 8/2023 (blog); chắc đã tăng",
+     "yenNote": "giá 8/2023; chắc đã tăng",
      "pick": "side",
      "note": null,
      "src": "https://genjitsutouhi.com/tahei-osaka/"
@@ -4276,7 +4276,7 @@ export const DETAILS: Record<string, Detail> = {
      "romaji": "gohan",
      "vi": "Cơm trắng, được khen là rất ngon khi ăn cùng thịt",
      "yen": null,
-     "yenNote": "chưa xác nhận giá; năm 2017 cỡ vừa là ¥230 và Tabelog 9/2026 khen cơm rất ngon",
+     "yenNote": "Năm 2017 cỡ vừa là ¥230 và Tabelog 9/2026 khen cơm rất ngon",
      "pick": "side",
      "note": null,
      "src": "https://tabelog.com/en/osaka/A2701/A270202/27005087/dtlrvwlst/"
@@ -5455,7 +5455,7 @@ export const DETAILS: Record<string, Detail> = {
   "why": "Trạm kiểm soát phục dựng của đường Tokaido thời Edo, nơi lính canh kiểm tra người và hành lý đi qua dãy núi Hakone. Trong khuôn viên có nhà trưng bày đồ vật gốc và thuyết minh dễ hiểu.",
   "tips": "Đã đi qua hàng tuyết tùng cổ ở Onshi Park thì nên đi tiếp bộ tới đây. Vé giảm giá khi có Hakone Free Pass.",
   "fujiView": "unknown",
-  "fujiNote": "Nằm sát bờ nam hồ Ashi nhìn ra mặt hồ; chưa xác nhận Fuji có lọt vào tầm nhìn từ vị trí này.",
+  "fujiNote": "Nằm sát bờ nam hồ Ashi nhìn ra mặt hồ.",
   "official": "https://www.hakonesekisyo.jp/",
   "images": [
    {
@@ -5591,7 +5591,7 @@ export const DETAILS: Record<string, Detail> = {
   "why": "Cánh đồng cỏ susuki rộng ở độ cao khoảng 700 m, cuối thu chuyển bạc rồi vàng rực dưới nắng chiều. Là điểm ngắm mùa thu rất đặc trưng của Hakone nhưng ở xa tuyến cáp treo.",
   "tips": "Cuối tuần giữa tháng 10 đến đầu tháng 11 rất đông; lịch D4 khó khớp giờ hoàng hôn, nên chỉ đi nếu bỏ Gora Park. Kiểm tra bảng giờ xe buýt từ Togendai và quay lại trước khi tối.",
   "fujiView": "unknown",
-  "fujiNote": "Hướng nhìn chính là núi Myojogatake và Kintoki; chưa xác nhận Fuji lọt vào tầm nhìn từ cánh đồng.",
+  "fujiNote": "Hướng nhìn chính là núi Myojogatake và Kintoki.",
   "official": "https://www.hakonenavi.jp/international/en/information/susuki",
   "images": [
    {
@@ -5623,7 +5623,7 @@ export const DETAILS: Record<string, Detail> = {
   "why": "Lâu đài của dòng họ Hojo thời Sengoku, tháp chính phục dựng năm 1960 có bảo tàng và tầng thượng nhìn ra vịnh Sagami. Khuôn viên hào nước và các cổng gỗ rất hợp để dạo bộ; Odawara lại là ga chuyển tàu nên dễ ghé.",
   "tips": "Gửi hành lý ở tủ khoá ga Odawara; nhà SAMURAI ở cổng Tokiwagi có trải nghiệm mặc thử giáp.",
   "fujiView": "unknown",
-  "fujiNote": "Nhìn ra vịnh Sagami và dãy núi Hakone; chưa xác nhận Fuji có lộ trên đỉnh dãy núi từ tầng thượng tháp.",
+  "fujiNote": "Nhìn ra vịnh Sagami và dãy núi Hakone.",
   "official": "https://odawaracastle.com/",
   "images": [
    {
@@ -5851,7 +5851,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Khoảng 30 phút ngay sau khi lễ Geku",
   "station": "Iseshi (JR/Kintetsu), đi bộ khoảng 10–15 phút",
   "why": "Bảo tàng cạnh Geku trưng bày mô hình chính điện và đồ thờ phục chế, giải thích lễ Shikinen Sengu (xây lại đền mỗi 20 năm). Giúp hiểu vì sao Ise luôn mới mà vẫn cổ.",
-  "tips": "Giá vé người lớn chưa xác nhận được trên trang chính thức, thường là ¥300.",
+  "tips": "",
   "official": "https://www.sengukan.jp/en",
   "images": [
    {
@@ -6102,7 +6102,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.30672,
   "lng": 136.81779,
   "address": "三重県志摩市阿児町神明（賢島港）",
-  "hours": "9:30–15:30 (theo chuyến)",
+  "hours": "9:30–15:30",
   "fee": "¥1,900",
   "bestTime": "Chuyến 13:30–15:30, nắng chiều trên vịnh",
   "station": "Kashikojima (Kintetsu), đi bộ 3–5 phút",
@@ -6137,7 +6137,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "6:00–8:30 khi chùa vừa mở, hoặc sau 16:00",
   "station": "Kiyomizu-Gojo (Keihan), đi bộ khoảng 25 phút (dốc)",
   "why": "Chùa gỗ dựng trên vách đá với sân khấu Butai nhìn ra thung lũng và thành phố. Cuối tháng 10 lá còn xanh vàng nhạt, màu đỏ rõ từ giữa tháng 11.",
-  "tips": "Vé trả tiền mặt; đêm đặc biệt mùa thu năm 2026 là 21–30/11, lịch năm 2027 chưa công bố.",
+  "tips": "Vé trả tiền mặt; đêm đặc biệt mùa thu năm 2026 là 21–30/11.",
   "official": "https://www.kiyomizudera.or.jp/en/",
   "images": [
    {
@@ -6392,7 +6392,7 @@ export const DETAILS: Record<string, Detail> = {
   "hours": "8:00–16:30",
   "fee": "¥500",
   "bestTime": "Sáng, ngay sau chuyến bus đầu",
-  "station": "Bus Kyoto Bus 94 từ Arashiyama (theo kế hoạch)",
+  "station": "Bus Kyoto Bus 94 từ Arashiyama",
   "why": "Chùa nhỏ có khoảng 1.200 tượng La Hán (rakan) mặt biểu cảm khác nhau, phủ rêu xanh, ở chân núi Atago. Yên tĩnh hơn trung tâm Arashiyama.",
   "tips": "Lá phong ở khu cao thường chuyển màu sớm hơn trung tâm Arashiyama vài ngày.",
   "official": "https://otagiji.com/",
@@ -6683,7 +6683,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Sáng, nắng xiên qua đèn đá",
   "station": "Bus từ Kintetsu-Nara, hoặc đi bộ 20–25 phút từ Todaiji",
   "why": "Đền chính của họ Fujiwara, nổi tiếng với hàng nghìn đèn đá và đèn đồng dọc đường vào, nằm trong rừng nguyên sinh Kasugayama. Có trong di sản UNESCO Nara.",
-  "tips": "Đi đường rừng từ Todaiji qua Nigatsudo, cổ kính hơn lối nhựa; phí khu chính điện chưa xác nhận.",
+  "tips": "Đi đường rừng từ Todaiji qua Nigatsudo, cổ kính hơn lối nhựa.",
   "official": "https://www.kasugataisha.or.jp/",
   "images": [
    {
@@ -7086,7 +7086,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Chiều muộn, nắng thấp chiếu lên cổng",
   "station": "Higashiyama (subway Tozai), đi bộ 10 phút",
   "why": "Đền dựng năm 1895 theo cung điện Heian, cổng torii đỏ cao khoảng 24 m là biểu tượng của Okazaki. Ngay trên đường dạo kênh, thêm 30 phút nếu vào vườn Shin'en.",
-  "tips": "Năm 2026 đền đang sửa chính điện, lối vào vườn đổi vị trí; tình trạng năm 2027 cần kiểm tra.",
+  "tips": "Năm 2026 đền đang sửa chính điện, lối vào vườn đổi vị trí.",
   "official": "https://www.heianjingu.or.jp/",
   "images": [
    {
@@ -7256,7 +7256,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Buổi sáng; lá phong chuyển sớm hơn trung tâm",
   "station": "Arashiyama (Randen), đi bộ khoảng 20 phút",
   "why": "Chùa trên sườn núi Ogura, nổi tiếng với tháp Tahoto nhìn qua lá phong và lối vào phủ rêu. Là một trong những nơi có màu thu sớm ở Arashiyama.",
-  "tips": "Phí tham quan chưa xác nhận từ nguồn chính thức; leo thang đá khoảng 15 phút.",
+  "tips": "Leo thang đá khoảng 15 phút.",
   "official": "https://www.jojakko-ji.or.jp/",
   "images": [
    {
@@ -7329,7 +7329,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Buổi sáng hoặc đầu chiều",
   "station": "Kintetsu-Nara, đi bộ khoảng 20 phút; Todaiji gần 5–10 phút",
   "why": "Hai vườn cạnh Todaiji: Isuien lấy mái Nandaimon và núi Wakakusa làm cảnh mượn, Yoshikien là vườn rêu có hồ và quán trà. Yên tĩnh giữa hai điểm đông khách.",
-  "tips": "27/10/2027 là Thứ Tư nên Isuien mở; giá và giờ Yoshikien chưa xác nhận trên trang chính thức.",
+  "tips": "27/10/2027 là Thứ Tư nên Isuien mở.",
   "official": "https://isuien.or.jp/",
   "images": [
    {
@@ -7351,7 +7351,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "16:00–17:00, hoàng hôn từ ban công",
   "station": "Kintetsu-Nara, đi bộ khoảng 25 phút; từ Daibutsuden 10 phút",
   "why": "Sảnh gỗ trên sườn đồi phía đông Todaiji, ban công rộng nhìn xuống Nara và núi Ikoma, nổi tiếng với lễ Omizutori tháng 3. Nằm trên lối đi từ Todaiji sang Kasuga Taisha.",
-  "tips": "Leo bậc thang đá và đi dọc đường nhỏ; giờ vào cổng cần kiểm tra theo mùa.",
+  "tips": "Leo bậc thang đá và đi dọc đường nhỏ.",
   "official": "https://www.todaiji.or.jp/en/",
   "images": [
    {
@@ -7373,7 +7373,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "16:00–17:00, ảnh tháp phản chiếu bên hồ Sarusawa",
   "station": "Kintetsu-Nara, đi bộ 5 phút",
   "why": "Tháp 5 tầng cao khoảng 50 m, cao thứ hai Nhật Bản sau Toji, nằm ngay trên đường từ ga Kintetsu Nara vào công viên. Có thể ngắm miễn phí từ ngoài.",
-  "tips": "Chụp tháp từ bờ hồ Sarusawa; phí các sảnh bên trong chưa xác nhận sau điều chỉnh 2025.",
+  "tips": "Chụp tháp từ bờ hồ Sarusawa.",
   "official": "https://www.kohfukuji.com/",
   "images": [
    {
@@ -7479,7 +7479,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 135.5063,
   "address": "大阪府大阪市浪速区恵美須東1-18-6",
   "hours": "9:00–22:00",
-  "fee": "¥1,500 (cập nhật 4/2026, cần kiểm tra)",
+  "fee": "¥1,500",
   "bestTime": "Chiều tối sau 17:00, neon Shinsekai sáng",
   "station": "Ebisucho (subway Sakaisuji), đi bộ 3 phút",
   "why": "Tháp cao khoảng 108 m làm biểu tượng của Shinsekai, xung quanh là phố kushikatsu, biển hiệu retro và các quầy bình dân. Phong cách Osaka khác hẳn Dotonbori.",
@@ -7599,13 +7599,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "みたらし団子と黒糖わらび餅",
      "romaji": "mitarashi dango to kokutō warabi mochi",
-     "vi": "Dango mitarashi nướng kèm warabi mochi đường nâu (giá theo chú thích ảnh Tabelog, đã gồm thuế)",
+     "vi": "Dango mitarashi nướng kèm warabi mochi đường nâu",
      "yen": 810
     },
     {
      "ja": "白玉あんみつ",
      "romaji": "shiratama anmitsu",
-     "vi": "Anmitsu với viên shiratama (giá theo chú thích ảnh Tabelog)",
+     "vi": "Anmitsu với viên shiratama",
      "yen": 850
     }
    ],
@@ -7638,7 +7638,7 @@ export const DETAILS: Record<string, Detail> = {
     "kind": "dish",
     "src": "https://tblg.k-img.com/restaurant/images/Rvw/213821/640x640_rect_144f8b661a325988bb2b67db949222d4.jpg",
     "full": "https://tblg.k-img.com/restaurant/images/Rvw/213821/144f8b661a325988bb2b67db949222d4.jpg",
-    "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng, Tabelog)",
+    "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng)",
     "credit": "カフェモカ男 / Tabelog",
     "license": "Tabelog user photo",
     "page": "https://tabelog.com/en/kyoto/A2601/A260201/26032035/dtlphotolst/1/smp2/?mode=user"
@@ -7647,7 +7647,7 @@ export const DETAILS: Record<string, Detail> = {
     "kind": "dish",
     "src": "https://tblg.k-img.com/restaurant/images/Rvw/213358/640x640_rect_82bbc601d512ccdab5abe2754bdd1235.jpg",
     "full": "https://tblg.k-img.com/restaurant/images/Rvw/213358/82bbc601d512ccdab5abe2754bdd1235.jpg",
-    "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng, Tabelog)",
+    "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng)",
     "credit": "カフェモカ男 / Tabelog",
     "license": "Tabelog user photo",
     "page": "https://tabelog.com/en/kyoto/A2601/A260201/26032035/dtlphotolst/1/smp2/?mode=user"
@@ -7656,7 +7656,7 @@ export const DETAILS: Record<string, Detail> = {
     "kind": "dish",
     "src": "https://tblg.k-img.com/restaurant/images/Rvw/213358/640x640_rect_ea5912a950314dbcf320354f812cd6ec.jpg",
     "full": "https://tblg.k-img.com/restaurant/images/Rvw/213358/ea5912a950314dbcf320354f812cd6ec.jpg",
-    "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng, Tabelog)",
+    "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng)",
     "credit": "カフェモカ男 / Tabelog",
     "license": "Tabelog user photo",
     "page": "https://tabelog.com/en/kyoto/A2601/A260201/26032035/dtlphotolst/1/smp2/?mode=user"
@@ -7668,13 +7668,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "ドーナツ",
      "romaji": "dōnattsu",
-     "vi": "Donut mua mang đi hoặc ăn tại chỗ (quán có khoảng 30 vị thường trực; chưa xác minh được giá)",
+     "vi": "Donut mua mang đi hoặc ăn tại chỗ (quán có khoảng 30 vị thường trực)",
      "yen": null
     },
     {
      "ja": "ドーナツメルト",
      "romaji": "dōnattsu meruto",
-     "vi": "Món \"Donut Melt\" được Tabelog nêu nổi bật (chưa xác minh được giá)",
+     "vi": "Món \"Donut Melt\" được Tabelog nêu nổi bật",
      "yen": null
     }
    ],
@@ -7682,7 +7682,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "08:00",
    "close": "20:00",
    "closedDow": [],
-   "closedNote": "Không có ngày nghỉ cố định (theo Tabelog)",
+   "closedNote": "Không có ngày nghỉ cố định",
    "queue": null,
    "pay": "card",
    "tabelog": {
@@ -7737,7 +7737,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "甘栗（特製）",
      "romaji": "amaguri (tokusei)",
-     "vi": "Hạt dẻ rang đường, bán theo túi (Tabelog nhắc loại 200 g; chưa xác minh được giá)",
+     "vi": "Hạt dẻ rang đường, bán theo túi",
      "yen": null
     }
    ],
@@ -7800,7 +7800,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "ケーキセット",
      "romaji": "kēki setto",
-     "vi": "Set bánh (rare cheesecake) kèm cà phê hoặc trà, theo chú thích ảnh Tabelog (đã gồm thuế)",
+     "vi": "Set bánh (rare cheesecake) kèm cà phê hoặc trà",
      "yen": 1350
     }
    ],
@@ -7863,7 +7863,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "ロンドン焼",
      "romaji": "rondon-yaki",
-     "vi": "Bánh nướng nhỏ nhân đậu trắng, làm bằng máy ngay trước cửa; mua hộp 10 chiếc (chưa xác minh được giá)",
+     "vi": "Bánh nướng nhỏ nhân đậu trắng, làm bằng máy ngay trước cửa; mua hộp 10 chiếc",
      "yen": null
     }
    ],
@@ -7926,15 +7926,15 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "カフェラテ",
      "romaji": "kafe rate",
-     "vi": "Latte, món được các bài viết du lịch khen nhất (chưa xác minh được giá)",
+     "vi": "Latte, món được các bài viết du lịch khen nhất",
      "yen": null
     }
    ],
-   "when": "Thứ Hai 25/10, khoảng 9:00 khi đi bộ từ Kiyomizu-dera xuống phía tháp Yasaka (Tabelog ghi mở 9:00; trang du lịch ghi 8:00)",
+   "when": "Thứ Hai 25/10, khoảng 9:00 khi đi bộ từ Kiyomizu-dera xuống phía tháp Yasaka",
    "open": "09:00",
    "close": "18:00",
    "closedDow": [],
-   "closedNote": "Tabelog không ghi ngày nghỉ; trang Inside Kyoto ghi giờ mở là 8:00–18:00, nên xác nhận lại",
+   "closedNote": "Tabelog không ghi ngày nghỉ; giờ mở là 8:00–18:00, nên xác nhận lại",
    "queue": "Quán chật, theo bài viết du lịch nên chỉ ghé uống nhanh",
    "pay": "card",
    "tabelog": {
@@ -8000,19 +8000,19 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "うす茶のセット",
      "romaji": "usucha no setto",
-     "vi": "Set trà matcha loãng kèm bánh ngọt (chưa xác minh được giá)",
+     "vi": "Set trà matcha loãng kèm bánh ngọt",
      "yen": null
     },
     {
      "ja": "三色御萩",
      "romaji": "sanshoku ohagi",
-     "vi": "Ohagi ba vị nhân anko (chưa xác minh được giá)",
+     "vi": "Ohagi ba vị nhân anko",
      "yen": null
     },
     {
      "ja": "宇治金時",
      "romaji": "uji kintoki",
-     "vi": "Đá bào matcha kèm đậu đỏ, có ảnh Tabelog; có thể đã hết mùa vào cuối tháng 10",
+     "vi": "Đá bào matcha kèm đậu đỏ; có thể đã hết mùa vào cuối tháng 10",
      "yen": null
     }
    ],
@@ -8077,19 +8077,19 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "きな粉の蕨餅",
      "romaji": "kinako no warabi mochi",
-     "vi": "Warabi mochi với kinako rang đậm, món đặc trưng của quán (chưa xác minh được giá)",
+     "vi": "Warabi mochi với kinako rang đậm, món đặc trưng của quán",
      "yen": null
     },
     {
      "ja": "焦がしきな粉パフェ",
      "romaji": "kogashi kinako pafe",
-     "vi": "Parfait kinako rang cháy (chưa xác minh được giá)",
+     "vi": "Parfait kinako rang cháy",
      "yen": null
     },
     {
      "ja": "きな粉プリン",
      "romaji": "kinako purin",
-     "vi": "Pudding kinako, chỉ bán mang đi (chưa xác minh được giá)",
+     "vi": "Pudding kinako, chỉ bán mang đi",
      "yen": null
     }
    ],
@@ -8098,7 +8098,7 @@ export const DETAILS: Record<string, Detail> = {
    "close": "18:00",
    "closedDow": [],
    "closedNote": "Chỉ nghỉ mùng 1 Tết dương lịch",
-   "queue": "Quán phát số thứ tự khi có từ 5 nhóm chờ trở lên (theo Tabelog); nên đến sớm",
+   "queue": "Quán phát số thứ tự khi có từ 5 nhóm chờ trở lên; nên đến sớm",
    "pay": "card",
    "tabelog": {
     "url": "https://tabelog.com/kyoto/A2601/A260301/26025412/",
@@ -8158,13 +8158,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "本わらびもち・葛もち盛り合わせ",
      "romaji": "hon warabi mochi, kuzumochi moriawase",
-     "vi": "Đĩa warabi mochi làm từ bột warabi thật và kuzumochi, theo chú thích ảnh Tabelog",
+     "vi": "Đĩa warabi mochi làm từ bột warabi thật và kuzumochi",
      "yen": 1420
     },
     {
      "ja": "特上抹茶 宇治金時",
      "romaji": "tokujō matcha uji kintoki",
-     "vi": "Đá bào matcha–đậu đỏ (có thể đã hết mùa vào cuối tháng 10; chưa xác minh được giá)",
+     "vi": "Đá bào matcha–đậu đỏ (có thể đã hết mùa vào cuối tháng 10)",
      "yen": null
     }
    ],
@@ -8173,7 +8173,7 @@ export const DETAILS: Record<string, Detail> = {
    "close": "18:00",
    "closedDow": [],
    "closedNote": "Ngày nghỉ không cố định, báo trên trang web chính thức của quán",
-   "queue": "Thường xếp hàng, lấy số thứ tự khi đến; không đặt chỗ được; có bán mang đi (theo Tabelog và Kanpai Japan)",
+   "queue": "Thường xếp hàng, lấy số thứ tự khi đến; không đặt chỗ được; có bán mang đi",
    "pay": "card",
    "tabelog": {
     "url": "https://tabelog.com/kyoto/A2601/A260301/26002075/",
@@ -8233,13 +8233,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "和栗のパフェ",
      "romaji": "waguri no pafe",
-     "vi": "Parfait hạt dẻ Nhật, theo chú thích ảnh Tabelog (đã gồm thuế)",
+     "vi": "Parfait hạt dẻ Nhật",
      "yen": 2100
     },
     {
      "ja": "できたてきなな",
      "romaji": "dekitate kinana",
-     "vi": "Kem kinako làm tại chỗ, món đặc trưng (giá hiện tại chưa xác minh)",
+     "vi": "Kem kinako làm tại chỗ, món đặc trưng",
      "yen": null
     }
    ],
@@ -8310,7 +8310,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "チョコレート菓子（ピロー・ブリック・ブラウニー）",
      "romaji": "chokorēto gashi (pirō, burikku, buraunī)",
-     "vi": "Bánh quy/bánh sô-cô-la kiểu Pillow, Brick, Brownie (giá trên ảnh Tabelog đã cũ nên không ghi)",
+     "vi": "Bánh quy/bánh sô-cô-la kiểu Pillow, Brick, Brownie",
      "yen": null
     }
    ],
@@ -8373,13 +8373,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "クラシックモンブラン",
      "romaji": "kurashikku monburan",
-     "vi": "Mont Blanc kiểu cổ điển (chưa xác minh được giá)",
+     "vi": "Mont Blanc kiểu cổ điển",
      "yen": null
     },
     {
      "ja": "ウィンナーコーヒー",
      "romaji": "wīnā kōhī",
-     "vi": "Cà phê Vienna (chưa xác minh được giá)",
+     "vi": "Cà phê Vienna",
      "yen": null
     }
    ],
@@ -8442,13 +8442,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "カフェラテ",
      "romaji": "kafe rate",
-     "vi": "Latte (chưa xác minh được giá)",
+     "vi": "Latte",
      "yen": null
     },
     {
      "ja": "バゲットサンド",
      "romaji": "bagetto sando",
-     "vi": "Sandwich baguette, có ảnh trên Tabelog (chưa xác minh được giá)",
+     "vi": "Sandwich baguette",
      "yen": null
     }
    ],
@@ -8456,7 +8456,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "09:00",
    "close": "18:00",
    "closedDow": [],
-   "closedNote": "Tabelog ghi \"không cố định\"; trang chính thức có thể ghi giờ mở sớm hơn",
+   "closedNote": "Không cố định; giờ mở sớm hơn",
    "queue": null,
    "pay": "card",
    "tabelog": {
@@ -8511,7 +8511,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "あんバター",
      "romaji": "an batā",
-     "vi": "Taiyaki nhân đậu đỏ và bơ, ăn trong vòng 1 phút cho giòn (giá theo chú thích ảnh Tabelog)",
+     "vi": "Taiyaki nhân đậu đỏ và bơ, ăn trong vòng 1 phút cho giòn",
      "yen": 370
     }
    ],
@@ -8519,7 +8519,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "10:00",
    "close": "17:00",
    "closedDow": [],
-   "closedNote": "Tabelog ghi \"không cố định\"",
+   "closedNote": "Không cố định",
    "queue": null,
    "pay": "mixed",
    "tabelog": {
@@ -8574,7 +8574,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "トリプル（ジェラート3種）",
      "romaji": "toripuru (jerāto sanshu)",
-     "vi": "Gelato 3 vị, theo chú thích ảnh Tabelog; blog Tabiiro ghi gelato từ ¥400 đến ¥850",
+     "vi": "Gelato 3 vị; blog Tabiiro ghi gelato từ ¥400 đến ¥850",
      "yen": 850
     }
    ],
@@ -8645,13 +8645,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "天竜寺パフェ",
      "romaji": "Tenryū-ji pafe",
-     "vi": "Parfait Tenryū-ji, món của quán (chưa xác minh được giá)",
+     "vi": "Parfait Tenryū-ji, món của quán",
      "yen": null
     },
     {
      "ja": "葛餅",
      "romaji": "kuzumochi",
-     "vi": "Kuzumochi (chưa xác minh được giá)",
+     "vi": "Kuzumochi",
      "yen": null
     }
    ],
@@ -8659,7 +8659,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "09:00",
    "close": "18:00",
    "closedDow": [],
-   "closedNote": "Tabelog ghi \"không cố định\"",
+   "closedNote": "Không cố định",
    "queue": null,
    "pay": "card",
    "tabelog": {
@@ -8714,7 +8714,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "酒粕フィナンシェ・酒まんじゅうセット（アイスコーヒー付き）",
      "romaji": "sakekasu finanshie, sake manjū setto",
-     "vi": "Set financier bã sake và bánh manju sake kèm cà phê đá; giá theo chú thích ảnh Tabelog cũ, có thể đã đổi",
+     "vi": "Set financier bã sake và bánh manju sake kèm cà phê đá",
      "yen": 1000
     }
    ],
@@ -8779,13 +8779,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "入館料（きき酒3種付き）",
      "romaji": "nyūkanryō (kikizake san-shu tsuki)",
-     "vi": "Vé vào cho người từ 20 tuổi, kèm nếm 3 loại sake và quà lưu niệm (theo trang chính thức)",
+     "vi": "Vé vào cho người từ 20 tuổi, kèm nếm 3 loại sake và quà lưu niệm",
      "yen": 600
     },
     {
      "ja": "酒まんじゅう",
      "romaji": "sake manjū",
-     "vi": "Bánh manju nhân đậu đỏ mịn làm từ sake, có ảnh Tabelog (chưa xác minh được giá)",
+     "vi": "Bánh manju nhân đậu đỏ mịn làm từ sake",
      "yen": null
     }
    ],
@@ -8848,13 +8848,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "大きつね",
      "romaji": "ōkitsune",
-     "vi": "Senbei hình cáo cỡ lớn, hộp 3 chiếc; giá theo ảnh Tabelog cũ",
+     "vi": "Senbei hình cáo cỡ lớn, hộp 3 chiếc",
      "yen": 540
     },
     {
      "ja": "白みそせんべい",
      "romaji": "shiro-miso senbei",
-     "vi": "Senbei miso trắng hình tròn, 5 chiếc; giá theo chú thích ảnh Tabelog",
+     "vi": "Senbei miso trắng hình tròn, 5 chiếc",
      "yen": 500
     }
    ],
@@ -8917,13 +8917,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "コーヒーロール",
      "romaji": "kōhī rōru",
-     "vi": "Bánh cuộn cà phê (tên theo chú thích ảnh Tabelog; chưa xác minh được giá)",
+     "vi": "Bánh cuộn cà phê",
      "yen": null
     },
     {
      "ja": "ジャンボンフロマージュ",
      "romaji": "janbon furomāju",
-     "vi": "Bánh mì giăm bông phô mai (chưa xác minh được giá)",
+     "vi": "Bánh mì giăm bông phô mai",
      "yen": null
     }
    ],
@@ -8989,7 +8989,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "よもぎ餅",
      "romaji": "yomogi mochi",
-     "vi": "Mochi ngải cứu nhân anko, giã ngay tại quán và ăn nóng. Chú thích ảnh Tabelog ghi ¥200 (đã gồm thuế); các clip TikTok cũ ghi ¥150",
+     "vi": "Mochi ngải cứu nhân anko, giã ngay tại quán và ăn nóng. Các clip TikTok cũ ghi ¥150",
      "yen": 200
     }
    ],
@@ -9071,7 +9071,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "モーニングセット（クロワッサン＆ホットラテ）",
      "romaji": "mōningu setto (kuroassan to hotto rate)",
-     "vi": "Set sáng: croissant và latte nóng, theo chú thích ảnh Tabelog (đã gồm thuế)",
+     "vi": "Set sáng: croissant và latte nóng",
      "yen": 820
     }
    ],
@@ -9145,7 +9145,7 @@ export const DETAILS: Record<string, Detail> = {
     1,
     2
    ],
-   "closedNote": "Nghỉ thứ Hai và thứ Ba (mở nếu trùng ngày lễ); Tabelog còn liệt kê vài ngày nghỉ thêm trong tháng 10/2026, nên kiểm tra lại gần ngày đi",
+   "closedNote": "Nghỉ thứ Hai và thứ Ba (mở nếu trùng ngày lễ); Tabelog còn liệt kê vài ngày nghỉ thêm trong tháng 10/2026",
    "queue": null,
    "pay": "card",
    "tabelog": {
@@ -9200,19 +9200,19 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "栗きんとん 丹波",
      "romaji": "kurikinton Tanba",
-     "vi": "Kurikinton hạt dẻ Tamba, theo chú thích ảnh Tabelog",
+     "vi": "Kurikinton hạt dẻ Tamba",
      "yen": 450
     },
     {
      "ja": "蕨餅",
      "romaji": "warabi mochi",
-     "vi": "Warabi mochi, có ảnh Tabelog (chưa xác minh được giá)",
+     "vi": "Warabi mochi",
      "yen": null
     },
     {
      "ja": "樫舎の氷（蕨餅入り）",
      "romaji": "Kashiya no kōri (warabi mochi iri)",
-     "vi": "Đá bào kèm warabi mochi, theo mùa (chưa xác minh được giá)",
+     "vi": "Đá bào kèm warabi mochi, theo mùa",
      "yen": null
     }
    ],
@@ -9221,7 +9221,7 @@ export const DETAILS: Record<string, Detail> = {
    "close": "18:00",
    "closedDow": [],
    "closedNote": "Tabelog liệt kê mở cả 7 ngày; nên xác nhận lại trước khi đi",
-   "queue": "Chỉ 13 ghế chiếu, nhận đặt chỗ online và giới hạn ngồi 30 phút (theo Tabelog)",
+   "queue": "Chỉ 13 ghế chiếu, nhận đặt chỗ online và giới hạn ngồi 30 phút",
    "pay": "cash",
    "tabelog": {
     "url": "https://tabelog.com/nara/A2901/A290101/29002296/",
@@ -9275,13 +9275,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "北海道ミルクソフト",
      "romaji": "Hokkaidō miruku sofuto",
-     "vi": "Kem mềm sữa Hokkaido, có ảnh Tabelog (chưa xác minh được giá)",
+     "vi": "Kem mềm sữa Hokkaido",
      "yen": null
     },
     {
      "ja": "アイスキャンデー",
      "romaji": "aisu kyandē",
-     "vi": "Kem que của Hokkyoku, vị sữa hoặc azuki (chưa xác minh được giá)",
+     "vi": "Kem que của Hokkyoku, vị sữa hoặc azuki",
      "yen": null
     }
    ],
@@ -9344,13 +9344,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "エッグトーストセット",
      "romaji": "eggu tōsuto setto",
-     "vi": "Set bánh mì nướng trứng kèm đồ uống, theo chú thích ảnh Tabelog",
+     "vi": "Set bánh mì nướng trứng kèm đồ uống",
      "yen": 640
     },
     {
      "ja": "玉子サンド",
      "romaji": "tamago sando",
-     "vi": "Sandwich trứng, có ảnh Tabelog (chưa xác minh được giá)",
+     "vi": "Sandwich trứng",
      "yen": null
     }
    ],
@@ -9413,7 +9413,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "夫婦善哉",
      "romaji": "meoto zenzai",
-     "vi": "Zenzai (chè đậu đỏ mochi), mỗi suất gồm 2 chén nhỏ cho một người; giá theo chú thích ảnh Tabelog, có thể đã đổi",
+     "vi": "Zenzai (chè đậu đỏ mochi), mỗi suất gồm 2 chén nhỏ cho một người",
      "yen": 815
     },
     {
@@ -9482,13 +9482,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "ベリーミルフィーユ",
      "romaji": "berī mirufyūyu",
-     "vi": "Crêpe nhiều lớp (millefeuille) nhân berry, theo chú thích ảnh Tabelog",
+     "vi": "Crêpe nhiều lớp (millefeuille) nhân berry",
      "yen": 980
     },
     {
      "ja": "マロンモンブラン",
      "romaji": "maron monburan",
-     "vi": "Crêpe Mont Blanc hạt dẻ, theo chú thích ảnh Tabelog",
+     "vi": "Crêpe Mont Blanc hạt dẻ",
      "yen": 980
     }
    ],
@@ -9551,7 +9551,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "ミックスジュース",
      "romaji": "mikkusu jūsu",
-     "vi": "Nước ép trái cây xay hỗn hợp kiểu Osaka; ghi chú ảnh Tabelog tháng 1/2025 ghi ¥200",
+     "vi": "Nước ép trái cây xay hỗn hợp kiểu Osaka",
      "yen": 200
     }
    ],
@@ -9575,7 +9575,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.702713,
   "lng": 135.498432,
   "address": "大阪府大阪市北区角田町8-7 阪急うめだ本店 B2F",
-  "hours": "10:00–20:00 (theo lịch Hankyu Umeda)",
+  "hours": "10:00–20:00",
   "why": "Cửa hàng bơ Échiré ở depachika Hankyu, Tabelog 3.77 và nhiều năm vào 百名店 Sweets WEST. Mua bánh bơ mang đi làm quà.",
   "rating": 3.77,
   "ratingCount": 1505,
@@ -9605,7 +9605,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "エシレバターのお菓子",
      "romaji": "Eshire bātā no okashi",
-     "vi": "Bánh nướng làm từ bơ Échiré (gâteau sec, financier…); chưa xác minh được giá hiện tại",
+     "vi": "Bánh nướng làm từ bơ Échiré (gâteau sec, financier…)",
      "yen": null
     }
    ],
@@ -9629,7 +9629,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.702713,
   "lng": 135.498432,
   "address": "大阪府大阪市北区角田町8-7 阪急うめだ本店 B1F",
-  "hours": "10:00–20:00 (theo lịch Hankyu Umeda)",
+  "hours": "10:00–20:00",
   "why": "Tiệm bánh nướng kiểu Brittany ở depachika Hankyu, Tabelog 3.71 và vào 百名店 Sweets WEST 2023, 2026. Financier nhỏ, mua mang đi ăn dọc đường.",
   "rating": 3.71,
   "ratingCount": 822,
@@ -9668,13 +9668,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "フィナンシェ",
      "romaji": "finanshie",
-     "vi": "Financier bơ, theo chú thích ảnh Tabelog 2026",
+     "vi": "Financier bơ",
      "yen": 260
     },
     {
      "ja": "ガトー・ナンテ",
      "romaji": "gatō nante",
-     "vi": "Gâteau nantais kiểu Brittany (chưa xác minh được giá hiện tại)",
+     "vi": "Gâteau nantais kiểu Brittany",
      "yen": null
     }
    ],
@@ -9737,13 +9737,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "モンブランとイチゴのシブースト",
      "romaji": "monburan to ichigo no shibusuto",
-     "vi": "Mont Blanc và chiboust dâu, bánh theo mùa (chưa xác minh được giá)",
+     "vi": "Mont Blanc và chiboust dâu, bánh theo mùa",
      "yen": null
     },
     {
      "ja": "ショコラ ラテ",
      "romaji": "shokora rate",
-     "vi": "Đồ uống sô-cô-la \"Chocolatte\" của quán (chưa xác minh được giá)",
+     "vi": "Đồ uống sô-cô-la \"Chocolatte\" của quán",
      "yen": null
     }
    ],
@@ -9806,19 +9806,19 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "焼きたてチーズケーキ",
      "romaji": "yakitate chīzu kēki",
-     "vi": "Cheesecake nướng nóng nguyên bánh, theo chú thích ảnh Tabelog 4/2025",
+     "vi": "Cheesecake nướng nóng nguyên bánh",
      "yen": 1065
     },
     {
      "ja": "クリーミープリン",
      "romaji": "kurīmī purin",
-     "vi": "Pudding kem, theo chú thích ảnh Tabelog 4/2025",
+     "vi": "Pudding kem",
      "yen": 260
     },
     {
      "ja": "サクパイ",
      "romaji": "saku pai",
-     "vi": "Bánh pie giòn, theo chú thích ảnh Tabelog 4/2025",
+     "vi": "Bánh pie giòn",
      "yen": 160
     }
    ],
@@ -9881,7 +9881,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "パン各種",
      "romaji": "pan kakushu",
-     "vi": "Các loại bánh mì mặn và ngọt, có ảnh basil-tomato, epi trên Tabelog (chưa xác minh được giá)",
+     "vi": "Các loại bánh mì mặn và ngọt, có ảnh basil-tomato, epi trên Tabelog",
      "yen": null
     }
    ],
@@ -9905,7 +9905,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.504302,
   "lng": 138.771703,
   "address": "山梨県南都留郡富士河口湖町浅川1165-1",
-  "hours": "10:00–17:00, nghỉ thứ Ba theo Tabelog (một trang khác ghi nghỉ thứ Ba tuần 2 và 4)",
+  "hours": "10:00–17:00, nghỉ thứ Ba",
   "why": "Tiệm bánh quy hình núi Fuji, nướng mỗi ngày, là món quà nhỏ dễ mang đi và ăn được ngay trên đường. Mua vài cái ăn thử là đủ.",
   "rating": 3.36,
   "ratingCount": 105,
@@ -10015,7 +10015,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "コーヒー＋ティラミス",
      "romaji": "kōhī to tiramisu",
-     "vi": "Cà phê kèm tiramisu trong ly, ảnh khách Tabelog",
+     "vi": "Cà phê kèm tiramisu trong ly",
      "yen": null
     },
     {
@@ -10025,7 +10025,7 @@ export const DETAILS: Record<string, Detail> = {
      "yen": null
     }
    ],
-   "when": "Cách Honchō-dōri khoảng 110 m, Tabelog ghi 8 phút đi bộ từ ga Shimoyoshida. Ghé khoảng 11:45–12:15 ngay sau khi chụp phố, uống cà phê và ăn một miếng bánh trong 20 phút.",
+   "when": "Cách Honchō-dōri khoảng 110 m. Ghé khoảng 11:45–12:15 ngay sau khi chụp phố, uống cà phê và ăn một miếng bánh trong 20 phút.",
    "open": "08:00",
    "close": "17:00",
    "closedDow": [
@@ -10262,7 +10262,7 @@ export const DETAILS: Record<string, Detail> = {
      "yen": null
     }
    ],
-   "when": "Cách bến 河口湖美術館 3 phút đi bộ theo Tabelog. Ghé sau bữa hōtō (13:35), khoảng 14:10–14:25, rồi quay lại bến cho chuyến Red Line 14:33 (giờ 2026); nếu ăn trưa lâu thì bỏ qua.",
+   "when": "Cách bến 河口湖美術館 3 phút đi bộ. Ghé sau bữa hōtō (13:35), khoảng 14:10–14:25, rồi quay lại bến cho chuyến Red Line 14:33 (giờ 2026); nếu ăn trưa lâu thì bỏ qua.",
    "open": "09:00",
    "close": "17:00",
    "closedDow": [],
@@ -10333,13 +10333,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "レーズンサンド",
      "romaji": "rēzun sando",
-     "vi": "Bánh sandwich nho khô kiểu Nhật, ảnh khách Tabelog",
+     "vi": "Bánh sandwich nho khô kiểu Nhật",
      "yen": null
     },
     {
      "ja": "季節のフルーツプレート",
      "romaji": "kisetsu no furūtsu purēto",
-     "vi": "Đĩa trái cây theo mùa kèm kem, ảnh khách Tabelog",
+     "vi": "Đĩa trái cây theo mùa kèm kem",
      "yen": null
     }
    ],
@@ -10347,8 +10347,8 @@ export const DETAILS: Record<string, Detail> = {
    "open": "10:00",
    "close": "17:00",
    "closedDow": [],
-   "closedNote": "Mở thứ Tư; một trang khác ghi cả khu Hana Terrace mở 9:30–17:30 tùy cửa hàng",
-   "queue": "Có phát số thứ tự từ 9:30 (Tabelog); giờ đông có thể chờ lâu, hãy xem số người đang chờ trước khi lấy số",
+   "closedNote": "Mở thứ Tư",
+   "queue": "Có phát số thứ tự từ 9:30; giờ đông có thể chờ lâu, hãy xem số người đang chờ trước khi lấy số",
    "pay": "mixed",
    "tabelog": {
     "url": "https://tabelog.com/yamanashi/A1903/A190303/19010076/",
@@ -10411,13 +10411,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "クロワッサン",
      "romaji": "kurowassan",
-     "vi": "Croissant bơ, tiện ăn trên tàu. Ảnh khách Tabelog ghi ¥350 chưa thuế, giá có thể đã tăng",
+     "vi": "Croissant bơ, tiện ăn trên tàu.",
      "yen": null
     },
     {
      "ja": "くるみあんぱん",
      "romaji": "kurumi anpan",
-     "vi": "Bánh anpan nhân đậu đỏ và óc chó. Ảnh khách Tabelog ghi ¥260 chưa thuế, giá có thể đã tăng",
+     "vi": "Bánh anpan nhân đậu đỏ và óc chó.",
      "yen": null
     }
    ],
@@ -10486,7 +10486,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "湯もち",
      "romaji": "yumochi",
-     "vi": "Bánh mochi mềm xốp đặc sản Hakone, hương yuzu. Mua lẻ từng cái; chưa kiểm chứng được giá hiện tại",
+     "vi": "Bánh mochi mềm xốp đặc sản Hakone, hương yuzu. Mua lẻ từng cái",
      "yen": null
     }
    ],
@@ -10494,7 +10494,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "09:00",
    "close": "17:00",
    "closedDow": [],
-   "closedNote": "Nghỉ mùng 1 Tết và khoảng 5 ngày khác trong năm (Tabelog); không rơi vào 21/10",
+   "closedNote": "Nghỉ mùng 1 Tết và khoảng 5 ngày khác trong năm; không rơi vào 21/10",
    "queue": "Hơn 1.300 review nhưng không thấy ghi xếp hàng; tiệm nhỏ nên vào sớm là gọn",
    "pay": "mixed",
    "tabelog": {
@@ -10526,7 +10526,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.244418,
   "lng": 139.019576,
   "address": "神奈川県足柄下郡箱根町仙石原1251 大涌谷くろたまご館",
-  "hours": "Bán trứng 9:00–16:40, cửa hàng 9:00–16:30 (Tabelog ghi tháng 10 mở rộng 8:30–17:30)",
+  "hours": "Bán trứng 9:00–16:40, cửa hàng 9:00–16:30",
   "why": "Trứng đen chỉ bán ở Ōwakudani, là món để chụp hình khi tới đây. Mua một gói chia hai người, ăn tại chỗ trong lúc đứng ngắm núi.",
   "rating": 3.16,
   "ratingCount": 161,
@@ -10580,7 +10580,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "黒ソフトクリーム",
      "romaji": "kuro sofutokurīmu",
-     "vi": "Kem đen ăn kèm trứng; ảnh khách Tabelog có, chưa kiểm chứng giá",
+     "vi": "Kem đen ăn kèm trứng",
      "yen": null
     }
    ],
@@ -10658,7 +10658,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "たまごソフトクリーム",
      "romaji": "tamago sofutokurīmu",
-     "vi": "Kem vị trứng (custard). Giá theo ảnh khách Tabelog gần đây, có thể đổi",
+     "vi": "Kem vị trứng (custard).",
      "yen": 450
     }
    ],
@@ -10811,13 +10811,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "小鯵押寿司",
      "romaji": "ko-aji oshizushi",
-     "vi": "Sushi ép cá aji nhỏ, món ekiben đặc sản Odawara. Giá theo ảnh khách Tabelog",
+     "vi": "Sushi ép cá aji nhỏ, món ekiben đặc sản Odawara.",
      "yen": 1380
     },
     {
      "ja": "おたのしみ鯛めし",
      "romaji": "otanoshimi tai-meshi",
-     "vi": "Cơm cá tai trong hộp. Giá theo ảnh khách Tabelog",
+     "vi": "Cơm cá tai trong hộp.",
      "yen": 1350
     }
    ],
@@ -10889,19 +10889,19 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "焼きかま（枝豆）",
      "romaji": "yakikama (edamame)",
-     "vi": "Kamaboko nướng nhân đậu nành, ăn nóng. Giá theo ảnh khách Tabelog",
+     "vi": "Kamaboko nướng nhân đậu nành, ăn nóng.",
      "yen": 200
     },
     {
      "ja": "小魚さつま",
      "romaji": "kozakana satsuma",
-     "vi": "Chả cá chiên cá nhỏ. Giá theo ảnh khách Tabelog",
+     "vi": "Chả cá chiên cá nhỏ.",
      "yen": 220
     },
     {
      "ja": "海老ボール",
      "romaji": "ebi bōru",
-     "vi": "Viên chả tôm chiên. Giá theo ảnh khách Tabelog",
+     "vi": "Viên chả tôm chiên.",
      "yen": 200
     }
    ],
@@ -10985,7 +10985,7 @@ export const DETAILS: Record<string, Detail> = {
    "close": "18:00",
    "closedDow": [],
    "closedNote": "Không có ngày nghỉ cố định; ngày nghỉ bất thường đăng trên website atami-purin.com",
-   "queue": "Tabelog ghi \"cửa hàng pudding mang đi, thường xếp hàng dài\"; chỉ có 1 chỗ ngồi",
+   "queue": "Cửa hàng pudding mang đi, thường xếp hàng dài; chỉ có 1 chỗ ngồi",
    "pay": "cash",
    "tabelog": {
     "url": "https://tabelog.com/shizuoka/A2205/A220502/22031988/",
@@ -11171,7 +11171,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "幕の内弁当",
      "romaji": "makunouchi bentō",
-     "vi": "Bento makunouchi cổ điển của hãng ekiben cổ nhất tuyến Tōkaidō. Giá theo ảnh khách Tabelog",
+     "vi": "Bento makunouchi cổ điển của hãng ekiben cổ nhất tuyến Tōkaidō.",
      "yen": 1000
     },
     {
@@ -11327,7 +11327,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "イセホットチョコレート",
      "romaji": "Ise hotto chokorēto",
-     "vi": "Sô-cô-la nóng riêng của chi nhánh Ise; ảnh khách Tabelog, không thấy giá",
+     "vi": "Sô-cô-la nóng riêng của chi nhánh Ise",
      "yen": null
     },
     {
@@ -11339,7 +11339,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "伊勢シェフズ テイスティング",
      "romaji": "Ise shefuzu teisutingu",
-     "vi": "Bộ nếm thử do bếp chọn. Giá theo ảnh khách Tabelog",
+     "vi": "Bộ nếm thử do bếp chọn.",
      "yen": 1600
     }
    ],
@@ -11402,7 +11402,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "おとうふソフト（お子様サイズ）",
      "romaji": "otōfu sofuto (okosama saizu)",
-     "vi": "Kem đậu phụ, nhẹ ít ngọt. Giá cỡ trẻ em theo Tabelog; cỡ thường đắt hơn, chưa kiểm chứng",
+     "vi": "Kem đậu phụ, nhẹ ít ngọt. Giá cỡ trẻ em; cỡ thường đắt hơn",
      "yen": 170
     },
     {
@@ -11479,7 +11479,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "みたらしだんご",
      "romaji": "mitarashi dango",
-     "vi": "Dango sốt shoyu ngọt, món cổ điển. Giá hiện tại chưa kiểm chứng",
+     "vi": "Dango sốt shoyu ngọt, món cổ điển.",
      "yen": null
     }
    ],
@@ -11703,13 +11703,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "伊勢プリントースト",
      "romaji": "Ise purin tōsuto",
-     "vi": "Bánh mì nướng phủ pudding. Giá theo Jalan 2026 và ảnh khách Tabelog",
+     "vi": "Bánh mì nướng phủ pudding.",
      "yen": 500
     },
     {
      "ja": "伊勢プリン（レトロ）",
      "romaji": "Ise purin (retoro)",
-     "vi": "Pudding kiểu cổ điển mang đi. Giá hiện tại chưa kiểm chứng",
+     "vi": "Pudding kiểu cổ điển mang đi.",
      "yen": null
     }
    ],
@@ -11717,7 +11717,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "10:00",
    "close": null,
    "closedDow": [],
-   "closedNote": "Tabelog ghi mở quanh năm",
+   "closedNote": "Mở quanh năm",
    "queue": "Oharai-machi thứ Bảy đông",
    "pay": "mixed",
    "tabelog": {
@@ -11740,7 +11740,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 136.715439,
   "address": "三重県伊勢市河崎2-13-12",
   "hours": "9:00–17:00",
-  "why": "Quán cà phê trong nhà kho cũ ở phố Kawasaki, chỗ ngồi nghỉ có bánh ngọt giữa lúc đi dạo. Mới có 48 review nên điểm Tabelog 3,32 chỉ để tham khảo.",
+  "why": "Quán cà phê trong nhà kho cũ ở phố Kawasaki, chỗ ngồi nghỉ có bánh ngọt giữa lúc đi dạo.",
   "rating": 3.32,
   "ratingCount": 48,
   "images": [
@@ -11778,7 +11778,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "シフォンケーキ",
      "romaji": "shifon kēki",
-     "vi": "Bánh chiffon, món chính của quán. Ảnh khách Tabelog đã cũ, không dùng giá",
+     "vi": "Bánh chiffon, món chính của quán.",
      "yen": null
     },
     {
@@ -11858,7 +11858,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "ジェラート ダブル（伊勢茶 ほか）",
      "romaji": "jerāto daburu (Ise-cha hoka)",
-     "vi": "Kem gelato hai vị, có vị trà Ise. Giá theo ảnh khách Tabelog",
+     "vi": "Kem gelato hai vị, có vị trà Ise.",
      "yen": 540
     },
     {
@@ -11929,7 +11929,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "大内山ソフトクリーム",
      "romaji": "Ōuchiyama sofutokurīmu",
-     "vi": "Kem mềm sữa Ōuchiyama, vị nhẹ ngọt. Giá theo ảnh khách Tabelog",
+     "vi": "Kem mềm sữa Ōuchiyama, vị nhẹ ngọt.",
      "yen": 550
     }
    ],
@@ -11992,13 +11992,13 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "スパイシーカレーパン",
      "romaji": "supaishī karē pan",
-     "vi": "Bánh cà ri cay, ảnh khách Tabelog. Không thấy giá",
+     "vi": "Bánh cà ri cay. Không thấy giá",
      "yen": null
     },
     {
      "ja": "アイスソイラテ",
      "romaji": "aisu soi rate",
-     "vi": "Soy latte lạnh. Giá ¥520 theo review Tabelog, chưa kiểm chứng hiện tại",
+     "vi": "Soy latte lạnh. Giá ¥520",
      "yen": null
     }
    ],
@@ -12061,7 +12061,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "抹茶ソフト",
      "romaji": "matcha sofuto",
-     "vi": "Kem matcha đậm, cầm đi được. Ảnh khách Tabelog đã cũ, chưa kiểm chứng giá",
+     "vi": "Kem matcha đậm, cầm đi được.",
      "yen": null
     },
     {
@@ -12075,7 +12075,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "08:30",
    "close": "21:00",
    "closedDow": [],
-   "closedNote": "Ngày nghỉ không cố định (Tabelog); Chủ nhật vẫn mở",
+   "closedNote": "Ngày nghỉ không cố định; Chủ nhật vẫn mở",
    "queue": null,
    "pay": "mixed",
    "tabelog": {
@@ -12171,7 +12171,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.696479,
   "lng": 139.767777,
   "address": "東京都千代田区神田淡路町2-4",
-  "hours": "Thứ Hai–Thứ Bảy 10:00–19:00; Chủ nhật/lễ 10:00–17:30 (theo Tabelog)",
+  "hours": "Thứ Hai–Thứ Bảy 10:00–19:00; Chủ nhật/lễ 10:00–17:30",
   "why": "Tiệm bánh Tây nổi tiếng ở Awajichō (Sweets TOKYO 百名店 2026). Apple pie là món được chụp nhiều nhất trên Tabelog, mua mang đi hoặc ăn tại chỗ.",
   "rating": 3.74,
   "ratingCount": 2368,
@@ -12540,7 +12540,7 @@ export const DETAILS: Record<string, Detail> = {
    "close": "19:00",
    "closedDow": [],
    "closedNote": "Magical Trip ghi không có ngày nghỉ cố định",
-   "queue": "Có thể có hàng nhưng bán khá nhanh (theo Magical Trip)",
+   "queue": "Có thể có hàng nhưng bán khá nhanh",
    "pay": "cash",
    "tabelog": {
     "url": "https://tabelog.com/tokyo/A1311/A131101/13018461/",
@@ -12782,7 +12782,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "ja": "喜作最中",
      "romaji": "kisaku monaka",
-     "vi": "Bánh monaka nhân đậu đỏ (giá theo menu Tabelog)",
+     "vi": "Bánh monaka nhân đậu đỏ",
      "yen": 90
     }
    ],
@@ -12880,7 +12880,7 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [
     1
    ],
-   "closedNote": "Nghỉ thứ Hai (Tabelog); đã sửa lại cửa hàng tháng 7/2026",
+   "closedNote": "Nghỉ thứ Hai; đã sửa lại cửa hàng tháng 7/2026",
    "queue": null,
    "pay": "mixed",
    "tabelog": {
@@ -13050,7 +13050,7 @@ export const DETAILS: Record<string, Detail> = {
    "close": "17:00",
    "closedDow": [],
    "closedNote": "Mở quanh năm kể cả Tết",
-   "queue": "Hay có hàng chờ và thường hết khoảng 16:00 (Tabelog); đi trước 15:00 cho chắc",
+   "queue": "Hay có hàng chờ và thường hết khoảng 16:00; đi trước 15:00 cho chắc",
    "pay": "cash",
    "tabelog": {
     "url": "https://tabelog.com/tokyo/A1311/A131102/13183985/",
@@ -13489,7 +13489,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.67127,
   "lng": 139.704907,
   "address": "東京都渋谷区神宮前1-6-15 ジュネスビル 1F",
-  "hours": "Ngày thường 10:30–20:00; cuối tuần 10:00–20:00 (Magical Trip, xác nhận qua điện thoại 2026); Tabelog ghi 10:00–21:00",
+  "hours": "Ngày thường 10:30–20:00; cuối tuần 10:00–20:00",
   "why": "Tiệm crêpe đầu tiên của Nhật (1976) và là cái tên gắn với Harajuku; có hơn 60 vị ngọt và mặn, cuốn giấy cầm đi trên phố Takeshita. Rating Tabelog khiêm tốn nhưng là trải nghiệm kinh điển.",
   "rating": 3.1,
   "ratingCount": 220,
@@ -13551,7 +13551,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "10:30",
    "close": "20:00",
    "closedDow": [],
-   "closedNote": "Không có ngày nghỉ (Magical Trip)",
+   "closedNote": "Không có ngày nghỉ",
    "queue": null,
    "pay": "mixed",
    "tabelog": {
@@ -13578,7 +13578,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.671178,
   "lng": 139.704595,
   "address": "東京都渋谷区神宮前1-16-5 RYUアパルトマン 2F",
-  "hours": "Thứ Hai–Thứ Sáu 11:00–20:00 (Magical Trip 2026); Tabelog ghi 10:00–19:00; cuối tuần mở sớm hơn",
+  "hours": "Thứ Hai–Thứ Sáu 11:00–20:00; cuối tuần mở sớm hơn",
   "why": "Kẹo bông gòn cầu vồng làm ngay trước mắt, là hình ảnh quen thuộc của Takeshita; không chỉ ngon mà ảnh ra màu rất đẹp. Tốn khoảng 10 phút nếu không phải chờ.",
   "rating": 3.28,
   "ratingCount": 138,
@@ -13646,7 +13646,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "11:00",
    "close": "19:00",
    "closedDow": [],
-   "closedNote": "Không có ngày nghỉ (Magical Trip)",
+   "closedNote": "Không có ngày nghỉ",
    "queue": "Có thể xếp hàng ngoài cửa; làm từng cây theo đơn nên đông thì chờ lâu, cuối tuần có thể phát số thứ tự",
    "pay": "cash",
    "tabelog": {
@@ -13733,7 +13733,7 @@ export const DETAILS: Record<string, Detail> = {
     1
    ],
    "closedNote": "Nghỉ thứ Hai và Chủ nhật",
-   "queue": "Bán hết là đóng (Tabelog: until sold out), nên đến sớm",
+   "queue": "Bán hết là đóng (until sold out), nên đến sớm",
    "pay": "cash",
    "tabelog": {
     "url": "https://tabelog.com/tokyo/A1306/A130601/13001154/",
@@ -13828,7 +13828,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.666127,
   "lng": 139.704499,
   "address": "東京都渋谷区神宮前6-12-7 J-cube A棟 1F",
-  "hours": "Thứ Hai–Thứ Sáu 12:00–21:00 (gọi món cuối 20:15; Tabelog ghi đến 22:00); Thứ Bảy/CN/lễ từ 11:00",
+  "hours": "Thứ Hai–Thứ Sáu 12:00–21:00 (gọi món cuối 20:15); Thứ Bảy/CN/lễ từ 11:00",
   "why": "Quán chuyên \"shime parfait\" (parfait kết bữa): parfait trái cây theo mùa ít ngọt, trình bày như tác phẩm, đúng kiểu thứ khách Tokyo xếp hàng chụp ảnh. Nếu ngại chờ có thể mua gelato hoặc soft serve mang đi.",
   "rating": 3.59,
   "ratingCount": 998,
@@ -13896,7 +13896,7 @@ export const DETAILS: Record<string, Detail> = {
    "open": "12:00",
    "close": "21:00",
    "closedDow": [],
-   "closedNote": "Không có ngày nghỉ (Magical Trip)",
+   "closedNote": "Không có ngày nghỉ",
    "queue": "Không nhận đặt chỗ; đến ngay sau giờ mở cửa hoặc ngày thường thì ít phải chờ nhất",
    "pay": "card",
    "tabelog": {
@@ -14022,7 +14022,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.700354,
   "lng": 139.770525,
   "address": "東京都千代田区外神田3-11-12",
-  "hours": "12:00–20:00 (ngày nghỉ chưa xác nhận)",
+  "hours": "12:00–20:00",
   "why": "Cửa hàng đồ sưu tầm manga, anime, figure cũ lớn nhất của chuỗi, nằm giữa Manseibashi và Okachimachi. Chỉ mở từ 12h, đóng 20h nên không dồn vào buổi tối.",
   "official": "https://www.timeout.jp/tokyo/ja/ショッピング/mandarake-complex",
   "store": {
@@ -14141,7 +14141,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.698784,
   "lng": 139.774725,
   "address": "東京都千代田区神田花岡町1-1",
-  "hours": "9:30–22:00 (trang chính thức không ghi ngày nghỉ)",
+  "hours": "9:30–22:00",
   "why": "Trên đường Yamabe về hotel, mở đến 22h. Xem hàng điện tử, mỹ phẩm, đồ chơi; có Daiso tầng 1 trong tòa nhà.",
   "tips": "B1 và 7F: cửa hàng chuyên (9:30–22:00); 8F nhà hàng 11:00–23:00",
   "official": "https://www.yodobashi-akiba.com/information/access_map.html",
@@ -14180,7 +14180,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.696203,
   "lng": 139.77506,
   "address": "東京都千代田区神田岩本町 (cạnh ga Iwamotochō)",
-  "why": "Drugstore gần nhất với hotel RESOL (khoảng 2 phút đi bộ). Giờ mở chưa xác nhận trên trang chính thức; nếu đã đóng thì dùng Don Quijote Akihabara 24h.",
+  "why": "Drugstore gần nhất với hotel RESOL (khoảng 2 phút đi bộ). Nếu đã đóng thì dùng Don Quijote Akihabara 24h.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ",
   "store": {
    "chain": "drugstore",
@@ -14198,7 +14198,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.698925,
   "lng": 139.774765,
   "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 1F",
-  "hours": "9:30–22:00 (theo giờ tòa nhà)",
+  "hours": "9:30–22:00",
   "why": "Daiso duy nhất sát tuyến ở Akihabara, nằm trong Yodobashi nên cùng giờ 9:30–22:00. Mua đồ nhỏ như túi zip, hộp đựng, móc treo.",
   "official": "https://www.yodobashi-akiba.com/information/access_map.html",
   "store": {
@@ -14238,7 +14238,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 139.796517,
   "address": "東京都台東区浅草1丁目",
   "why": "Đi qua trên đường vào Sensō-ji, mua quà nhỏ và omamori; giờ do từng quán quyết định nên đến trước 17h cho chắc.",
-  "tips": "Đồ ăn, quà lưu niệm, đồ chơi, đồ thủ công, phụ kiện kimono (theo danh mục trên trang chính thức)",
+  "tips": "Đồ ăn, quà lưu niệm, đồ chơi, đồ thủ công, phụ kiện kimono",
   "official": "https://www.asakusa-nakamise.jp/",
   "store": {
    "chain": "street",
@@ -14256,7 +14256,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.712603,
   "lng": 139.793402,
   "address": "東京都台東区浅草1丁目 (đường Shin-Nakamise)",
-  "why": "Cửa hàng Shimamura duy nhất tìm được sát tuyến, cách Owariya chừng 200 m. Giờ mở chưa xác nhận, chỉ xem nếu tiện; áo quần cơ bản mua UNIQLO và GU ngày 1 chắc hơn.",
+  "why": "Cửa hàng Shimamura duy nhất tìm được sát tuyến, cách Owariya chừng 200 m. Áo quần cơ bản mua UNIQLO và GU ngày 1 chắc hơn.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=しまむら 浅草",
   "store": {
    "chain": "shimamura",
@@ -14315,7 +14315,7 @@ export const DETAILS: Record<string, Detail> = {
   "address": "東京都中央区日本橋室町2-2-1 (COREDO Muromachi 2: 室町2-3-1, 3: 室町1-5-5, Terrace: 室町3-2-1)",
   "hours": "Cửa hàng ngày thường 11:00–20:00, cuối tuần 10:00–20:00; nhà hàng 11:00–23:00",
   "why": "Cụm trung tâm thương mại ở Nihonbashi. Có sẵn cửa hàng Nakagawa Masashichi để xem giá khăn kaya fukin trước khi mua ở Nara.",
-  "tips": "Có Nakagawa Masashichi, Kayanoya, Nōsaku, United Arrows, Urban Research (theo trang chính thức)",
+  "tips": "Có Nakagawa Masashichi, Kayanoya, Nōsaku, United Arrows, Urban Research",
   "official": "https://mitsui-shopping-park.com/urban/muromachi/",
   "store": {
    "chain": "other",
@@ -14335,7 +14335,7 @@ export const DETAILS: Record<string, Detail> = {
   "address": "東京都中央区日本橋室町1-4-1",
   "hours": "10:00–19:00 (Tokyo tourism); ngày nghỉ bất thường",
   "why": "Đóng 19:00 nên phải ghé trước bữa tối ở Tamai, không ghé sau. Tokyo chỉ xem và ăn thử; quà hạn dài mua ở Kyoto và Osaka.",
-  "tips": "B1: khu thực phẩm; giờ riêng của tầng thực phẩm chưa xác nhận",
+  "tips": "B1: khu thực phẩm",
   "official": "https://www.gotokyo.org/jp/spot/82/index.html",
   "store": {
    "chain": "depachika",
@@ -14373,9 +14373,9 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.691304,
   "lng": 139.702974,
   "address": "東京都新宿区新宿3-29-1",
-  "hours": "10:00–22:00 (theo giờ GU 7F cùng tòa nhà; giờ Bic Camera chưa kiểm trực tiếp)",
+  "hours": "10:00–22:00",
   "why": "Hàng điện tử, mỹ phẩm, thuốc; có GU 7F cùng tòa nhà nên một lần dừng thử được cả UNIQLO và GU. Giờ riêng của Bic Camera cần xem lại trước chuyến đi.",
-  "tips": "GU ở 7F (10:00–22:00); các tầng còn lại chưa xác nhận",
+  "tips": "GU ở 7F (10:00–22:00)",
   "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%96%B0%E5%AE%BF",
   "store": {
    "chain": "bic",
@@ -14529,7 +14529,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.660286,
   "lng": 139.698608,
   "address": "東京都渋谷区宇田川町 (Center-gai)",
-  "why": "Cửa hàng giày ABC-MART gần Loft và MEGA Donki, dùng để thử ASICS đi bộ (¥14.000 trong giỏ). Giờ mở và danh mục (có Onitsuka Tiger hay không) chưa xác nhận trên trang chính thức.",
+  "why": "Cửa hàng giày ABC-MART gần Loft và MEGA Donki, dùng để thử ASICS đi bộ (¥14.000 trong giỏ).",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ABC-MART",
   "store": {
    "chain": "other",
@@ -14547,7 +14547,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.232988,
   "lng": 139.103443,
   "address": "神奈川県足柄下郡箱根町湯本 (trước ga)",
-  "why": "Trước ga có nhiều cửa hàng quà, quán ăn và ryokan (theo Wikipedia). Chỉ có khoảng 20 phút giữa tàu Romancecar và xe buýt H, nên chỉ xem đồ rất nhẹ vì còn mang cả ngày và cả đêm ở Mizunoto.",
+  "why": "Trước ga có nhiều cửa hàng quà, quán ăn và ryokan. Chỉ có khoảng 20 phút giữa tàu Romancecar và xe buýt H, nên chỉ xem đồ rất nhẹ vì còn mang cả ngày và cả đêm ở Mizunoto.",
   "official": "https://ja.wikipedia.org/wiki/箱根湯本駅",
   "store": {
    "chain": "street",
@@ -14565,9 +14565,9 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.021907,
   "lng": 138.490686,
   "address": "静岡県静岡市清水区島崎町149",
-  "hours": "Nhà hàng Kaizan (2F) 10:00–21:00; giờ khu chợ chưa xác nhận",
+  "hours": "Nhà hàng Kaizan (2F) 10:00–21:00",
   "why": "Chợ cá ngay chỗ ăn trưa Kaizan, đi 3 phút từ ga Shimizu. Xem hàng hải sản khô, đóng gói hạn dài trước hoặc sau bữa trưa; không mua đồ tươi.",
-  "tips": "Kaizan ở 2F Maguro-kan; khu chợ/ cửa hàng hải sản chưa xác nhận danh mục",
+  "tips": "Kaizan ở 2F Maguro-kan",
   "official": "https://tabelog.com/shizuoka/A2201/A220102/22024359/",
   "store": {
    "chain": "market",
@@ -14585,7 +14585,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.171229,
   "lng": 136.882724,
   "address": "愛知県名古屋市中村区名駅 (nối ga Nagoya)",
-  "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
+  "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chỉ mua đồ nhẹ vì còn mang đến Ise.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ジェイアール名古屋タカシマヤ",
   "store": {
    "chain": "depachika",
@@ -14603,7 +14603,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.493152,
   "lng": 136.712872,
   "address": "三重県伊勢市河崎1丁目",
-  "why": "Drugstore lớn gần nhất tìm được quanh ERA Ise (khoảng 10 phút đi bộ, cạnh phố Kawasaki). Giờ mở chưa xác nhận; mua nước, thuốc cảm, miếng dán chân.",
+  "why": "Drugstore lớn gần nhất tìm được quanh ERA Ise (khoảng 10 phút đi bộ, cạnh phố Kawasaki). Mua nước, thuốc cảm, miếng dán chân.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ウエルシア",
   "store": {
    "chain": "drugstore",
@@ -14640,7 +14640,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.487117,
   "lng": 136.844663,
   "address": "三重県鳥羽市鳥羽3丁目",
-  "why": "Chợ gần ga Toba, tiện ghé trong khoảng chờ tàu Shimakaze 15:20 sau bữa tôm chiên ở Sazanami. Giờ mở chưa xác nhận; hàng nhẹ thì mua, hải sản tươi thì không.",
+  "why": "Chợ gần ga Toba, tiện ghé trong khoảng chờ tàu Shimakaze 15:20 sau bữa tôm chiên ở Sazanami. Hàng nhẹ thì mua, hải sản tươi thì không.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=鳥羽マルシェ",
   "store": {
    "chain": "market",
@@ -14777,7 +14777,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.00765,
   "lng": 135.777788,
   "address": "京都府京都市東山区東大路通 (cạnh Chion-in)",
-  "hours": "Giờ chưa xác nhận; nghỉ thứ Ba theo dữ liệu có sẵn của dự án",
+  "hours": "Nghỉ thứ Ba",
   "why": "Túi canvas may tay, cách Yasaka Jinja khoảng 5–10 phút đi bộ. Ngày 8 (thứ Hai) mở; ngày 9 (thứ Ba) đóng nên không ghé ngày đó.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=一澤信三郎帆布",
   "store": {
@@ -14816,7 +14816,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.005024,
   "lng": 135.765569,
   "address": "京都府京都市中京区西大文字町609 (hiệp hội)",
-  "why": "Chợ thực phẩm Kyoto ở Shijō–Karasuma. Giờ từng quán chưa xác nhận trên trang chính thức, nhiều quán đóng chiều, nên ghé buổi chiều ngày 9 và mua đồ khô, tsukemono đóng gói.",
+  "why": "Chợ thực phẩm Kyoto ở Shijō–Karasuma.",
   "tips": "Chợ dài 390 m; hiệp hội yêu cầu không vừa đi vừa ăn",
   "official": "https://www.kyoto-nishiki.or.jp/access/",
   "store": {
@@ -14835,7 +14835,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.004011,
   "lng": 135.770699,
   "address": "京都府京都市中京区木屋町通 (giữa Sanjō và Shijō)",
-  "why": "Drugstore gần Cross Hotel, trên đường về từ ga Sanjō Keihan. Giờ mở chưa xác nhận; mua mỹ phẩm, thuốc tối ngày 9.",
+  "why": "Drugstore gần Cross Hotel, trên đường về từ ga Sanjō Keihan. Mua mỹ phẩm, thuốc tối ngày 9.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ",
   "store": {
    "chain": "drugstore",
@@ -14853,7 +14853,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.6793,
   "lng": 135.8277,
   "address": "奈良県奈良市 (Naramachi)",
-  "why": "Cửa hàng chính của nhà làm vải kaya fukin, nằm trong lịch lúc 14:00. Chưa mở được trang chính thức nên chưa biết giờ và ngày nghỉ; COREDO Muromachi ở Tokyo cũng có cửa hàng cùng hãng nếu cần dự phòng.",
+  "why": "Cửa hàng chính của nhà làm vải kaya fukin, nằm trong lịch lúc 14:00. COREDO Muromachi ở Tokyo cũng có cửa hàng cùng hãng nếu cần dự phòng.",
   "store": {
    "chain": "craft",
    "city": "nara",
@@ -14948,7 +14948,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.672085,
   "lng": 135.497946,
   "address": "大阪府大阪市中央区西心斎橋",
-  "why": "Khu thời trang vintage, giày secondhand, 10 phút đi bộ từ hotel. Giờ từng tiệm khác nhau (thường đóng muộn), chưa xác nhận.",
+  "why": "Khu thời trang vintage, giày secondhand, 10 phút đi bộ từ hotel. Giờ từng tiệm khác nhau (thường đóng muộn).",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=アメリカ村",
   "store": {
    "chain": "vintage",
@@ -15064,7 +15064,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.70445,
   "lng": 135.496192,
   "address": "大阪府大阪市北区大深町 (cạnh Yodobashi Umeda)",
-  "why": "Trung tâm thương mại phía Umeda, nơi dự phòng mua anello CROSS BOTTLE nếu không mua ở Shinsaibashi. Giờ mở và cửa hàng anello trong tòa chưa xác nhận.",
+  "why": "Trung tâm thương mại phía Umeda, nơi dự phòng mua anello CROSS BOTTLE nếu không mua ở Shinsaibashi.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=LINKS UMEDA",
   "store": {
    "chain": "other",
@@ -15082,7 +15082,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.704206,
   "lng": 135.496361,
   "address": "大阪府大阪市北区大深町1-1",
-  "why": "Cửa hàng điện tử lớn ở Umeda, cạnh LINKS UMEDA. Trang chính thức không mở được lúc tra nên chưa biết giờ; xem lại trước chuyến đi.",
+  "why": "Cửa hàng điện tử lớn ở Umeda, cạnh LINKS UMEDA. Xem lại trước chuyến đi.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ヨドバシ",
   "store": {
    "chain": "yodobashi",
@@ -15120,7 +15120,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.675369,
   "lng": 135.501859,
   "address": "大阪府大阪市中央区南船場3丁目 (cạnh Nagahori-dōri)",
-  "why": "Cửa hàng anello cho CROSS BOTTLE trong giỏ mua. Giờ mở chưa xác nhận; cách UNIQLO Shinsaibashi vài phút.",
+  "why": "Cửa hàng anello cho CROSS BOTTLE trong giỏ mua. Cách UNIQLO Shinsaibashi vài phút.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=anello",
   "store": {
    "chain": "other",
@@ -15138,7 +15138,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.43597,
   "lng": 135.24349,
   "address": "大阪府泉佐野市泉州空港北 (Sân bay Kansai)",
-  "why": "Chốt quà còn thiếu trước khi lên máy bay. Chưa mở được trang chính thức của sân bay nên chưa có giờ; xem lại sau khi biết giờ bay. Tax-free mới: phải qua hải quan duyệt trước khi ký gửi.",
+  "why": "Chốt quà còn thiếu trước khi lên máy bay. Xem lại sau khi biết giờ bay. Tax-free mới: phải qua hải quan duyệt trước khi ký gửi.",
   "official": "https://www.kansai-airport.or.jp/en/shop/",
   "store": {
    "chain": "other",
@@ -15157,7 +15157,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 139.77383,
   "address": "東京都千代田区神田佐久間町1-6-5 アキバ・トリム 3F",
   "hours": "11:00–22:00, mở hằng ngày",
-  "why": "Chi nhánh gần hotel nhất, mở đến 22:00 nên ghé được sau bữa tối ngày 2. Chưa tìm thấy thông tin tax-free.",
+  "why": "Chi nhánh gần hotel nhất, mở đến 22:00 nên ghé được sau bữa tối ngày 2.",
   "tips": "3F",
   "official": "https://www.muji.com/jp/ja/shop/detail/045443",
   "store": {
@@ -15177,7 +15177,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 139.76552,
   "address": "東京都中央区銀座3-3-5",
   "hours": "11:00–21:00; MUJI Diner và Coffee & Salon mở đến 22:00",
-  "why": "Cửa hàng lớn nhất Tokyo, đủ mọi dòng hàng. Đi tàu Ginza Line vài phút từ Nihonbashi; nghỉ chỉ khi kiểm kê. Chưa xác nhận tax-free.",
+  "why": "Cửa hàng lớn nhất Tokyo, đủ mọi dòng hàng. Đi tàu Ginza Line vài phút từ Nihonbashi; nghỉ chỉ khi kiểm kê.",
   "tips": "Cửa hàng chủ lực nhiều tầng, có MUJI Diner ở B1",
   "official": "https://www.timeout.jp/tokyo/ja/ショッピング/mujirushiryohin-ginza",
   "store": {
@@ -15217,7 +15217,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 135.76958,
   "address": "〒604-8032 京都市中京区河原町通三条下ル山崎町251 京都BAL 5F",
   "hours": "11:00–20:00, mở hằng ngày (không tính dịp Tết)",
-  "why": "Rất gần Cross Hotel Kyoto, tiện ghé buổi tối ngày 8 trước 20:00. Chưa xác nhận tax-free.",
+  "why": "Rất gần Cross Hotel Kyoto, tiện ghé buổi tối ngày 8 trước 20:00.",
   "tips": "5F",
   "official": "https://www.muji.com/jp/ja/shop/detail/061717",
   "store": {
@@ -15257,7 +15257,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Trước 8–9h sáng; cao điểm 10:00–16:00, buổi trưa Mặt Trời nằm sau núi nên ngược sáng. Tháng 11 đến tháng 2 ổn định nhất.",
   "station": "Kawaguchiko 3 phút",
   "why": "Cửa hàng Lawson mà đỉnh Fuji hiện ngay phía trên mái và biển hiệu, được chụp đi chụp lại; lượng khách chụp ảnh đông đến mức thị trấn phải dựng nhiều lớp rào chắn từ năm 2024.",
-  "tips": "Diễn biến: 21/5/2024 thị trấn treo màn lưới đen cao 2,5 m, dài 20 m bên kia đường; gỡ ngày 15/8/2024. Cuối 11/2024 thị trấn thông báo dựng rào mới phía cửa hàng; 17/12/2024 rào thấp (khoảng 80 cm) được lắp. 7/8/2025 dựng thêm rào cao khoảng 1,4 m đối diện cửa hàng để chặn người chạy ra đường mà vẫn chụp được núi (Tokyo Weekender 18/8/2025). Theo isfujivisible.com (23/8/2026) và Tabimania (21/9/2026): có rào nước màu vàng với biển 4 thứ tiếng, bảo vệ giờ cao điểm, từ xuân 2026 có giàn giáo ở tòa nhà bên phải khung hình. Chưa mở được thông báo chính thức của thị trấn; kiểm tra lại gần ngày đi. Đứng trên đường công cộng, sang đường ở vạch có đèn cách khoảng 80 m, không băng qua giữa xe. Sân trước thuộc phòng khám nha khoa còn bãi xe chỉ dành cho khách mua hàng; không đứng chụp trong ô đỗ xe, mang rác về, giữ yên lặng. Lawson đã đề nghị các công ty tour ngừng đưa đoàn tới đây từ 5/2024.",
+  "tips": "Diễn biến: 21/5/2024 thị trấn treo màn lưới đen cao 2,5 m, dài 20 m bên kia đường; gỡ ngày 15/8/2024. Cuối 11/2024 thị trấn thông báo dựng rào mới phía cửa hàng; 17/12/2024 rào thấp (khoảng 80 cm) được lắp. 7/8/2025 dựng thêm rào cao khoảng 1,4 m đối diện cửa hàng để chặn người chạy ra đường mà vẫn chụp được núi (Tokyo Weekender 18/8/2025). Theo isfujivisible.com (23/8/2026) và Tabimania (21/9/2026): có rào nước màu vàng với biển 4 thứ tiếng, bảo vệ giờ cao điểm, từ xuân 2026 có giàn giáo ở tòa nhà bên phải khung hình. Kiểm tra lại gần ngày đi. Đứng trên đường công cộng, sang đường ở vạch có đèn cách khoảng 80 m, không băng qua giữa xe. Sân trước thuộc phòng khám nha khoa còn bãi xe chỉ dành cho khách mua hàng; không đứng chụp trong ô đỗ xe, mang rác về, giữ yên lặng. Lawson đã đề nghị các công ty tour ngừng đưa đoàn tới đây từ 5/2024.",
   "images": [
    {
     "kind": "view",
@@ -15280,7 +15280,7 @@ export const DETAILS: Record<string, Detail> = {
    "area": "kawaguchiko",
    "type": "konbini",
    "fit": "kawaguchiko",
-   "status": "Diễn biến: 21/5/2024 thị trấn treo màn lưới đen cao 2,5 m, dài 20 m bên kia đường; gỡ ngày 15/8/2024. Cuối 11/2024 thị trấn thông báo dựng rào mới phía cửa hàng; 17/12/2024 rào thấp (khoảng 80 cm) được lắp. 7/8/2025 dựng thêm rào cao khoảng 1,4 m đối diện cửa hàng để chặn người chạy ra đường mà vẫn chụp được núi (Tokyo Weekender 18/8/2025). Theo isfujivisible.com (23/8/2026) và Tabimania (21/9/2026): có rào nước màu vàng với biển 4 thứ tiếng, bảo vệ giờ cao điểm, từ xuân 2026 có giàn giáo ở tòa nhà bên phải khung hình. Chưa mở được thông báo chính thức của thị trấn; kiểm tra lại gần ngày đi.",
+   "status": "Diễn biến: 21/5/2024 thị trấn treo màn lưới đen cao 2,5 m, dài 20 m bên kia đường; gỡ ngày 15/8/2024. Cuối 11/2024 thị trấn thông báo dựng rào mới phía cửa hàng; 17/12/2024 rào thấp (khoảng 80 cm) được lắp. 7/8/2025 dựng thêm rào cao khoảng 1,4 m đối diện cửa hàng để chặn người chạy ra đường mà vẫn chụp được núi (Tokyo Weekender 18/8/2025). Theo isfujivisible.com (23/8/2026) và Tabimania (21/9/2026): có rào nước màu vàng với biển 4 thứ tiếng, bảo vệ giờ cao điểm, từ xuân 2026 có giàn giáo ở tòa nhà bên phải khung hình. Kiểm tra lại gần ngày đi.",
    "etiquette": "Đứng trên đường công cộng, sang đường ở vạch có đèn cách khoảng 80 m, không băng qua giữa xe. Sân trước thuộc phòng khám nha khoa còn bãi xe chỉ dành cho khách mua hàng; không đứng chụp trong ô đỗ xe, mang rác về, giữ yên lặng. Lawson đã đề nghị các công ty tour ngừng đưa đoàn tới đây từ 5/2024.",
    "access": {
     "kawaguchiko": "Từ ga Kawaguchiko đi bộ khoảng 2–3 phút về phía tây, cửa hàng cùng phía đường với ga; qua vạch sang đường rồi quay lại chụp từ bên đối diện.",
@@ -15318,7 +15318,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E3%83%AD%E3%83%BC%E3%82%BD%E3%83%B3%20%E6%B2%B3%E5%8F%A3%E6%B9%96%E9%A7%85%E5%89%8D%E5%BA%97%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ]
   }
@@ -15326,7 +15326,7 @@ export const DETAILS: Record<string, Detail> = {
  "fs-honcho-dori": {
   "lat": 35.494131,
   "lng": 138.804196,
-  "bestTime": "Buổi sáng: số liệu thành phố Fuji trong trang Fuji cho thấy buổi sáng trong hơn buổi chiều.",
+  "bestTime": "Buổi sáng: số liệu thành phố Fuji cho thấy buổi sáng trong hơn buổi chiều.",
   "station": "Shimoyoshida 5 phút",
   "why": "Phố cũ kiểu Shōwa với đèn đường, biển hiệu và dây điện chạy thẳng về phía Fuji ở cuối phố; Fujikyu ghi đây là \"điểm nổi tiếng trên SNS\".",
   "tips": "Đường vẫn có xe chạy: chụp từ vỉa hè hoặc chờ đèn tín hiệu, không bước xuống lòng đường; tôn trọng cửa hàng và nhà dân hai bên.",
@@ -15369,7 +15369,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E5%AF%8C%E5%A3%AB%E5%90%89%E7%94%B0%20%E6%9C%AC%E7%94%BA%E9%80%9A%E3%82%8A%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ]
   }
@@ -15381,7 +15381,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Sáng ngày thường; cao điểm 9:00–12:00. Lá đỏ thường giữa đến cuối tháng 11 nên cuối tháng 10 chưa đỏ; công viên có chiếu sáng buổi tối (tháng 10–11: 17:00–21:50).",
   "station": "Shimoyoshida 25 phút",
   "why": "Khung hình kinh điển: tháp năm tầng đỏ với Fuji phía sau, nhìn từ sàn ngắm sau 398 bậc đá; thành phố Fujiyoshida giới thiệu đây là điểm ngắm Fuji nổi tiếng.",
-  "tips": "Lễ hội hoa anh đào 2026 của Fujiyoshida bị huỷ (tin ngày 6/2/2026) vì quá tải: rác, kẹt xe, vào nhà dân; thành phố tăng bảo vệ và đặt nhà vệ sinh di động. Công viên vẫn mở 24 giờ và miễn phí; sàn ngắm được đổi mới từ 1/2/2022. Có blog nói mùa hoa phải xếp hàng 1–3 giờ theo lượt, nhưng chưa tìm được thông báo chính thức về thu phí hay giới hạn lượt; cuối tháng 10 không phải mùa cao điểm. Không vào nhà dân và không chụp tự do ở khu dân cư dưới chân đồi; tuân theo biển chỉ dẫn và bảo vệ trên sàn ngắm. Tới sớm hoặc ngày thường để tránh hàng.",
+  "tips": "Lễ hội hoa anh đào 2026 của Fujiyoshida bị huỷ (tin ngày 6/2/2026) vì quá tải: rác, kẹt xe, vào nhà dân; thành phố tăng bảo vệ và đặt nhà vệ sinh di động. Công viên vẫn mở 24 giờ và miễn phí; sàn ngắm được đổi mới từ 1/2/2022. Có blog nói mùa hoa phải xếp hàng 1–3 giờ theo lượt; cuối tháng 10 không phải mùa cao điểm. Không vào nhà dân và không chụp tự do ở khu dân cư dưới chân đồi; tuân theo biển chỉ dẫn và bảo vệ trên sàn ngắm. Tới sớm hoặc ngày thường để tránh hàng.",
   "images": [
    {
     "kind": "view",
@@ -15420,10 +15420,10 @@ export const DETAILS: Record<string, Detail> = {
    "area": "fujiyoshida",
    "type": "pagoda",
    "fit": "kawaguchiko",
-   "status": "Lễ hội hoa anh đào 2026 của Fujiyoshida bị huỷ (tin ngày 6/2/2026) vì quá tải: rác, kẹt xe, vào nhà dân; thành phố tăng bảo vệ và đặt nhà vệ sinh di động. Công viên vẫn mở 24 giờ và miễn phí; sàn ngắm được đổi mới từ 1/2/2022. Có blog nói mùa hoa phải xếp hàng 1–3 giờ theo lượt, nhưng chưa tìm được thông báo chính thức về thu phí hay giới hạn lượt; cuối tháng 10 không phải mùa cao điểm.",
+   "status": "Lễ hội hoa anh đào 2026 của Fujiyoshida bị huỷ (tin ngày 6/2/2026) vì quá tải: rác, kẹt xe, vào nhà dân; thành phố tăng bảo vệ và đặt nhà vệ sinh di động. Công viên vẫn mở 24 giờ và miễn phí; sàn ngắm được đổi mới từ 1/2/2022. Có blog nói mùa hoa phải xếp hàng 1–3 giờ theo lượt; cuối tháng 10 không phải mùa cao điểm.",
    "etiquette": "Không vào nhà dân và không chụp tự do ở khu dân cư dưới chân đồi; tuân theo biển chỉ dẫn và bảo vệ trên sàn ngắm. Tới sớm hoặc ngày thường để tránh hàng.",
    "access": {
-    "kawaguchiko": "Tàu Fujikyu tới ga Shimoyoshida (Fuji Kaiyu 15 phút, ¥310 từ Kawaguchiko), đi bộ qua đền rồi leo 398 bậc. Thời gian đi bộ tùy nguồn: 15 phút theo Fujikyu, 25 phút theo trang chính thức của thành phố (tính tới tháp).",
+    "kawaguchiko": "Tàu Fujikyu tới ga Shimoyoshida (Fuji Kaiyu 15 phút, ¥310 từ Kawaguchiko), đi bộ qua đền rồi leo 398 bậc. Thời gian đi bộ tùy nguồn: 15 phút theo Fujikyu, 25 phút (tính tới tháp).",
     "day4": null,
     "day5": null
    },
@@ -15442,7 +15442,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E6%96%B0%E5%80%89%E5%B1%B1%E6%B5%85%E9%96%93%E5%85%AC%E5%9C%92%20%E5%BF%A0%E9%9C%8A%E5%A1%94%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ]
   }
@@ -15525,7 +15525,7 @@ export const DETAILS: Record<string, Detail> = {
  "fs-oishi-park": {
   "lat": 35.52329,
   "lng": 138.74654,
-  "bestTime": "Sáng sớm hoặc cuối ngày; kochia đỏ rực khoảng giữa đến cuối tháng 10 (blog Banzoku, cập nhật 6/2026), có thể lệch theo năm. Ngày thường vắng hơn cuối tuần.",
+  "bestTime": "Sáng sớm hoặc cuối ngày; kochia đỏ rực khoảng giữa đến cuối tháng 10, có thể lệch theo năm. Ngày thường vắng hơn cuối tuần.",
   "station": "Kawaguchiko",
   "why": "Bờ bắc hồ Kawaguchi, Fuji ở phía nam bên kia mặt hồ; đường hoa \"Hana Kaido\" dọc bờ, cây kochia đổi đỏ giữa tháng 10, có quán cà phê tầm nhìn Fuji ở Natural Living Center.",
   "tips": "Bãi xe miễn phí nhưng đầy nhanh cuối tuần và mùa hoa; nên đi buýt. Mang rác về.",
@@ -15570,7 +15570,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E5%A4%A7%E7%9F%B3%E5%85%AC%E5%9C%92%20%E6%B2%B3%E5%8F%A3%E6%B9%96%20%E3%82%B3%E3%82%AD%E3%82%A2%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ]
   }
@@ -15581,7 +15581,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Sáng khi hồ lặng; nhìn về phía nam là Fuji.",
   "station": "Kawaguchiko 24 phút",
   "why": "Cây cầu dài 500 m duy nhất bắc ngang mặt nước của Fuji Ngũ Hồ; không có vật chắn nên Fuji hiện rõ khi nhìn từ cầu, từng được chọn vào \"100 con đường đẹp của Nhật\" (1987).",
-  "tips": "Cầu có xe chạy; bài Wikipedia không nhắc lề đi bộ, nên chụp từ hai đầu cầu và bờ hồ thay vì đứng giữa cầu.",
+  "tips": "Cầu có xe chạy; nên chụp từ hai đầu cầu và bờ hồ thay vì đứng giữa cầu.",
   "images": [
    {
     "kind": "view",
@@ -15605,7 +15605,7 @@ export const DETAILS: Record<string, Detail> = {
    "type": "bridge",
    "fit": "kawaguchiko",
    "status": null,
-   "etiquette": "Cầu có xe chạy; bài Wikipedia không nhắc lề đi bộ, nên chụp từ hai đầu cầu và bờ hồ thay vì đứng giữa cầu.",
+   "etiquette": "Cầu có xe chạy; nên chụp từ hai đầu cầu và bờ hồ thay vì đứng giữa cầu.",
    "access": {
     "kawaguchiko": "Đi bộ khoảng 1,5 km (ước 20–25 phút) từ ga; hoặc buýt Red/Green Line xuống bến \"Kawaguchiko Herb Hall\" (số 5, 7–8 phút, theo bảng giờ Fujikyu) rồi đi bộ khoảng 500 m. Green Line còn có bến \"Fuji no Yado Ōhashi\" (số 23, 11 phút, ¥230) gần đầu cầu hơn.",
     "day4": null,
@@ -15640,7 +15640,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Sáng, trước 11h.",
   "station": "Kawaguchiko 15 phút",
   "why": "Cáp treo lên công viên Tenjōzan ở bờ bắc, nhìn xuống hồ Kawaguchi và Fuji; nổi tiếng với tượng thỏ và tanuki của truyện cổ \"Kachi Kachi Yama\".",
-  "tips": "Ngừng chạy khi gió mạnh. Trang chính thức không mở được lúc kiểm tra (503); giá và giờ lấy từ iko-yo.net nên cần kiểm tra lại.",
+  "tips": "Ngừng chạy khi gió mạnh.",
   "images": [
    {
     "kind": "view",
@@ -15663,10 +15663,10 @@ export const DETAILS: Record<string, Detail> = {
    "area": "kawaguchiko",
    "type": "ropeway",
    "fit": "kawaguchiko",
-   "status": "Ngừng chạy khi gió mạnh. Trang chính thức không mở được lúc kiểm tra (503); giá và giờ lấy từ iko-yo.net nên cần kiểm tra lại.",
+   "status": "Ngừng chạy khi gió mạnh.",
    "etiquette": null,
    "access": {
-    "kawaguchiko": "Đi bộ khoảng 15 phút từ ga (iko-yo.net; OSM ước khoảng 0,8 km), hoặc buýt Red Line xuống \"Yūransen-Ropeway Iriguchi\" (11 phút, ¥180) rồi đi bộ 3 phút. Giá khứ hồi ¥1.000, một chiều ¥600 (iko-yo.net).",
+    "kawaguchiko": "Đi bộ khoảng 15 phút từ ga, hoặc buýt Red Line xuống \"Yūransen-Ropeway Iriguchi\" (11 phút, ¥180) rồi đi bộ 3 phút. Giá khứ hồi ¥1.000, một chiều ¥600.",
     "day4": null,
     "day5": null
    },
@@ -15690,7 +15690,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E6%B2%B3%E5%8F%A3%E6%B9%96%20%E3%83%91%E3%83%8E%E3%83%A9%E3%83%9E%E3%83%AD%E3%83%BC%E3%83%97%E3%82%A6%E3%82%A7%E3%82%A4%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ]
   }
@@ -15752,7 +15752,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E5%BF%8D%E9%87%8E%E5%85%AB%E6%B5%B7%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ]
   }
@@ -15790,7 +15790,7 @@ export const DETAILS: Record<string, Detail> = {
    "status": null,
    "etiquette": null,
    "access": {
-    "kawaguchiko": "Buýt Green Line: 9:10 → 9:50 (40 phút), 30 phút một chuyến 9:10–16:40 (bản đồ Fujikyu 4/2026), khoảng ¥810 một chiều theo bản đồ; xuống bến \"Saiko Iyashi-no-Sato Nenba\" rồi đi bộ 3 phút. Vé phí vào làng ¥500 theo Wikipedia ja, cần kiểm tra lại.",
+    "kawaguchiko": "Buýt Green Line: 9:10 → 9:50 (40 phút), 30 phút một chuyến 9:10–16:40 (bản đồ Fujikyu 4/2026), khoảng ¥810 một chiều theo bản đồ; xuống bến \"Saiko Iyashi-no-Sato Nenba\" rồi đi bộ 3 phút. Vé phí vào làng ¥500.",
     "day4": null,
     "day5": null
    },
@@ -15869,7 +15869,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E5%B1%B1%E4%B8%AD%E6%B9%96%20%E5%AF%8C%E5%A3%AB%E5%B1%B1%20%E9%80%86%E3%81%95%E5%AF%8C%E5%A3%AB",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ]
   }
@@ -15879,7 +15879,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 138.852855,
   "bestTime": "Sáng.",
   "station": "Kawaguchiko",
-  "why": "Công viên hoa rộng khoảng 300.000 m² ngay trước Fuji: tulip mùa xuân, hướng dương mùa hè, lá đỏ mùa thu, \"Diamond Fuji\" mùa đông (theo mô tả của Fujikyu); có nhà kính \"Furara\".",
+  "why": "Công viên hoa rộng khoảng 300.000 m² ngay trước Fuji: tulip mùa xuân, hướng dương mùa hè, lá đỏ mùa thu, \"Diamond Fuji\" mùa đông; có nhà kính \"Furara\".",
   "images": [
    {
     "kind": "view",
@@ -15918,7 +15918,7 @@ export const DETAILS: Record<string, Detail> = {
      "アウトレット線 C1"
     ],
     "walkMin": 1,
-    "coordSource": "Gần đúng: tọa độ cổng công viên trên 山中湖忍野富士吉田線 theo OSM, OSM không có nút bus_stop riêng"
+    "coordSource": "Gần đúng: tọa độ cổng công viên trên 山中湖忍野富士吉田線, OSM không có nút bus_stop riêng"
    },
    "social": [
     {
@@ -15932,10 +15932,10 @@ export const DETAILS: Record<string, Detail> = {
  "fs-gotemba-premium-outlets": {
   "lat": 35.307792,
   "lng": 138.965083,
-  "hours": "10:00–20:00 (trang chính thức, tháng 10 chưa thấy ngoại lệ)",
+  "hours": "10:00–20:00",
   "bestTime": "Sáng, trước khi mây kéo lên.",
   "station": "Gotemba",
-  "why": "Trung tâm outlet 290 cửa hàng với Fuji nhìn thấy từ khu sân rộng; khu Hillside trong khuôn viên có một cây cầu mang tên \"Yume no Ōhashi\" (夢の大橋, theo OSM).",
+  "why": "Trung tâm outlet 290 cửa hàng với Fuji nhìn thấy từ khu sân rộng; khu Hillside trong khuôn viên có một cây cầu mang tên \"Yume no Ōhashi\" (夢の大橋).",
   "images": [
    {
     "kind": "detail",
@@ -15954,7 +15954,7 @@ export const DETAILS: Record<string, Detail> = {
    "etiquette": null,
    "access": {
     "kawaguchiko": "Buýt C1 \"Outlet Line\" 10:30 từ Kawaguchiko → JR Gotemba 12:00 → Outlet 12:15 (105 phút, bản đồ Fujikyu 6/2026); trang Outlet nêu tuyến tốc hành Gotemba–Kawaguchiko khoảng 60 phút hoặc buýt thường khoảng 80 phút. Không nằm trong lịch ngày Kawaguchiko.",
-    "day4": "Từ Gōra: tuyến \"Kankō-shisetsu-meguri\" M khoảng 45 phút tới bến Outlet; từ Hakone-Yumoto: tuyến L khoảng 60 phút (Hakone Navi, trang Outlet); từ Sengoku chuyển sang tuyến M (Hakone Navi 14/8/2026). Giá chưa tìm được; Freepass có liệt kê \"Kankō-shisetsu-meguri bus\" và Odakyu Highway Bus nhưng chưa xác nhận chặng tới Outlet có miễn phí. Lịch Day 4 hiện không còn chỗ trừ khi bỏ ropeway chiều.",
+    "day4": "Từ Gōra: tuyến \"Kankō-shisetsu-meguri\" M khoảng 45 phút tới bến Outlet; từ Hakone-Yumoto: tuyến L khoảng 60 phút; từ Sengoku chuyển sang tuyến M. Lịch Day 4 hiện không còn chỗ trừ khi bỏ ropeway chiều.",
     "day5": "Từ ga Mishima: buýt thẳng tới Outlet khoảng 60 phút; hoặc Numazu → Gotemba bằng JR Gotemba Line 33 phút rồi xe đưa đón miễn phí 15 phút, mỗi 15 phút (phút :00/:15/:30/:45). Chưa có giá. Không vừa lịch Day 5."
    },
    "busStop": {
@@ -15969,7 +15969,7 @@ export const DETAILS: Record<string, Detail> = {
      "無料シャトル（JR御殿場駅）"
     ],
     "walkMin": 3,
-    "coordSource": "OSM Nominatim, bus_station \"御殿場プレミアム・アウトレット\"; một số tuyến lấy từ trang chính thức"
+    "coordSource": "OSM Nominatim, bus_station \"御殿場プレミアム・アウトレット\""
    },
    "social": [
     {
@@ -15993,7 +15993,7 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Sáng, trời trong; sau 11h Fuji dễ bị mây che.",
   "station": "Mishima",
   "why": "Cầu treo dài 400 m (khai trương 14/12/2015), nhìn thấy Fuji và vịnh Suruga từ giữa cầu; một trong những điểm ngắm Fuji nổi tiếng ở Shizuoka.",
-  "tips": "Giá vé theo ngày (từ ¥1.100 người lớn); ngày 26/10/2026 đóng một phần cơ sở. Trang chính thức không nêu quy tắc đóng cửa vì gió, nhưng cơ sở ngừng hoạt động khi thời tiết xấu (Wikipedia ja). Giờ đóng cửa theo mùa xem trang chính thức.",
+  "tips": "Giá vé theo ngày (từ ¥1.100 người lớn); ngày 26/10/2026 đóng một phần cơ sở. Cơ sở ngừng hoạt động khi thời tiết xấu. Giờ đóng cửa theo mùa xem trang chính thức.",
   "images": [
    {
     "kind": "exterior",
@@ -16016,12 +16016,12 @@ export const DETAILS: Record<string, Detail> = {
    "area": "mishima",
    "type": "bridge",
    "fit": "day5",
-   "status": "Giá vé theo ngày (từ ¥1.100 người lớn); ngày 26/10/2026 đóng một phần cơ sở. Trang chính thức không nêu quy tắc đóng cửa vì gió, nhưng cơ sở ngừng hoạt động khi thời tiết xấu (Wikipedia ja). Giờ đóng cửa theo mùa xem trang chính thức.",
+   "status": "Giá vé theo ngày (từ ¥1.100 người lớn); ngày 26/10/2026 đóng một phần cơ sở. Cơ sở ngừng hoạt động khi thời tiết xấu. Giờ đóng cửa theo mùa xem trang chính thức.",
    "etiquette": null,
    "access": {
     "kawaguchiko": null,
-    "day4": "Có bến Tokai Bus trực tiếp từ Moto-Hakone (元箱根港) và Hakone-Yumoto tới Skywalk theo bảng giờ chính thức (PDF 10/2025); chưa đọc được số phút/giá vì PDF dạng ảnh. Freepass có liệt kê \"Tokai Bus (đoạn chỉ định)\", chưa xác nhận Skywalk nằm trong đoạn đó. Không có chỗ trong lịch Day 4.",
-    "day5": "Từ ga Mishima (cửa Nam, bến số 5): Tokai Bus tuyến cam \"Orange Shuttle\" đi Moto-Hakone, khoảng 20–25 phút (trang chính thức: khoảng 20 phút từ JR Mishima). Giá và tần suất chưa kiểm được. Tính tối thiểu 2,5 giờ cả đi lại, nên phải bỏ hoặc dời bữa trưa Shimizu."
+    "day4": "Có bến Tokai Bus trực tiếp từ Moto-Hakone (元箱根港) và Hakone-Yumoto tới Skywalk theo bảng giờ chính thức (PDF 10/2025); chưa đọc được số phút/giá vì PDF dạng ảnh. Freepass có liệt kê \"Tokai Bus (đoạn chỉ định)\". Không có chỗ trong lịch Day 4.",
+    "day5": "Từ ga Mishima (cửa Nam, bến số 5): Tokai Bus tuyến cam \"Orange Shuttle\" đi Moto-Hakone, khoảng 20–25 phút (khoảng 20 phút từ JR Mishima). Tính tối thiểu 2,5 giờ cả đi lại, nên phải bỏ hoặc dời bữa trưa Shimizu."
    },
    "busStop": {
     "ja": "三島スカイウォーク",
@@ -16042,7 +16042,7 @@ export const DETAILS: Record<string, Detail> = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E4%B8%89%E5%B3%B6%E3%82%B9%E3%82%AB%E3%82%A4%E3%82%A6%E3%82%A9%E3%83%BC%E3%82%AF%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ]
   }
@@ -16053,13 +16053,13 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Sáng sớm và buổi sáng.",
   "station": "Fuji 35 phút",
   "why": "Cầu bắc qua sông Junai (潤井川橋) trên quốc lộ 139, đứng trên cầu nhìn thẳng ra Fuji không bị nhà cửa hay dây điện che; thành điểm chụp ảnh nổi tiếng. Lưu ý trong khuôn viên Gotemba Premium Outlets cũng có một \"Yume no Ōhashi\" khác.",
-  "tips": "Do quá đông, chính quyền đã lắp rào an toàn, bãi xe miễn phí và nhà vệ sinh tạm (Wikipedia ja, không ghi ngày). Cầu thuộc quốc lộ có xe chạy; theo dõi rào và biển chỉ dẫn, không băng qua đường.",
+  "tips": "Do quá đông, chính quyền đã lắp rào an toàn, bãi xe miễn phí và nhà vệ sinh tạm. Cầu thuộc quốc lộ có xe chạy; theo dõi rào và biển chỉ dẫn, không băng qua đường.",
   "images": [],
   "fujiSpot": {
    "area": "fuji-city",
    "type": "bridge",
    "fit": "day5",
-   "status": "Do quá đông, chính quyền đã lắp rào an toàn, bãi xe miễn phí và nhà vệ sinh tạm (Wikipedia ja, không ghi ngày).",
+   "status": "Do quá đông, chính quyền đã lắp rào an toàn, bãi xe miễn phí và nhà vệ sinh tạm.",
    "etiquette": "Cầu thuộc quốc lộ có xe chạy; theo dõi rào và biển chỉ dẫn, không băng qua đường.",
    "access": {
     "kawaguchiko": null,
@@ -16110,7 +16110,7 @@ export const DETAILS: Record<string, Detail> = {
    "access": {
     "kawaguchiko": null,
     "day4": null,
-    "day5": "Wikipedia ja ghi công viên cách ga Yoshiwara (JR Tōkaidō) và ga Shin-Fuji khoảng 3,5 km, khoảng 10 phút ô tô; không có thông tin buýt, nên đi taxi. Tàu Tōkaidō dừng ở Higashi-Tagonoura nhưng ga này cách công viên khoảng 4,8 km theo OSM. Dự trù 1,5 giờ cho cả điểm."
+    "day5": "Công viên cách ga Yoshiwara (JR Tōkaidō) và ga Shin-Fuji khoảng 3,5 km, khoảng 10 phút ô tô; không có thông tin buýt, nên đi taxi. Tàu Tōkaidō dừng ở Higashi-Tagonoura nhưng ga này cách công viên khoảng 4,8 km. Dự trù 1,5 giờ cho cả điểm."
    },
    "busStop": null,
    "social": [
@@ -16127,7 +16127,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 138.61002,
   "bestTime": "Sáng.",
   "station": "Fujinomiya 10 phút",
-  "why": "Đền chính của hơn 1.300 đền Sengen toàn quốc, thành phần di sản thế giới Fuji; điện thờ hiện tại do Tokugawa Ieyasu dâng năm 1604. Cổng torii lớn 16 m dựng năm 2006 cách khoảng 500 m về phía tây; Wikipedia có ảnh \"Ōtorii và Fuji\".",
+  "why": "Đền chính của hơn 1.300 đền Sengen toàn quốc, thành phần di sản thế giới Fuji; điện thờ hiện tại do Tokugawa Ieyasu dâng năm 1604. Cổng torii lớn 16 m dựng năm 2006 cách khoảng 500 m về phía tây.",
   "images": [
    {
     "kind": "exterior",
@@ -16215,10 +16215,10 @@ export const DETAILS: Record<string, Detail> = {
  "fs-starbucks-fujikawa-sa": {
   "lat": 35.15917,
   "lng": 138.61861,
-  "hours": "7:00–22:00 (Wikipedia ja)",
+  "hours": "7:00–22:00",
   "bestTime": "Sáng.",
   "station": "Fujikawa 20 phút",
-  "why": "Quán Starbucks duy nhất trong khu dịch vụ Fujikawa (làn xuống, hướng Nagoya, mở 7:00–22:00 theo Wikipedia ja); khu SA này nổi tiếng là điểm ngắm Fuji và có sân thượng ngoài trời. Đây là chi nhánh được nhắc nhiều nhất cho cụm \"Starbucks nhìn thấy Fuji\" (tổng hợp từ kết quả tìm kiếm; bài chi tiết chưa mở được).",
+  "why": "Quán Starbucks duy nhất trong khu dịch vụ Fujikawa (làn xuống, hướng Nagoya); khu SA này nổi tiếng là điểm ngắm Fuji và có sân thượng ngoài trời. Đây là chi nhánh được nhắc nhiều nhất cho cụm \"Starbucks nhìn thấy Fuji\".",
   "images": [],
   "fujiSpot": {
    "area": "fuji-city",
@@ -16229,7 +16229,7 @@ export const DETAILS: Record<string, Detail> = {
    "access": {
     "kawaguchiko": null,
     "day4": null,
-    "day5": "Tàu Tōkaidō tới ga Fujikawa, đi bộ khoảng 20 phút hoặc buýt Sanko Town Coach tới khu SA (Wikipedia ja). Chưa xác nhận người đi bộ có vào được làn xuống không; dễ hơn là vào Rakuza ở phía làn lên (có sảnh ngắm Fuji tầng 4, quán Tully's tầng 3). Cần thêm khoảng 1,5 giờ nếu xuống ở Fujikawa."
+    "day5": "Tàu Tōkaidō tới ga Fujikawa, đi bộ khoảng 20 phút hoặc buýt Sanko Town Coach tới khu SA. Dễ hơn là vào Rakuza ở phía làn lên (có sảnh ngắm Fuji tầng 4, quán Tully's tầng 3). Cần thêm khoảng 1,5 giờ nếu xuống ở Fujikawa."
    },
    "busStop": null,
    "social": [
@@ -16275,7 +16275,7 @@ export const DETAILS: Record<string, Detail> = {
    "access": {
     "kawaguchiko": null,
     "day4": null,
-    "day5": "Tàu Tōkaidō tới ga Fujikawa, buýt Sanko Town Coach tới bến \"Fujikawa Rakuza\"; Wikipedia ja không ghi số phút. Đi bộ ước khoảng 25 phút. Có thể ghép với việc ngắm Fuji ở Fujikawa trước khi tiếp tục về Shimizu."
+    "day5": "Tàu Tōkaidō tới ga Fujikawa, buýt Sanko Town Coach tới bến \"Fujikawa Rakuza\". Đi bộ ước khoảng 25 phút. Có thể ghép với việc ngắm Fuji ở Fujikawa trước khi tiếp tục về Shimizu."
    },
    "busStop": null,
    "social": [

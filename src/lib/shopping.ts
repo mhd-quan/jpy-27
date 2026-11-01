@@ -92,6 +92,34 @@ const PATCH: Record<string, Record<string, unknown>> = {
   'slot-8-2': { focus: 'Ippodo hōjicha gói 80 g ×6 (khoảng ¥1.080 mỗi gói, giá 2026); thử trà ở phòng trà Kaboku nếu còn chỗ.' },
   'slot-11-2': { start: '13:35', end: '14:30' },
 };
+// Shorter reasons: store hours already show on each store, so the reason keeps only what the
+// plan depends on (luggage, the next fixed time, the order to walk in).
+const TEXT: Record<string, Record<string, unknown>> = {
+  'slot-1-1': { why: '18/10 là thứ Hai, 2k540 vẫn mở.', skipIf: 'Phải bỏ Kanda Myōjin mới đủ 90 phút; giữ Kanda Myōjin thì chỉ ghé 2k540 và Ameyoko, hoặc bỏ cả khung nếu quá mệt vì bay.' },
+  'slot-1-2': { why: 'Vali lớn đi Ise sáng ngày 3, nên mua tối nay hoặc tối mai. UNIQLO và GU cùng tòa, vài bước từ Yamabe.' },
+  'slot-2-1': { why: undefined },
+  'slot-2-2': { why: 'Mitsukoshi đóng 19:00, nên ghé trước bữa tối ở Tamai.' },
+  'slot-2-3': { why: 'Ngay cạnh hotel. Mua tối nay để kịp bỏ vào vali gửi trước 8:00 ngày 3.' },
+  'slot-3-1': { why: 'Sushi lúc 11:00, còn khoảng 50 phút. Từ đây đồ mua nằm trong túi mang theo, vali lớn đã đi Ise.' },
+  'slot-3-2': { why: 'Theo thứ tự Meiji Jingū → UNIQLO Harajuku → Omotesandō → 3COINS → Cat Street → GU, Loft, PARCO ở Udagawachō, rồi Toritake lúc 17:30.' },
+  'slot-3-3': { why: 'Về Kanda bằng Ginza Line mất 25 phút, nên chọn một điểm là đủ.' },
+  'slot-5-1': { why: 'Cạnh Kaizan, 3 phút từ ga Shimizu.', skipIf: 'Bỏ nếu lịch tàu dày.' },
+  'slot-5-2': { why: 'Đổi từ JR sang Kintetsu mất 15–20 phút đi bộ.' },
+  'slot-5-3': { why: 'Đi 10 phút từ Butasute hoặc ERA Ise.' },
+  'slot-6-1': { why: 'Nằm giữa Fukusuke và Akafuku, không thêm quãng đường.' },
+  'slot-7-2': { why: 'Cách hotel vài phút; Menami lúc 19:30 nên chỉ còn khoảng 40 phút.' },
+  'slot-8-1': { why: 'Thứ Hai mở, thứ Ba (ngày 9) đóng.' },
+  'slot-8-2': { why: 'Honten đóng 17:00. Rời Ippodo trước 15:30 để tới Yamamoto Menzō trước 16:00.' },
+  'slot-8-3': { why: 'Tối ngày 8 không có bữa tối cố định. Mua chừng mực vì vali còn đi Osaka sáng mai.' },
+  'slot-9-2': { why: 'Matsumoto Kiyoshi Kiyamachi nằm trên đường về từ Sanjō.' },
+  'slot-10-1': { why: 'Hōsekibako 15:00 là mốc cố định, giữ đúng giờ.' },
+  'slot-10-3': { why: 'Mua đồ nhỏ tối nay để ngày 11 dành cho đồ nặng.' },
+  'slot-11-1': { why: 'Vali đã ở hotel, cân thử lúc 16:55, nên đồ nặng mua từ đây. 551 Hōrai nằm giữa Dōguyasuji và Takashimaya.' },
+  'slot-11-2': { why: 'Hankyu và Loft đóng 20:00 nên không gấp.' },
+  'slot-11-3': { why: 'Tahei 17:15 xong khoảng 18:45. Mua vali S trước khi cân thử hành lý ngày mai.' },
+  'slot-12-1': { focus: 'Chốt cân vali, mua nốt đồ cần thiết trước khi ra Nankai Namba.', why: 'Giữ biên lai tax-free cùng một chỗ.' },
+  'slot-12-2': { focus: 'Quà còn thiếu và đồ cần qua hải quan tax-free.', why: 'Hàng tax-free phải qua hải quan trước khi ký gửi, nên đến sớm.' },
+};
 const EXTRA: any[] = [
   {
     id: 'slot-2-1b',
@@ -108,7 +136,7 @@ const EXTRA: any[] = [
     skipIf: 'Giữ Sumida và Umezono như lịch.',
   },
 ];
-export const SLOTS: Slot[] = [...plan.slots.filter((s) => !DROP.has(s.id)).map((s) => ({ ...s, ...(PATCH[s.id] ?? {}) })), ...EXTRA]
+export const SLOTS: Slot[] = [...plan.slots.filter((s) => !DROP.has(s.id)).map((s) => ({ ...s, ...(PATCH[s.id] ?? {}), ...(TEXT[s.id] ?? {}) })), ...EXTRA]
   .map((s) => ({
     ...s,
     day: Number(s.day),
@@ -128,7 +156,6 @@ export const CATEGORIES: { id: string; vi: string; items: Item[] }[] = itemsRaw.
 export const CHAINS = itemsRaw.chains ?? [];
 export const TAX_FREE = itemsRaw.taxFree ?? null;
 export const RULES = plan.rules ?? [];
-export const SOURCES = [...new Set([...(plan.sources ?? []), ...(itemsRaw.sources ?? [])])];
 
 // Which stores sell an item. A brand with its own shop on the route (Ippodo, Nakagawa Masashichi,
 // anello, Onitsuka Tiger…) is bought there and nowhere else; otherwise chains match by kind.

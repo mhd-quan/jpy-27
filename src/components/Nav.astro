@@ -18,9 +18,9 @@ const current = (l: (typeof links)[number]) => (l.match ? l.match(path) : path.s
 
 <header class="nav">
   <div class="nav-in wrap">
-    <a class="brand" href={url()} aria-label="Nhật Bản 2027, trang đầu">
-      <span class="sun" aria-hidden="true"></span>
-      <span>Nhật Bản 2027</span>
+    <a class="brand" href={url()} aria-label="JP27, trang đầu">
+      <span class="flag" aria-hidden="true"></span>
+      <svg class="word" viewBox="0 0 397 69" aria-hidden="true"><path d="M47.5 68.8Q71.2 68.8 83.2 61.2Q95.3 53.5 95.3 40.8V0.6H67V38.4Q67 44.6 62.8 47.7Q58.6 50.7 47.5 50.7Q36.3 50.7 32.4 47.2Q28.4 43.7 28.4 37.2V36.2H0V38.2Q0 53.3 11.9 61.1Q23.9 68.8 47.5 68.8ZM111.3 68.1H139.6V52.6H170.7Q186.9 52.6 195.1 46.2Q203.2 39.8 203.2 26.5Q203.2 13.3 195.1 7Q187 0.6 170.7 0.6H111.3ZM139.6 34.5V18.7H163.7Q169.4 18.7 172.4 20.5Q175.3 22.2 175.3 26.6Q175.3 31 172.4 32.8Q169.5 34.5 163.7 34.5ZM214.2 68.1H301.1V50H243.5Q243.5 48.7 249.5 48.1Q255.6 47.4 268.2 46.2Q282.8 44.9 292 39.3Q301.3 33.6 301.3 22.2Q301.3 12.9 291.5 6.5Q281.6 0 259.8 0Q238 0 225.9 6.5Q213.8 12.9 213.8 25.8H241.7Q241.7 21.8 246.6 20Q251.5 18.1 259.4 18.1Q265.9 18.1 269.5 19.4Q273.1 20.6 273.1 23.3Q273.1 26 270.2 27.1Q267.4 28.2 249.1 30.2Q230.7 32.1 222.5 37.1Q214.2 42.1 214.2 51.1ZM326.9 68.1H357.1Q357.1 48.3 368.8 37.7Q380.5 27.1 396.9 18.2V0.6H309.4V18.6H366.8L366.7 18.8Q351.2 23 339.1 35.2Q326.9 47.3 326.9 68.1Z" /></svg>
     </a>
     <nav aria-label="Mục chính">
       <ul>
@@ -56,24 +56,39 @@ const current = (l: (typeof links)[number]) => (l.match ? l.match(path) : path.s
     gap: 20px;
     height: 100%;
   }
+  /* Wordmark: JP27 set in Anybody at 150% width, weight 900, drawn as outlines so it needs no font */
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     flex: none;
+    height: 100%;
     color: var(--ink);
-    font-weight: 600;
-    font-size: 15px;
-    letter-spacing: -0.01em;
   }
   .brand:hover {
     text-decoration: none;
   }
-  .sun {
-    width: 12px;
-    height: 12px;
+  /* Logo: the flag as a square, white field and red disc; outlined where the page is white */
+  .flag {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    box-shadow: inset 0 0 0 1.5px var(--ink);
+  }
+  .flag::after {
+    content: '';
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
-    background: #ff453a;
+    background: var(--sun);
+  }
+  .word {
+    display: block;
+    height: 14px;
+    width: auto;
+    fill: currentColor;
   }
   nav {
     margin-left: auto;
@@ -110,8 +125,19 @@ const current = (l: (typeof links)[number]) => (l.match ? l.match(path) : path.s
     background: color-mix(in srgb, var(--ink) 7%, transparent);
   }
   @media (max-width: 560px) {
-    .brand span:last-child {
-      display: none;
+    .brand {
+      gap: 8px;
+    }
+    .flag {
+      width: 18px;
+      height: 18px;
+    }
+    .flag::after {
+      width: 10px;
+      height: 10px;
+    }
+    .word {
+      height: 12px;
     }
     .nav-in {
       gap: 4px;

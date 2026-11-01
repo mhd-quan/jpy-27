@@ -11,6 +11,7 @@ import { hillAware } from '../../lib/trip';
 import { encodePolyline, compass } from '../../lib/geo';
 import { LINES } from '../../data/lines';
 import type { Pin, RouteLeg } from '../../lib/map';
+import { sourceLabel } from '../../lib/sources';
 
 type Spot = (typeof FUJI_SPOTS)[number];
 const research = (FUJI_RESEARCH ?? {}) as Record<string, any>;
@@ -225,8 +226,8 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
                   {c.source && (
                     <>
                       {' '}
-                      <a href={c.source} target="_blank" rel="noopener">
-                        nguồn
+                      <a class="src-tag" href={c.source} target="_blank" rel="noopener">
+                        {sourceLabel(c.source)}
                       </a>
                     </>
                   )}
@@ -472,8 +473,8 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
                   {w.source && (
                     <>
                       {' '}
-                      <a href={w.source} target="_blank" rel="noopener">
-                        nguồn
+                      <a class="src-tag" href={w.source} target="_blank" rel="noopener">
+                        {sourceLabel(w.source)}
                       </a>
                     </>
                   )}
@@ -555,12 +556,12 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
     margin-top: 10px;
   }
   .map-wrap {
-    padding: 48px clamp(0px, 2vw, 24px) 0;
+    padding-top: 48px;
   }
+  /* the inset goes on the map itself so the note below keeps the page gutter */
   .fuji-map-wrap {
     position: relative;
-    max-width: 1400px;
-    margin-inline: auto;
+    margin-inline: max(clamp(0px, 2vw, 24px), calc((100% - 1400px) / 2));
   }
   .day-tabs {
     position: absolute;
@@ -595,8 +596,6 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
   .fuji-map {
     height: min(80vh, 760px);
     min-height: 440px;
-    max-width: 1400px;
-    margin-inline: auto;
     border-radius: clamp(0px, 2vw, var(--r-xl));
   }
   .map-note {
@@ -605,8 +604,8 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
   }
   @media (max-width: 760px) {
     /* one finger moves the map, so leave room above and below it to scroll the page */
-    .map-wrap {
-      padding-inline: 12px;
+    .fuji-map-wrap {
+      margin-inline: 12px;
     }
     .fuji-map {
       height: 64svh;
