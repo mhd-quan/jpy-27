@@ -28,6 +28,18 @@ export interface Detail {
   images: Img[];
   menu?: Menu;
   snack?: Snack;
+  store?: Store;
+}
+
+export interface Store {
+  chain: string;
+  city: string | null;
+  open: string | null;
+  close: string | null;
+  closedDow: number[];
+  taxFree: boolean | null;
+  near: string | null;
+  walkMin: number | null;
 }
 
 export interface MenuItem {
@@ -67,7 +79,7 @@ export interface ExtraPlace {
   id: string;
   name: string;
   ja?: string;
-  kind: 'sight' | 'food';
+  kind: 'sight' | 'food' | 'shop';
   near?: string;
   role: 'plan' | 'along' | 'detour' | 'alt';
   day?: number;

@@ -1,0 +1,718 @@
+---
+import Base from '../../layouts/Base.astro';
+import MapView from '../../components/MapView.astro';
+import SayButton from '../../components/SayButton.astro';
+import { SLOTS, STORES, CATEGORIES, CHAINS, TAX_FREE, RULES, SOURCES, slotsFor, itemsFor, BASKET_TOTAL, SHOP_BUDGET, type Item } from '../../lib/shopping';
+import { DAYS, place, hasPlace, fmtYen, fmtKm, url, dateLabel, CHAPTERS } from '../../lib/trip';
+import { boundsOf, type LatLng } from '../../lib/geo';
+import type { Pin, RouteLeg } from '../../lib/map';
+
+const days = DAYS.filter((d) => SLOTS.some((s) => s.day === d.n));
+const COLORS = ['#d9487a', '#2f7de1', '#e9792b', '#1e8a55', '#8a5cd0', '#0e9fb0'];
+const legs: RouteLeg[] = SLOTS.flatMap((s, i) => (s.route?.p ?? []).map((p, k) => ({ id: `${s.id}#${k}`, p, color: COLORS[i % COLORS.length], mode: 'stroll', day: s.day })));
+const hotelPins: Pin[] = CHAPTERS.map((c) => {
+  const p = place(c.stay);
+  return { id: p.id, lat: p.lat, lng: p.lng, kind: 'stay', label: c.short };
+});
+const pins: Pin[] = [...hotelPins, ...STORES.map((p) => ({ id: p.id, lat: p.lat, lng: p.lng, kind: 'shop' as const, label: p.name }))];
+// open on Tokyo; the city tabs move the map
+const CITIES = [
+  { id: 'tokyo', label: 'Tokyo', days: [1, 2, 3] },
+  { id: 'west', label: 'Hakone → Ise', days: [4, 5, 6, 7] },
+  { id: 'kyoto', label: 'Kyoto', days: [7, 8, 9] },
+  { id: 'osaka', label: 'Nara, Osaka', days: [10, 11, 12] },
+].map((c) => {
+  const pts: LatLng[] = [
+    ...STORES.filter((p) => SLOTS.some((s) => c.days.includes(s.day) && s.stores.includes(p))).map((p) => [p.lat, p.lng] as LatLng),
+  ];
+  return { ...c, bounds: pts.length ? boundsOf(pts) : null };
+}).filter((c) => c.bounds);
+const mapConfig = {
+  legs,
+  pins,
+  bounds: CITIES[0]?.bounds ?? boundsOf(pins.map((p) => [p.lat, p.lng] as LatLng)),
+  cooperative: true,
+  labels: 'all' as const,
+  labelMinZoom: 13,
+  padding: 40,
+};
+const sheetIds = [...STORES.map((p) => p.id), ...hotelPins.map((p) => p.id)];
+const yen = (n?: number | null) => (n ? fmtYen(n) : '—');
+const whenOf = (it: Item) => slotsFor(it).slice(0, 3);
+const itemCount = CATEGORIES.reduce((t, c) => t + c.items.length, 0);
+const slotBounds = (s: (typeof SLOTS)[number]) => JSON.stringify(boundsOf(s.stores.map((p) => [p.lat, p.lng] as LatLng)));
+const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '');
+---
+
+<Base title="Mua sắm" description="Mua gì, ở đâu, ngày nào và khung giờ nào trong lịch trình, kèm giá tham chiếu — giữ ngân sách mua sắm như cũ." sheets={sheetIds} say={[]}>
+  <section class="wrap hero">
+    <h1 class="t-display">Mua sắm.</h1>
+    <p class="t-lead">
+      Ngân sách giữ nguyên {fmtYen(SHOP_BUDGET)} cho hai người. Trang này xếp việc mua vào những khoảng trống thật của lịch trình — ngày nào, thành phố nào, mấy giờ, cửa hàng nào — kèm {itemCount} món tham khảo có giá để đổi qua lại trong cùng ngân sách.
+    </p>
+    <nav class="seg" aria-label="Mục">
+      <a href="#lich">Theo ngày</a>
+      <a href="#danh-muc">Mua gì</a>
+      <a href="#chuoi">Chuỗi cửa hàng</a>
+      <a href="#thue">Hoàn thuế</a>
+    </nav>
+  </section>
+
+  <section class="wrap budget" aria-label="Ngân sách mua sắm" data-budget={SHOP_BUDGET} data-basket={BASKET_TOTAL}>
+    <div class="b-row">
+      <div>
+        <span class="t-small muted">Giỏ đã tính trong ngân sách</span>
+        <strong class="tnum">{fmtYen(BASKET_TOTAL)}</strong>
+      </div>
+      <div>
+        <span class="t-small muted">Bạn chọn thêm ở dưới</span>
+        <strong class="tnum" data-picked>¥0</strong>
+      </div>
+      <div>
+        <span class="t-small muted">So với {fmtYen(SHOP_BUDGET)}</span>
+        <strong class="tnum" data-left>{fmtYen(SHOP_BUDGET - BASKET_TOTAL)}</strong>
+      </div>
+    </div>
+    <div class="b-bar" aria-hidden="true">
+      <span class="b-basket" style={`--w:${Math.min(100, (BASKET_TOTAL / SHOP_BUDGET) * 100)}%`}></span>
+      <span class="b-picks" data-bar style="--w:0%"></span>
+    </div>
+    <p class="t-small muted">
+      Món chọn thêm là món đổi chỗ cho món trong giỏ, không phải tiền cộng thêm — vượt bao nhiêu thì bỏ bớt bấy nhiêu ở <a href={url('ngan-sach/')}>giỏ mua sắm</a>. Lựa chọn lưu trên máy này.
+    </p>
+  </section>
+
+  <section class="plan" id="lich" aria-labelledby="lich-t">
+    <div class="wrap">
+      <h2 class="t-2" id="lich-t">Theo ngày</h2>
+      <p class="t-lead sub">Mỗi khung là một khoảng trống trong lịch: giờ cửa hàng còn mở, gần chỗ đang đứng, và đồ nặng để về cuối chuyến.</p>
+    </div>
+    <div class="plan-grid">
+      <aside class="plan-map">
+        <MapView id="shop" config={mapConfig} class="shop-map" label="Bản đồ cửa hàng theo ngày" />
+        <div class="city-tabs" role="tablist" aria-label="Vùng">
+          {CITIES.map((c, i) => (
+            <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-city-bounds={JSON.stringify(c.bounds)}>
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </aside>
+      <div class="plan-list">
+        {days.map((d) => (
+          <article class="day" id={`ngay-${d.n}`}>
+            <header class="day-h">
+              <a href={url(`ngay/${d.n}/`)} class="day-n">
+                Ngày {d.n}
+              </a>
+              <span class="t-small muted">
+                {d.dow}, {dateLabel(d.date)} · {d.route}
+              </span>
+            </header>
+            {SLOTS.filter((s) => s.day === d.n).map((s, k) => {
+              const items = itemsFor(s).slice(0, 6);
+              return (
+                <div class="slot" data-slot={s.id} data-slot-bounds={slotBounds(s)} style={`--c:${COLORS[SLOTS.indexOf(s) % COLORS.length]}`}>
+                  <p class="slot-when">
+                    <span class="tnum">
+                      {s.start}
+                      {s.end ? `–${s.end}` : ''}
+                    </span>
+                    <span>{[s.area, s.city].filter(Boolean).join(', ')}</span>
+                  </p>
+                  {(s.after || s.before) && (
+                    <p class="t-small muted">
+                      {s.after && `Sau ${nameOf(s.after)}`}
+                      {s.after && s.before && ', '}
+                      {s.before && `trước ${nameOf(s.before)}`}
+                      {s.route && s.route.km > 0 ? ` · đi bộ ${fmtKm(s.route.km)}` : ''}
+                    </p>
+                  )}
+                  {s.focus && <p class="slot-focus">{s.focus}</p>}
+                  {s.stores.length > 0 && (
+                    <ul class="stores">
+                      {s.stores.map((p) => (
+                        <li>
+                          <button type="button" class="store" data-place={p.id}>
+                            <strong>{p.name}</strong>
+                            <span class="t-micro muted">
+                              {[p.store?.open && p.store?.close ? `${p.store.open}–${p.store.close}` : p.hours, p.store?.taxFree ? 'miễn thuế' : ''].filter(Boolean).join(' · ')}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {items.length > 0 && (
+                    <ul class="slot-items">
+                      {items.map((it) => (
+                        <li>
+                          <span>{it.name}</span>
+                          <span class="tnum">{yen(it.yen)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {s.why && <p class="t-small muted">{s.why}</p>}
+                  {s.skipIf && <p class="t-small skip">Bỏ khi: {s.skipIf}</p>}
+                  <p class="slot-actions">
+                    <button type="button" class="btn btn-quiet sm" data-show-slot={s.id}>
+                      Xem trên bản đồ
+                    </button>
+                    <SayButton tags={['shop']} scenario="shop" />
+                  </p>
+                </div>
+              );
+            })}
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="band section-tight" id="danh-muc" aria-labelledby="dm-t">
+    <div class="wrap">
+      <h2 class="t-2" id="dm-t">Mua gì</h2>
+      <p class="t-lead sub">Giá tham chiếu 2025–2026 đã gồm thuế. Chạm "Chọn" để cộng vào phần chọn thêm ở trên.</p>
+      <nav class="cats" aria-label="Danh mục">
+        {CATEGORIES.map((c) => <a href={`#c-${c.id}`}>{c.vi}</a>)}
+      </nav>
+      {CATEGORIES.map((c) => (
+        <div class="cat" id={`c-${c.id}`}>
+          <h3 class="t-3">{c.vi}</h3>
+          <ul class="items">
+            {c.items.map((it) => (
+              <li class="item">
+                <label class="pick">
+                  <input type="checkbox" data-pick={it.id} data-yen={it.yen ?? 0} />
+                  <span class="pick-box" aria-hidden="true" />
+                  <span class="visually-hidden">Chọn {it.name}</span>
+                </label>
+                <div class="it-body">
+                  <p class="it-top">
+                    <strong>{it.name}</strong>
+                    <span class="tnum it-yen">{yen(it.yen)}</span>
+                  </p>
+                  <p class="t-small muted">
+                    {[it.brand, it.ja, it.yenNote].filter(Boolean).join(' · ')}
+                  </p>
+                  {it.why && <p class="t-small">{it.why}</p>}
+                  {it.tip && <p class="t-small muted">{it.tip}</p>}
+                  {whenOf(it).length > 0 && (
+                    <p class="it-when">
+                      {whenOf(it).map((s) => (
+                        <a class="chip" href={`#ngay-${s.day}`}>
+                          Ngày {s.day}
+                          {s.start ? `, ${s.start}` : ''} · {s.area ?? s.city}
+                        </a>
+                      ))}
+                    </p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {
+    CHAINS.length > 0 && (
+      <section class="wrap section-tight" id="chuoi" aria-labelledby="ch-t">
+        <h2 class="t-2" id="ch-t">
+          Chuỗi cửa hàng
+        </h2>
+        <dl class="chains">
+          {CHAINS.map((c: any) => (
+            <div>
+              <dt>{c.name}</dt>
+              <dd>
+                {c.vi}
+                {c.taxFreeMinYen ? <span class="muted"> Miễn thuế từ {fmtYen(c.taxFreeMinYen)}.</span> : null}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    )
+  }
+
+  <section class="band section-tight" id="thue" aria-labelledby="thue-t">
+    <div class="wrap two">
+      <div>
+        <h2 class="t-2" id="thue-t">Hoàn thuế</h2>
+        {TAX_FREE && <p>{TAX_FREE}</p>}
+      </div>
+      {
+        RULES.length > 0 && (
+          <div>
+            <h2 class="t-3">Nguyên tắc</h2>
+            <ul class="rules">
+              {RULES.map((r) => (
+                <li>{r}</li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </div>
+    {
+      SOURCES.length > 0 && (
+        <p class="wrap t-micro faint srcs">
+          Nguồn:{' '}
+          {SOURCES.slice(0, 14).map((s, k) => (
+            <>
+              {k > 0 && ', '}
+              <a href={s} target="_blank" rel="noopener">
+                {(() => {
+                  try {
+                    return new URL(s).hostname.replace(/^www\./, '');
+                  } catch {
+                    return s;
+                  }
+                })()}
+              </a>
+            </>
+          ))}
+        </p>
+      )
+    }
+  </section>
+</Base>
+
+<script>
+  import type { TripMap } from '../../lib/map';
+  const KEY = 'nb27-shop-picks';
+  const box = document.querySelector<HTMLElement>('[data-budget]')!;
+  const budget = Number(box.dataset.budget);
+  const basket = Number(box.dataset.basket);
+  const fmt = (n: number) => `¥${Math.abs(n).toLocaleString('vi-VN')}`;
+  const read = (): string[] => {
+    try {
+      return JSON.parse(localStorage.getItem(KEY) || '[]');
+    } catch {
+      return [];
+    }
+  };
+  const write = (ids: string[]) => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(ids));
+    } catch {
+      /* not remembered in private mode */
+    }
+  };
+  const inputs = [...document.querySelectorAll<HTMLInputElement>('[data-pick]')];
+  const picked = new Set(read());
+  inputs.forEach((i) => (i.checked = picked.has(i.dataset.pick!)));
+  const update = () => {
+    const sum = inputs.filter((i) => i.checked).reduce((t, i) => t + Number(i.dataset.yen), 0);
+    const left = budget - basket - sum;
+    box.querySelector('[data-picked]')!.textContent = fmt(sum);
+    const l = box.querySelector<HTMLElement>('[data-left]')!;
+    l.textContent = left >= 0 ? `còn ${fmt(left)}` : `vượt ${fmt(left)}`;
+    l.classList.toggle('is-over', left < 0);
+    box.querySelector<HTMLElement>('[data-bar]')!.style.setProperty('--w', `${Math.min(100 - (basket / budget) * 100, (sum / budget) * 100)}%`);
+    write(inputs.filter((i) => i.checked).map((i) => i.dataset.pick!));
+  };
+  inputs.forEach((i) => i.addEventListener('change', update));
+  update();
+
+  // Map: city tabs and "show on map" for a slot
+  const map = (): TripMap | undefined => window.__maps?.shop;
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-city-bounds]')];
+  tabs.forEach((t) =>
+    t.addEventListener('click', () => {
+      tabs.forEach((x) => x.setAttribute('aria-selected', String(x === t)));
+      map()?.clear();
+      map()?.fit(JSON.parse(t.dataset.cityBounds!), 48);
+    }),
+  );
+  document.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-show-slot]');
+    if (!b) return;
+    const slot = b.closest<HTMLElement>('[data-slot]')!;
+    const m = map();
+    if (!m) return;
+    m.clear();
+    m.highlightLeg(`${b.dataset.showSlot}#0`, false);
+    m.fit(JSON.parse(slot.dataset.slotBounds!), 64);
+    if (matchMedia('(max-width: 900px)').matches) document.querySelector('.plan-map')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+</script>
+
+<style>
+  .hero {
+    padding-top: clamp(40px, 7vw, 96px);
+    padding-bottom: 20px;
+  }
+  .hero .t-lead {
+    margin-top: 18px;
+    max-width: 56ch;
+  }
+  .seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+  }
+  .seg a,
+  .cats a {
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--bg-2);
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .cats a {
+    background: var(--bg);
+  }
+  .seg a:hover,
+  .cats a:hover {
+    text-decoration: none;
+    background: var(--bg-3);
+  }
+  .budget {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 20;
+    padding-block: 14px;
+    background: var(--glass);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 1px 0 var(--hair);
+    max-width: none;
+  }
+  .budget > * {
+    max-width: var(--wrap);
+    margin-inline: auto;
+  }
+  .b-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .b-row div {
+    display: flex;
+    flex-direction: column;
+  }
+  .b-row strong {
+    font-size: 19px;
+    letter-spacing: -0.01em;
+  }
+  .b-row .is-over {
+    color: #d23a3a;
+  }
+  .b-bar {
+    display: flex;
+    height: 6px;
+    margin-top: 10px;
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--bg-3);
+  }
+  .b-bar span {
+    width: var(--w);
+    transition: width 260ms var(--ease-out);
+  }
+  .b-basket {
+    background: var(--shop);
+  }
+  .b-picks {
+    background: #e9792b;
+  }
+  .budget > p {
+    margin: 8px auto 0;
+  }
+  @media (max-width: 560px) {
+    .b-row strong {
+      font-size: 16px;
+    }
+    .budget > p {
+      display: none;
+    }
+  }
+
+  .plan {
+    padding-top: clamp(48px, 7vw, 88px);
+  }
+  .sub {
+    margin-top: 12px;
+    max-width: 56ch;
+  }
+  .plan-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    margin-top: 32px;
+  }
+  .plan-map {
+    position: sticky;
+    top: calc(var(--nav-h) + 110px);
+    height: calc(100dvh - var(--nav-h) - 110px);
+    order: 2;
+  }
+  .shop-map {
+    position: absolute;
+    inset: 0;
+  }
+  .city-tabs {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 2;
+    display: flex;
+    gap: 2px;
+    max-width: calc(100% - 70px);
+    overflow-x: auto;
+    padding: 3px;
+    border-radius: 12px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: var(--shadow-1);
+  }
+  .city-tabs button {
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: none;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .city-tabs button[aria-selected='true'] {
+    background: var(--bg);
+  }
+  .plan-list {
+    order: 1;
+    min-width: 0;
+    padding: 0 clamp(20px, 3.4vw, 48px) 64px max(var(--gutter), calc((100vw - 1400px) / 2));
+  }
+  @media (max-width: 900px) {
+    .plan-grid {
+      display: block;
+    }
+    .plan-map {
+      position: sticky;
+      top: calc(var(--nav-h) + 76px);
+      z-index: 10;
+      height: 34svh;
+    }
+    .plan-list {
+      padding: 8px var(--gutter) 56px;
+    }
+  }
+  .day {
+    padding-top: 28px;
+    scroll-margin-top: calc(var(--nav-h) + 120px);
+  }
+  .day + .day {
+    margin-top: 12px;
+    border-top: 1px solid var(--hair);
+  }
+  .day-h {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+  }
+  .day-n {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .slot {
+    margin-top: 16px;
+    padding: 16px 18px;
+    border-radius: var(--r-l);
+    background: var(--bg-2);
+    border-left: 5px solid var(--c);
+  }
+  .slot p {
+    margin: 0;
+  }
+  .slot > * + * {
+    margin-top: 8px !important;
+  }
+  .slot-when {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    font-weight: 600;
+  }
+  .slot-when .tnum {
+    color: var(--c);
+  }
+  .slot-focus {
+    font-size: 16px;
+  }
+  .stores,
+  .slot-items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stores {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .store {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 7px 11px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--bg);
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .store:hover {
+    box-shadow: inset 0 0 0 1.5px var(--shop);
+  }
+  .slot-items li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--hair);
+    font-size: 14px;
+  }
+  .skip {
+    color: var(--warn);
+  }
+  .slot-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .btn.sm {
+    min-height: 30px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  .slot .btn-quiet,
+  .slot :global(.say-btn) {
+    background: var(--bg);
+  }
+
+  .cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .cat {
+    margin-top: 40px;
+    scroll-margin-top: calc(var(--nav-h) + 120px);
+  }
+  .items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    gap: 0 32px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .item {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .pick {
+    position: relative;
+    display: block;
+    width: 26px;
+    height: 26px;
+    margin-top: 1px;
+    cursor: pointer;
+  }
+  .pick input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .pick-box {
+    display: block;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    border: 2px solid var(--line);
+    background: var(--bg);
+    transition: background-color 150ms, border-color 150ms;
+  }
+  .pick input:checked + .pick-box {
+    border-color: var(--shop);
+    background: var(--shop) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 18px no-repeat;
+  }
+  .pick input:focus-visible + .pick-box {
+    outline: 3px solid color-mix(in srgb, var(--accent-bright) 60%, transparent);
+    outline-offset: 2px;
+  }
+  .it-body p {
+    margin: 0;
+  }
+  .it-body p + p {
+    margin-top: 4px;
+  }
+  .it-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .it-yen {
+    flex: none;
+    font-weight: 600;
+  }
+  .it-when {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px !important;
+  }
+  .it-when .chip {
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .chains {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: 0 32px;
+    margin: 20px 0 0;
+  }
+  .chains div {
+    padding: 12px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .chains dt {
+    font-weight: 600;
+  }
+  .chains dd {
+    margin: 2px 0 0;
+    font-size: 15px;
+  }
+  .two {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: 24px 48px;
+  }
+  .rules {
+    margin: 12px 0 0;
+    padding-left: 1.1em;
+  }
+  .rules li + li {
+    margin-top: 6px;
+  }
+  .srcs {
+    margin-top: 32px;
+  }
+</style>

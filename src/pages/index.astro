@@ -44,7 +44,7 @@ const foodStrip = foodIds
     return img ? { p, img } : null;
   })
   .filter(Boolean) as { p: ReturnType<typeof place>; img: ReturnType<typeof place>['images'][number] }[];
-const foodCount = allPlacesOf('food').filter((p) => p.role !== 'alt').length;
+const foodCount = allPlacesOf('food').filter((p) => p.role !== 'alt' && !p.snack).length;
 const daysOf = (n: number[]) => (n.length > 1 ? `Ngày ${n[0]}–${n.at(-1)}` : `Ngày ${n[0]}`);
 const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
 ---

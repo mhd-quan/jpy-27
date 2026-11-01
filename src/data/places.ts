@@ -125,7 +125,7 @@ export const PLACES: PlaceBase[] = [
   // ——— Food: Tokyo ———
   {
     id: 'tsumugi', name: 'Ramen Tsumugi', ja: 'らーめん紬麦', kind: 'food', area: 'tokyo',
-    dish: 'Chūka soba nước trong', price: '¥1.400–1.700',
+    dish: 'Chūka soba nước trong', price: '¥1.200–1.500',
     note: 'Nước dùng thanh, sợi mì là điểm nhấn — bữa đầu nhẹ bụng sau chuyến bay.',
     closed: 'Chủ nhật, lễ, vài thứ Bảy', tabelog: tb('tokyo/A1310/A131001/13120606'),
   },
@@ -137,7 +137,7 @@ export const PLACES: PlaceBase[] = [
   },
   {
     id: 'kayaba', name: 'Kayaba Coffee', ja: 'カヤバ珈琲', kind: 'food', area: 'tokyo',
-    dish: 'Sandwich trứng và cà phê', price: '¥1.800–2.200',
+    dish: 'Sandwich trứng và cà phê', price: '¥1.500–2.000',
     note: 'Quán cà phê trong nhà gỗ năm 1938 ở Yanaka, tầng hai trải tatami.',
     closed: 'Thứ Hai', tabelog: tb('tokyo/A1311/A131104/13019585'),
   },
@@ -149,13 +149,13 @@ export const PLACES: PlaceBase[] = [
   },
   {
     id: 'owariya', name: 'Owariya Honten', ja: '尾張屋 本店', kind: 'food', area: 'tokyo',
-    dish: 'Soba tempura tôm lớn', price: '¥2.200–2.800',
+    dish: 'Soba tempura tôm lớn', price: '¥2.000–2.600',
     note: 'Quán soba từ thời Edo cạnh Sensō-ji; có khách quay lại hơn chục lần.',
     closed: 'Thứ Sáu', pay: 'cash', tabelog: tb('tokyo/A1311/A131102/13003714'),
   },
   {
     id: 'umezono', name: 'Umezono Asakusa', ja: '梅園 浅草本店', kind: 'food', area: 'tokyo',
-    dish: 'Anmitsu hoặc awa-zenzai', price: '¥1.100–1.500',
+    dish: 'Anmitsu hoặc awa-zenzai', price: '¥900–1.400',
     note: 'Tiệm ngọt truyền thống từ 1854 — chỗ ngồi nghỉ chân sau Sensō-ji.',
     tabelog: tb('tokyo/A1311/A131102/13003670'),
   },
@@ -193,7 +193,7 @@ export const PLACES: PlaceBase[] = [
   },
   {
     id: 'kaizan', name: 'Kaizan · Kashi no Ichi', ja: '海山 (河岸の市 まぐろ館)', kind: 'food', area: 'tokaido',
-    dish: 'Cơm cá ngừ, set tôm chiên', price: '¥2.500–3.500',
+    dish: 'Cơm cá ngừ, set tôm chiên', price: '¥2.000–3.000',
     note: 'Chợ cá cảng Shimizu, cách ga 3 phút — hợp ngày chuyển vùng.', tabelog: tb('shizuoka/A2201/A220102/22024359'),
   },
   {
@@ -261,12 +261,12 @@ export const PLACES: PlaceBase[] = [
   },
   {
     id: 'komori', name: 'Gion Komori', ja: 'ぎをん小森', kind: 'food', area: 'kyoto',
-    dish: 'Warabi mochi, parfait', price: '¥1.900–2.400',
+    dish: 'Warabi mochi, parfait', price: '¥1.400–2.000',
     note: 'Trà quán trong nhà machiya bên kênh Shirakawa.', tabelog: tb('kyoto/A2601/A260301/26000280'),
   },
   {
     id: 'menzo', name: 'Yamamoto Menzō', ja: '山元麺蔵', kind: 'food', area: 'kyoto',
-    dish: 'Udon, gà chiên, tempura ngưu bàng', price: '¥1.800–2.400',
+    dish: 'Udon, gà chiên, tempura ngưu bàng', price: '¥1.200–2.000',
     note: 'Udon nổi tiếng nhất Kyoto, gần Heian Jingū.', pay: 'cash',
     tips: 'Đặt chỗ mở lúc 0h giờ Nhật, ba ngày trước (22h tối 21/10 giờ Việt Nam).',
     tabelog: tb('kyoto/A2601/A260301/26002504'),

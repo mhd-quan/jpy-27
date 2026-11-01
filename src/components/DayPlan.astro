@@ -6,7 +6,8 @@ import Gallery from './Gallery.astro';
 import AlongItem from './AlongItem.astro';
 import SayButton from './SayButton.astro';
 import MenuMini from './MenuMini.astro';
-import { place, routeLeg, fmtKm, fmtYen, dateLabel, sayTags } from '../lib/trip';
+import { place, routeLeg, fmtKm, fmtYen, dateLabel, sayTags, url } from '../lib/trip';
+import { slotsOfDay } from '../lib/shopping';
 import type { DayView, LegView } from '../lib/trip';
 
 interface Link {
@@ -49,6 +50,7 @@ const dow = new Date(`${day.date}T12:00:00+09:00`).getUTCDay();
 // open ones first; a shop closed that weekday stays listed, marked, at the end
 const snacks = v.along.filter((a) => a.p.snack).sort((a, b) => Number(a.p.snack!.closedDow.includes(dow)) - Number(b.p.snack!.closedDow.includes(dow)));
 const sights = v.along.filter((a) => !a.p.snack);
+const shops = day.id ? [] : slotsOfDay(n);
 const minutes = (l: LegView) => (l.min ? `${l.min}${/\d$/.test(l.min) ? ' phút' : ''}` : '');
 const kindOf = (id?: string) => (id ? place(id).kind : undefined);
 const firstImages = (id: string) => {
@@ -254,6 +256,25 @@ const firstImages = (id: string) => {
           </div>
         )
       }
+      {shops.length > 0 && (
+        <div>
+          <h2 class="t-3">Mua sắm hôm nay</h2>
+          <ul class="shops">
+            {shops.map((s) => (
+              <li>
+                <a href={url(`mua-sam/#ngay-${n}`)}>
+                  <span class="tnum">
+                    {s.start}
+                    {s.end ? `–${s.end}` : ''}
+                  </span>{' '}
+                  {s.area ?? s.city}
+                </a>
+                {s.focus && <span class="muted"> — {s.focus}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div>
         <h2 class="t-3">Tiền ăn hôm nay</h2>
         <dl class="meals tnum">

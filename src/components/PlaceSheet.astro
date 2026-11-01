@@ -66,7 +66,7 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
           <p class="s-kicker t-small">
             <span class="dot" style={`--c: var(--${p.kind === 'station' ? 'ink-3' : p.kind})`} />
             {kindLabel(p)}
-            {p.role && ROLE[p.role] && !p.snack ? ` · ${ROLE[p.role]}` : ''}
+            {p.role && ROLE[p.role] && !p.snack && !p.store ? ` · ${ROLE[p.role]}` : ''}
             {` · ${AREA[p.area]}`}
           </p>
           <h2 class="t-2" id="sheet-title">

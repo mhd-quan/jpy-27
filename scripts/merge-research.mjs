@@ -219,6 +219,25 @@ for (const file of readAll('snacks-')) {
   }
 }
 
+// Shopping stores: catalog places (kind shop) so the place sheet and maps can use them
+for (const st of read('shopping-stores.json')?.stores ?? []) {
+  const lat = num(st?.lat);
+  const lng = num(st?.lng);
+  if (!st?.id || lat == null || lng == null) continue;
+  details[st.id] = {
+    ...(details[st.id] ?? { images: [] }),
+    lat: round(lat),
+    lng: round(lng),
+    address: clean(st.address),
+    hours: clean(st.hours),
+    why: clean(st.why),
+    tips: clean(st.floors),
+    official: st.src ?? undefined,
+    store: { chain: st.chain ?? 'other', city: st.city ?? null, open: st.open ?? null, close: st.close ?? null, closedDow: Array.isArray(st.closedDow) ? st.closedDow.map(Number) : [], taxFree: st.taxFree ?? null, near: st.near ?? null, walkMin: num(st.walkMin) },
+  };
+  extraPlaces.push({ id: st.id, name: clean(st.name) ?? st.id, ja: clean(st.ja), kind: 'shop', role: 'alt', day: num(st.day) ?? undefined, category: st.chain });
+}
+
 // Everything that is not a place detail goes to enrich.gen.ts
 const merged = (prefix, key) => readAll(prefix).flatMap((f) => f?.[key] ?? []);
 const phrases = read('phrases.json') ?? { scenarios: [] };
@@ -289,6 +308,18 @@ export interface Detail {
   images: Img[];
   menu?: Menu;
   snack?: Snack;
+  store?: Store;
+}
+
+export interface Store {
+  chain: string;
+  city: string | null;
+  open: string | null;
+  close: string | null;
+  closedDow: number[];
+  taxFree: boolean | null;
+  near: string | null;
+  walkMin: number | null;
 }
 
 export interface MenuItem {
@@ -328,7 +359,7 @@ export interface ExtraPlace {
   id: string;
   name: string;
   ja?: string;
-  kind: 'sight' | 'food';
+  kind: 'sight' | 'food' | 'shop';
   near?: string;
   role: 'plan' | 'along' | 'detour' | 'alt';
   day?: number;
