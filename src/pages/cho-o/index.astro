@@ -1,13 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Gallery from '../../components/Gallery.astro';
+import StayAround from '../../components/StayAround.astro';
+import SayButton from '../../components/SayButton.astro';
 import { place, fmtYen } from '../../lib/trip';
 import { STAYS } from '../../data/trip';
 
 const total = STAYS.reduce((s, x) => s + x.target * (x.id === 'mizunoto' ? 1 : Number(x.nights[0])), 0);
 ---
 
-<Base title="Chỗ ở" sheets={[...STAYS.map((s) => s.id), 'resol-kyoto']}>
+<Base title="Chỗ ở" sheets={[...STAYS.map((s) => s.id), 'resol-kyoto']} say={STAYS.map((s) => s.id)}>
   <section class="wrap hero">
     <h1 class="t-1">Chỗ ở</h1>
     <p class="t-lead">
@@ -70,6 +72,10 @@ const total = STAYS.reduce((s, x) => s + x.target * (x.id === 'mizunoto' ? 1 : N
                 Phương án RESOL Kyoto
               </button>
             )}
+            <SayButton tags={['stay', ...(s.id === 'mizunoto' ? ['ryokan'] : ['checkin'])]} place={s.id} />
+          </div>
+          <div class="wrap">
+            <StayAround id={s.id} />
           </div>
         </section>
       );
@@ -158,6 +164,7 @@ const total = STAYS.reduce((s, x) => s + x.target * (x.id === 'mizunoto' ? 1 : N
   .links {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
     margin-top: 16px;
   }

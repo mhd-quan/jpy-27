@@ -1,0 +1,378 @@
+---
+// Around one hotel: what the neighbourhood is like, the walks from the door on a map,
+// practical places within a few minutes, and for the ryokan, where Fuji can be seen.
+import MapView from './MapView.astro';
+import Gallery from './Gallery.astro';
+import { STAYS_GEN, FUJI_SUMMIT_LL } from '../data/stays.gen';
+import { WALK_STAYS } from '../data/walk.gen';
+import { FUJI_SPOTS } from '../data/fuji.gen';
+import { place, fmtKm, url } from '../lib/trip';
+import { boundsOf, compass, decodePolyline, encodePolyline, type LatLng } from '../lib/geo';
+import type { Pin, RouteLeg } from '../lib/map';
+
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+const g = STAYS_GEN[id];
+const hotel = place(id);
+const WALK_COLORS = ['#2f7de1', '#e9792b', '#1e8a55', '#8a5cd0'];
+const TYPE: Record<string, string> = {
+  konbini: 'Cửa hàng tiện lợi',
+  supermarket: 'Siêu thị',
+  drugstore: 'Hiệu thuốc',
+  laundry: 'Giặt tự động',
+  cafe: 'Cà phê',
+  bakery: 'Tiệm bánh',
+  sento: 'Nhà tắm công cộng',
+  sight: 'Chỗ ngắm',
+};
+const walks: any[] = g?.walks ?? [];
+const around: any[] = g?.around ?? [];
+const fuji = g?.fuji ?? null;
+const spot = FUJI_SPOTS.find((s) => s.id === id);
+
+const legs: RouteLeg[] = [];
+walks.forEach((w, i) => {
+  for (const seg of w.fuji?.segs ?? []) if (seg.v) legs.push({ id: `${w.id}-fuji-${legs.length}`, p: seg.p, color: '#6b4fd8', mode: 'glow' });
+  legs.push({ id: w.id, p: w.p, color: WALK_COLORS[i % WALK_COLORS.length], mode: 'stroll' });
+});
+if (fuji) {
+  legs.push({ id: `${id}-sightline`, p: encodePolyline([[hotel.lat, hotel.lng], FUJI_SUMMIT_LL as LatLng]), color: '#1d1d1f', mode: spot?.visible ? 'sight' : 'sightx' });
+}
+const pins: Pin[] = [
+  { id, lat: hotel.lat, lng: hotel.lng, kind: 'stay', label: hotel.name },
+  ...walks.flatMap((w) => (w.highlights ?? []).map((h: any, k: number) => ({ id: `${w.id}-h${k}`, lat: h.lat, lng: h.lng, kind: 'sight' as const, label: h.name }))),
+  ...around.map((a, k) => ({ id: `${id}-a${k}`, lat: a.lat, lng: a.lng, kind: 'along' as const, label: a.name })),
+  ...(fuji?.nearbyViews ?? []).map((v: any, k: number) => ({ id: `${id}-v${k}`, lat: v.lat, lng: v.lng, kind: (v.sight?.visible ? 'fuji' : 'along') as Pin['kind'], label: v.name })),
+];
+// frame the door, the walks and what is within walking reach; far viewpoints stay as pins off-frame
+const near = (lat: number, lng: number) => Math.hypot((lat - hotel.lat) * 111, (lng - hotel.lng) * 91) < 2.5;
+const pts: LatLng[] = [
+  [hotel.lat, hotel.lng],
+  ...walks.flatMap((w) => decodePolyline(w.p)),
+  ...pins.filter((p) => near(p.lat, p.lng)).map((p) => [p.lat, p.lng] as LatLng),
+];
+const mapConfig = {
+  legs,
+  pins,
+  bounds: boundsOf(pts),
+  cooperative: true,
+  labels: 'all' as const,
+  labelMinZoom: 13,
+  padding: 40,
+  image: fuji?.viewshed ? { src: url(fuji.viewshed.src), bounds: fuji.viewshed.bounds, opacity: 0.75 } : undefined,
+};
+// the larger of the research's estimate and the slope-aware model; climbs shown when real
+const walkMin = (w: any) => Math.max(WALK_STAYS[w.id]?.min ?? 0, w.minutes ?? w.routedMin ?? 0);
+const climb = (w: any) => (WALK_STAYS[w.id]?.up ?? 0) >= 20 ? `lên dốc ${WALK_STAYS[w.id].up} m` : null;
+---
+
+{
+  g && (
+    <div class="around" data-around={id}>
+      {g.area && <p class="area t-body">{g.area}</p>}
+
+      {walks.length > 0 && (
+        <div class="walks">
+          <MapView id={`stay-${id}`} config={mapConfig} class="stay-map" label={`Bản đồ quanh ${hotel.name}`} />
+          <div class="walk-list">
+            <h3 class="t-3">Đi dạo từ cửa</h3>
+            <ul>
+              {walks.map((w, i) => (
+                <li>
+                  <button type="button" class="walk" data-walk={w.id} data-map={`stay-${id}`} style={`--c:${WALK_COLORS[i % WALK_COLORS.length]}`}>
+                    <span class="w-line" aria-hidden="true" />
+                    <span class="w-body">
+                      <strong>{w.title}</strong>
+                      <span class="t-small muted tnum">
+                        {[walkMin(w) && `${walkMin(w)} phút`, fmtKm(w.km), climb(w), w.best].filter(Boolean).join(' · ')}
+                      </span>
+                      {w.text && <span class="t-small">{w.text}</span>}
+                      {w.fuji && (
+                        <span class:list={['w-fuji t-small', w.fuji.km > 0 && 'is-yes']}>
+                          {w.fuji.km > 0 ? `Fuji trong tầm nhìn trên ${fmtKm(w.fuji.km)} đường đi (tô tím trên bản đồ)` : 'Địa hình che Fuji suốt đường đi này'}
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                  {w.highlights?.some((h: any) => h.images?.length) && (
+                    <div class="w-gal">
+                      <Gallery
+                        images={w.highlights.flatMap((h: any) =>
+                          (h.images ?? []).slice(0, 2).map((im: any) => ({ kind: im.kind ?? 'view', src: im.url, caption: im.caption || h.name, credit: im.credit ?? '', license: im.license, page: im.page })),
+                        )}
+                        name={w.title}
+                        limit={6}
+                      />
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {fuji && (
+        <div class="fuji">
+          <h3 class="t-3">Fuji từ ryokan</h3>
+          {spot && (
+            <dl class="fnums tnum">
+              <div>
+                <dt>Tới đỉnh</dt>
+                <dd>{fmtKm(spot.km)}</dd>
+              </div>
+              <div>
+                <dt>Hướng</dt>
+                <dd>
+                  {compass(spot.bearing)}, {spot.bearing}°
+                </dd>
+              </div>
+              <div>
+                <dt>Tại cửa</dt>
+                <dd>{spot.visible ? `Thấy ${spot.shownM.toLocaleString('vi-VN')} m phần trên` : `Bị núi che, cách ${fmtKm(spot.blockKm ?? 0)}`}</dd>
+              </div>
+            </dl>
+          )}
+          {fuji.fromProperty && <p>{typeof fuji.fromProperty === 'string' ? fuji.fromProperty : fuji.fromProperty.summary}</p>}
+          {fuji.viewshed && (
+            <p class="t-small muted">
+              Vùng tô xanh trên bản đồ: những chỗ trong ô 3,6 km quanh ryokan mà địa hình không che đỉnh Fuji ({fuji.viewshed.share}% diện tích). Chưa tính cây và nhà, nên thực tế ít hơn.
+            </p>
+          )}
+          {fuji.nearbyViews?.length > 0 && (
+            <ul class="views">
+              {fuji.nearbyViews
+                .slice()
+                .sort((a: any, b: any) => Number(b.sight?.visible) - Number(a.sight?.visible) || a.fromRyokanKm - b.fromRyokanKm)
+                .map((v: any) => (
+                  <li>
+                    <span class:list={['v-dot', v.sight?.visible && 'is-yes']} aria-hidden="true" />
+                    <span>
+                      <strong>{v.name}</strong>
+                      {v.ja && (
+                        <span class="ja muted" lang="ja">
+                          {' '}
+                          {v.ja}
+                        </span>
+                      )}
+                      <span class="t-small v-verdict">
+                        {v.sight?.visible ? `Thấy Fuji, khoảng ${v.sight.shownM.toLocaleString('vi-VN')} m phần trên` : 'Địa hình che đỉnh'} · cách ryokan {fmtKm(v.fromRyokanKm)}
+                      </span>
+                      {v.access && <span class="t-small muted">{v.access}</span>}
+                      {v.text && <span class="t-small">{v.text}</span>}
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          )}
+          {fuji.sunrise && <p class="t-small muted">{typeof fuji.sunrise === 'string' ? fuji.sunrise : fuji.sunrise.text}</p>}
+        </div>
+      )}
+
+      {around.length > 0 && (
+        <div class="near">
+          <h3 class="t-3">Ngay quanh khách sạn</h3>
+          <ul>
+            {around
+              .slice()
+              .sort((a, b) => a.walkMin - b.walkMin)
+              .map((a) => (
+                <li>
+                  <span class="n-type t-micro">{TYPE[a.type] ?? a.type}</span>
+                  <strong>{a.name}</strong>
+                  <span class="t-small muted tnum">
+                    {a.walkMin} phút đi bộ{a.hours ? ` · ${a.hours}` : ''}
+                  </span>
+                  {a.text && <span class="t-small">{a.text}</span>}
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
+<script>
+  // Choosing a walk shows it on the map and fades the others
+  document.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-walk]');
+    if (!b) return;
+    const map = window.__maps?.[b.dataset.map!];
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    b.closest('ul')?.querySelectorAll('[data-walk]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+    b.setAttribute('aria-pressed', String(on));
+    if (!map) return;
+    if (on) map.highlightLeg(b.dataset.walk!, true);
+    else {
+      map.clear();
+      map.fit();
+    }
+  });
+</script>
+
+<style>
+  .around {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--hair);
+  }
+  .area {
+    max-width: 64ch;
+    margin: 0;
+  }
+  .walks {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 24px 36px;
+    margin-top: 28px;
+    align-items: start;
+  }
+  .stay-map {
+    position: sticky;
+    top: calc(var(--nav-h) + 16px);
+    height: min(70vh, 560px);
+    border-radius: var(--r-l);
+  }
+  @media (max-width: 860px) {
+    .walks {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .stay-map {
+      position: relative;
+      top: 0;
+      height: 52svh;
+      min-height: 300px;
+    }
+  }
+  .walk-list ul {
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .walk-list li + li {
+    margin-top: 6px;
+  }
+  .walk {
+    display: grid;
+    grid-template-columns: 6px minmax(0, 1fr);
+    gap: 14px;
+    width: 100%;
+    padding: 12px 12px 12px 10px;
+    border: 0;
+    border-radius: var(--r-m);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+  .walk:hover,
+  .walk[aria-pressed='true'] {
+    background: var(--bg-2);
+  }
+  :global(.band) .walk:hover,
+  :global(.band) .walk[aria-pressed='true'] {
+    background: var(--bg);
+  }
+  .w-line {
+    border-radius: 3px;
+    background: var(--c);
+  }
+  .w-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  .w-fuji {
+    color: var(--ink-2);
+  }
+  .w-fuji.is-yes {
+    color: #6b4fd8;
+    font-weight: 600;
+  }
+  .w-gal {
+    --bleed: 0px;
+    margin: 6px 0 10px 20px;
+  }
+  .fuji {
+    margin-top: 36px;
+    max-width: 72ch;
+  }
+  .fuji > p {
+    margin: 12px 0 0;
+  }
+  .fnums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: 14px 0 0;
+  }
+  .fnums div {
+    display: flex;
+    flex-direction: column;
+  }
+  .fnums dt {
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .fnums dd {
+    margin: 0;
+    font-weight: 600;
+  }
+  .views {
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .views li {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .views li > span:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .v-dot {
+    width: 12px;
+    height: 12px;
+    margin-top: 6px;
+    border-radius: 50%;
+    border: 2px solid var(--ink-3);
+  }
+  .v-dot.is-yes {
+    border-color: #6b4fd8;
+    background: #6b4fd8;
+  }
+  .v-verdict {
+    font-weight: 600;
+  }
+  .near {
+    margin-top: 36px;
+  }
+  .near ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+    gap: 4px 28px;
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .near li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .n-type {
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+</style>

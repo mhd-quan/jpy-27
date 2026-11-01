@@ -26,15 +26,75 @@ export interface Detail {
   fujiNote?: string;
   official?: string;
   images: Img[];
+  menu?: Menu;
+  snack?: Snack;
+  store?: Store;
+  fujiSpot?: FujiSpot;
+}
+
+export interface FujiSpot {
+  area: string | null;
+  type: string | null;
+  fit: 'day4' | 'day5' | 'kawaguchiko' | null;
+  status: string | null;
+  etiquette: string | null;
+  access: { kawaguchiko?: string | null; day4?: string | null; day5?: string | null };
+  busStop: { ja: string; lat: number; lng: number; lines?: string | string[]; walkMin?: number; [k: string]: unknown } | null;
+  social: { platform: string; url: string; note: string | null }[];
+}
+
+export interface Store {
+  chain: string;
+  city: string | null;
+  open: string | null;
+  close: string | null;
+  closedDow: number[];
+  taxFree: boolean | null;
+  near: string | null;
+  walkMin: number | null;
+}
+
+export interface MenuItem {
+  ja: string;
+  romaji: string | null;
+  vi: string;
+  yen: number | null;
+  yenNote: string | null;
+  pick: 'signature' | 'popular' | 'value' | 'light' | 'side' | 'dessert' | 'drink';
+  note: string | null;
+  src: string | null;
+}
+
+export interface Menu {
+  items: MenuItem[];
+  orderTip: string | null;
+  ticketMachine: boolean | null;
+  menuEn: boolean | null;
+  sources: string[];
+}
+
+export interface Snack {
+  type: 'snack' | 'dessert' | 'bakery' | 'cafe' | 'market' | 'street-food' | 'ekiben';
+  get: { ja: string; romaji: string | null; vi: string; yen: number | null }[];
+  when: string | null;
+  open: string | null;
+  close: string | null;
+  closedDow: number[];
+  closedNote: string | null;
+  queue: string | null;
+  pay: 'cash' | 'card' | 'mixed' | null;
+  tabelog: { url: string; rating: number | null; count: number | null; award: string | null } | null;
+  social: { platform: string; url: string; note: string | null }[];
 }
 
 export interface ExtraPlace {
   id: string;
   name: string;
   ja?: string;
-  kind: 'sight';
+  kind: 'sight' | 'food' | 'shop';
+  near?: string;
   role: 'plan' | 'along' | 'detour' | 'alt';
-  day?: number;
+  day?: number | string;
   category?: string;
   detourMin?: number;
 }
@@ -115,7 +175,69 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "axis green / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1310/A131001/13120606/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "中華そば",
+     "romaji": "chūka soba",
+     "vi": "Mì chūka soba, bát cơ bản của quán; mì tự làm, khẩu phần thường 160 g",
+     "yen": 1200,
+     "yenNote": "chưa thêm topping",
+     "pick": "signature",
+     "note": "Ba bát cơ bản (ラーメン, 塩ラーメン, 中華そば) cùng giá ¥1.200.",
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    },
+    {
+     "ja": "塩ラーメン",
+     "romaji": "shio rāmen",
+     "vi": "Mì nước dùng vị muối",
+     "yen": 1200,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Có trong ảnh Tabelog với giá ¥1.200.",
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    },
+    {
+     "ja": "つむぎラーメン",
+     "romaji": "Tsumugi rāmen",
+     "vi": "Bát mang tên quán, đắt hơn bát thường ¥100",
+     "yen": 1300,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    },
+    {
+     "ja": "セットかつ丼",
+     "romaji": "setto katsu-don",
+     "vi": "Suất cơm thịt heo chiên trứng nhỏ, gọi kèm với bát mì",
+     "yen": 400,
+     "yenNote": "chỉ gọi kèm mì",
+     "pick": "side",
+     "note": "Quán còn nổi tiếng với わらじかつ丼 (¥1.300, bát to).",
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    },
+    {
+     "ja": "だし味玉子",
+     "romaji": "dashi aji-tamago",
+     "vi": "Trứng lòng đào ngâm nước dùng, thêm vào mì",
+     "yen": 100,
+     "yenNote": null,
+     "pick": "side",
+     "note": "Mua riêng một vé ¥100 ở máy.",
+     "src": "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html"
+    }
+   ],
+   "orderTip": "Mua vé ở máy bán vé (券売機) ngay lối vào, chỉ tiền mặt; đưa vé cho nhân viên ở quầy, trứng là một vé ¥100 riêng. Thứ Hai 18/10/2027 mở 11:30–14:30; quán nghỉ Chủ nhật, lễ và vài thứ Bảy.",
+   "ticketMachine": true,
+   "menuEn": null,
+   "sources": [
+    "https://ameblo.jp/tatsuya-zero-one/entry-12945491744.html",
+    "https://tx-tsukuba.hatenablog.jp/entry/2024/09/21/063000",
+    "https://tabelog.com/en/tokyo/A1310/A131001/13120606/"
+   ]
+  }
  },
  "yamabe": {
   "lat": 35.708301,
@@ -189,7 +311,71 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "サプレマシー / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlphotolst/4/smp2/"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ロースかつ定食",
+     "romaji": "rōsu katsu teishoku",
+     "vi": "Set cốt lết heo chiên dày, kèm cơm, súp, rau bắp cải",
+     "yen": 950,
+     "yenNote": "giá 5/2026; một blog 9/2026 ghi ¥800 nhưng có vẻ cũ",
+     "pick": "signature",
+     "note": null,
+     "src": "https://irohameguri.jp/food/yamabe-ueno/"
+    },
+    {
+     "ja": "ロースかつ定食（大）",
+     "romaji": "rōsu katsu teishoku (ō)",
+     "vi": "Set cốt lết suất lớn",
+     "yen": 1150,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Khách 9/2026 trên Tabelog gọi suất này, ghi ¥1.150.",
+     "src": "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlrvwlst/"
+    },
+    {
+     "ja": "ひれかつ定食",
+     "romaji": "hire katsu teishoku",
+     "vi": "Set thăn heo (phần nạc) chiên",
+     "yen": 1050,
+     "yenNote": "giá 2023, nay có thể cao hơn",
+     "pick": "light",
+     "note": null,
+     "src": "https://kitasenjunin.com/tonkatsuyamabe1"
+    },
+    {
+     "ja": "ミックス定食",
+     "romaji": "mikkusu teishoku",
+     "vi": "Set chiên hỗn hợp (xiên katsu, tôm, cá aji)",
+     "yen": 1100,
+     "yenNote": "theo một đánh giá 9/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlrvwlst/"
+    },
+    {
+     "ja": "海老フライ",
+     "romaji": "ebi furai",
+     "vi": "Một con tôm chiên gọi thêm",
+     "yen": 300,
+     "yenNote": "một con",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlrvwlst/"
+    }
+   ],
+   "orderTip": "Không có máy vé: nhân viên đến ghi món khi bạn đang xếp hàng hoặc ngồi ghế chờ; chỉ có ghế quầy, trả tiền mặt sau khi ăn (thẻ, IC, QR không nhận). Giá trong kế hoạch (¥1.300–1.800) đang cao hơn giá thật, một set thường ¥950–1.150. Chờ khoảng 15–30 phút lúc cao điểm.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://irohameguri.jp/food/yamabe-ueno/",
+    "https://b-lunch.com/tonkatsu-yamabe-ueno-okachimachi2.html",
+    "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlrvwlst/",
+    "https://tabelog.com/en/tokyo/A1311/A131101/13138428/dtlmenu/",
+    "https://kitasenjunin.com/tonkatsuyamabe1"
+   ]
+  }
  },
  "kayaba": {
   "lat": 35.721166,
@@ -263,7 +449,70 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "トントンマン / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "カヤバクラシックたまごサンド",
+     "romaji": "Kayaba kurashikku tamago sando",
+     "vi": "Sandwich trứng cổ điển của quán, số lượng có hạn, kèm súp và salad",
+     "yen": 1500,
+     "yenNote": "đánh giá 10/2026; trước đó ¥1.400",
+     "pick": "signature",
+     "note": "Có hôm hết suất; bản thường dùng sốt dill-mayo.",
+     "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlrvwlst/"
+    },
+    {
+     "ja": "モーニングセット",
+     "romaji": "mōningu setto",
+     "vi": "Set sáng có sandwich trứng và đồ uống",
+     "yen": 1000,
+     "yenNote": "chú thích ảnh Tabelog, không rõ năm",
+     "pick": "value",
+     "note": "Hỏi lại khi gọi: kế hoạch đến lúc 8:30.",
+     "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/"
+    },
+    {
+     "ja": "ルシアン",
+     "romaji": "rushian",
+     "vi": "Đồ uống nửa cà phê nửa cacao, món riêng của quán",
+     "yen": 730,
+     "yenNote": "đánh giá 10/2026",
+     "pick": "drink",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlrvwlst/"
+    },
+    {
+     "ja": "コーヒー",
+     "romaji": "kōhī",
+     "vi": "Cà phê",
+     "yen": 700,
+     "yenNote": "chú thích ảnh Tabelog 9/2026, đã thuế",
+     "pick": "drink",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlrvwlst/"
+    },
+    {
+     "ja": "カスタードプリン",
+     "romaji": "kasutādo purin",
+     "vi": "Bánh flan kiểu cổ điển",
+     "yen": 750,
+     "yenNote": "bài 11/2025",
+     "pick": "dessert",
+     "note": null,
+     "src": "https://machi-cafe.com/cafe-review-cayaba-coffee/"
+    }
+   ],
+   "orderTip": "Đặt bàn online trước (Tabelog; ngày thường vẫn kín, không đặt có thể phải chờ nhiều giờ theo blog 2023). Có menu tiếng Anh; nhận thẻ, Suica/iD và PayPay. Thứ Ba 19/10/2027 mở 8:00; nghỉ Thứ Hai.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1311/A131104/13019585/",
+    "https://tabelog.com/en/tokyo/A1311/A131104/13019585/dtlrvwlst/",
+    "https://machi-cafe.com/cafe-review-cayaba-coffee/",
+    "https://note.com/morningmania/n/n333139fbd2da"
+   ]
+  }
  },
  "nezu-taiyaki": {
   "lat": 35.720292,
@@ -337,7 +586,29 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "カフェモカ男 / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131106/13003570/dtlphotolst/4/smp2/"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "たいやき",
+     "romaji": "taiyaki",
+     "vi": "Bánh cá taiyaki nhân đậu đỏ hạt, vỏ mỏng, nướng từng chiếc (khoảng 93 g)",
+     "yen": 260,
+     "yenNote": "từ 1/10/2026; trước đó ¥230",
+     "pick": "signature",
+     "note": "Chỉ có một loại; chỉ bán mang đi, hết khoảng 12:30–14:00.",
+     "src": "https://tabelog.com/en/tokyo/A1311/A131106/13003570/dtlmenu/"
+    }
+   ],
+   "orderTip": "Chỉ có một món (taiyaki), bán mang đi, trả tiền mặt; thường có hàng chờ 5–10 phút. Mở thứ Hai–thứ Sáu từ 10:00 đến khi hết (khoảng 12:30–14:00), nghỉ cuối tuần; Thứ Ba 19/10/2027 10:15 là ổn.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1311/A131106/13003570/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1311/A131106/13003570/dtlrvwlst/",
+    "https://tabelog.com/en/tokyo/A1311/A131106/13003570/"
+   ]
+  }
  },
  "owariya": {
   "lat": 35.711368,
@@ -411,7 +682,69 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "taro.474 / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131102/13003714/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "天ぷらそば",
+     "romaji": "tenpura soba",
+     "vi": "Soba nóng có tôm tempura to đặt trên bát",
+     "yen": 2000,
+     "yenNote": "theo thực đơn chính thức; vài ảnh Tabelog ghi ¥2.400, nên chuẩn bị ¥2.000–2.400",
+     "pick": "signature",
+     "note": "Món nổi tiếng nhất của quán.",
+     "src": "https://owariya-asakusa.com/menu/"
+    },
+    {
+     "ja": "上天ぷらそば（車えび）",
+     "romaji": "jō tenpura soba (kuruma ebi)",
+     "vi": "Soba tempura bản cao cấp dùng tôm kuruma",
+     "yen": 3400,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://owariya-asakusa.com/menu/"
+    },
+    {
+     "ja": "天せいろ",
+     "romaji": "ten-seiro",
+     "vi": "Soba lạnh chấm nước, tempura ăn riêng",
+     "yen": 1500,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://owariya-asakusa.com/menu/"
+    },
+    {
+     "ja": "もりそば",
+     "romaji": "mori soba",
+     "vi": "Soba lạnh chấm nước, không topping",
+     "yen": 800,
+     "yenNote": null,
+     "pick": "light",
+     "note": null,
+     "src": "https://owariya-asakusa.com/menu/"
+    },
+    {
+     "ja": "鴨せいろ",
+     "romaji": "kamo-seiro",
+     "vi": "Soba lạnh chấm nước nóng nấu thịt vịt",
+     "yen": 1800,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Món mùa lạnh (khoảng tháng 10–3).",
+     "src": "https://owariya-asakusa.com/menu/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt (thẻ, IC, QR đều không), có menu tiếng Anh theo Tabelog; giá đã gồm thuế. Mở 11:30–20:00, nghỉ thứ Sáu; Thứ Ba 19/10/2027 mở bình thường. Ở menu có thêm món matsutake theo mùa.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://owariya-asakusa.com/menu/",
+    "https://asakusakanko.com/oawariya/",
+    "https://tabelog.com/en/tokyo/A1311/A131102/13003714/"
+   ]
+  }
  },
  "umezono": {
   "lat": 35.712377,
@@ -485,7 +818,59 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ないとうトウガラシ / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1311/A131102/13003670/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "あんみつ",
+     "romaji": "anmitsu",
+     "vi": "Thạch agar cắt hạt lựu, đậu đỏ, trái cây, rưới siro đen",
+     "yen": 870,
+     "yenNote": null,
+     "pick": "signature",
+     "note": null,
+     "src": "https://www.jalan.net/news/article/621048/"
+    },
+    {
+     "ja": "白玉クリームあんみつ",
+     "romaji": "shiratama kurīmu anmitsu",
+     "vi": "Anmitsu thêm bánh gạo shiratama và kem",
+     "yen": 1090,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.jalan.net/news/article/621048/"
+    },
+    {
+     "ja": "あわぜんざい",
+     "romaji": "awa zenzai",
+     "vi": "Chè đậu đỏ với bánh kê giã mềm, món gốc của quán",
+     "yen": 930,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://asakusaumezono.foodre.jp/"
+    },
+    {
+     "ja": "田舎しるこ",
+     "romaji": "inaka shiruko",
+     "vi": "Chè đậu đỏ nóng kèm bánh mochi nướng",
+     "yen": 880,
+     "yenNote": null,
+     "pick": "dessert",
+     "note": null,
+     "src": "https://asakusaumezono.foodre.jp/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt (thẻ, IC, QR không). Thứ Ba 19/10/2027 mở 10:00–17:00 (gọi cuối 16:30); quán nghỉ vài thứ Tư mỗi tháng, xem lịch trên trang chính thức.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://www.jalan.net/news/article/621048/",
+    "https://asakusaumezono.foodre.jp/",
+    "https://tabelog.com/en/tokyo/A1311/A131102/13003670/"
+   ]
+  }
  },
  "tamai": {
   "lat": 35.681238,
@@ -559,7 +944,69 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "slm-mtu / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "箱めし 中箱",
+     "romaji": "hakomeshi chūbako",
+     "vi": "Hộp cơm cỡ vừa với hai lát anago; chọn hầm (煮上げ), nướng (焼き上げ) hoặc mỗi loại một nửa (合いのせ), kèm dưa muối và súp",
+     "yen": 3800,
+     "yenNote": null,
+     "pick": "signature",
+     "note": "Chọn 合いのせ nếu muốn thử cả hai cách.",
+     "src": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/"
+    },
+    {
+     "ja": "箱めし 小箱",
+     "romaji": "hakomeshi kobako",
+     "vi": "Hộp cơm anago cỡ nhỏ",
+     "yen": 2500,
+     "yenNote": null,
+     "pick": "light",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/"
+    },
+    {
+     "ja": "箱めし 大箱",
+     "romaji": "hakomeshi ōbako",
+     "vi": "Hộp cơm anago cỡ lớn",
+     "yen": 4600,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/"
+    },
+    {
+     "ja": "めそ箱めし",
+     "romaji": "meso hakomeshi",
+     "vi": "Hộp cơm làm từ anago non (meso), thịt mềm",
+     "yen": 2500,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Khách 8–9/2026 trên Tabelog gọi món này.",
+     "src": "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/"
+    },
+    {
+     "ja": "穴子のお出汁",
+     "romaji": "anago no odashi",
+     "vi": "Nước dùng từ xương anago, chan vào cơm ăn cuối bữa như ochazuke",
+     "yen": 200,
+     "yenNote": "gọi thêm",
+     "pick": "side",
+     "note": null,
+     "src": "https://chawanbushi.com/post-58737/"
+    }
+   ],
+   "orderTip": "Chỉ nhận đặt bàn cho buổi tối (qua Tabelog, Gurunavi hoặc HotPepper); buổi tối có お通し ¥400 mỗi người. 中箱 + dashi + phụ thu tối khoảng ¥4.400 mỗi người. Nhận thẻ tín dụng, không nhận IC/QR; menu tiếng Anh chưa kiểm được.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1302/A130202/13019904/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1302/A130202/13019904/",
+    "https://chawanbushi.com/post-58737/"
+   ]
+  }
  },
  "sushi-ten": {
   "lat": 35.688463,
@@ -617,7 +1064,51 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1304/A130403/13193560/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "お昼のおまかせ",
+     "romaji": "o-hiru no omakase",
+     "vi": "Omakase trưa (Chef's Choice Lunch): nigiri theo mùa là chính, kèm vài món phụ như chawanmushi, súp miso và trái cây tráng miệng",
+     "yen": 5500,
+     "yenNote": "đã gồm thuế và phí phục vụ; 9/2025 là ¥4.950",
+     "pick": "signature",
+     "note": "Chỉ có buổi trưa.",
+     "src": "https://restaurant.ikyu.com/112767/plan12736003"
+    },
+    {
+     "ja": "Chef's Selection Course (A Plan to Savor Seasonal Ingredients)",
+     "romaji": "omakase kōsu",
+     "vi": "Course omakase ¥9.900, có cả buổi trưa lẫn tối",
+     "yen": 9900,
+     "yenNote": "đã gồm thuế",
+     "pick": "popular",
+     "note": "Tên trên ResReserve (chưa thấy tên tiếng Nhật).",
+     "src": "https://res-reserve.com/en/restaurants/sushi-tokyo-ten-shinjuku"
+    },
+    {
+     "ja": "Chef's Selection Course (including drinks)",
+     "romaji": "omakase kōsu (nomimono komi)",
+     "vi": "Course ¥13.200 đã gồm đồ uống; Tabelog nói bản 'Special Omakase' có tôm hùm Ise",
+     "yen": 13200,
+     "yenNote": "đã gồm thuế",
+     "pick": "drink",
+     "note": "Tên trên ResReserve; Tabelog gọi là 'Special Omakase / All Omakase'.",
+     "src": "https://res-reserve.com/en/restaurants/sushi-tokyo-ten-shinjuku"
+    }
+   ],
+   "orderTip": "Phải đặt trước qua ResReserve và chọn đúng plan Chef's Choice Lunch ¥5.500 (course này không gọi món lẻ); đến muộn quá 15 phút bị tính là no-show, hủy hoặc đổi số người trong ngày bị thu 100% phí course. Nhận thẻ, IC và QR; có thể cộng phí phục vụ theo Tabelog.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://res-reserve.com/en/restaurants/sushi-tokyo-ten-shinjuku",
+    "https://restaurant.ikyu.com/112767/plan12736003",
+    "https://tabelog.com/en/tokyo/A1304/A130403/13193560/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1304/A130403/13193560/",
+    "https://fuwari-x.hatenablog.com/entry/2025/11/28/121500"
+   ]
+  }
  },
  "toritake": {
   "lat": 35.65804,
@@ -683,7 +1174,70 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "大串やきとり",
+     "romaji": "ōgushi yakitori",
+     "vi": "Xiên gà nướng cỡ lớn, chọn tare hoặc muối",
+     "yen": 350,
+     "yenNote": "giá một xiên (Tabelog 11/2024); trang chính thức ghi ¥333 cho bán mang đi",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    },
+    {
+     "ja": "つくね",
+     "romaji": "tsukune",
+     "vi": "Xiên thịt gà viên",
+     "yen": 363,
+     "yenNote": "một xiên",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    },
+    {
+     "ja": "やき鳥丼",
+     "romaji": "yakitori-don",
+     "vi": "Cơm phủ xiên gà nướng",
+     "yen": 1200,
+     "yenNote": "Tabelog 11/2024; bữa trưa ¥1.000 theo blog 10/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    },
+    {
+     "ja": "チキンライス",
+     "romaji": "chikin raisu",
+     "vi": "Cơm gà chiên kiểu Nhật",
+     "yen": 1000,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    },
+    {
+     "ja": "親子丼",
+     "romaji": "oyako-don",
+     "vi": "Cơm gà trứng",
+     "yen": 1000,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/"
+    }
+   ],
+   "orderTip": "Đặt chỗ chỉ qua điện thoại (03-3461-1627) và chỉ cho nhóm từ 5 người đến trước 19:00; nhóm hai người nên đến sớm. Nhận thẻ tín dụng, Suica và iD, QR không nhận. Nhân viên hỏi có ăn gan không. Tabelog có mục 'Appetizer' ¥220 (có thể là お通し). Menu tiếng Anh chưa kiểm được.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1303/A130301/13001702/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1303/A130301/13001702/",
+    "https://toritake.jp/foods/",
+    "https://b-lunch.com/toridon-yakitori-toritake-shibuya.html"
+   ]
+  }
  },
  "numazuko": {
   "lat": 35.690395,
@@ -757,7 +1311,70 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "生うに富士山盛り",
+     "romaji": "nama uni Fujisan-mori",
+     "vi": "Đĩa nhím biển sống chất cao như núi Phú Sĩ, món nổi tiếng nhất của quán",
+     "yen": 1500,
+     "yenNote": "một đĩa; trang cũ ghi ¥1.000",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    },
+    {
+     "ja": "生しらす富士山盛り",
+     "romaji": "nama shirasu Fujisan-mori",
+     "vi": "Cá cơm con sống xếp hình núi Phú Sĩ",
+     "yen": 760,
+     "yenNote": "một đĩa",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    },
+    {
+     "ja": "桜えび富士山盛り",
+     "romaji": "sakura-ebi Fujisan-mori",
+     "vi": "Tôm sakura sống xếp hình núi Phú Sĩ (đặc sản Suruga)",
+     "yen": 620,
+     "yenNote": "một đĩa",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    },
+    {
+     "ja": "本マグロ赤身",
+     "romaji": "hon maguro akami",
+     "vi": "Cá ngừ vây xanh phần nạc",
+     "yen": 420,
+     "yenNote": "Tabelog ghi 'một miếng'",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    },
+    {
+     "ja": "中トロ",
+     "romaji": "chūtoro",
+     "vi": "Cá ngừ vây xanh phần béo vừa",
+     "yen": 520,
+     "yenNote": "Tabelog ghi 'một miếng'",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/"
+    }
+   ],
+   "orderTip": "Băng chuyền, tính theo đĩa (180–960 yen; vài món Tabelog ghi 'một miếng'), không phụ thu hay cover; có thể gọi trực tiếp đầu bếp. Không đặt chỗ, có thể phải xếp hàng 10–20 phút (blog cũ). Có menu tiếng Anh; nhận thẻ, Suica và PayPay.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://tabelog.com/en/tokyo/A1304/A130401/13004192/dtlmenu/",
+    "https://tabelog.com/en/tokyo/A1304/A130401/13004192/",
+    "https://map.yahoo.co.jp/v3/place/6O9NDWlQ-zs/menu",
+    "https://otonano-shumatsu.com/articles/230597"
+   ]
+  }
  },
  "bakery-table": {
   "lat": 35.201767,
@@ -831,7 +1448,72 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "マダム・チェチーリア / Tabelog",
     "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/dtlphotolst/4/smp2/"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "フォカッチャサンドプレート",
+     "romaji": "fokaccha sando purēto",
+     "vi": "Đĩa sandwich focaccia hoặc croissant (cá hồi, prosciutto, vịt), kèm súp theo mùa và khoai chiên mỏng",
+     "yen": 1870,
+     "yenNote": "Tabelog 10/2024",
+     "pick": "signature",
+     "note": "Ở tầng 3 (Coffee & Vista). Tên tiếng Nhật phỏng theo bản dịch Tabelog.",
+     "src": "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/dtlmenu/"
+    },
+    {
+     "ja": "米粉のカレードーナツ",
+     "romaji": "komeko no karē dōnatsu",
+     "vi": "Bánh donut bột gạo nhân cà ri, đề mục Tabelog ghi là bánh cà ri từng đoạt giải",
+     "yen": 440,
+     "yenNote": "giá do người dùng đăng trên Yahoo!マップ, không rõ năm; blog 2022 ghi ¥380",
+     "pick": "popular",
+     "note": "Mua ở tầng 1.",
+     "src": "https://map.yahoo.co.jp/v3/place/4BqIKn3t2yw/menu"
+    },
+    {
+     "ja": "富士山パン",
+     "romaji": "Fujisan pan",
+     "vi": "Bánh mì hình núi Phú Sĩ",
+     "yen": 290,
+     "yenNote": "giá do người dùng đăng trên Yahoo!マップ, không rõ năm",
+     "pick": "value",
+     "note": null,
+     "src": "https://map.yahoo.co.jp/v3/place/4BqIKn3t2yw/menu"
+    },
+    {
+     "ja": "バスクチーズケーキ",
+     "romaji": "basuku chīzukēki",
+     "vi": "Bánh phô mai kiểu Basque",
+     "yen": 770,
+     "yenNote": "Tabelog 10/2024",
+     "pick": "dessert",
+     "note": null,
+     "src": "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/dtlmenu/"
+    },
+    {
+     "ja": "カフェラテ",
+     "romaji": "kafe rate",
+     "vi": "Cà phê sữa (illy)",
+     "yen": 790,
+     "yenNote": "giá do người dùng đăng trên Yahoo!マップ, không rõ năm",
+     "pick": "drink",
+     "note": null,
+     "src": "https://map.yahoo.co.jp/v3/place/4BqIKn3t2yw/menu"
+    }
+   ],
+   "orderTip": "Ba tầng: tầng 1 là tiệm bánh (tự chọn bánh rồi tính tiền), tầng 2 là cà phê và phải gọi ít nhất một món mỗi người dù mang bánh từ tầng 1 lên, tầng 3 là Coffee & Vista có đĩa sandwich. Không nhận đặt chỗ tầng 2 và 3; có menu tiếng Anh; nhận thẻ, IC và QR. Blog 2022 ghi tầng 1 có giới hạn 2 cái mỗi lần tính tiền (không rõ món nào).",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/dtlmenu/",
+    "https://tabelog.com/en/kanagawa/A1410/A141001/14051671/",
+    "https://map.yahoo.co.jp/v3/place/4BqIKn3t2yw/menu",
+    "https://sakuran-sanpo.com/bakerytable/",
+    "https://www.hotpepper.jp/strJ001280875/",
+    "https://willie.hatenablog.jp/entry/bakeryandtable"
+   ]
+  }
  },
  "kaizan": {
   "lat": 35.021142,
@@ -881,7 +1563,58 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "天然まぐろ三色丼",
+     "romaji": "tennen maguro sanshoku-don",
+     "vi": "Cơm cá ngừ tự nhiên ba lớp: nạc đỏ, negitoro và cá ngừ ngâm tương (zuke)",
+     "yen": 1980,
+     "yenNote": "Tabelog 4/2026",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/"
+    },
+    {
+     "ja": "渡し船御膳",
+     "romaji": "watashibune gozen",
+     "vi": "Set cơm nhiều món nhỏ, rẻ nhất trong các set của quán",
+     "yen": 1680,
+     "yenNote": "Tabelog 4/2026",
+     "pick": "value",
+     "note": null,
+     "src": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/"
+    },
+    {
+     "ja": "生しらす丼",
+     "romaji": "nama shirasu-don",
+     "vi": "Cơm cá cơm con sống, đặc sản vùng Shimizu",
+     "yen": 1680,
+     "yenNote": "Tabelog 4/2026",
+     "pick": "popular",
+     "note": "Tên tiếng Nhật phỏng theo bản dịch Tabelog; còn bản luộc (釜揚げ) ¥1.480.",
+     "src": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/"
+    },
+    {
+     "ja": "ねぎとろ丼",
+     "romaji": "negitoro-don",
+     "vi": "Cơm cá ngừ băm với hành lá",
+     "yen": 1680,
+     "yenNote": "Tabelog 4/2026",
+     "pick": "light",
+     "note": "Tên tiếng Nhật phỏng theo bản dịch Tabelog.",
+     "src": "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/"
+    }
+   ],
+   "orderTip": "Có thể đặt bàn online; có menu tiếng Anh, Trung phồn thể và giản thể; nhận thẻ, Suica và PayPay. Tabelog cảnh báo quán có thể đóng tạm khi thời tiết xấu. Thực đơn dài (Tabelog liệt kê 71 món, gồm set tôm và hàu chiên ¥1.680, nigiri, sashimi); chọn nhanh một món ở trên là đủ.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/dtlmenu/",
+    "https://tabelog.com/en/shizuoka/A2201/A220102/22024359/"
+   ]
+  }
  },
  "kurasawaya": {
   "lat": 35.086448,
@@ -955,7 +1688,69 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "しのきち / Tabelog",
     "page": "https://tabelog.com/en/shizuoka/A2201/A220102/22000573/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "桜えびセット",
+     "romaji": "sakura-ebi setto",
+     "vi": "Set tôm sakura: tôm sống, kamaage, kakiage chiên và cơm nồi kamameshi",
+     "yen": 3575,
+     "yenNote": "theo trang chính thức; Rurubu 10/2025 cũng ghi ¥3.575",
+     "pick": "signature",
+     "note": null,
+     "src": "https://sakuraebi.org/menu/menu1/"
+    },
+    {
+     "ja": "桜えび釜めしセット",
+     "romaji": "sakura-ebi kamameshi setto",
+     "vi": "Một miếng kakiage tôm sakura và cơm nồi kamameshi tôm sakura",
+     "yen": 2365,
+     "yenNote": "trang chính thức, không ghi năm",
+     "pick": "popular",
+     "note": null,
+     "src": "https://sakuraebi.org/menu/menu1/"
+    },
+    {
+     "ja": "かき揚げ（1枚）",
+     "romaji": "kakiage (ichimai)",
+     "vi": "Một miếng kakiage tôm sakura chiên giòn, gọi lẻ",
+     "yen": 715,
+     "yenNote": "Rurubu 10/2025 xác nhận",
+     "pick": "side",
+     "note": null,
+     "src": "https://rurubu.jp/andmore/article/23874"
+    },
+    {
+     "ja": "しずまえ天ぷら定食",
+     "romaji": "shizumae tenpura teishoku",
+     "vi": "Set tempura gồm kakiage tôm sakura, hai loại cá và rau",
+     "yen": 1727,
+     "yenNote": "trang chính thức, không ghi năm",
+     "pick": "value",
+     "note": null,
+     "src": "https://sakuraebi.org/menu/menu1/"
+    },
+    {
+     "ja": "由比の浜",
+     "romaji": "Yui no hama",
+     "vi": "Set sashimi và một miếng kakiage tôm sakura",
+     "yen": 2992,
+     "yenNote": "trang chính thức, không ghi năm",
+     "pick": "popular",
+     "note": null,
+     "src": "https://sakuraebi.org/menu/menu1/"
+    }
+   ],
+   "orderTip": "Không đặt chỗ; Tabelog ghi danh sách chờ có thể đóng sớm hơn dự kiến, nên đến sớm. Mở 11:00–14:00 và 17:00–19:00, nghỉ Thứ Hai; Thứ Sáu 22/10/2027 mở. Nhận thẻ, Suica và PayPay. Hỏi quán hôm đó có 生桜えび (tôm sống) hay không vì phụ thuộc mùa đánh bắt.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://sakuraebi.org/menu/menu1/",
+    "https://rurubu.jp/andmore/article/23874",
+    "https://tabelog.com/en/shizuoka/A2201/A220102/22000573/"
+   ]
+  }
  },
  "hoto-fudo": {
   "lat": 35.522686,
@@ -1029,7 +1824,49 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "志 味 麦 食 / Tabelog",
     "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19000116/dtlphotolst/4/smp2/"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "不動ほうとう",
+     "romaji": "Fudō hōtō",
+     "vi": "Mì dẹt hōtō tự làm hầm với bí đỏ và rau, món chính của quán",
+     "yen": 1320,
+     "yenNote": "theo Tabiiro/chính thức, không ghi năm; PORTA 3/2026 ghi ¥1.080 nhiều khả năng là giá cũ",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabiiro.jp/gourmet/s/309267-minamitsuru-houtou-fudou_honten/menu/"
+    },
+    {
+     "ja": "馬刺し",
+     "romaji": "basashi",
+     "vi": "Thịt ngựa sống thái mỏng, đặc sản Yamanashi",
+     "yen": 1320,
+     "yenNote": "theo Tabiiro, không ghi năm",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabiiro.jp/gourmet/s/309267-minamitsuru-houtou-fudou_honten/menu/"
+    },
+    {
+     "ja": "黒糖炊きいなり",
+     "romaji": "kokutō-daki inari",
+     "vi": "Cơm cuộn đậu hũ chiên ngọt nấu đường đen",
+     "yen": 550,
+     "yenNote": "theo Tabiiro, không ghi năm",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabiiro.jp/gourmet/s/309267-minamitsuru-houtou-fudou_honten/menu/"
+    }
+   ],
+   "orderTip": "Chỉ có một loại hōtō nên không cần chọn; chỉ nhận tiền mặt (thẻ, IC, QR không). Quán mở 11:00–20:00 nhưng có thể đóng sớm khi hết mì. Từ 10/2025 chỉ nhận đặt chỗ nhóm từ 10 người.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabiiro.jp/gourmet/s/309267-minamitsuru-houtou-fudou_honten/menu/",
+    "https://www.porta-y.jp/gourmet/57367",
+    "https://tabelog.com/en/yamanashi/A1903/A190303/19000116/"
+   ]
+  }
  },
  "butasute": {
   "lat": 34.488522,
@@ -1087,7 +1924,68 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "牛丼",
+     "romaji": "gyūdon",
+     "vi": "Cơm bò Ise, suất thường",
+     "yen": 1380,
+     "yenNote": "Tabelog 1/2026",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    },
+    {
+     "ja": "牛丼 上",
+     "romaji": "gyūdon jō",
+     "vi": "Cơm bò suất cao cấp, nhiều thịt hơn",
+     "yen": 1980,
+     "yenNote": "Tabelog 1/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    },
+    {
+     "ja": "ローストビーフ丼",
+     "romaji": "rōsuto bīfu don",
+     "vi": "Cơm phủ bò nướng lát mỏng",
+     "yen": 2300,
+     "yenNote": "Tabelog 1/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    },
+    {
+     "ja": "コロッケ",
+     "romaji": "korokke",
+     "vi": "Bánh croquette, món nổi tiếng của tiệm",
+     "yen": 130,
+     "yenNote": "một cái; bản wagyu kem ¥350",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    },
+    {
+     "ja": "生卵",
+     "romaji": "nama tamago",
+     "vi": "Trứng sống thêm vào cơm bò",
+     "yen": 100,
+     "yenNote": null,
+     "pick": "side",
+     "note": "Tên tiếng Nhật phỏng theo bản dịch Tabelog.",
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/"
+    }
+   ],
+   "orderTip": "Không đặt chỗ, khách vào theo thứ tự đến và hiện chỉ có chỗ tầng 1 (quầy và bàn). Mở 11:00–15:00 và 17:00–20:00 (gọi cuối 19:00), nghỉ thứ Tư và thứ Năm; Thứ Sáu 22/10/2027 18:00 là mở. Nhận thẻ, IC và QR. Giá cơm bò thường ¥1.380, thấp hơn ước tính trong kế hoạch.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/mie/A2403/A240301/24011334/dtlmenu/",
+    "https://tabelog.com/en/mie/A2403/A240301/24011334/"
+   ]
+  }
  },
  "fukusuke": {
   "lat": 34.462372,
@@ -1161,7 +2059,49 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "16uk_ / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240301/24000009/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "伊勢うどん",
+     "romaji": "Ise udon",
+     "vi": "Udon sợi rất mềm, rưới nước sốt tamari đậm vị dashi",
+     "yen": 650,
+     "yenNote": null,
+     "pick": "signature",
+     "note": null,
+     "src": "https://okageyokocho.com/tenpo/fukusuke/"
+    },
+    {
+     "ja": "手打ち伊勢うどん",
+     "romaji": "teuchi Ise udon",
+     "vi": "Udon đánh tay bằng bột mì Mie, sợi mềm dẻo hơn",
+     "yen": 850,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Bán số lượng giới hạn, có hôm đã hết (đánh giá 7/2026).",
+     "src": "https://okageyokocho.com/tenpo/fukusuke/"
+    },
+    {
+     "ja": "月見伊勢うどん",
+     "romaji": "tsukimi Ise udon",
+     "vi": "Ise udon thêm lòng đỏ trứng",
+     "yen": 750,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://okageyokocho.com/tenpo/fukusuke/"
+    }
+   ],
+   "orderTip": "Gọi món xong nhận thẻ số rồi cầm thẻ ngồi xuống chiếu tatami; không đặt chỗ. Mở 10:00–16:30 mỗi ngày (có thể đổi theo mùa); nhận thẻ, Suica và QR. Giá thực ¥650 thấp hơn ước tính ¥900–1.400 trong kế hoạch.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://okageyokocho.com/tenpo/fukusuke/",
+    "https://www.hotpepper.jp/strJ000873118/",
+    "https://tabelog.com/en/mie/A2403/A240301/24000009/"
+   ]
+  }
  },
  "akafuku": {
   "lat": 34.462671,
@@ -1235,7 +2175,39 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "爆発五郎 / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240301/24000008/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "赤福餅（2個・ほうじ茶付き）",
+     "romaji": "akafuku mochi (nikko, hōjicha-tsuki)",
+     "vi": "Hai viên bánh mochi phủ đậu đỏ nghiền, kèm trà hōjicha, ăn tại chỗ",
+     "yen": 400,
+     "yenNote": "đã thuế",
+     "pick": "signature",
+     "note": null,
+     "src": "https://harimap.com/akafuku-honten-ise-mochi-guide/"
+    },
+    {
+     "ja": "赤福ぜんざい",
+     "romaji": "akafuku zenzai",
+     "vi": "Chè đậu đỏ nóng với bánh mochi, bán theo mùa lạnh",
+     "yen": 800,
+     "yenNote": null,
+     "pick": "dessert",
+     "note": "Bán từ giữa tháng 10 đến đầu tháng 4 (mùa 2025–26: 18/10–12/4); ngày bắt đầu năm 2027 chưa biết.",
+     "src": "https://plus.rurubu.jp/article/2e0d03nqe0w3"
+    }
+   ],
+   "orderTip": "Mua vé (食券) ở quầy vé trước cửa rồi vào ngồi; nhận thẻ tín dụng và Suica, QR không nhận. Mở 5:00–17:00 mỗi ngày. 赤福氷 (¥800) chỉ bán khoảng cuối tháng 4 đến đầu tháng 10, nên sẽ không có vào 23/10.",
+   "ticketMachine": true,
+   "menuEn": null,
+   "sources": [
+    "https://harimap.com/akafuku-honten-ise-mochi-guide/",
+    "https://plus.rurubu.jp/article/2e0d03nqe0w3",
+    "https://tabelog.com/en/mie/A2403/A240301/24000008/"
+   ]
+  }
  },
  "manpuku": {
   "lat": 34.48756,
@@ -1309,7 +2281,58 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "鉄道王 / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240301/24000115/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "からあげ丼",
+     "romaji": "karaage-don",
+     "vi": "Cơm gà rán, gà tẩm vị đậm phủ trên cơm; xin thêm mayonnaise",
+     "yen": 850,
+     "yenNote": "chú thích ảnh Tabelog 12/2025; bài 2023 ghi ¥730",
+     "pick": "signature",
+     "note": "Nhớ nói 'マヨネーズもお願いします'.",
+     "src": "https://tabelog.com/en/mie/A2403/A240301/24000115/"
+    },
+    {
+     "ja": "プチからあげ丼",
+     "romaji": "puchi karaage-don",
+     "vi": "Suất nhỏ của cơm gà rán",
+     "yen": 650,
+     "yenNote": "giá 2022–23, nay có thể cao hơn",
+     "pick": "light",
+     "note": null,
+     "src": "https://www.kankomie.or.jp/report/1294"
+    },
+    {
+     "ja": "からあげ丼定食",
+     "romaji": "karaage-don teishoku",
+     "vi": "Cơm gà rán kèm súp và món phụ",
+     "yen": 780,
+     "yenNote": "giá 2022–23, nay có thể cao hơn",
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.kankomie.or.jp/report/1294"
+    },
+    {
+     "ja": "伊勢うどん",
+     "romaji": "Ise udon",
+     "vi": "Ise udon, bát nhỏ rẻ",
+     "yen": 480,
+     "yenNote": "giá 2022–23, nay có thể cao hơn",
+     "pick": "side",
+     "note": null,
+     "src": "https://www.kankomie.or.jp/report/1294"
+    }
+   ],
+   "orderTip": "Không đặt chỗ; thẻ và IC không nhận, chỉ tiền mặt. Mở 11:00–20:30, ngày nghỉ không cố định. Giá thực ¥850 thấp hơn ước tính ¥1.000–1.300 trong kế hoạch.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/mie/A2403/A240301/24000115/",
+    "https://www.kankomie.or.jp/report/1294"
+   ]
+  }
  },
  "sazanami-toba": {
   "lat": 34.483587,
@@ -1383,7 +2406,59 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "お京。 / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240302/24000445/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "海老フライ定食",
+     "romaji": "ebi furai teishoku",
+     "vi": "Set tôm chiên xẻ bướm, kèm súp miso, cơm và dưa muối; sốt tartar và cơm được thêm",
+     "yen": 3410,
+     "yenNote": "giá chính thức đã thuế (¥3.100 chưa thuế)",
+     "pick": "signature",
+     "note": "Số con tôm tùy theo trọng lượng.",
+     "src": "https://sazanami.co.jp/sazanamimenu/"
+    },
+    {
+     "ja": "大海老フライ定食",
+     "romaji": "ō-ebi furai teishoku",
+     "vi": "Set tôm chiên cỡ lớn (khoảng 2 con)",
+     "yen": 5060,
+     "yenNote": "giá chính thức đã thuế",
+     "pick": "popular",
+     "note": "Giới hạn 20 suất mỗi ngày.",
+     "src": "https://sazanami.co.jp/sazanamimenu/"
+    },
+    {
+     "ja": "お造り定食",
+     "romaji": "otsukuri teishoku",
+     "vi": "Set sashimi theo mùa, kèm món phụ nhỏ, súp và cơm",
+     "yen": 3410,
+     "yenNote": "giá chính thức đã thuế",
+     "pick": "light",
+     "note": null,
+     "src": "https://sazanami.co.jp/sazanamimenu/"
+    },
+    {
+     "ja": "あこや御膳",
+     "romaji": "akoya gozen",
+     "vi": "Set có 3 loại sashimi, tôm chiên, món phụ và tráng miệng",
+     "yen": 3960,
+     "yenNote": "giá chính thức đã thuế",
+     "pick": "popular",
+     "note": null,
+     "src": "https://sazanami.co.jp/sazanamimenu/"
+    }
+   ],
+   "orderTip": "Không đặt chỗ, thường xếp hàng 20–30 phút; đến sớm nếu muốn 大海老フライ定食 (20 suất mỗi ngày). Mở 11:00–14:30 và 16:30–18:30 (cuối tuần từ 10:30), nghỉ Thứ Ba; Chủ nhật 24/10/2027 là mở. Nhận thẻ, iD và QR.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://sazanami.co.jp/sazanamimenu/",
+    "http://www.sazanami.co.jp/",
+    "https://tabelog.com/en/mie/A2403/A240302/24000445/"
+   ]
+  }
  },
  "sazanami-shokudo": {
   "lat": 34.306547,
@@ -1433,7 +2508,50 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ななしょう / Tabelog",
     "page": "https://tabelog.com/en/mie/A2403/A240303/24021124/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "海鮮丼",
+     "romaji": "kaisen-don",
+     "vi": "Cơm hải sản tổng hợp (có loại phủ cá cơm shirasu), món khách Tabelog hay nhắc",
+     "yen": null,
+     "yenNote": "chưa tìm được giá 2025–26",
+     "pick": "signature",
+     "note": null,
+     "src": "https://tabelog.com/en/mie/A2403/A240303/24021124/dtlrvwlst/"
+    },
+    {
+     "ja": "本まぐろ丼",
+     "romaji": "hon maguro-don",
+     "vi": "Cơm cá ngừ vây xanh",
+     "yen": 2500,
+     "yenNote": "blog khoảng 3/2025, không ghi thuế",
+     "pick": "popular",
+     "note": null,
+     "src": "https://ameblo.jp/ichijoikuno/entry-12961229133.html"
+    },
+    {
+     "ja": "まぐろ丼",
+     "romaji": "maguro-don",
+     "vi": "Cơm cá ngừ thường",
+     "yen": 1980,
+     "yenNote": "blog ghi ¥1.800 chưa thuế (khoảng 3/2025) nên quy đổi ≈¥1.980",
+     "pick": "value",
+     "note": null,
+     "src": "https://ameblo.jp/ichijoikuno/entry-12961229133.html"
+    }
+   ],
+   "orderTip": "Quán chỉ bán các món cơm donburi, không có hải sản nướng. Tabelog ghi mùa cao điểm mở hàng ngày, mùa thấp điểm nghỉ thứ Sáu, thứ Bảy, Chủ nhật, ngày trước lễ và ngày lễ, nên Chủ nhật 24/10/2027 có thể đóng: gọi 0599-77-0018 trước. Giờ 11:00–16:00 (gọi cuối 15:30); không tìm được thực đơn có giá chính thức.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/mie/A2403/A240303/24021124/",
+    "https://tabelog.com/en/mie/A2403/A240303/24021124/dtlrvwlst/",
+    "https://ameblo.jp/ichijoikuno/entry-12961229133.html",
+    "https://map.yahoo.co.jp/v3/place/ePg_FfXdLWo"
+   ]
+  }
  },
  "menami": {
   "lat": 35.00921,
@@ -1499,7 +2617,83 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260201/26001266/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "おばんざい盛り合わせ（5種）",
+     "romaji": "obanzai moriawase (go-shu)",
+     "vi": "Đĩa 5 món rau và đồ nấu kiểu Kyoto, nội dung đổi theo ngày",
+     "yen": 1430,
+     "yenNote": null,
+     "pick": "signature",
+     "note": "Nên gọi đầu tiên; quán bán obanzai hơn 80 năm.",
+     "src": "https://www.menami.jp/menu1"
+    },
+    {
+     "ja": "出汁巻",
+     "romaji": "dashimaki",
+     "vi": "Trứng cuộn nước dùng dashi",
+     "yen": 770,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://www.menami.jp/menu1"
+    },
+    {
+     "ja": "生ゆば春巻",
+     "romaji": "nama yuba harumaki",
+     "vi": "Chả giò cuốn váng đậu tươi",
+     "yen": 1100,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.menami.jp/menu1"
+    },
+    {
+     "ja": "お造り盛り合わせ（2人前）",
+     "romaji": "otsukuri moriawase (futari-mae)",
+     "vi": "Sashimi tổng hợp cho hai người, cá đổi theo ngày",
+     "yen": 3300,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.menami.jp/menu2"
+    },
+    {
+     "ja": "ぐじ塩焼",
+     "romaji": "guji shioyaki",
+     "vi": "Cá ngói (guji) nướng muối, đặc sản cá của Kyoto",
+     "yen": 2860,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Món cá đắt nhất trong nhóm cá nướng; có thể bỏ nếu muốn giữ ngân sách.",
+     "src": "https://www.menami.jp/menu2"
+    },
+    {
+     "ja": "壬生菜とお揚げ煮",
+     "romaji": "mibuna to oage ni",
+     "vi": "Cải mibuna hầm với đậu phụ chiên, món rau Kyoto cổ truyền",
+     "yen": 660,
+     "yenNote": null,
+     "pick": "side",
+     "note": "Tabelog nêu đây là món nên thử nhưng ảnh Tabelog cho thấy nó cũng là otoshi tặng kèm phí chỗ ngồi, nên có thể không cần gọi thêm.",
+     "src": "https://www.menami.jp/menu3"
+    }
+   ],
+   "orderTip": "Đặt bàn chỉ qua điện thoại 080-9308-5905 (10:00–17:00), ngồi gọi món lẻ theo thực đơn có chú thích tiếng Anh; Tabelog ghi phí chỗ ngồi ¥550, quán nhận thẻ Visa/Master/JCB/Amex/Diners và nghỉ Thứ Tư.",
+   "ticketMachine": null,
+   "menuEn": true,
+   "sources": [
+    "https://www.menami.jp/menu1",
+    "https://www.menami.jp/menu2",
+    "https://www.menami.jp/menu3",
+    "https://www.menami.jp/menu4",
+    "https://www.menami.jp/about",
+    "https://www.menami.jp/course",
+    "https://tabelog.com/en/kyoto/A2601/A260201/26001266/"
+   ]
+  }
  },
  "yorozuya": {
   "lat": 35.002766,
@@ -1565,7 +2759,62 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ちゃご / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ねぎうどん",
+     "romaji": "negi udon",
+     "vi": "Udon phủ kín hành Kujō (hành lá Kyoto) trong nước dùng thanh",
+     "yen": 1500,
+     "yenNote": "giá 7/2026 theo một đánh giá Tabelog",
+     "pick": "signature",
+     "note": "Món nổi tiếng nhất của quán.",
+     "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B532320348/"
+    },
+    {
+     "ja": "えびな",
+     "romaji": "ebina",
+     "vi": "Udon sợi mảnh với đậu phụ chiên thái sợi, một lát gừng ở giữa",
+     "yen": 1650,
+     "yenNote": "giá 2/2025 theo đánh giá Tabelog",
+     "pick": "popular",
+     "note": "Trộn gừng vào nước dùng rồi ăn.",
+     "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B500956139/"
+    },
+    {
+     "ja": "つのだ",
+     "romaji": "tsunoda",
+     "vi": "Udon hành kèm thịt gà",
+     "yen": 1400,
+     "yenNote": "giá 2013 (Tabelog); ねぎうどん tăng từ ¥1.100 (2013) lên ¥1.500 (2026) nên giá này chắc chắn đã tăng",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlmenu/"
+    },
+    {
+     "ja": "親子丼",
+     "romaji": "oyakodon",
+     "vi": "Cơm gà trứng, gọi thêm nếu đói",
+     "yen": 1000,
+     "yenNote": "giá 2013 (Tabelog); một khách 7/2026 vẫn gọi món này nhưng không ghi giá",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlmenu/"
+    }
+   ],
+   "orderTip": "Quán 14 chỗ, chỉ nhận tiền mặt và không đặt bàn nên phải xếp hàng (có hôm chờ 1 giờ 20 phút lúc 12:30); giờ mở cửa ngày thường là 12:30 nên đến sớm xếp hàng.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlmenu/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B532320348/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B500956139/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000254/dtlrvwlst/B536753084/",
+    "https://www.mapple.net/region/a0502010200_g03050e00/spot/"
+   ]
+  }
  },
  "komori": {
   "lat": 35.005848,
@@ -1631,7 +2880,80 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ｻｲｹﾝ8700 / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000280/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "わらびもち",
+     "romaji": "warabimochi",
+     "vi": "Bánh warabi (bột dong) mềm, rắc kinako rang thơm",
+     "yen": 1400,
+     "yenNote": "giá niêm yết đã gồm thuế; quán tăng giá một số món từ 1/4/2025",
+     "pick": "signature",
+     "note": "Món quán nổi tiếng nhất; kinako dùng loại 'kogashi' rang kỹ.",
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "わらびもちパフェ",
+     "romaji": "warabimochi pafe",
+     "vi": "Parfait có warabi mochi, ăn kèm đường đen kuromitsu",
+     "yen": 1800,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Tabelog có ảnh món này kèm kuromitsu.",
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "抹茶わらびもち",
+     "romaji": "matcha warabimochi",
+     "vi": "Warabi mochi vị matcha",
+     "yen": 1500,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "あんみつ",
+     "romaji": "anmitsu",
+     "vi": "Món ngọt anmitsu (thạch và topping kiểu Nhật), quán dùng bột kuzu",
+     "yen": 1400,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "わらびもちぜんざい",
+     "romaji": "warabimochi zenzai",
+     "vi": "Súp đậu đỏ ngọt với warabi mochi, phần nhẹ hơn parfait",
+     "yen": 1200,
+     "yenNote": null,
+     "pick": "light",
+     "note": null,
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    },
+    {
+     "ja": "抹茶のみ",
+     "romaji": "matcha nomi",
+     "vi": "Một bát matcha, gọi kèm món ngọt",
+     "yen": 1000,
+     "yenNote": null,
+     "pick": "drink",
+     "note": null,
+     "src": "https://www.giwon-komori.com/?mode=f2"
+    }
+   ],
+   "orderTip": "Quán không nhận đặt chỗ, chỉ nhận tiền mặt và thường xếp hàng 25–40 phút; quán nghỉ Thứ Hai và 25/10/2027 là Thứ Hai nên cần dời sang ngày khác.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://www.giwon-komori.com/?mode=f2",
+    "https://www.giwon-komori.com/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000280/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26000280/dtlrvwlst/B536278415/"
+   ]
+  }
  },
  "menzo": {
   "lat": 35.014274,
@@ -1705,7 +3027,72 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ｻｲｹﾝ8700 / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002504/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "土ゴボウ天ざるうどん",
+     "romaji": "tsuchi-gobō ten zaru udon",
+     "vi": "Udon lạnh chấm kèm tempura ngưu bàng 'đất' giòn, món đặc trưng của quán",
+     "yen": 1200,
+     "yenNote": "giá 3/2024 (rurubu); mì rau tempura cùng loại đã ¥1.250 vào 3/2025 nên giá nay có thể ¥1.250–1.350",
+     "pick": "signature",
+     "note": "Mì dài, có kéo kèm để cắt; có thể rắc bột cà ri lên tempura ngưu bàng.",
+     "src": "https://rurubu.jp/andmore/article/21315"
+    },
+    {
+     "ja": "野菜てんざるうどん",
+     "romaji": "yasai ten zaru udon",
+     "vi": "Udon lạnh chấm kèm tempura rau",
+     "yen": 1250,
+     "yenNote": "giá 3/2025",
+     "pick": "popular",
+     "note": null,
+     "src": "https://mashichan.com/entry/yamamotomenzo"
+    },
+    {
+     "ja": "京カレーうどん",
+     "romaji": "Kyō karē udon",
+     "vi": "Udon cà ri kiểu Kyoto, chỉnh được độ cay",
+     "yen": 1100,
+     "yenNote": "giá 3/2024",
+     "pick": "popular",
+     "note": null,
+     "src": "https://rurubu.jp/andmore/article/21315"
+    },
+    {
+     "ja": "香味油の牛と土ゴボウのおうどん",
+     "romaji": "kōmi-abura no gyū to tsuchi-gobō no oudon",
+     "vi": "Udon nóng với thịt bò, ngưu bàng bào và dầu thơm, tô lớn",
+     "yen": null,
+     "yenNote": "chưa xác nhận giá hiện tại",
+     "pick": "popular",
+     "note": "Blog gọi đây là món chủ lực của quán.",
+     "src": "https://umaimono-daisuki.com/kyoto-higashiyama-yamamotomenzou/"
+    },
+    {
+     "ja": "ちょっと小さな鶏ささみ天丼",
+     "romaji": "chotto chiisana tori-sasami tendon",
+     "vi": "Cơm tempura thăn gà cỡ nhỏ, để hai người chia",
+     "yen": 580,
+     "yenNote": "giá 3/2024",
+     "pick": "side",
+     "note": null,
+     "src": "https://rurubu.jp/andmore/article/21315"
+    }
+   ],
+   "orderTip": "Phải đặt chỗ qua TableCheck (mở 0h giờ Nhật, trước 3 ngày), mỗi người gọi ít nhất một món mì, chỉ trả tiền mặt và hủy muộn bị phạt ¥1.000/người; Thứ Hai vào muộn nhất 16:30 nên giờ kế hoạch 16:00 khá sát.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://rurubu.jp/andmore/article/21315",
+    "https://mashichan.com/entry/yamamotomenzo",
+    "https://www.tablecheck.com/ja/shops/yamamotomenzou/reserve",
+    "https://umaimono-daisuki.com/kyoto-higashiyama-yamamotomenzou/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26002504/dtlrvwlst/B535862077/",
+    "https://tabelog.com/en/kyoto/A2601/A260301/26002504/dtlmenu/"
+   ]
+  }
  },
  "yoshimura": {
   "lat": 35.013655,
@@ -1779,7 +3166,80 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "misam54 / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260403/26000403/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "天ざる膳",
+     "romaji": "ten-zaru zen",
+     "vi": "Set soba lạnh (zaru) kèm tempura, món trang chủ quảng bá",
+     "yen": 2780,
+     "yenNote": "giá trên trang chính thức (không ghi năm); 3 đánh giá Tabelog 7–9/2026 ghi ¥2.560",
+     "pick": "signature",
+     "note": "Gần nhất với 'soba tempura' trong kế hoạch.",
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "天ぷらそば",
+     "romaji": "tenpura soba",
+     "vi": "Soba nóng hoặc lạnh kèm tempura, có kèm obanzai",
+     "yen": 2240,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "そば麹漬け 鴨汁そば",
+     "romaji": "soba kōji-zuke kamo-jiru soba",
+     "vi": "Soba chấm nước dùng vịt, vịt ướp men soba-koji",
+     "yen": 2100,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "二八そば",
+     "romaji": "nihachi soba",
+     "vi": "Soba 2:8 (khoảng 80% bột soba), nóng hoặc lạnh, kèm obanzai",
+     "yen": 1440,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "value",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "おろしそば",
+     "romaji": "oroshi soba",
+     "vi": "Soba với củ cải bào, ăn nhẹ",
+     "yen": 1700,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "light",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    },
+    {
+     "ja": "そば茶ロール",
+     "romaji": "sobacha rōru",
+     "vi": "Bánh cuộn vị trà soba, tráng miệng của quán",
+     "yen": 600,
+     "yenNote": "giá trên trang chính thức (không ghi năm)",
+     "pick": "dessert",
+     "note": null,
+     "src": "https://yoshimura-gr.com/arashiyama/menu/"
+    }
+   ],
+   "orderTip": "Không nhận đặt bàn: đến, ghi tên rồi chờ (một khách thứ Sáu 10/2026 đến 12:00 và vào chỗ lúc 13:00), quán nhận thẻ tín dụng và cộng thêm phí dịch vụ; nên đến lúc 11:00 mở cửa.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://yoshimura-gr.com/arashiyama/menu/",
+    "https://yoshimura-gr.com/arashiyama/",
+    "https://tabelog.com/en/kyoto/A2601/A260403/26000403/",
+    "https://tabelog.com/en/kyoto/A2601/A260403/26000403/dtlrvwlst/"
+   ]
+  }
  },
  "torisei": {
   "lat": 34.931095,
@@ -1829,7 +3289,83 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "\n                   / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260601/26001213/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "六串盛合せ",
+     "romaji": "roku-kushi moriawase",
+     "vi": "6 xiên yakitori tổng hợp do bếp trưởng chọn",
+     "yen": 1100,
+     "yenNote": "giá 10/2026, khớp Tabelog cập nhật 9/2026 (đã gồm thuế)",
+     "pick": "signature",
+     "note": "Trên menu ghi kèm '[料理長のおすすめ]'.",
+     "src": "https://r.gnavi.co.jp/k006500/menu7/"
+    },
+    {
+     "ja": "ほろ酔いセット【A】",
+     "romaji": "horoyoi setto (A)",
+     "vi": "Otoshi, 5 món nướng và 1 ly bia tươi hoặc 1 ly sake genshu",
+     "yen": 1300,
+     "yenNote": "chỉ ngày thường 15:00–18:30; set B ¥1.500 có thêm thịt gà sống kiểu prosciutto",
+     "pick": "value",
+     "note": "Thứ Ba 26/10/2027 17:30 nằm trong khung giờ này.",
+     "src": "https://r.gnavi.co.jp/k006500/menu7/"
+    },
+    {
+     "ja": "[自慢の品]手羽唐（4個）",
+     "romaji": "tebakara (yon-ko)",
+     "vi": "4 cánh gà chiên, món quán tự hào",
+     "yen": 700,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://r.gnavi.co.jp/k006500/menu8/"
+    },
+    {
+     "ja": "蔵出し「原酒」",
+     "romaji": "kuradashi 'genshu'",
+     "vi": "Sake nguyên chất lấy thẳng từ kho của hãng Yamamoto Honke",
+     "yen": 520,
+     "yenNote": null,
+     "pick": "drink",
+     "note": "Có thể đổi sang tare-kuchi (rượu mới ép) với phụ thu ¥100.",
+     "src": "https://r.gnavi.co.jp/k006500/menu1/"
+    },
+    {
+     "ja": "とりめし（みそ汁付）",
+     "romaji": "torimeshi (misoshiru-tsuki)",
+     "vi": "Cơm gà kèm súp miso, món cơm đặc trưng của quán",
+     "yen": 750,
+     "yenNote": null,
+     "pick": "side",
+     "note": null,
+     "src": "https://r.gnavi.co.jp/k006500/menu8/"
+    },
+    {
+     "ja": "豆腐とゆばのあんかけ（みやまくず使用）",
+     "romaji": "tōfu to yuba no ankake (Miyama-kuzu shiyō)",
+     "vi": "Đậu phụ và váng đậu sốt bột kuzu, ăn nhẹ giữa các xiên",
+     "yen": 620,
+     "yenNote": null,
+     "pick": "light",
+     "note": null,
+     "src": "https://r.gnavi.co.jp/k006500/menu8/"
+    }
+   ],
+   "orderTip": "Gọi món lẻ trong thực đơn dài (xiên yakitori ¥180–360 mỗi xiên), 6 xiên tổng hợp là cách gọn nhất cho hai người; nhận thẻ và IC, đặt bàn qua mạng, và nghỉ Thứ Hai.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://r.gnavi.co.jp/k006500/menu7/",
+    "https://r.gnavi.co.jp/k006500/menu8/",
+    "https://r.gnavi.co.jp/k006500/menu1/",
+    "https://r.gnavi.co.jp/k006500/lunch/",
+    "https://tabelog.com/en/kyoto/A2601/A260601/26001213/dtlmenu/",
+    "https://toriseihonten.com/",
+    "https://tabelog.com/en/kyoto/A2601/A260601/26001213/"
+   ]
+  }
  },
  "tonkatsu-yamamoto": {
   "lat": 35.014344,
@@ -1903,7 +3439,61 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ｻｲｹﾝ8700 / Tabelog",
     "page": "https://tabelog.com/en/kyoto/A2601/A260202/26006075/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "へれかつ定食",
+     "romaji": "herekatsu teishoku",
+     "vi": "Set thăn nạc (hire) tẩm bột chiên, kèm súp heo, cơm, món hầm và dưa muối",
+     "yen": 2500,
+     "yenNote": "giá bữa trưa theo bài 9–10/2026; bữa tối đắt hơn, chưa có giá tối hiện hành",
+     "pick": "signature",
+     "note": "Cơm ăn thêm miễn phí.",
+     "src": "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/"
+    },
+    {
+     "ja": "ろーすかつ定食",
+     "romaji": "rōsukatsu teishoku",
+     "vi": "Set thăn lưng (loin) chiên, nhiều mỡ hơn hire",
+     "yen": 2500,
+     "yenNote": "trưa ¥2.500 (9–10/2026); tối ¥3.800 theo bài 2/2025 (lúc đó trưa ¥2.090)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/"
+    },
+    {
+     "ja": "へれびーふかつ定食",
+     "romaji": "here-bīfukatsu teishoku",
+     "vi": "Set thăn bò chiên kiểu katsu",
+     "yen": null,
+     "yenNote": "chưa có giá; một khách 5/2026 gọi đây là món đắt nhất của thực đơn trưa",
+     "pick": "popular",
+     "note": null,
+     "src": "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/"
+    },
+    {
+     "ja": "豚肉角煮定食",
+     "romaji": "butaniku kakuni teishoku",
+     "vi": "Set thịt ba chỉ heo hầm mềm",
+     "yen": null,
+     "yenNote": "chưa có giá hiện hành",
+     "pick": "popular",
+     "note": null,
+     "src": "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt, quán 13 ghế (quầy và phòng tatami), đặt bàn qua mạng hoặc điện thoại; trưa 11:30–13:30, tối 17:00–21:00, nghỉ Chủ Nhật, bữa tối đắt hơn hẳn bữa trưa (set thăn lưng tối ¥3.800 theo bài 2/2025).",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://gourmet-travel-life.com/tonkatsu-yamamoto-kyoto/",
+    "https://gcjapan-kyoto.com/tonkatsu-yamamoto/",
+    "https://tabelog.com/en/kyoto/A2601/A260202/26006075/dtlrvwlst/",
+    "https://tabelog.com/en/kyoto/A2601/A260202/26006075/dtlmenu/lunch/",
+    "https://kyoto-hannarism.com/tonkatsuyamamoto-kyoto/"
+   ]
+  }
  },
  "awa": {
   "lat": 34.678649,
@@ -1977,7 +3567,58 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "ぱたぱたぱたごにあ / Tabelog",
     "page": "https://tabelog.com/en/nara/A2901/A290101/29001643/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "粟「収穫祭」御膳",
+     "romaji": "Awa 'shūkakusai' gozen",
+     "vi": "Set rau truyền thống trồng ở Kiyosumi no Sato kèm ba loại thịt bò Yamato, có tráng miệng và đồ uống",
+     "yen": 3800,
+     "yenNote": "giá bữa trưa trên trang chính thức (đã gồm thuế, không ghi năm)",
+     "pick": "signature",
+     "note": "Hợp người ít ăn cá vì có thịt bò.",
+     "src": "https://www.kiyosumi.jp/naramachiten"
+    },
+    {
+     "ja": "粟「大和と世界の野菜」コース",
+     "romaji": "Awa 'Yamato to sekai no yasai' kōsu",
+     "vi": "Bữa toàn rau: rau truyền thống Yamato và rau cổ truyền khắp thế giới, kèm tráng miệng và đồ uống",
+     "yen": 4800,
+     "yenNote": "giá bữa trưa trên trang chính thức (đã gồm thuế, không ghi năm)",
+     "pick": "light",
+     "note": null,
+     "src": "https://www.kiyosumi.jp/naramachiten"
+    },
+    {
+     "ja": "粟「大和牛と野菜」コース",
+     "romaji": "Awa 'Yamato-gyū to yasai' kōsu",
+     "vi": "Như khóa rau nhưng thêm thịt bò Yamato, kèm tráng miệng và đồ uống",
+     "yen": 4800,
+     "yenNote": "giá bữa trưa trên trang chính thức (đã gồm thuế, không ghi năm)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.kiyosumi.jp/naramachiten"
+    },
+    {
+     "ja": "粟「ならまち店」昼のフルコース",
+     "romaji": "Awa 'Naramachi-ten' hiru no furu kōsu",
+     "vi": "Khóa đầy đủ có bít tết thăn bò Yamato và tempura rau theo mùa, kèm tráng miệng và đồ uống",
+     "yen": 6800,
+     "yenNote": "giá bữa trưa trên trang chính thức (đã gồm thuế, không ghi năm)",
+     "pick": "popular",
+     "note": "Chỉ cần nếu muốn bữa trưa thịnh soạn hơn kế hoạch.",
+     "src": "https://www.kiyosumi.jp/naramachiten"
+    }
+   ],
+   "orderTip": "Quán chỉ nhận khách đã đặt trước (điện thoại 0742-24-5699 hoặc TableCheck) và thực đơn chỉ gồm các set/khóa, mỗi người một suất; bữa trưa 11:30–14:30, vào muộn nhất 13:00, nghỉ Thứ Ba, nhận thẻ tín dụng.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://www.kiyosumi.jp/naramachiten",
+    "https://tabelog.com/en/nara/A2901/A290101/29001643/"
+   ]
+  }
  },
  "hosekibako": {
   "lat": 34.68017,
@@ -2043,7 +3684,73 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "鉄道王 / Tabelog",
     "page": "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ベリーベリーヨーグルト",
+     "romaji": "berī berī yōguruto",
+     "vi": "Đá bào sữa chua với các loại berry",
+     "yen": 1800,
+     "yenNote": "giá 2025 (bài Lemon8); bài 6/2023 ghi ¥1.500 nên giá đã tăng dần",
+     "pick": "signature",
+     "note": "Vị xuất hiện trong nhiều bài đánh giá 2023–2025 nhưng menu đổi theo mùa nên có thể không còn vào tháng 10/2027.",
+     "src": "https://www.lemon8-app.com/@user4157040802311/7535769789705355832?region=jp"
+    },
+    {
+     "ja": "香茶氷 柿の葉茶と和紅茶",
+     "romaji": "kōcha-gōri kaki no ha-cha to wakōcha",
+     "vi": "Đá bào trà lá hồng (kaki no ha) và hồng trà Nhật",
+     "yen": 1800,
+     "yenNote": "giá 8/2026 (Serai), bài không ghi đã gồm thuế hay chưa",
+     "pick": "popular",
+     "note": "Món mới của mùa hè 2026; tên đọc theo chữ Hán, nếu không chắc cứ chỉ vào menu.",
+     "src": "https://serai.jp/gourmet/1279625"
+    },
+    {
+     "ja": "パステルフルーツ",
+     "romaji": "pasuteru furūtsu",
+     "vi": "Đá bào trái cây kiểu 'pastel'",
+     "yen": 1700,
+     "yenNote": "giá 5/2025 theo đánh giá Tabelog",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlrvwlst/B507489102/"
+    },
+    {
+     "ja": "リトマス試験紙氷",
+     "romaji": "ritomasu shiken-shi kōri",
+     "vi": "Đá bào 'giấy quỳ', món biểu tượng của quán",
+     "yen": null,
+     "yenNote": "chưa có giá mới; năm 2022 là ¥920 và giá cả quán đã tăng từ đó",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tyoitosiawase.com/2022/08/25/housekibako/"
+    },
+    {
+     "ja": "桜桃和紅茶キャラメル氷",
+     "romaji": "ōtō wakōcha kyarameru-gōri",
+     "vi": "Đá bào cherry, hồng trà Nhật và caramel",
+     "yen": null,
+     "yenNote": "chưa có giá; thấy trong đánh giá Tabelog 9/2026",
+     "pick": "popular",
+     "note": null,
+     "src": "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlrvwlst/"
+    }
+   ],
+   "orderTip": "Menu luân phiên theo mùa (trang chính thức: dâu mùa xuân, trái cây mùa hè, hạt dẻ mùa thu, món nóng mùa đông) với 7–9 vị giá ¥1.300–1.850, thực đơn mới nhất đăng trên Instagram @housekibaco. Phải đặt chỗ online trên airrsv từ 21:00 hôm trước, trả tiền mặt tại quầy trước khi ngồi và mỗi người gọi một món; quán nghỉ Thứ Năm.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://kakigori.netlify.app/",
+    "https://www.lemon8-app.com/@user4157040802311/7535769789705355832?region=jp",
+    "https://serai.jp/gourmet/1279625",
+    "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlrvwlst/B507489102/",
+    "https://tabelog.com/en/nara/A2901/A290101/29011038/dtlrvwlst/",
+    "https://ameblo.jp/kimu935/entry-12928553101.html",
+    "https://tyoitosiawase.com/2022/08/25/housekibako/"
+   ]
+  }
  },
  "fukutaro": {
   "lat": 34.6656,
@@ -2109,7 +3816,80 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "鉄道王 / Tabelog",
     "page": "https://tabelog.com/en/osaka/A2701/A270202/27002665/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "すじねぎ焼き",
+     "romaji": "suji negiyaki",
+     "vi": "Bánh hành (negiyaki) với gân bò hầm, ăn với nước tương tự làm",
+     "yen": 1580,
+     "yenNote": "giá đã gồm thuế; Tabelog cập nhật thực đơn 4/2026 cùng giá",
+     "pick": "signature",
+     "note": null,
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "豚ねぎ焼き",
+     "romaji": "buta negiyaki",
+     "vi": "Negiyaki thịt heo",
+     "yen": 1280,
+     "yenNote": null,
+     "pick": "value",
+     "note": null,
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "豚玉",
+     "romaji": "butatama",
+     "vi": "Okonomiyaki thịt heo kiểu Osaka cổ điển",
+     "yen": 1080,
+     "yenNote": null,
+     "pick": "popular",
+     "note": null,
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "大人気！山いも焼",
+     "romaji": "daininki! yamaimo-yaki",
+     "vi": "Khoai mài (yamaimo) nướng teppan, mềm xốp",
+     "yen": 980,
+     "yenNote": null,
+     "pick": "light",
+     "note": "Tên trên menu có kèm chữ 'đang rất được ưa chuộng'.",
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "生たこポン酢",
+     "romaji": "nama tako ponzu",
+     "vi": "Bạch tuộc tươi chấm sốt ponzu, ăn nhắm trước khi tới bánh",
+     "yen": 980,
+     "yenNote": null,
+     "pick": "side",
+     "note": null,
+     "src": "https://2951.jp/menu.html"
+    },
+    {
+     "ja": "黒毛和牛の鉄板焼",
+     "romaji": "kuroge wagyū no teppanyaki",
+     "vi": "Bò wagyū đen nướng teppan",
+     "yen": 2480,
+     "yenNote": null,
+     "pick": "popular",
+     "note": "Chỉ có ở cơ sở Honten; nếu hai người ăn nhẹ thì có thể bỏ.",
+     "src": "https://2951.jp/menu.html"
+    }
+   ],
+   "orderTip": "Bếp nướng trên teppan trước mặt khách, không nhận đặt chỗ nên ngày thường mở từ 17:00 là lúc nên có mặt, giá trong menu đã gồm thuế và nhận thẻ/IC; nhiều khách quen gọi món lẻ trước rồi chốt bằng negiyaki hoặc okonomiyaki.",
+   "ticketMachine": null,
+   "menuEn": null,
+   "sources": [
+    "https://2951.jp/menu.html",
+    "https://2951.jp/",
+    "https://tabelog.com/en/osaka/A2701/A270202/27002665/dtlmenu/",
+    "https://tabelog.com/en/osaka/A2701/A270202/27002665/"
+   ]
+  }
  },
  "horai-551": {
   "lat": 34.666413,
@@ -2183,7 +3963,80 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "眼鏡屋さん / Tabelog",
     "page": "https://tabelog.com/en/osaka/A2701/A270202/27001312/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "豚まん",
+     "romaji": "butaman",
+     "vi": "Bánh bao nhân thịt heo, món làm nên tên tuổi 551",
+     "yen": 330,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác; giá mỗi cái",
+     "pick": "signature",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "エビ焼売",
+     "romaji": "ebi shūmai",
+     "vi": "Sủi mại tôm, 4 viên",
+     "yen": 360,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "海鮮焼そば",
+     "romaji": "kaisen yakisoba",
+     "vi": "Mì xào hải sản (tôm, mực, sò điệp), chọn loại mì giòn hoặc mì áp chảo",
+     "yen": 1300,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "popular",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "551点心セット",
+     "romaji": "gō-gō-ichi tenshin setto",
+     "vi": "Set gồm bánh bao, sủi mại tôm, chả giò, viên chua ngọt, mì tantan và đậu hũ hạnh nhân mini",
+     "yen": 1980,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "popular",
+     "note": "Hợp hai người chia nhau để nếm nhiều món.",
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "焼餃子",
+     "romaji": "yaki gyōza",
+     "vi": "Há cảo áp chảo, 5 cái",
+     "yen": 300,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "side",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    },
+    {
+     "ja": "551担仔麺（ハーフサイズ）",
+     "romaji": "gō-gō-ichi tantanmen (hāfu saizu)",
+     "vi": "Mì tantan kiểu Đài Loan, cỡ nhỏ",
+     "yen": 750,
+     "yenNote": "giá ăn tại chỗ ở nhà hàng Honten (thực đơn từ 1/9/2026, đã gồm thuế); mua mang về giá khác",
+     "pick": "light",
+     "note": null,
+     "src": "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf"
+    }
+   ],
+   "orderTip": "Nhà hàng ngồi bàn ở tầng 2–3 (11:00–21:30, nghỉ Thứ Ba thứ nhất và thứ ba mỗi tháng), giá trên thực đơn là giá ăn tại chỗ còn mua mang về ở tầng dưới có giá khác.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://www.551horai.co.jp/wp/wp-content/uploads/2026/08/%E6%9C%AC%E5%BA%97202609.pdf",
+    "https://www.551horai.co.jp/shop/list/13/",
+    "https://www.551horai.co.jp/menu/butaman/",
+    "https://www.traicy.com/posts/20260817379385/"
+   ]
+  }
  },
  "hanadako": {
   "lat": 34.703165,
@@ -2257,7 +4110,49 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "fujimo123 / Tabelog",
     "page": "https://tabelog.com/en/osaka/A2701/A270101/27012248/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ネギマヨ",
+     "romaji": "negi mayo",
+     "vi": "Takoyaki phủ hành lá và sốt mayonnaise thật nhiều, món chủ lực của quán",
+     "yen": 670,
+     "yenNote": "6 viên; 8 viên ¥860, 10 viên ¥1.050 (giá 9/2026, đã gồm thuế)",
+     "pick": "signature",
+     "note": "Điểm dừng phụ: hai người chia một phần 8–10 viên là đủ.",
+     "src": "https://tripmate.news/posts/osaka-hanadako-takoyaki-umeda/"
+    },
+    {
+     "ja": "たこ焼き",
+     "romaji": "takoyaki",
+     "vi": "Takoyaki cổ điển, chọn một trong 5 vị: sốt, ponzu, nước tương dashi, muối, shio-dare",
+     "yen": 570,
+     "yenNote": "6 viên; 8 viên ¥760, 10 viên ¥950 (giá 9/2026, đã gồm thuế)",
+     "pick": "value",
+     "note": null,
+     "src": "https://tripmate.news/posts/osaka-hanadako-takoyaki-umeda/"
+    },
+    {
+     "ja": "たこせん",
+     "romaji": "takosen",
+     "vi": "Takoyaki kẹp giữa hai lớp bánh senbei mỏng, cầm đi vừa đi vừa ăn",
+     "yen": 240,
+     "yenNote": "giá mỗi cái (9/2026)",
+     "pick": "side",
+     "note": null,
+     "src": "https://tripmate.news/posts/osaka-hanadako-takoyaki-umeda/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt, xếp hàng trong khu vực kẻ sẵn (khoảng 20–30 phút), tới quầy gọi số viên và chọn vị rồi trả tiền, sau đó đứng ăn ở quầy 6 chỗ hoặc mang đi.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://tripmate.news/posts/osaka-hanadako-takoyaki-umeda/",
+    "https://www.timeout.jp/osaka/ja/%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3/hana-dako",
+    "https://tabelog.com/en/osaka/A2701/A270101/27012248/dtlrvwlst/"
+   ]
+  }
  },
  "tahei": {
   "lat": 34.664144,
@@ -2323,7 +4218,81 @@ export const DETAILS: Record<string, Detail> = {
     "credit": "亀ちぁん / Tabelog",
     "page": "https://tabelog.com/en/osaka/A2701/A270202/27005087/dtlphotolst/4/smp2/?sby=D&srt=like"
    }
-  ]
+  ],
+  "menu": {
+   "items": [
+    {
+     "ja": "ハラミ",
+     "romaji": "harami",
+     "vi": "Thăn hoành bò (skirt), món được nhắc nhiều nhất của quán, ăn với cơm trắng",
+     "yen": 1600,
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc); blog 8/2023 ghi ¥1.450; Tabelog 10/2026 có khách báo giá lại vừa tăng",
+     "pick": "signature",
+     "note": null,
+     "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
+    },
+    {
+     "ja": "上タン",
+     "romaji": "jō tan",
+     "vi": "Lưỡi bò wagyū loại ngon, thường hết ngay sau vòng gọi món đầu",
+     "yen": 1600,
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc); Retty ghi tên 黒毛和牛の上タン; blog 8/2023 ghi ¥1.450",
+     "pick": "popular",
+     "note": "Một khách khuyên ăn với muối.",
+     "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
+    },
+    {
+     "ja": "上ロース",
+     "romaji": "jō rōsu",
+     "vi": "Thăn lưng bò loại ngon",
+     "yen": 1850,
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc); blog 8/2023 ghi ¥1.800",
+     "pick": "popular",
+     "note": null,
+     "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
+    },
+    {
+     "ja": "テッチャン",
+     "romaji": "tecchan",
+     "vi": "Ruột non bò, món nội tạng dễ ăn",
+     "yen": 800,
+     "yenNote": "giá Retty 6/2026 (qua kết quả tìm kiếm, chưa mở được trang gốc)",
+     "pick": "popular",
+     "note": null,
+     "src": "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/"
+    },
+    {
+     "ja": "ホルモン盛り合わせ",
+     "romaji": "horumon moriawase",
+     "vi": "Đĩa nội tạng bò tổng hợp, nếm nhiều loại cùng lúc",
+     "yen": 900,
+     "yenNote": "giá 8/2023 (blog); chắc đã tăng",
+     "pick": "side",
+     "note": null,
+     "src": "https://genjitsutouhi.com/tahei-osaka/"
+    },
+    {
+     "ja": "ご飯",
+     "romaji": "gohan",
+     "vi": "Cơm trắng, được khen là rất ngon khi ăn cùng thịt",
+     "yen": null,
+     "yenNote": "chưa xác nhận giá; năm 2017 cỡ vừa là ¥230 và Tabelog 9/2026 khen cơm rất ngon",
+     "pick": "side",
+     "note": null,
+     "src": "https://tabelog.com/en/osaka/A2701/A270202/27005087/dtlrvwlst/"
+    }
+   ],
+   "orderTip": "Chỉ nhận tiền mặt, gọi từng đĩa thịt lẻ (hai người thường gọi 5–6 đĩa kèm cơm); quán chỉ nhận đặt bàn ngày thường khi từ 3 người nên với hai người hãy đến lúc mở cửa 16:00 hoặc chờ, và quán nghỉ Thứ Tư.",
+   "ticketMachine": false,
+   "menuEn": null,
+   "sources": [
+    "https://retty.me/area/PRE27/ARE94/SUB9501/100000078444/",
+    "https://genjitsutouhi.com/tahei-osaka/",
+    "https://ee-lunch.jp/9555.html",
+    "https://tabelog.com/en/osaka/A2701/A270202/27005087/",
+    "https://tabelog.com/en/osaka/A2701/A270202/27005087/dtlrvwlst/"
+   ]
+  }
  },
  "resol-akihabara": {
   "images": [
@@ -5586,6 +7555,8737 @@ export const DETAILS: Record<string, Detail> = {
     "page": "https://commons.wikimedia.org/wiki/File:Floating_Garden_Observatory_(24848519271).jpg"
    }
   ]
+ },
+ "sn-umezono-kawaramachi": {
+  "lat": 35.007542,
+  "lng": 135.769245,
+  "address": "京都府京都市中京区河原町三条下る山崎町234-4",
+  "hours": "10:30–19:30",
+  "why": "Quán wagashi và giải khát ở góc Kawaramachi–Sanjō, cách khách sạn khoảng 100 m, mở đến 19:30 cả chủ nhật. Hợp để ăn nhẹ một món ngọt trước bữa tối.",
+  "rating": 3.64,
+  "ratingCount": 872,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/258601/640x640_rect_57cc66599dfe6788fadbd5c934004722.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/258601/57cc66599dfe6788fadbd5c934004722.jpg",
+    "caption": "Mitarashi dango nướng",
+    "credit": "熟睡猫 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260202/26001860/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/258601/640x640_rect_8bbe9643a5bcac80e27e16ecae8251df.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/258601/8bbe9643a5bcac80e27e16ecae8251df.jpg",
+    "caption": "Shiratama anmitsu",
+    "credit": "熟睡猫 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260202/26001860/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/258601/640x640_rect_0ad88bc9816343e6607eb423a7264f52.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/258601/0ad88bc9816343e6607eb423a7264f52.jpg",
+    "caption": "Warabi mochi đường nâu",
+    "credit": "熟睡猫 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260202/26001860/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "みたらし団子と黒糖わらび餅",
+     "romaji": "mitarashi dango to kokutō warabi mochi",
+     "vi": "Dango mitarashi nướng kèm warabi mochi đường nâu (giá theo chú thích ảnh Tabelog, đã gồm thuế)",
+     "yen": 810
+    },
+    {
+     "ja": "白玉あんみつ",
+     "romaji": "shiratama anmitsu",
+     "vi": "Anmitsu với viên shiratama (giá theo chú thích ảnh Tabelog)",
+     "yen": 850
+    }
+   ],
+   "when": "Chủ nhật 24/10, sau khi nhận phòng (khoảng 18:45), trước bữa tối ở Menami — quán đóng cửa 19:30",
+   "open": "10:30",
+   "close": "19:30",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ cố định; chủ nhật vẫn mở 10:30–19:30",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260202/26001860/",
+    "rating": 3.64,
+    "count": 872,
+    "award": "Tabelog 百名店 Wagashi/Cafe WEST 2026, 2023"
+   },
+   "social": []
+  }
+ },
+ "sn-koe-donuts-kyoto": {
+  "lat": 35.00426,
+  "lng": 135.767259,
+  "address": "京都府京都市中京区新京極四条上ル中之町557 京都松竹第3ビル 1F",
+  "hours": "8:00–20:00",
+  "why": "Quán donut trên phố Shinkyōgoku, cách ga Kawaramachi khoảng 1 phút đi bộ. Mở 8:00–20:00 mọi ngày nên ghé được vào tối chủ nhật.",
+  "rating": 3.67,
+  "ratingCount": 1297,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/213821/640x640_rect_144f8b661a325988bb2b67db949222d4.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/213821/144f8b661a325988bb2b67db949222d4.jpg",
+    "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng, Tabelog)",
+    "credit": "カフェモカ男 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26032035/dtlphotolst/1/smp2/?mode=user"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/213358/640x640_rect_82bbc601d512ccdab5abe2754bdd1235.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/213358/82bbc601d512ccdab5abe2754bdd1235.jpg",
+    "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng, Tabelog)",
+    "credit": "カフェモカ男 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26032035/dtlphotolst/1/smp2/?mode=user"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/213358/640x640_rect_ea5912a950314dbcf320354f812cd6ec.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/213358/ea5912a950314dbcf320354f812cd6ec.jpg",
+    "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng, Tabelog)",
+    "credit": "カフェモカ男 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26032035/dtlphotolst/1/smp2/?mode=user"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "ドーナツ",
+     "romaji": "dōnattsu",
+     "vi": "Donut mua mang đi hoặc ăn tại chỗ (quán có khoảng 30 vị thường trực; chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "ドーナツメルト",
+     "romaji": "dōnattsu meruto",
+     "vi": "Món \"Donut Melt\" được Tabelog nêu nổi bật (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Chủ nhật 24/10, khoảng 18:50–19:30, trước bữa tối ở Menami — quán đóng cửa 20:00",
+   "open": "08:00",
+   "close": "20:00",
+   "closedDow": [],
+   "closedNote": "Không có ngày nghỉ cố định (theo Tabelog)",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260201/26032035/",
+    "rating": 3.67,
+    "count": 1297,
+    "award": "Tabelog 百名店 Cafe WEST 2025"
+   },
+   "social": []
+  }
+ },
+ "sn-hayashi-manshodo": {
+  "lat": 35.003827,
+  "lng": 135.766949,
+  "address": "京都府京都市下京区四条通寺町東入ル御旅宮本町3",
+  "hours": "10:00–20:00",
+  "why": "Tiệm hạt dẻ rang đường lâu năm ngay ngã tư Shijō–Teramachi. Mua một túi nhỏ ăn vừa đi, mở 10:00–20:00 kể cả chủ nhật.",
+  "rating": 3.66,
+  "ratingCount": 493,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/41481/640x640_rect_41481191.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/41481/41481191.jpg",
+    "caption": "Hạt dẻ rang đường (amaguri)",
+    "credit": "チンプリ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000796/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/31015/640x640_rect_31015487.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/31015/31015487.jpg",
+    "caption": "Hạt dẻ rang tại tiệm",
+    "credit": "てるてる!(^^)! / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000796/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/33937/640x640_rect_33937745.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/33937/33937745.jpg",
+    "caption": "Hạt dẻ rang đựng túi",
+    "credit": "京都娘ちろ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000796/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "甘栗（特製）",
+     "romaji": "amaguri (tokusei)",
+     "vi": "Hạt dẻ rang đường, bán theo túi (Tabelog nhắc loại 200 g; chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Chủ nhật 24/10, khoảng 19:00–19:30, trước bữa tối ở Menami — quán đóng cửa 20:00",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "closedNote": "Chỉ nghỉ mùng 1 Tết dương lịch",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260201/26000796/",
+    "rating": 3.66,
+    "count": 493,
+    "award": "Tabelog 百名店 Wagashi WEST 2026, 2023"
+   },
+   "social": []
+  }
+ },
+ "sn-salon-de-the-francois": {
+  "lat": 35.003,
+  "lng": 135.7702,
+  "address": "京都府京都市下京区西木屋町通四条下ル船頭町184",
+  "hours": "11:00–22:00 (gọi món cuối 21:30)",
+  "why": "Quán kissaten bên sông Takase được Tabelog chọn vào 喫茶店 百名店 (2021, 2022, 2026). Mở đến 22:00 mọi ngày nên là nơi ngồi nghỉ sau bữa tối chủ nhật.",
+  "rating": 3.73,
+  "ratingCount": 1889,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/33840/640x640_rect_33840295.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/33840/33840295.jpg",
+    "caption": "Rare cheesecake",
+    "credit": "まっすん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000900/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/46509/640x640_rect_46509682.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/46509/46509682.jpg",
+    "caption": "Tart chanh",
+    "credit": "ｻｲｹﾝ8700 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000900/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/279538/640x640_rect_e5667b5b1d9a41926e1d0bf2422ace33.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/279538/e5667b5b1d9a41926e1d0bf2422ace33.jpg",
+    "caption": "Rare cheesecake",
+    "credit": "mm5-3 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000900/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "ケーキセット",
+     "romaji": "kēki setto",
+     "vi": "Set bánh (rare cheesecake) kèm cà phê hoặc trà, theo chú thích ảnh Tabelog (đã gồm thuế)",
+     "yen": 1350
+    }
+   ],
+   "when": "Chủ nhật 24/10, sau bữa tối ở Menami (khoảng 21:00) — gọi món cuối 21:30, đóng cửa 22:00",
+   "open": "11:00",
+   "close": "22:00",
+   "closedDow": [],
+   "closedNote": "Nghỉ 31/12–2/1",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260201/26000900/",
+    "rating": 3.73,
+    "count": 1889,
+    "award": "Tabelog 百名店 喫茶店 2026, 2022, 2021"
+   },
+   "social": []
+  }
+ },
+ "sn-londonya": {
+  "lat": 35.004112,
+  "lng": 135.767246,
+  "address": "京都府京都市中京区新京極通四条上ル中之町565",
+  "hours": "9:30–20:30",
+  "why": "Quầy bánh nướng nhân đậu trắng trên phố Shinkyōgoku, mở 9:30–20:30 mọi ngày. Mua vài chiếc mang về khách sạn ăn đêm.",
+  "rating": 3.56,
+  "ratingCount": 381,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/31853/640x640_rect_31853455.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/31853/31853455.jpg",
+    "caption": "Bánh London-yaki",
+    "credit": "まっすん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26007251/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/31994/640x640_rect_31994904.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/31994/31994904.jpg",
+    "caption": "Mua hộp 10 chiếc London-yaki mang về khách sạn",
+    "credit": "ぽぱい / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26007251/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/31994/640x640_rect_31994902.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/31994/31994902.jpg",
+    "caption": "Vỏ bánh mềm",
+    "credit": "ぽぱい / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260201/26007251/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "ロンドン焼",
+     "romaji": "rondon-yaki",
+     "vi": "Bánh nướng nhỏ nhân đậu trắng, làm bằng máy ngay trước cửa; mua hộp 10 chiếc (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Chủ nhật 24/10, khoảng 18:50–20:00 — quán đóng cửa 20:30",
+   "open": "09:30",
+   "close": "20:30",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260201/26007251/",
+    "rating": 3.56,
+    "count": 381,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-arabica-kyoto-higashiyama": {
+  "lat": 34.99921,
+  "lng": 135.778124,
+  "address": "京都府京都市東山区星野町87-5",
+  "hours": "9:00–18:00",
+  "why": "Quán cà phê nhỏ ngay cạnh tháp Yasaka, nằm trên đường đi bộ xuống từ Kiyomizu-dera. Chỗ ngồi chật, hợp uống nhanh một ly rồi đi tiếp.",
+  "rating": 3.54,
+  "ratingCount": 511,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/31905/640x640_rect_31905484.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/31905/31905484.jpg",
+    "caption": "Ảnh khách đăng trên Tabelog tại % Arabica Higashiyama",
+    "credit": "オカデンチ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26024353/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/45069/640x640_rect_fc8d4300feb97d63ed92458506a2b420.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/45069/fc8d4300feb97d63ed92458506a2b420.jpg",
+    "caption": "Ảnh khách đăng trên Tabelog tại % Arabica Higashiyama",
+    "credit": "sakura007 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26024353/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/37744/640x640_rect_29b10ea3fa503504898b2b86f81a87e2.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/37744/29b10ea3fa503504898b2b86f81a87e2.jpg",
+    "caption": "Ảnh khách đăng trên Tabelog tại % Arabica Higashiyama",
+    "credit": "花咲トキ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26024353/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "カフェラテ",
+     "romaji": "kafe rate",
+     "vi": "Latte, món được các bài viết du lịch khen nhất (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Hai 25/10, khoảng 9:00 khi đi bộ từ Kiyomizu-dera xuống phía tháp Yasaka (Tabelog ghi mở 9:00; trang du lịch ghi 8:00)",
+   "open": "09:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ; trang Inside Kyoto ghi giờ mở là 8:00–18:00, nên xác nhận lại",
+   "queue": "Quán chật, theo bài viết du lịch nên chỉ ghé uống nhanh",
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260301/26024353/",
+    "rating": 3.54,
+    "count": 511,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://insidekyoto.com/arabica-higashiyama",
+     "note": "Inside Kyoto: khen cà phê, quán sáng và hiện đại giữa khu nhà gỗ, chỗ ngồi chật"
+    },
+    {
+     "platform": "blog",
+     "url": "https://en.japantravel.com/kyoto/arabica-higashiyama/60099",
+     "note": "Japan Travel (1/2024): khen latte và nhiều loại hạt, quán nhỏ, cách tháp Yasaka vài bước"
+    }
+   ]
+  }
+ },
+ "sn-kasagiya": {
+  "lat": 34.998091,
+  "lng": 135.780794,
+  "address": "京都府京都市東山区桝屋町349",
+  "hours": "10:00–17:00",
+  "why": "Quán trà bán wagashi ngay trên Ninenzaka, được Tabelog chọn vào 百名店 Wagashi/Cafe WEST 2026 và 2023. Tabelog có nhiều ảnh ohagi ba vị và zenzai.",
+  "rating": 3.62,
+  "ratingCount": 460,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/262260/640x640_rect_39fc8560653eca4ee8930a31bbe8d649.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/262260/39fc8560653eca4ee8930a31bbe8d649.jpg",
+    "caption": "Đá bào Uji kintoki",
+    "credit": "yuyuyu0147 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000596/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/144835/640x640_rect_144835183.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/144835/144835183.jpg",
+    "caption": "Ohagi ba vị anko",
+    "credit": "東行晋作 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000596/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/144835/640x640_rect_144835185.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/144835/144835185.jpg",
+    "caption": "Zenzai Kyoto với mochi nướng",
+    "credit": "東行晋作 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000596/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "うす茶のセット",
+     "romaji": "usucha no setto",
+     "vi": "Set trà matcha loãng kèm bánh ngọt (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "三色御萩",
+     "romaji": "sanshoku ohagi",
+     "vi": "Ohagi ba vị nhân anko (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "宇治金時",
+     "romaji": "uji kintoki",
+     "vi": "Đá bào matcha kèm đậu đỏ, có ảnh Tabelog; có thể đã hết mùa vào cuối tháng 10",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Hai 25/10, khoảng 10:45–11:30, từ Yasaka Jinja đi bộ khoảng 8 phút xuống Ninenzaka rồi quay lại Yorozuya — mở 10:00–17:00, nghỉ thứ Ba",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [
+    2
+   ],
+   "closedNote": "Nghỉ thứ Ba",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260301/26000596/",
+    "rating": 3.62,
+    "count": 460,
+    "award": "Tabelog 百名店 Wagashi/Cafe WEST 2026, 2023"
+   },
+   "social": []
+  }
+ },
+ "sn-kissho-karyo-gion": {
+  "lat": 35.00686,
+  "lng": 135.777796,
+  "address": "京都府京都市東山区石橋町306",
+  "hours": "11:00–18:00 (món ăn gọi cuối 17:30)",
+  "why": "Quán sweets chuyên kinako ở bờ bắc Shirakawa, có warabi mochi và parfait. Là lựa chọn cho giờ 13:00 vì mở cả thứ Hai.",
+  "rating": 3.59,
+  "ratingCount": 608,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/150633/640x640_rect_150633938.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/150633/150633938.jpg",
+    "caption": "Món ngọt tại Kisshō Karyō (ảnh khách đăng)",
+    "credit": "Jasmine_m / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26025412/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/150633/640x640_rect_150633940.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/150633/150633940.jpg",
+    "caption": "Món ngọt tại Kisshō Karyō (ảnh khách đăng)",
+    "credit": "Jasmine_m / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26025412/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/131014/640x640_rect_131014708.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/131014/131014708.jpg",
+    "caption": "Món ngọt tại Kisshō Karyō (ảnh khách đăng)",
+    "credit": "カフェモカ男 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26025412/dtlphotolst/1/smp2/"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "きな粉の蕨餅",
+     "romaji": "kinako no warabi mochi",
+     "vi": "Warabi mochi với kinako rang đậm, món đặc trưng của quán (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "焦がしきな粉パフェ",
+     "romaji": "kogashi kinako pafe",
+     "vi": "Parfait kinako rang cháy (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "きな粉プリン",
+     "romaji": "kinako purin",
+     "vi": "Pudding kinako, chỉ bán mang đi (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Hai 25/10, khoảng 13:00–13:45 thay cho Gion Komori (Komori nghỉ thứ Hai) — mở 11:00–18:00, gọi món cuối 17:30",
+   "open": "11:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Chỉ nghỉ mùng 1 Tết dương lịch",
+   "queue": "Quán phát số thứ tự khi có từ 5 nhóm chờ trở lên (theo Tabelog); nên đến sớm",
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260301/26025412/",
+    "rating": 3.59,
+    "count": 608,
+    "award": "Tabelog 百名店 Cafe WEST 2025"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://mai-ko.com/travel/japan/kyoto/gion/interesting-cafe-kissaten-in-gion",
+     "note": "Bài của Mai-ko: quán ở bờ bắc Shirakawa, bán kinako rang, warabi mochi, parfait, latte"
+    }
+   ]
+  }
+ },
+ "sn-gion-tokuya": {
+  "lat": 35.0025,
+  "lng": 135.774888,
+  "address": "京都府京都市東山区祇園町南側570-127",
+  "hours": "12:00–18:00 (bán đến khi hết)",
+  "why": "Quán chè Nhật nổi tiếng nhất Gion với warabi mochi và kuzumochi, nằm trên Hanamikoji cách Yorozuya vài bước. Mở cả thứ Hai nên thay được Komori.",
+  "rating": 3.76,
+  "ratingCount": 2266,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/247263/640x640_rect_ab59f0cf0823d2e48d9b8ff9821bbdef.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/247263/ab59f0cf0823d2e48d9b8ff9821bbdef.jpg",
+    "caption": "Đĩa warabi mochi và kuzumochi",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002075/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/247263/640x640_rect_d7e9d2d88e8282a916c1440739ec6145.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/247263/d7e9d2d88e8282a916c1440739ec6145.jpg",
+    "caption": "Kuzumochi matcha (trái) và warabi mochi (phải)",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002075/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/66229/640x640_rect_66229161.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/66229/66229161.jpg",
+    "caption": "Đá bào matcha Uji kintoki",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002075/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "本わらびもち・葛もち盛り合わせ",
+     "romaji": "hon warabi mochi, kuzumochi moriawase",
+     "vi": "Đĩa warabi mochi làm từ bột warabi thật và kuzumochi, theo chú thích ảnh Tabelog",
+     "yen": 1420
+    },
+    {
+     "ja": "特上抹茶 宇治金時",
+     "romaji": "tokujō matcha uji kintoki",
+     "vi": "Đá bào matcha–đậu đỏ (có thể đã hết mùa vào cuối tháng 10; chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Hai 25/10, khoảng 12:45–13:45, thay cho Gion Komori (Komori nghỉ thứ Hai); ngay cạnh Yorozuya — mở 12:00–18:00, bán đến khi hết",
+   "open": "12:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Ngày nghỉ không cố định, báo trên trang web chính thức của quán",
+   "queue": "Thường xếp hàng, lấy số thứ tự khi đến; không đặt chỗ được; có bán mang đi (theo Tabelog và Kanpai Japan)",
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260301/26002075/",
+    "rating": 3.76,
+    "count": 2266,
+    "award": "Tabelog 百名店 Wagashi WEST 2026, 2023 (Sweets WEST 2018–2022)"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.kanpai-japan.com/kyoto/gion-tokuya-japanese-desserts",
+     "note": "Kanpai Japan (cập nhật 31/5/2024): warabi mochi, kuzumochi, yakimochi, kakigōri; lấy số thứ tự, món ngọt từ ¥880"
+    }
+   ]
+  }
+ },
+ "sn-gion-kinana-honten": {
+  "lat": 35.002294,
+  "lng": 135.774319,
+  "address": "京都府京都市東山区祇園町南側570-119",
+  "hours": "12:00–17:30",
+  "why": "Chuyên kem và parfait kinako, nằm ngay cạnh Yorozuya trên Hanamikoji. Mở 12:00–17:30 cả thứ Hai nên thay được Komori; trả bằng thẻ hoặc ví điện tử, không nhận tiền mặt.",
+  "rating": 3.68,
+  "ratingCount": 1182,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/143466/640x640_rect_143466462.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/143466/143466462.jpg",
+    "caption": "Đĩa kem Kinana 3 vị",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002500/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/54731/640x640_rect_54731740.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/54731/54731740.jpg",
+    "caption": "Kem kinako làm tại chỗ",
+    "credit": "ｻｲｹﾝ8700 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002500/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/69544/640x640_rect_69544415.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/69544/69544415.jpg",
+    "caption": "Kem Kinana vị nguyên bản",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002500/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "和栗のパフェ",
+     "romaji": "waguri no pafe",
+     "vi": "Parfait hạt dẻ Nhật, theo chú thích ảnh Tabelog (đã gồm thuế)",
+     "yen": 2100
+    },
+    {
+     "ja": "できたてきなな",
+     "romaji": "dekitate kinana",
+     "vi": "Kem kinako làm tại chỗ, món đặc trưng (giá hiện tại chưa xác minh)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Hai 25/10, khoảng 13:30–14:15 thay cho Gion Komori, cách Yorozuya khoảng 60 m — mở 12:00–17:30, nghỉ thứ Năm",
+   "open": "12:00",
+   "close": "17:30",
+   "closedDow": [
+    4
+   ],
+   "closedNote": "Nghỉ thứ Năm",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260301/26002500/",
+    "rating": 3.68,
+    "count": 1182,
+    "award": "Tabelog 百名店 Wagashi/Cafe WEST 2026 (Sweets WEST 2018–2020, 2022)"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://kyotofoodie.com/?p=4793",
+     "note": "KyotoFoodie (3/2020): bài giới thiệu quán kem kinako, ghi giờ cũ 11:00–19:00 (Tabelog hiện ghi 12:00–17:30)"
+    }
+   ]
+  }
+ },
+ "sn-cacao-market-mariebelle": {
+  "lat": 35.005139,
+  "lng": 135.772481,
+  "address": "京都府京都市東山区常盤町165-2",
+  "hours": "11:00–19:00 (thứ Ba đóng 18:00)",
+  "why": "Tiệm sô-cô-la ngay cạnh Shirakawa, được Tabelog chọn vào 百名店 Sweets WEST 2026 và 2023. Mở cả thứ Hai (11:00–19:00).",
+  "rating": 3.65,
+  "ratingCount": 629,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/69215/640x640_rect_69215059.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/69215/69215059.jpg",
+    "caption": "Bánh sô-cô-la Pillow bốn vị",
+    "credit": "ｻｲｹﾝ8700 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26022668/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/69215/640x640_rect_69215063.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/69215/69215063.jpg",
+    "caption": "Brick và Brownie",
+    "credit": "ｻｲｹﾝ8700 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26022668/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/45520/640x640_rect_45520355.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/45520/45520355.jpg",
+    "caption": "Matcha",
+    "credit": "fujimo123 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26022668/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "チョコレート菓子（ピロー・ブリック・ブラウニー）",
+     "romaji": "chokorēto gashi (pirō, burikku, buraunī)",
+     "vi": "Bánh quy/bánh sô-cô-la kiểu Pillow, Brick, Brownie (giá trên ảnh Tabelog đã cũ nên không ghi)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Hai 25/10, khoảng 11:00–11:30 khi dạo Gion Shirakawa sau Yasaka Jinja — mở 11:00–19:00",
+   "open": "11:00",
+   "close": "19:00",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ; giờ có thể thay đổi",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260301/26022668/",
+    "rating": 3.65,
+    "count": 629,
+    "award": "Tabelog 百名店 Sweets WEST 2026, 2023"
+   },
+   "social": []
+  }
+ },
+ "sn-chourakukan-dessert-cafe": {
+  "lat": 35.003085,
+  "lng": 135.780118,
+  "address": "京都府京都市東山区八坂鳥居前東入円山町604 長楽館",
+  "hours": "11:00–18:30 (gọi món cuối 18:00)",
+  "why": "Quán cà phê trong tòa nhà thời Meiji bên công viên Maruyama, Tabelog chọn vào 百名店 Cafe WEST 2025. Giá trung bình 2.000–3.000 yen/người và tính thêm 10% phí phục vụ.",
+  "rating": 3.62,
+  "ratingCount": 765,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/224517/640x640_rect_7ccc93d0666224dc6c9e7049617c5787.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/224517/7ccc93d0666224dc6c9e7049617c5787.jpg",
+    "caption": "Mont Blanc cổ điển",
+    "credit": "VOLVO850R / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26006416/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/224517/640x640_rect_d82279dbf7df9b7f6536093140ceac00.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/224517/d82279dbf7df9b7f6536093140ceac00.jpg",
+    "caption": "Cà phê Vienna",
+    "credit": "VOLVO850R / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26006416/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/224517/640x640_rect_4f76e93cb53f5fac0e86e97fac226fc5.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/224517/4f76e93cb53f5fac0e86e97fac226fc5.jpg",
+    "caption": "Cà phê Vienna và Mont Blanc",
+    "credit": "VOLVO850R / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260301/26006416/dtlphotolst/1/smp2/"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "クラシックモンブラン",
+     "romaji": "kurashikku monburan",
+     "vi": "Mont Blanc kiểu cổ điển (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "ウィンナーコーヒー",
+     "romaji": "wīnā kōhī",
+     "vi": "Cà phê Vienna (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Hai 25/10, khoảng 11:00–12:00 ngay sau Yasaka Jinja (đi bộ khoảng 3 phút qua công viên Maruyama) — mở 11:00–18:30, gọi món cuối 18:00",
+   "open": "11:00",
+   "close": "18:30",
+   "closedDow": [],
+   "closedNote": "Không có ngày nghỉ cố định; trà chiều cần đặt trước",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260301/26006416/",
+    "rating": 3.62,
+    "count": 765,
+    "award": "Tabelog 百名店 Cafe WEST 2025"
+   },
+   "social": []
+  }
+ },
+ "sn-arabica-kyoto-arashiyama": {
+  "lat": 35.013541,
+  "lng": 135.676436,
+  "address": "京都府京都市右京区嵯峨天龍寺芒ノ馬場町3-47",
+  "hours": "9:00–18:00",
+  "why": "Quầy cà phê Arabica cách cầu Togetsukyō khoảng 150 m, Tabelog 3.57 với gần 600 đánh giá. Hợp uống một ly sau bữa trưa trước khi về ga Hankyu.",
+  "rating": 3.57,
+  "ratingCount": 589,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/77973/640x640_rect_77973300.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/77973/77973300.jpg",
+    "caption": "Cà phê latte nóng cỡ tall",
+    "credit": "いつかはクラウン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26025913/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/77973/640x640_rect_77973298.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/77973/77973298.jpg",
+    "caption": "Sandwich baguette",
+    "credit": "いつかはクラウン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26025913/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/291159/640x640_rect_6c459e4310002509999639bcbf35e094.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/291159/6c459e4310002509999639bcbf35e094.jpg",
+    "caption": "Ảnh khách đăng trên Tabelog",
+    "credit": "Jun 358535 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26025913/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "カフェラテ",
+     "romaji": "kafe rate",
+     "vi": "Latte (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "バゲットサンド",
+     "romaji": "bagetto sando",
+     "vi": "Sandwich baguette, có ảnh trên Tabelog (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Ba 26/10, khoảng 12:15–12:45 sau bữa soba ở Yoshimura, ngay cạnh cầu Togetsukyō — Tabelog ghi mở 9:00–18:00",
+   "open": "09:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Tabelog ghi \"không cố định\"; trang chính thức có thể ghi giờ mở sớm hơn",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260403/26025913/",
+    "rating": 3.57,
+    "count": 589,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-mamemono-to-taiyaki-arashiyama": {
+  "lat": 35.01502,
+  "lng": 135.677047,
+  "address": "京都府京都市右京区嵯峨天龍寺芒ノ馬場町40-8 嵐山昇龍苑 1F",
+  "hours": "10:00–17:00",
+  "why": "Quầy taiyaki cách ga Randen Arashiyama khoảng 76 m, Tabelog 3.51 với 284 đánh giá. Mua một chiếc ăn dọc phố thay cho bữa nhẹ.",
+  "rating": 3.51,
+  "ratingCount": 284,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/223402/640x640_rect_fe463a4235fa6059c6ba2d2d14a5b8b4.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/223402/fe463a4235fa6059c6ba2d2d14a5b8b4.jpg",
+    "caption": "Taiyaki nhân đậu đỏ bơ (An Butter)",
+    "credit": "おむ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26034817/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/237410/640x640_rect_ad3c17dc3b660a538ac5a9161d519494.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/237410/ad3c17dc3b660a538ac5a9161d519494.jpg",
+    "caption": "Taiyaki tại Mamemono to Taiyaki",
+    "credit": "ショコラ❤ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26034817/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/370300/640x640_rect_975e50b24d78e87ae6426fde18ce5f78.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/370300/975e50b24d78e87ae6426fde18ce5f78.jpg",
+    "caption": "Taiyaki tại Mamemono to Taiyaki",
+    "credit": "けてぃちゃん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26034817/dtlphotolst/1/smp2/"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "あんバター",
+     "romaji": "an batā",
+     "vi": "Taiyaki nhân đậu đỏ và bơ, ăn trong vòng 1 phút cho giòn (giá theo chú thích ảnh Tabelog)",
+     "yen": 370
+    }
+   ],
+   "when": "Thứ Ba 26/10, khoảng 12:45–13:30, trên đường từ Togetsukyō ra ga Arashiyama — mở 10:00–17:00",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [],
+   "closedNote": "Tabelog ghi \"không cố định\"",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260403/26034817/",
+    "rating": 3.51,
+    "count": 284,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-shinpachi-chaya": {
+  "lat": 35.013832,
+  "lng": 135.677938,
+  "address": "京都府京都市右京区嵯峨天龍寺造路町37-17",
+  "hours": "10:00–18:00",
+  "why": "Tiệm gelato kiểu Ý ngay chân cầu Togetsukyō, Tabelog chọn vào 百名店 Ice cream·Gelato 2023 và 2026. Có vị sakura mochi, đậu phụ Saga và pistachio theo bài viết của Tabiiro.",
+  "rating": 3.62,
+  "ratingCount": 559,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/384283/640x640_rect_0ddfc98b00dc34a0aea1c01ae1561373.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/384283/0ddfc98b00dc34a0aea1c01ae1561373.jpg",
+    "caption": "Gelato 3 vị",
+    "credit": "せんべろ５号 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26001309/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/384283/640x640_rect_8aa2c64b32349acf645795ffb39ca568.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/384283/8aa2c64b32349acf645795ffb39ca568.jpg",
+    "caption": "Gelato trước cầu Togetsukyō",
+    "credit": "せんべろ５号 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26001309/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/37833/640x640_rect_37833245.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/37833/37833245.jpg",
+    "caption": "Gelato vị Lemon Waltz",
+    "credit": "kinako-anko / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26001309/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "トリプル（ジェラート3種）",
+     "romaji": "toripuru (jerāto sanshu)",
+     "vi": "Gelato 3 vị, theo chú thích ảnh Tabelog; blog Tabiiro ghi gelato từ ¥400 đến ¥850",
+     "yen": 850
+    }
+   ],
+   "when": "Thứ Ba 26/10, khoảng 12:30–13:15 ở chân cầu Togetsukyō — mở 10:00–18:00, nghỉ thứ Năm",
+   "open": "10:00",
+   "close": "18:00",
+   "closedDow": [
+    4
+   ],
+   "closedNote": "Nghỉ thứ Năm",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260403/26001309/",
+    "rating": 3.62,
+    "count": 559,
+    "award": "Tabelog 百名店 Ice Cream/Gelato 2026, 2023"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://en.tabiiro.travel/restaurants/article/arashiyama-streetfood-guide/",
+     "note": "Tabiiro (hướng dẫn street food Arashiyama): gelato vị sakura mochi, đậu phụ Saga, pistachio, ¥400–850"
+    }
+   ]
+  }
+ },
+ "sn-ex-cafe-arashiyama": {
+  "lat": 35.014667,
+  "lng": 135.678122,
+  "address": "京都府京都市右京区嵯峨天龍寺造路町35-3",
+  "hours": "9:00–18:00",
+  "why": "Quán cà phê và wagashi cách ga Randen Arashiyama khoảng 70 m, Tabelog 3.54 với 768 đánh giá. Có chỗ ngồi nghỉ chân giữa chuyến đi bộ ở Arashiyama.",
+  "rating": 3.54,
+  "ratingCount": 768,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/292/640x640_rect_292253.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/292/292253.jpg",
+    "caption": "Kuzumochi",
+    "credit": "ntbn / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26005251/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/379403/640x640_rect_392ba73ffadbe7ae8619505a205d46f6.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/379403/392ba73ffadbe7ae8619505a205d46f6.jpg",
+    "caption": "Ảnh khách đăng trên Tabelog",
+    "credit": "酸素坊主 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26005251/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/370074/640x640_rect_f13cb5be7c23153dcf79c6bfdd3e319f.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/370074/f13cb5be7c23153dcf79c6bfdd3e319f.jpg",
+    "caption": "Ảnh khách đăng trên Tabelog",
+    "credit": "YHimawari / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260403/26005251/dtlphotolst/1/smp2/"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "天竜寺パフェ",
+     "romaji": "Tenryū-ji pafe",
+     "vi": "Parfait Tenryū-ji, món của quán (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "葛餅",
+     "romaji": "kuzumochi",
+     "vi": "Kuzumochi (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Ba 26/10, khoảng 12:30–13:30 gần ga Randen Arashiyama — mở 9:00–18:00",
+   "open": "09:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Tabelog ghi \"không cố định\"",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260403/26005251/",
+    "rating": 3.54,
+    "count": 768,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-fushimi-yume-hyakushu": {
+  "lat": 34.930016,
+  "lng": 135.761401,
+  "address": "京都府京都市伏見区南浜町247",
+  "hours": "10:30–17:00",
+  "why": "Quán trong khuôn viên Gekkeikan, bán bánh làm từ sake và bã sake, có quầy sake và cocktail. Nằm ngay giữa khu kho sake Fushimi.",
+  "rating": 3.45,
+  "ratingCount": 133,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/276913/640x640_rect_889e16a973cb974c6907c27dd89a536d.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/276913/889e16a973cb974c6907c27dd89a536d.jpg",
+    "caption": "Set financier bã sake, manju sake và cà phê đá",
+    "credit": "ｻｲｹﾝ8700 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26004759/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/276913/640x640_rect_bdad93efe1b52a965c0762bca9bc1192.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/276913/bdad93efe1b52a965c0762bca9bc1192.jpg",
+    "caption": "Financier bã sake và manju sake",
+    "credit": "ｻｲｹﾝ8700 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26004759/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/139569/640x640_rect_139569419.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/139569/139569419.jpg",
+    "caption": "Hạt rang ăn kèm sake",
+    "credit": "一級うん築士 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26004759/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "酒粕フィナンシェ・酒まんじゅうセット（アイスコーヒー付き）",
+     "romaji": "sakekasu finanshie, sake manjū setto",
+     "vi": "Set financier bã sake và bánh manju sake kèm cà phê đá; giá theo chú thích ảnh Tabelog cũ, có thể đã đổi",
+     "yen": 1000
+    }
+   ],
+   "when": "Thứ Ba 26/10, khoảng 15:45–16:30 trong khu kho sake, trước giờ đóng cửa 17:00 (nghỉ thứ Hai)",
+   "open": "10:30",
+   "close": "17:00",
+   "closedDow": [
+    1
+   ],
+   "closedNote": "Nghỉ thứ Hai",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260601/26004759/",
+    "rating": 3.45,
+    "count": 133,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-gekkeikan-okura-museum": {
+  "lat": 34.928879,
+  "lng": 135.761629,
+  "address": "京都府京都市伏見区南浜町247",
+  "hours": "9:30–16:30 (nhận khách đến 16:00)",
+  "why": "Bảo tàng sake của Gekkeikan, vé vào đã gồm nếm 3 loại sake. Nằm ngay trong khu kho sake, cách Yume Hyakushu vài bước.",
+  "rating": 3.47,
+  "ratingCount": 128,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/35766/640x640_rect_35766694.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/35766/35766694.jpg",
+    "caption": "Chai sake 1 gō tặng làm quà lưu niệm",
+    "credit": "てんてんおめめ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007339/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/35766/640x640_rect_35766747.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/35766/35766747.jpg",
+    "caption": "Manju sake nhân đậu đỏ mịn",
+    "credit": "てんてんおめめ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007339/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/35766/640x640_rect_35766734.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/35766/35766734.jpg",
+    "caption": "Yatsuhashi tươi",
+    "credit": "てんてんおめめ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007339/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "入館料（きき酒3種付き）",
+     "romaji": "nyūkanryō (kikizake san-shu tsuki)",
+     "vi": "Vé vào cho người từ 20 tuổi, kèm nếm 3 loại sake và quà lưu niệm (theo trang chính thức)",
+     "yen": 600
+    },
+    {
+     "ja": "酒まんじゅう",
+     "romaji": "sake manjū",
+     "vi": "Bánh manju nhân đậu đỏ mịn làm từ sake, có ảnh Tabelog (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Ba 26/10, khoảng 15:30–16:15 ở khu kho sake — mở 9:30–16:30, nhận khách vào đến 16:00",
+   "open": "09:30",
+   "close": "16:30",
+   "closedDow": [],
+   "closedNote": "Nghỉ 13–16/8, 28/12–4/1 và vài ngày đột xuất; cuối tháng 11 có lịch riêng. Chỉ nhận thanh toán không tiền mặt (https://www.gekkeikan.co.jp/enjoy/museum/access/)",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260601/26007339/",
+    "rating": 3.47,
+    "count": 128,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-hougyokudo-fushimi-inari": {
+  "lat": 34.968082,
+  "lng": 135.769482,
+  "address": "京都府京都市伏見区深草一ノ坪町27",
+  "hours": "7:30–19:00",
+  "why": "Tiệm senbei cách ga Fushimi-Inari khoảng 80 m, mở từ 7:30 nên ghé được lúc trở ra ga. Bánh hình cáo, gắn với đền Inari.",
+  "rating": 3.51,
+  "ratingCount": 112,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/105227/640x640_rect_105227155.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/105227/105227155.jpg",
+    "caption": "Senbei hình cáo cỡ lớn, hộp 3 chiếc",
+    "credit": "KOUJI328 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007338/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/68792/640x640_rect_68792997.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/68792/68792997.jpg",
+    "caption": "Senbei nướng hình mặt nạ Inari",
+    "credit": "トンボ1024 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007338/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/76822/640x640_rect_76822956.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/76822/76822956.jpg",
+    "caption": "Senbei hình cáo cỡ nhỏ",
+    "credit": "ゆっきょし / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007338/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "大きつね",
+     "romaji": "ōkitsune",
+     "vi": "Senbei hình cáo cỡ lớn, hộp 3 chiếc; giá theo ảnh Tabelog cũ",
+     "yen": 540
+    },
+    {
+     "ja": "白みそせんべい",
+     "romaji": "shiro-miso senbei",
+     "vi": "Senbei miso trắng hình tròn, 5 chiếc; giá theo chú thích ảnh Tabelog",
+     "yen": 500
+    }
+   ],
+   "when": "Thứ Tư 27/10, khoảng 8:10–8:25 khi quay lại ga Fushimi-Inari — mở từ 7:30 đến 19:00",
+   "open": "07:30",
+   "close": "19:00",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260601/26007338/",
+    "rating": 3.51,
+    "count": 112,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-eight-fushimi-inari": {
+  "lat": 34.968531,
+  "lng": 135.769486,
+  "address": "京都府京都市伏見区深草一ノ坪町29-4",
+  "hours": "8:00–18:00",
+  "why": "Tiệm bánh nhỏ cách ga Fushimi-Inari khoảng 30 m, mở từ 8:00. Mua bánh ăn sáng lúc quay ra ga trước khi đi Nara.",
+  "rating": 3.56,
+  "ratingCount": 122,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/279387/640x640_rect_a7797fb6d90f302e8af3e74dde4d0b83.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/279387/a7797fb6d90f302e8af3e74dde4d0b83.jpg",
+    "caption": "Bánh tại eight (ảnh khách đăng)",
+    "credit": "釣りするカツオに食べるカツオ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26038881/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/216948/640x640_rect_fc4387a22984242ce24f2e2e08d99455.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/216948/fc4387a22984242ce24f2e2e08d99455.jpg",
+    "caption": "Bánh lemon peel & cream cheese",
+    "credit": "yuk1602 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26038881/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/251457/640x640_rect_b68d641269b7bf951181e53b1f4304df.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/251457/b68d641269b7bf951181e53b1f4304df.jpg",
+    "caption": "Bánh tại eight (ảnh khách đăng)",
+    "credit": "カメさん7 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260601/26038881/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "コーヒーロール",
+     "romaji": "kōhī rōru",
+     "vi": "Bánh cuộn cà phê (tên theo chú thích ảnh Tabelog; chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "ジャンボンフロマージュ",
+     "romaji": "janbon furomāju",
+     "vi": "Bánh mì giăm bông phô mai (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Tư 27/10, khoảng 8:10–8:25 khi quay lại ga Fushimi-Inari — mở 8:00–18:00 (nghỉ thứ Hai, Chủ nhật)",
+   "open": "08:00",
+   "close": "18:00",
+   "closedDow": [
+    0,
+    1
+   ],
+   "closedNote": "Nghỉ Chủ nhật và thứ Hai",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260601/26038881/",
+    "rating": 3.56,
+    "count": 122,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-nakatani-do": {
+  "lat": 34.681925,
+  "lng": 135.828857,
+  "address": "奈良県奈良市橋本町29",
+  "hours": "10:00–18:00",
+  "why": "Tiệm mochi nổi tiếng vì màn giã mochi tốc độ cao ngay trước cửa, được Tabelog chọn vào 百名店 Wagashi WEST 2026 và 2023. Nằm trên phố Sanjō, cách ga Kintetsu Nara khoảng 300 m.",
+  "rating": 3.72,
+  "ratingCount": 2700,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/249783/640x640_rect_783047b5ffe1f98e769f3b6992eb2bd3.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/249783/783047b5ffe1f98e769f3b6992eb2bd3.jpg",
+    "caption": "Mochi ngải cứu",
+    "credit": "16uk_ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29000222/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/52105/640x640_rect_52105902.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/52105/52105902.jpg",
+    "caption": "Yomogi mochi",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29000222/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/50678/640x640_rect_50678072.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/50678/50678072.jpg",
+    "caption": "Mochi xếp trong hộp gỗ",
+    "credit": "高くて旨いは当たり前 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29000222/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "よもぎ餅",
+     "romaji": "yomogi mochi",
+     "vi": "Mochi ngải cứu nhân anko, giã ngay tại quán và ăn nóng. Chú thích ảnh Tabelog ghi ¥200 (đã gồm thuế); các clip TikTok cũ ghi ¥150",
+     "yen": 200
+    }
+   ],
+   "when": "Thứ Tư 27/10, khoảng 15:30–15:50 trên đường từ Naramachi về ga Kintetsu Nara — mở 10:00–18:00, nghỉ thứ Ba",
+   "open": "10:00",
+   "close": "18:00",
+   "closedDow": [
+    2
+   ],
+   "closedNote": "Nghỉ thứ Ba",
+   "queue": "Quanh giờ giã mochi thường có người đứng xem và xếp hàng mua",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/nara/A2901/A290101/29000222/",
+    "rating": 3.72,
+    "count": 2700,
+    "award": "Tabelog 百名店 Wagashi WEST 2026, 2023 (Sweets WEST 2018–2020, 2022)"
+   },
+   "social": [
+    {
+     "platform": "tiktok",
+     "url": "https://www.tiktok.com/@rainbowholictv/video/7227637298181999873",
+     "note": "Clip du khách: giã mochi trước mặt, yomogi mochi ¥150, mở 10:00–19:00 (nội dung đọc qua kết quả tìm kiếm vì trang TikTok bị chặn bot)"
+    },
+    {
+     "platform": "tiktok",
+     "url": "https://www.tiktok.com/@estherbfjackson/video/7344484835282537760",
+     "note": "Clip du khách: màn giã mochi, ¥150 một chiếc (đọc qua kết quả tìm kiếm)"
+    },
+    {
+     "platform": "tiktok",
+     "url": "https://www.tiktok.com/@biteswithlily/video/7170306451691359489",
+     "note": "Clip du khách: màn giã mochi nổi tiếng ở Nara (đọc qua kết quả tìm kiếm)"
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/watch?v=mkkLjcco8o0",
+     "note": "Video \"SUPER FAST-POUNDING MOCHI in NARA\" (tiêu đề đọc qua kết quả tìm kiếm)"
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/watch?v=5AZ-R3VondI",
+     "note": "Video \"Mochi Pounding at Nakatanidou, Nara Japan\" (tiêu đề đọc qua kết quả tìm kiếm)"
+    }
+   ]
+  }
+ },
+ "sn-rokumei-coffee-nara": {
+  "lat": 34.683634,
+  "lng": 135.827525,
+  "address": "奈良県奈良市西御門町31 吉村ビル 1F",
+  "hours": "8:00–18:00 (gọi món cuối 17:30)",
+  "why": "Quán cà phê cách cửa ga Kintetsu Nara khoảng 1 phút đi bộ, mở từ 8:00, Tabelog chọn vào 百名店 Cafe WEST 2025. Tiện ăn sáng muộn trước khi lên Tōdai-ji.",
+  "rating": 3.6,
+  "ratingCount": 648,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/57448/640x640_rect_57448748.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/57448/57448748.jpg",
+    "caption": "Set sáng sandwich rau hữu cơ và thịt heo Nara (ảnh cũ)",
+    "credit": "高くて旨いは当たり前 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29002922/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/57448/640x640_rect_57448781.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/57448/57448781.jpg",
+    "caption": "Set sáng pizza hỗn hợp (ảnh cũ)",
+    "credit": "高くて旨いは当たり前 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29002922/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "モーニングセット（クロワッサン＆ホットラテ）",
+     "romaji": "mōningu setto (kuroassan to hotto rate)",
+     "vi": "Set sáng: croissant và latte nóng, theo chú thích ảnh Tabelog (đã gồm thuế)",
+     "yen": 820
+    }
+   ],
+   "when": "Thứ Tư 27/10, khoảng 9:35–10:00 ngay khi xuống ga Kintetsu Nara, trước khi đi Tōdai-ji — mở 8:00–18:00",
+   "open": "08:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/nara/A2901/A290101/29002922/",
+    "rating": 3.6,
+    "count": 648,
+    "award": "Tabelog 百名店 Cafe WEST 2025"
+   },
+   "social": []
+  }
+ },
+ "sn-tama-usagi-kintetsu-nara": {
+  "lat": 34.6843,
+  "lng": 135.82876,
+  "address": "奈良県奈良市東向中町29 近鉄奈良駅構内",
+  "hours": "10:00–18:00 (bán đến khi hết)",
+  "why": "Quầy dango kinako trong ga Kintetsu Nara, ăn nhanh lúc vừa xuống tàu hoặc trước khi về. Bán đến khi hết hàng nên đi sớm thì chắc chắn có.",
+  "rating": 3.53,
+  "ratingCount": 173,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/50340/640x640_rect_50340719.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/50340/50340719.jpg",
+    "caption": "Dango kinako, 5 xiên một phần",
+    "credit": "ななしょう / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29001469/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/50340/640x640_rect_50340765.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/50340/50340765.jpg",
+    "caption": "Dango kinako bày ra đĩa",
+    "credit": "ななしょう / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29001469/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/30390/640x640_rect_30390839.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/30390/30390839.jpg",
+    "caption": "Dango kinako tại Tama Usagi",
+    "credit": "ぱたぱたぱたごにあ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29001469/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "きなこだんご",
+     "romaji": "kinako dango",
+     "vi": "Dango tròn phủ kinako, mua từng xiên; giá từ 3/12/2025 theo ghi chú của Tabelog",
+     "yen": 130
+    }
+   ],
+   "when": "Thứ Tư 27/10, khoảng 9:35–10:00 ngay trong ga hoặc khoảng 15:50 trước khi lên tàu về Namba — mở 10:00–18:00, bán đến khi hết",
+   "open": "10:00",
+   "close": "18:00",
+   "closedDow": [
+    1,
+    2
+   ],
+   "closedNote": "Nghỉ thứ Hai và thứ Ba (mở nếu trùng ngày lễ); Tabelog còn liệt kê vài ngày nghỉ thêm trong tháng 10/2026, nên kiểm tra lại gần ngày đi",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/nara/A2901/A290101/29001469/",
+    "rating": 3.53,
+    "count": 173,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-kashiya-nara": {
+  "lat": 34.678581,
+  "lng": 135.830523,
+  "address": "奈良県奈良市中院町22-3",
+  "hours": "9:00–18:00",
+  "why": "Quán wagashi được Tabelog chấm 3.83 (cao nhất trong nhóm Nara) và chọn vào 百名店 Wagashi WEST 2026, 2023. Nằm ở Naramachi cạnh AWA nên tiện ghé sau bữa trưa.",
+  "rating": 3.83,
+  "ratingCount": 1115,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/55431/640x640_rect_55431462.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/55431/55431462.jpg",
+    "caption": "Matcha và bánh ngọt theo mùa",
+    "credit": "よっしー♫ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29002296/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/52147/640x640_rect_52147708.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/52147/52147708.jpg",
+    "caption": "Đá bào của Kashiya kèm warabi mochi",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29002296/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/55431/640x640_rect_55431465.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/55431/55431465.jpg",
+    "caption": "Bánh ngọt tươi (nama-gashi)",
+    "credit": "よっしー♫ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/nara/A2901/A290101/29002296/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "栗きんとん 丹波",
+     "romaji": "kurikinton Tanba",
+     "vi": "Kurikinton hạt dẻ Tamba, theo chú thích ảnh Tabelog",
+     "yen": 450
+    },
+    {
+     "ja": "蕨餅",
+     "romaji": "warabi mochi",
+     "vi": "Warabi mochi, có ảnh Tabelog (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "樫舎の氷（蕨餅入り）",
+     "romaji": "Kashiya no kōri (warabi mochi iri)",
+     "vi": "Đá bào kèm warabi mochi, theo mùa (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Tư 27/10, khoảng 12:15 hoặc 13:45 ở Naramachi, ngay cạnh AWA — mở 9:00–18:00",
+   "open": "09:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Tabelog liệt kê mở cả 7 ngày; nên xác nhận lại trước khi đi",
+   "queue": "Chỉ 13 ghế chiếu, nhận đặt chỗ online và giới hạn ngồi 30 phút (theo Tabelog)",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/nara/A2901/A290101/29002296/",
+    "rating": 3.83,
+    "count": 1115,
+    "award": "Tabelog 百名店 Wagashi WEST 2026, 2023 (Sweets WEST 2018–2020, 2022)"
+   },
+   "social": []
+  }
+ },
+ "sn-hokkyoku-namba": {
+  "lat": 34.665164,
+  "lng": 135.502572,
+  "address": "大阪府大阪市中央区難波3-8-22",
+  "hours": "10:00–20:00",
+  "why": "Tiệm kem lâu năm của Namba, Tabelog chọn vào 百名店 Ice Cream/Gelato 2026 và 2023. Mở đến 20:00 nên ghé được sau bữa tối.",
+  "rating": 3.63,
+  "ratingCount": 602,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/102565/640x640_rect_102565202.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/102565/102565202.jpg",
+    "caption": "Kem que sữa của Hokkyoku",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27002810/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/331431/640x640_rect_3f4aa8320c4f15932a25bb750727e40c.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/331431/3f4aa8320c4f15932a25bb750727e40c.jpg",
+    "caption": "Kem azuki",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27002810/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/71418/640x640_rect_71418730.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/71418/71418730.jpg",
+    "caption": "Ảnh khách đăng trên Tabelog",
+    "credit": "勧進聖 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27002810/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "北海道ミルクソフト",
+     "romaji": "Hokkaidō miruku sofuto",
+     "vi": "Kem mềm sữa Hokkaido, có ảnh Tabelog (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "アイスキャンデー",
+     "romaji": "aisu kyandē",
+     "vi": "Kem que của Hokkyoku, vị sữa hoặc azuki (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Tư 27/10, khoảng 19:00–19:45 sau bữa tối ở Fukutarō — mở 10:00–20:00",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270202/27002810/",
+    "rating": 3.63,
+    "count": 602,
+    "award": "Tabelog 百名店 Ice Cream/Gelato 2026, 2023"
+   },
+   "social": []
+  }
+ },
+ "sn-ibuki-coffee-kuromon": {
+  "lat": 34.665328,
+  "lng": 135.50698,
+  "address": "大阪府大阪市中央区日本橋1丁目22-31 黒門市場内",
+  "hours": "7:00–18:30 (món ăn gọi cuối 18:00)",
+  "why": "Quán kissa trong chợ Kuromon, mở từ 7:00 nên chắc chắn mở khi bạn tới. Chỗ nghỉ chân giữa lúc đi chợ.",
+  "rating": 3.52,
+  "ratingCount": 196,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/110416/640x640_rect_110416971.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/110416/110416971.jpg",
+    "caption": "Set sáng A",
+    "credit": "牛丼仮面 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27012983/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/110416/640x640_rect_110416823.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/110416/110416823.jpg",
+    "caption": "Sandwich trứng",
+    "credit": "牛丼仮面 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27012983/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/108873/640x640_rect_108873903.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/108873/108873903.jpg",
+    "caption": "Sandwich trứng (6/2019)",
+    "credit": "ミスターＸＸＸ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27012983/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "エッグトーストセット",
+     "romaji": "eggu tōsuto setto",
+     "vi": "Set bánh mì nướng trứng kèm đồ uống, theo chú thích ảnh Tabelog",
+     "yen": 640
+    },
+    {
+     "ja": "玉子サンド",
+     "romaji": "tamago sando",
+     "vi": "Sandwich trứng, có ảnh Tabelog (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Năm 28/10, khoảng 9:30–10:15 giữa Dōguyasuji (9:00) và 551 Hōrai (11:15) — mở 7:00–18:30",
+   "open": "07:00",
+   "close": "18:30",
+   "closedDow": [],
+   "closedNote": "Chỉ nghỉ mùng 1 Tết dương lịch",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270202/27012983/",
+    "rating": 3.52,
+    "count": 196,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-meoto-zenzai": {
+  "lat": 34.667785,
+  "lng": 135.502398,
+  "address": "大阪府大阪市中央区難波1-2-10 法善寺MEOUTOビル",
+  "hours": "10:00–22:00",
+  "why": "Quán zenzai gắn với Hōzen-ji Yokochō, cách điểm dừng Hōzen-ji vài chục mét. Mở 10:00–22:00 nên ghé được ngay sau khi đi chợ đồ bếp.",
+  "rating": 3.58,
+  "ratingCount": 426,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/85792/640x640_rect_85792776.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/85792/85792776.jpg",
+    "caption": "Meoto zenzai",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27015375/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/50101/640x640_rect_50101003.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/50101/50101003.jpg",
+    "caption": "Zenzai: hai chén cho một suất",
+    "credit": "眼鏡屋さん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27015375/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/188648/640x640_rect_ae4e82bad649d835d62060bd75acf6d1.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/188648/ae4e82bad649d835d62060bd75acf6d1.jpg",
+    "caption": "Meoto zenzai",
+    "credit": "キレートれもん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27015375/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "夫婦善哉",
+     "romaji": "meoto zenzai",
+     "vi": "Zenzai (chè đậu đỏ mochi), mỗi suất gồm 2 chén nhỏ cho một người; giá theo chú thích ảnh Tabelog, có thể đã đổi",
+     "yen": 815
+    },
+    {
+     "ja": "栗ミルクシロップのかき氷",
+     "romaji": "kuri miruku shiroppu no kakigōri",
+     "vi": "Đá bào sốt sữa hạt dẻ, theo đánh giá Tabelog; món theo mùa",
+     "yen": 1080
+    }
+   ],
+   "when": "Thứ Năm 28/10, khoảng 10:00–10:45 ngay sau Dōguyasuji, cạnh Hōzen-ji Yokochō, trước khi sang 551 Hōrai — mở 10:00–22:00",
+   "open": "10:00",
+   "close": "22:00",
+   "closedDow": [],
+   "closedNote": "Tabelog liệt kê mở cả 7 ngày",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270202/27015375/",
+    "rating": 3.58,
+    "count": 426,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-creperie-alcyon": {
+  "lat": 34.667398,
+  "lng": 135.50224,
+  "address": "大阪府大阪市中央区難波1-4-18",
+  "hours": "11:30–21:30 (gọi món cuối 20:30)",
+  "why": "Quán crêpe trong Hōzen-ji Yokochō, Tabelog 3.72 với hơn 2.300 đánh giá và nhiều năm vào 百名店 Sweets WEST. Mở đến 21:30 nên ghé được trước hoặc sau bữa tối.",
+  "rating": 3.72,
+  "ratingCount": 2335,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/295300/640x640_rect_e64eb4645c1551abf2e44ba3bfc4b1b0.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/295300/e64eb4645c1551abf2e44ba3bfc4b1b0.jpg",
+    "caption": "Crêpe tại Alcyon",
+    "credit": "カフェモカ男 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27003897/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/196052/640x640_rect_c8ce3b0e9d9fd4b6d20f345aa2d8406a.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/196052/c8ce3b0e9d9fd4b6d20f345aa2d8406a.jpg",
+    "caption": "Crêpe Sucre & Vanilla",
+    "credit": "kurea / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27003897/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/196052/640x640_rect_108e91b9811c08cf357ab7bb279e4042.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/196052/108e91b9811c08cf357ab7bb279e4042.jpg",
+    "caption": "Crêpe với bơ Échiré",
+    "credit": "kurea / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27003897/dtlphotolst/1/smp2/"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "ベリーミルフィーユ",
+     "romaji": "berī mirufyūyu",
+     "vi": "Crêpe nhiều lớp (millefeuille) nhân berry, theo chú thích ảnh Tabelog",
+     "yen": 980
+    },
+    {
+     "ja": "マロンモンブラン",
+     "romaji": "maron monburan",
+     "vi": "Crêpe Mont Blanc hạt dẻ, theo chú thích ảnh Tabelog",
+     "yen": 980
+    }
+   ],
+   "when": "Thứ Năm 28/10, khoảng 16:45–17:10 trước bữa tối ở Tahei — mở 11:30–21:30, gọi món cuối 20:30",
+   "open": "11:30",
+   "close": "21:30",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270202/27003897/",
+    "rating": 3.72,
+    "count": 2335,
+    "award": "Tabelog 百名店 Sweets WEST 2026, 2023, 2022, 2020, 2018"
+   },
+   "social": []
+  }
+ },
+ "sn-umeda-mix-juice-honten": {
+  "lat": 34.698898,
+  "lng": 135.496457,
+  "address": "大阪府大阪市北区梅田3 大阪駅前地下街6号",
+  "hours": "7:00–22:00",
+  "why": "Quầy mix juice nổi tiếng ở tầng hầm Umeda, Tabelog 3.76 với hơn 2.500 đánh giá và vào 百名店 Sweets WEST 2022, 2023, 2026. Giá rẻ, mua uống nhanh giữa hai điểm.",
+  "rating": 3.76,
+  "ratingCount": 2571,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/313685/640x640_rect_21539d7db6e50a0345eb10149381a762.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/313685/21539d7db6e50a0345eb10149381a762.jpg",
+    "caption": "Ngoài mix juice còn có nhiều đồ uống khác (29/6/2025)",
+    "credit": "ラコちゃんコウちゃん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27013772/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/313685/640x640_rect_2b3eb03ed8db8a69348f28d96c89ce61.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/313685/2b3eb03ed8db8a69348f28d96c89ce61.jpg",
+    "caption": "Mix juice (29/6/2025)",
+    "credit": "ラコちゃんコウちゃん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27013772/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/271568/640x640_rect_0477e2263ae70620e6da0d0fcb57cd16.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/271568/0477e2263ae70620e6da0d0fcb57cd16.jpg",
+    "caption": "Ảnh khách đăng trên Tabelog",
+    "credit": "菊ちゃん樟葉 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27013772/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "ミックスジュース",
+     "romaji": "mikkusu jūsu",
+     "vi": "Nước ép trái cây xay hỗn hợp kiểu Osaka; ghi chú ảnh Tabelog tháng 1/2025 ghi ¥200",
+     "yen": 200
+    }
+   ],
+   "when": "Thứ Năm 28/10, khoảng 13:00–13:20 ngay khi tới Umeda — mở 7:00–22:00",
+   "open": "07:00",
+   "close": "22:00",
+   "closedDow": [],
+   "closedNote": "Tabelog liệt kê mở cả 7 ngày; không nhận thẻ tín dụng, chỉ tiền mặt hoặc thẻ IC",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270101/27013772/",
+    "rating": 3.76,
+    "count": 2571,
+    "award": "Tabelog 百名店 Sweets WEST 2026, 2023, 2022"
+   },
+   "social": []
+  }
+ },
+ "sn-echire-marche-au-beurre": {
+  "lat": 34.702713,
+  "lng": 135.498432,
+  "address": "大阪府大阪市北区角田町8-7 阪急うめだ本店 B2F",
+  "hours": "10:00–20:00 (theo lịch Hankyu Umeda)",
+  "why": "Cửa hàng bơ Échiré ở depachika Hankyu, Tabelog 3.77 và nhiều năm vào 百名店 Sweets WEST. Mua bánh bơ mang đi làm quà.",
+  "rating": 3.77,
+  "ratingCount": 1505,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/122359/640x640_rect_122359902.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/122359/122359902.jpg",
+    "caption": "Gâteau sec (12/2019)",
+    "credit": "＠すすむ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27068734/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/41730/640x640_rect_41730926.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/41730/41730926.jpg",
+    "caption": "Bánh tại Échiré Marché au Beurre",
+    "credit": "fujimo123 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27068734/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "エシレバターのお菓子",
+     "romaji": "Eshire bātā no okashi",
+     "vi": "Bánh nướng làm từ bơ Échiré (gâteau sec, financier…); chưa xác minh được giá hiện tại",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Năm 28/10, khoảng 13:20–13:50 ở tầng B2 Hankyu Umeda, trước khi sang Nakazakichō — mở 10:00–20:00",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "closedNote": "Theo ngày nghỉ của Hankyu Umeda Honten, kiểm tra lịch cửa hàng",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270101/27068734/",
+    "rating": 3.77,
+    "count": 1505,
+    "award": "Tabelog 百名店 Sweets WEST 2026, 2023, 2022, 2020, 2019, 2018 (Bread 2017)"
+   },
+   "social": []
+  }
+ },
+ "sn-bretonne-hankyu-umeda": {
+  "lat": 34.702713,
+  "lng": 135.498432,
+  "address": "大阪府大阪市北区角田町8-7 阪急うめだ本店 B1F",
+  "hours": "10:00–20:00 (theo lịch Hankyu Umeda)",
+  "why": "Tiệm bánh nướng kiểu Brittany ở depachika Hankyu, Tabelog 3.71 và vào 百名店 Sweets WEST 2023, 2026. Financier nhỏ, mua mang đi ăn dọc đường.",
+  "rating": 3.71,
+  "ratingCount": 822,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/103107/640x640_rect_103107740.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/103107/103107740.jpg",
+    "caption": "Financier",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27068956/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/83767/640x640_rect_83767667.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/83767/83767667.jpg",
+    "caption": "Gâteau nantais",
+    "credit": "fujimo123 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27068956/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/83767/640x640_rect_83767691.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/83767/83767691.jpg",
+    "caption": "Croquant éclair",
+    "credit": "fujimo123 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27068956/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "フィナンシェ",
+     "romaji": "finanshie",
+     "vi": "Financier bơ, theo chú thích ảnh Tabelog 2026",
+     "yen": 260
+    },
+    {
+     "ja": "ガトー・ナンテ",
+     "romaji": "gatō nante",
+     "vi": "Gâteau nantais kiểu Brittany (chưa xác minh được giá hiện tại)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Năm 28/10, khoảng 13:20–13:50 ở tầng B1 Hankyu Umeda — mở 10:00–20:00",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "closedNote": "Theo ngày nghỉ của Hankyu Umeda Honten, kiểm tra lịch cửa hàng",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270101/27068956/",
+    "rating": 3.71,
+    "count": 822,
+    "award": "Tabelog 百名店 Sweets WEST 2026, 2023"
+   },
+   "social": []
+  }
+ },
+ "sn-hannoc-nakazakicho": {
+  "lat": 34.705584,
+  "lng": 135.50407,
+  "address": "大阪府大阪市北区万歳町4-12",
+  "hours": "11:00–21:00 (thứ Sáu, thứ Bảy đóng 22:00)",
+  "why": "Quán bánh và sô-cô-la cách ga Nakazakichō khoảng 160 m, Tabelog chọn vào 百名店 Cafe WEST 2025. Hợp để ngồi nghỉ khi dạo các tiệm cà phê ở Nakazakichō.",
+  "rating": 3.61,
+  "ratingCount": 956,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/170234/640x640_rect_742cd5d265b413332e3697cc4c90d68f.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/170234/742cd5d265b413332e3697cc4c90d68f.jpg",
+    "caption": "Fleur, De Verre Blanc, Japonaise",
+    "credit": "sakura52943 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27121787/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/170234/640x640_rect_cb27caa356c9a65f9690667658c6db38.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/170234/cb27caa356c9a65f9690667658c6db38.jpg",
+    "caption": "De Verre Blanc, Japone",
+    "credit": "sakura52943 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27121787/dtlphotolst/1/smp2/"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/170234/640x640_rect_5cd1888bc5b8b7c425b27f4689127bd8.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/170234/5cd1888bc5b8b7c425b27f4689127bd8.jpg",
+    "caption": "Fleur HOT",
+    "credit": "sakura52943 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270101/27121787/dtlphotolst/1/smp2/"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "モンブランとイチゴのシブースト",
+     "romaji": "monburan to ichigo no shibusuto",
+     "vi": "Mont Blanc và chiboust dâu, bánh theo mùa (chưa xác minh được giá)",
+     "yen": null
+    },
+    {
+     "ja": "ショコラ ラテ",
+     "romaji": "shokora rate",
+     "vi": "Đồ uống sô-cô-la \"Chocolatte\" của quán (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Năm 28/10, khoảng 15:00–15:45 khi dạo Nakazakichō — mở 11:00–21:00",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270101/27121787/",
+    "rating": 3.61,
+    "count": 956,
+    "award": "Tabelog 百名店 Cafe WEST 2025"
+   },
+   "social": []
+  }
+ },
+ "sn-rikuro-ojisan-namba": {
+  "lat": 34.666142,
+  "lng": 135.501505,
+  "address": "大阪府大阪市中央区難波3-2-28 1F～3F",
+  "hours": "9:00–20:00 (quán cà phê tầng 2 đóng 17:30)",
+  "why": "Tiệm cheesecake nổi tiếng của Osaka nằm ngay trên đường ra ga Nankai Namba. Mua bánh pie hoặc pudding nhỏ ăn dọc đường ra sân bay.",
+  "rating": 3.51,
+  "ratingCount": 1508,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/101775/640x640_rect_101775165.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/101775/101775165.jpg",
+    "caption": "Cheesecake mềm mới nướng",
+    "credit": "nontan21 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27002336/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/101775/640x640_rect_101775160.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/101775/101775160.jpg",
+    "caption": "Đáy bánh có nho khô",
+    "credit": "nontan21 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27002336/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/50278/640x640_rect_50278119.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/50278/50278119.jpg",
+    "caption": "Cheesecake mới ra lò, đựng trong túi",
+    "credit": "眼鏡屋さん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27002336/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "焼きたてチーズケーキ",
+     "romaji": "yakitate chīzu kēki",
+     "vi": "Cheesecake nướng nóng nguyên bánh, theo chú thích ảnh Tabelog 4/2025",
+     "yen": 1065
+    },
+    {
+     "ja": "クリーミープリン",
+     "romaji": "kurīmī purin",
+     "vi": "Pudding kem, theo chú thích ảnh Tabelog 4/2025",
+     "yen": 260
+    },
+    {
+     "ja": "サクパイ",
+     "romaji": "saku pai",
+     "vi": "Bánh pie giòn, theo chú thích ảnh Tabelog 4/2025",
+     "yen": 160
+    }
+   ],
+   "when": "Thứ Sáu 29/10, trên đường từ khách sạn ra ga Nankai Namba (khoảng 160 m từ ga) — mở 9:00–20:00, quán cà phê tầng 2 đóng 17:30",
+   "open": "09:00",
+   "close": "20:00",
+   "closedDow": [],
+   "closedNote": "Tabelog không ghi ngày nghỉ",
+   "queue": null,
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270202/27002336/",
+    "rating": 3.51,
+    "count": 1508,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-die-gute-namba-walk": {
+  "lat": 34.66671,
+  "lng": 135.50087,
+  "address": "大阪府大阪市中央区難波2 なんばウォーク 1番街内 北通り",
+  "hours": "8:00–21:00",
+  "why": "Tiệm bánh trong Namba Walk, mở từ 8:00 và cách ga Namba khoảng 25 m. Mua bánh mì ăn sáng trước khi lên tàu Nankai.",
+  "rating": 3.55,
+  "ratingCount": 324,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/29796/640x640_rect_29796959.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/29796/29796959.jpg",
+    "caption": "Bánh mì basil-tomato",
+    "credit": "gropop / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27013487/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/29796/640x640_rect_29796954.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/29796/29796954.jpg",
+    "caption": "Các loại bánh mì",
+    "credit": "gropop / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27013487/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/59846/640x640_rect_59846652.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/59846/59846652.jpg",
+    "caption": "Bánh mì được ưa thích",
+    "credit": "眼鏡屋さん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/osaka/A2701/A270202/27013487/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "パン各種",
+     "romaji": "pan kakushu",
+     "vi": "Các loại bánh mì mặn và ngọt, có ảnh basil-tomato, epi trên Tabelog (chưa xác minh được giá)",
+     "yen": null
+    }
+   ],
+   "when": "Thứ Sáu 29/10, sáng sớm trong Namba Walk gần ga Namba — mở 8:00–21:00",
+   "open": "08:00",
+   "close": "21:00",
+   "closedDow": [],
+   "closedNote": "Nghỉ thứ Tư tuần thứ ba của các tháng lẻ; 29/10 là thứ Sáu nên mở",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/osaka/A2701/A270202/27013487/",
+    "rating": 3.55,
+    "count": 324,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-fujiyama-cookie": {
+  "lat": 35.504302,
+  "lng": 138.771703,
+  "address": "山梨県南都留郡富士河口湖町浅川1165-1",
+  "hours": "10:00–17:00, nghỉ thứ Ba theo Tabelog (một trang khác ghi nghỉ thứ Ba tuần 2 và 4)",
+  "why": "Tiệm bánh quy hình núi Fuji, nướng mỗi ngày, là món quà nhỏ dễ mang đi và ăn được ngay trên đường. Mua vài cái ăn thử là đủ.",
+  "rating": 3.36,
+  "ratingCount": 105,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/44552/640x640_rect_44552644.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/44552/44552644.jpg",
+    "caption": "Bánh quy Fuji phủ sô cô la trắng, vị trà đen",
+    "credit": "eb2002621 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19007468/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/44509/640x640_rect_44509420.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/44509/44509420.jpg",
+    "caption": "Hộp 5 cái vị sô cô la trắng",
+    "credit": "eb2002621 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19007468/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/44520/640x640_rect_44520889.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/44520/44520889.jpg",
+    "caption": "Năm vị: sô cô la, matcha, dâu, trà đen, vani",
+    "credit": "eb2002621 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19007468/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "富士山クッキー（ホワイトチョコ・抹茶・苺など）",
+     "romaji": "Fujisan kukkī",
+     "vi": "Bánh quy hình núi Fuji, nhiều vị phủ sô cô la; mua lẻ từng cái hoặc hộp",
+     "yen": null
+    }
+   ],
+   "when": "Cách ga Kawaguchiko khoảng 760 m (12 phút đi bộ). Đi bằng Red Line 13:00 thì xuống ở bến 遊覧船・ロープウェイ入口 (~13:11, cách tiệm 1 phút đi bộ) rồi lên chuyến 13:26 tới 河口湖美術館 lúc ~13:33 (giờ 2026), kịp bữa trưa 13:35. Tiệm mở 10:00 nên không ghé được lúc 9:35.",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [
+    2
+   ],
+   "closedNote": "Thứ Tư 20/10/2027 mở cửa theo cả hai nguồn; nên gọi 0555-72-2220 nếu muốn chắc",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190303/19007468/",
+    "rating": 3.36,
+    "count": 105,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.yukoyuko.net/onsen/spot/s0002308",
+     "note": "Yukoyuko: tiệm nướng bánh quy Fuji bằng bột mì trong nước, mở 10:00–17:00"
+    }
+   ]
+  }
+ },
+ "sn-fabcafe-fuji": {
+  "lat": 35.493144,
+  "lng": 138.803933,
+  "address": "山梨県富士吉田市下吉田3-5-16",
+  "hours": "8:00–17:00 (gọi món cuối 16:30), nghỉ thứ Ba",
+  "why": "Quán cà phê nhỏ gần phố Honchō, có bánh và cà phê ngồi nghỉ chân giữa buổi đi bộ. Không phải quán đồ ngọt nổi tiếng nên chỉ ghé nếu muốn ngồi.",
+  "rating": 3.4,
+  "ratingCount": 76,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/238834/640x640_rect_8101ca6df8709ae742519886f41e8870.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/238834/8101ca6df8709ae742519886f41e8870.jpg",
+    "caption": "Cà phê và tiramisu",
+    "credit": "ＹＲ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012749/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/189802/640x640_rect_43a82d33857a61cc5f747c49dd3135f5.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/189802/43a82d33857a61cc5f747c49dd3135f5.jpg",
+    "caption": "Bánh cà rốt phủ kem",
+    "credit": "souta そーた / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012749/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/189802/640x640_rect_5f21403545cb89478ee8d342948f7f93.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/189802/5f21403545cb89478ee8d342948f7f93.jpg",
+    "caption": "Tủ kính bánh của quán",
+    "credit": "souta そーた / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012749/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "コーヒー＋ティラミス",
+     "romaji": "kōhī to tiramisu",
+     "vi": "Cà phê kèm tiramisu trong ly, ảnh khách Tabelog",
+     "yen": null
+    },
+    {
+     "ja": "キャロットケーキ",
+     "romaji": "kyarotto kēki",
+     "vi": "Bánh cà rốt phủ kem, có trong tủ kính",
+     "yen": null
+    }
+   ],
+   "when": "Cách Honchō-dōri khoảng 110 m, Tabelog ghi 8 phút đi bộ từ ga Shimoyoshida. Ghé khoảng 11:45–12:15 ngay sau khi chụp phố, uống cà phê và ăn một miếng bánh trong 20 phút.",
+   "open": "08:00",
+   "close": "17:00",
+   "closedDow": [
+    2
+   ],
+   "closedNote": "Thứ Tư mở cửa; giờ có thể thay đổi nên kiểm tra trước",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190301/19012749/",
+    "rating": 3.4,
+    "count": 76,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-fuuto-coffee-bakeshop": {
+  "lat": 35.492471,
+  "lng": 138.802564,
+  "address": "山梨県富士吉田市下吉田3-12-3",
+  "hours": "Thứ Tư–Chủ nhật 11:00–17:00 (gọi món cuối 16:30), nghỉ thứ Hai và thứ Ba",
+  "why": "Quán cà phê nổi với pudding tự làm và dorayaki nướng bản đồng. Hợp ăn nhẹ giữa buổi.",
+  "rating": 3.35,
+  "ratingCount": 46,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/360571/640x640_rect_06c6d5854f80035488b6ca99c465ab87.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/360571/06c6d5854f80035488b6ca99c465ab87.jpg",
+    "caption": "Pudding caramel kèm kem tươi",
+    "credit": "Abundantia1219 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012355/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/360571/640x640_rect_16af0402c01fb75b901e91c2ce4b78f5.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/360571/16af0402c01fb75b901e91c2ce4b78f5.jpg",
+    "caption": "Bánh phô mai nướng cháy",
+    "credit": "Abundantia1219 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012355/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/374806/640x640_rect_3d00f721aba06a993dba46dd1f81be99.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/374806/3d00f721aba06a993dba46dd1f81be99.jpg",
+    "caption": "Dorayaki in hình hạt cà phê, ăn kèm cà phê",
+    "credit": "ゆうすけだいすけ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012355/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "自家製プリン",
+     "romaji": "jikasei purin",
+     "vi": "Pudding tự làm có caramel đậm, ăn kèm kem tươi",
+     "yen": null
+    },
+    {
+     "ja": "銅板どら焼き",
+     "romaji": "dōban dorayaki",
+     "vi": "Dorayaki nướng trên tấm đồng, in hình hạt cà phê",
+     "yen": null
+    }
+   ],
+   "when": "Cách Honchō-dōri khoảng 240 m; mở từ 11:00 nên ghé được khoảng 11:50–12:10 rồi đi tiếp ra ga Shimoyoshida cho chuyến 12:30.",
+   "open": "11:00",
+   "close": "17:00",
+   "closedDow": [
+    1,
+    2
+   ],
+   "closedNote": "Thứ Tư 20/10/2027 mở cửa; quán nhỏ có thể đổi giờ nên xem Instagram trước",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190301/19012355/",
+    "rating": 3.35,
+    "count": 46,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "instagram",
+     "url": "https://www.instagram.com/fuuto_coffee.bakeshop/",
+     "note": "Tài khoản được hamoni.jp nêu (chưa mở được từ máy chủ nên chưa kiểm tra giờ trên đó)"
+    },
+    {
+     "platform": "blog",
+     "url": "https://hamoni.jp/area/yamanashi/fujiyoshida/gekyoji/shops/sweets",
+     "note": "hamoni.jp: quán nổi với pudding tự làm và dorayaki bản đồng, hạng nhất mục đồ ngọt quanh Gekkoji"
+    }
+   ]
+  }
+ },
+ "sn-sakurai-udon": {
+  "lat": 35.48909,
+  "lng": 138.802154,
+  "address": "山梨県富士吉田市下吉田5-1-33",
+  "hours": "Thứ Hai–Thứ Bảy 10:00–14:30, nghỉ Chủ nhật",
+  "why": "Quán Yoshida udon trong danh sách Tabelog 100 nhiều năm, sợi dai cứng đặc trưng của Fujiyoshida. Một bát nhỏ chia đôi đủ để thử mà không ảnh hưởng bữa hōtō.",
+  "rating": 3.62,
+  "ratingCount": 556,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/55345/640x640_rect_55345052.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/55345/55345052.jpg",
+    "caption": "Udon nóng với aburaage và bắp cải",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19000357/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/99505/640x640_rect_99505510.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/99505/99505510.jpg",
+    "caption": "Udon nóng kiểu Yoshida",
+    "credit": "しのきち / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19000357/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/55345/640x640_rect_55345051.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/55345/55345051.jpg",
+    "caption": "Hũ ớt gia vị tự làm (suridane) để thêm vào bát",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19000357/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "ハーフ（Half Udon Soup）",
+     "romaji": "hāfu",
+     "vi": "Bát udon nhỏ nửa phần, chia hai người",
+     "yen": 300
+    },
+    {
+     "ja": "温かいうどん",
+     "romaji": "atatakai udon",
+     "vi": "Udon nóng dai, thêm bắp cải và aburaage",
+     "yen": 450
+    },
+    {
+     "ja": "冷たいうどん",
+     "romaji": "tsumetai udon",
+     "vi": "Udon lạnh chấm nước dùng",
+     "yen": 450
+    }
+   ],
+   "when": "Cách Honchō-dōri khoảng 590 m (9 phút từ ga Gekkoji). Đến khoảng 12:00 gọi bát nhỏ ¥300 để còn bụng cho Hōtō lúc 13:35; ăn rồi đi bộ ra ga Shimoyoshida cho chuyến 12:30 (khoảng 970 m).",
+   "open": "10:00",
+   "close": "14:30",
+   "closedDow": [
+    0
+   ],
+   "closedNote": "Thứ Tư mở cửa; udon có thể hết sớm nên đừng đến sát giờ đóng",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190301/19000357/",
+    "rating": 3.62,
+    "count": 556,
+    "award": "百名店 うどん EAST 2024, 2022, 2020"
+   },
+   "social": []
+  }
+ },
+ "sn-kawaguchiko-sweets-garden": {
+  "lat": 35.520914,
+  "lng": 138.77141,
+  "address": "山梨県南都留郡富士河口湖町河口2801-7",
+  "hours": "9:00–17:00 hằng ngày (một bài viết cũ ghi đến 18:00)",
+  "why": "Tiệm làm bánh ngọt tại xưởng, hơn 60 loại, nổi nhất là phô mai và dorayaki. Có sân vườn để ngồi ăn, gần bến Red Line nên dễ ghé sau bữa trưa.",
+  "rating": 3.38,
+  "ratingCount": 121,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/27612/640x640_rect_27612881.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/27612/27612881.jpg",
+    "caption": "Phô mai bán miếng, vị nguyên bản và óc chó",
+    "credit": "カ・ピパラ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19005973/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/27612/640x640_rect_27612851.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/27612/27612851.jpg",
+    "caption": "Dorayaki phô mai camembert",
+    "credit": "カ・ピパラ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19005973/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/27612/640x640_rect_27612890.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/27612/27612890.jpg",
+    "caption": "Tủ gelato nhiều vị",
+    "credit": "カ・ピパラ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19005973/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "朝霧チーズケーキ（1カット）",
+     "romaji": "Asagiri chīzukēki",
+     "vi": "Một miếng bánh phô mai làm từ sữa cao nguyên Asagiri, ăn tại chỗ hoặc mang đi",
+     "yen": 400
+    },
+    {
+     "ja": "カマンベールチーズどら焼き",
+     "romaji": "kamanbēru chīzu dorayaki",
+     "vi": "Dorayaki nhân phô mai camembert",
+     "yen": null
+    },
+    {
+     "ja": "ジェラート",
+     "romaji": "jerāto",
+     "vi": "Kem gelato nhiều vị, ảnh khách ghi ¥360 mỗi phần (bản cũ)",
+     "yen": null
+    }
+   ],
+   "when": "Cách bến 河口湖美術館 3 phút đi bộ theo Tabelog. Ghé sau bữa hōtō (13:35), khoảng 14:10–14:25, rồi quay lại bến cho chuyến Red Line 14:33 (giờ 2026); nếu ăn trưa lâu thì bỏ qua.",
+   "open": "09:00",
+   "close": "17:00",
+   "closedDow": [],
+   "closedNote": "Không thấy ghi ngày nghỉ cố định",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190303/19005973/",
+    "rating": 3.38,
+    "count": 121,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://macaro-ni.jp/64792?page=2",
+     "note": "macaro-ni: hơn 60 loại bánh làm tại xưởng, bánh phô mai Asagiri ¥400 một miếng, gần Kawaguchiko Music Forest Museum"
+    }
+   ]
+  }
+ },
+ "sn-budoya-kofu-hana-terrace": {
+  "lat": 35.52299,
+  "lng": 138.744903,
+  "address": "山梨県南都留郡富士河口湖町大石1477-1 富士大石ハナテラス D棟",
+  "hours": "10:00–17:00 (gọi món cuối 16:00), mở cả tuần; số thứ tự phát từ 9:30",
+  "why": "Quán trái cây Yamanashi gần công viên Ōishi, điểm Tabelog 3,56 với 290 đánh giá. Vào cuối tháng 10 menu theo mùa nên xem bảng tại quán.",
+  "rating": 3.56,
+  "ratingCount": 290,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/182490/640x640_rect_645b65062368b0d39a35a9cd6eed0770.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/182490/645b65062368b0d39a35a9cd6eed0770.jpg",
+    "caption": "Đĩa trái cây theo mùa kèm kem",
+    "credit": "東行晋作 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19010076/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/324064/640x640_rect_50f7558d3d3506e12e728925873b44c8.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/324064/50f7558d3d3506e12e728925873b44c8.jpg",
+    "caption": "Bánh sandwich nho khô",
+    "credit": "えもやん★スイーツハンター / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19010076/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/182491/640x640_rect_d80e83300d9251aaa3ea4800f0a40c39.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/182491/d80e83300d9251aaa3ea4800f0a40c39.jpg",
+    "caption": "Cà phê nóng và bánh quy",
+    "credit": "東行晋作 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19010076/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "フルーツソフト",
+     "romaji": "furūtsu sofuto",
+     "vi": "Kem mềm làm từ puree trái cây Yamanashi, không có sữa theo một trang mô tả",
+     "yen": null
+    },
+    {
+     "ja": "レーズンサンド",
+     "romaji": "rēzun sando",
+     "vi": "Bánh sandwich nho khô kiểu Nhật, ảnh khách Tabelog",
+     "yen": null
+    },
+    {
+     "ja": "季節のフルーツプレート",
+     "romaji": "kisetsu no furūtsu purēto",
+     "vi": "Đĩa trái cây theo mùa kèm kem, ảnh khách Tabelog",
+     "yen": null
+    }
+   ],
+   "when": "Cách bến 河口湖自然生活館 2 phút đi bộ và sát công viên Ōishi (~150 m). Ghé trong khung 14:50–15:45. Quán phát số thứ tự từ 9:30 và hay đông, nên nếu thấy chờ lâu thì mua kem hay đồ mang đi hoặc bỏ.",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [],
+   "closedNote": "Mở thứ Tư; một trang khác ghi cả khu Hana Terrace mở 9:30–17:30 tùy cửa hàng",
+   "queue": "Có phát số thứ tự từ 9:30 (Tabelog); giờ đông có thể chờ lâu, hãy xem số người đang chờ trước khi lấy số",
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190303/19010076/",
+    "rating": 3.56,
+    "count": 290,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-sawamura-shinjuku": {
+  "lat": 35.68911,
+  "lng": 139.701599,
+  "address": "東京都渋谷区千駄ヶ谷5-24-55 NEWoMan SHINJUKU 2F",
+  "hours": "Tiệm bánh 7:00–21:00; nhà hàng 7:00–10:00 và 11:00–23:00 (LO 22:00)",
+  "why": "Tiệm bánh mì trong NEWoMan, mở từ 7:00 nên là chỗ hiếm hoi mua được đồ ăn sáng trước chuyến Romancecar sớm. Đạt Tabelog 100 hạng mục Bánh mì Tokyo năm 2020.",
+  "rating": 3.62,
+  "ratingCount": 2126,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/62302/640x640_rect_62302226.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/62302/62302226.jpg",
+    "caption": "Bánh cà ri chiên ở Sawamura",
+    "credit": "ベリータルト / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130403/13193553/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/63217/640x640_rect_63217754.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/63217/63217754.jpg",
+    "caption": "Bánh mì chanh",
+    "credit": "ベリータルト / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130403/13193553/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/62302/640x640_rect_62302245.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/62302/62302245.jpg",
+    "caption": "Croissant cá cơm muối",
+    "credit": "ベリータルト / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130403/13193553/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/103472/640x640_rect_103472827.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/103472/103472827.jpg",
+    "caption": "Bánh anpan nhân óc chó",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130403/13193553/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "クロワッサン",
+     "romaji": "kurowassan",
+     "vi": "Croissant bơ, tiện ăn trên tàu. Ảnh khách Tabelog ghi ¥350 chưa thuế, giá có thể đã tăng",
+     "yen": null
+    },
+    {
+     "ja": "くるみあんぱん",
+     "romaji": "kurumi anpan",
+     "vi": "Bánh anpan nhân đậu đỏ và óc chó. Ảnh khách Tabelog ghi ¥260 chưa thuế, giá có thể đã tăng",
+     "yen": null
+    }
+   ],
+   "when": "Sáng sớm ở Shinjuku, khoảng 7:00–7:15 (xuống tàu Chūō-Sōbu, mua bánh rồi mới sang cổng Odakyu cho chuyến Romancecar 7:30)",
+   "open": "07:00",
+   "close": "21:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": "Review Tabelog ghi sáng cuối tuần khá đông; thứ Năm 21/10 là ngày thường",
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1304/A130403/13193553/",
+    "rating": 3.62,
+    "count": 2126,
+    "award": "Tabelog 100 Bánh mì TOKYO 2020"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://smartlog.jp/140219",
+     "note": "Smartlog (2019) đưa Sawamura NEWoMan vào mục ăn sáng ở Shinjuku, mở từ 7:00, nối thẳng ga"
+    }
+   ]
+  }
+ },
+ "sn-chimoto-ekimae": {
+  "lat": 35.231579,
+  "lng": 139.101517,
+  "address": "神奈川県足柄下郡箱根町湯本690",
+  "hours": "9:00–17:00, mở cả ngày lễ",
+  "why": "Tiệm wagashi hơn 70 năm tuổi, đạt Tabelog 100 wagashi và quán cà phê wagashi (Đông Nhật) năm 2026 và 2023. Mua một hai cái yumochi ăn lót dạ trước khi lên buýt.",
+  "rating": 3.71,
+  "ratingCount": 1384,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/242360/640x640_rect_3f8304a6215266e225710a7801193ab1.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/242360/3f8304a6215266e225710a7801193ab1.jpg",
+    "caption": "Món ngọt ở Chimoto Ekimae-dōri",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14011112/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/34442/640x640_rect_34442710.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/34442/34442710.jpg",
+    "caption": "Bánh wagashi ở Chimoto",
+    "credit": "一生懸命さとう君 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14011112/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/34442/640x640_rect_34442709.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/34442/34442709.jpg",
+    "caption": "Hộp bánh wagashi Chimoto",
+    "credit": "一生懸命さとう君 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14011112/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "湯もち",
+     "romaji": "yumochi",
+     "vi": "Bánh mochi mềm xốp đặc sản Hakone, hương yuzu. Mua lẻ từng cái; chưa kiểm chứng được giá hiện tại",
+     "yen": null
+    }
+   ],
+   "when": "Ở Hakone-Yumoto, khoảng 9:05–9:25, trước chuyến buýt H lúc 9:30 (cửa hàng mở 9:00, cách ga ~5 phút đi bộ)",
+   "open": "09:00",
+   "close": "17:00",
+   "closedDow": [],
+   "closedNote": "Nghỉ mùng 1 Tết và khoảng 5 ngày khác trong năm (Tabelog); không rơi vào 21/10",
+   "queue": "Hơn 1.300 review nhưng không thấy ghi xếp hàng; tiệm nhỏ nên vào sớm là gọn",
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/kanagawa/A1410/A141001/14011112/",
+    "rating": 3.71,
+    "count": 1384,
+    "award": "Tabelog 100 Wagashi & Cà phê wagashi (EAST) 2026, 2023; Tabelog 100 Sweets (EAST) 2018–2020, 2022"
+   },
+   "social": [
+    {
+     "platform": "instagram",
+     "url": "https://www.instagram.com/chimoto_hakone/",
+     "note": "Tài khoản chính thức: giới thiệu yumochi hương yuzu là món chủ lực, cửa hàng ga 9:00–17:00"
+    },
+    {
+     "platform": "tiktok",
+     "url": "https://www.tiktok.com/@futaritrip1224/video/7239319672896720135",
+     "note": "Video điểm 5 chỗ ăn vặt quanh ga Hakone-Yumoto, có Chimoto Ekimae-dōri"
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/shorts/H9F7q3z3ce4",
+     "note": "Short quay cách làm yumochi của Chimoto"
+    }
+   ]
+  }
+ },
+ "sn-kurotama-shop": {
+  "lat": 35.244418,
+  "lng": 139.019576,
+  "address": "神奈川県足柄下郡箱根町仙石原1251 大涌谷くろたまご館",
+  "hours": "Bán trứng 9:00–16:40, cửa hàng 9:00–16:30 (Tabelog ghi tháng 10 mở rộng 8:30–17:30)",
+  "why": "Trứng đen chỉ bán ở Ōwakudani, là món để chụp hình khi tới đây. Mua một gói chia hai người, ăn tại chỗ trong lúc đứng ngắm núi.",
+  "rating": 3.16,
+  "ratingCount": 161,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/63246/640x640_rect_63246001.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/63246/63246001.jpg",
+    "caption": "Trứng đen đóng gói ở Ōwakudani",
+    "credit": "KP６１ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14056863/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/63238/640x640_rect_63238931.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/63238/63238931.jpg",
+    "caption": "Trứng đen ở Ōwakudani",
+    "credit": "KP６１ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14056863/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/59774/640x640_rect_59774842.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/59774/59774842.jpg",
+    "caption": "Bóc vỏ trứng đen",
+    "credit": "Mihotan / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14056863/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/36389/640x640_rect_36389716.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/36389/36389716.jpg",
+    "caption": "Trứng đen với núi Phú Sĩ phía sau",
+    "credit": "なまらうまい / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14056863/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "黒たまご（4個入り）",
+     "romaji": "kuro-tamago",
+     "vi": "Trứng luộc suối nước nóng, vỏ đen, ruột là trứng luộc bình thường. Gói 4 quả",
+     "yen": 500
+    },
+    {
+     "ja": "黒ソフトクリーム",
+     "romaji": "kuro sofutokurīmu",
+     "vi": "Kem đen ăn kèm trứng; ảnh khách Tabelog có, chưa kiểm chứng giá",
+     "yen": null
+    }
+   ],
+   "when": "Ngay khi tới Ōwakudani, khoảng 12:30–13:00 (cửa hàng ở tầng 2 toà nhà ngay ngoài ga cáp treo)",
+   "open": "09:00",
+   "close": "16:30",
+   "closedDow": [],
+   "closedNote": "Không có ngày nghỉ cố định; đóng khi ropeway dừng do khí núi lửa hoặc gió mạnh",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/kanagawa/A1410/A141001/14056863/",
+    "rating": 3.16,
+    "count": 161,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.hakonenavi.jp/area/owakudani_test/",
+     "note": "Hakone Navi, trang khu vực Ōwakudani: trứng đen bán theo gói 4 quả, bán trứng 9:00–16:40"
+    }
+   ]
+  }
+ },
+ "sn-yu-land": {
+  "lat": 35.244418,
+  "lng": 139.019576,
+  "address": "神奈川県足柄下郡箱根町仙石原1251 大涌谷観光センター内",
+  "hours": "8:30–17:30 (tháng 10); các tháng khác đóng sớm hơn, 16:30–17:00",
+  "why": "Quầy kem trong trung tâm du lịch, kem trứng hợp để ăn sau trứng đen. Có thể ăn trong lúc chờ ropeway đi Sōunzan.",
+  "rating": 3.29,
+  "ratingCount": 135,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/162168/640x640_rect_162168420.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/162168/162168420.jpg",
+    "caption": "Kem trứng ở Yū-rando",
+    "credit": "Ｑueen wasp / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14030441/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/56413/640x640_rect_56413221.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/56413/56413221.jpg",
+    "caption": "Kem đen đen",
+    "credit": "ピーターパン 飯の旅 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14030441/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/56413/640x640_rect_56413225.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/56413/56413225.jpg",
+    "caption": "Bóc trứng đen ăn cùng kem",
+    "credit": "ピーターパン 飯の旅 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14030441/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/54108/640x640_rect_54108751.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/54108/54108751.jpg",
+    "caption": "Kem mềm ở Yū-rando",
+    "credit": "ビーグルボーイ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14030441/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "たまごソフトクリーム",
+     "romaji": "tamago sofutokurīmu",
+     "vi": "Kem vị trứng (custard). Giá theo ảnh khách Tabelog gần đây, có thể đổi",
+     "yen": 450
+    }
+   ],
+   "when": "Sau khi mua trứng đen ở Ōwakudani, khoảng 12:45–13:15",
+   "open": "08:30",
+   "close": "17:30",
+   "closedDow": [],
+   "closedNote": "Không có ngày nghỉ cố định; đóng khi ropeway dừng",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/kanagawa/A1410/A141001/14030441/",
+    "rating": 3.29,
+    "count": 135,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-pan-no-mimi": {
+  "lat": 35.253132,
+  "lng": 139.05191,
+  "address": "神奈川県足柄下郡箱根町宮城野170",
+  "hours": "11:00–15:00",
+  "why": "Quán kissa nhỏ nổi tiếng với món bánh mì gratin cả ổ, khoảng ¥1.000–1.999 mỗi người. Tabelog khuyên đi taxi từ ga Gōra nếu đi tàu leo núi.",
+  "rating": 3.49,
+  "ratingCount": 398,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/67746/640x640_rect_67746425.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/67746/67746425.jpg",
+    "caption": "Bánh mì gratin nguyên ổ",
+    "credit": "ウサギのミミー / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14003747/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/67746/640x640_rect_67746429.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/67746/67746429.jpg",
+    "caption": "Bánh mì gratin nhìn gần",
+    "credit": "ウサギのミミー / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14003747/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/67746/640x640_rect_67746439.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/67746/67746439.jpg",
+    "caption": "Cà ri nướng với trứng onsen",
+    "credit": "ウサギのミミー / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14003747/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/57067/640x640_rect_57067948.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/57067/57067948.jpg",
+    "caption": "Bánh mì gratin phần lớn",
+    "credit": "浜の布袋 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1410/A141001/14003747/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "ぱんグラタン",
+     "romaji": "pan guratan",
+     "vi": "Nguyên ổ bánh mì khoét ruột, nhồi gratin và nướng. Phần rất lớn, hai người chia một",
+     "yen": null
+    },
+    {
+     "ja": "焼きカレー（温玉入り）",
+     "romaji": "yaki karē (onsen tamago iri)",
+     "vi": "Cà ri nướng với trứng lòng đào",
+     "yen": null
+    }
+   ],
+   "when": "Ở Gōra, khoảng 13:20–14:00 (cách ga ~430 m đường dốc, đi bộ 7–10 phút; cần chừa 40 phút)",
+   "open": "11:00",
+   "close": "15:00",
+   "closedDow": [
+    2,
+    3
+   ],
+   "closedNote": "Nghỉ thứ Ba và thứ Tư; thứ Năm 21/10 mở cửa",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/kanagawa/A1410/A141001/14003747/",
+    "rating": 3.49,
+    "count": 398,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-tokaken-odawara-higashiguchi": {
+  "lat": 35.255249,
+  "lng": 139.156433,
+  "address": "神奈川県小田原市栄町1-2-1 小田原駅前ビル 1F",
+  "hours": "8:30–19:00",
+  "why": "Hãng ekiben lâu năm của Odawara, bán sushi aji ép mang lên tàu. Chuyến JR tới Shimizu mất 2,5 giờ nên mua trước, nhưng bữa trưa ở Kaizan là 12:00 nên chọn phần nhỏ hoặc để dành ăn nhẹ.",
+  "rating": 3.34,
+  "ratingCount": 58,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/58963/640x640_rect_58963317.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/58963/58963317.jpg",
+    "caption": "Sushi aji ép với cá kinme nướng",
+    "credit": "ぽぱい / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1409/A140901/14063844/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/58963/640x640_rect_58963308.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/58963/58963308.jpg",
+    "caption": "Sushi aji cân bằng cơm giấm",
+    "credit": "ぽぱい / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1409/A140901/14063844/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/334148/640x640_rect_0c651967c78d4a1e23685945d5ec472e.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/334148/0c651967c78d4a1e23685945d5ec472e.jpg",
+    "caption": "Sushi aji ép cỡ nhỏ",
+    "credit": "waco376 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1409/A140901/14063844/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/131890/640x640_rect_131890674.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/131890/131890674.jpg",
+    "caption": "Cơm cá tai",
+    "credit": "ワイン飲み / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1409/A140901/14063844/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "ekiben",
+   "get": [
+    {
+     "ja": "小鯵押寿司",
+     "romaji": "ko-aji oshizushi",
+     "vi": "Sushi ép cá aji nhỏ, món ekiben đặc sản Odawara. Giá theo ảnh khách Tabelog",
+     "yen": 1380
+    },
+    {
+     "ja": "おたのしみ鯛めし",
+     "romaji": "otanoshimi tai-meshi",
+     "vi": "Cơm cá tai trong hộp. Giá theo ảnh khách Tabelog",
+     "yen": 1350
+    }
+   ],
+   "when": "Ở ga Odawara, khoảng 9:00–9:25 trước chuyến JR 9:30 (mở 8:30, ngay ngoài cửa Đông ga)",
+   "open": "08:30",
+   "close": "19:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/kanagawa/A1409/A140901/14063844/",
+    "rating": 3.34,
+    "count": 58,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-suzuhiro-odawara-ekimae": {
+  "lat": 35.255215,
+  "lng": 139.156235,
+  "address": "神奈川県小田原市栄町1-3-15",
+  "hours": "9:00–19:00",
+  "why": "Kamaboko là đặc sản của Odawara, và đây là cửa hàng của Suzuhiro, một trong ba hãng lớn. Mua chả nướng, chả chiên ăn đứng trước khi lên tàu.",
+  "rating": 3.22,
+  "ratingCount": 164,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/242168/640x640_rect_028ae5c79e2487928ce9b25297ffa058.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/242168/028ae5c79e2487928ce9b25297ffa058.jpg",
+    "caption": "Kamaboko nướng nhân đậu nành",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1409/A140901/14040794/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/242168/640x640_rect_e4b25f645b86636af351184fef18fbdd.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/242168/e4b25f645b86636af351184fef18fbdd.jpg",
+    "caption": "Kamaboko nướng nhân ngô và sò điệp",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1409/A140901/14040794/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/242168/640x640_rect_82c1db02103e89001a9fa44153bd4274.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/242168/82c1db02103e89001a9fa44153bd4274.jpg",
+    "caption": "Chả cá chiên cá nhỏ",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1409/A140901/14040794/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/242168/640x640_rect_03b6651e337de7fe52d1423b2606e263.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/242168/03b6651e337de7fe52d1423b2606e263.jpg",
+    "caption": "Viên chả tôm",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kanagawa/A1409/A140901/14040794/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "焼きかま（枝豆）",
+     "romaji": "yakikama (edamame)",
+     "vi": "Kamaboko nướng nhân đậu nành, ăn nóng. Giá theo ảnh khách Tabelog",
+     "yen": 200
+    },
+    {
+     "ja": "小魚さつま",
+     "romaji": "kozakana satsuma",
+     "vi": "Chả cá chiên cá nhỏ. Giá theo ảnh khách Tabelog",
+     "yen": 220
+    },
+    {
+     "ja": "海老ボール",
+     "romaji": "ebi bōru",
+     "vi": "Viên chả tôm chiên. Giá theo ảnh khách Tabelog",
+     "yen": 200
+    }
+   ],
+   "when": "Ở ga Odawara, khoảng 9:05–9:20 (mở 9:00, cách cửa Đông 1 phút đi bộ)",
+   "open": "09:00",
+   "close": "19:00",
+   "closedDow": [],
+   "closedNote": "Chỉ nghỉ mùng 1 Tết",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/kanagawa/A1409/A140901/14040794/",
+    "rating": 3.22,
+    "count": 164,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-atami-pudding": {
+  "lat": 35.102026,
+  "lng": 139.077355,
+  "address": "静岡県熱海市田原本町3-14",
+  "hours": "10:00–18:00",
+  "why": "Tiệm pudding mang đi nổi tiếng nhất Atami, Tabelog 100 hạng mục Sweets (Đông Nhật) năm 2026. Chỉ đáng ghé nếu tàu chờ đủ lâu vì thường xếp hàng.",
+  "rating": 3.61,
+  "ratingCount": 1376,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/244626/640x640_rect_76d0db0bfac0a74879061e03c1377a24.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/244626/76d0db0bfac0a74879061e03c1377a24.jpg",
+    "caption": "Pudding Atami trong chai",
+    "credit": "カフェモカ男 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2205/A220502/22031988/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/244012/640x640_rect_063c659e9822aaed039cacd92f42e998.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/244012/063c659e9822aaed039cacd92f42e998.jpg",
+    "caption": "Pudding Atami xếp trên quầy",
+    "credit": "カフェモカ男 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2205/A220502/22031988/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/193031/640x640_rect_9591358b14e6066053b0dc9d967a7b24.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/193031/9591358b14e6066053b0dc9d967a7b24.jpg",
+    "caption": "Pudding Atami",
+    "credit": "Jasmine_m / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2205/A220502/22031988/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "熱海プリン 特製カラメルシロップ付",
+     "romaji": "Atami purin tokusei karamel shiroppu-tsuki",
+     "vi": "Pudding trong chai sữa, kèm syrup caramel riêng",
+     "yen": 450
+    },
+    {
+     "ja": "かぼちゃプリン",
+     "romaji": "kabocha purin",
+     "vi": "Pudding bí đỏ, có trên menu website, có thể theo mùa",
+     "yen": 500
+    },
+    {
+     "ja": "熱海プリンのアイス",
+     "romaji": "Atami purin no aisu",
+     "vi": "Kem vị pudding, cầm tay đi được",
+     "yen": 500
+    }
+   ],
+   "when": "Chỉ khi đổi tàu ở Atami và chờ ít nhất 25 phút (khoảng 10:00–10:30); cách ga 3 phút đi bộ, mở 10:00",
+   "open": "10:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Không có ngày nghỉ cố định; ngày nghỉ bất thường đăng trên website atami-purin.com",
+   "queue": "Tabelog ghi \"cửa hàng pudding mang đi, thường xếp hàng dài\"; chỉ có 1 chỗ ngồi",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/shizuoka/A2205/A220502/22031988/",
+    "rating": 3.61,
+    "count": 1376,
+    "award": "Tabelog 100 Sweets (EAST) 2026"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://aumo.jp/articles/25100",
+     "note": "Aumo (2023) xếp Atami Pudding vào 9 món ngọt không thể bỏ qua ở Atami, cách ga ~3 phút"
+    }
+   ]
+  }
+ },
+ "sn-tochuken-numazu": {
+  "lat": 35.103424,
+  "lng": 138.861343,
+  "address": "静岡県沼津市大手町1-1-1",
+  "hours": "10:00–17:30, nghỉ 13:30–14:30",
+  "why": "Ekiben từ năm 1891, món Minato Aji-zushi dùng cá aji Numazu và wasabi tươi, hợp để ăn nhẹ trên tàu. Quầy nhỏ, đồ ít nên đừng đến sát giờ tàu chạy.",
+  "rating": 3.24,
+  "ratingCount": 38,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/97035/640x640_rect_97035819.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/97035/97035819.jpg",
+    "caption": "Hộp Minato Aji-zushi",
+    "credit": "旅浪漫 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2205/A220501/22028681/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/97035/640x640_rect_97035829.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/97035/97035829.jpg",
+    "caption": "Kèm wasabi tươi Amagi",
+    "credit": "旅浪漫 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2205/A220501/22028681/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/333434/640x640_rect_137f4e2ad76daf6bb833db21e6c22dab.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/333434/137f4e2ad76daf6bb833db21e6c22dab.jpg",
+    "caption": "Sushi vị matcha của Tōchūken",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2205/A220501/22028681/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "ekiben",
+   "get": [
+    {
+     "ja": "港あじ鮨",
+     "romaji": "minato aji-zushi",
+     "vi": "Ba kiểu sushi cá aji Numazu, có wasabi tươi Amagi. Giá ¥1.120 theo Daily Sports 5/2025 (bán ở Mishima, cũng bán ở Numazu); Tabelog Numazu ghi ¥1.080",
+     "yen": 1120
+    }
+   ],
+   "when": "Chỉ khi đổi tàu ở Numazu, khoảng 10:45–11:15 (quầy cách cổng soát vé phía Nam ~18 m; mở 10:00, nghỉ 13:30–14:30)",
+   "open": "10:00",
+   "close": "17:30",
+   "closedDow": [],
+   "closedNote": "Đóng cửa buổi chiều 13:30–14:30; mua trước đó",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/shizuoka/A2205/A220501/22028681/",
+    "rating": 3.24,
+    "count": 38,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.daily.co.jp/society/ekiben/2025/05/28/0019037768.shtml",
+     "note": "Daily Sports mục ekiben khuyên dùng (28/5/2025): Minato Aji-zushi của Tōchūken, ¥1.120, cũng bán ở ga Numazu"
+    }
+   ]
+  }
+ },
+ "sn-kashi-no-ichi-ichibakan": {
+  "lat": 35.021908,
+  "lng": 138.490686,
+  "address": "静岡県静岡市清水区島崎町149",
+  "hours": "Ichiba-kan 9:30–17:30; Bakagai 7:00–15:00 (LO 14:30)",
+  "why": "Khu chợ cá cảng Shimizu, đã tân trang tháng 4/2025; tầng 1 Ichiba-kan có hàng mang đi, tầng 2 nối thẳng ga. Ghé 10 phút để mua món chiên hoặc nướng ăn kèm cá ngừ ở Kaizan.",
+  "images": [],
+  "snack": {
+   "type": "market",
+   "get": [
+    {
+     "ja": "マグロフライ（うおかん）",
+     "romaji": "maguro furai (Ukan)",
+     "vi": "Cá ngừ tẩm bột chiên, cỡ vừa để vừa đi vừa ăn. Không thấy giá trong nguồn",
+     "yen": null
+    },
+    {
+     "ja": "黒はんぺん（馬鹿貝・まぐろ館）",
+     "romaji": "kuro hanpen (Bakagai, Maguro-kan)",
+     "vi": "Hanpen đen nướng tại chỗ, 2 miếng. Quán ở Maguro-kan, mở từ 7:00, nghỉ thứ Tư",
+     "yen": 480
+    },
+    {
+     "ja": "有頭海老の浜焼き（馬鹿貝）",
+     "romaji": "yūtō ebi no hamayaki",
+     "vi": "Tôm nướng nguyên con, 1 con",
+     "yen": 250
+    }
+   ],
+   "when": "Trước hoặc sau bữa trưa ở Kaizan (12:00): khoảng 11:40–12:00 hoặc 12:50–13:00; tòa Ichiba-kan nối thẳng tầng 2 ga Shimizu",
+   "open": "09:30",
+   "close": "17:30",
+   "closedDow": [
+    3
+   ],
+   "closedNote": "Nghỉ thứ Tư (đôi khi cả thứ Ba); thứ Sáu 22/10 mở cửa",
+   "queue": null,
+   "pay": null,
+   "tabelog": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://rurubu.jp/andmore/article/23783",
+     "note": "Rurubu andmore (2025) về Ichiba-kan sau tân trang: danh sách quầy mang đi, giờ mở và giá Bakagai"
+    }
+   ]
+  }
+ },
+ "sn-tokaken-shizuoka": {
+  "lat": 34.971776,
+  "lng": 138.389249,
+  "address": "静岡県静岡市葵区黒金町50 JR静岡駅 ASTY静岡",
+  "hours": "6:30–21:00",
+  "why": "Tōkaiken là hãng ekiben Shizuoka từ 1889, quầy này đứng ngay trước cổng Shinkansen nên mua rất tiện. Bữa trưa ở Kaizan vừa xong, hợp mua một hộp nhỏ để ăn lúc 15:30 trên tàu Kintetsu.",
+  "rating": 3.44,
+  "ratingCount": 259,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/46719/640x640_rect_46719551.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/46719/46719551.jpg",
+    "caption": "Cơm cá tai Tōkaiken",
+    "credit": "職人！西島兵庫 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2201/A220101/22000766/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/28289/640x640_rect_28289970.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/28289/28289970.jpg",
+    "caption": "Cá tai rắc trên cơm",
+    "credit": "ラーメンドライバー / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2201/A220101/22000766/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/46568/640x640_rect_46568335.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/46568/46568335.jpg",
+    "caption": "Oden Shizuoka bán tại quầy",
+    "credit": "eb2002621 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2201/A220101/22000766/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/58432/640x640_rect_58432925.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/58432/58432925.jpg",
+    "caption": "Cơm nắm bento",
+    "credit": "なおかり / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/shizuoka/A2201/A220101/22000766/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "ekiben",
+   "get": [
+    {
+     "ja": "幕の内弁当",
+     "romaji": "makunouchi bentō",
+     "vi": "Bento makunouchi cổ điển của hãng ekiben cổ nhất tuyến Tōkaidō. Giá theo ảnh khách Tabelog",
+     "yen": 1000
+    },
+    {
+     "ja": "元祖鯛めし",
+     "romaji": "ganso tai-meshi",
+     "vi": "Cơm cá tai bán từ 1897. Giá đã đổi nhiều lần, hỏi lại ở quầy",
+     "yen": null
+    }
+   ],
+   "when": "Ở ga Shizuoka, khoảng 13:15–13:40 trước chuyến Shinkansen (quầy ngay trước cổng soát vé Shinkansen, trong ASTY)",
+   "open": "06:30",
+   "close": "21:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/shizuoka/A2201/A220101/22000766/",
+    "rating": 3.44,
+    "count": 259,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://intojapanwaraku.com/rock/gourmet-rock/65194/",
+     "note": "Bài 12/2019 về bento makunouchi của Tōkaiken, hãng ekiben lâu đời nhất tuyến Tōkaidō (không nêu giá)"
+    }
+   ]
+  }
+ },
+ "sn-fujita-ya-kintetsu-nagoya": {
+  "lat": 35.169407,
+  "lng": 136.884506,
+  "address": "愛知県名古屋市中村区名駅1-2-2",
+  "hours": "9:00–21:00",
+  "why": "Anmaki là món ăn vặt đặc trưng của Nagoya, làm nóng tại chỗ trong 1–2 phút. Hợp cho 15 phút đổi tàu vì cửa hàng nằm sát cửa soát vé Kintetsu.",
+  "rating": 3.13,
+  "ratingCount": 114,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/186147/640x640_rect_9e59aa811be187fd2b779697f79ff94c.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/186147/9e59aa811be187fd2b779697f79ff94c.jpg",
+    "caption": "Anmaki chiên cỡ lớn",
+    "credit": "humit / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/aichi/A2301/A230101/23064189/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/186147/640x640_rect_1a8846a3dc84ebc42bdce47679b675be.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/186147/1a8846a3dc84ebc42bdce47679b675be.jpg",
+    "caption": "Anmaki chiên cỡ lớn, mặt cắt",
+    "credit": "humit / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/aichi/A2301/A230101/23064189/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/205706/640x640_rect_d69982af03eab39180a33a6915d2bef1.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/205706/d69982af03eab39180a33a6915d2bef1.jpg",
+    "caption": "Anmaki nhân đậu đỏ và custard",
+    "credit": "⭐︎うまいもんハンター⭐︎ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/aichi/A2301/A230101/23064189/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/199769/640x640_rect_c2c1c616e7e12ea56f381645bb8123e9.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/199769/c2c1c616e7e12ea56f381645bb8123e9.jpg",
+    "caption": "Anmaki nhân matcha và custard",
+    "credit": "⭐︎うまいもんハンター⭐︎ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/aichi/A2301/A230101/23064189/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "大あんまき",
+     "romaji": "ō anmaki",
+     "vi": "Bánh cuộn kiểu Nagoya chiên nóng, nhân đậu đỏ, custard hoặc matcha. Giá ¥280 là bản sakura trong ảnh khách; bản thường có thể khác",
+     "yen": 280
+    }
+   ],
+   "when": "Khi đổi từ Shinkansen sang Kintetsu ở Nagoya, khoảng 15:05–15:20 (cửa hàng ngay trong ga Kintetsu Nagoya, mở 9:00–21:00)",
+   "open": "09:00",
+   "close": "21:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": "Một review Tabelog ghi có hàng dài; chừa 5–10 phút",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/aichi/A2301/A230101/23064189/",
+    "rating": 3.13,
+    "count": 114,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-dandelion-chocolate-ise": {
+  "lat": 34.488205,
+  "lng": 136.707504,
+  "address": "三重県伊勢市本町20-24",
+  "hours": "10:00–17:00 (LO 16:30)",
+  "why": "Hãng sô-cô-la bean-to-bar có chi nhánh ở phố Gekū, Tabelog 3,59 với hơn 400 review. Ngồi nghỉ chân sau khi xuống buýt từ Naikū.",
+  "rating": 3.59,
+  "ratingCount": 419,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/95021/640x640_rect_95021186.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/95021/95021186.jpg",
+    "caption": "Sô-cô-la nóng Ise và brownie",
+    "credit": "2代目たけじろう / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24014443/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/124509/640x640_rect_124509050.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/124509/124509050.jpg",
+    "caption": "Brownie sô-cô-la",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24014443/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/80610/640x640_rect_80610727.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/80610/80610727.jpg",
+    "caption": "Macaron Tanzania",
+    "credit": "VOLVO850R / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24014443/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/132942/640x640_rect_132942685.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/132942/132942685.jpg",
+    "caption": "Sô-cô-la đá xay",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24014443/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "イセホットチョコレート",
+     "romaji": "Ise hotto chokorēto",
+     "vi": "Sô-cô-la nóng riêng của chi nhánh Ise; ảnh khách Tabelog, không thấy giá",
+     "yen": null
+    },
+    {
+     "ja": "チョコレートブラウニー",
+     "romaji": "chokorēto buraunī",
+     "vi": "Brownie sô-cô-la ăn kèm sô-cô-la nóng",
+     "yen": null
+    },
+    {
+     "ja": "伊勢シェフズ テイスティング",
+     "romaji": "Ise shefuzu teisutingu",
+     "vi": "Bộ nếm thử do bếp chọn. Giá theo ảnh khách Tabelog",
+     "yen": 1600
+    }
+   ],
+   "when": "Sau khi xuống buýt ở Gekū-mae (khoảng 14:40), trên đường đi bộ sang phố Kawasaki. Mở 10:00 nên không kịp lúc 9:00–9:45",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [],
+   "closedNote": "Mở quanh năm nhưng có thể đóng tạm, hãng khuyên xem website hoặc Instagram",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240301/24014443/",
+    "rating": 3.59,
+    "count": 419,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-tofuan-yamanaka": {
+  "lat": 34.461284,
+  "lng": 136.72328,
+  "address": "三重県伊勢市宇治中之切町95",
+  "hours": "10:00–16:00",
+  "why": "Kem đậu phụ và donut bã đậu là món ăn vặt rẻ nhất mà vẫn được Tabelog 3,59 trên Oharai-machi. Mua vài cái ăn trong lúc đi bộ tới Fukusuke.",
+  "rating": 3.59,
+  "ratingCount": 595,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/58739/640x640_rect_58739340.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/58739/58739340.jpg",
+    "caption": "Donut bã đậu phụ",
+    "credit": "食道者 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24001620/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/58739/640x640_rect_58739335.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/58739/58739335.jpg",
+    "caption": "Kem đậu phụ cỡ trẻ em",
+    "credit": "食道者 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24001620/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/34872/640x640_rect_34872154.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/34872/34872154.jpg",
+    "caption": "Donut bã đậu phụ",
+    "credit": "eb2002621 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24001620/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "おとうふソフト（お子様サイズ）",
+     "romaji": "otōfu sofuto (okosama saizu)",
+     "vi": "Kem đậu phụ, nhẹ ít ngọt. Giá cỡ trẻ em theo Tabelog; cỡ thường đắt hơn, chưa kiểm chứng",
+     "yen": 170
+    },
+    {
+     "ja": "うの花ドーナツ",
+     "romaji": "unohana dōnatsu",
+     "vi": "Bánh donut bã đậu phụ, nhỏ, rẻ",
+     "yen": 130
+    }
+   ],
+   "when": "Trên Oharai-machi trước Fukusuke, khoảng 11:00–11:20",
+   "open": "10:00",
+   "close": "16:00",
+   "closedDow": [
+    4
+   ],
+   "closedNote": "Nghỉ thứ Năm (mở thứ Năm đầu tháng và ngày lễ); thứ Bảy 23/10 mở cửa",
+   "queue": "Oharai-machi thứ Bảy rất đông, nhất là 11:00–14:00",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240301/24001620/",
+    "rating": 3.59,
+    "count": 595,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-dango-ya-okage": {
+  "lat": 34.462023,
+  "lng": 136.723622,
+  "address": "三重県伊勢市宇治中之切町12",
+  "hours": "Thứ Hai–thứ Sáu 9:30–17:00; thứ Bảy–Chủ nhật 9:30–17:30",
+  "why": "Quầy dango trong Okage Yokochō, nằm trong 20 món ăn vặt Jalan chọn cho khu này. Ăn đứng vài xiên là xong, không phải ngồi.",
+  "rating": 3.49,
+  "ratingCount": 549,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/34865/640x640_rect_34865381.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/34865/34865381.jpg",
+    "caption": "Dango sốt mitarashi",
+    "credit": "eb2002621 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24007364/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/34782/640x640_rect_34782314.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/34782/34782314.jpg",
+    "caption": "Dango shoyu sống",
+    "credit": "kinako-anko / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24007364/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/124170/640x640_rect_124170629.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/124170/124170629.jpg",
+    "caption": "Dango mitarashi",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24007364/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "黒糖蜜だんご",
+     "romaji": "kokutō mitsu dango",
+     "vi": "Xiên dango phủ siro đường nâu. Giá theo Jalan 2026",
+     "yen": 250
+    },
+    {
+     "ja": "みたらしだんご",
+     "romaji": "mitarashi dango",
+     "vi": "Dango sốt shoyu ngọt, món cổ điển. Giá hiện tại chưa kiểm chứng",
+     "yen": null
+    }
+   ],
+   "when": "Trong Okage Yokochō khoảng 12:00–12:30, sau Fukusuke (tiệm chỉ có 4 chỗ ngồi, mua mang đi)",
+   "open": "09:30",
+   "close": "17:30",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": "Okage Yokochō thứ Bảy rất đông; nên ghé ngay khi tới",
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240301/24007364/",
+    "rating": 3.49,
+    "count": 549,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.jalan.net/news/article/925042/",
+     "note": "Jalan News 2026, 20 món ăn vặt Oharai-machi và Okage Yokochō: Dango-ya, kokutō mitsu dango ¥250"
+    }
+   ]
+  }
+ },
+ "sn-maruyoshi-oharai": {
+  "lat": 34.460724,
+  "lng": 136.723572,
+  "address": "三重県伊勢市宇治今在家町26",
+  "hours": "10:30–16:00",
+  "why": "Cửa hàng thịt bò Matsusaka có quầy mang đi bán bánh bao và croquette bò, cách rẻ nhất để nếm Matsusaka trên phố. Tầng 2 là nhà hàng, không cần vào.",
+  "rating": 3.47,
+  "ratingCount": 249,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/143512/640x640_rect_143512000.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/143512/143512000.jpg",
+    "caption": "Croquette bò Matsusaka kiểu lẩu",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24017325/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/170818/640x640_rect_1ce589a2842219f63e22fee46ed15435.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/170818/1ce589a2842219f63e22fee46ed15435.jpg",
+    "caption": "Croquette bò Matsusaka",
+    "credit": "ジャイアン123456 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24017325/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/174951/640x640_rect_225b57fce3da030198cd2277e1bb6de2.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/174951/225b57fce3da030198cd2277e1bb6de2.jpg",
+    "caption": "Croquette bò Matsusaka kiểu lẩu",
+    "credit": "mori-no-kuma / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24017325/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "松阪牛 牛鍋まん",
+     "romaji": "Matsusaka-gyū gyūnabe-man",
+     "vi": "Bánh bao nhân thịt bò Matsusaka kiểu lẩu. Giá theo Jalan 2026",
+     "yen": 500
+    },
+    {
+     "ja": "松阪牛 牛鍋コロッケ",
+     "romaji": "Matsusaka-gyū gyūnabe korokke",
+     "vi": "Croquette bò Matsusaka kiểu lẩu, bán ở tầng 1. Không thấy giá trong nguồn",
+     "yen": null
+    }
+   ],
+   "when": "Trên Oharai-machi, khoảng 11:00–11:25 hoặc sau Akafuku, 13:30; quầy mang đi ở tầng 1",
+   "open": "10:30",
+   "close": "16:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": "Oharai-machi thứ Bảy rất đông; quầy tầng 1 xếp hàng ngắn hơn nhà hàng",
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240301/24017325/",
+    "rating": 3.47,
+    "count": 249,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.jalan.net/news/article/925042/",
+     "note": "Jalan News 2026: bánh bao bò Matsusaka kiểu lẩu ¥500 tại chi nhánh Oharai-machi"
+    }
+   ]
+  }
+ },
+ "sn-henbaya-oharai": {
+  "lat": 34.464371,
+  "lng": 136.72294,
+  "address": "三重県伊勢市宇治浦田1-149-1",
+  "hours": "9:00–17:00 (ăn tại chỗ đến 16:30, hết hàng là đóng)",
+  "why": "Henba mochi là bánh mochi nướng lâu đời của Ise, mua lẻ 2 cái tại chi nhánh Oharai-machi. Dùng làm món ngọt thứ hai nếu ngày thứ Bảy Akafuku quá đông.",
+  "rating": 3.45,
+  "ratingCount": 391,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/124386/640x640_rect_124386520.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/124386/124386520.jpg",
+    "caption": "Henba mochi và sawa mochi",
+    "credit": "6_6 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24010667/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/223772/640x640_rect_6424361bf632a656fadd7352c42b0de7.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/223772/6424361bf632a656fadd7352c42b0de7.jpg",
+    "caption": "Henba mochi",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24010667/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/178447/640x640_rect_0198e895cee41cdb803ade59ebbd3dd3.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/178447/0198e895cee41cdb803ade59ebbd3dd3.jpg",
+    "caption": "Henba mochi nướng hai mặt",
+    "credit": "東行晋作 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24010667/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "へんば餅（2個）",
+     "romaji": "henba mochi (2-ko)",
+     "vi": "Mochi dẹt nướng cháy hai mặt, nhân đậu đỏ ít ngọt. Giá theo Jalan 2026",
+     "yen": 230
+    }
+   ],
+   "when": "Cuối Oharai-machi phía Gekū, ~3 phút đi bộ từ Okage Yokochō, khoảng 12:30–13:00 trước Akafuku",
+   "open": "09:00",
+   "close": "17:00",
+   "closedDow": [
+    1
+   ],
+   "closedNote": "Nghỉ thứ Hai; thứ Bảy 23/10 mở cửa",
+   "queue": "Oharai-machi thứ Bảy đông",
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240301/24010667/",
+    "rating": 3.45,
+    "count": 391,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.jalan.net/news/article/925042/",
+     "note": "Jalan News 2026: henba mochi 2 cái ¥230 tại chi nhánh Oharai-machi"
+    }
+   ]
+  }
+ },
+ "sn-ise-purin-tetsujin": {
+  "lat": 34.460724,
+  "lng": 136.723572,
+  "address": "三重県伊勢市宇治今在家町24",
+  "hours": "Từ 10:00, giờ đóng cửa đổi theo mùa",
+  "why": "Tiệm pudding và bánh mì sandwich ngay trên Oharai-machi, món pudding toast được Jalan chọn vào 20 món ăn vặt. Mở quanh năm.",
+  "rating": 3.49,
+  "ratingCount": 237,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/201559/640x640_rect_8bc15ebef88d13a67961b4f2af9c3eb5.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/201559/8bc15ebef88d13a67961b4f2af9c3eb5.jpg",
+    "caption": "Bánh mì nướng pudding",
+    "credit": "16uk_ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24015613/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/302415/640x640_rect_ffbeb248ac9b1a2ac72a5d4b043228fc.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/302415/ffbeb248ac9b1a2ac72a5d4b043228fc.jpg",
+    "caption": "Bánh mì nướng pudding Ise",
+    "credit": "yoshimin+ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24015613/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/143944/640x640_rect_143944737.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/143944/143944737.jpg",
+    "caption": "Pudding kiểu cổ điển",
+    "credit": "なおかり / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24015613/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/100405/640x640_rect_100405507.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/100405/100405507.jpg",
+    "caption": "Pudding kiểu cổ điển",
+    "credit": "ＦＲＯＧ☆ＭＥＮ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24015613/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "伊勢プリントースト",
+     "romaji": "Ise purin tōsuto",
+     "vi": "Bánh mì nướng phủ pudding. Giá theo Jalan 2026 và ảnh khách Tabelog",
+     "yen": 500
+    },
+    {
+     "ja": "伊勢プリン（レトロ）",
+     "romaji": "Ise purin (retoro)",
+     "vi": "Pudding kiểu cổ điển mang đi. Giá hiện tại chưa kiểm chứng",
+     "yen": null
+    }
+   ],
+   "when": "Trên Oharai-machi gần Okage Yokochō, khoảng 13:20–13:45 sau Akafuku, trước khi ra bến buýt (mở 10:00)",
+   "open": "10:00",
+   "close": null,
+   "closedDow": [],
+   "closedNote": "Tabelog ghi mở quanh năm",
+   "queue": "Oharai-machi thứ Bảy đông",
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240301/24015613/",
+    "rating": 3.49,
+    "count": 237,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.jalan.net/news/article/925042/",
+     "note": "Jalan News 2026: pudding toast ¥500 tại Ise Purin no Tetsujin"
+    }
+   ]
+  }
+ },
+ "sn-kawasaki-gura": {
+  "lat": 34.494797,
+  "lng": 136.715439,
+  "address": "三重県伊勢市河崎2-13-12",
+  "hours": "9:00–17:00",
+  "why": "Quán cà phê trong nhà kho cũ ở phố Kawasaki, chỗ ngồi nghỉ có bánh ngọt giữa lúc đi dạo. Mới có 48 review nên điểm Tabelog 3,32 chỉ để tham khảo.",
+  "rating": 3.32,
+  "ratingCount": 48,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/62534/640x640_rect_62534884.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/62534/62534884.jpg",
+    "caption": "Bánh chiffon",
+    "credit": "ななしょう / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24006888/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/38740/640x640_rect_38740065.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/38740/38740065.jpg",
+    "caption": "Parfait sữa chua",
+    "credit": "ななしょう / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24006888/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/38740/640x640_rect_38740129.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/38740/38740129.jpg",
+    "caption": "Bánh mì nướng bơ",
+    "credit": "ななしょう / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240301/24006888/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "シフォンケーキ",
+     "romaji": "shifon kēki",
+     "vi": "Bánh chiffon, món chính của quán. Ảnh khách Tabelog đã cũ, không dùng giá",
+     "yen": null
+    },
+    {
+     "ja": "ヨーグルトパフェ",
+     "romaji": "yōguruto pafe",
+     "vi": "Parfait sữa chua. Không kiểm chứng được giá hiện tại",
+     "yen": null
+    }
+   ],
+   "when": "Trong phố Kawasaki, khoảng 15:45–16:15 (quán 9:00–17:00, nghỉ thứ Tư)",
+   "open": "09:00",
+   "close": "17:00",
+   "closedDow": [
+    3
+   ],
+   "closedNote": "Nghỉ thứ Tư; thứ Bảy 23/10 mở cửa",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240301/24006888/",
+    "rating": 3.32,
+    "count": 48,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-minerva-toba": {
+  "lat": 34.487423,
+  "lng": 136.843384,
+  "address": "三重県鳥羽市鳥羽1丁目2383-13 鳥羽一番街1F",
+  "hours": "Thứ Hai, Ba, Tư, Sáu 9:00–17:00; thứ Bảy, Chủ nhật, ngày lễ 9:00–18:00",
+  "why": "Quán kissa kiêm gelato ngay cạnh ga Toba, được Tabelog 3,49 với gần 200 review. Chỗ ngồi nghỉ cuối chuyến trước chuyến Shimakaze.",
+  "rating": 3.49,
+  "ratingCount": 194,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/116682/640x640_rect_116682263.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/116682/116682263.jpg",
+    "caption": "Latte trân châu",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24001613/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/34982/640x640_rect_34982067.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/34982/34982067.jpg",
+    "caption": "Kem mềm ở Minerva",
+    "credit": "アラタフルタ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24001613/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/48558/640x640_rect_48558172.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/48558/48558172.jpg",
+    "caption": "Trà Ise",
+    "credit": "アラタフルタ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24001613/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/136448/640x640_rect_136448314.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/136448/136448314.jpg",
+    "caption": "Latte trân châu và đồ uống trà Ise",
+    "credit": "りえちゃん0099 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24001613/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "ジェラート ダブル（伊勢茶 ほか）",
+     "romaji": "jerāto daburu (Ise-cha hoka)",
+     "vi": "Kem gelato hai vị, có vị trà Ise. Giá theo ảnh khách Tabelog",
+     "yen": 540
+    },
+    {
+     "ja": "パールラテ",
+     "romaji": "pāru rate",
+     "vi": "Latte kèm trân châu, gợi ý ngọc trai Toba. Không thấy giá",
+     "yen": null
+    }
+   ],
+   "when": "Sau bữa trưa Sazanami, khoảng 13:00–15:00 trong lúc chờ tàu 15:20 (mở 9:00–18:00 Chủ nhật, cách ga 146 m)",
+   "open": "09:00",
+   "close": "18:00",
+   "closedDow": [
+    4
+   ],
+   "closedNote": "Nghỉ thứ Năm; Chủ nhật 24/10 mở đến 18:00",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240302/24001613/",
+    "rating": 3.49,
+    "count": 194,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-kamome-bay-terrace-toba": {
+  "lat": 34.486423,
+  "lng": 136.842758,
+  "address": "三重県鳥羽市鳥羽1-8-13 近鉄鳥羽駅 2F",
+  "hours": "10:00–17:00",
+  "why": "Quán cà phê trong ga Kintetsu Toba, có thể ngồi chờ tàu mà không phải đi đâu. Điểm Tabelog thấp hơn Minerva (3,30) nhưng tiện nhất.",
+  "rating": 3.3,
+  "ratingCount": 59,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/266546/640x640_rect_d69e9ffaa22650af0442ba5d1e43d27e.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/266546/d69e9ffaa22650af0442ba5d1e43d27e.jpg",
+    "caption": "Kem mềm Ōuchiyama",
+    "credit": "pinkmomo / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24018284/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/186589/640x640_rect_59777d1c6e58e0d0e362e844fe0e5221.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/186589/59777d1c6e58e0d0e362e844fe0e5221.jpg",
+    "caption": "Kem mềm Ōuchiyama",
+    "credit": "peanu443565 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24018284/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/228030/640x640_rect_e78abdf4de6df99d867e12dc2d0670de.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/228030/e78abdf4de6df99d867e12dc2d0670de.jpg",
+    "caption": "Kem mềm Ōuchiyama",
+    "credit": "risa.mog / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24018284/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "大内山ソフトクリーム",
+     "romaji": "Ōuchiyama sofutokurīmu",
+     "vi": "Kem mềm sữa Ōuchiyama, vị nhẹ ngọt. Giá theo ảnh khách Tabelog",
+     "yen": 550
+    }
+   ],
+   "when": "Khoảng 14:30–15:15 trong ga Toba trước chuyến Shimakaze 15:20 (mở 10:00–17:00)",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240302/24018284/",
+    "rating": 3.3,
+    "count": 59,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-musea-coffee-toba-eki": {
+  "lat": 34.486423,
+  "lng": 136.842758,
+  "address": "三重県鳥羽市鳥羽1-8-13 近鉄鳥羽駅 1F",
+  "hours": "10:00–16:00",
+  "why": "Quầy cà phê kiêm bánh mì ngay tầng 1 ga Toba, mua bánh ăn trên chuyến Shimakaze. Chỉ 36 review nên điểm 3,27 mang tính tham khảo.",
+  "rating": 3.27,
+  "ratingCount": 36,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/148196/640x640_rect_148196845.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/148196/148196845.jpg",
+    "caption": "Bánh cà ri cay",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24017924/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/148196/640x640_rect_148196846.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/148196/148196846.jpg",
+    "caption": "Bánh cà ri cay nhìn gần",
+    "credit": "鉄道王 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24017924/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/150102/640x640_rect_150102127.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/150102/150102127.jpg",
+    "caption": "Bánh mì ở MUSEA COFFEE",
+    "credit": "こげぱん0821 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/mie/A2403/A240302/24017924/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "スパイシーカレーパン",
+     "romaji": "supaishī karē pan",
+     "vi": "Bánh cà ri cay, ảnh khách Tabelog. Không thấy giá",
+     "yen": null
+    },
+    {
+     "ja": "アイスソイラテ",
+     "romaji": "aisu soi rate",
+     "vi": "Soy latte lạnh. Giá ¥520 theo review Tabelog, chưa kiểm chứng hiện tại",
+     "yen": null
+    }
+   ],
+   "when": "Lúc 7:45 chưa mở (mở 10:00); ghé khoảng 14:30–15:15 hoặc mua bánh mì ăn trên tàu Shimakaze",
+   "open": "10:00",
+   "close": "16:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/mie/A2403/A240302/24017924/",
+    "rating": 3.27,
+    "count": 36,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-gion-tsujiri-kyoto-hachijoguchi": {
+  "lat": 34.985142,
+  "lng": 135.761215,
+  "address": "京都府京都市下京区東塩小路高倉町8-3 アスティ京都 1F アスティロード",
+  "hours": "8:30–21:00",
+  "why": "Hãng trà Gion Tsujiri bán kem matcha trong ga Kyoto, mở 8:30–21:00 kể cả Chủ nhật. Chỉ nên ghé khi không vội vì còn phải xuống tàu Karasuma lúc 17:45.",
+  "rating": 3.45,
+  "ratingCount": 409,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/5362/640x640_rect_5362380.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/5362/5362380.jpg",
+    "caption": "Kem matcha và kem hōjicha",
+    "credit": "kickusajp / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260101/26006502/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/65722/640x640_rect_65722242.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/65722/65722242.jpg",
+    "caption": "Green tea float",
+    "credit": "ワイン飲み / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260101/26006502/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/110146/640x640_rect_110146689.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/110146/110146689.jpg",
+    "caption": "Bánh castella matcha",
+    "credit": "中津じう / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/kyoto/A2601/A260101/26006502/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "抹茶ソフト",
+     "romaji": "matcha sofuto",
+     "vi": "Kem matcha đậm, cầm đi được. Ảnh khách Tabelog đã cũ, chưa kiểm chứng giá",
+     "yen": null
+    },
+    {
+     "ja": "ほうじ茶ソフト",
+     "romaji": "hōjicha sofuto",
+     "vi": "Kem trà rang hōjicha",
+     "yen": null
+    }
+   ],
+   "when": "Khi vừa tới ga Kyoto khoảng 17:30–17:45, trước khi xuống tàu Karasuma; chỉ làm nếu tàu đúng giờ (cửa hàng ở Asti Road, cách cổng Shinkansen Hachijō 2 cửa)",
+   "open": "08:30",
+   "close": "21:00",
+   "closedDow": [],
+   "closedNote": "Ngày nghỉ không cố định (Tabelog); Chủ nhật vẫn mở",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/kyoto/A2601/A260101/26006502/",
+    "rating": 3.45,
+    "count": 409,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-amanoya": {
+  "lat": 35.701148,
+  "lng": 139.767086,
+  "address": "東京都千代田区外神田2-18-15",
+  "hours": "Quầy bán 10:00–17:00; phòng trà 10:00–16:00 (gọi món cuối 15:30)",
+  "why": "Tiệm amazake mở từ 1846, amazake chỉ nấu từ gạo và kōji, không phụ gia, uống nóng hay lạnh đều được. Cách Kanda Myōjin vài phút đi bộ nên là điểm dừng nhẹ trước khi vào đền.",
+  "rating": 3.7,
+  "ratingCount": 792,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/237939/640x640_rect_d876820743b94347c93e8eb7cb27d06d.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/237939/d876820743b94347c93e8eb7cb27d06d.jpg",
+    "caption": "Amazake ấm và bánh mochi kinako trên khay gỗ",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13006339/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/237939/640x640_rect_8104464feb4f36b9669b9c35e272b998.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/237939/8104464feb4f36b9669b9c35e272b998.jpg",
+    "caption": "Mochi cuộn rong biển và mochi phủ kinako",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13006339/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/237939/640x640_rect_7843aad4847ce041ed0d73aa84ec6483.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/237939/7843aad4847ce041ed0d73aa84ec6483.jpg",
+    "caption": "Mochi trong nước siro đen phủ bột kinako",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13006339/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/116389/640x640_rect_116389741.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/116389/116389741.jpg",
+    "caption": "Một cốc amazake kèm dưa muối",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13006339/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "冷やし甘酒",
+     "romaji": "hiyashi amazake",
+     "vi": "Amazake lạnh uống tại quán",
+     "yen": 450
+    },
+    {
+     "ja": "甘酒まんじゅう（2個・お茶付き）",
+     "romaji": "amazake manjū",
+     "vi": "Hai cái bánh manju vị amazake kèm trà",
+     "yen": 500
+    }
+   ],
+   "when": "Ngay cạnh Kanda Myōjin. Quán trà nhận món cuối 15:30 nên ghé ~15:15 sau khi gửi đồ ở khách sạn; nếu đi sau Myōjin (~16:45) thì chỉ mua amazake mang đi, quầy bán đóng 17:00",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [
+    2
+   ],
+   "closedNote": "Nghỉ thứ Ba (ngày lễ thì mở, nghỉ bù hôm sau); nghỉ Ngày Biển và 10–18/8",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1310/A131002/13006339/",
+    "rating": 3.7,
+    "count": 792,
+    "award": "百名店 2026 (和菓子・甘味処 TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-omiya-yogashi": {
+  "lat": 35.696479,
+  "lng": 139.767777,
+  "address": "東京都千代田区神田淡路町2-4",
+  "hours": "Thứ Hai–Thứ Bảy 10:00–19:00; Chủ nhật/lễ 10:00–17:30 (theo Tabelog)",
+  "why": "Tiệm bánh Tây nổi tiếng ở Awajichō (Sweets TOKYO 百名店 2026). Apple pie là món được chụp nhiều nhất trên Tabelog, mua mang đi hoặc ăn tại chỗ.",
+  "rating": 3.74,
+  "ratingCount": 2368,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/218718/640x640_rect_bad6a1dd8114a77722ed7348ee154aaa.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/218718/bad6a1dd8114a77722ed7348ee154aaa.jpg",
+    "caption": "Lát apple pie trên đĩa hoa",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13000337/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/110655/640x640_rect_110655396.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/110655/110655396.jpg",
+    "caption": "Apple pie cắt ngang, lớp vỏ ngàn lớp và nhân táo",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13000337/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/218718/640x640_rect_9e3899d29d10936ae1141e04f0c1d8af.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/218718/9e3899d29d10936ae1141e04f0c1d8af.jpg",
+    "caption": "Lemon pie phủ kem",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13000337/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/38178/640x640_rect_38178889.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/38178/38178889.jpg",
+    "caption": "Tart dâu tây",
+    "credit": "バナナメロン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13000337/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "アップルパイ",
+     "romaji": "appuru pai",
+     "vi": "Bánh táo nướng, miếng lớn nhiều táo",
+     "yen": 540
+    },
+    {
+     "ja": "レモンパイ",
+     "romaji": "remon pai",
+     "vi": "Bánh chanh phủ kem trứng",
+     "yen": 540
+    }
+   ],
+   "when": "Sau Manseibashi, khoảng 16:10 (đi bộ ~4 phút sang Awajichō), trước khi lên Kanda Myōjin",
+   "open": "10:00",
+   "close": "19:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1310/A131002/13000337/",
+    "rating": 3.74,
+    "count": 2368,
+    "award": "百名店 2026 (スイーツ TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-mitsubachi-honten": {
+  "lat": 35.708078,
+  "lng": 139.771099,
+  "address": "東京都文京区湯島3-38-10 ハニービル 1F",
+  "hours": "Ngày thường (tháng 3–10): cửa hàng 10:00–19:00, quán 10:30–19:00 (gọi món cuối 18:30); từ tháng 11 đến tháng 2 đóng sớm hơn (11:00–18:00)",
+  "why": "Quán đồ ngọt Nhật kiêm cửa hàng mang đi ở Yushima (百名店 2023 và 2026): shiratama, mamekan, đá bào và gelato nhiều vị. Hộp mang đi nên ăn dọc đường.",
+  "rating": 3.73,
+  "ratingCount": 1336,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/256774/640x640_rect_677e074119ca12cfb2a7191f921b9a1a.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/256774/677e074119ca12cfb2a7191f921b9a1a.jpg",
+    "caption": "Shiratama với đậu đỏ trong hộp mang đi",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13003590/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/13621/640x640_rect_13621261.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/13621/13621261.jpg",
+    "caption": "Đá bào đậu đỏ kèm shiratama",
+    "credit": "焼肉姉妹 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13003590/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/256774/640x640_rect_17fef09c278a15c69358f913f482e4c9.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/256774/17fef09c278a15c69358f913f482e4c9.jpg",
+    "caption": "Thạch agar kinako và siro đen",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13003590/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/256774/640x640_rect_55ad75ee7a15e6c3e5e6ec79bc129e67.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/256774/55ad75ee7a15e6c3e5e6ec79bc129e67.jpg",
+    "caption": "Tủ gelato nhiều vị ở cửa hàng",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13003590/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "小倉白玉",
+     "romaji": "ogura shiratama",
+     "vi": "Bánh trôi shiratama với đậu đỏ ogura, bán hộp mang đi",
+     "yen": 460
+    },
+    {
+     "ja": "豆寒",
+     "romaji": "mamekan",
+     "vi": "Thạch agar với đậu đỏ",
+     "yen": 550
+    }
+   ],
+   "when": "Trên đường từ Kanda Myōjin tới Yamabe, khoảng 17:15 (cách Yamabe ~5 phút đi bộ)",
+   "open": "10:00",
+   "close": "19:00",
+   "closedDow": [],
+   "closedNote": "Tabelog không nêu ngày nghỉ cố định",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1311/A131101/13003590/",
+    "rating": 3.73,
+    "count": 1336,
+    "award": "百名店 2026 (和菓子・甘味処 TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-karinto-yushima-kagetsu": {
+  "lat": 35.707715,
+  "lng": 139.771676,
+  "address": "東京都文京区湯島3-39-6",
+  "hours": "Thứ Hai–Thứ Sáu 9:30–20:00; Thứ Bảy/CN/lễ 10:00–17:00",
+  "why": "Tiệm karinto lập năm 1947 (百名店 2023 và 2026): giòn ngoài, xốp trong, bao bì họa tiết kimono nên rất hợp làm quà nhỏ nhẹ, hạn dùng khoảng 2 tháng.",
+  "rating": 3.77,
+  "ratingCount": 1131,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/89294/640x640_rect_89294632.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/89294/89294632.jpg",
+    "caption": "Karinto chiên giòn vị mặn ngọt (iwaoto)",
+    "credit": "もも☆ねこ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13008524/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/256814/640x640_rect_7d0ac1eeb73c2d8a73bf4f2a88d3922d.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/256814/7d0ac1eeb73c2d8a73bf4f2a88d3922d.jpg",
+    "caption": "Karinto vị cơ bản trong khay gỗ",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13008524/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/257872/640x640_rect_40ee70d62c2e8d094994ad422082c198.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/257872/40ee70d62c2e8d094994ad422082c198.jpg",
+    "caption": "Karinto vị mè đen",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13008524/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/40355/640x640_rect_40355971.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/40355/40355971.jpg",
+    "caption": "Ba loại karinto đóng gói sẵn",
+    "credit": "うまのあ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13008524/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "かりんとう",
+     "romaji": "karintō",
+     "vi": "Karinto (bánh quy chiên phủ đường) gói bán sẵn",
+     "yen": 540
+    }
+   ],
+   "when": "Trên đường từ Kanda Myōjin tới Yamabe, khoảng 17:30 (~5 phút đi bộ tới Yamabe); ngày thường đóng 20:00",
+   "open": "09:30",
+   "close": "20:00",
+   "closedDow": [],
+   "closedNote": "Mở quanh năm trừ Tết và 15/8",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1311/A131101/13008524/",
+    "rating": 3.77,
+    "count": 1131,
+    "award": "百名店 2026 (和菓子・甘味処 TOKYO)"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/ueno-best-sweets-snacks-souvenir-guide-2024/",
+     "note": "Magical Trip giới thiệu Kagetsu là tiệm karinto từ 1947, bao bì kimono, hợp làm quà"
+    }
+   ]
+  }
+ },
+ "sn-mijinko": {
+  "lat": 35.704021,
+  "lng": 139.766914,
+  "address": "東京都文京区湯島2-9-10 湯島三組ビル1Ｆ",
+  "hours": "Thứ Hai–Thứ Sáu 11:00–19:30; Thứ Bảy/CN/lễ 10:00–19:30 (gọi món cuối 18:30, đồ uống 19:00)",
+  "why": "Quán cà phê rang tại chỗ ở Yushima, nằm trong Cafe EAST 百名店 2025, nổi tiếng với pudding đặc rưới caramel cà phê và hotcake dày. Tiện ghé giữa Myōjin và Okachimachi.",
+  "rating": 3.78,
+  "ratingCount": 2296,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/237935/640x640_rect_46f2469ee81b4faf926096bbfd7a9cff.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/237935/46f2469ee81b4faf926096bbfd7a9cff.jpg",
+    "caption": "Pudding rưới caramel cà phê",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13126204/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/237935/640x640_rect_e8effba67991366ddad054ac6ea7fdbe.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/237935/e8effba67991366ddad054ac6ea7fdbe.jpg",
+    "caption": "Pudding cắt ra, ruột đặc mịn",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13126204/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/48863/640x640_rect_48863664.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/48863/48863664.jpg",
+    "caption": "Hotcake dày xếp chồng",
+    "credit": "whoiskawakami / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13126204/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/75105/640x640_rect_75105983.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/75105/75105983.jpg",
+    "caption": "Bánh spice cake sô cô la và cà phê",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13126204/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "プリン",
+     "romaji": "purin",
+     "vi": "Pudding cứng kiểu cổ điển, bán hộp mang đi",
+     "yen": 680
+    },
+    {
+     "ja": "ホットケーキ",
+     "romaji": "hottokēki",
+     "vi": "Hotcake dày, ăn tại quán",
+     "yen": null
+    }
+   ],
+   "when": "Sau Kanda Myōjin, khoảng 17:00 (cách ~3 phút đi bộ); đồ ăn gọi cuối 18:30, đồ uống 19:00",
+   "open": "11:00",
+   "close": "19:30",
+   "closedDow": [],
+   "closedNote": "Không có ngày nghỉ cố định (trừ cuối năm Tết)",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1310/A131002/13126204/",
+    "rating": 3.78,
+    "count": 2296,
+    "award": "百名店 2025 (カフェ EAST)"
+   },
+   "social": []
+  }
+ },
+ "sn-minatoya-shokuhin": {
+  "lat": 35.708376,
+  "lng": 139.774637,
+  "address": "東京都台東区上野4-1-9",
+  "hours": "Thứ Hai–Thứ Sáu 11:00–19:00; Thứ Bảy/CN/lễ 11:00–19:45",
+  "why": "Quầy takoyaki nổi tiếng giá rẻ ở góc Ameyoko, gần ga Okachimachi. Mua 4 viên đứng ăn nóng, đủ lót dạ mà không làm nặng bữa tonkatsu.",
+  "rating": 3.45,
+  "ratingCount": 480,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/115079/640x640_rect_115079030.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/115079/115079030.jpg",
+    "caption": "Hộp takoyaki 4 viên phủ sốt và rong biển",
+    "credit": "よっしー♫ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13018461/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/35951/640x640_rect_35951461.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/35951/35951461.jpg",
+    "caption": "Đang nướng takoyaki trên khuôn",
+    "credit": "もりもりまーたん / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13018461/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/115079/640x640_rect_115079034.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/115079/115079034.jpg",
+    "caption": "Miếng bạch tuộc to bên trong takoyaki",
+    "credit": "よっしー♫ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13018461/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/171582/640x640_rect_2bf82b6839aec9cecba1b4880e551155.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/171582/2bf82b6839aec9cecba1b4880e551155.jpg",
+    "caption": "Takoyaki phủ cá bào katsuobushi",
+    "credit": "眞論酔徒 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13018461/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "たこ焼き（4個）",
+     "romaji": "takoyaki",
+     "vi": "Takoyaki 4 viên, đứng ăn ngay ở Ameyoko",
+     "yen": 300
+    }
+   ],
+   "when": "Sát Yamabe (~1 phút): ăn 4 viên lót dạ khoảng 17:40 trước bữa tối; sau 19:00 quầy đóng",
+   "open": "11:00",
+   "close": "19:00",
+   "closedDow": [],
+   "closedNote": "Magical Trip ghi không có ngày nghỉ cố định",
+   "queue": "Có thể có hàng nhưng bán khá nhanh (theo Magical Trip)",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1311/A131101/13018461/",
+    "rating": 3.45,
+    "count": 480,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/the-ultimate-guide-to-ameya-yokocho-tokyos-vibrant-shopping-street/",
+     "note": "Magical Trip xếp Minatoya vào top 5 điểm ăn vặt ở Ameyoko: takoyaki ¥300/4 viên, mua nhanh dù có hàng"
+    }
+   ]
+  }
+ },
+ "sn-french-toast-factory": {
+  "lat": 35.698673,
+  "lng": 139.774748,
+  "address": "東京都千代田区神田花岡町1-1 ヨドバシAkiba 8F",
+  "hours": "Hằng ngày 11:00–23:00",
+  "why": "Quán french toast và pancake bông trong Yodobashi Akiba, mở đến 23:00 nên hợp để ăn nhẹ sau bữa tối, ngay gần khách sạn. Cafe EAST 百名店 2025.",
+  "rating": 3.67,
+  "ratingCount": 1377,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/374574/640x640_rect_467565b96147f87438c08aa0e34f428d.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/374574/467565b96147f87438c08aa0e34f428d.jpg",
+    "caption": "Pancake dâu tây với kem tươi",
+    "credit": "The French Toast Factory (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131001/13189295/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/374572/640x640_rect_55c55eeeacbf43d18ff43362f18d8c01.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/374572/55c55eeeacbf43d18ff43362f18d8c01.jpg",
+    "caption": "Pancake cam caramel hạnh nhân",
+    "credit": "The French Toast Factory (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131001/13189295/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/374574/640x640_rect_0a4971b477157189bb9780577c24809a.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/374574/0a4971b477157189bb9780577c24809a.jpg",
+    "caption": "Pancake bông kem tươi và sốt việt quất",
+    "credit": "The French Toast Factory (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131001/13189295/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/374571/640x640_rect_0a7a910a8a7138f0158ad7473382b93b.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/374571/0a7a910a8a7138f0158ad7473382b93b.jpg",
+    "caption": "Pancake kem sô cô la và kem lạnh",
+    "credit": "The French Toast Factory (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131001/13189295/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "FTFクラシックトースト",
+     "romaji": "FTF kurashikku tōsuto",
+     "vi": "French toast dày kiểu cổ điển của quán",
+     "yen": 1419
+    },
+    {
+     "ja": "シフォンパンケーキ（2枚）",
+     "romaji": "shifon pankēki",
+     "vi": "Pancake bông kem tươi Hokkaido, 2 cái",
+     "yen": 1375
+    }
+   ],
+   "when": "Buổi tối sau khi về khách sạn, khoảng 20:00–21:30; nằm tầng 8 Yodobashi Akiba, cách khách sạn ~3 phút đi bộ",
+   "open": "11:00",
+   "close": "23:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1310/A131001/13189295/",
+    "rating": 3.67,
+    "count": 1377,
+    "award": "百名店 2025 (カフェ EAST)"
+   },
+   "social": []
+  }
+ },
+ "sn-himitsudo": {
+  "lat": 35.727345,
+  "lng": 139.766604,
+  "address": "東京都台東区谷中3-11-18",
+  "hours": "Thứ Hai–Thứ Sáu 9:00–18:00; Thứ Bảy/CN/lễ từ 8:00; thỉnh thoảng kéo dài đến 19:00",
+  "why": "Quán đá bào hay lên TV và tạp chí ở Yanaka: đá thiên nhiên bào bằng máy quay tay thành lớp xốp mịn, siro làm từ trái cây thật. Mở quanh năm nên tháng 10 vẫn ăn được (menu đổi theo mùa).",
+  "rating": 3.76,
+  "ratingCount": 3094,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/49193/640x640_rect_49193602.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/49193/49193602.jpg",
+    "caption": "Đá bào vị trà xanh anh đào phủ nhiều lớp",
+    "credit": "はらぺこかおり / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131106/13126796/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/14948/640x640_rect_14948040.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/14948/14948040.jpg",
+    "caption": "Đá bào xốp siro vàng",
+    "credit": "焼肉姉妹 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131106/13126796/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/49193/640x640_rect_49193594.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/49193/49193594.jpg",
+    "caption": "Đá bào dâu tây phủ kem tươi",
+    "credit": "はらぺこかおり / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131106/13126796/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/15004/640x640_rect_15004027.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/15004/15004027.jpg",
+    "caption": "Đá bào sốt xoài",
+    "credit": "焼肉姉妹 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131106/13126796/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "生メロンみるく",
+     "romaji": "nama meron miruku",
+     "vi": "Đá bào dưa lưới tươi, sốt sữa",
+     "yen": 1400
+    },
+    {
+     "ja": "生パイナップルキャラメルミルク",
+     "romaji": "nama painappuru kyarameru miruku",
+     "vi": "Đá bào dứa tươi, sốt caramel sữa",
+     "yen": 1500
+    }
+   ],
+   "when": "Sau Kayaba, khoảng 9:30 (ngay cạnh phố Yanaka Ginza; mở 9:00 ngày thường)",
+   "open": "09:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Mở quanh năm; xem tài khoản X chính thức trước khi đi vì giờ có thể đổi",
+   "queue": "Mùa hè xếp hàng liên tục; tháng 10 nên đến ngay lúc mở cửa 9:00",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1311/A131106/13126796/",
+    "rating": 3.76,
+    "count": 3094,
+    "award": "百名店 2026 (スイーツ TOKYO)"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/dessert-spots-cafes-yanesen-shaved-ice-specialty-store-himitsu/",
+     "note": "Magical Trip: một trong những quán đá bào nổi nhất Tokyo, hay lên TV, máy bào quay tay, mở quanh năm"
+    },
+    {
+     "platform": "instagram",
+     "url": "https://www.instagram.com/himitsudo132/",
+     "note": "Tài khoản Instagram chính thức của quán, đăng món theo mùa"
+    }
+   ]
+  }
+ },
+ "sn-usagiya-ueno": {
+  "lat": 35.706158,
+  "lng": 139.771833,
+  "address": "東京都台東区上野1-10-10",
+  "hours": "Hằng ngày trừ thứ Tư 9:00–18:00; dorayaki nướng đến 16:00, sau 16:00 nên đặt trước",
+  "why": "Tiệm bánh lập năm 1913, được xếp vào nhóm ba tiệm dorayaki ngon nhất Tokyo: vỏ mềm ngọt mật, nhân đậu đỏ mịn, ăn ngay khi còn tươi. Cửa hàng nằm chéo đường Chūō so với Ueno Frontier Tower.",
+  "rating": 3.85,
+  "ratingCount": 4024,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/46526/640x640_rect_46526675.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/46526/46526675.jpg",
+    "caption": "Dorayaki cắt đôi, nhân đậu đỏ nguyên hạt",
+    "credit": "眞論酔徒 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13003599/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/121283/640x640_rect_121283597.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/121283/121283597.jpg",
+    "caption": "Hộp dorayaki đóng sẵn",
+    "credit": "＠すすむ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13003599/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/121283/640x640_rect_121283612.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/121283/121283612.jpg",
+    "caption": "Dorayaki trên đĩa hoa",
+    "credit": "＠すすむ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13003599/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/121283/640x640_rect_121283604.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/121283/121283604.jpg",
+    "caption": "Mặt trên bánh dorayaki",
+    "credit": "＠すすむ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13003599/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "どらやき",
+     "romaji": "dorayaki",
+     "vi": "Dorayaki vỏ mềm vị mật ong, nhân đậu đỏ mịn",
+     "yen": 270
+    },
+    {
+     "ja": "喜作最中",
+     "romaji": "kisaku monaka",
+     "vi": "Bánh monaka nhân đậu đỏ (giá theo menu Tabelog)",
+     "yen": 90
+    }
+   ],
+   "when": "Trên đường đi bộ từ Nezu Jinja tới Ueno-hirokōji, khoảng 11:00 (cách ga ~3 phút); dorayaki nướng đến 16:00",
+   "open": "09:00",
+   "close": "18:00",
+   "closedDow": [
+    3
+   ],
+   "closedNote": "Nghỉ thứ Tư (lịch tháng 10 và 11/2026 trên website chỉ nghỉ các thứ Tư)",
+   "queue": "Khách vào theo lượt, có khi phải xếp hàng ngoài cửa; đến trước 16:00 thì mua không cần đặt",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1311/A131101/13003599/",
+    "rating": 3.85,
+    "count": 4024,
+    "award": "百名店 2026 (和菓子・甘味処 TOKYO)"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/usagiya-japanese-sweet-shop-cafe-famous-for-one-of-the-top-three-dorayaki-in-tokyo/",
+     "note": "Magical Trip: một trong ba tiệm dorayaki hàng đầu Tokyo"
+    },
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/ueno-best-sweets-snacks-souvenir-guide-2024/",
+     "note": "Bài đồ ngọt Ueno: dorayaki mật ong, thành lập 1913, nên ăn tươi"
+    }
+   ]
+  }
+ },
+ "sn-niku-no-ooyama-ueno": {
+  "lat": 35.710401,
+  "lng": 139.775251,
+  "address": "東京都台東区上野6-13-2",
+  "hours": "Thứ Ba–Thứ Bảy 11:00–23:00; CN/lễ 11:00–22:00",
+  "why": "Cửa hàng thịt bán buôn lập năm 1932, nổi tiếng nhất với menchi-katsu và croquette chiên nóng bán ngay ở Ameyoko. Mua mang đi, đứng ăn trên phố là cách ăn đúng kiểu nhất.",
+  "rating": 3.49,
+  "ratingCount": 2445,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/46303/640x640_rect_46303745.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/46303/46303745.jpg",
+    "caption": "Hai cái menchi-katsu vàng giòn",
+    "credit": "ヘンゲル / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13016728/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/34296/640x640_rect_34296040.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/34296/34296040.jpg",
+    "caption": "Menchi-katsu mua mang đi",
+    "credit": "行列のできる / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13016728/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/13637/640x640_rect_13637729.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/13637/13637729.jpg",
+    "caption": "Tủ kính menchi và croquette chiên sẵn",
+    "credit": "tanuki747 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131101/13016728/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "特製メンチ",
+     "romaji": "tokusei menchi",
+     "vi": "Menchi-katsu (chả thịt chiên xù) nhiều bò, mua mang đi",
+     "yen": 270
+    },
+    {
+     "ja": "やみつきコロッケ",
+     "romaji": "yamitsuki korokke",
+     "vi": "Croquette khoai tây giòn, mua mang đi",
+     "yen": 110
+    },
+    {
+     "ja": "匠の和牛メンチ",
+     "romaji": "takumi no wagyū menchi",
+     "vi": "Menchi-katsu wagyū, bán số lượng giới hạn",
+     "yen": 500
+    }
+   ],
+   "when": "Cùng chặng Ueno-hirokōji với Usagiya, khoảng 11:10 (mở 11:00; cách ga ~5 phút đi bộ); nghỉ thứ Hai nên không dời sang Day 1",
+   "open": "11:00",
+   "close": "23:00",
+   "closedDow": [
+    1
+   ],
+   "closedNote": "Nghỉ thứ Hai (Tabelog); đã sửa lại cửa hàng tháng 7/2026",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1311/A131101/13016728/",
+    "rating": 3.49,
+    "count": 2445,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/the-ultimate-guide-to-ameya-yokocho-tokyos-vibrant-shopping-street/",
+     "note": "Magical Trip xếp Niku no Ōyama đầu danh sách ăn vặt Ameyoko: menchi-katsu và croquette \"gây nghiện\""
+    },
+    {
+     "platform": "instagram",
+     "url": "https://www.instagram.com/ohyama_ueno1932/",
+     "note": "Tài khoản Instagram chính thức của cửa hàng"
+    }
+   ]
+  }
+ },
+ "sn-pelican": {
+  "lat": 35.708563,
+  "lng": 139.791355,
+  "address": "東京都台東区寿4-7-4",
+  "hours": "Thứ Hai–Thứ Bảy/lễ 8:00–17:00 (đóng sớm hơn nếu hết bánh)",
+  "why": "Tiệm bánh mì ở Tawaramachi từ năm Shōwa 17 (1942), chủ yếu bán bánh mì sandwich và bánh cuộn, được chọn vào Bread TOKYO 百名店 nhiều năm liền (2017–2026).",
+  "rating": 3.79,
+  "ratingCount": 2336,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/172945/640x640_rect_7657e1a2eee05b90d8b747b370b8b264.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/172945/7657e1a2eee05b90d8b747b370b8b264.jpg",
+    "caption": "Ổ bánh mì sandwich đóng gói giấy trong suốt có logo Pelican",
+    "credit": "16uk_ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13003662/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/172945/640x640_rect_5a5ecdb161ff3b117138070e4c7703b1.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/172945/5a5ecdb161ff3b117138070e4c7703b1.jpg",
+    "caption": "Gói bánh cuộn (roll) của Pelican",
+    "credit": "16uk_ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13003662/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/172945/640x640_rect_0ca21894e2e6a5e94af6ce52fcc7f7d5.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/172945/0ca21894e2e6a5e94af6ce52fcc7f7d5.jpg",
+    "caption": "Bữa sáng với bánh cuộn và bánh mì nướng",
+    "credit": "16uk_ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13003662/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/46307/640x640_rect_46307860.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/46307/46307860.jpg",
+    "caption": "Lát bánh mì sandwich trắng mịn",
+    "credit": "眞論酔徒 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13003662/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "食パン（1斤）",
+     "romaji": "shokupan",
+     "vi": "Bánh mì sandwich nguyên ổ 1 kin",
+     "yen": 560
+    },
+    {
+     "ja": "小ロール",
+     "romaji": "shō rōru",
+     "vi": "Bánh cuộn nhỏ (giá theo bảng giá chính thức)",
+     "yen": 860
+    }
+   ],
+   "when": "Trước Owariya, khoảng 11:30 (từ ga Asakusa/Tawaramachi đi bộ ~7 phút, cách Owariya ~5 phút); bánh có thể hết trước 17:00",
+   "open": "08:00",
+   "close": "17:00",
+   "closedDow": [
+    0
+   ],
+   "closedNote": "Nghỉ Chủ nhật; nghỉ hè và cuối năm theo lịch trên website",
+   "queue": "Bánh có thể hết trước giờ đóng cửa nên ghé trước trưa",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1311/A131102/13003662/",
+    "rating": 3.79,
+    "count": 2336,
+    "award": "百名店 2026 (パン TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-asakusa-kagetsudo": {
+  "lat": 35.714643,
+  "lng": 139.795177,
+  "address": "東京都台東区浅草2-7-13",
+  "hours": "Hằng ngày 9:00–17:00 (bán đến hết, khoảng 16:00)",
+  "why": "Melon pan khổng lồ ủ men khoảng 3 giờ (gấp ba lần thường) nên ruột xốp nhẹ, vỏ giòn thơm bơ sữa. Mua nóng rồi ăn ngay gần cổng Sensō-ji, rất hợp làm bữa nhẹ giữa buổi.",
+  "rating": 3.57,
+  "ratingCount": 741,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/46285/640x640_rect_46285975.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/46285/46285975.jpg",
+    "caption": "Mặt vỏ melon pan khổng lồ",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13183985/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/56990/640x640_rect_56990572.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/56990/56990572.jpg",
+    "caption": "Ice melon pan kẹp kem",
+    "credit": "クロドベーズ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13183985/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/69175/640x640_rect_69175301.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/69175/69175301.jpg",
+    "caption": "Kem hồng hoa anh đào ở quán",
+    "credit": "もも☆ねこ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13183985/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/53563/640x640_rect_53563604.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/53563/53563604.jpg",
+    "caption": "Melon pan trên đĩa",
+    "credit": "もも☆ねこ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13183985/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "ジャンボめろんぱん",
+     "romaji": "jambo meronpan",
+     "vi": "Melon pan khổng lồ, ăn nóng từ lò",
+     "yen": 320
+    },
+    {
+     "ja": "Aセット（ジャンボめろんぱん5個）",
+     "romaji": "A setto",
+     "vi": "Bộ 5 melon pan khổng lồ",
+     "yen": 1600
+    }
+   ],
+   "when": "Ngay gần Nitenmon của Sensō-ji, ghé khoảng 13:30 trước khi vào đền hoặc lúc ra (bán đến hết, khoảng 16:00)",
+   "open": "09:00",
+   "close": "17:00",
+   "closedDow": [],
+   "closedNote": "Mở quanh năm kể cả Tết",
+   "queue": "Hay có hàng chờ và thường hết khoảng 16:00 (Tabelog); đi trước 15:00 cho chắc",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1311/A131102/13183985/",
+    "rating": 3.57,
+    "count": 741,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://tokyocheapo.com/food-and-drink/sweets/melon-pan-asakusa-kagetsudo/",
+     "note": "Tokyo Cheapo: melon pan Kagetsudō đáng thử ngay cả khi bạn đã quen melon pan ở konbini"
+    },
+    {
+     "platform": "blog",
+     "url": "https://tokyocheapo.com/food-and-drink/sweets/asakusa-sweets/",
+     "note": "Tokyo Cheapo xếp Kagetsudō vào đồ ngọt Asakusa: ủ men 3 giờ, gấp 3 lần melon pan thường"
+    },
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/cafe-can-awesome-japanese-sweets-asakusa-asakusa-kagetsudo/",
+     "note": "Magical Trip: bài về Asakusa Kagetsudō và melon pan khổng lồ"
+    }
+   ]
+  }
+ },
+ "sn-fruit-parlour-goto": {
+  "lat": 35.715761,
+  "lng": 139.793816,
+  "address": "東京都台東区浅草2-15-4",
+  "hours": "Thứ Hai, Ba, Sáu, Bảy, CN 11:00–19:00",
+  "why": "Tiệm trái cây ở Asakusa có tên trong Sweets TOKYO 百名店 nhiều năm liền; parfait và kakigōri làm từ trái cây tươi theo mùa (anh đào, dưa lưới, xoài, hồng...), giá mềm hơn các parfait ở Shibuya.",
+  "rating": 3.77,
+  "ratingCount": 1712,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/113656/640x640_rect_113656398.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/113656/113656398.jpg",
+    "caption": "Parfait trái cây với dưa lưới",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13095672/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/11724/640x640_rect_11724046.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/11724/11724046.jpg",
+    "caption": "Nhiều ly parfait trái cây theo mùa",
+    "credit": "バナナメロン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13095672/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/67811/640x640_rect_67811143.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/67811/67811143.jpg",
+    "caption": "Parfait xoài",
+    "credit": "マサレオ suZuki / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13095672/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/88203/640x640_rect_88203286.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/88203/88203286.jpg",
+    "caption": "Parfait anh đào phủ kem tươi",
+    "credit": "もも☆ねこ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1311/A131102/13095672/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "本日のフルーツパフェ",
+     "romaji": "honjitsu no furūtsu pafe",
+     "vi": "Parfait trái cây theo ngày",
+     "yen": 830
+    },
+    {
+     "ja": "フルーツサンデー",
+     "romaji": "furūtsu sandē",
+     "vi": "Sundae trái cây",
+     "yen": 720
+    }
+   ],
+   "when": "Sau Sensō-ji, khoảng 14:45–15:15 (cách ~4 phút đi bộ), trước Umezono",
+   "open": "11:00",
+   "close": "19:00",
+   "closedDow": [
+    3,
+    4
+   ],
+   "closedNote": "Nghỉ thứ Tư và thứ Năm",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1311/A131102/13095672/",
+    "rating": 3.77,
+    "count": 1712,
+    "award": "百名店 2026 (スイーツ TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-365-nichi-to-nihonbashi": {
+  "lat": 35.681376,
+  "lng": 139.773404,
+  "address": "東京都中央区日本橋2-5-1 日本橋髙島屋 S.C.新館 1F",
+  "hours": "Hằng ngày 10:30–20:00 (gọi món cuối 19:00)",
+  "why": "Tiệm bánh mì nhóm 365日 trong tòa Takashimaya ở Nihonbashi (Bread TOKYO 百名店 2022 và 2026), bánh ngọt và mặn mới, lò nướng suốt ngày. Cách Tamai chỉ vài chục mét nên ghé mua phần ăn sáng hôm sau.",
+  "rating": 3.78,
+  "ratingCount": 1948,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/230786/640x640_rect_78e965d01f94e8ecc33dba289d111145.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/230786/78e965d01f94e8ecc33dba289d111145.jpg",
+    "caption": "Quầy bánh mì trong cửa hàng",
+    "credit": "iidagmt / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1302/A130202/13226439/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/230786/640x640_rect_ce6737f779d59139bc0ba3760ab9de50.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/230786/ce6737f779d59139bc0ba3760ab9de50.jpg",
+    "caption": "Croissant sô cô la và bánh viên trắng",
+    "credit": "iidagmt / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1302/A130202/13226439/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/109794/640x640_rect_109794717.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/109794/109794717.jpg",
+    "caption": "Bagel nướng",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1302/A130202/13226439/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/223600/640x640_rect_fa502edbebaea32554dbf409e50d7702.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/223600/fa502edbebaea32554dbf409e50d7702.jpg",
+    "caption": "Ổ bánh mì sandwich khối vuông",
+    "credit": "firmersbay / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1302/A130202/13226439/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "クロワッサンショコラ",
+     "romaji": "kurowassan shokora",
+     "vi": "Croissant sô cô la",
+     "yen": 454
+    },
+    {
+     "ja": "レモンミルクフランス",
+     "romaji": "remon miruku furansu",
+     "vi": "Bánh mì Pháp nhân kem sữa chanh",
+     "yen": 368
+    }
+   ],
+   "when": "Trước Tamai, khoảng 17:00–17:45 (cách Tamai ~2 phút, trong tòa Takashimaya S.C. tân quán, tầng 1)",
+   "open": "10:30",
+   "close": "20:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1302/A130202/13226439/",
+    "rating": 3.78,
+    "count": 1948,
+    "award": "百名店 2026 (パン TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-takemura": {
+  "lat": 35.696683,
+  "lng": 139.769067,
+  "address": "東京都千代田区神田須田町1-19",
+  "hours": "Thứ Ba–Thứ Bảy 11:00–20:00 (gọi món cuối 19:40)",
+  "why": "Quán ngọt truyền thống ở Awajichō (百名店 2023 và 2026): món đáng thử là manju chiên giòn nóng và shiruko, mitsumame. Nghỉ thứ Hai nên Day 1 không ghé được; Day 2 sau Tamai hoặc Day 3 (thứ Tư) đều mở.",
+  "rating": 3.77,
+  "ratingCount": 1692,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/126838/640x640_rect_126838557.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/126838/126838557.jpg",
+    "caption": "Hai cái age manju chiên vàng",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13000342/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/255939/640x640_rect_37e7adb3e50ca0ee16a25c8ef550ba5b.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/255939/37e7adb3e50ca0ee16a25c8ef550ba5b.jpg",
+    "caption": "Mitsumame với shiratama, trái cây và siro đen",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13000342/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/126838/640x640_rect_126838571.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/126838/126838571.jpg",
+    "caption": "Shiruko với hai miếng mochi",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13000342/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/126838/640x640_rect_126838554.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/126838/126838554.jpg",
+    "caption": "Age manju kèm trà",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1310/A131002/13000342/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "揚げまんじゅう（2個）",
+     "romaji": "age manjū",
+     "vi": "Hai cái manju chiên nóng nhân đậu đỏ",
+     "yen": 530
+    },
+    {
+     "ja": "白玉みつ豆",
+     "romaji": "shiratama mitsumame",
+     "vi": "Mitsumame với shiratama và siro đen",
+     "yen": 830
+    }
+   ],
+   "when": "Buổi tối sau Tamai: Ginza Line tới Kanda rồi đi bộ ~8 phút; vào trước 19:40 (gọi món cuối), đóng 20:00. Cách khách sạn ~6 phút",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [
+    0,
+    1
+   ],
+   "closedNote": "Nghỉ thứ Hai, Chủ nhật và ngày lễ",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1310/A131002/13000342/",
+    "rating": 3.77,
+    "count": 1692,
+    "award": "百名店 2026 (和菓子・甘味処 TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-le-pain-joel-robuchon-newoman": {
+  "lat": 35.68903,
+  "lng": 139.70191,
+  "address": "東京都新宿区新宿4-1-6 NEWoMan SHINJUKU 1F",
+  "hours": "Thứ Hai–Thứ Bảy 8:00–21:00; CN/lễ 8:00–20:30",
+  "why": "Tiệm bánh mì Pháp của Joël Robuchon trong NEWoMan, sát ga Shinjuku (Bread TOKYO 百名店 2020, 2022, 2026). Mở từ 8:00 nên là chỗ ăn nhẹ tiện nhất trước bữa sushi.",
+  "rating": 3.78,
+  "ratingCount": 2048,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/117926/640x640_rect_117926186.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/117926/117926186.jpg",
+    "caption": "Croissant bơ vàng ươm",
+    "credit": "iidagmt / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130401/13193559/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/54991/640x640_rect_54991843.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/54991/54991843.jpg",
+    "caption": "Bánh mì nhân kem phô mai (galette bressane)",
+    "credit": "はらぺこかおり / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130401/13193559/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/131157/640x640_rect_131157891.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/131157/131157891.jpg",
+    "caption": "Focaccia cắt lát",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130401/13193559/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/131157/640x640_rect_131157894.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/131157/131157894.jpg",
+    "caption": "Bánh Viennois sô cô la",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130401/13193559/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "bakery",
+   "get": [
+    {
+     "ja": "クロワッサン",
+     "romaji": "kurowassan",
+     "vi": "Croissant bơ",
+     "yen": 330
+    },
+    {
+     "ja": "カレーパン",
+     "romaji": "karē pan",
+     "vi": "Bánh cà ri chiên",
+     "yen": 450
+    },
+    {
+     "ja": "パンオショコラ",
+     "romaji": "pan o shokora",
+     "vi": "Bánh sô cô la cuộn",
+     "yen": 350
+    }
+   ],
+   "when": "Sáng sau khi xuống ga Shinjuku, khoảng 9:30–10:30 trong lúc chờ giờ sushi (mở 8:00, trong tòa NEWoMan sát ga Shinjuku)",
+   "open": "08:00",
+   "close": "21:00",
+   "closedDow": [],
+   "closedNote": "Theo ngày nghỉ của NEWoMan (không cố định)",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1304/A130401/13193559/",
+    "rating": 3.78,
+    "count": 2048,
+    "award": "百名店 2026 (パン TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-oiwake-dango-shinjuku": {
+  "lat": 35.690498,
+  "lng": 139.705365,
+  "address": "東京都新宿区新宿3-1-22 ＮＳＯビル １Ｆ",
+  "hours": "Cửa hàng bán 11:00–18:00; phòng trà Thứ Hai–Thứ Sáu 12:00–18:00 (gọi món cuối 17:30)",
+  "why": "Tiệm dango xiên nổi tiếng ở Shinjuku 3-chōme (百名店 2023 và 2026): dango mềm phủ đậu đỏ, kinako, rong biển hoặc xì dầu ngọt, mua mang đi từng xiên. Hợp làm món tráng miệng nhỏ sau sushi.",
+  "rating": 3.76,
+  "ratingCount": 2319,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/227672/640x640_rect_ed6d0e8bef7a92fddeb20389d281e5b1.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/227672/ed6d0e8bef7a92fddeb20389d281e5b1.jpg",
+    "caption": "Dango nhân hạt dẻ trên đĩa gốm",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130401/13000836/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/69531/640x640_rect_69531919.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/69531/69531919.jpg",
+    "caption": "Dango phủ đậu đỏ và một xiên xanh",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130401/13000836/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/227672/640x640_rect_e3e6ed392602c7161dca4c2330c6c940.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/227672/e3e6ed392602c7161dca4c2330c6c940.jpg",
+    "caption": "Dango mitarashi sốt xì dầu ngọt",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130401/13000836/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/48326/640x640_rect_48326337.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/48326/48326337.jpg",
+    "caption": "Daifuku dâu tây cắt đôi",
+    "credit": "Mihotan / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1304/A130401/13000836/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "みたらしだんご",
+     "romaji": "mitarashi dango",
+     "vi": "Dango xiên sốt xì dầu ngọt",
+     "yen": 205
+    },
+    {
+     "ja": "ゆずあんだんご",
+     "romaji": "yuzu an dango",
+     "vi": "Dango phủ đậu đỏ vị yuzu",
+     "yen": 248
+    }
+   ],
+   "when": "Sau Sushi TEN, khoảng 12:15 (cách ga Shinjuku-sanchōme 1 phút, đi bộ ~7 phút từ chỗ sushi); cửa hàng bán từ 11:00, phòng trà ngày thường mở 12:00",
+   "open": "11:00",
+   "close": "18:00",
+   "closedDow": [],
+   "closedNote": "Có thể đóng sớm khi hết hàng",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1304/A130401/13000836/",
+    "rating": 3.76,
+    "count": 2319,
+    "award": "百名店 2026 (和菓子・甘味処 TOKYO)"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/10-best-sweets-and-snacks-in-shinjuku-2024-w-map/",
+     "note": "Magical Trip đưa Oiwake Dango vào 10 món ngọt nên thử ở Shinjuku"
+    }
+   ]
+  }
+ },
+ "sn-marion-crepes-takeshita": {
+  "lat": 35.67127,
+  "lng": 139.704907,
+  "address": "東京都渋谷区神宮前1-6-15 ジュネスビル 1F",
+  "hours": "Ngày thường 10:30–20:00; cuối tuần 10:00–20:00 (Magical Trip, xác nhận qua điện thoại 2026); Tabelog ghi 10:00–21:00",
+  "why": "Tiệm crêpe đầu tiên của Nhật (1976) và là cái tên gắn với Harajuku; có hơn 60 vị ngọt và mặn, cuốn giấy cầm đi trên phố Takeshita. Rating Tabelog khiêm tốn nhưng là trải nghiệm kinh điển.",
+  "rating": 3.1,
+  "ratingCount": 220,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/122135/640x640_rect_122135783.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/122135/122135783.jpg",
+    "caption": "Crêpe dâu chuối kem tươi",
+    "credit": "ヘンゲル / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13088711/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/74440/640x640_rect_74440815.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/74440/74440815.jpg",
+    "caption": "Crêpe dâu tây cuốn giấy",
+    "credit": "さすらいの鮨人 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13088711/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/11327/640x640_rect_11327439.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/11327/11327439.jpg",
+    "caption": "Crêpe kem sô cô la",
+    "credit": "しゃくれ響 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13088711/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/11327/640x640_rect_11327437.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/11327/11327437.jpg",
+    "caption": "Crêpe dâu kem vani đậu đỏ",
+    "credit": "しゃくれ響 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13088711/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "バナナチョコクリーム",
+     "romaji": "banana choko kurīmu",
+     "vi": "Crêpe chuối sô cô la kem tươi, vị số 1 trong cuộc bình chọn của hãng",
+     "yen": null
+    },
+    {
+     "ja": "いちごアイスのクレープ",
+     "romaji": "ichigo aisu no kurēpu",
+     "vi": "Crêpe dâu tây và kem",
+     "yen": null
+    }
+   ],
+   "when": "Sau khi xuống ga Harajuku (~12:15), trước khi vào Meiji Jingū lúc 13:00; lối Takeshita cách ga ~2 phút đi bộ",
+   "open": "10:30",
+   "close": "20:00",
+   "closedDow": [],
+   "closedNote": "Không có ngày nghỉ (Magical Trip)",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1306/A130601/13088711/",
+    "rating": 3.1,
+    "count": 220,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/harajukus-origin-marion-crepes/",
+     "note": "Magical Trip: crêpe đầu tiên của Nhật từ 1976, biểu tượng Harajuku, hơn 70 vị"
+    },
+    {
+     "platform": "blog",
+     "url": "https://tokyocheapo.com/food-and-drink/sweets/harajuku-crepes/",
+     "note": "Tokyo Cheapo: Marion Crêpes nằm trong nhóm crêpe được yêu thích nhất ở Harajuku"
+    }
+   ]
+  }
+ },
+ "sn-totti-candy-factory": {
+  "lat": 35.671178,
+  "lng": 139.704595,
+  "address": "東京都渋谷区神宮前1-16-5 RYUアパルトマン 2F",
+  "hours": "Thứ Hai–Thứ Sáu 11:00–20:00 (Magical Trip 2026); Tabelog ghi 10:00–19:00; cuối tuần mở sớm hơn",
+  "why": "Kẹo bông gòn cầu vồng làm ngay trước mắt, là hình ảnh quen thuộc của Takeshita; không chỉ ngon mà ảnh ra màu rất đẹp. Tốn khoảng 10 phút nếu không phải chờ.",
+  "rating": 3.28,
+  "ratingCount": 138,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/46524/640x640_rect_46524649.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/46524/46524649.jpg",
+    "caption": "Kẹo bông gòn ba màu hình chóp",
+    "credit": "Mihotan / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13186805/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/50765/640x640_rect_50765901.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/50765/50765901.jpg",
+    "caption": "Kẹo bông gòn tròn trải rộng",
+    "credit": "Mihotan / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13186805/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/67438/640x640_rect_67438616.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/67438/67438616.jpg",
+    "caption": "Kẹo bông gòn màu cầu vồng trên phố Takeshita",
+    "credit": "キムテギュン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13186805/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/46524/640x640_rect_46524645.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/46524/46524645.jpg",
+    "caption": "Nhân viên đang quay kẹo bông tại quầy",
+    "credit": "Mihotan / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13186805/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "street-food",
+   "get": [
+    {
+     "ja": "3色わたあめ",
+     "romaji": "san-shoku wataame",
+     "vi": "Kẹo bông gòn ba màu cỡ lớn",
+     "yen": 800
+    },
+    {
+     "ja": "3色カップわたあめ",
+     "romaji": "san-shoku kappu wataame",
+     "vi": "Kẹo bông gòn ba màu trong cốc",
+     "yen": 550
+    },
+    {
+     "ja": "ケーキポップ",
+     "romaji": "kēki poppu",
+     "vi": "Bánh cake pop hình thú nhỏ",
+     "yen": 400
+    }
+   ],
+   "when": "Cùng lúc với Marion trên Takeshita, khoảng 12:25 (ngày thường mở 11:00)",
+   "open": "11:00",
+   "close": "19:00",
+   "closedDow": [],
+   "closedNote": "Không có ngày nghỉ (Magical Trip)",
+   "queue": "Có thể xếp hàng ngoài cửa; làm từng cây theo đơn nên đông thì chờ lâu, cuối tuần có thể phát số thứ tự",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1306/A130601/13186805/",
+    "rating": 3.28,
+    "count": 138,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/sns-worthy-without-a-doubt-colorful-cotton-candy-at-totti-candy-factory/",
+     "note": "Magical Trip: \"SNS-worthy chắc chắn\", kẹo bông gòn nhiều màu, hay có hàng chờ"
+    },
+    {
+     "platform": "blog",
+     "url": "https://tokyocheapo.com/food-and-drink/sweets/harajuku-sweets-guide/",
+     "note": "Tokyo Cheapo đưa Totti Candy Factory vào hướng dẫn đồ ngọt Harajuku, kèm cake pop hình thú"
+    }
+   ]
+  }
+ },
+ "sn-mizuho": {
+  "lat": 35.666988,
+  "lng": 139.705607,
+  "address": "東京都渋谷区神宮前6-8-7",
+  "hours": "Từ 9:00 đến khi hết hàng",
+  "why": "Tiệm wagashi ở Jingūmae có tên trong 百名店 nhiều năm; món chủ lực là mame daifuku (bánh mochi đậu) với vỏ mềm, nhân đậu đỏ tinh. Mua vài cái ăn đi đường rất tiện.",
+  "rating": 3.79,
+  "ratingCount": 1403,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/209035/640x640_rect_326303b0ac3b87e2e8793bea0012cba0.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/209035/326303b0ac3b87e2e8793bea0012cba0.jpg",
+    "caption": "Quầy bày mame daifuku kèm bảng giá",
+    "credit": "Kirk.ｋ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13001154/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/67639/640x640_rect_67639231.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/67639/67639231.jpg",
+    "caption": "Mame daifuku phủ bột nếp",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13001154/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/67639/640x640_rect_67639234.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/67639/67639234.jpg",
+    "caption": "Mặt cắt daifuku nhân đậu đỏ",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13001154/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/67639/640x640_rect_67639237.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/67639/67639237.jpg",
+    "caption": "Daifuku đóng gói giấy viết tay",
+    "credit": "トントンマン / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13001154/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "豆大福",
+     "romaji": "mame daifuku",
+     "vi": "Daifuku mochi mềm có đậu nguyên hạt, nhân đậu đỏ",
+     "yen": 270
+    }
+   ],
+   "when": "Trên Cat Street khoảng 14:30–15:00 (cách Omotesandō ~4 phút); mở 9:00 và bán hết là đóng, nên ghé sớm nếu có thể",
+   "open": "09:00",
+   "close": null,
+   "closedDow": [
+    0,
+    1
+   ],
+   "closedNote": "Nghỉ thứ Hai và Chủ nhật",
+   "queue": "Bán hết là đóng (Tabelog: until sold out), nên đến sớm",
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1306/A130601/13001154/",
+    "rating": 3.79,
+    "count": 1403,
+    "award": "百名店 2026 (和菓子・甘味処 TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-higashiya-man": {
+  "lat": 35.664537,
+  "lng": 139.713869,
+  "address": "東京都港区南青山3-17-14 中山ビルディング 1F",
+  "hours": "Thứ Hai, Tư, Năm, Sáu, Bảy, CN 11:00–18:00",
+  "why": "Tiệm wagashi hiện đại ở Minami-Aoyama (百名店 2023 và 2026) chuyên \"man\" (bánh bao hấp kiểu Nhật) cỡ nhỏ, kèm dango xiên và castella. Ăn vài cái cho nhẹ trước khi vào bữa tối.",
+  "rating": 3.7,
+  "ratingCount": 878,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/270536/640x640_rect_63a542fff9dbb41fb81baddfe341a6ae.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/270536/63a542fff9dbb41fb81baddfe341a6ae.jpg",
+    "caption": "Man vị đường đen trên đĩa gốm",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130602/13050885/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/270536/640x640_rect_14b9c2cbc270b77471425f8707311736.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/270536/14b9c2cbc270b77471425f8707311736.jpg",
+    "caption": "Man cắt đôi, nhân đậu đỏ mịn",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130602/13050885/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/87401/640x640_rect_87401561.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/87401/87401561.jpg",
+    "caption": "Dango xiên sốt mitarashi",
+    "credit": "よっしー♫ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130602/13050885/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/270536/640x640_rect_a23e1893d65ccc207b31bd8fa04a9fae.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/270536/a23e1893d65ccc207b31bd8fa04a9fae.jpg",
+    "caption": "Man trắng cắt đôi, nhân đậu đỏ",
+    "credit": "mapiko47 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130602/13050885/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "甘酒まんじゅう",
+     "romaji": "amazake manjū",
+     "vi": "Bánh bao hấp nhỏ nhân đậu đỏ vị amazake",
+     "yen": 250
+    },
+    {
+     "ja": "黒糖まんじゅう",
+     "romaji": "kokutō manjū",
+     "vi": "Bánh bao hấp nhỏ vị đường đen",
+     "yen": 340
+    }
+   ],
+   "when": "Sau Omotesandō/Cat Street, khoảng 15:30 (đi bộ ~7 phút về phía Minami-Aoyama); mở 11:00–18:00",
+   "open": "11:00",
+   "close": "18:00",
+   "closedDow": [
+    2
+   ],
+   "closedNote": "Nghỉ thứ Ba",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1306/A130602/13050885/",
+    "rating": 3.7,
+    "count": 878,
+    "award": "百名店 2026 (和菓子・甘味処 TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sn-initial-omotesando": {
+  "lat": 35.666127,
+  "lng": 139.704499,
+  "address": "東京都渋谷区神宮前6-12-7 J-cube A棟 1F",
+  "hours": "Thứ Hai–Thứ Sáu 12:00–21:00 (gọi món cuối 20:15; Tabelog ghi đến 22:00); Thứ Bảy/CN/lễ từ 11:00",
+  "why": "Quán chuyên \"shime parfait\" (parfait kết bữa): parfait trái cây theo mùa ít ngọt, trình bày như tác phẩm, đúng kiểu thứ khách Tokyo xếp hàng chụp ảnh. Nếu ngại chờ có thể mua gelato hoặc soft serve mang đi.",
+  "rating": 3.59,
+  "ratingCount": 998,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/340080/640x640_rect_054c27c35550901c8c8ed5c8df7ea587.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/340080/054c27c35550901c8c8ed5c8df7ea587.jpg",
+    "caption": "Parfait trái cây hình ốc quế",
+    "credit": "INITIAL Omotesando (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13233470/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/219828/640x640_rect_d81c190e728e15dd6d6fa095eecd7847.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/219828/d81c190e728e15dd6d6fa095eecd7847.jpg",
+    "caption": "Parfait nho và hạt dẻ",
+    "credit": "INITIAL Omotesando (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13233470/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/158087/640x640_rect_158087098.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/158087/158087098.jpg",
+    "caption": "Parfait sô cô la và chuối",
+    "credit": "INITIAL Omotesando (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13233470/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/340080/640x640_rect_b4fc0bd0d721a253012bcba6d84420b2.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/340080/b4fc0bd0d721a253012bcba6d84420b2.jpg",
+    "caption": "Gelato và bánh cheesecake nhiều vị",
+    "credit": "INITIAL Omotesando (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1306/A130601/13233470/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "栗のチーズケーキとジェラートセット（秋限定）",
+     "romaji": "kuri no chīzukēki to jerāto setto",
+     "vi": "Bộ cheesecake hạt dẻ và gelato, món giới hạn mùa thu",
+     "yen": 1230
+    },
+    {
+     "ja": "ジェラート シングル",
+     "romaji": "jerāto shinguru",
+     "vi": "Gelato một vị, mang đi",
+     "yen": 480
+    },
+    {
+     "ja": "柿と梨のパフェ",
+     "romaji": "kaki to nashi no pafe",
+     "vi": "Parfait hồng và lê, món theo mùa",
+     "yen": 2500
+    }
+   ],
+   "when": "Omotesandō/Cat Street, khoảng 15:00–17:00 (cách ~6 phút đi bộ; ngày thường mở 12:00)",
+   "open": "12:00",
+   "close": "21:00",
+   "closedDow": [],
+   "closedNote": "Không có ngày nghỉ (Magical Trip)",
+   "queue": "Không nhận đặt chỗ; đến ngay sau giờ mở cửa hoặc ngày thường thì ít phải chờ nhất",
+   "pay": "card",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1306/A130601/13233470/",
+    "rating": 3.59,
+    "count": 998,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/shime-parfait-specialty-shop-initial-at-omotesando/",
+     "note": "Magical Trip: parfait đẹp như tác phẩm, được khách khen \"đẹp tới mức không nỡ ăn\", không nhận đặt chỗ"
+    },
+    {
+     "platform": "blog",
+     "url": "https://www.magical-trip.com/media/food-at-harajuku-2024-kawaii-photogenic-sweets-eats/",
+     "note": "Magical Trip đưa INITIAL vào nhóm đồ ngọt ăn ảnh nhất Harajuku"
+    }
+   ]
+  }
+ },
+ "sn-shibuya-nishimura-fruit-parlour": {
+  "lat": 35.659832,
+  "lng": 139.699877,
+  "address": "東京都渋谷区宇田川町22-2 西村ビル ２Ｆ",
+  "hours": "Thứ Hai–Thứ Bảy 10:30–21:00; CN/lễ 10:00–21:00 (gọi món cuối 20:20), tầng 2",
+  "why": "Tiệm trái cây nổi tiếng ở Dōgenzaka (Sweets TOKYO 百名店 2026): parfait, bánh kem và pancake dùng trái cây theo mùa; mùa thu có lê, hạt dẻ, mont blanc. Giá cao nhưng hợp làm món tráng miệng sau yakitori.",
+  "rating": 3.69,
+  "ratingCount": 1309,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/389906/640x640_rect_2b5ee68371dbb10ae868ca072e584920.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/389906/2b5ee68371dbb10ae868ca072e584920.jpg",
+    "caption": "Parfait lê, cam và trái cây",
+    "credit": "Shibuya Nishimura Fruit Parlour (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1303/A130301/13001901/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/389906/640x640_rect_aed18fae0e20f89761bdaf11b35cbe3b.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/389906/aed18fae0e20f89761bdaf11b35cbe3b.jpg",
+    "caption": "Parfait sô cô la hạt dẻ",
+    "credit": "Shibuya Nishimura Fruit Parlour (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1303/A130301/13001901/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/389906/640x640_rect_7252df8d430f41119f4f97dd7ff494fe.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/389906/7252df8d430f41119f4f97dd7ff494fe.jpg",
+    "caption": "Parfait mont blanc hạt dẻ lá phong",
+    "credit": "Shibuya Nishimura Fruit Parlour (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1303/A130301/13001901/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/389904/640x640_rect_1f83e74c0415b469ecd08be0c2728704.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/389904/1f83e74c0415b469ecd08be0c2728704.jpg",
+    "caption": "Parfait mont blanc trên đĩa vàng",
+    "credit": "Shibuya Nishimura Fruit Parlour (ảnh do cửa hàng đăng) / Tabelog",
+    "license": "Tabelog shop-provided photo",
+    "page": "https://tabelog.com/en/tokyo/A1303/A130301/13001901/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "ラ・フランスと栗のチーズムースパフェ",
+     "romaji": "ra furansu to kuri no chīzu mūsu pafe",
+     "vi": "Parfait lê La France, hạt dẻ và mousse phô mai (món mùa thu)",
+     "yen": 2300
+    },
+    {
+     "ja": "秋のフルーツのショートケーキとモンブラン",
+     "romaji": "aki no furūtsu no shōto kēki to monburan",
+     "vi": "Bánh kem trái cây mùa thu kèm mont blanc",
+     "yen": 1680
+    }
+   ],
+   "when": "Sau Toritake (~19:00), tầng 2 cách quán ~3 phút đi bộ; mở đến 21:00 (gọi món cuối 20:20)",
+   "open": "10:30",
+   "close": "21:00",
+   "closedDow": [],
+   "closedNote": null,
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/tokyo/A1303/A130301/13001901/",
+    "rating": 3.69,
+    "count": 1309,
+    "award": "百名店 2026 (スイーツ TOKYO)"
+   },
+   "social": []
+  }
+ },
+ "sh-super-potato-akiba": {
+  "images": [],
+  "lat": 35.69937,
+  "lng": 139.770741,
+  "address": "東京都千代田区外神田1-11-2 北林ビル 3F/4F/5F",
+  "hours": "11:00–20:00, không nghỉ",
+  "why": "Cửa hàng game retro nổi tiếng nhất Akihabara, cách hotel khoảng 10 phút đi bộ. Mở 7 ngày nên ghé được cả chiều ngày 1.",
+  "tips": "3–5F: máy game retro, đồ chơi, snack Nhật; 5F có phòng game retro và chỗ nghỉ",
+  "official": "https://www.superpotato.com/shop/akihabara/",
+  "store": {
+   "chain": "hobby",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "manseibashi",
+   "walkMin": 4
+  }
+ },
+ "sh-mandarake-complex": {
+  "images": [],
+  "lat": 35.700354,
+  "lng": 139.770525,
+  "address": "東京都千代田区外神田3-11-12",
+  "hours": "12:00–20:00 (ngày nghỉ chưa xác nhận)",
+  "why": "Cửa hàng đồ sưu tầm manga, anime, figure cũ lớn nhất của chuỗi, nằm giữa Manseibashi và Okachimachi. Chỉ mở từ 12h, đóng 20h nên không dồn vào buổi tối.",
+  "official": "https://www.timeout.jp/tokyo/ja/ショッピング/mandarake-complex",
+  "store": {
+   "chain": "hobby",
+   "city": "tokyo",
+   "open": "12:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "manseibashi",
+   "walkMin": 6
+  }
+ },
+ "sh-2k540": {
+  "images": [],
+  "lat": 35.703581,
+  "lng": 139.774158,
+  "address": "東京都台東区上野5-9 (dưới cầu cạn JR, giữa Akihabara và Okachimachi)",
+  "hours": "11:00–19:00, nghỉ thứ Tư",
+  "why": "Khu xưởng thủ công dưới đường tàu, đồ da, gốm, trang sức làm tay; nằm đúng đường từ Akihabara sang Okachimachi. Thứ Hai ngày 18/10 mở, thứ Tư nghỉ.",
+  "official": "https://www.jrtk.jp/2k540/",
+  "store": {
+   "chain": "craft",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "19:00",
+   "closedDow": [
+    3
+   ],
+   "taxFree": null,
+   "near": "yamabe",
+   "walkMin": 9
+  }
+ },
+ "sh-ameyoko": {
+  "images": [],
+  "lat": 35.710024,
+  "lng": 139.774541,
+  "address": "東京都台東区上野6-10-7",
+  "why": "Chợ đường phố cạnh Yamabe, mua snack và quà rẻ; giờ từng quán khác nhau nên coi như chỉ chắc đến chiều, không dựa vào buổi tối.",
+  "tips": "Khoảng 500 m, khoảng 500 cửa hàng: đồ ăn, hải sản, kẹo, quần áo, mỹ phẩm",
+  "official": "https://www.gotokyo.org/jp/spot/71/index.html",
+  "store": {
+   "chain": "market",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "yamabe",
+   "walkMin": 3
+  }
+ },
+ "sh-futaba-ameyoko": {
+  "images": [],
+  "lat": 35.708375,
+  "lng": 139.77447,
+  "address": "東京都台東区上野4-1-8",
+  "hours": "10:00–20:00, nghỉ bất thường",
+  "why": "Cửa hàng kẹo bánh sỉ, mở đến 20h nên ghé được sau bữa tối ở Yamabe. Hợp để mua KitKat vị lạ và bánh gạo chia bạn bè.",
+  "tips": "Quầy tax-free; khoảng 5.000 loại bánh kẹo, mua nhiều giá từng cái giảm",
+  "official": "https://livejapan.com/ja/in-tokyo/in-pref-tokyo/in-ueno/spot-lj0004520/",
+  "store": {
+   "chain": "market",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "yamabe",
+   "walkMin": 1
+  }
+ },
+ "sh-uniqlo-okachimachi": {
+  "images": [],
+  "lat": 35.707536,
+  "lng": 139.774358,
+  "address": "東京都台東区上野3-27-12 御徒町吉池本店ビル 1–4F",
+  "hours": "10:00–21:00",
+  "why": "Mở đến 21h, cách Yamabe vài bước nên thử size ngay tối ngày 1; đồ mua kịp vào vali lớn gửi đi Ise sáng ngày 3.",
+  "tips": "UNIQLO 1–4F (khoảng 2.800 m²); GU ở 5–6F cùng tòa nhà",
+  "official": "https://mitsui-shopping-park.com/urban/yoshiike/store/600358.html",
+  "store": {
+   "chain": "uniqlo",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "yamabe",
+   "walkMin": 2
+  }
+ },
+ "sh-gu-okachimachi": {
+  "images": [],
+  "lat": 35.707536,
+  "lng": 139.774358,
+  "address": "東京都台東区上野3-27-12 御徒町吉池本店ビル 5–6F",
+  "hours": "10:00–21:00",
+  "why": "Thử quần, áo GU ngay sau khi xem UNIQLO, cùng tòa nhà. Nếu có đổi size thì còn hai ngày ở Tokyo để quay lại.",
+  "tips": "5–6F (UNIQLO ở 1–4F cùng tòa nhà)",
+  "official": "https://mitsui-shopping-park.com/urban/yoshiike/store/600359.html",
+  "store": {
+   "chain": "gu",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "yamabe",
+   "walkMin": 2
+  }
+ },
+ "sh-yodobashi-akiba": {
+  "images": [],
+  "lat": 35.698784,
+  "lng": 139.774725,
+  "address": "東京都千代田区神田花岡町1-1",
+  "hours": "9:30–22:00 (trang chính thức không ghi ngày nghỉ)",
+  "why": "Trên đường Yamabe về hotel, mở đến 22h. Xem hàng điện tử, mỹ phẩm, đồ chơi; có Daiso tầng 1 trong tòa nhà.",
+  "tips": "B1 và 7F: cửa hàng chuyên (9:30–22:00); 8F nhà hàng 11:00–23:00",
+  "official": "https://www.yodobashi-akiba.com/information/access_map.html",
+  "store": {
+   "chain": "yodobashi",
+   "city": "tokyo",
+   "open": "09:30",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "resol-akihabara",
+   "walkMin": 4
+  }
+ },
+ "sh-donki-akihabara": {
+  "images": [],
+  "lat": 35.700717,
+  "lng": 139.77189,
+  "address": "東京都千代田区外神田4-3-3",
+  "hours": "24 giờ, không nghỉ",
+  "why": "Mở 24h, tax-free; thuốc chỉ bán khi có dược sĩ trực. Hợp mua snack, mỹ phẩm sau 21h khi các cửa hàng khác đã đóng.",
+  "official": "https://www.donki.com/store/shop_detail.php?shop_id=98",
+  "store": {
+   "chain": "donki",
+   "city": "tokyo",
+   "open": "00:00",
+   "close": "24:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "resol-akihabara",
+   "walkMin": 8
+  }
+ },
+ "sh-matsukiyo-iwamotocho": {
+  "images": [],
+  "lat": 35.696203,
+  "lng": 139.77506,
+  "address": "東京都千代田区神田岩本町 (cạnh ga Iwamotochō)",
+  "why": "Drugstore gần nhất với hotel RESOL (khoảng 2 phút đi bộ). Giờ mở chưa xác nhận trên trang chính thức; nếu đã đóng thì dùng Don Quijote Akihabara 24h.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ",
+  "store": {
+   "chain": "drugstore",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "resol-akihabara",
+   "walkMin": 2
+  }
+ },
+ "sh-daiso-yodobashi-akiba": {
+  "images": [],
+  "lat": 35.698925,
+  "lng": 139.774765,
+  "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 1F",
+  "hours": "9:30–22:00 (theo giờ tòa nhà)",
+  "why": "Daiso duy nhất sát tuyến ở Akihabara, nằm trong Yodobashi nên cùng giờ 9:30–22:00. Mua đồ nhỏ như túi zip, hộp đựng, móc treo.",
+  "official": "https://www.yodobashi-akiba.com/information/access_map.html",
+  "store": {
+   "chain": "daiso",
+   "city": "tokyo",
+   "open": "09:30",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "resol-akihabara",
+   "walkMin": 4
+  }
+ },
+ "sh-hands-be-atre-akiba": {
+  "images": [],
+  "lat": 35.698326,
+  "lng": 139.772479,
+  "address": "東京都千代田区外神田1-17-6 アトレ秋葉原1 2F",
+  "hours": "10:00–21:00",
+  "why": "Hands cỡ nhỏ ngay ga Akihabara, đóng 21h. Tối ngày 2 ghé nhanh mua văn phòng phẩm nếu không kịp Maruzen.",
+  "tips": "2F, nối thẳng ga JR Akihabara; nhóm làm đẹp, bếp, văn phòng phẩm, DIY",
+  "official": "https://be.hands.net/be_akihabara/",
+  "store": {
+   "chain": "hands",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "resol-akihabara",
+   "walkMin": 4
+  }
+ },
+ "sh-nakamise": {
+  "images": [],
+  "lat": 35.71252,
+  "lng": 139.796517,
+  "address": "東京都台東区浅草1丁目",
+  "why": "Đi qua trên đường vào Sensō-ji, mua quà nhỏ và omamori; giờ do từng quán quyết định nên đến trước 17h cho chắc.",
+  "tips": "Đồ ăn, quà lưu niệm, đồ chơi, đồ thủ công, phụ kiện kimono (theo danh mục trên trang chính thức)",
+  "official": "https://www.asakusa-nakamise.jp/",
+  "store": {
+   "chain": "street",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "sensoji",
+   "walkMin": 4
+  }
+ },
+ "sh-shimamura-asakusa": {
+  "images": [],
+  "lat": 35.712603,
+  "lng": 139.793402,
+  "address": "東京都台東区浅草1丁目 (đường Shin-Nakamise)",
+  "why": "Cửa hàng Shimamura duy nhất tìm được sát tuyến, cách Owariya chừng 200 m. Giờ mở chưa xác nhận, chỉ xem nếu tiện; áo quần cơ bản mua UNIQLO và GU ngày 1 chắc hơn.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=しまむら 浅草",
+  "store": {
+   "chain": "shimamura",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "owariya",
+   "walkMin": 2
+  }
+ },
+ "sh-kappabashi": {
+  "images": [],
+  "lat": 35.714251,
+  "lng": 139.788889,
+  "address": "東京都台東区松が谷3-18-2 (hiệp hội phố)",
+  "hours": "10:00–17:00 (giờ từng cửa hàng khác nhau)",
+  "why": "Phố đồ bếp, đi bộ 5 phút từ ga Tawaramachi (Ginza Line, cùng tuyến về Nihonbashi). Đồ nặng, dễ vỡ thì để dành Dōguyasuji ngày 11.",
+  "tips": "Khoảng 160 cửa hàng: dao, gốm, sơn mài, dụng cụ bếp, mẫu thức ăn nhựa",
+  "official": "https://www.gotokyo.org/jp/spot/59/index.html",
+  "store": {
+   "chain": "kitchen",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "sensoji",
+   "walkMin": 12
+  }
+ },
+ "sh-maruzen-nihonbashi": {
+  "images": [],
+  "lat": 35.681128,
+  "lng": 139.77252,
+  "address": "東京都中央区日本橋2-3-10",
+  "hours": "9:30–20:30",
+  "why": "Hiệu sách và văn phòng phẩm, ngay cạnh ga Nihonbashi. Hợp mua sổ, bút, đồ viết trước bữa tối ở Tamai; đóng 20:30 nên không gấp.",
+  "official": "https://tokubai.co.jp/prefectures/13/loconavi_spots/720/book_store",
+  "store": {
+   "chain": "other",
+   "city": "tokyo",
+   "open": "09:30",
+   "close": "20:30",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "maruzen-nihonbashi",
+   "walkMin": 3
+  }
+ },
+ "sh-coredo-muromachi": {
+  "images": [],
+  "lat": 35.686681,
+  "lng": 139.774207,
+  "address": "東京都中央区日本橋室町2-2-1 (COREDO Muromachi 2: 室町2-3-1, 3: 室町1-5-5, Terrace: 室町3-2-1)",
+  "hours": "Cửa hàng ngày thường 11:00–20:00, cuối tuần 10:00–20:00; nhà hàng 11:00–23:00",
+  "why": "Cụm trung tâm thương mại ở Nihonbashi. Có sẵn cửa hàng Nakagawa Masashichi để xem giá khăn kaya fukin trước khi mua ở Nara.",
+  "tips": "Có Nakagawa Masashichi, Kayanoya, Nōsaku, United Arrows, Urban Research (theo trang chính thức)",
+  "official": "https://mitsui-shopping-park.com/urban/muromachi/",
+  "store": {
+   "chain": "other",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "tamai",
+   "walkMin": 10
+  }
+ },
+ "sh-mitsukoshi-nihonbashi": {
+  "images": [],
+  "lat": 35.685633,
+  "lng": 139.773435,
+  "address": "東京都中央区日本橋室町1-4-1",
+  "hours": "10:00–19:00 (Tokyo tourism); ngày nghỉ bất thường",
+  "why": "Đóng 19:00 nên phải ghé trước bữa tối ở Tamai, không ghé sau. Tokyo chỉ xem và ăn thử; quà hạn dài mua ở Kyoto và Osaka.",
+  "tips": "B1: khu thực phẩm; giờ riêng của tầng thực phẩm chưa xác nhận",
+  "official": "https://www.gotokyo.org/jp/spot/82/index.html",
+  "store": {
+   "chain": "depachika",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "19:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "tamai",
+   "walkMin": 8
+  }
+ },
+ "sh-uniqlo-shinjuku-honten": {
+  "images": [],
+  "lat": 35.69138,
+  "lng": 139.703007,
+  "address": "東京都新宿区新宿3-29-1 MI新宿ビル 1–3F",
+  "hours": "10:00–22:00",
+  "why": "Mở 10h, sớm hơn UNIQLO Harajuku (11h), nên lấp được khoảng chờ 9:20–11:00 trước bữa sushi ở Shinjuku.",
+  "tips": "1–3F; cùng địa chỉ với Bic Camera Shinjuku East, GU ở 7F Bic Camera",
+  "official": "https://map.uniqlo.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%96%B0%E5%AE%BF",
+  "store": {
+   "chain": "uniqlo",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "sushi-ten",
+   "walkMin": 7
+  }
+ },
+ "sh-bic-shinjuku-east": {
+  "images": [],
+  "lat": 35.691304,
+  "lng": 139.702974,
+  "address": "東京都新宿区新宿3-29-1",
+  "hours": "10:00–22:00 (theo giờ GU 7F cùng tòa nhà; giờ Bic Camera chưa kiểm trực tiếp)",
+  "why": "Hàng điện tử, mỹ phẩm, thuốc; có GU 7F cùng tòa nhà nên một lần dừng thử được cả UNIQLO và GU. Giờ riêng của Bic Camera cần xem lại trước chuyến đi.",
+  "tips": "GU ở 7F (10:00–22:00); các tầng còn lại chưa xác nhận",
+  "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%96%B0%E5%AE%BF",
+  "store": {
+   "chain": "bic",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "sushi-ten",
+   "walkMin": 6
+  }
+ },
+ "sh-uniqlo-harajuku": {
+  "images": [],
+  "lat": 35.670694,
+  "lng": 139.703039,
+  "address": "東京都渋谷区神宮前1-14-30 ウィズ原宿 B1–1F",
+  "hours": "11:00–21:00",
+  "why": "Ngay cạnh ga Harajuku, trên đường ra khỏi Meiji Jingū. Mở 11h, đúng để mua AIRism ngày 3 nếu chưa mua ở Okachimachi.",
+  "tips": "B1 và 1F trong tòa WITH HARAJUKU (tòa mở 7:30–23:30, cửa hàng mở 11:00)",
+  "official": "https://withharajuku.jp/",
+  "store": {
+   "chain": "uniqlo",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "meiji-jingu",
+   "walkMin": 12
+  }
+ },
+ "sh-3coins-harajuku": {
+  "images": [],
+  "lat": 35.666901,
+  "lng": 139.704508,
+  "address": "東京都渋谷区神宮前6-12-22 秋田ビル 1F",
+  "hours": "11:00–20:00",
+  "why": "Cửa hàng đầu tiên và lớn nhất của 3COINS, gần Cat Street. Đồ gia dụng nhỏ, nhẹ, hợp bỏ vào vali.",
+  "tips": "1F; lớn hơn 3COINS+plus thông thường, có hàng chỉ bán ở cửa hàng này",
+  "official": "https://www.3coins.jp/harajuku/",
+  "store": {
+   "chain": "3coins",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "omotesando",
+   "walkMin": 7
+  }
+ },
+ "sh-cat-street": {
+  "images": [],
+  "lat": 35.665862,
+  "lng": 139.705148,
+  "address": "東京都渋谷区神宮前5–6丁目",
+  "why": "Đường nhỏ từ Omotesandō xuống Shibuya, các cửa hàng thời trang và vintage nhỏ, giờ mỗi tiệm một khác. Đi theo hướng này để từ Omotesandō sang Shibuya trước 17:30.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=キャットストリート",
+  "store": {
+   "chain": "street",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "omotesando",
+   "walkMin": 6
+  }
+ },
+ "sh-gu-shibuya": {
+  "images": [],
+  "lat": 35.660969,
+  "lng": 139.697539,
+  "address": "東京都渋谷区宇田川町32-13 B1–3F",
+  "hours": "11:00–22:00",
+  "why": "GU lớn ở Shibuya, mở đến 22h nên vừa ghé chiều vừa ghé sau bữa tối ở Toritake. Gần Shibuya Loft và MEGA Donki.",
+  "tips": "B1–3F",
+  "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%B8%8B%E8%B0%B7",
+  "store": {
+   "chain": "gu",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "toritake",
+   "walkMin": 6
+  }
+ },
+ "sh-shibuya-loft": {
+  "images": [],
+  "lat": 35.660924,
+  "lng": 139.699574,
+  "address": "東京都渋谷区宇田川町18-2",
+  "hours": "11:00–21:00 (thủ tục tax-free đến 20:30)",
+  "why": "Loft lớn nhất khu Shibuya, có tester mỹ phẩm (CANMAKE) và văn phòng phẩm. Trang cửa hàng báo ngày 31/10/2026 đóng sớm 19:00 vì Halloween; ngày 20/10/2027 xem lại.",
+  "official": "https://www.loft.co.jp/shop_list/detail.php?shop_id=189",
+  "store": {
+   "chain": "loft",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "toritake",
+   "walkMin": 5
+  }
+ },
+ "sh-shibuya-parco": {
+  "images": [],
+  "lat": 35.662033,
+  "lng": 139.698791,
+  "address": "東京都渋谷区宇田川町15-1",
+  "hours": "Cửa hàng 11:00–21:00; 6F 10:00–21:00; nghỉ bất thường",
+  "why": "Có Pokémon Center và Nintendo TOKYO cùng tầng 6. Đóng 21h nên ghé được sau bữa tối ở Toritake.",
+  "tips": "6F: Pokémon Center Shibuya, Nintendo TOKYO (10:00–21:00); tax-free theo từng cửa hàng",
+  "official": "https://shibuya.parco.jp/info/access/",
+  "store": {
+   "chain": "other",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "toritake",
+   "walkMin": 7
+  }
+ },
+ "sh-mega-donki-shibuya": {
+  "images": [],
+  "lat": 35.660447,
+  "lng": 139.69784,
+  "address": "東京都渋谷区宇田川町28-6",
+  "hours": "24 giờ, không nghỉ",
+  "why": "Mở 24h, tax-free; thuốc chỉ bán khi có dược sĩ. Là drugstore buổi tối của ngày 3, đi bộ vài phút từ Toritake và ga Shibuya.",
+  "official": "https://www.donki.com/store/shop_detail.php?shop_id=442",
+  "store": {
+   "chain": "donki",
+   "city": "tokyo",
+   "open": "00:00",
+   "close": "24:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "toritake",
+   "walkMin": 5
+  }
+ },
+ "sh-abc-mart-shibuya": {
+  "images": [],
+  "lat": 35.660286,
+  "lng": 139.698608,
+  "address": "東京都渋谷区宇田川町 (Center-gai)",
+  "why": "Cửa hàng giày ABC-MART gần Loft và MEGA Donki, dùng để thử ASICS đi bộ (¥14.000 trong giỏ). Giờ mở và danh mục (có Onitsuka Tiger hay không) chưa xác nhận trên trang chính thức.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ABC-MART",
+  "store": {
+   "chain": "other",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "toritake",
+   "walkMin": 4
+  }
+ },
+ "sh-hakone-yumoto-ekimae": {
+  "images": [],
+  "lat": 35.232988,
+  "lng": 139.103443,
+  "address": "神奈川県足柄下郡箱根町湯本 (trước ga)",
+  "why": "Trước ga có nhiều cửa hàng quà, quán ăn và ryokan (theo Wikipedia). Chỉ có khoảng 20 phút giữa tàu Romancecar và xe buýt H, nên chỉ xem đồ rất nhẹ vì còn mang cả ngày và cả đêm ở Mizunoto.",
+  "official": "https://ja.wikipedia.org/wiki/箱根湯本駅",
+  "store": {
+   "chain": "street",
+   "city": "hakone",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "st-hakone-yumoto",
+   "walkMin": 3
+  }
+ },
+ "sh-kashinoichi-shimizu": {
+  "images": [],
+  "lat": 35.021907,
+  "lng": 138.490686,
+  "address": "静岡県静岡市清水区島崎町149",
+  "hours": "Nhà hàng Kaizan (2F) 10:00–21:00; giờ khu chợ chưa xác nhận",
+  "why": "Chợ cá ngay chỗ ăn trưa Kaizan, đi 3 phút từ ga Shimizu. Xem hàng hải sản khô, đóng gói hạn dài trước hoặc sau bữa trưa; không mua đồ tươi.",
+  "tips": "Kaizan ở 2F Maguro-kan; khu chợ/ cửa hàng hải sản chưa xác nhận danh mục",
+  "official": "https://tabelog.com/shizuoka/A2201/A220102/22024359/",
+  "store": {
+   "chain": "market",
+   "city": "tokaido",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "kaizan",
+   "walkMin": 1
+  }
+ },
+ "sh-jr-nagoya-takashimaya": {
+  "images": [],
+  "lat": 35.171229,
+  "lng": 136.882724,
+  "address": "愛知県名古屋市中村区名駅 (nối ga Nagoya)",
+  "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ジェイアール名古屋タカシマヤ",
+  "store": {
+   "chain": "depachika",
+   "city": "tokaido",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "st-nagoya",
+   "walkMin": 4
+  }
+ },
+ "sh-welcia-ise-kawasaki": {
+  "images": [],
+  "lat": 34.493152,
+  "lng": 136.712872,
+  "address": "三重県伊勢市河崎1丁目",
+  "why": "Drugstore lớn gần nhất tìm được quanh ERA Ise (khoảng 10 phút đi bộ, cạnh phố Kawasaki). Giờ mở chưa xác nhận; mua nước, thuốc cảm, miếng dán chân.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ウエルシア",
+  "store": {
+   "chain": "drugstore",
+   "city": "ise",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "era-ise",
+   "walkMin": 8
+  }
+ },
+ "sh-okage-yokocho": {
+  "images": [],
+  "lat": 34.46244,
+  "lng": 136.72291,
+  "address": "三重県伊勢市宇治中之切町52 (Ise Fuku)",
+  "hours": "Tháng 10: 9:30–17:30",
+  "why": "Phố quà Ise cạnh Fukusuke và Akafuku, mở đến 17:30 trong tháng 10. Quà hạn dài thì mua ở đây; Akafuku ăn tại chỗ, không mang theo.",
+  "official": "https://www.okageyokocho.com/about/",
+  "store": {
+   "chain": "market",
+   "city": "ise",
+   "open": "09:30",
+   "close": "17:30",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "okage-yokocho",
+   "walkMin": 1
+  }
+ },
+ "sh-toba-marche": {
+  "images": [],
+  "lat": 34.487117,
+  "lng": 136.844663,
+  "address": "三重県鳥羽市鳥羽3丁目",
+  "why": "Chợ gần ga Toba, tiện ghé trong khoảng chờ tàu Shimakaze 15:20 sau bữa tôm chiên ở Sazanami. Giờ mở chưa xác nhận; hàng nhẹ thì mua, hải sản tươi thì không.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=鳥羽マルシェ",
+  "store": {
+   "chain": "market",
+   "city": "toba",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "st-toba",
+   "walkMin": 5
+  }
+ },
+ "sh-uniqlo-kyoto-mina": {
+  "images": [],
+  "lat": 35.007939,
+  "lng": 135.768637,
+  "address": "京都府京都市中京区河原町通三条下ル大黒町58 ミーナ京都 B1–3F",
+  "hours": "11:00–21:00",
+  "why": "Cách Cross Hotel Kyoto vài phút, mở đến 21h, nên ghé tối được sau bữa tối. API báo cửa hàng tạm đóng sửa chữa, dự kiến mở lại 6/11/2026.",
+  "tips": "B1–3F; Loft ở 4–6F cùng tòa Mina Kyoto",
+  "official": "https://map.uniqlo.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E4%BA%AC%E9%83%BD",
+  "store": {
+   "chain": "uniqlo",
+   "city": "kyoto",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 2
+  }
+ },
+ "sh-loft-kyoto-mina": {
+  "images": [],
+  "lat": 35.007892,
+  "lng": 135.768698,
+  "address": "京都府京都市中京区河原町通三条下ル大黒町58 ミーナ京都 4–6F",
+  "hours": "11:00–21:00 (tax-free đến 20:30)",
+  "why": "Loft Kyoto cách hotel vài phút, mở đến 21h. Văn phòng phẩm, đồ làm đẹp, tester CANMAKE.",
+  "tips": "4–6F trong Mina Kyoto",
+  "official": "https://www.loft.co.jp/shop_list/detail.php?shop_id=37",
+  "store": {
+   "chain": "loft",
+   "city": "kyoto",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "cross-kyoto",
+   "walkMin": 2
+  }
+ },
+ "sh-hands-kyoto": {
+  "images": [],
+  "lat": 35.003551,
+  "lng": 135.760751,
+  "address": "京都府京都市下京区四条通烏丸東入長刀鉾町27",
+  "hours": "10:00–20:30",
+  "why": "Hands ở Shijō–Karasuma, mở đến 20:30, ngay cạnh Daimaru (khoảng 2 phút). Có thể thay Hands Shinsaibashi nếu không đủ thời gian ở Osaka.",
+  "official": "https://store.hands.net/kyoto/",
+  "store": {
+   "chain": "hands",
+   "city": "kyoto",
+   "open": "10:00",
+   "close": "20:30",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "cross-kyoto",
+   "walkMin": 17
+  }
+ },
+ "sh-daimaru-kyoto": {
+  "images": [],
+  "lat": 35.004372,
+  "lng": 135.761899,
+  "address": "京都府京都市下京区高倉通四条下ル立売西町79",
+  "hours": "B2–2F: 10:00–20:00; 3–7F: 10:00–19:00; nhà hàng 8F 11:00–22:00; mở cả năm trừ 1–2/1",
+  "why": "Depachika lớn ở Shijō, mở đến 20:00 mỗi ngày nên ghé được sau 17h. Chọn quà hạn dài cho Kyoto; từ 1/11/2026 thủ tục tax-free làm tại quầy 8F.",
+  "tips": "B1–B2: thực phẩm (ごちそうパラダイス) và mỹ phẩm; 5F vali; 6F văn phòng phẩm; 8F quầy tax-free và nhà hàng",
+  "official": "https://www.daimaru.co.jp/kyoto/hours.html",
+  "store": {
+   "chain": "depachika",
+   "city": "kyoto",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "cross-kyoto",
+   "walkMin": 14
+  }
+ },
+ "sh-ippodo-daimaru-kyoto": {
+  "images": [],
+  "lat": 35.004372,
+  "lng": 135.761899,
+  "address": "京都府京都市下京区高倉通四条下ル立売西町79 大丸京都店 B1",
+  "hours": "Theo giờ Daimaru B2–2F: 10:00–20:00",
+  "why": "Phương án thay khi đã quá 17:00, giờ đóng cửa của Honten ở Teramachi. Hōjicha 100 g mua ở đây tiện khoảng cách đến hotel.",
+  "tips": "B1, quầy Ippodo",
+  "official": "https://www.ippodo-tea.co.jp/blogs/news/shop_20261105",
+  "store": {
+   "chain": "other",
+   "city": "kyoto",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "cross-kyoto",
+   "walkMin": 14
+  }
+ },
+ "sh-ippodo-honten": {
+  "images": [],
+  "lat": 35.014463,
+  "lng": 135.767355,
+  "address": "京都府京都市中京区寺町通二条上ル常盤木町52",
+  "hours": "10:00–17:00; nghỉ thứ Tư tuần thứ 2 mỗi tháng; trà thất Kaboku order cuối 16:30",
+  "why": "Cửa hàng chính, đóng 17:00 nên chỉ ghé được ngày 8 sau khi trả kimono. 27/10 là thứ Tư tuần thứ 4, không trùng ngày nghỉ.",
+  "tips": "Có trà thất 嘉木 (44 chỗ) cùng chỗ",
+  "official": "https://www.ippodo-tea.co.jp/pages/store-kyoto?view=store-detail",
+  "store": {
+   "chain": "other",
+   "city": "kyoto",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 12
+  }
+ },
+ "sh-ichizawa-shinzaburo": {
+  "images": [],
+  "lat": 35.00765,
+  "lng": 135.777788,
+  "address": "京都府京都市東山区東大路通 (cạnh Chion-in)",
+  "hours": "Giờ chưa xác nhận; nghỉ thứ Ba theo dữ liệu có sẵn của dự án",
+  "why": "Túi canvas may tay, cách Yasaka Jinja khoảng 5–10 phút đi bộ. Ngày 8 (thứ Hai) mở; ngày 9 (thứ Ba) đóng nên không ghé ngày đó.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=一澤信三郎帆布",
+  "store": {
+   "chain": "craft",
+   "city": "kyoto",
+   "open": null,
+   "close": null,
+   "closedDow": [
+    2
+   ],
+   "taxFree": null,
+   "near": "yasaka-shrine",
+   "walkMin": 8
+  }
+ },
+ "sh-teramachi-kyogoku": {
+  "images": [],
+  "lat": 35.00578,
+  "lng": 135.766955,
+  "address": "京都府京都市中京区寺町通・新京極通 (Shijō–Sanjō)",
+  "why": "Hai phố có mái che nối Shijō với Sanjō, ngay sau lưng hotel. Dạo tối, cửa hàng thường đóng muộn hơn Nishiki; giờ từng tiệm khác nhau.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=寺町京極",
+  "store": {
+   "chain": "street",
+   "city": "kyoto",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 7
+  }
+ },
+ "sh-nishiki-market": {
+  "images": [],
+  "lat": 35.005024,
+  "lng": 135.765569,
+  "address": "京都府京都市中京区西大文字町609 (hiệp hội)",
+  "why": "Chợ thực phẩm Kyoto ở Shijō–Karasuma. Giờ từng quán chưa xác nhận trên trang chính thức, nhiều quán đóng chiều, nên ghé buổi chiều ngày 9 và mua đồ khô, tsukemono đóng gói.",
+  "tips": "Chợ dài 390 m; hiệp hội yêu cầu không vừa đi vừa ăn",
+  "official": "https://www.kyoto-nishiki.or.jp/access/",
+  "store": {
+   "chain": "market",
+   "city": "kyoto",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 9
+  }
+ },
+ "sh-matsukiyo-kiyamachi-kyoto": {
+  "images": [],
+  "lat": 35.004011,
+  "lng": 135.770699,
+  "address": "京都府京都市中京区木屋町通 (giữa Sanjō và Shijō)",
+  "why": "Drugstore gần Cross Hotel, trên đường về từ ga Sanjō Keihan. Giờ mở chưa xác nhận; mua mỹ phẩm, thuốc tối ngày 9.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ",
+  "store": {
+   "chain": "drugstore",
+   "city": "kyoto",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 8
+  }
+ },
+ "sh-nakagawa-masashichi-nara": {
+  "images": [],
+  "lat": 34.6793,
+  "lng": 135.8277,
+  "address": "奈良県奈良市 (Naramachi)",
+  "why": "Cửa hàng chính của nhà làm vải kaya fukin, nằm trong lịch lúc 14:00. Chưa mở được trang chính thức nên chưa biết giờ và ngày nghỉ; COREDO Muromachi ở Tokyo cũng có cửa hàng cùng hãng nếu cần dự phòng.",
+  "store": {
+   "chain": "craft",
+   "city": "nara",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "nakagawa-masashichi-nara",
+   "walkMin": 1
+  }
+ },
+ "sh-higashimuki": {
+  "images": [],
+  "lat": 34.683079,
+  "lng": 135.828732,
+  "address": "奈良県奈良市橋本町 (nối từ ga Kintetsu Nara)",
+  "why": "Nằm ngay ga Kintetsu Nara, ghé trong lúc đi bộ 12 phút từ Hōsekibako ra ga. Narazuke và quà nhỏ nhẹ.",
+  "tips": "Phố có mái che dài khoảng 250 m từ ga Kintetsu Nara, có hàng narazuke (Yamazaki-ya 10:00–20:00)",
+  "official": "https://en.wikivoyage.org/wiki/Nara",
+  "store": {
+   "chain": "street",
+   "city": "nara",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "hosekibako",
+   "walkMin": 5
+  }
+ },
+ "sh-uniqlo-shinsaibashisuji": {
+  "images": [],
+  "lat": 34.671254,
+  "lng": 135.501589,
+  "address": "大阪府大阪市中央区心斎橋筋2-1-17",
+  "hours": "11:00–21:00",
+  "why": "Cách hotel khoảng 10 phút, mở đến 21h. Nơi dự phòng nếu chưa kịp mua AIRism ở Tokyo.",
+  "tips": "Cùng địa chỉ với GU Shinsaibashi",
+  "official": "https://map.uniqlo.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E5%BF%83%E6%96%8E%E6%A9%8B",
+  "store": {
+   "chain": "uniqlo",
+   "city": "osaka",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "forza-osaka",
+   "walkMin": 6
+  }
+ },
+ "sh-gu-shinsaibashi": {
+  "images": [],
+  "lat": 34.671255,
+  "lng": 135.501611,
+  "address": "大阪府大阪市中央区心斎橋筋2-1-17",
+  "hours": "11:00–21:00",
+  "why": "Cùng địa chỉ với UNIQLO Shinsaibashisuji. Nếu đã bỏ quần GU ở Tokyo thì dự phòng ở đây.",
+  "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E5%BF%83%E6%96%8E%E6%A9%8B",
+  "store": {
+   "chain": "gu",
+   "city": "osaka",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "forza-osaka",
+   "walkMin": 6
+  }
+ },
+ "sh-donki-dotonbori-midosuji": {
+  "images": [],
+  "lat": 34.669274,
+  "lng": 135.499805,
+  "address": "大阪府大阪市中央区西心斎橋2-5-9",
+  "hours": "24 giờ, không nghỉ",
+  "why": "Mở 24h, tax-free, cách Nankai Namba và hotel vài phút. Mua vali S dự phòng, snack, drugstore; bước cân hành lý cuối cùng ngày 12.",
+  "tips": "Tầng 9–10 là phòng khám và nhà hàng; khu bán hàng chưa có sơ đồ trên trang",
+  "official": "https://www.donki.com/store/shop_detail.php?shop_id=373",
+  "store": {
+   "chain": "donki",
+   "city": "osaka",
+   "open": "00:00",
+   "close": "24:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "forza-osaka",
+   "walkMin": 6
+  }
+ },
+ "sh-amerikamura": {
+  "images": [],
+  "lat": 34.672085,
+  "lng": 135.497946,
+  "address": "大阪府大阪市中央区西心斎橋",
+  "why": "Khu thời trang vintage, giày secondhand, 10 phút đi bộ từ hotel. Giờ từng tiệm khác nhau (thường đóng muộn), chưa xác nhận.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=アメリカ村",
+  "store": {
+   "chain": "vintage",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "forza-osaka",
+   "walkMin": 11
+  }
+ },
+ "sh-doguyasuji-kyoya": {
+  "images": [],
+  "lat": 34.66393,
+  "lng": 135.503517,
+  "address": "大阪市中央区難波千日前 (phố Dōguyasuji)",
+  "hours": "9:30–18:00; nghỉ dịp đầu năm",
+  "why": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00 và đóng 18:00; lịch tới đây lúc 9:45.",
+  "tips": "Bát đĩa Nhật và Tây, gốm, sơn mài",
+  "official": "https://www.doguyasuji.or.jp/shop/kyouya/",
+  "store": {
+   "chain": "kitchen",
+   "city": "osaka",
+   "open": "09:30",
+   "close": "18:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "doguyasuji",
+   "walkMin": 1
+  }
+ },
+ "sh-takashimaya-osaka": {
+  "images": [],
+  "lat": 34.664628,
+  "lng": 135.501796,
+  "address": "大阪市中央区難波5-1-5",
+  "why": "Depachika cạnh Nankai Namba, nằm trong lịch lúc 12:00. Không mở được trang chính thức nên chưa biết giờ và ngày nghỉ; xem lại trên trang Takashimaya trước chuyến đi.",
+  "tips": "B1: thực phẩm (hộp bánh Yoku Moku trong giỏ mua)",
+  "store": {
+   "chain": "depachika",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "takashimaya-osaka",
+   "walkMin": 1
+  }
+ },
+ "sh-workman-colors-namba-city": {
+  "images": [],
+  "lat": 34.662544,
+  "lng": 135.502587,
+  "address": "大阪府大阪市中央区難波5-1-60 なんばCITY南館 2F",
+  "hours": "11:00–21:00",
+  "why": "Chi nhánh Workman duy nhất sát tuyến; Tokyo và Kyoto trung tâm không có. Cạnh Nankai Namba, tiện ghé sáng ngày 12 nếu mở cửa kịp.",
+  "tips": "2F, Nam館 (South Building)",
+  "official": "https://www.workman.co.jp/store/area/270008",
+  "store": {
+   "chain": "workman",
+   "city": "osaka",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "takashimaya-osaka",
+   "walkMin": 5
+  }
+ },
+ "sh-hankyu-umeda": {
+  "images": [],
+  "lat": 34.702712,
+  "lng": 135.498432,
+  "address": "大阪府大阪市北区角田町8-7",
+  "hours": "10:00–20:00 hằng ngày; nhà hàng 12–13F 11:00–22:00",
+  "why": "Depachika lớn ở Umeda, kế Loft Hanshin. Đóng 20:00 mỗi ngày, ghé trước 19:00 để chọn quà ăn hạn dài.",
+  "tips": "B1: bánh Nhật và Tây, bánh mì, đồ ăn, có quầy tư vấn quà; 2–3F HANKYU BEAUTY; 8F Gift Center; 10F Gift Salon",
+  "official": "https://www.hankyu-dept.co.jp/honten/",
+  "store": {
+   "chain": "depachika",
+   "city": "osaka",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "loft-umeda",
+   "walkMin": 3
+  }
+ },
+ "sh-loft-umeda": {
+  "images": [],
+  "lat": 34.701165,
+  "lng": 135.498607,
+  "address": "大阪府大阪市北区梅田1-13-13 阪神梅田本店 6F",
+  "hours": "10:00–20:00 (tax-free đến 19:30)",
+  "why": "Nằm trong lịch lúc 13:15. Văn phòng phẩm, tester CANMAKE, đồ gia dụng nhỏ.",
+  "tips": "6F Hanshin Umeda Honten; không phải địa chỉ Loft Chayamachi cũ",
+  "official": "https://www.loft.co.jp/shop_list/detail.php?shop_id=143",
+  "store": {
+   "chain": "loft",
+   "city": "osaka",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "loft-umeda",
+   "walkMin": 1
+  }
+ },
+ "sh-links-umeda": {
+  "images": [],
+  "lat": 34.70445,
+  "lng": 135.496192,
+  "address": "大阪府大阪市北区大深町 (cạnh Yodobashi Umeda)",
+  "why": "Trung tâm thương mại phía Umeda, nơi dự phòng mua anello CROSS BOTTLE nếu không mua ở Shinsaibashi. Giờ mở và cửa hàng anello trong tòa chưa xác nhận.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=LINKS UMEDA",
+  "store": {
+   "chain": "other",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "loft-umeda",
+   "walkMin": 7
+  }
+ },
+ "sh-yodobashi-umeda": {
+  "images": [],
+  "lat": 34.704206,
+  "lng": 135.496361,
+  "address": "大阪府大阪市北区大深町1-1",
+  "why": "Cửa hàng điện tử lớn ở Umeda, cạnh LINKS UMEDA. Trang chính thức không mở được lúc tra nên chưa biết giờ; xem lại trước chuyến đi.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ヨドバシ",
+  "store": {
+   "chain": "yodobashi",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "loft-umeda",
+   "walkMin": 7
+  }
+ },
+ "sh-hands-shinsaibashi": {
+  "images": [],
+  "lat": 34.673865,
+  "lng": 135.500971,
+  "address": "大阪府大阪市中央区心斎橋筋1-8-3 心斎橋PARCO 9–11F",
+  "hours": "10:00–20:00",
+  "why": "Hands còn hoạt động ở Osaka; Hands Shibuya sẽ đóng vĩnh viễn 15/11/2026. Đóng 20:00 nên ghé ngay sau bữa tối sớm ở Tahei.",
+  "tips": "9–11F Shinsaibashi PARCO",
+  "official": "https://store.hands.net/shinsaibashi/",
+  "store": {
+   "chain": "hands",
+   "city": "osaka",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "forza-osaka",
+   "walkMin": 10
+  }
+ },
+ "sh-anello-shinsaibashi": {
+  "images": [],
+  "lat": 34.675369,
+  "lng": 135.501859,
+  "address": "大阪府大阪市中央区南船場3丁目 (cạnh Nagahori-dōri)",
+  "why": "Cửa hàng anello cho CROSS BOTTLE trong giỏ mua. Giờ mở chưa xác nhận; cách UNIQLO Shinsaibashi vài phút.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=anello",
+  "store": {
+   "chain": "other",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "forza-osaka",
+   "walkMin": 13
+  }
+ },
+ "sh-kix-shops": {
+  "images": [],
+  "lat": 34.43597,
+  "lng": 135.24349,
+  "address": "大阪府泉佐野市泉州空港北 (Sân bay Kansai)",
+  "why": "Chốt quà còn thiếu trước khi lên máy bay. Chưa mở được trang chính thức của sân bay nên chưa có giờ; xem lại sau khi biết giờ bay. Tax-free mới: phải qua hải quan duyệt trước khi ký gửi.",
+  "official": "https://www.kansai-airport.or.jp/en/shop/",
+  "store": {
+   "chain": "other",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "kix",
+   "walkMin": 1
+  }
+ },
+ "sh-muji-akiba-trim": {
+  "images": [],
+  "lat": 35.6979,
+  "lng": 139.77383,
+  "address": "東京都千代田区神田佐久間町1-6-5 アキバ・トリム 3F",
+  "hours": "11:00–22:00, mở hằng ngày",
+  "why": "Chi nhánh gần hotel nhất, mở đến 22:00 nên ghé được sau bữa tối ngày 2. Chưa tìm thấy thông tin tax-free.",
+  "tips": "3F",
+  "official": "https://www.muji.com/jp/ja/shop/detail/045443",
+  "store": {
+   "chain": "muji",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "resol-akihabara",
+   "walkMin": 3
+  }
+ },
+ "sh-muji-ginza": {
+  "images": [],
+  "lat": 35.67338,
+  "lng": 139.76552,
+  "address": "東京都中央区銀座3-3-5",
+  "hours": "11:00–21:00; MUJI Diner và Coffee & Salon mở đến 22:00",
+  "why": "Cửa hàng lớn nhất Tokyo, đủ mọi dòng hàng. Đi tàu Ginza Line vài phút từ Nihonbashi; nghỉ chỉ khi kiểm kê. Chưa xác nhận tax-free.",
+  "tips": "Cửa hàng chủ lực nhiều tầng, có MUJI Diner ở B1",
+  "official": "https://www.timeout.jp/tokyo/ja/ショッピング/mujirushiryohin-ginza",
+  "store": {
+   "chain": "muji",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "maruzen-nihonbashi",
+   "walkMin": 18
+  }
+ },
+ "sh-muji-lumine-shinjuku": {
+  "images": [],
+  "lat": 35.68918,
+  "lng": 139.69931,
+  "address": "LUMINE 2 6F, ga JR Shinjuku (cổng nam)",
+  "hours": "11:00–21:00 (cập nhật 28/4/2026)",
+  "why": "Ngay cổng nam ga Shinjuku, cách SUSHI TOKYO TEN vài phút đi bộ, có tax-free. Mở sau 11:00 nên ghé sau bữa trưa.",
+  "tips": "6F, một tầng",
+  "official": "https://media.jreast.co.jp/articles/12",
+  "store": {
+   "chain": "muji",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "sushi-ten",
+   "walkMin": 4
+  }
+ },
+ "sh-muji-kyoto-bal": {
+  "images": [],
+  "lat": 35.00679,
+  "lng": 135.76958,
+  "address": "〒604-8032 京都市中京区河原町通三条下ル山崎町251 京都BAL 5F",
+  "hours": "11:00–20:00, mở hằng ngày (không tính dịp Tết)",
+  "why": "Rất gần Cross Hotel Kyoto, tiện ghé buổi tối ngày 8 trước 20:00. Chưa xác nhận tax-free.",
+  "tips": "5F",
+  "official": "https://www.muji.com/jp/ja/shop/detail/061717",
+  "store": {
+   "chain": "muji",
+   "city": "kyoto",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 3
+  }
+ },
+ "sh-muji-shinsaibashi-parco": {
+  "images": [],
+  "lat": 34.67387,
+  "lng": 135.50097,
+  "address": "〒542-0085 大阪市中央区心斎橋筋一丁目8-3 心斎橋PARCO 7F",
+  "hours": "10:00–20:00, mở hằng ngày",
+  "why": "Nối thẳng ga Shinsaibashi (Midōsuji), có tax-free. Đi bộ từ Forza khoảng 10 phút, đóng cửa lúc 20:00.",
+  "tips": "7F",
+  "official": "https://www.muji.com/jp/ja/shop/detail/045791",
+  "store": {
+   "chain": "muji",
+   "city": "osaka",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "forza-osaka",
+   "walkMin": 10
+  }
+ },
+ "fs-lawson-kawaguchiko-ekimae": {
+  "lat": 35.498582,
+  "lng": 138.767118,
+  "bestTime": "Trước 8–9h sáng; cao điểm 10:00–16:00, buổi trưa Mặt Trời nằm sau núi nên ngược sáng. Tháng 11 đến tháng 2 ổn định nhất.",
+  "station": "Kawaguchiko 3 phút",
+  "why": "Cửa hàng Lawson mà đỉnh Fuji hiện ngay phía trên mái và biển hiệu, được chụp đi chụp lại; lượng khách chụp ảnh đông đến mức thị trấn phải dựng nhiều lớp rào chắn từ năm 2024.",
+  "tips": "Diễn biến: 21/5/2024 thị trấn treo màn lưới đen cao 2,5 m, dài 20 m bên kia đường; gỡ ngày 15/8/2024. Cuối 11/2024 thị trấn thông báo dựng rào mới phía cửa hàng; 17/12/2024 rào thấp (khoảng 80 cm) được lắp. 7/8/2025 dựng thêm rào cao khoảng 1,4 m đối diện cửa hàng để chặn người chạy ra đường mà vẫn chụp được núi (Tokyo Weekender 18/8/2025). Theo isfujivisible.com (23/8/2026) và Tabimania (21/9/2026): có rào nước màu vàng với biển 4 thứ tiếng, bảo vệ giờ cao điểm, từ xuân 2026 có giàn giáo ở tòa nhà bên phải khung hình. Chưa mở được thông báo chính thức của thị trấn; kiểm tra lại gần ngày đi. Đứng trên đường công cộng, sang đường ở vạch có đèn cách khoảng 80 m, không băng qua giữa xe. Sân trước thuộc phòng khám nha khoa còn bãi xe chỉ dành cho khách mua hàng; không đứng chụp trong ô đỗ xe, mang rác về, giữ yên lặng. Lawson đã đề nghị các công ty tour ngừng đưa đoàn tới đây từ 5/2024.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/e52a78326e08.webp",
+    "caption": "Lawson Kawaguchiko Ekimae với Fuji phía sau mái cửa hàng",
+    "credit": "Sergiy Galyonkin",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:That_famous_Lawson_and_Mount_Fuji_in_Kawaguchiko_(54244854384).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/c914082e5791.webp",
+    "caption": "Góc chụp quen thuộc: biển Lawson và đỉnh Fuji",
+    "credit": "Gabriel Hutchinson Photography",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Lawson_Fuji.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "kawaguchiko",
+   "type": "konbini",
+   "fit": "kawaguchiko",
+   "status": "Diễn biến: 21/5/2024 thị trấn treo màn lưới đen cao 2,5 m, dài 20 m bên kia đường; gỡ ngày 15/8/2024. Cuối 11/2024 thị trấn thông báo dựng rào mới phía cửa hàng; 17/12/2024 rào thấp (khoảng 80 cm) được lắp. 7/8/2025 dựng thêm rào cao khoảng 1,4 m đối diện cửa hàng để chặn người chạy ra đường mà vẫn chụp được núi (Tokyo Weekender 18/8/2025). Theo isfujivisible.com (23/8/2026) và Tabimania (21/9/2026): có rào nước màu vàng với biển 4 thứ tiếng, bảo vệ giờ cao điểm, từ xuân 2026 có giàn giáo ở tòa nhà bên phải khung hình. Chưa mở được thông báo chính thức của thị trấn; kiểm tra lại gần ngày đi.",
+   "etiquette": "Đứng trên đường công cộng, sang đường ở vạch có đèn cách khoảng 80 m, không băng qua giữa xe. Sân trước thuộc phòng khám nha khoa còn bãi xe chỉ dành cho khách mua hàng; không đứng chụp trong ô đỗ xe, mang rác về, giữ yên lặng. Lawson đã đề nghị các công ty tour ngừng đưa đoàn tới đây từ 5/2024.",
+   "access": {
+    "kawaguchiko": "Từ ga Kawaguchiko đi bộ khoảng 2–3 phút về phía tây, cửa hàng cùng phía đường với ga; qua vạch sang đường rồi quay lại chụp từ bên đối diện.",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": {
+    "ja": "河口湖駅",
+    "lat": 35.4984364,
+    "lng": 138.7685395,
+    "lines": [
+     "レッドライン（河口湖周遊バス）",
+     "グリーンライン（西湖周遊バス）",
+     "ブルーライン（鳴沢・精進湖・本栖湖周遊バス）"
+    ],
+    "walkMin": 3,
+    "coordSource": "OSM Nominatim, bus_stop 河口湖駅; số bến theo bản đồ Fujikyu 4/2026"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://soranews24.com/2024/11/29/bad-tourist-manners-lead-to-new-mt-fuji-view-blocking-scree-at-japans-fuji-convenience-store/",
+     "note": "SoraNews24 (29/11/2024): rào đầu tiên bị gỡ 8/2024, thị trấn quyết định dựng rào mới vì khách chụp ảnh vẫn vi phạm."
+    },
+    {
+     "platform": "blog",
+     "url": "https://www.tokyoweekender.com/?p=273441",
+     "note": "Tokyo Weekender (18/8/2025): rào cao khoảng 1,4 m lắp 7/8/2025, vẫn cho chụp núi."
+    },
+    {
+     "platform": "blog",
+     "url": "https://isfujivisible.com/blog/mount-fuji-lawson-photo-spot",
+     "note": "isfujivisible.com (23/8/2026): hiện trạng rào, vạch sang đường và thống kê tầm nhìn."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E3%83%AD%E3%83%BC%E3%82%BD%E3%83%B3%20%E6%B2%B3%E5%8F%A3%E6%B9%96%E9%A7%85%E5%89%8D%E5%BA%97%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ]
+  }
+ },
+ "fs-honcho-dori": {
+  "lat": 35.494131,
+  "lng": 138.804196,
+  "bestTime": "Buổi sáng: số liệu thành phố Fuji trong trang Fuji cho thấy buổi sáng trong hơn buổi chiều.",
+  "station": "Shimoyoshida 5 phút",
+  "why": "Phố cũ kiểu Shōwa với đèn đường, biển hiệu và dây điện chạy thẳng về phía Fuji ở cuối phố; Fujikyu ghi đây là \"điểm nổi tiếng trên SNS\".",
+  "tips": "Đường vẫn có xe chạy: chụp từ vỉa hè hoặc chờ đèn tín hiệu, không bước xuống lòng đường; tôn trọng cửa hàng và nhà dân hai bên.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/ed6f964d9317.webp",
+    "caption": "Phố Honchō ban ngày với Fuji ở cuối đường",
+    "credit": "DimiTalen",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Honcho_Street_with_Mount_Fuji_in_the_daytime,_Fujiyoshida,_2016.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/c94358de4bfc.webp",
+    "caption": "Cùng góc phố lúc chiều tối",
+    "credit": "DimiTalen",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Honcho_Street_with_Mount_Fuji_in_the_evening,_Fujiyoshida,_2016.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "fujiyoshida",
+   "type": "street",
+   "fit": "kawaguchiko",
+   "status": null,
+   "etiquette": "Đường vẫn có xe chạy: chụp từ vỉa hè hoặc chờ đèn tín hiệu, không bước xuống lòng đường; tôn trọng cửa hàng và nhà dân hai bên.",
+   "access": {
+    "kawaguchiko": "Tàu Fujikyu Kawaguchiko → Shimoyoshida (5,5 km, vé giấy ¥310; Fuji Kaiyu mất 15 phút, tàu thường chậm hơn một chút), rồi đi bộ 5 phút (Fujikyu ghi 5 phút từ ga Shimoyoshida).",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+     "note": "Bản đồ điểm ngắm Fuji của Fujikyu: \"điểm nổi tiếng trên SNS\", 5 phút từ ga Shimoyoshida, phố Shōwa hoài cổ."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E5%AF%8C%E5%A3%AB%E5%90%89%E7%94%B0%20%E6%9C%AC%E7%94%BA%E9%80%9A%E3%82%8A%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ]
+  }
+ },
+ "fs-chureito-pagoda": {
+  "lat": 35.50129,
+  "lng": 138.80136,
+  "hours": "24 giờ (công viên); đền Arakura Fuji Sengen 9:00–16:00",
+  "bestTime": "Sáng ngày thường; cao điểm 9:00–12:00. Lá đỏ thường giữa đến cuối tháng 11 nên cuối tháng 10 chưa đỏ; công viên có chiếu sáng buổi tối (tháng 10–11: 17:00–21:50).",
+  "station": "Shimoyoshida 25 phút",
+  "why": "Khung hình kinh điển: tháp năm tầng đỏ với Fuji phía sau, nhìn từ sàn ngắm sau 398 bậc đá; thành phố Fujiyoshida giới thiệu đây là điểm ngắm Fuji nổi tiếng.",
+  "tips": "Lễ hội hoa anh đào 2026 của Fujiyoshida bị huỷ (tin ngày 6/2/2026) vì quá tải: rác, kẹt xe, vào nhà dân; thành phố tăng bảo vệ và đặt nhà vệ sinh di động. Công viên vẫn mở 24 giờ và miễn phí; sàn ngắm được đổi mới từ 1/2/2022. Có blog nói mùa hoa phải xếp hàng 1–3 giờ theo lượt, nhưng chưa tìm được thông báo chính thức về thu phí hay giới hạn lượt; cuối tháng 10 không phải mùa cao điểm. Không vào nhà dân và không chụp tự do ở khu dân cư dưới chân đồi; tuân theo biển chỉ dẫn và bảo vệ trên sàn ngắm. Tới sớm hoặc ngày thường để tránh hàng.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/a6c3e2a84926.webp",
+    "caption": "Tháp Chūreitō lúc hoa anh đào nở",
+    "credit": "Manish Prabhune",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Chureito_Pagoda.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/277c6f62b0ac.webp",
+    "caption": "Công viên Arakurayama Sengen",
+    "credit": "Olaf2",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Arakurayama_Sengen_Park_09.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/73ffbcbfbb6e.webp",
+    "caption": "Fuji nhìn từ công viên Arakurayama ngày 22/10/2024, đúng thời điểm cuối tháng 10",
+    "credit": "Supanut Arunoprayote",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji,_Arakurayama_Sengen_Park_20241022.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/4db90c123347.webp",
+    "caption": "Nhìn về phía Fuji từ sườn đồi Arakurayama",
+    "credit": "Ximonic (Simo Räsänen)",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:View_towards_Mount_Fuji_from_Arakurayama_Sengen_Park_in_Fujiyoshida,_Yamanashi,_Japan,_2024_May_-_2.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "fujiyoshida",
+   "type": "pagoda",
+   "fit": "kawaguchiko",
+   "status": "Lễ hội hoa anh đào 2026 của Fujiyoshida bị huỷ (tin ngày 6/2/2026) vì quá tải: rác, kẹt xe, vào nhà dân; thành phố tăng bảo vệ và đặt nhà vệ sinh di động. Công viên vẫn mở 24 giờ và miễn phí; sàn ngắm được đổi mới từ 1/2/2022. Có blog nói mùa hoa phải xếp hàng 1–3 giờ theo lượt, nhưng chưa tìm được thông báo chính thức về thu phí hay giới hạn lượt; cuối tháng 10 không phải mùa cao điểm.",
+   "etiquette": "Không vào nhà dân và không chụp tự do ở khu dân cư dưới chân đồi; tuân theo biển chỉ dẫn và bảo vệ trên sàn ngắm. Tới sớm hoặc ngày thường để tránh hàng.",
+   "access": {
+    "kawaguchiko": "Tàu Fujikyu tới ga Shimoyoshida (Fuji Kaiyu 15 phút, ¥310 từ Kawaguchiko), đi bộ qua đền rồi leo 398 bậc. Thời gian đi bộ tùy nguồn: 15 phút theo Fujikyu, 25 phút theo trang chính thức của thành phố (tính tới tháp).",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.timeout.com/news/japan-has-cancelled-its-famous-cherry-blossom-festival-over-concerns-about-unruly-tourism-020626",
+     "note": "Time Out (6/2/2026): hủy lễ hội hoa anh đào vì quá tải du khách, dự kiến hàng chờ tới 3 giờ ở sàn ngắm."
+    },
+    {
+     "platform": "blog",
+     "url": "https://watabi.org/en/articles/chureito-pagoda-guide",
+     "note": "Watabi (21/7/2026): hướng dẫn leo, thời điểm đẹp, lưu ý hàng chờ."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E6%96%B0%E5%80%89%E5%B1%B1%E6%B5%85%E9%96%93%E5%85%AC%E5%9C%92%20%E5%BF%A0%E9%9C%8A%E5%A1%94%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ]
+  }
+ },
+ "fs-shimoyoshida-station": {
+  "lat": 35.49773,
+  "lng": 138.80353,
+  "bestTime": "Sáng; Fuji nằm ở phía nam.",
+  "station": "Shimoyoshida",
+  "why": "Ga nhỏ trên tuyến Fujikyu, cửa ngõ tới Chūreitō và Honchō-dōri; Fujikyu giới thiệu việc ngắm Fuji ngay trong khuôn viên ga và khu \"Blue Train Terrace\" trưng bày toa tàu cũ.",
+  "tips": "Là ga đang hoạt động: đứng ngoài vạch, không vào đường ray; vào sân ga cần vé tàu hợp lệ.",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/465f4d01ac75.webp",
+    "caption": "Lối vào ga Shimoyoshida",
+    "credit": "Kounoichi",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Fujikyuko_Shimoyoshida_Sta_20161026.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/19a03a0d7906.webp",
+    "caption": "Sân ga Shimoyoshida",
+    "credit": "DimiTalen",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Platform_at_Shimoyoshida_Station,_Fujiyoshida,_2016.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "fujiyoshida",
+   "type": "station",
+   "fit": "kawaguchiko",
+   "status": null,
+   "etiquette": "Là ga đang hoạt động: đứng ngoài vạch, không vào đường ray; vào sân ga cần vé tàu hợp lệ.",
+   "access": {
+    "kawaguchiko": "Fuji Kaiyu dừng ở Shimoyoshida (Shinjuku 7:30 → 9:13; Kawaguchiko → Shimoyoshida 15 phút bằng Fuji Kaiyu). Từ Shimoyoshida về Kawaguchiko, tàu thường khoảng 2 chuyến mỗi giờ; vé giấy ¥310.",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+     "note": "Fujikyu: nên ngắm Fuji ngay trong ga Shimoyoshida, có Blue Train Terrace."
+    }
+   ]
+  }
+ },
+ "fs-kane-no-torii": {
+  "lat": 35.483211,
+  "lng": 138.797963,
+  "bestTime": "Sáng.",
+  "station": "Fujisan 5 phút",
+  "why": "Cổng torii lớn bắc ngang quốc lộ, Fuji nằm gọn trong khung cổng; Fujikyu ghi đây là điểm được ưa chuộng.",
+  "tips": "Đứng ở vỉa hè hoặc chờ đèn tín hiệu, không chạy ra giữa đường.",
+  "images": [],
+  "fujiSpot": {
+   "area": "fujiyoshida",
+   "type": "shrine",
+   "fit": "kawaguchiko",
+   "status": null,
+   "etiquette": "Đứng ở vỉa hè hoặc chờ đèn tín hiệu, không chạy ra giữa đường.",
+   "access": {
+    "kawaguchiko": "Tàu Fujikyu Kawaguchiko → Fujisan (¥230), rồi đi bộ 5 phút (Fujikyu: 5 phút từ ga Fujisan). Có thể ghép với Honchō-dōri nếu đi tàu thêm về phía Shimoyoshida.",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+     "note": "Bản đồ điểm ngắm Fuji của Fujikyu: chụp Fuji cùng cổng torii, 5 phút từ ga Fujisan."
+    }
+   ]
+  }
+ },
+ "fs-oishi-park": {
+  "lat": 35.52329,
+  "lng": 138.74654,
+  "bestTime": "Sáng sớm hoặc cuối ngày; kochia đỏ rực khoảng giữa đến cuối tháng 10 (blog Banzoku, cập nhật 6/2026), có thể lệch theo năm. Ngày thường vắng hơn cuối tuần.",
+  "station": "Kawaguchiko",
+  "why": "Bờ bắc hồ Kawaguchi, Fuji ở phía nam bên kia mặt hồ; đường hoa \"Hana Kaido\" dọc bờ, cây kochia đổi đỏ giữa tháng 10, có quán cà phê tầm nhìn Fuji ở Natural Living Center.",
+  "tips": "Bãi xe miễn phí nhưng đầy nhanh cuối tuần và mùa hoa; nên đi buýt. Mang rác về.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/fbbbc791f1ea.webp",
+    "caption": "Hồ Kawaguchi và Fuji nhìn từ Ōishi Park",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_from_Oishi_Park.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "kawaguchiko",
+   "type": "park",
+   "fit": "kawaguchiko",
+   "status": null,
+   "etiquette": "Bãi xe miễn phí nhưng đầy nhanh cuối tuần và mùa hoa; nên đi buýt. Mang rác về.",
+   "access": {
+    "kawaguchiko": "Buýt Red Line từ bến số 1 ga Kawaguchiko tới \"Kawaguchiko Natural Living Center (Ōishi Park)\": 27 phút, ¥570, 15 phút một chuyến (chuyến đầu 9:00, bản đồ Fujikyu 4/2026). Vé ngày 3 tuyến Red/Green/Blue ¥1.500.",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": {
+    "ja": "河口湖自然生活館（大石公園）",
+    "lat": 35.523286,
+    "lng": 138.74539,
+    "lines": [
+     "レッドライン（河口湖周遊バス）",
+     "Pライン（大石・芦川）"
+    ],
+    "walkMin": 1,
+    "coordSource": "OSM Nominatim, bus_stop \"河口湖自然生活館 (20)\""
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://banzokubiology.com/kawaguchiko-oishipark-time/",
+     "note": "Banzoku (cập nhật 6/2026): Hana Kaido, kochia, bãi xe, quán cà phê ở Natural Living Center."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E5%A4%A7%E7%9F%B3%E5%85%AC%E5%9C%92%20%E6%B2%B3%E5%8F%A3%E6%B9%96%20%E3%82%B3%E3%82%AD%E3%82%A2%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ]
+  }
+ },
+ "fs-kawaguchiko-ohashi": {
+  "lat": 35.511667,
+  "lng": 138.764667,
+  "bestTime": "Sáng khi hồ lặng; nhìn về phía nam là Fuji.",
+  "station": "Kawaguchiko 24 phút",
+  "why": "Cây cầu dài 500 m duy nhất bắc ngang mặt nước của Fuji Ngũ Hồ; không có vật chắn nên Fuji hiện rõ khi nhìn từ cầu, từng được chọn vào \"100 con đường đẹp của Nhật\" (1987).",
+  "tips": "Cầu có xe chạy; bài Wikipedia không nhắc lề đi bộ, nên chụp từ hai đầu cầu và bờ hồ thay vì đứng giữa cầu.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/1f46d002cbb2.webp",
+    "caption": "Cầu Kawaguchiko Ōhashi bắc ngang hồ",
+    "credit": "redlegsfan21",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Lake_Kawaguchiko_Ohashi_Bridge_(16031531337).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/209e2f2d7199.webp",
+    "caption": "Toàn cảnh cầu nhìn từ xa",
+    "credit": "Volfgang",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kawaguchiko_Ohashi_bridge.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "kawaguchiko",
+   "type": "bridge",
+   "fit": "kawaguchiko",
+   "status": null,
+   "etiquette": "Cầu có xe chạy; bài Wikipedia không nhắc lề đi bộ, nên chụp từ hai đầu cầu và bờ hồ thay vì đứng giữa cầu.",
+   "access": {
+    "kawaguchiko": "Đi bộ khoảng 1,5 km (ước 20–25 phút) từ ga; hoặc buýt Red/Green Line xuống bến \"Kawaguchiko Herb Hall\" (số 5, 7–8 phút, theo bảng giờ Fujikyu) rồi đi bộ khoảng 500 m. Green Line còn có bến \"Fuji no Yado Ōhashi\" (số 23, 11 phút, ¥230) gần đầu cầu hơn.",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": {
+    "ja": "河口湖ハーブ館",
+    "lat": 35.5077111,
+    "lng": 138.7620429,
+    "lines": [
+     "レッドライン",
+     "グリーンライン",
+     "Pライン"
+    ],
+    "walkMin": 7,
+    "coordSource": "OSM Nominatim, bus_stop \"Kawaguchiko Herb Hall (5)\", cách điểm giữa cầu khoảng 0,5 km. Bến \"富士の宿おおはし\" (số 23, Green Line) gần đầu cầu hơn nhưng OSM không có tọa độ bến này."
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/河口湖大橋",
+     "note": "Wikipedia ja: cầu 500 m, mở 4/1971, miễn phí từ 7/6/2005, tầm nhìn Fuji không bị che."
+    }
+   ]
+  }
+ },
+ "fs-kachikachi-ropeway": {
+  "lat": 35.50378,
+  "lng": 138.77441,
+  "hours": "8:30–17:00 (chuyến xuống cuối 17:20; 20/7–31/8 kéo dài đến 18:00); mở quanh năm, không có ngày nghỉ cố định",
+  "fee": "¥1.000",
+  "bestTime": "Sáng, trước 11h.",
+  "station": "Kawaguchiko 15 phút",
+  "why": "Cáp treo lên công viên Tenjōzan ở bờ bắc, nhìn xuống hồ Kawaguchi và Fuji; nổi tiếng với tượng thỏ và tanuki của truyện cổ \"Kachi Kachi Yama\".",
+  "tips": "Ngừng chạy khi gió mạnh. Trang chính thức không mở được lúc kiểm tra (503); giá và giờ lấy từ iko-yo.net nên cần kiểm tra lại.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/09bfe51bb797.webp",
+    "caption": "Cáp treo lên công viên Tenjōzan",
+    "credit": "Abasaa",
+    "license": "Public domain (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tenjosan_Park_Kachikachi-yama_Ropeway_01.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/8a9895bbc15a.webp",
+    "caption": "Cảnh nhìn từ cáp treo xuống hồ Kawaguchi",
+    "credit": "Ippukucho",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:KachikachiyamaRopeway.JPG"
+   }
+  ],
+  "fujiSpot": {
+   "area": "kawaguchiko",
+   "type": "ropeway",
+   "fit": "kawaguchiko",
+   "status": "Ngừng chạy khi gió mạnh. Trang chính thức không mở được lúc kiểm tra (503); giá và giờ lấy từ iko-yo.net nên cần kiểm tra lại.",
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": "Đi bộ khoảng 15 phút từ ga (iko-yo.net; OSM ước khoảng 0,8 km), hoặc buýt Red Line xuống \"Yūransen-Ropeway Iriguchi\" (11 phút, ¥180) rồi đi bộ 3 phút. Giá khứ hồi ¥1.000, một chiều ¥600 (iko-yo.net).",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": {
+    "ja": "遊覧船・ロープウェイ入口",
+    "lat": 35.504398,
+    "lng": 138.77168,
+    "lines": [
+     "レッドライン",
+     "K2ライン（甲府駅）"
+    ],
+    "walkMin": 3,
+    "coordSource": "OSM Nominatim, bus_stop \"ロープウェイ入口\"; tên bến theo bản đồ Fujikyu 4/2026 (số 9)"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://iko-yo.net/facilities/6053/coupon",
+     "note": "iko-yo.net: giá, giờ chạy và cách đi bộ từ ga."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E6%B2%B3%E5%8F%A3%E6%B9%96%20%E3%83%91%E3%83%8E%E3%83%A9%E3%83%9E%E3%83%AD%E3%83%BC%E3%83%97%E3%82%A6%E3%82%A7%E3%82%A4%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ]
+  }
+ },
+ "fs-oshino-hakkai": {
+  "lat": 35.46024,
+  "lng": 138.8327,
+  "bestTime": "Sáng; sương bốc lên từ ao vào mùa đông.",
+  "station": "Fujisan",
+  "why": "Tám hồ nước ngầm trong vắt từ tuyết tan của Fuji, nhà mái tranh và guồng nước; Fuji nhìn từ vùng này được gọi là \"Oshino Fuji\". Là một trong những hạng mục di sản thế giới Fuji (đăng ký 22/6/2013).",
+  "tips": "Một số ao nổi tiếng là đất tư nhân, không thuộc tám ao chính; không ném tiền xu xuống ao (ảnh hưởng chất lượng nước).",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/879bee97204b.webp",
+    "caption": "Ao Nakaike nhìn về phía Fuji",
+    "credit": "MaedaAkihiko",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Oshino-Hakkai-Nakaike.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/b883a04ad429.webp",
+    "caption": "Nhà mái tranh và guồng nước bên một ao",
+    "credit": "lumoplank",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Oshino_Hakkai_-_Oshino6878.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "oshino",
+   "type": "lake",
+   "fit": "kawaguchiko",
+   "status": null,
+   "etiquette": "Một số ao nổi tiếng là đất tư nhân, không thuộc tám ao chính; không ném tiền xu xuống ao (ảnh hưởng chất lượng nước).",
+   "access": {
+    "kawaguchiko": "Từ ga Kawaguchiko: buýt tốc hành \"F3 Tokkyū Oshino Hakkai\" 9:40 → 10:10, 10:40 → 11:10, 11:40 → 12:10… mất 30 phút (dừng ở ga Fujisan lúc 9:50, 10:50, 11:50…); hoặc Fujikko-go F1/F2 khoảng 29 phút (bản đồ Fujikyu 6/2026). Xuống bến \"Oshino Hakkai\" rồi đi bộ 3 phút. Vé ngày Fujiyoshida–Oshino–Yamanakako ¥1.800.",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": {
+    "ja": "忍野八海",
+    "lat": 35.4589691,
+    "lng": 138.8307047,
+    "lines": [
+     "ふじっ湖号 F1/F2",
+     "特急忍野八海 F3",
+     "御殿場線 A1/A2"
+    ],
+    "walkMin": 3,
+    "coordSource": "OSM Nominatim, bus_stop \"忍野八海\" (八海1号橋); Fujikyu ghi đi bộ 3 phút tới ao"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/忍野八海",
+     "note": "Wikipedia ja: \"Oshino Fuji\", quy tắc ứng xử ở các ao và bảo tàng Hannoki có thu phí."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E5%BF%8D%E9%87%8E%E5%85%AB%E6%B5%B7%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ]
+  }
+ },
+ "fs-saiko-iyashi-no-sato-nenba": {
+  "lat": 35.504501,
+  "lng": 138.66143,
+  "hours": "9:00–17:00 (tháng 4–11), 9:30–16:30 (tháng 12–2); mở quanh năm, có thể đóng tạm",
+  "fee": "¥500",
+  "bestTime": "Sáng; trời trong để Fuji lộ phía sau làng.",
+  "station": "Kawaguchiko",
+  "why": "Làng mái tranh được dựng lại ở nơi từng có làng Nenba bị lũ bùn năm 1966 phá hủy; 20 ngôi nhà mái tranh ven sông Honsawa, ảnh làng có Fuji phía sau được đăng nhiều.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/40ca8dcb979f.webp",
+    "caption": "Fuji nhìn từ làng mái tranh Nenba cuối tháng 10/2024",
+    "credit": "sergejf",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_view_from_Saiko_Iyashi_no_Sato_Nenba_-_Oct_31,_2024.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/f44f995a2564.webp",
+    "caption": "Làng mái tranh Iyashi-no-Sato",
+    "credit": "Davide Mauro",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Iyashinosato_village_04.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "saiko",
+   "type": "park",
+   "fit": "kawaguchiko",
+   "status": null,
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": "Buýt Green Line: 9:10 → 9:50 (40 phút), 30 phút một chuyến 9:10–16:40 (bản đồ Fujikyu 4/2026), khoảng ¥810 một chiều theo bản đồ; xuống bến \"Saiko Iyashi-no-Sato Nenba\" rồi đi bộ 3 phút. Vé phí vào làng ¥500 theo Wikipedia ja, cần kiểm tra lại.",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": {
+    "ja": "西湖いやしの里根場",
+    "lat": 35.5031561,
+    "lng": 138.6612587,
+    "lines": [
+     "グリーンライン（西湖周遊バス）"
+    ],
+    "walkMin": 3,
+    "coordSource": "Gần đúng: nút bus_stop \"68\" của OSM cách cổng làng khoảng 150 m; bến chính thức số 48 trên bản đồ Fujikyu chưa có tọa độ riêng trong OSM"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/西湖いやしの里根場",
+     "note": "Wikipedia ja: lịch sử làng, 20 nhà mái tranh, giờ mở cửa."
+    }
+   ]
+  }
+ },
+ "fs-yamanakako": {
+  "lat": 35.406897,
+  "lng": 138.876302,
+  "bestTime": "Sáng sớm khi mặt hồ lặng; trong hơn buổi chiều.",
+  "station": "Kawaguchiko",
+  "why": "Hồ cao nhất và rộng nhất trong Fuji Ngũ Hồ (độ cao mặt hồ 980,5 m, diện tích 6,57 km²), nổi tiếng với cảnh Fuji phản chiếu trên mặt nước; có thuyền thiên nga \"Hakuchō no Mizūmi\" và xe lội nước \"Yamanakako no Kaba\".",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/1718af381cfb.webp",
+    "caption": "Fuji và hồ Yamanaka tháng 11/2015",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Lake_Yamanaka_(2015-11-21).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/6090605fc601.webp",
+    "caption": "Hồ Yamanaka và Fuji",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Lake_Yamanaka_and_Mount_Fuji.JPG"
+   }
+  ],
+  "fujiSpot": {
+   "area": "yamanakako",
+   "type": "lake",
+   "fit": "kawaguchiko",
+   "status": null,
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": "Buýt A1 \"Gotemba line\" 9:00 từ Kawaguchiko → bến \"Yamanakako Asahigaoka\" 9:48 (48 phút), cũng có Fujikko-go F1/F2; tiếp tục tới JR Gotemba 10:30 (bản đồ Fujikyu 6/2026). Vé ngày Fujiyoshida–Oshino–Yamanakako ¥1.800.",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": {
+    "ja": "山中湖旭日丘",
+    "lat": 35.4068972,
+    "lng": 138.8763018,
+    "lines": [
+     "ふじっ湖号 F1/F2",
+     "御殿場線 A1/A2",
+     "アウトレット線 C1/C2"
+    ],
+    "walkMin": 2,
+    "coordSource": "OSM Nominatim, bus_stop \"山中湖旭日丘\""
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/山中湖",
+     "note": "Wikipedia ja: độ cao, diện tích, Fuji phản chiếu, thành phần di sản thế giới."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E5%B1%B1%E4%B8%AD%E6%B9%96%20%E5%AF%8C%E5%A3%AB%E5%B1%B1%20%E9%80%86%E3%81%95%E5%AF%8C%E5%A3%AB",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ]
+  }
+ },
+ "fs-hananomiyako-park": {
+  "lat": 35.439554,
+  "lng": 138.852855,
+  "bestTime": "Sáng.",
+  "station": "Kawaguchiko",
+  "why": "Công viên hoa rộng khoảng 300.000 m² ngay trước Fuji: tulip mùa xuân, hướng dương mùa hè, lá đỏ mùa thu, \"Diamond Fuji\" mùa đông (theo mô tả của Fujikyu); có nhà kính \"Furara\".",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/d4f6e723bf6f.webp",
+    "caption": "Tulip và Fuji ở Hananomiyako (mùa xuân)",
+    "credit": "Arashiyama",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Tulips_2.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/3f4e2f503b06.webp",
+    "caption": "Hướng dương và Fuji (mùa hè)",
+    "credit": "Hrykt",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mt_Fuji_and_Sunflowers_on_August_5th_2017.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "yamanakako",
+   "type": "park",
+   "fit": "kawaguchiko",
+   "status": null,
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": "Buýt Fujikko-go F1 (6:50 → 7:27) hoặc F2 (7:45 → 8:22) và tuyến C1 Outlet Line dừng ở bến \"Hana no Miyako Kōen\", khoảng 37 phút; xuống xe là tới ngay công viên (bản đồ Fujikyu 6/2026).",
+    "day4": null,
+    "day5": null
+   },
+   "busStop": {
+    "ja": "花の都公園",
+    "lat": 35.4387354,
+    "lng": 138.851835,
+    "lines": [
+     "ふじっ湖号 F1/F2",
+     "アウトレット線 C1"
+    ],
+    "walkMin": 1,
+    "coordSource": "Gần đúng: tọa độ cổng công viên trên 山中湖忍野富士吉田線 theo OSM, OSM không có nút bus_stop riêng"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://bus.fujikyu.co.jp/fujitour/fujikko/",
+     "note": "Fujikyu: mô tả theo mùa và vị trí bến xe buýt trước công viên."
+    }
+   ]
+  }
+ },
+ "fs-gotemba-premium-outlets": {
+  "lat": 35.307792,
+  "lng": 138.965083,
+  "hours": "10:00–20:00 (trang chính thức, tháng 10 chưa thấy ngoại lệ)",
+  "bestTime": "Sáng, trước khi mây kéo lên.",
+  "station": "Gotemba",
+  "why": "Trung tâm outlet 290 cửa hàng với Fuji nhìn thấy từ khu sân rộng; khu Hillside trong khuôn viên có một cây cầu mang tên \"Yume no Ōhashi\" (夢の大橋, theo OSM).",
+  "images": [
+   {
+    "kind": "detail",
+    "src": "img/commons/5f24f260c6bf.webp",
+    "caption": "Xe đưa đón miễn phí giữa ga Gotemba và Outlet",
+    "credit": "ja:User:江戸前鰻",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:GotembaOutletShuttleBus_869.jpeg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "gotemba",
+   "type": "outlet",
+   "fit": "day4",
+   "status": null,
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": "Buýt C1 \"Outlet Line\" 10:30 từ Kawaguchiko → JR Gotemba 12:00 → Outlet 12:15 (105 phút, bản đồ Fujikyu 6/2026); trang Outlet nêu tuyến tốc hành Gotemba–Kawaguchiko khoảng 60 phút hoặc buýt thường khoảng 80 phút. Không nằm trong lịch ngày Kawaguchiko.",
+    "day4": "Từ Gōra: tuyến \"Kankō-shisetsu-meguri\" M khoảng 45 phút tới bến Outlet; từ Hakone-Yumoto: tuyến L khoảng 60 phút (Hakone Navi, trang Outlet); từ Sengoku chuyển sang tuyến M (Hakone Navi 14/8/2026). Giá chưa tìm được; Freepass có liệt kê \"Kankō-shisetsu-meguri bus\" và Odakyu Highway Bus nhưng chưa xác nhận chặng tới Outlet có miễn phí. Lịch Day 4 hiện không còn chỗ trừ khi bỏ ropeway chiều.",
+    "day5": "Từ ga Mishima: buýt thẳng tới Outlet khoảng 60 phút; hoặc Numazu → Gotemba bằng JR Gotemba Line 33 phút rồi xe đưa đón miễn phí 15 phút, mỗi 15 phút (phút :00/:15/:30/:45). Chưa có giá. Không vừa lịch Day 5."
+   },
+   "busStop": {
+    "ja": "御殿場プレミアム・アウトレット",
+    "lat": 35.3075286,
+    "lng": 138.9621956,
+    "lines": [
+     "箱根登山バス L/M路線",
+     "小田急ハイウェイバス",
+     "富士急 アウトレット線 C1/C2",
+     "東海バス/三島駅方面路線バス",
+     "無料シャトル（JR御殿場駅）"
+    ],
+    "walkMin": 3,
+    "coordSource": "OSM Nominatim, bus_station \"御殿場プレミアム・アウトレット\"; một số tuyến lấy từ trang chính thức"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.premiumoutlets.co.jp/gotemba/access/access_bus.html",
+     "note": "Trang chính thức: các cách tới Outlet bằng buýt/tàu, giờ shuttle."
+    },
+    {
+     "platform": "blog",
+     "url": "https://www.hakonenavi.jp/feature/7703",
+     "note": "Hakone Navi (14/8/2026): đi từ Hakone bằng buýt Hakone Tozan đổi tuyến ở Sengoku."
+    }
+   ]
+  }
+ },
+ "fs-mishima-skywalk": {
+  "lat": 35.15222,
+  "lng": 138.98064,
+  "hours": "9:00–17:00 (ngày 1/11/2026; giờ mùa khác xem trang chính thức)",
+  "fee": "¥1.100",
+  "bestTime": "Sáng, trời trong; sau 11h Fuji dễ bị mây che.",
+  "station": "Mishima",
+  "why": "Cầu treo dài 400 m (khai trương 14/12/2015), nhìn thấy Fuji và vịnh Suruga từ giữa cầu; một trong những điểm ngắm Fuji nổi tiếng ở Shizuoka.",
+  "tips": "Giá vé theo ngày (từ ¥1.100 người lớn); ngày 26/10/2026 đóng một phần cơ sở. Trang chính thức không nêu quy tắc đóng cửa vì gió, nhưng cơ sở ngừng hoạt động khi thời tiết xấu (Wikipedia ja). Giờ đóng cửa theo mùa xem trang chính thức.",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/620e257e57e1.webp",
+    "caption": "Mặt bắc cầu Mishima Skywalk",
+    "credit": "Charlie fong",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mishima_Skywalk_North_Facade2023.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/2500dd5502c5.webp",
+    "caption": "Vịnh Suruga nhìn từ cầu",
+    "credit": "Joli Rumi",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:View_of_Suruga_Bay_and_Numazu_Alps_from_Mishima_Skywalk,_Hakone,_Japan1.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "mishima",
+   "type": "bridge",
+   "fit": "day5",
+   "status": "Giá vé theo ngày (từ ¥1.100 người lớn); ngày 26/10/2026 đóng một phần cơ sở. Trang chính thức không nêu quy tắc đóng cửa vì gió, nhưng cơ sở ngừng hoạt động khi thời tiết xấu (Wikipedia ja). Giờ đóng cửa theo mùa xem trang chính thức.",
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": null,
+    "day4": "Có bến Tokai Bus trực tiếp từ Moto-Hakone (元箱根港) và Hakone-Yumoto tới Skywalk theo bảng giờ chính thức (PDF 10/2025); chưa đọc được số phút/giá vì PDF dạng ảnh. Freepass có liệt kê \"Tokai Bus (đoạn chỉ định)\", chưa xác nhận Skywalk nằm trong đoạn đó. Không có chỗ trong lịch Day 4.",
+    "day5": "Từ ga Mishima (cửa Nam, bến số 5): Tokai Bus tuyến cam \"Orange Shuttle\" đi Moto-Hakone, khoảng 20–25 phút (trang chính thức: khoảng 20 phút từ JR Mishima). Giá và tần suất chưa kiểm được. Tính tối thiểu 2,5 giờ cả đi lại, nên phải bỏ hoặc dời bữa trưa Shimizu."
+   },
+   "busStop": {
+    "ja": "三島スカイウォーク",
+    "lat": 35.1501056,
+    "lng": 138.9826575,
+    "lines": [
+     "東海バス（三島駅・元箱根港・箱根湯本方面）"
+    ],
+    "walkMin": 5,
+    "coordSource": "OSM Nominatim, bus_stop \"三島スカイウォーク\""
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://mishima-skywalk.jp/",
+     "note": "Trang chính thức: giá từ ¥1.100, giờ mở cửa, thông báo."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E4%B8%89%E5%B3%B6%E3%82%B9%E3%82%AB%E3%82%A4%E3%82%A6%E3%82%A9%E3%83%BC%E3%82%AF%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ]
+  }
+ },
+ "fs-fujisan-yume-no-ohashi": {
+  "lat": 35.15229,
+  "lng": 138.67627,
+  "bestTime": "Sáng sớm và buổi sáng.",
+  "station": "Fuji 35 phút",
+  "why": "Cầu bắc qua sông Junai (潤井川橋) trên quốc lộ 139, đứng trên cầu nhìn thẳng ra Fuji không bị nhà cửa hay dây điện che; thành điểm chụp ảnh nổi tiếng. Lưu ý trong khuôn viên Gotemba Premium Outlets cũng có một \"Yume no Ōhashi\" khác.",
+  "tips": "Do quá đông, chính quyền đã lắp rào an toàn, bãi xe miễn phí và nhà vệ sinh tạm (Wikipedia ja, không ghi ngày). Cầu thuộc quốc lộ có xe chạy; theo dõi rào và biển chỉ dẫn, không băng qua đường.",
+  "images": [],
+  "fujiSpot": {
+   "area": "fuji-city",
+   "type": "bridge",
+   "fit": "day5",
+   "status": "Do quá đông, chính quyền đã lắp rào an toàn, bãi xe miễn phí và nhà vệ sinh tạm (Wikipedia ja, không ghi ngày).",
+   "etiquette": "Cầu thuộc quốc lộ có xe chạy; theo dõi rào và biển chỉ dẫn, không băng qua đường.",
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Từ ga Fuji (JR Tōkaidō) khoảng 2,2 km (ước 30 phút đi bộ) hoặc taxi; ga Shinkansen Shin-Fuji cách khoảng 1,5 km (ước 20–25 phút). Không tìm được tuyến buýt cụ thể. Dự trù khoảng 1 giờ cho điểm này nếu xuống tàu ở Fuji."
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/富士山夢の大橋",
+     "note": "Wikipedia ja: tầm nhìn Fuji thẳng, thành điểm chụp ảnh, có rào, bãi xe, nhà vệ sinh tạm."
+    }
+   ]
+  }
+ },
+ "fs-tagonoura-port": {
+  "lat": 35.135722,
+  "lng": 138.692833,
+  "hours": "Công viên mở cả ngày; bãi xe 8:00–17:00",
+  "bestTime": "Sáng.",
+  "station": "Yoshiwara",
+  "why": "Bờ biển gắn với bài thơ về Fuji của Yamabe no Akahito và tranh Hokusai; trong công viên có tháp \"Fujisan Dragon Tower\" cao 37,76 m nhìn 360° ra Fuji và vịnh Suruga, cùng bia thơ Akahito.",
+  "images": [
+   {
+    "kind": "detail",
+    "src": "img/commons/fafc61655a3e.webp",
+    "caption": "Tranh Hokusai \"Bờ vịnh Tago ở Ejiri trên Tōkaidō\", từ loạt Ba mươi sáu cảnh Fuji",
+    "credit": "Katsushika Hokusai",
+    "license": "Public domain (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shore_of_Tago_Bay,_Ejiri_at_Tokaido.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/de24247444ef.webp",
+    "caption": "Shinkansen N700S chạy ngang Fuji ở khu vực Higashi-Tagonoura",
+    "credit": "Takeshi Aida",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinkansen_N700S_series_photographed_at_Higashi-Tagonoura_with_Mount_Fuji_in_the_background,_10_April_2023.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "fuji-city",
+   "type": "port",
+   "fit": "day5",
+   "status": null,
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Wikipedia ja ghi công viên cách ga Yoshiwara (JR Tōkaidō) và ga Shin-Fuji khoảng 3,5 km, khoảng 10 phút ô tô; không có thông tin buýt, nên đi taxi. Tàu Tōkaidō dừng ở Higashi-Tagonoura nhưng ga này cách công viên khoảng 4,8 km theo OSM. Dự trù 1,5 giờ cho cả điểm."
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/ふじのくに田子の浦みなと公園",
+     "note": "Wikipedia ja: Fujisan Dragon Tower, bia thơ Akahito, khoảng cách tới ga."
+    }
+   ]
+  }
+ },
+ "fs-fujisan-hongu-sengen-taisha": {
+  "lat": 35.22734,
+  "lng": 138.61002,
+  "bestTime": "Sáng.",
+  "station": "Fujinomiya 10 phút",
+  "why": "Đền chính của hơn 1.300 đền Sengen toàn quốc, thành phần di sản thế giới Fuji; điện thờ hiện tại do Tokugawa Ieyasu dâng năm 1604. Cổng torii lớn 16 m dựng năm 2006 cách khoảng 500 m về phía tây; Wikipedia có ảnh \"Ōtorii và Fuji\".",
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/07c5e05645bd.webp",
+    "caption": "Đền Fujisan Hongū Sengen Taisha",
+    "credit": "江戸村のとくぞう",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Fujisan_Hong%C5%AB_Sengen_Taisha_20220724i.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/0002b1cc164e.webp",
+    "caption": "Ao Wakutama trong khuôn viên đền",
+    "credit": "Zairon",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Fujinomiya_Fujisan_Hongu_Sengen-taisha_Teich_Sakura.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "fujinomiya",
+   "type": "shrine",
+   "fit": "day5",
+   "status": null,
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "JR Tōkaidō tới ga Fuji, đổi sang JR Minobu Line tới Fujinomiya (10,7 km, 1–2 chuyến/giờ ban ngày; không có thời gian chính thức trong nguồn đã mở), rồi đi bộ khoảng 10 phút (800 m). Dự trù tối thiểu 3 giờ cả đi lại, không vừa với bữa trưa Shimizu."
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://bus.fujikyu.co.jp/fujitour/gouriki/",
+     "note": "Fujikyu: xe buýt tham quan \"Gōriki-kun\" xuất phát từ ga Fujinomiya, tuyến sáng và chiều đều ghé đền (vé ngày ¥3.000)."
+    }
+   ]
+  }
+ },
+ "fs-shiraito-falls": {
+  "lat": 35.312991,
+  "lng": 138.587223,
+  "bestTime": "Sáng.",
+  "station": "Fujinomiya",
+  "why": "Thác rộng 200 m, cao 20 m, nước từ tuyết tan Fuji rỉ ra từ vách đá thành nhiều dải như sợi tơ; thắng cảnh quốc gia và thành phần di sản thế giới Fuji.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/082e5cfaa265.webp",
+    "caption": "Thác Shiraito, Fujinomiya",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shiraito_Falls_(Fujinomiya).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/7a53dc17ebeb.webp",
+    "caption": "Thác Shiraito và Fuji",
+    "credit": "Big Ben in Japan",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shiraito_Falls_(34541900111).jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "fujinomiya",
+   "type": "falls",
+   "fit": "day5",
+   "status": null,
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Từ ga Fujinomiya: xe buýt tham quan \"Gōriki-kun\" tuyến chiều 13:00 (4 giờ 10 phút, ¥2.300) ghé cả đền Hongū và thác; vé ngày ¥3.000, tuyến sáng ¥1.200 (Fujikyu). Cũng có vé \"Shiraito Falls–Tanuki Lake\" trên Fujiyama Connect (giá chưa lấy được). Không vừa lịch Day 5."
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/白糸の滝",
+     "note": "Wikipedia ja: kích thước, danh hiệu thắng cảnh và di sản thế giới."
+    }
+   ]
+  }
+ },
+ "fs-starbucks-fujikawa-sa": {
+  "lat": 35.15917,
+  "lng": 138.61861,
+  "hours": "7:00–22:00 (Wikipedia ja)",
+  "bestTime": "Sáng.",
+  "station": "Fujikawa 20 phút",
+  "why": "Quán Starbucks duy nhất trong khu dịch vụ Fujikawa (làn xuống, hướng Nagoya, mở 7:00–22:00 theo Wikipedia ja); khu SA này nổi tiếng là điểm ngắm Fuji và có sân thượng ngoài trời. Đây là chi nhánh được nhắc nhiều nhất cho cụm \"Starbucks nhìn thấy Fuji\" (tổng hợp từ kết quả tìm kiếm; bài chi tiết chưa mở được).",
+  "images": [],
+  "fujiSpot": {
+   "area": "fuji-city",
+   "type": "cafe",
+   "fit": "day5",
+   "status": null,
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Tàu Tōkaidō tới ga Fujikawa, đi bộ khoảng 20 phút hoặc buýt Sanko Town Coach tới khu SA (Wikipedia ja). Chưa xác nhận người đi bộ có vào được làn xuống không; dễ hơn là vào Rakuza ở phía làn lên (có sảnh ngắm Fuji tầng 4, quán Tully's tầng 3). Cần thêm khoảng 1,5 giờ nếu xuống ở Fujikawa."
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/富士川サービスエリア",
+     "note": "Wikipedia ja: cơ sở trong khu SA (Starbucks làn xuống 7:00–22:00), lối vào từ đường thường."
+    }
+   ]
+  }
+ },
+ "fs-fujikawa-rakuza": {
+  "lat": 35.16189,
+  "lng": 138.6185,
+  "hours": "8:00–21:00 (từng cơ sở có giờ riêng; sảnh ngắm tầng 4 8:00–21:00)",
+  "bestTime": "Sáng.",
+  "station": "Fujikawa 25 phút",
+  "why": "Trạm dừng ven đường có vòng đu quay \"Fuji Sky View\" ngoài trời và sảnh ngắm tầng 4 nhìn Fuji cùng vịnh Suruga khi trời trong.",
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/871a1c2d9ca0.webp",
+    "caption": "Sảnh ngắm cảnh của Rakuza",
+    "credit": "しんかわな",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Fujikawarakuza-tenbou.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/2a2d78672b9e.webp",
+    "caption": "Mặt tiền Michi-no-Eki Fujikawa Rakuza",
+    "credit": "しんかわな",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Fujikawarakuza2.jpg"
+   }
+  ],
+  "fujiSpot": {
+   "area": "fuji-city",
+   "type": "viewpoint",
+   "fit": "day5",
+   "status": null,
+   "etiquette": null,
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Tàu Tōkaidō tới ga Fujikawa, buýt Sanko Town Coach tới bến \"Fujikawa Rakuza\"; Wikipedia ja không ghi số phút. Đi bộ ước khoảng 25 phút. Có thể ghép với việc ngắm Fuji ở Fujikawa trước khi tiếp tục về Shimizu."
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/道の駅富士川楽座",
+     "note": "Wikipedia ja: vòng đu quay, sảnh ngắm tầng 4, nối tầng 3 với khu SA làn lên."
+    }
+   ]
+  }
  }
 };
 
@@ -6609,6 +17309,1631 @@ export const EXTRA_PLACES: ExtraPlace[] = [
   "day": 11,
   "category": "viewpoint",
   "detourMin": 60
+ },
+ {
+  "id": "sn-umezono-kawaramachi",
+  "name": "Umezono Kawaramachi",
+  "ja": "梅園 河原町店",
+  "kind": "food",
+  "role": "along",
+  "day": 7,
+  "category": "dessert",
+  "near": "cross-kyoto"
+ },
+ {
+  "id": "sn-koe-donuts-kyoto",
+  "name": "koe donuts Kyoto",
+  "ja": "koe donuts 京都店",
+  "kind": "food",
+  "role": "along",
+  "day": 7,
+  "category": "bakery",
+  "near": "cross-kyoto"
+ },
+ {
+  "id": "sn-hayashi-manshodo",
+  "name": "Amaguri no Shinise Hayashi Manshōdō Honten",
+  "ja": "甘栗の老舗 林万昌堂 本店",
+  "kind": "food",
+  "role": "along",
+  "day": 7,
+  "category": "street-food",
+  "near": "cross-kyoto"
+ },
+ {
+  "id": "sn-salon-de-the-francois",
+  "name": "Salon de thé FRANCOIS",
+  "ja": "フランソア喫茶室",
+  "kind": "food",
+  "role": "along",
+  "day": 7,
+  "category": "cafe",
+  "near": "menami"
+ },
+ {
+  "id": "sn-londonya",
+  "name": "Londonya",
+  "ja": "ロンドンヤ",
+  "kind": "food",
+  "role": "along",
+  "day": 7,
+  "category": "street-food",
+  "near": "cross-kyoto"
+ },
+ {
+  "id": "sn-arabica-kyoto-higashiyama",
+  "name": "% Arabica Kyoto Higashiyama",
+  "ja": "アラビカ 京都 東山",
+  "kind": "food",
+  "role": "along",
+  "day": 8,
+  "category": "cafe",
+  "near": "yasaka-shrine"
+ },
+ {
+  "id": "sn-kasagiya",
+  "name": "Kasagiya",
+  "ja": "かさぎ屋",
+  "kind": "food",
+  "role": "along",
+  "day": 8,
+  "category": "dessert",
+  "near": "kiyomizudera"
+ },
+ {
+  "id": "sn-kissho-karyo-gion",
+  "name": "Kisshō Karyō Gion Honten",
+  "ja": "吉祥菓寮 祇園本店",
+  "kind": "food",
+  "role": "along",
+  "day": 8,
+  "category": "dessert",
+  "near": "komori"
+ },
+ {
+  "id": "sn-gion-tokuya",
+  "name": "Gion Tokuya",
+  "ja": "ぎおん徳屋",
+  "kind": "food",
+  "role": "along",
+  "day": 8,
+  "category": "dessert",
+  "near": "yorozuya"
+ },
+ {
+  "id": "sn-gion-kinana-honten",
+  "name": "Gion Kinana Honten",
+  "ja": "祇園きなな 本店",
+  "kind": "food",
+  "role": "along",
+  "day": 8,
+  "category": "dessert",
+  "near": "yorozuya"
+ },
+ {
+  "id": "sn-cacao-market-mariebelle",
+  "name": "CACAO MARKET by MarieBelle",
+  "ja": "カカオ マーケット バイ マリベル",
+  "kind": "food",
+  "role": "along",
+  "day": 8,
+  "category": "dessert",
+  "near": "wargo-gion"
+ },
+ {
+  "id": "sn-chourakukan-dessert-cafe",
+  "name": "Dessert Café Chōrakukan",
+  "ja": "デザートカフェ長楽館",
+  "kind": "food",
+  "role": "along",
+  "day": 8,
+  "category": "cafe",
+  "near": "yasaka-shrine"
+ },
+ {
+  "id": "sn-arabica-kyoto-arashiyama",
+  "name": "% Arabica Kyoto Arashiyama",
+  "ja": "アラビカ京都 嵐山",
+  "kind": "food",
+  "role": "along",
+  "day": 9,
+  "category": "cafe",
+  "near": "yoshimura"
+ },
+ {
+  "id": "sn-mamemono-to-taiyaki-arashiyama",
+  "name": "Mamemono to Taiyaki Arashiyama Honten",
+  "ja": "まめものとたい焼き 嵐山本店",
+  "kind": "food",
+  "role": "along",
+  "day": 9,
+  "category": "street-food",
+  "near": "yoshimura"
+ },
+ {
+  "id": "sn-shinpachi-chaya",
+  "name": "Shinpachi Chaya",
+  "ja": "新八茶屋",
+  "kind": "food",
+  "role": "along",
+  "day": 9,
+  "category": "dessert",
+  "near": "yoshimura"
+ },
+ {
+  "id": "sn-ex-cafe-arashiyama",
+  "name": "eX cafe Kyoto Arashiyama Honten",
+  "ja": "eX cafe 京都嵐山本店",
+  "kind": "food",
+  "role": "along",
+  "day": 9,
+  "category": "cafe",
+  "near": "yoshimura"
+ },
+ {
+  "id": "sn-fushimi-yume-hyakushu",
+  "name": "Fushimi Yume Hyakushu",
+  "ja": "伏見夢百衆",
+  "kind": "food",
+  "role": "along",
+  "day": 9,
+  "category": "cafe",
+  "near": "fushimi-sake"
+ },
+ {
+  "id": "sn-gekkeikan-okura-museum",
+  "name": "Gekkeikan Ōkura Kinenkan",
+  "ja": "月桂冠大倉記念館",
+  "kind": "food",
+  "role": "along",
+  "day": 9,
+  "category": "snack",
+  "near": "fushimi-sake"
+ },
+ {
+  "id": "sn-hougyokudo-fushimi-inari",
+  "name": "Hōgyokudō",
+  "ja": "宝玉堂",
+  "kind": "food",
+  "role": "along",
+  "day": 10,
+  "category": "snack",
+  "near": "fushimi-inari"
+ },
+ {
+  "id": "sn-eight-fushimi-inari",
+  "name": "eight",
+  "ja": "エイト",
+  "kind": "food",
+  "role": "along",
+  "day": 10,
+  "category": "bakery",
+  "near": "fushimi-inari"
+ },
+ {
+  "id": "sn-nakatani-do",
+  "name": "Nakatani-dō",
+  "ja": "中谷堂",
+  "kind": "food",
+  "role": "along",
+  "day": 10,
+  "category": "street-food",
+  "near": "hosekibako"
+ },
+ {
+  "id": "sn-rokumei-coffee-nara",
+  "name": "Rokumei Coffee Nara",
+  "ja": "ロクメイコーヒー 奈良店",
+  "kind": "food",
+  "role": "along",
+  "day": 10,
+  "category": "cafe",
+  "near": "hosekibako"
+ },
+ {
+  "id": "sn-tama-usagi-kintetsu-nara",
+  "name": "Kinako Dango Tama Usagi Kintetsu Nara Eki-ten",
+  "ja": "きなこだんご たまうさぎ 近鉄奈良駅店",
+  "kind": "food",
+  "role": "along",
+  "day": 10,
+  "category": "street-food",
+  "near": "hosekibako"
+ },
+ {
+  "id": "sn-kashiya-nara",
+  "name": "Kashiya (Yorozu Onkashi Atsurae-dokoro Kashiya)",
+  "ja": "萬御菓子誂處 樫舎",
+  "kind": "food",
+  "role": "along",
+  "day": 10,
+  "category": "dessert",
+  "near": "awa"
+ },
+ {
+  "id": "sn-hokkyoku-namba",
+  "name": "Hokkyoku Nanba Honten",
+  "ja": "北極 難波本店",
+  "kind": "food",
+  "role": "along",
+  "day": 10,
+  "category": "dessert",
+  "near": "fukutaro"
+ },
+ {
+  "id": "sn-ibuki-coffee-kuromon",
+  "name": "Ibuki Coffee Ten Kuromon Ichiba",
+  "ja": "伊吹珈琲店 黒門市場",
+  "kind": "food",
+  "role": "along",
+  "day": 11,
+  "category": "cafe",
+  "near": "doguyasuji"
+ },
+ {
+  "id": "sn-meoto-zenzai",
+  "name": "Meoto Zenzai",
+  "ja": "夫婦善哉",
+  "kind": "food",
+  "role": "along",
+  "day": 11,
+  "category": "dessert",
+  "near": "hozenji"
+ },
+ {
+  "id": "sn-creperie-alcyon",
+  "name": "Crêperie Alcyon",
+  "ja": "クレープリー・アルション",
+  "kind": "food",
+  "role": "along",
+  "day": 11,
+  "category": "dessert",
+  "near": "hozenji"
+ },
+ {
+  "id": "sn-umeda-mix-juice-honten",
+  "name": "Umeda Mix Juice Honten",
+  "ja": "梅田 ミックスジュース 本店",
+  "kind": "food",
+  "role": "along",
+  "day": 11,
+  "category": "street-food",
+  "near": "loft-umeda"
+ },
+ {
+  "id": "sn-echire-marche-au-beurre",
+  "name": "Échiré Marché au Beurre (Hankyu Umeda)",
+  "ja": "エシレ・マルシェ オ ブール 阪急うめだ本店",
+  "kind": "food",
+  "role": "along",
+  "day": 11,
+  "category": "bakery",
+  "near": "hanadako"
+ },
+ {
+  "id": "sn-bretonne-hankyu-umeda",
+  "name": "BRETONNE Hankyu Umeda Honten",
+  "ja": "ブルトンヌ 阪急うめだ本店",
+  "kind": "food",
+  "role": "along",
+  "day": 11,
+  "category": "dessert",
+  "near": "hanadako"
+ },
+ {
+  "id": "sn-hannoc-nakazakicho",
+  "name": "hannoc",
+  "ja": "ハノック",
+  "kind": "food",
+  "role": "along",
+  "day": 11,
+  "category": "cafe",
+  "near": "nakazakicho"
+ },
+ {
+  "id": "sn-rikuro-ojisan-namba",
+  "name": "Rikuro Ojisan no Mise Namba Honten",
+  "ja": "りくろーおじさんの店 なんば本店",
+  "kind": "food",
+  "role": "along",
+  "day": 12,
+  "category": "bakery",
+  "near": "forza-osaka"
+ },
+ {
+  "id": "sn-die-gute-namba-walk",
+  "name": "Die Gute (Namba Walk)",
+  "ja": "なんばグーテ",
+  "kind": "food",
+  "role": "along",
+  "day": 12,
+  "category": "bakery",
+  "near": "forza-osaka"
+ },
+ {
+  "id": "sn-fujiyama-cookie",
+  "name": "FUJIYAMA COOKIE",
+  "ja": "FUJIYAMA COOKIE（フジヤマクッキー）",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "snack",
+  "near": "st-kawaguchiko"
+ },
+ {
+  "id": "sn-fabcafe-fuji",
+  "name": "FabCafe Fuji",
+  "ja": "FabCafe Fuji",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "cafe",
+  "near": "fs-honcho-dori"
+ },
+ {
+  "id": "sn-fuuto-coffee-bakeshop",
+  "name": "Fuuto Coffee & Bakeshop",
+  "ja": "Fuuto Coffee&Bakeshop",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "cafe",
+  "near": "fs-honcho-dori"
+ },
+ {
+  "id": "sn-sakurai-udon",
+  "name": "Sakurai Udon",
+  "ja": "桜井うどん",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "snack",
+  "near": "fs-honcho-dori"
+ },
+ {
+  "id": "sn-kawaguchiko-sweets-garden",
+  "name": "Kawaguchiko Sweets Garden",
+  "ja": "河口湖スイーツガーデン",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "dessert",
+  "near": "bus-kawaguchiko-bijutsukan"
+ },
+ {
+  "id": "sn-budoya-kofu-hana-terrace",
+  "name": "Budoya Kofu Hana Terrace Café",
+  "ja": "葡萄屋kofu ハナテラスcafé",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "cafe",
+  "near": "fs-oishi-park"
+ },
+ {
+  "id": "sn-sawamura-shinjuku",
+  "name": "Bakery & Restaurant Sawamura Shinjuku (NEWoMan)",
+  "ja": "ベーカリー&レストラン 沢村 新宿",
+  "kind": "food",
+  "role": "along",
+  "day": 4,
+  "category": "bakery",
+  "near": "sushi-ten"
+ },
+ {
+  "id": "sn-chimoto-ekimae",
+  "name": "Chimoto Ekimae-dōri",
+  "ja": "ちもと 駅前通り店",
+  "kind": "food",
+  "role": "along",
+  "day": 4,
+  "category": "dessert",
+  "near": "onshi-hakone-park"
+ },
+ {
+  "id": "sn-kurotama-shop",
+  "name": "Kurotama SHOP (Ōwakudani Kuro-tamago-kan)",
+  "ja": "くろたまSHOP（大涌谷くろたまご館）",
+  "kind": "food",
+  "role": "along",
+  "day": 4,
+  "category": "street-food",
+  "near": "owakudani"
+ },
+ {
+  "id": "sn-yu-land",
+  "name": "Yū-rando (Ōwakudani Sightseeing Center)",
+  "ja": "ゆーらんど（大涌谷観光センター内）",
+  "kind": "food",
+  "role": "along",
+  "day": 4,
+  "category": "dessert",
+  "near": "owakudani"
+ },
+ {
+  "id": "sn-pan-no-mimi",
+  "name": "Pan no Mimi",
+  "ja": "ぱんのみみ",
+  "kind": "food",
+  "role": "along",
+  "day": 4,
+  "category": "cafe",
+  "near": "mizunoto"
+ },
+ {
+  "id": "sn-tokaken-odawara-higashiguchi",
+  "name": "Tōkaken Odawara (quầy cửa Đông)",
+  "ja": "東華軒 東口売店",
+  "kind": "food",
+  "role": "along",
+  "day": 5,
+  "category": "ekiben",
+  "near": "kaizan"
+ },
+ {
+  "id": "sn-suzuhiro-odawara-ekimae",
+  "name": "Suzuhiro Kamaboko Odawara Ekimae",
+  "ja": "鈴廣かまぼこ 小田原駅前店",
+  "kind": "food",
+  "role": "along",
+  "day": 5,
+  "category": "snack",
+  "near": "kaizan"
+ },
+ {
+  "id": "sn-atami-pudding",
+  "name": "Atami Pudding",
+  "ja": "熱海プリン",
+  "kind": "food",
+  "role": "along",
+  "day": 5,
+  "category": "dessert",
+  "near": "kaizan"
+ },
+ {
+  "id": "sn-tochuken-numazu",
+  "name": "Tōchūken Numazu (quầy cạnh cổng Nam)",
+  "ja": "桃中軒 沼津駅南口改札横売店",
+  "kind": "food",
+  "role": "along",
+  "day": 5,
+  "category": "ekiben",
+  "near": "kaizan"
+ },
+ {
+  "id": "sn-kashi-no-ichi-ichibakan",
+  "name": "Shimizu Uoichiba Kashi no Ichi – Ichiba-kan",
+  "ja": "清水魚市場 河岸の市 いちば館",
+  "kind": "food",
+  "role": "along",
+  "day": 5,
+  "category": "market",
+  "near": "kaizan"
+ },
+ {
+  "id": "sn-tokaken-shizuoka",
+  "name": "Tōkaiken Shizuoka (quầy Concourse)",
+  "ja": "東海軒 コンコース売店",
+  "kind": "food",
+  "role": "along",
+  "day": 5,
+  "category": "ekiben",
+  "near": "era-ise"
+ },
+ {
+  "id": "sn-fujita-ya-kintetsu-nagoya",
+  "name": "Fujita-ya Kintetsu Nagoya",
+  "ja": "藤田屋 近鉄名古屋駅店",
+  "kind": "food",
+  "role": "along",
+  "day": 5,
+  "category": "snack",
+  "near": "era-ise"
+ },
+ {
+  "id": "sn-dandelion-chocolate-ise",
+  "name": "Dandelion Chocolate Ise Gekū",
+  "ja": "ダンデライオン・チョコレート 伊勢外宮店",
+  "kind": "food",
+  "role": "along",
+  "day": 6,
+  "category": "cafe",
+  "near": "sengukan"
+ },
+ {
+  "id": "sn-tofuan-yamanaka",
+  "name": "Tōfuan Yamanaka",
+  "ja": "豆腐庵山中",
+  "kind": "food",
+  "role": "along",
+  "day": 6,
+  "category": "dessert",
+  "near": "okage-yokocho"
+ },
+ {
+  "id": "sn-dango-ya-okage",
+  "name": "Dango-ya (Okage Yokochō)",
+  "ja": "だんご屋",
+  "kind": "food",
+  "role": "along",
+  "day": 6,
+  "category": "snack",
+  "near": "okage-yokocho"
+ },
+ {
+  "id": "sn-maruyoshi-oharai",
+  "name": "Matsusaka Maruyoshi – Ise Oharai-machi",
+  "ja": "松阪牛専門店 松阪まるよし 伊勢おはらい町店",
+  "kind": "food",
+  "role": "along",
+  "day": 6,
+  "category": "street-food",
+  "near": "okage-yokocho"
+ },
+ {
+  "id": "sn-henbaya-oharai",
+  "name": "Henbaya Shōten – Oharai-machi",
+  "ja": "へんばや商店 おはらい町店",
+  "kind": "food",
+  "role": "along",
+  "day": 6,
+  "category": "dessert",
+  "near": "okage-yokocho"
+ },
+ {
+  "id": "sn-ise-purin-tetsujin",
+  "name": "Ise Purin to Shokupan no Tetsujin",
+  "ja": "伊勢 プリンと食パンの鉄人",
+  "kind": "food",
+  "role": "along",
+  "day": 6,
+  "category": "dessert",
+  "near": "okage-yokocho"
+ },
+ {
+  "id": "sn-kawasaki-gura",
+  "name": "Kawasaki-gura",
+  "ja": "河崎蔵",
+  "kind": "food",
+  "role": "along",
+  "day": 6,
+  "category": "cafe",
+  "near": "ise-kawasaki"
+ },
+ {
+  "id": "sn-minerva-toba",
+  "name": "Minerva (Toba Ichibangai)",
+  "ja": "ミネルヴァ",
+  "kind": "food",
+  "role": "along",
+  "day": 7,
+  "category": "dessert",
+  "near": "st-toba"
+ },
+ {
+  "id": "sn-kamome-bay-terrace-toba",
+  "name": "Kamome Bay Terrace Toba (trong ga Toba, tầng 2)",
+  "ja": "かもめベイテラス鳥羽",
+  "kind": "food",
+  "role": "along",
+  "day": 7,
+  "category": "cafe",
+  "near": "st-toba"
+ },
+ {
+  "id": "sn-musea-coffee-toba-eki",
+  "name": "MUSEA COFFEE Toba Station",
+  "ja": "MUSEA COFFEE 鳥羽駅店",
+  "kind": "food",
+  "role": "along",
+  "day": 7,
+  "category": "bakery",
+  "near": "st-toba"
+ },
+ {
+  "id": "sn-gion-tsujiri-kyoto-hachijoguchi",
+  "name": "Gion Tsujiri Kyoto Station Hachijōguchi",
+  "ja": "祇園辻利 京都駅八条口店",
+  "kind": "food",
+  "role": "along",
+  "day": 7,
+  "category": "dessert",
+  "near": "cross-kyoto"
+ },
+ {
+  "id": "sn-amanoya",
+  "name": "Amanoya",
+  "ja": "天野屋",
+  "kind": "food",
+  "role": "along",
+  "day": 1,
+  "category": "cafe",
+  "near": "kanda-myojin"
+ },
+ {
+  "id": "sn-omiya-yogashi",
+  "name": "Omiya Yōgashi-ten",
+  "ja": "近江屋洋菓子店",
+  "kind": "food",
+  "role": "along",
+  "day": 1,
+  "category": "dessert",
+  "near": "manseibashi"
+ },
+ {
+  "id": "sn-mitsubachi-honten",
+  "name": "Kanmidokoro Mitsubachi Honten",
+  "ja": "甘味処 みつばち 本店",
+  "kind": "food",
+  "role": "along",
+  "day": 1,
+  "category": "dessert",
+  "near": "yamabe"
+ },
+ {
+  "id": "sn-karinto-yushima-kagetsu",
+  "name": "Karinto Yushima Kagetsu",
+  "ja": "かりんとう ゆしま花月",
+  "kind": "food",
+  "role": "along",
+  "day": 1,
+  "category": "snack",
+  "near": "yamabe"
+ },
+ {
+  "id": "sn-mijinko",
+  "name": "Jikaseibaisen Coffee Mijinko",
+  "ja": "自家焙煎珈琲みじんこ",
+  "kind": "food",
+  "role": "along",
+  "day": 1,
+  "category": "cafe",
+  "near": "kanda-myojin"
+ },
+ {
+  "id": "sn-minatoya-shokuhin",
+  "name": "Minatoya Shokuhin Honten",
+  "ja": "みなとや食品 本店",
+  "kind": "food",
+  "role": "along",
+  "day": 1,
+  "category": "street-food",
+  "near": "yamabe"
+ },
+ {
+  "id": "sn-french-toast-factory",
+  "name": "The French Toast Factory Yodobashi Akiba",
+  "ja": "ザ・フレンチトーストファクトリー ヨドバシAkiba店",
+  "kind": "food",
+  "role": "along",
+  "day": 1,
+  "category": "cafe",
+  "near": "resol-akihabara"
+ },
+ {
+  "id": "sn-himitsudo",
+  "name": "Himitsudō",
+  "ja": "ひみつ堂",
+  "kind": "food",
+  "role": "along",
+  "day": 2,
+  "category": "dessert",
+  "near": "yanaka-ginza"
+ },
+ {
+  "id": "sn-usagiya-ueno",
+  "name": "Usagiya",
+  "ja": "うさぎや",
+  "kind": "food",
+  "role": "along",
+  "day": 2,
+  "category": "dessert",
+  "near": "nezu-shrine"
+ },
+ {
+  "id": "sn-niku-no-ooyama-ueno",
+  "name": "Niku no Ōyama Ueno",
+  "ja": "肉の大山 上野店",
+  "kind": "food",
+  "role": "along",
+  "day": 2,
+  "category": "street-food",
+  "near": "nezu-shrine"
+ },
+ {
+  "id": "sn-pelican",
+  "name": "Pan no Pelican",
+  "ja": "パンのペリカン",
+  "kind": "food",
+  "role": "along",
+  "day": 2,
+  "category": "bakery",
+  "near": "owariya"
+ },
+ {
+  "id": "sn-asakusa-kagetsudo",
+  "name": "Asakusa Kagetsudō",
+  "ja": "浅草 花月堂",
+  "kind": "food",
+  "role": "along",
+  "day": 2,
+  "category": "street-food",
+  "near": "sensoji"
+ },
+ {
+  "id": "sn-fruit-parlour-goto",
+  "name": "Fruit Parlour Gotō",
+  "ja": "フルーツパーラーゴトー",
+  "kind": "food",
+  "role": "along",
+  "day": 2,
+  "category": "dessert",
+  "near": "sensoji"
+ },
+ {
+  "id": "sn-365-nichi-to-nihonbashi",
+  "name": "365 Nichi to Nihonbashi",
+  "ja": "365日と日本橋",
+  "kind": "food",
+  "role": "along",
+  "day": 2,
+  "category": "bakery",
+  "near": "tamai"
+ },
+ {
+  "id": "sn-takemura",
+  "name": "Takemura",
+  "ja": "竹むら",
+  "kind": "food",
+  "role": "along",
+  "day": 2,
+  "category": "dessert",
+  "near": "resol-akihabara"
+ },
+ {
+  "id": "sn-le-pain-joel-robuchon-newoman",
+  "name": "Le Pain de Joël Robuchon NEWoMan Shinjuku",
+  "ja": "ル パン ドゥ ジョエル・ロブション ニュウマン新宿店",
+  "kind": "food",
+  "role": "along",
+  "day": 3,
+  "category": "bakery",
+  "near": "sushi-ten"
+ },
+ {
+  "id": "sn-oiwake-dango-shinjuku",
+  "name": "Oiwake Dango Honpo Shinjuku Honten",
+  "ja": "追分だんご本舗 新宿本店",
+  "kind": "food",
+  "role": "along",
+  "day": 3,
+  "category": "snack",
+  "near": "sushi-ten"
+ },
+ {
+  "id": "sn-marion-crepes-takeshita",
+  "name": "Marion Crêpes Harajuku Takeshita-dōri",
+  "ja": "マリオンクレープ 原宿竹下通り店",
+  "kind": "food",
+  "role": "along",
+  "day": 3,
+  "category": "street-food",
+  "near": "meiji-jingu"
+ },
+ {
+  "id": "sn-totti-candy-factory",
+  "name": "Totti Candy Factory Harajuku",
+  "ja": "トッティ キャンディ ファクトリー 原宿店",
+  "kind": "food",
+  "role": "along",
+  "day": 3,
+  "category": "street-food",
+  "near": "meiji-jingu"
+ },
+ {
+  "id": "sn-mizuho",
+  "name": "Mizuho",
+  "ja": "瑞穂",
+  "kind": "food",
+  "role": "along",
+  "day": 3,
+  "category": "snack",
+  "near": "omotesando"
+ },
+ {
+  "id": "sn-higashiya-man",
+  "name": "HIGASHIYA man",
+  "ja": "HIGASHIYA man",
+  "kind": "food",
+  "role": "along",
+  "day": 3,
+  "category": "snack",
+  "near": "omotesando"
+ },
+ {
+  "id": "sn-initial-omotesando",
+  "name": "INITIAL Omotesandō",
+  "ja": "INITIAL 表参道",
+  "kind": "food",
+  "role": "along",
+  "day": 3,
+  "category": "dessert",
+  "near": "omotesando"
+ },
+ {
+  "id": "sn-shibuya-nishimura-fruit-parlour",
+  "name": "Shibuya Nishimura Fruit Parlour Dōgenzaka",
+  "ja": "渋谷西村 フルーツパーラー 道玄坂店",
+  "kind": "food",
+  "role": "along",
+  "day": 3,
+  "category": "dessert",
+  "near": "toritake"
+ },
+ {
+  "id": "sh-super-potato-akiba",
+  "name": "Super Potato Akihabara",
+  "ja": "スーパーポテト 秋葉原店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "hobby"
+ },
+ {
+  "id": "sh-mandarake-complex",
+  "name": "Mandarake Complex",
+  "ja": "まんだらけ コンプレックス",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "hobby"
+ },
+ {
+  "id": "sh-2k540",
+  "name": "2k540 AKI-OKA ARTISAN",
+  "ja": "2k540 AKI-OKA ARTISAN",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "craft"
+ },
+ {
+  "id": "sh-ameyoko",
+  "name": "Ameyoko",
+  "ja": "アメ横商店街",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "market"
+ },
+ {
+  "id": "sh-futaba-ameyoko",
+  "name": "Futaba no Kashi (chi nhánh số 1, Ameyoko)",
+  "ja": "二木の菓子 第一営業所",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "market"
+ },
+ {
+  "id": "sh-uniqlo-okachimachi",
+  "name": "UNIQLO Okachimachi",
+  "ja": "ユニクロ 御徒町店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-gu-okachimachi",
+  "name": "GU Okachimachi",
+  "ja": "ジーユー (御徒町吉池本店ビル 5–6F)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "gu"
+ },
+ {
+  "id": "sh-yodobashi-akiba",
+  "name": "Yodobashi Camera Multimedia Akiba",
+  "ja": "ヨドバシカメラ マルチメディアAkiba",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "yodobashi"
+ },
+ {
+  "id": "sh-donki-akihabara",
+  "name": "Don Quijote Akihabara",
+  "ja": "ドン・キホーテ 秋葉原店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "donki"
+ },
+ {
+  "id": "sh-matsukiyo-iwamotocho",
+  "name": "Matsumoto Kiyoshi Iwamotochō-ekimae",
+  "ja": "マツモトキヨシ 岩本町駅前店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "drugstore"
+ },
+ {
+  "id": "sh-daiso-yodobashi-akiba",
+  "name": "Daiso Yodobashi Akiba",
+  "ja": "ダイソー ヨドバシAKIBA店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "daiso"
+ },
+ {
+  "id": "sh-hands-be-atre-akiba",
+  "name": "Hands Be atre Akihabara 1",
+  "ja": "ハンズ ビーアトレ秋葉原1店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "hands"
+ },
+ {
+  "id": "sh-nakamise",
+  "name": "Phố Nakamise",
+  "ja": "仲見世通り",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "street"
+ },
+ {
+  "id": "sh-shimamura-asakusa",
+  "name": "Shimamura Asakusa (Shin-Nakamise)",
+  "ja": "しまむら (浅草・新仲見世)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "shimamura"
+ },
+ {
+  "id": "sh-kappabashi",
+  "name": "Kappabashi Dōgugai",
+  "ja": "かっぱ橋道具街",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "kitchen"
+ },
+ {
+  "id": "sh-maruzen-nihonbashi",
+  "name": "Maruzen Nihonbashi",
+  "ja": "丸善 日本橋店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "other"
+ },
+ {
+  "id": "sh-coredo-muromachi",
+  "name": "COREDO Muromachi 1",
+  "ja": "COREDO室町1",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "other"
+ },
+ {
+  "id": "sh-mitsukoshi-nihonbashi",
+  "name": "Nihombashi Mitsukoshi Honten",
+  "ja": "日本橋三越本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-uniqlo-shinjuku-honten",
+  "name": "UNIQLO Shinjuku Honten",
+  "ja": "ユニクロ 新宿本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-bic-shinjuku-east",
+  "name": "Bic Camera Shinjuku East Exit",
+  "ja": "ビックカメラ 新宿東口店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "bic"
+ },
+ {
+  "id": "sh-uniqlo-harajuku",
+  "name": "UNIQLO Harajuku (WITH HARAJUKU)",
+  "ja": "ユニクロ 原宿店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-3coins-harajuku",
+  "name": "3COINS Harajuku Honten",
+  "ja": "3COINS 原宿本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "3coins"
+ },
+ {
+  "id": "sh-cat-street",
+  "name": "Cat Street",
+  "ja": "キャットストリート",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "street"
+ },
+ {
+  "id": "sh-gu-shibuya",
+  "name": "GU Shibuya",
+  "ja": "ジーユー 渋谷店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "gu"
+ },
+ {
+  "id": "sh-shibuya-loft",
+  "name": "Shibuya Loft",
+  "ja": "渋谷ロフト",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "loft"
+ },
+ {
+  "id": "sh-shibuya-parco",
+  "name": "Shibuya PARCO",
+  "ja": "渋谷パルコ",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "other"
+ },
+ {
+  "id": "sh-mega-donki-shibuya",
+  "name": "MEGA Don Quijote Shibuya",
+  "ja": "MEGAドン・キホーテ 渋谷本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "donki"
+ },
+ {
+  "id": "sh-abc-mart-shibuya",
+  "name": "ABC-MART Shibuya Center-gai",
+  "ja": "ABCマート (渋谷センター街)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "other"
+ },
+ {
+  "id": "sh-hakone-yumoto-ekimae",
+  "name": "Phố mua sắm trước ga Hakone-Yumoto",
+  "ja": "箱根湯本駅前",
+  "kind": "shop",
+  "role": "alt",
+  "day": 4,
+  "category": "street"
+ },
+ {
+  "id": "sh-kashinoichi-shimizu",
+  "name": "Shimizu Uoichiba Kashi no Ichi (Ichibakan)",
+  "ja": "清水魚市場 河岸の市 いちば館",
+  "kind": "shop",
+  "role": "alt",
+  "day": 5,
+  "category": "market"
+ },
+ {
+  "id": "sh-jr-nagoya-takashimaya",
+  "name": "JR Nagoya Takashimaya",
+  "ja": "ジェイアール名古屋タカシマヤ",
+  "kind": "shop",
+  "role": "alt",
+  "day": 5,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-welcia-ise-kawasaki",
+  "name": "Welcia Ise Kawasaki",
+  "ja": "ウエルシア薬局 (伊勢市河崎1丁目)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 5,
+  "category": "drugstore"
+ },
+ {
+  "id": "sh-okage-yokocho",
+  "name": "Okage Yokochō và Oharai-machi",
+  "ja": "おかげ横丁",
+  "kind": "shop",
+  "role": "alt",
+  "day": 6,
+  "category": "market"
+ },
+ {
+  "id": "sh-toba-marche",
+  "name": "Toba Marché",
+  "ja": "鳥羽マルシェ",
+  "kind": "shop",
+  "role": "alt",
+  "day": 7,
+  "category": "market"
+ },
+ {
+  "id": "sh-uniqlo-kyoto-mina",
+  "name": "UNIQLO Kyoto (Mina Kyoto)",
+  "ja": "ユニクロ 京都",
+  "kind": "shop",
+  "role": "alt",
+  "day": 7,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-loft-kyoto-mina",
+  "name": "Kyoto Loft (Mina Kyoto)",
+  "ja": "京都ロフト",
+  "kind": "shop",
+  "role": "alt",
+  "day": 7,
+  "category": "loft"
+ },
+ {
+  "id": "sh-hands-kyoto",
+  "name": "Hands Kyoto",
+  "ja": "ハンズ 京都店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "hands"
+ },
+ {
+  "id": "sh-daimaru-kyoto",
+  "name": "Daimaru Kyoto",
+  "ja": "大丸京都店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-ippodo-daimaru-kyoto",
+  "name": "Ippodo (quầy B1 Daimaru Kyoto)",
+  "ja": "一保堂茶舗 大丸京都店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "other"
+ },
+ {
+  "id": "sh-ippodo-honten",
+  "name": "Ippodo Kyoto Honten",
+  "ja": "一保堂茶舗 京都本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "other"
+ },
+ {
+  "id": "sh-ichizawa-shinzaburo",
+  "name": "Ichizawa Shinzaburō Hanpu",
+  "ja": "一澤信三郎帆布",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "craft"
+ },
+ {
+  "id": "sh-teramachi-kyogoku",
+  "name": "Teramachi–Shinkyōgoku",
+  "ja": "寺町京極",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "street"
+ },
+ {
+  "id": "sh-nishiki-market",
+  "name": "Chợ Nishiki",
+  "ja": "錦市場",
+  "kind": "shop",
+  "role": "alt",
+  "day": 9,
+  "category": "market"
+ },
+ {
+  "id": "sh-matsukiyo-kiyamachi-kyoto",
+  "name": "Matsumoto Kiyoshi Kiyamachi",
+  "ja": "マツモトキヨシ (木屋町通)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 9,
+  "category": "drugstore"
+ },
+ {
+  "id": "sh-nakagawa-masashichi-nara",
+  "name": "Nakagawa Masashichi Nara Honten",
+  "ja": "中川政七商店 奈良本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "craft"
+ },
+ {
+  "id": "sh-higashimuki",
+  "name": "Phố Higashimuki",
+  "ja": "東向商店街",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "street"
+ },
+ {
+  "id": "sh-uniqlo-shinsaibashisuji",
+  "name": "UNIQLO Shinsaibashisuji",
+  "ja": "ユニクロ 心斎橋筋商店街店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-gu-shinsaibashi",
+  "name": "GU Shinsaibashi",
+  "ja": "ジーユー 心斎橋店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "gu"
+ },
+ {
+  "id": "sh-donki-dotonbori-midosuji",
+  "name": "Don Quijote Dōtonbori Midōsuji",
+  "ja": "ドン・キホーテ 道頓堀御堂筋店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "donki"
+ },
+ {
+  "id": "sh-amerikamura",
+  "name": "Amerikamura",
+  "ja": "アメリカ村",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "vintage"
+ },
+ {
+  "id": "sh-doguyasuji-kyoya",
+  "name": "Kyōya Honten (Dōguyasuji)",
+  "ja": "京屋 本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "kitchen"
+ },
+ {
+  "id": "sh-takashimaya-osaka",
+  "name": "Takashimaya Osaka",
+  "ja": "髙島屋 大阪店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-workman-colors-namba-city",
+  "name": "Workman Colors Namba CITY",
+  "ja": "Workman Colors なんばCITY店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "workman"
+ },
+ {
+  "id": "sh-hankyu-umeda",
+  "name": "Hankyu Umeda Honten",
+  "ja": "阪急うめだ本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-loft-umeda",
+  "name": "Loft Umeda (Hanshin Umeda Honten 6F)",
+  "ja": "梅田ロフト",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "loft"
+ },
+ {
+  "id": "sh-links-umeda",
+  "name": "LINKS UMEDA",
+  "ja": "LINKS UMEDA",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "other"
+ },
+ {
+  "id": "sh-yodobashi-umeda",
+  "name": "Yodobashi Camera Multimedia Umeda",
+  "ja": "ヨドバシ梅田",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "yodobashi"
+ },
+ {
+  "id": "sh-hands-shinsaibashi",
+  "name": "Hands Shinsaibashi",
+  "ja": "ハンズ 心斎橋店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "hands"
+ },
+ {
+  "id": "sh-anello-shinsaibashi",
+  "name": "anello (Shinsaibashi, Nagahori-dōri)",
+  "ja": "anello (南船場3丁目)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "other"
+ },
+ {
+  "id": "sh-kix-shops",
+  "name": "Khu mua sắm sân bay Kansai",
+  "ja": "関西国際空港",
+  "kind": "shop",
+  "role": "alt",
+  "day": 12,
+  "category": "other"
+ },
+ {
+  "id": "sh-muji-akiba-trim",
+  "name": "MUJI Akiba Trim",
+  "ja": "無印良品 アキバ・トリム",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "muji"
+ },
+ {
+  "id": "sh-muji-ginza",
+  "name": "MUJI Ginza",
+  "ja": "無印良品 銀座",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "muji"
+ },
+ {
+  "id": "sh-muji-lumine-shinjuku",
+  "name": "MUJI Lumine Shinjuku",
+  "ja": "無印良品 ルミネ新宿",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "muji"
+ },
+ {
+  "id": "sh-muji-kyoto-bal",
+  "name": "MUJI Kyoto BAL",
+  "ja": "無印良品 京都BAL",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "muji"
+ },
+ {
+  "id": "sh-muji-shinsaibashi-parco",
+  "name": "MUJI Shinsaibashi PARCO",
+  "ja": "無印良品 心斎橋パルコ",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "muji"
+ },
+ {
+  "id": "fs-lawson-kawaguchiko-ekimae",
+  "name": "Lawson Kawaguchiko Ekimae",
+  "ja": "ローソン 河口湖駅前店",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-honcho-dori",
+  "name": "Fujiyoshida Honchō-dōri",
+  "ja": "富士吉田 本町通り",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-chureito-pagoda",
+  "name": "Chūreitō Pagoda (Arakurayama Sengen Park)",
+  "ja": "新倉山浅間公園・忠霊塔",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-shimoyoshida-station",
+  "name": "Shimoyoshida Station (Fujikyu)",
+  "ja": "下吉田駅",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-kane-no-torii",
+  "name": "Kane no Torii (cổng torii vàng Fujiyoshida)",
+  "ja": "金鳥居",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-oishi-park",
+  "name": "Ōishi Park",
+  "ja": "大石公園",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-kawaguchiko-ohashi",
+  "name": "Kawaguchiko Ōhashi Bridge",
+  "ja": "河口湖大橋",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-kachikachi-ropeway",
+  "name": "Kachi Kachi Ropeway / Mt. Fuji Panorama Ropeway",
+  "ja": "富士山パノラマロープウェイ（カチカチ山ロープウェイ）",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-oshino-hakkai",
+  "name": "Oshino Hakkai",
+  "ja": "忍野八海",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-saiko-iyashi-no-sato-nenba",
+  "name": "Saiko Iyashi-no-Sato Nenba",
+  "ja": "西湖いやしの里根場",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-yamanakako",
+  "name": "Lake Yamanaka (Asahigaoka shore)",
+  "ja": "山中湖（旭日丘）",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-hananomiyako-park",
+  "name": "Hananomiyako Park",
+  "ja": "花の都公園",
+  "kind": "sight",
+  "role": "detour",
+  "day": "kawaguchiko",
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-gotemba-premium-outlets",
+  "name": "Gotemba Premium Outlets",
+  "ja": "御殿場プレミアム・アウトレット",
+  "kind": "sight",
+  "role": "detour",
+  "day": 4,
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-mishima-skywalk",
+  "name": "Mishima Skywalk",
+  "ja": "三島スカイウォーク（箱根西麓・三島大吊橋）",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-fujisan-yume-no-ohashi",
+  "name": "Fujisan Yume no Ōhashi (Fuji city)",
+  "ja": "富士山夢の大橋",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-tagonoura-port",
+  "name": "Tagonoura Port (Fujinokuni Tagonoura Minato Park)",
+  "ja": "田子の浦港（ふじのくに田子の浦みなと公園）",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-fujisan-hongu-sengen-taisha",
+  "name": "Fujisan Hongū Sengen Taisha",
+  "ja": "富士山本宮浅間大社",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-shiraito-falls",
+  "name": "Shiraito Falls",
+  "ja": "白糸の滝",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-starbucks-fujikawa-sa",
+  "name": "Starbucks Fujikawa SA (Tōmei, hướng Nagoya)",
+  "ja": "スターバックス 富士川SA（下り）",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "fuji-spot"
+ },
+ {
+  "id": "fs-fujikawa-rakuza",
+  "name": "Michi-no-Eki Fujikawa Rakuza",
+  "ja": "道の駅 富士川楽座",
+  "kind": "sight",
+  "role": "detour",
+  "day": 5,
+  "category": "fuji-spot"
  }
 ];
 

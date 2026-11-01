@@ -24,10 +24,10 @@ export const BUDGET: BudgetLine[] = [
   { id: 'ryokan', label: 'Ryokan Hakone', yen: 74_000, note: 'Phòng onsen riêng, hai bữa', color: '#8A5CD0' },
   { id: 'food', label: 'Ăn ngoài', yen: 172_000, note: 'Không tính lại hai bữa trong ryokan', color: '#E9792B' },
   { id: 'shop', label: 'Mua sắm và quà', yen: 130_000, note: 'Giỏ theo số lượng, gồm một vali mới', color: '#D23A3A' },
-  { id: 'move', label: 'Di chuyển', yen: 72_200, note: 'Một đoạn Shinkansen, có Shimakaze', color: '#1E8A55' },
+  { id: 'move', label: 'Di chuyển', yen: 71_660, note: 'Một đoạn Shinkansen, có Shimakaze', color: '#1E8A55' },
   { id: 'ticket', label: 'Vé tham quan, kimono', yen: 17_000, note: 'Kimono hai người, đền chùa có thu phí', color: '#0E9FB0' },
   { id: 'extra', label: 'Chi phí phụ', yen: 18_000, note: 'Thuế lưu trú, gửi vali, eSIM, giặt, locker', color: '#8E8E93' },
-  { id: 'reserve', label: 'Dự phòng', yen: 40_000, note: 'Tỷ giá, thời tiết, phát sinh thật — giữ tới đêm cuối', color: '#C7C7CC' },
+  { id: 'reserve', label: 'Dự phòng', yen: 40_540, note: 'Tỷ giá, thời tiết, phát sinh thật — giữ tới đêm cuối', color: '#C7C7CC' },
 ];
 
 export const RATE_SCENARIOS = [
@@ -40,7 +40,7 @@ export const RATE_SCENARIOS = [
 export const SAVINGS = [
   { id: 'resol', label: 'Kyoto: Cross → RESOL', yen: 18_000 },
   { id: 'mizunoto', label: 'Ryokan: phòng cơ bản, dùng bồn garden', yen: 18_000 },
-  { id: 'asics', label: 'Bỏ đôi ASICS', yen: 14_000 },
+  { id: 'asics', label: 'Bỏ đôi ASICS', yen: 18_700 },
   { id: 'gu', label: 'Bỏ một quần GU', yen: 3_000 },
 ];
 
@@ -57,19 +57,19 @@ export const SHOPPING: ShopItem[] = [
   { id: 'airism', name: 'UNIQLO AIRism cotton', qty: 4, unit: 2_000, where: 'Harajuku ngày 3 hoặc Shinsaibashi ngày 11', group: 'wear' },
   { id: 'gu-pants', name: 'Quần GU cơ bản hoặc jean', qty: 2, unit: 3_000, where: 'Thử tại cửa hàng lớn', group: 'wear' },
   { id: 'gu-top', name: 'Áo GU casual', qty: 2, unit: 1_500, where: 'Cùng lượt mua quần', group: 'wear' },
-  { id: 'socks', name: 'Tất', qty: 6, unit: 400, where: 'UNIQLO, GU, MUJI', group: 'wear' },
-  { id: 'onitsuka', name: 'Onitsuka Tiger MEXICO 66', qty: 1, unit: 17_000, where: 'Cửa hàng chính hãng Tokyo hoặc Osaka', group: 'wear' },
-  { id: 'asics', name: 'ASICS đi bộ/chạy', qty: 1, unit: 14_000, where: 'ABC-MART hoặc ASICS, thử đúng mẫu', group: 'wear' },
+  { id: 'socks', name: 'Tất', qty: 6, unit: 350, where: 'UNIQLO, GU, MUJI', group: 'wear' },
+  { id: 'onitsuka', name: 'Onitsuka Tiger MEXICO 66', qty: 1, unit: 16_500, where: 'Cửa hàng chính hãng Tokyo hoặc Osaka', group: 'wear' },
+  { id: 'asics', name: 'ASICS đi bộ/chạy', qty: 1, unit: 18_700, where: 'ABC-MART hoặc ASICS; mẫu mới 2026 từ ¥18.700', group: 'wear' },
   { id: 'anello', name: 'anello CROSS BOTTLE', qty: 1, unit: 7_000, where: 'anello Shinsaibashi hoặc LINKS UMEDA', group: 'wear' },
-  { id: 'melano', name: 'Melano CC Premium 20 ml', qty: 4, unit: 1_800, where: 'Drugstore, đúng bản Premium', group: 'beauty' },
-  { id: 'anessa', name: 'Anessa Perfect UV Milk 60 ml', qty: 2, unit: 3_500, where: 'Drugstore', group: 'beauty' },
-  { id: 'fino', name: 'Fino hair mask 230 g', qty: 2, unit: 1_200, where: 'Drugstore, hũ nặng', group: 'beauty' },
+  { id: 'melano', name: 'Melano CC Premium 20 ml', qty: 4, unit: 1_400, where: 'Drugstore, đúng bản Premium', group: 'beauty' },
+  { id: 'anessa', name: 'Anessa Perfect UV Milk 60 ml', qty: 2, unit: 3_100, where: 'Drugstore', group: 'beauty' },
+  { id: 'fino', name: 'Fino hair mask 230 g', qty: 2, unit: 800, where: 'Drugstore, hũ nặng', group: 'beauty' },
   { id: 'canmake', name: 'CANMAKE Cream Cheek', qty: 2, unit: 800, where: 'Drugstore hoặc Loft có tester', group: 'beauty' },
   { id: 'dhc', name: 'DHC lip cream', qty: 2, unit: 800, where: 'Drugstore', group: 'beauty' },
   { id: 'yokumoku', name: 'Hộp bánh Yoku Moku', qty: 4, unit: 2_200, where: 'Takashimaya Osaka, cuối chuyến', group: 'gift' },
   { id: 'snacks', name: 'KitKat, bánh gạo chia bạn bè', qty: 4, unit: 1_000, where: 'Siêu thị hoặc Donki', group: 'gift' },
-  { id: 'hojicha', name: 'Ippodo hōjicha 100 g', qty: 6, unit: 900, where: 'Kyoto, gần khách sạn', group: 'gift' },
-  { id: 'fukin', name: 'Khăn kaya fukin Nakagawa Masashichi', qty: 6, unit: 700, where: 'Naramachi ngày 10', group: 'gift' },
+  { id: 'hojicha', name: 'Ippodo hōjicha 80 g', qty: 6, unit: 1_100, where: 'Kyoto, gần khách sạn', group: 'gift' },
+  { id: 'fukin', name: 'Khăn kaya fukin Nakagawa Masashichi', qty: 6, unit: 550, where: 'Naramachi ngày 10', group: 'gift' },
   { id: 'goshuincho', name: 'Sổ goshuin', qty: 2, unit: 2_000, where: 'Đền chùa thực sự ghé', group: 'temple' },
   { id: 'goshuin', name: 'Goshuin', qty: 8, unit: 500, where: 'Bốn lượt mỗi người', group: 'temple' },
   { id: 'omamori', name: 'Omamori', qty: 4, unit: 1_000, where: 'Ise, Kyoto hoặc Nara', group: 'temple' },
@@ -99,10 +99,10 @@ export const TRANSPORT_LINES = [
   { label: 'Xe buýt Mie Kotsu', yen: 2_000 },
   { label: 'Phà Tōshijima', yen: 2_200 },
   { label: 'Kyoto: subway, Keihan, Hankyu, bus', yen: 5_000 },
-  { label: 'Kintetsu Tambabashi → Nara', yen: 1_600 },
-  { label: 'Kintetsu Nara → Namba', yen: 1_400 },
+  { label: 'Kintetsu Tambabashi → Nara', yen: 1_360 },
+  { label: 'Kintetsu Nara → Namba', yen: 1_360 },
   { label: 'Osaka Metro', yen: 1_500 },
-  { label: 'Nankai Namba → KIX', yen: 2_200 },
+  { label: 'Nankai Namba → KIX', yen: 1_940 },
 ];
 
 export const PASSES = [
@@ -129,16 +129,16 @@ export const PASSES = [
 ];
 
 export const PHRASES = [
-  { use: 'Xin bàn', ja: '二人です。', vi: 'Chúng tôi hai người.' },
-  { use: 'Hỏi chờ', ja: '待ち時間はどのくらいですか。', vi: 'Cần đợi khoảng bao lâu?' },
-  { use: 'Thanh toán thẻ', ja: 'カードは使えますか。', vi: 'Có dùng thẻ được không?' },
-  { use: 'Món chín', ja: '生より、焼いた料理が好きです。', vi: 'Tôi thích món nướng hơn món sống.' },
-  { use: 'Mua vé đi Ise', ja: '伊勢市まで、特急券と乗車券を二人分お願いします。', vi: 'Cho hai vé cơ bản và limited express tới Iseshi.' },
-  { use: 'Hỏi phà', ja: '鳥羽に戻る船は、何時で、どの港からですか。', vi: 'Tàu về Toba lúc nào, từ cảng nào?' },
-  { use: 'Bồn onsen', ja: 'この部屋の露天風呂は温泉ですか。', vi: 'Bồn ngoài trời phòng này có phải onsen không?' },
-  { use: 'Bồn riêng', ja: '二人で使える貸切風呂はありますか。', vi: 'Có bồn riêng cho hai người không?' },
-  { use: 'Tổng tiền phòng', ja: '二人一泊二食で、税金を含めた総額はいくらですか。', vi: 'Hai người, một đêm hai bữa, gồm thuế là bao nhiêu?' },
-  { use: 'Gửi vali', ja: '予約名と到着日を書いて、ホテルへ荷物を送れますか。', vi: 'Có thể gửi hành lý tới khách sạn với tên đặt và ngày đến không?' },
+  { use: 'Xin bàn', ja: '二人です。', romaji: 'Futari desu.', vi: 'Chúng tôi hai người.' },
+  { use: 'Hỏi chờ', ja: '待ち時間はどのくらいですか。', romaji: 'Machijikan wa dono kurai desu ka?', vi: 'Cần đợi khoảng bao lâu?' },
+  { use: 'Thanh toán thẻ', ja: 'カードは使えますか。', romaji: 'Kādo wa tsukaemasu ka?', vi: 'Có dùng thẻ được không?' },
+  { use: 'Món chín', ja: '生より、焼いた料理が好きです。', romaji: 'Nama yori, yaita ryōri ga suki desu.', vi: 'Tôi thích món nướng hơn món sống.' },
+  { use: 'Mua vé đi Ise', ja: '伊勢市まで、特急券と乗車券を二人分お願いします。', romaji: 'Iseshi made, tokkyūken to jōshaken o futari-bun onegaishimasu.', vi: 'Cho hai vé cơ bản và limited express tới Iseshi.' },
+  { use: 'Hỏi phà', ja: '鳥羽に戻る船は、何時で、どの港からですか。', romaji: 'Toba ni modoru fune wa, nanji de, dono minato kara desu ka?', vi: 'Tàu về Toba lúc nào, từ cảng nào?' },
+  { use: 'Bồn onsen', ja: 'この部屋の露天風呂は温泉ですか。', romaji: 'Kono heya no rotenburo wa onsen desu ka?', vi: 'Bồn ngoài trời phòng này có phải onsen không?' },
+  { use: 'Bồn riêng', ja: '二人で使える貸切風呂はありますか。', romaji: 'Futari de tsukaeru kashikiri-buro wa arimasu ka?', vi: 'Có bồn riêng cho hai người không?' },
+  { use: 'Tổng tiền phòng', ja: '二人一泊二食で、税金を含めた総額はいくらですか。', romaji: 'Futari ippaku nishoku de, zeikin o fukumeta sōgaku wa ikura desu ka?', vi: 'Hai người, một đêm hai bữa, gồm thuế là bao nhiêu?' },
+  { use: 'Gửi vali', ja: '予約名と到着日を書いて、ホテルへ荷物を送れますか。', romaji: 'Yoyaku-mei to tōchaku-bi o kaite, hoteru e nimotsu o okuremasu ka?', vi: 'Có thể gửi hành lý tới khách sạn với tên đặt và ngày đến không?' },
 ];
 
 export interface Booking {
@@ -153,9 +153,12 @@ export const BOOKINGS: Booking[] = [
   { title: 'Giữ ryokan và phòng Ise', rule: 'Ngay khi khách sạn mở lịch tháng 10/2027', text: 'Đặt loại có thể hủy. Mizunoto: tên phòng có 温泉, hai bữa. Sau đó Kyoto, Tokyo, Osaka.' },
   { title: 'Theo dõi giá phòng', rule: '90, 60 và 30 ngày trước', text: 'So cùng ngày, hai người, cùng hạng phòng, cùng điều kiện hủy.' },
   { title: 'Bàn ăn đặt trước', rule: '60–30 ngày trước, theo cửa sổ của từng quán', text: 'SUSHI TOKYO TEN lunch ¥5.500 (ResReserve), Menami, AWA Naramachi.' },
+  { at: '2027-09-20T10:00:00+09:00', title: 'Chốt có đi Kawaguchiko không (tuỳ chọn)', rule: '10h giờ Nhật, một tháng trước ngày 20/10', text: 'Ghế Fuji Excursion mở bán trên Eki-net lúc này và hết nhanh. Nếu đổi ngày 3 sang Kawaguchiko: mua ghế đi 7:30 và về 16:48, rồi huỷ bàn SUSHI TOKYO TEN trước hạn huỷ của ResReserve (huỷ sát ngày mất trọn tiền course).' },
+  { title: 'Slot sớm thuê kimono wargo Gion', rule: 'Khi chốt lịch, khoảng 1–2 tháng trước', text: 'Lịch ngày 25/10 tới tiệm 9:30, trước giờ mở 10h — slot sớm phải đặt trên web wargo. Gói web từ ¥3.300/người; mang giày riêng để thay khi trả.' },
+  { at: '2027-09-21T10:00:00+09:00', title: 'Ghế đầu Romancecar (tuỳ chọn)', rule: '10h giờ Nhật, đúng một tháng trước', text: 'Hàng ghế đầu xe 1 của tàu GSE cho chuyến Hakone 41 ngày 21/10 (nếu chuyến đó chạy GSE). Hết rất nhanh; chỉ mua đứt, không giữ chỗ online. Không có thì ngồi bên phải như thường.' },
   { title: 'Vé JR và Shimakaze', rule: 'Khoảng một tháng trước', text: 'Ghế reserved Shinkansen Shizuoka → Nagoya ngày 22/10; Shimakaze Toba → Kyoto ngày 24/10, giữ tàu thường làm phương án.' },
-  { at: '2027-10-22T00:00:00+09:00', title: 'Đặt Yamamoto Menzō', rule: '0h giờ Nhật, ba ngày trước', text: 'Cho ngày 25/10 — tức 22h tối 21/10 giờ Việt Nam. Hủy trong 12 giờ mất ¥1.000/người.' },
-  { at: '2027-10-26T21:00:00+09:00', title: 'Đặt Hōsekibako', rule: '21h giờ Nhật, tối hôm trước', text: 'Cho ngày 27/10 — 19h giờ Việt Nam. Đúng chi nhánh 29011038.' },
+  { at: '2027-10-22T00:00:00+09:00', title: 'Đặt Yamamoto Menzō', rule: '0h giờ Nhật, ba ngày trước', text: 'Cho ngày 25/10. Lúc này đang ở Mizunoto (đêm 21 rạng sáng 22/10): đặt trên điện thoại đúng 0h trên TableCheck. Hủy trong 12 giờ mất ¥1.000/người.' },
+  { at: '2027-10-26T21:00:00+09:00', title: 'Đặt Hōsekibako', rule: '21h giờ Nhật, tối hôm trước', text: 'Cho ngày 27/10, đặt tối 26/10 khi đang ở Kyoto. Đúng tiệm Hōsekibako ở Naramachi (mã Tabelog 29011038), không phải quán cùng tên khác.' },
 ];
 
 export const CHECKS = [
@@ -236,7 +239,7 @@ export const STAYS: StayPlan[] = [
     range: '¥12.000–17.000',
     room: 'Forza Double 18 m², giường 160 cm, unit bath.',
     good: 'Ngay khu Dōtonbori, tiện về cất đồ mua sắm. Hōzenji 3–5 phút, Dōguyasuji 8–10 phút.',
-    know: 'Phố đông có thể ồn. Nankai Namba để ra KIX cách 12–15 phút đi bộ. Ảnh phòng Triple không phải phòng Double.',
+    know: 'Phố đông có thể ồn. Nankai Namba để ra KIX cách khoảng 20 phút đi bộ tính tới sân ga. Ảnh phòng Triple không phải phòng Double.',
     switchAt: 'Có thể trả thêm một chút để giữ vị trí — đỡ bước đi trong ngày mua sắm.',
   },
 ];

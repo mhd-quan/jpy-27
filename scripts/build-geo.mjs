@@ -9,6 +9,9 @@
 // Output: src/data/geo.gen.ts  { [legId]: { p: encodedPolyline, km } }
 // Responses are cached in .cache/ so re-runs are fast and polite.
 //
+// A leg id hashes its line, ends and waypoints, so an id already in geo.gen.ts keeps its geometry
+// (routing data drifts between runs); --fresh rebuilds everything.
+//
 // Usage: node scripts/build-geo.mjs [--fresh]
 
 import { execFileSync } from 'node:child_process';
@@ -17,7 +20,8 @@ import { join } from 'node:path';
 import { allLegs } from '../src/data/days.ts';
 import { LINES } from '../src/data/lines.ts';
 import { place } from '../src/data/catalog.ts';
-import { encode, haversine, lengthKm, osrm as osrmCached, simplify } from './geo-tools.mjs';
+import { GEO as PREV } from '../src/data/geo.gen.ts';
+import { decode, encode, haversine, lengthKm, osrm as osrmCached, simplify } from './geo-tools.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const cache = join(root, '.cache');
@@ -209,13 +213,36 @@ const seen = new Set();
 for (const leg of allLegs()) {
   if (seen.has(leg.id)) continue;
   seen.add(leg.id);
+  // reuse earlier geometry, except straight-line fallbacks from a failed routing
+  if (!fresh && PREV[leg.id] && !(PREV[leg.id].km > 1 && decode(PREV[leg.id].p).length <= 2)) {
+    out[leg.id] = PREV[leg.id];
+    continue;
+  }
   const line = LINES[leg.line];
   const a = pt(leg.from);
   const b = pt(leg.to);
   let pts;
   try {
     if (line.net) {
-      pts = railPath(line.net, a, b);
+      // through trains that change operator (JR Chūō → Fujikyu at Ōtsuki) route each part on its own
+      const stops = [a, ...(leg.via ?? []).map(pt), b];
+      pts = [];
+      for (let i = 1; i < stops.length; i++) {
+        let part;
+        try {
+          part = railPath(line.net, stops[i - 1], stops[i]);
+        } catch (e) {
+          // at an interchange the nearest node may belong to the other operator's track: try each operator alone
+          for (const op of new Set(line.net.map(([o]) => o))) {
+            try {
+              part = railPath(line.net.filter(([o]) => o === op), stops[i - 1], stops[i]);
+              break;
+            } catch {}
+          }
+          if (!part) throw e;
+        }
+        pts.push(...part);
+      }
       // attach the exact station points so the line meets the markers
       pts = [a, ...pts, b];
     } else if (leg.path) {

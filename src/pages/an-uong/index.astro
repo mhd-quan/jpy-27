@@ -1,7 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Gallery from '../../components/Gallery.astro';
-import { DAYS, allPlacesOf, usesOf, fmtYen, url } from '../../lib/trip';
+import MenuMini from '../../components/MenuMini.astro';
+import SayButton from '../../components/SayButton.astro';
+import { DAYS, allPlacesOf, usesOf, fmtYen, url, sayTags, imgSrc, shortVi } from '../../lib/trip';
 
 const GROUPS = [
   { id: 'tokyo', title: 'Tokyo', areas: ['tokyo'] },
@@ -10,18 +12,20 @@ const GROUPS = [
   { id: 'kyoto', title: 'Kyoto', areas: ['kyoto'] },
   { id: 'osaka', title: 'Nara và Osaka', areas: ['nara', 'osaka'] },
 ];
-const food = allPlacesOf('food');
+const food = allPlacesOf('food').filter((p) => !p.snack);
+const snacks = allPlacesOf('food').filter((p) => p.snack);
 const uses = usesOf();
 const groups = GROUPS.map((g) => {
   const list = food.filter((p) => g.areas.includes(p.area));
   const order = (id: string) => uses.get(id)?.[0]?.order ?? 999;
   list.sort((a, b) => order(a.id) - order(b.id));
-  return { ...g, main: list.filter((p) => p.role !== 'alt'), alt: list.filter((p) => p.role === 'alt') };
+  const sn = snacks.filter((p) => g.areas.includes(p.area)).sort((a, b) => Number(a.day ?? 0) - Number(b.day ?? 0));
+  return { ...g, main: list.filter((p) => p.role !== 'alt'), alt: list.filter((p) => p.role === 'alt'), snacks: sn };
 });
 const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + d.meals.s, 0);
 ---
 
-<Base title="Ăn uống" sheets={food.map((p) => p.id)}>
+<Base title="Ăn uống" sheets={[...food, ...snacks].map((p) => p.id)} say={food.map((p) => p.id)}>
   <section class="wrap hero">
     <h1 class="t-1">Ăn uống</h1>
     <p class="t-lead">
@@ -74,6 +78,10 @@ const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + 
                         </>
                       ))}
                     </p>
+                    {p.menu && <MenuMini p={p} limit={5} />}
+                    <p class="say-row">
+                      <SayButton tags={sayTags(p)} place={p.id} />
+                    </p>
                   </div>
                 </div>
                 <div class="gal">
@@ -83,6 +91,44 @@ const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + 
             );
           })}
         </ul>
+        {g.snacks.length > 0 && (
+          <div class="wrap snacks">
+            <h3 class="t-3">Ăn vặt dọc đường</h3>
+            <p class="t-small muted">Chỗ ghé nhanh trên đường đi của từng ngày; bản đồ đường rẽ vào nằm trong trang ngày.</p>
+            <ul>
+              {g.snacks.map((p) => {
+                const g0 = p.snack!.get[0];
+                const social = [...new Set(p.snack!.social.map((x) => (['instagram', 'tiktok', 'youtube'].includes(x.platform) ? x.platform : 'press')))];
+                return (
+                  <li>
+                    <button type="button" class="sn" data-place={p.id}>
+                      {p.images[0] && <img src={imgSrc(p.images[0].src)} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()" />}
+                      <span class="sn-t">
+                        <span class="t-micro sn-day">
+                          Ngày {p.day}
+                          {p.snack!.when ? ` · ${p.snack!.when}` : ''}
+                        </span>
+                        <strong>{p.name}</strong>
+                        {g0 && (
+                          <span class="t-small">
+                            {shortVi(g0.vi)}
+                            {g0.yen ? ` · ¥${g0.yen.toLocaleString('vi-VN')}` : ''}
+                          </span>
+                        )}
+                        <span class="sn-tags">
+                          {p.snack!.tabelog?.rating && <span class="tag tag-tb tnum">Tabelog {p.snack!.tabelog.rating.toFixed(2)}</span>}
+                          {social.map((x) => (
+                            <span class:list={['tag', x === 'press' ? 'tag-press' : 'tag-sns']}>{x === 'instagram' ? 'Instagram' : x === 'tiktok' ? 'TikTok' : x === 'youtube' ? 'YouTube' : 'Báo du lịch'}</span>
+                          ))}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
         {g.alt.length > 0 && (
           <div class="wrap alts">
             <h3 class="t-small muted">Phương án thay thế</h3>
@@ -107,6 +153,84 @@ const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + 
 </Base>
 
 <style>
+  .snacks {
+    margin-top: 40px;
+  }
+  .snacks > .t-small {
+    margin: 6px 0 0;
+  }
+  .snacks ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: 4px 24px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .sn {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    padding: 8px;
+    margin-inline: -8px;
+    border: 0;
+    border-radius: var(--r-m);
+    background: none;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sn:hover {
+    background: var(--bg-2);
+  }
+  .sn img {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: var(--bg-2);
+  }
+  .sn-t {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+  .sn-day {
+    color: var(--food);
+    font-weight: 600;
+  }
+  .sn-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 3px;
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .tag-tb {
+    color: #b85c00;
+    background: color-mix(in srgb, #f39800 14%, transparent);
+  }
+  .tag-press {
+    color: var(--ink-2);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+  }
+  .tag-sns {
+    color: #c13584;
+    background: color-mix(in srgb, #c13584 11%, transparent);
+  }
+  .say-row {
+    margin: 10px 0 0;
+  }
   .hero {
     padding-top: clamp(40px, 7vw, 96px);
     padding-bottom: 24px;

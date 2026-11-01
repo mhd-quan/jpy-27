@@ -1,0 +1,1551 @@
+{
+ "spots": [
+  {
+   "id": "fs-lawson-kawaguchiko-ekimae",
+   "name": "Lawson Kawaguchiko Ekimae",
+   "ja": "ローソン 河口湖駅前店",
+   "lat": 35.498582,
+   "lng": 138.767118,
+   "coordSource": "OSM Nominatim, nút \"ローソン\" trên 富士河口湖富士線, cách ga Kawaguchiko khoảng 140 m về phía tây (khớp mô tả 2–3 phút đi bộ của isfujivisible.com); có hai Lawson khác ở gần: không nhầm với chi nhánh 役場前 cách 1,2 km.",
+   "area": "kawaguchiko",
+   "type": "konbini",
+   "famousFor": "Cửa hàng Lawson mà đỉnh Fuji hiện ngay phía trên mái và biển hiệu, được chụp đi chụp lại; lượng khách chụp ảnh đông đến mức thị trấn phải dựng nhiều lớp rào chắn từ năm 2024.",
+   "status2026": "Diễn biến: 21/5/2024 thị trấn treo màn lưới đen cao 2,5 m, dài 20 m bên kia đường; gỡ ngày 15/8/2024. Cuối 11/2024 thị trấn thông báo dựng rào mới phía cửa hàng; 17/12/2024 rào thấp (khoảng 80 cm) được lắp. 7/8/2025 dựng thêm rào cao khoảng 1,4 m đối diện cửa hàng để chặn người chạy ra đường mà vẫn chụp được núi (Tokyo Weekender 18/8/2025). Theo isfujivisible.com (23/8/2026) và Tabimania (21/9/2026): có rào nước màu vàng với biển 4 thứ tiếng, bảo vệ giờ cao điểm, từ xuân 2026 có giàn giáo ở tòa nhà bên phải khung hình. Chưa mở được thông báo chính thức của thị trấn; kiểm tra lại gần ngày đi.",
+   "etiquette": "Đứng trên đường công cộng, sang đường ở vạch có đèn cách khoảng 80 m, không băng qua giữa xe. Sân trước thuộc phòng khám nha khoa còn bãi xe chỉ dành cho khách mua hàng; không đứng chụp trong ô đỗ xe, mang rác về, giữ yên lặng. Lawson đã đề nghị các công ty tour ngừng đưa đoàn tới đây từ 5/2024.",
+   "bestTime": "Trước 8–9h sáng; cao điểm 10:00–16:00, buổi trưa Mặt Trời nằm sau núi nên ngược sáng. Tháng 11 đến tháng 2 ổn định nhất.",
+   "hours": null,
+   "costYen": 0,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Từ ga Kawaguchiko đi bộ khoảng 2–3 phút về phía tây, cửa hàng cùng phía đường với ga; qua vạch sang đường rồi quay lại chụp từ bên đối diện.",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Kawaguchiko",
+    "ja": "河口湖",
+    "lat": 35.49853,
+    "lng": 138.76864,
+    "walkMin": 3
+   },
+   "busStop": {
+    "ja": "河口湖駅",
+    "lat": 35.4984364,
+    "lng": 138.7685395,
+    "lines": [
+     "レッドライン（河口湖周遊バス）",
+     "グリーンライン（西湖周遊バス）",
+     "ブルーライン（鳴沢・精進湖・本栖湖周遊バス）"
+    ],
+    "walkMin": 3,
+    "coordSource": "OSM Nominatim, bus_stop 河口湖駅; số bến theo bản đồ Fujikyu 4/2026"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://soranews24.com/2024/11/29/bad-tourist-manners-lead-to-new-mt-fuji-view-blocking-scree-at-japans-fuji-convenience-store/",
+     "note": "SoraNews24 (29/11/2024): rào đầu tiên bị gỡ 8/2024, thị trấn quyết định dựng rào mới vì khách chụp ảnh vẫn vi phạm."
+    },
+    {
+     "platform": "blog",
+     "url": "https://www.tokyoweekender.com/?p=273441",
+     "note": "Tokyo Weekender (18/8/2025): rào cao khoảng 1,4 m lắp 7/8/2025, vẫn cho chụp núi."
+    },
+    {
+     "platform": "blog",
+     "url": "https://isfujivisible.com/blog/mount-fuji-lawson-photo-spot",
+     "note": "isfujivisible.com (23/8/2026): hiện trạng rào, vạch sang đường và thống kê tầm nhìn."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E3%83%AD%E3%83%BC%E3%82%BD%E3%83%B3%20%E6%B2%B3%E5%8F%A3%E6%B9%96%E9%A7%85%E5%89%8D%E5%BA%97%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/That_famous_Lawson_and_Mount_Fuji_in_Kawaguchiko_%2854244854384%29.jpg/1280px-That_famous_Lawson_and_Mount_Fuji_in_Kawaguchiko_%2854244854384%29.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:That_famous_Lawson_and_Mount_Fuji_in_Kawaguchiko_(54244854384).jpg",
+     "credit": "Sergiy Galyonkin",
+     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+     "caption": "Lawson Kawaguchiko Ekimae với Fuji phía sau mái cửa hàng"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Lawson_Fuji.jpg/1280px-Lawson_Fuji.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Lawson_Fuji.jpg",
+     "credit": "Gabriel Hutchinson Photography",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Góc chụp quen thuộc: biển Lawson và đỉnh Fuji"
+    }
+   ],
+   "sources": [
+    "https://soranews24.com/2024/11/29/bad-tourist-manners-lead-to-new-mt-fuji-view-blocking-scree-at-japans-fuji-convenience-store/",
+    "https://japantoday.com/category/national/new-fences-installed-at-mt.-fuji-photo-spot-to-curb-jaywalking",
+    "https://www.tokyoweekender.com/?p=273441",
+    "https://isfujivisible.com/blog/mount-fuji-lawson-photo-spot",
+    "https://tabimaniajapan.com/culture/how-to-safely-visit-the-kawaguchiko-mt-fuji-lawson-rules-parking-crowds",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-honcho-dori",
+   "name": "Fujiyoshida Honchō-dōri",
+   "ja": "富士吉田 本町通り",
+   "lat": 35.494131,
+   "lng": 138.804196,
+   "coordSource": "OSM Nominatim, bưu điện 吉田本町 trên đường 富士みち (quốc lộ 139) tại Shimoyoshida; điểm đứng chụp chính xác ở ngã tư 本町2丁目 chưa xác minh, sai lệch vài chục mét.",
+   "area": "fujiyoshida",
+   "type": "street",
+   "famousFor": "Phố cũ kiểu Shōwa với đèn đường, biển hiệu và dây điện chạy thẳng về phía Fuji ở cuối phố; Fujikyu ghi đây là \"điểm nổi tiếng trên SNS\".",
+   "status2026": null,
+   "etiquette": "Đường vẫn có xe chạy: chụp từ vỉa hè hoặc chờ đèn tín hiệu, không bước xuống lòng đường; tôn trọng cửa hàng và nhà dân hai bên.",
+   "bestTime": "Buổi sáng: số liệu thành phố Fuji trong fuji.json cho thấy buổi sáng trong hơn buổi chiều.",
+   "hours": null,
+   "costYen": 0,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Tàu Fujikyu Kawaguchiko → Shimoyoshida (5,5 km, vé giấy ¥310; Fuji Kaiyu mất 15 phút, tàu thường chậm hơn một chút), rồi đi bộ 5 phút (Fujikyu ghi 5 phút từ ga Shimoyoshida).",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Shimoyoshida",
+    "ja": "下吉田",
+    "lat": 35.49773,
+    "lng": 138.80353,
+    "walkMin": 5
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+     "note": "Bản đồ điểm ngắm Fuji của Fujikyu: \"điểm nổi tiếng trên SNS\", 5 phút từ ga Shimoyoshida, phố Shōwa hoài cổ."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E5%AF%8C%E5%A3%AB%E5%90%89%E7%94%B0%20%E6%9C%AC%E7%94%BA%E9%80%9A%E3%82%8A%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Honcho_Street_with_Mount_Fuji_in_the_daytime%2C_Fujiyoshida%2C_2016.jpg/1280px-Honcho_Street_with_Mount_Fuji_in_the_daytime%2C_Fujiyoshida%2C_2016.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Honcho_Street_with_Mount_Fuji_in_the_daytime,_Fujiyoshida,_2016.jpg",
+     "credit": "DimiTalen",
+     "license": "CC0 (Wikimedia Commons)",
+     "caption": "Phố Honchō ban ngày với Fuji ở cuối đường"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Honcho_Street_with_Mount_Fuji_in_the_evening%2C_Fujiyoshida%2C_2016.jpg/1280px-Honcho_Street_with_Mount_Fuji_in_the_evening%2C_Fujiyoshida%2C_2016.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Honcho_Street_with_Mount_Fuji_in_the_evening,_Fujiyoshida,_2016.jpg",
+     "credit": "DimiTalen",
+     "license": "CC0 (Wikimedia Commons)",
+     "caption": "Cùng góc phố lúc chiều tối"
+    }
+   ],
+   "sources": [
+    "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-chureito-pagoda",
+   "name": "Chūreitō Pagoda (Arakurayama Sengen Park)",
+   "ja": "新倉山浅間公園・忠霊塔",
+   "lat": 35.50129,
+   "lng": 138.80136,
+   "coordSource": "OSM Nominatim, \"忠霊塔\" (35.50129, 138.80136); công viên 35.50049, 138.80082",
+   "area": "fujiyoshida",
+   "type": "pagoda",
+   "famousFor": "Khung hình kinh điển: tháp năm tầng đỏ với Fuji phía sau, nhìn từ sàn ngắm sau 398 bậc đá; thành phố Fujiyoshida giới thiệu đây là điểm ngắm Fuji nổi tiếng.",
+   "status2026": "Lễ hội hoa anh đào 2026 của Fujiyoshida bị huỷ (tin ngày 6/2/2026) vì quá tải: rác, kẹt xe, vào nhà dân; thành phố tăng bảo vệ và đặt nhà vệ sinh di động. Công viên vẫn mở 24 giờ và miễn phí; sàn ngắm được đổi mới từ 1/2/2022. Có blog nói mùa hoa phải xếp hàng 1–3 giờ theo lượt, nhưng chưa tìm được thông báo chính thức về thu phí hay giới hạn lượt; cuối tháng 10 không phải mùa cao điểm.",
+   "etiquette": "Không vào nhà dân và không chụp tự do ở khu dân cư dưới chân đồi; tuân theo biển chỉ dẫn và bảo vệ trên sàn ngắm. Tới sớm hoặc ngày thường để tránh hàng.",
+   "bestTime": "Sáng ngày thường; cao điểm 9:00–12:00. Lá đỏ thường giữa đến cuối tháng 11 nên cuối tháng 10 chưa đỏ; công viên có chiếu sáng buổi tối (tháng 10–11: 17:00–21:50).",
+   "hours": "24 giờ (công viên); đền Arakura Fuji Sengen 9:00–16:00",
+   "costYen": 0,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Tàu Fujikyu tới ga Shimoyoshida (Fuji Kaiyu 15 phút, ¥310 từ Kawaguchiko), đi bộ qua đền rồi leo 398 bậc. Thời gian đi bộ tùy nguồn: 15 phút theo Fujikyu, 25 phút theo trang chính thức của thành phố (tính tới tháp).",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Shimoyoshida",
+    "ja": "下吉田",
+    "lat": 35.49773,
+    "lng": 138.80353,
+    "walkMin": 25
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.timeout.com/news/japan-has-cancelled-its-famous-cherry-blossom-festival-over-concerns-about-unruly-tourism-020626",
+     "note": "Time Out (6/2/2026): hủy lễ hội hoa anh đào vì quá tải du khách, dự kiến hàng chờ tới 3 giờ ở sàn ngắm."
+    },
+    {
+     "platform": "blog",
+     "url": "https://watabi.org/en/articles/chureito-pagoda-guide",
+     "note": "Watabi (21/7/2026): hướng dẫn leo, thời điểm đẹp, lưu ý hàng chờ."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E6%96%B0%E5%80%89%E5%B1%B1%E6%B5%85%E9%96%93%E5%85%AC%E5%9C%92%20%E5%BF%A0%E9%9C%8A%E5%A1%94%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Chureito_Pagoda.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Chureito_Pagoda.jpg",
+     "credit": "Manish Prabhune",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Tháp Chūreitō lúc hoa anh đào nở"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Arakurayama_Sengen_Park_09.jpg/1280px-Arakurayama_Sengen_Park_09.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Arakurayama_Sengen_Park_09.jpg",
+     "credit": "Olaf2",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Công viên Arakurayama Sengen"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Mount_Fuji%2C_Arakurayama_Sengen_Park_20241022.jpg/1280px-Mount_Fuji%2C_Arakurayama_Sengen_Park_20241022.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji,_Arakurayama_Sengen_Park_20241022.jpg",
+     "credit": "Supanut Arunoprayote",
+     "license": "CC BY 4.0 (Wikimedia Commons)",
+     "caption": "Fuji nhìn từ công viên Arakurayama ngày 22/10/2024, đúng thời điểm cuối tháng 10"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/View_towards_Mount_Fuji_from_Arakurayama_Sengen_Park_in_Fujiyoshida%2C_Yamanashi%2C_Japan%2C_2024_May_-_2.jpg/1280px-View_towards_Mount_Fuji_from_Arakurayama_Sengen_Park_in_Fujiyoshida%2C_Yamanashi%2C_Japan%2C_2024_May_-_2.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:View_towards_Mount_Fuji_from_Arakurayama_Sengen_Park_in_Fujiyoshida,_Yamanashi,_Japan,_2024_May_-_2.jpg",
+     "credit": "Ximonic (Simo Räsänen)",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Nhìn về phía Fuji từ sườn đồi Arakurayama"
+    }
+   ],
+   "sources": [
+    "https://fujiyoshida.net/spot/12",
+    "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+    "https://watabi.org/en/articles/chureito-pagoda-guide",
+    "https://www.timeout.com/news/japan-has-cancelled-its-famous-cherry-blossom-festival-over-concerns-about-unruly-tourism-020626",
+    "https://banzokubiology.com/shinkurayama-asama-park-crowded/",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-shimoyoshida-station",
+   "name": "Shimoyoshida Station (Fujikyu)",
+   "ja": "下吉田駅",
+   "lat": 35.49773,
+   "lng": 138.80353,
+   "coordSource": "OSM Nominatim, \"下吉田駅\"",
+   "area": "fujiyoshida",
+   "type": "station",
+   "famousFor": "Ga nhỏ trên tuyến Fujikyu, cửa ngõ tới Chūreitō và Honchō-dōri; Fujikyu giới thiệu việc ngắm Fuji ngay trong khuôn viên ga và khu \"Blue Train Terrace\" trưng bày toa tàu cũ.",
+   "status2026": null,
+   "etiquette": "Là ga đang hoạt động: đứng ngoài vạch, không vào đường ray; vào sân ga cần vé tàu hợp lệ.",
+   "bestTime": "Sáng; Fuji nằm ở phía nam.",
+   "hours": null,
+   "costYen": null,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Fuji Kaiyu dừng ở Shimoyoshida (Shinjuku 7:30 → 9:13; Kawaguchiko → Shimoyoshida 15 phút bằng Fuji Kaiyu). Từ Shimoyoshida về Kawaguchiko, tàu thường khoảng 2 chuyến mỗi giờ; vé giấy ¥310.",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Shimoyoshida",
+    "ja": "下吉田",
+    "lat": 35.49773,
+    "lng": 138.80353,
+    "walkMin": 0
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+     "note": "Fujikyu: nên ngắm Fuji ngay trong ga Shimoyoshida, có Blue Train Terrace."
+    }
+   ],
+   "images": [
+    {
+     "kind": "exterior",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Fujikyuko_Shimoyoshida_Sta_20161026.jpg/1280px-Fujikyuko_Shimoyoshida_Sta_20161026.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Fujikyuko_Shimoyoshida_Sta_20161026.jpg",
+     "credit": "Kounoichi",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Lối vào ga Shimoyoshida"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Platform_at_Shimoyoshida_Station%2C_Fujiyoshida%2C_2016.jpg/1280px-Platform_at_Shimoyoshida_Station%2C_Fujiyoshida%2C_2016.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Platform_at_Shimoyoshida_Station,_Fujiyoshida,_2016.jpg",
+     "credit": "DimiTalen",
+     "license": "CC0 (Wikimedia Commons)",
+     "caption": "Sân ga Shimoyoshida"
+    }
+   ],
+   "sources": [
+    "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+    "https://www.fujikyu-railway.jp/fare/",
+    "https://roote.ekispert.net/timetable/train/23419/5171",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-kane-no-torii",
+   "name": "Kane no Torii (cổng torii vàng Fujiyoshida)",
+   "ja": "金鳥居",
+   "lat": 35.4832112,
+   "lng": 138.7979629,
+   "coordSource": "OSM Nominatim, \"金鳥居\" (attraction, 富士みち)",
+   "area": "fujiyoshida",
+   "type": "shrine",
+   "famousFor": "Cổng torii lớn bắc ngang quốc lộ, Fuji nằm gọn trong khung cổng; Fujikyu ghi đây là điểm được ưa chuộng.",
+   "status2026": null,
+   "etiquette": "Đứng ở vỉa hè hoặc chờ đèn tín hiệu, không chạy ra giữa đường.",
+   "bestTime": "Sáng.",
+   "hours": null,
+   "costYen": 0,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Tàu Fujikyu Kawaguchiko → Fujisan (¥230), rồi đi bộ 5 phút (Fujikyu: 5 phút từ ga Fujisan). Có thể ghép với Honchō-dōri nếu đi tàu thêm về phía Shimoyoshida.",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Fujisan",
+    "ja": "富士山",
+    "lat": 35.48384,
+    "lng": 138.7953,
+    "walkMin": 5
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+     "note": "Bản đồ điểm ngắm Fuji của Fujikyu: chụp Fuji cùng cổng torii, 5 phút từ ga Fujisan."
+    }
+   ],
+   "images": [],
+   "sources": [
+    "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+    "https://www.fujikyu-railway.jp/fare/",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-oishi-park",
+   "name": "Ōishi Park",
+   "ja": "大石公園",
+   "lat": 35.52329,
+   "lng": 138.74654,
+   "coordSource": "OSM Nominatim, \"大石公園\" (park); Natural Living Center 35.52289, 138.74551",
+   "area": "kawaguchiko",
+   "type": "park",
+   "famousFor": "Bờ bắc hồ Kawaguchi, Fuji ở phía nam bên kia mặt hồ; đường hoa \"Hana Kaido\" dọc bờ, cây kochia đổi đỏ giữa tháng 10, có quán cà phê tầm nhìn Fuji ở Natural Living Center.",
+   "status2026": null,
+   "etiquette": "Bãi xe miễn phí nhưng đầy nhanh cuối tuần và mùa hoa; nên đi buýt. Mang rác về.",
+   "bestTime": "Sáng sớm hoặc cuối ngày; kochia đỏ rực khoảng giữa đến cuối tháng 10 (blog Banzoku, cập nhật 6/2026), có thể lệch theo năm. Ngày thường vắng hơn cuối tuần.",
+   "hours": null,
+   "costYen": null,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Buýt Red Line từ bến số 1 ga Kawaguchiko tới \"Kawaguchiko Natural Living Center (Ōishi Park)\": 27 phút, ¥570, 15 phút một chuyến (chuyến đầu 9:00, bản đồ Fujikyu 4/2026). Vé ngày 3 tuyến Red/Green/Blue ¥1.500.",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Kawaguchiko",
+    "ja": "河口湖",
+    "lat": 35.49853,
+    "lng": 138.76864,
+    "walkMin": null
+   },
+   "busStop": {
+    "ja": "河口湖自然生活館（大石公園）",
+    "lat": 35.523286,
+    "lng": 138.74539,
+    "lines": [
+     "レッドライン（河口湖周遊バス）",
+     "Pライン（大石・芦川）"
+    ],
+    "walkMin": 1,
+    "coordSource": "OSM Nominatim, bus_stop \"河口湖自然生活館 (20)\""
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://banzokubiology.com/kawaguchiko-oishipark-time/",
+     "note": "Banzoku (cập nhật 6/2026): Hana Kaido, kochia, bãi xe, quán cà phê ở Natural Living Center."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E5%A4%A7%E7%9F%B3%E5%85%AC%E5%9C%92%20%E6%B2%B3%E5%8F%A3%E6%B9%96%20%E3%82%B3%E3%82%AD%E3%82%A2%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Mount_Fuji_from_Oishi_Park.jpg/1280px-Mount_Fuji_from_Oishi_Park.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_from_Oishi_Park.jpg",
+     "credit": "Alpsdake",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Hồ Kawaguchi và Fuji nhìn từ Ōishi Park"
+    }
+   ],
+   "sources": [
+    "https://banzokubiology.com/kawaguchiko-oishipark-time/",
+    "https://bus.fujikyu.co.jp/pdf/omni_map_202604.pdf",
+    "https://bus.fujikyu.co.jp/fujitour/kawaguchiko/",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-kawaguchiko-ohashi",
+   "name": "Kawaguchiko Ōhashi Bridge",
+   "ja": "河口湖大橋",
+   "lat": 35.511667,
+   "lng": 138.764667,
+   "coordSource": "ja.wikipedia (35°30′42.0″N 138°45′52.8″E), khớp OSM Nominatim 35.51175, 138.76457",
+   "area": "kawaguchiko",
+   "type": "bridge",
+   "famousFor": "Cây cầu dài 500 m duy nhất bắc ngang mặt nước của Fuji Ngũ Hồ; không có vật chắn nên Fuji hiện rõ khi nhìn từ cầu, từng được chọn vào \"100 con đường đẹp của Nhật\" (1987).",
+   "status2026": null,
+   "etiquette": "Cầu có xe chạy; bài Wikipedia không nhắc lề đi bộ, nên chụp từ hai đầu cầu và bờ hồ thay vì đứng giữa cầu.",
+   "bestTime": "Sáng khi hồ lặng; nhìn về phía nam là Fuji.",
+   "hours": null,
+   "costYen": 0,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Đi bộ khoảng 1,5 km (ước 20–25 phút) từ ga; hoặc buýt Red/Green Line xuống bến \"Kawaguchiko Herb Hall\" (số 5, 7–8 phút, theo bảng giờ Fujikyu) rồi đi bộ khoảng 500 m. Green Line còn có bến \"Fuji no Yado Ōhashi\" (số 23, 11 phút, ¥230) gần đầu cầu hơn.",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Kawaguchiko",
+    "ja": "河口湖",
+    "lat": 35.49853,
+    "lng": 138.76864,
+    "walkMin": 24
+   },
+   "busStop": {
+    "ja": "河口湖ハーブ館",
+    "lat": 35.5077111,
+    "lng": 138.7620429,
+    "lines": [
+     "レッドライン",
+     "グリーンライン",
+     "Pライン"
+    ],
+    "walkMin": 7,
+    "coordSource": "OSM Nominatim, bus_stop \"Kawaguchiko Herb Hall (5)\", cách điểm giữa cầu khoảng 0,5 km. Bến \"富士の宿おおはし\" (số 23, Green Line) gần đầu cầu hơn nhưng OSM không có tọa độ bến này."
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/河口湖大橋",
+     "note": "Wikipedia ja: cầu 500 m, mở 4/1971, miễn phí từ 7/6/2005, tầm nhìn Fuji không bị che."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Lake_Kawaguchiko_Ohashi_Bridge_%2816031531337%29.jpg/1280px-Lake_Kawaguchiko_Ohashi_Bridge_%2816031531337%29.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Lake_Kawaguchiko_Ohashi_Bridge_(16031531337).jpg",
+     "credit": "redlegsfan21",
+     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+     "caption": "Cầu Kawaguchiko Ōhashi bắc ngang hồ"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Kawaguchiko_Ohashi_bridge.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Kawaguchiko_Ohashi_bridge.jpg",
+     "credit": "Volfgang",
+     "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+     "caption": "Toàn cảnh cầu nhìn từ xa"
+    }
+   ],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/河口湖大橋",
+    "https://bus.fujikyu.co.jp/pdf/omni_map_202604.pdf",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-kachikachi-ropeway",
+   "name": "Kachi Kachi Ropeway / Mt. Fuji Panorama Ropeway",
+   "ja": "富士山パノラマロープウェイ（カチカチ山ロープウェイ）",
+   "lat": 35.50378,
+   "lng": 138.77441,
+   "coordSource": "OSM Nominatim, \"富士山パノラマロープウェイ\" (cable_car)",
+   "area": "kawaguchiko",
+   "type": "ropeway",
+   "famousFor": "Cáp treo lên công viên Tenjōzan ở bờ bắc, nhìn xuống hồ Kawaguchi và Fuji; nổi tiếng với tượng thỏ và tanuki của truyện cổ \"Kachi Kachi Yama\".",
+   "status2026": "Ngừng chạy khi gió mạnh. Trang chính thức không mở được lúc kiểm tra (503); giá và giờ lấy từ iko-yo.net nên cần kiểm tra lại.",
+   "etiquette": null,
+   "bestTime": "Sáng, trước 11h.",
+   "hours": "8:30–17:00 (chuyến xuống cuối 17:20; 20/7–31/8 kéo dài đến 18:00); mở quanh năm, không có ngày nghỉ cố định",
+   "costYen": 1000,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Đi bộ khoảng 15 phút từ ga (iko-yo.net; OSM ước khoảng 0,8 km), hoặc buýt Red Line xuống \"Yūransen-Ropeway Iriguchi\" (11 phút, ¥180) rồi đi bộ 3 phút. Giá khứ hồi ¥1.000, một chiều ¥600 (iko-yo.net).",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Kawaguchiko",
+    "ja": "河口湖",
+    "lat": 35.49853,
+    "lng": 138.76864,
+    "walkMin": 15
+   },
+   "busStop": {
+    "ja": "遊覧船・ロープウェイ入口",
+    "lat": 35.504398,
+    "lng": 138.77168,
+    "lines": [
+     "レッドライン",
+     "K2ライン（甲府駅）"
+    ],
+    "walkMin": 3,
+    "coordSource": "OSM Nominatim, bus_stop \"ロープウェイ入口\"; tên bến theo bản đồ Fujikyu 4/2026 (số 9)"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://iko-yo.net/facilities/6053/coupon",
+     "note": "iko-yo.net: giá, giờ chạy và cách đi bộ từ ga."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E6%B2%B3%E5%8F%A3%E6%B9%96%20%E3%83%91%E3%83%8E%E3%83%A9%E3%83%9E%E3%83%AD%E3%83%BC%E3%83%97%E3%82%A6%E3%82%A7%E3%82%A4%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Tenjosan_Park_Kachikachi-yama_Ropeway_01.JPG/1280px-Tenjosan_Park_Kachikachi-yama_Ropeway_01.JPG",
+     "page": "https://commons.wikimedia.org/wiki/File:Tenjosan_Park_Kachikachi-yama_Ropeway_01.JPG",
+     "credit": "Abasaa",
+     "license": "Public domain (Wikimedia Commons)",
+     "caption": "Cáp treo lên công viên Tenjōzan"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/KachikachiyamaRopeway.JPG/1280px-KachikachiyamaRopeway.JPG",
+     "page": "https://commons.wikimedia.org/wiki/File:KachikachiyamaRopeway.JPG",
+     "credit": "Ippukucho",
+     "license": "CC BY 3.0 (Wikimedia Commons)",
+     "caption": "Cảnh nhìn từ cáp treo xuống hồ Kawaguchi"
+    }
+   ],
+   "sources": [
+    "https://iko-yo.net/facilities/6053/coupon",
+    "https://bus.fujikyu.co.jp/pdf/omni_map_202604.pdf",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-oshino-hakkai",
+   "name": "Oshino Hakkai",
+   "ja": "忍野八海",
+   "lat": 35.46024,
+   "lng": 138.8327,
+   "coordSource": "OSM Nominatim, \"忍野八海\" (attraction); ja.wikipedia 35°27′37″N 138°49′58″E",
+   "area": "oshino",
+   "type": "lake",
+   "famousFor": "Tám hồ nước ngầm trong vắt từ tuyết tan của Fuji, nhà mái tranh và guồng nước; Fuji nhìn từ vùng này được gọi là \"Oshino Fuji\". Là một trong những hạng mục di sản thế giới Fuji (đăng ký 22/6/2013).",
+   "status2026": null,
+   "etiquette": "Một số ao nổi tiếng là đất tư nhân, không thuộc tám ao chính; không ném tiền xu xuống ao (ảnh hưởng chất lượng nước).",
+   "bestTime": "Sáng; sương bốc lên từ ao vào mùa đông.",
+   "hours": null,
+   "costYen": 0,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Từ ga Kawaguchiko: buýt tốc hành \"F3 Tokkyū Oshino Hakkai\" 9:40 → 10:10, 10:40 → 11:10, 11:40 → 12:10… mất 30 phút (dừng ở ga Fujisan lúc 9:50, 10:50, 11:50…); hoặc Fujikko-go F1/F2 khoảng 29 phút (bản đồ Fujikyu 6/2026). Xuống bến \"Oshino Hakkai\" rồi đi bộ 3 phút. Vé ngày Fujiyoshida–Oshino–Yamanakako ¥1.800.",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Fujisan",
+    "ja": "富士山",
+    "lat": 35.48384,
+    "lng": 138.7953,
+    "walkMin": null
+   },
+   "busStop": {
+    "ja": "忍野八海",
+    "lat": 35.4589691,
+    "lng": 138.8307047,
+    "lines": [
+     "ふじっ湖号 F1/F2",
+     "特急忍野八海 F3",
+     "御殿場線 A1/A2"
+    ],
+    "walkMin": 3,
+    "coordSource": "OSM Nominatim, bus_stop \"忍野八海\" (八海1号橋); Fujikyu ghi đi bộ 3 phút tới ao"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/忍野八海",
+     "note": "Wikipedia ja: \"Oshino Fuji\", quy tắc ứng xử ở các ao và bảo tàng Hannoki có thu phí."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E5%BF%8D%E9%87%8E%E5%85%AB%E6%B5%B7%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Oshino-Hakkai-Nakaike.jpg/1280px-Oshino-Hakkai-Nakaike.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Oshino-Hakkai-Nakaike.jpg",
+     "credit": "MaedaAkihiko",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Ao Nakaike nhìn về phía Fuji"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Oshino_Hakkai_-_Oshino6878.jpg/1280px-Oshino_Hakkai_-_Oshino6878.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Oshino_Hakkai_-_Oshino6878.jpg",
+     "credit": "lumoplank",
+     "license": "CC0 (Wikimedia Commons)",
+     "caption": "Nhà mái tranh và guồng nước bên một ao"
+    }
+   ],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/忍野八海",
+    "https://en.wikipedia.org/wiki/Oshino_Hakkai",
+    "https://bus.fujikyu.co.jp/fujitour/fujikko/",
+    "https://bus.fujikyu.co.jp/pdf/fujikko_routemap_202606.pdf",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-saiko-iyashi-no-sato-nenba",
+   "name": "Saiko Iyashi-no-Sato Nenba",
+   "ja": "西湖いやしの里根場",
+   "lat": 35.5045005,
+   "lng": 138.6614299,
+   "coordSource": "OSM Nominatim, \"いやしの里 根場\" (viewpoint)",
+   "area": "saiko",
+   "type": "park",
+   "famousFor": "Làng mái tranh được dựng lại ở nơi từng có làng Nenba bị lũ bùn năm 1966 phá hủy; 20 ngôi nhà mái tranh ven sông Honsawa, ảnh làng có Fuji phía sau được đăng nhiều.",
+   "status2026": null,
+   "etiquette": null,
+   "bestTime": "Sáng; trời trong để Fuji lộ phía sau làng.",
+   "hours": "9:00–17:00 (tháng 4–11), 9:30–16:30 (tháng 12–2); mở quanh năm, có thể đóng tạm",
+   "costYen": 500,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Buýt Green Line: 9:10 → 9:50 (40 phút), 30 phút một chuyến 9:10–16:40 (bản đồ Fujikyu 4/2026), khoảng ¥810 một chiều theo bản đồ; xuống bến \"Saiko Iyashi-no-Sato Nenba\" rồi đi bộ 3 phút. Vé phí vào làng ¥500 theo Wikipedia ja, cần kiểm tra lại.",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Kawaguchiko",
+    "ja": "河口湖",
+    "lat": 35.49853,
+    "lng": 138.76864,
+    "walkMin": null
+   },
+   "busStop": {
+    "ja": "西湖いやしの里根場",
+    "lat": 35.5031561,
+    "lng": 138.6612587,
+    "lines": [
+     "グリーンライン（西湖周遊バス）"
+    ],
+    "walkMin": 3,
+    "coordSource": "Gần đúng: nút bus_stop \"68\" của OSM cách cổng làng khoảng 150 m; bến chính thức số 48 trên bản đồ Fujikyu chưa có tọa độ riêng trong OSM"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/西湖いやしの里根場",
+     "note": "Wikipedia ja: lịch sử làng, 20 nhà mái tranh, giờ mở cửa."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Mount_Fuji_view_from_Saiko_Iyashi_no_Sato_Nenba_-_Oct_31%2C_2024.jpg/1280px-Mount_Fuji_view_from_Saiko_Iyashi_no_Sato_Nenba_-_Oct_31%2C_2024.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_view_from_Saiko_Iyashi_no_Sato_Nenba_-_Oct_31,_2024.jpg",
+     "credit": "sergejf",
+     "license": "CC BY 2.0 (Wikimedia Commons)",
+     "caption": "Fuji nhìn từ làng mái tranh Nenba cuối tháng 10/2024"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Iyashinosato_village_04.jpg/1280px-Iyashinosato_village_04.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Iyashinosato_village_04.jpg",
+     "credit": "Davide Mauro",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Làng mái tranh Iyashi-no-Sato"
+    }
+   ],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/西湖いやしの里根場",
+    "https://bus.fujikyu.co.jp/pdf/omni_map_202604.pdf",
+    "https://bus.fujikyu.co.jp/fujitour/kawaguchiko/",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-yamanakako",
+   "name": "Lake Yamanaka (Asahigaoka shore)",
+   "ja": "山中湖（旭日丘）",
+   "lat": 35.4068972,
+   "lng": 138.8763018,
+   "coordSource": "OSM Nominatim, bus_stop \"山中湖旭日丘\" (bờ phía bắc hồ, gần thuyền thiên nga và bến xe buýt)",
+   "area": "yamanakako",
+   "type": "lake",
+   "famousFor": "Hồ cao nhất và rộng nhất trong Fuji Ngũ Hồ (độ cao mặt hồ 980,5 m, diện tích 6,57 km²), nổi tiếng với cảnh Fuji phản chiếu trên mặt nước; có thuyền thiên nga \"Hakuchō no Mizūmi\" và xe lội nước \"Yamanakako no Kaba\".",
+   "status2026": null,
+   "etiquette": null,
+   "bestTime": "Sáng sớm khi mặt hồ lặng; trong hơn buổi chiều.",
+   "hours": null,
+   "costYen": null,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Buýt A1 \"Gotemba line\" 9:00 từ Kawaguchiko → bến \"Yamanakako Asahigaoka\" 9:48 (48 phút), cũng có Fujikko-go F1/F2; tiếp tục tới JR Gotemba 10:30 (bản đồ Fujikyu 6/2026). Vé ngày Fujiyoshida–Oshino–Yamanakako ¥1.800.",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Kawaguchiko",
+    "ja": "河口湖",
+    "lat": 35.49853,
+    "lng": 138.76864,
+    "walkMin": null
+   },
+   "busStop": {
+    "ja": "山中湖旭日丘",
+    "lat": 35.4068972,
+    "lng": 138.8763018,
+    "lines": [
+     "ふじっ湖号 F1/F2",
+     "御殿場線 A1/A2",
+     "アウトレット線 C1/C2"
+    ],
+    "walkMin": 2,
+    "coordSource": "OSM Nominatim, bus_stop \"山中湖旭日丘\""
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/山中湖",
+     "note": "Wikipedia ja: độ cao, diện tích, Fuji phản chiếu, thành phần di sản thế giới."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E5%B1%B1%E4%B8%AD%E6%B9%96%20%E5%AF%8C%E5%A3%AB%E5%B1%B1%20%E9%80%86%E3%81%95%E5%AF%8C%E5%A3%AB",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Mount_Fuji_and_Lake_Yamanaka_%282015-11-21%29.jpg/1280px-Mount_Fuji_and_Lake_Yamanaka_%282015-11-21%29.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Lake_Yamanaka_(2015-11-21).jpg",
+     "credit": "Alpsdake",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Fuji và hồ Yamanaka tháng 11/2015"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Lake_Yamanaka_and_Mount_Fuji.JPG/1280px-Lake_Yamanaka_and_Mount_Fuji.JPG",
+     "page": "https://commons.wikimedia.org/wiki/File:Lake_Yamanaka_and_Mount_Fuji.JPG",
+     "credit": "Alpsdake",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Hồ Yamanaka và Fuji"
+    }
+   ],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/山中湖",
+    "https://bus.fujikyu.co.jp/fujitour/fujikko/",
+    "https://bus.fujikyu.co.jp/pdf/fujikko_routemap_202606.pdf",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-hananomiyako-park",
+   "name": "Hananomiyako Park",
+   "ja": "花の都公園",
+   "lat": 35.4395538,
+   "lng": 138.8528547,
+   "coordSource": "OSM Nominatim, \"花の都公園\" (park)",
+   "area": "yamanakako",
+   "type": "park",
+   "famousFor": "Công viên hoa rộng khoảng 300.000 m² ngay trước Fuji: tulip mùa xuân, hướng dương mùa hè, lá đỏ mùa thu, \"Diamond Fuji\" mùa đông (theo mô tả của Fujikyu); có nhà kính \"Furara\".",
+   "status2026": null,
+   "etiquette": null,
+   "bestTime": "Sáng.",
+   "hours": null,
+   "costYen": null,
+   "fit": "kawaguchiko",
+   "access": {
+    "kawaguchiko": "Buýt Fujikko-go F1 (6:50 → 7:27) hoặc F2 (7:45 → 8:22) và tuyến C1 Outlet Line dừng ở bến \"Hana no Miyako Kōen\", khoảng 37 phút; xuống xe là tới ngay công viên (bản đồ Fujikyu 6/2026).",
+    "day4": null,
+    "day5": null
+   },
+   "nearestStation": {
+    "name": "Kawaguchiko",
+    "ja": "河口湖",
+    "lat": 35.49853,
+    "lng": 138.76864,
+    "walkMin": null
+   },
+   "busStop": {
+    "ja": "花の都公園",
+    "lat": 35.4387354,
+    "lng": 138.851835,
+    "lines": [
+     "ふじっ湖号 F1/F2",
+     "アウトレット線 C1"
+    ],
+    "walkMin": 1,
+    "coordSource": "Gần đúng: tọa độ cổng công viên trên 山中湖忍野富士吉田線 theo OSM, OSM không có nút bus_stop riêng"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://bus.fujikyu.co.jp/fujitour/fujikko/",
+     "note": "Fujikyu: mô tả theo mùa và vị trí bến xe buýt trước công viên."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Mount_Fuji_and_Tulips_2.jpg/1280px-Mount_Fuji_and_Tulips_2.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Tulips_2.jpg",
+     "credit": "Arashiyama",
+     "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+     "caption": "Tulip và Fuji ở Hananomiyako (mùa xuân)"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mt_Fuji_and_Sunflowers_on_August_5th_2017.jpg/1280px-Mt_Fuji_and_Sunflowers_on_August_5th_2017.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Mt_Fuji_and_Sunflowers_on_August_5th_2017.jpg",
+     "credit": "Hrykt",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Hướng dương và Fuji (mùa hè)"
+    }
+   ],
+   "sources": [
+    "https://bus.fujikyu.co.jp/fujitour/fujikko/",
+    "https://bus.fujikyu.co.jp/pdf/fujikko_routemap_202606.pdf",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-gotemba-premium-outlets",
+   "name": "Gotemba Premium Outlets",
+   "ja": "御殿場プレミアム・アウトレット",
+   "lat": 35.3077919,
+   "lng": 138.9650827,
+   "coordSource": "OSM Nominatim, \"御殿場プレミアム・アウトレット\" (mall)",
+   "area": "gotemba",
+   "type": "outlet",
+   "famousFor": "Trung tâm outlet 290 cửa hàng với Fuji nhìn thấy từ khu sân rộng; khu Hillside trong khuôn viên có một cây cầu mang tên \"Yume no Ōhashi\" (夢の大橋, theo OSM).",
+   "status2026": null,
+   "etiquette": null,
+   "bestTime": "Sáng, trước khi mây kéo lên.",
+   "hours": "10:00–20:00 (trang chính thức, tháng 10 chưa thấy ngoại lệ)",
+   "costYen": null,
+   "fit": "day4",
+   "access": {
+    "kawaguchiko": "Buýt C1 \"Outlet Line\" 10:30 từ Kawaguchiko → JR Gotemba 12:00 → Outlet 12:15 (105 phút, bản đồ Fujikyu 6/2026); trang Outlet nêu tuyến tốc hành Gotemba–Kawaguchiko khoảng 60 phút hoặc buýt thường khoảng 80 phút. Không nằm trong lịch ngày Kawaguchiko.",
+    "day4": "Từ Gōra: tuyến \"Kankō-shisetsu-meguri\" M khoảng 45 phút tới bến Outlet; từ Hakone-Yumoto: tuyến L khoảng 60 phút (Hakone Navi, trang Outlet); từ Sengoku chuyển sang tuyến M (Hakone Navi 14/8/2026). Giá chưa tìm được; Freepass có liệt kê \"Kankō-shisetsu-meguri bus\" và Odakyu Highway Bus nhưng chưa xác nhận chặng tới Outlet có miễn phí. Lịch Day 4 hiện không còn chỗ trừ khi bỏ ropeway chiều.",
+    "day5": "Từ ga Mishima: buýt thẳng tới Outlet khoảng 60 phút; hoặc Numazu → Gotemba bằng JR Gotemba Line 33 phút rồi xe đưa đón miễn phí 15 phút, mỗi 15 phút (phút :00/:15/:30/:45). Chưa có giá. Không vừa lịch Day 5."
+   },
+   "nearestStation": {
+    "name": "Gotemba",
+    "ja": "御殿場",
+    "lat": 35.29999,
+    "lng": 138.93543,
+    "walkMin": null
+   },
+   "busStop": {
+    "ja": "御殿場プレミアム・アウトレット",
+    "lat": 35.3075286,
+    "lng": 138.9621956,
+    "lines": [
+     "箱根登山バス L/M路線",
+     "小田急ハイウェイバス",
+     "富士急 アウトレット線 C1/C2",
+     "東海バス/三島駅方面路線バス",
+     "無料シャトル（JR御殿場駅）"
+    ],
+    "walkMin": 3,
+    "coordSource": "OSM Nominatim, bus_station \"御殿場プレミアム・アウトレット\"; một số tuyến lấy từ trang chính thức"
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.premiumoutlets.co.jp/gotemba/access/access_bus.html",
+     "note": "Trang chính thức: các cách tới Outlet bằng buýt/tàu, giờ shuttle."
+    },
+    {
+     "platform": "blog",
+     "url": "https://www.hakonenavi.jp/feature/7703",
+     "note": "Hakone Navi (14/8/2026): đi từ Hakone bằng buýt Hakone Tozan đổi tuyến ở Sengoku."
+    }
+   ],
+   "images": [
+    {
+     "kind": "detail",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/GotembaOutletShuttleBus_869.jpeg/1280px-GotembaOutletShuttleBus_869.jpeg",
+     "page": "https://commons.wikimedia.org/wiki/File:GotembaOutletShuttleBus_869.jpeg",
+     "credit": "ja:User:江戸前鰻",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Xe đưa đón miễn phí giữa ga Gotemba và Outlet"
+    }
+   ],
+   "sources": [
+    "https://www.premiumoutlets.co.jp/gotemba/access/access_bus.html",
+    "https://www.hakonenavi.jp/area/gotemba/",
+    "https://www.hakonenavi.jp/feature/7703",
+    "https://www.hakonenavi.jp/ticket/freepass/",
+    "https://bus.fujikyu.co.jp/pdf/fujikko_routemap_202606.pdf",
+    "https://ja.wikipedia.org/wiki/御殿場プレミアム・アウトレット",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-mishima-skywalk",
+   "name": "Mishima Skywalk",
+   "ja": "三島スカイウォーク（箱根西麓・三島大吊橋）",
+   "lat": 35.15222,
+   "lng": 138.98064,
+   "coordSource": "OSM Nominatim, \"三島スカイウォーク\" (35.15245, 138.98056); ja.wikipedia 35°09′08.2″N 138°58′50.3″E",
+   "area": "mishima",
+   "type": "bridge",
+   "famousFor": "Cầu treo dài 400 m (khai trương 14/12/2015), nhìn thấy Fuji và vịnh Suruga từ giữa cầu; một trong những điểm ngắm Fuji nổi tiếng ở Shizuoka.",
+   "status2026": "Giá vé theo ngày (từ ¥1.100 người lớn); ngày 26/10/2026 đóng một phần cơ sở. Trang chính thức không nêu quy tắc đóng cửa vì gió, nhưng cơ sở ngừng hoạt động khi thời tiết xấu (Wikipedia ja). Giờ đóng cửa theo mùa xem trang chính thức.",
+   "etiquette": null,
+   "bestTime": "Sáng, trời trong; sau 11h Fuji dễ bị mây che.",
+   "hours": "9:00–17:00 (ngày 1/11/2026; giờ mùa khác xem trang chính thức)",
+   "costYen": 1100,
+   "fit": "day5",
+   "access": {
+    "kawaguchiko": null,
+    "day4": "Có bến Tokai Bus trực tiếp từ Moto-Hakone (元箱根港) và Hakone-Yumoto tới Skywalk theo bảng giờ chính thức (PDF 10/2025); chưa đọc được số phút/giá vì PDF dạng ảnh. Freepass có liệt kê \"Tokai Bus (đoạn chỉ định)\", chưa xác nhận Skywalk nằm trong đoạn đó. Không có chỗ trong lịch Day 4.",
+    "day5": "Từ ga Mishima (cửa Nam, bến số 5): Tokai Bus tuyến cam \"Orange Shuttle\" đi Moto-Hakone, khoảng 20–25 phút (trang chính thức: khoảng 20 phút từ JR Mishima). Giá và tần suất chưa kiểm được. Tính tối thiểu 2,5 giờ cả đi lại, nên phải bỏ hoặc dời bữa trưa Shimizu."
+   },
+   "nearestStation": {
+    "name": "Mishima",
+    "ja": "三島",
+    "lat": 35.12566,
+    "lng": 138.91177,
+    "walkMin": null
+   },
+   "busStop": {
+    "ja": "三島スカイウォーク",
+    "lat": 35.1501056,
+    "lng": 138.9826575,
+    "lines": [
+     "東海バス（三島駅・元箱根港・箱根湯本方面）"
+    ],
+    "walkMin": 5,
+    "coordSource": "OSM Nominatim, bus_stop \"三島スカイウォーク\""
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://mishima-skywalk.jp/",
+     "note": "Trang chính thức: giá từ ¥1.100, giờ mở cửa, thông báo."
+    },
+    {
+     "platform": "youtube",
+     "url": "https://www.youtube.com/results?search_query=%E4%B8%89%E5%B3%B6%E3%82%B9%E3%82%AB%E3%82%A4%E3%82%A6%E3%82%A9%E3%83%BC%E3%82%AF%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+    }
+   ],
+   "images": [
+    {
+     "kind": "exterior",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Mishima_Skywalk_North_Facade2023.jpg/1280px-Mishima_Skywalk_North_Facade2023.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Mishima_Skywalk_North_Facade2023.jpg",
+     "credit": "Charlie fong",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Mặt bắc cầu Mishima Skywalk"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/View_of_Suruga_Bay_and_Numazu_Alps_from_Mishima_Skywalk%2C_Hakone%2C_Japan1.jpg/1280px-View_of_Suruga_Bay_and_Numazu_Alps_from_Mishima_Skywalk%2C_Hakone%2C_Japan1.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:View_of_Suruga_Bay_and_Numazu_Alps_from_Mishima_Skywalk,_Hakone,_Japan1.jpg",
+     "credit": "Joli Rumi",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Vịnh Suruga nhìn từ cầu"
+    }
+   ],
+   "sources": [
+    "https://mishima-skywalk.jp/",
+    "https://mishima-skywalk.jp/access/",
+    "https://ja.wikipedia.org/wiki/三島スカイウォーク",
+    "https://www.hakonenavi.jp/ticket/freepass/",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-fujisan-yume-no-ohashi",
+   "name": "Fujisan Yume no Ōhashi (Fuji city)",
+   "ja": "富士山夢の大橋",
+   "lat": 35.15229,
+   "lng": 138.67627,
+   "coordSource": "OSM Nominatim, \"富士山夢の大橋\" (bridge, quốc lộ 139, 津田); bãi xe riêng 35.15061, 138.67585",
+   "area": "fuji-city",
+   "type": "bridge",
+   "famousFor": "Cầu bắc qua sông Junai (潤井川橋) trên quốc lộ 139, đứng trên cầu nhìn thẳng ra Fuji không bị nhà cửa hay dây điện che; thành điểm chụp ảnh nổi tiếng. Lưu ý trong khuôn viên Gotemba Premium Outlets cũng có một \"Yume no Ōhashi\" khác.",
+   "status2026": "Do quá đông, chính quyền đã lắp rào an toàn, bãi xe miễn phí và nhà vệ sinh tạm (Wikipedia ja, không ghi ngày).",
+   "etiquette": "Cầu thuộc quốc lộ có xe chạy; theo dõi rào và biển chỉ dẫn, không băng qua đường.",
+   "bestTime": "Sáng sớm và buổi sáng.",
+   "hours": null,
+   "costYen": 0,
+   "fit": "day5",
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Từ ga Fuji (JR Tōkaidō) khoảng 2,2 km (ước 30 phút đi bộ) hoặc taxi; ga Shinkansen Shin-Fuji cách khoảng 1,5 km (ước 20–25 phút). Không tìm được tuyến buýt cụ thể. Dự trù khoảng 1 giờ cho điểm này nếu xuống tàu ở Fuji."
+   },
+   "nearestStation": {
+    "name": "Fuji",
+    "ja": "富士",
+    "lat": 35.1518,
+    "lng": 138.6518,
+    "walkMin": 35
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/富士山夢の大橋",
+     "note": "Wikipedia ja: tầm nhìn Fuji thẳng, thành điểm chụp ảnh, có rào, bãi xe, nhà vệ sinh tạm."
+    }
+   ],
+   "images": [],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/富士山夢の大橋",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-tagonoura-port",
+   "name": "Tagonoura Port (Fujinokuni Tagonoura Minato Park)",
+   "ja": "田子の浦港（ふじのくに田子の浦みなと公園）",
+   "lat": 35.135722,
+   "lng": 138.692833,
+   "coordSource": "ja.wikipedia (35°08′08.6″N 138°41′34.2″E), khớp OSM Nominatim 35.13656, 138.69393. Ga Higashi-Tagonoura (35.13607, 138.74609) chỉ trùng tên, cách cảng khoảng 4,8 km.",
+   "area": "fuji-city",
+   "type": "port",
+   "famousFor": "Bờ biển gắn với bài thơ về Fuji của Yamabe no Akahito và tranh Hokusai; trong công viên có tháp \"Fujisan Dragon Tower\" cao 37,76 m nhìn 360° ra Fuji và vịnh Suruga, cùng bia thơ Akahito.",
+   "status2026": null,
+   "etiquette": null,
+   "bestTime": "Sáng.",
+   "hours": "Công viên mở cả ngày; bãi xe 8:00–17:00",
+   "costYen": null,
+   "fit": "day5",
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Wikipedia ja ghi công viên cách ga Yoshiwara (JR Tōkaidō) và ga Shin-Fuji khoảng 3,5 km, khoảng 10 phút ô tô; không có thông tin buýt, nên đi taxi. Tàu Tōkaidō dừng ở Higashi-Tagonoura nhưng ga này cách công viên khoảng 4,8 km theo OSM. Dự trù 1,5 giờ cho cả điểm."
+   },
+   "nearestStation": {
+    "name": "Yoshiwara",
+    "ja": "吉原",
+    "lat": 35.14407,
+    "lng": 138.70323,
+    "walkMin": null
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/ふじのくに田子の浦みなと公園",
+     "note": "Wikipedia ja: Fujisan Dragon Tower, bia thơ Akahito, khoảng cách tới ga."
+    }
+   ],
+   "images": [
+    {
+     "kind": "detail",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Shore_of_Tago_Bay%2C_Ejiri_at_Tokaido.jpg/1280px-Shore_of_Tago_Bay%2C_Ejiri_at_Tokaido.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Shore_of_Tago_Bay,_Ejiri_at_Tokaido.jpg",
+     "credit": "Katsushika Hokusai",
+     "license": "Public domain (Wikimedia Commons)",
+     "caption": "Tranh Hokusai \"Bờ vịnh Tago ở Ejiri trên Tōkaidō\", từ loạt Ba mươi sáu cảnh Fuji"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Shinkansen_N700S_series_photographed_at_Higashi-Tagonoura_with_Mount_Fuji_in_the_background%2C_10_April_2023.jpg/1280px-Shinkansen_N700S_series_photographed_at_Higashi-Tagonoura_with_Mount_Fuji_in_the_background%2C_10_April_2023.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Shinkansen_N700S_series_photographed_at_Higashi-Tagonoura_with_Mount_Fuji_in_the_background,_10_April_2023.jpg",
+     "credit": "Takeshi Aida",
+     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+     "caption": "Shinkansen N700S chạy ngang Fuji ở khu vực Higashi-Tagonoura"
+    }
+   ],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/ふじのくに田子の浦みなと公園",
+    "https://ja.wikipedia.org/wiki/田子の浦港",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-fujisan-hongu-sengen-taisha",
+   "name": "Fujisan Hongū Sengen Taisha",
+   "ja": "富士山本宮浅間大社",
+   "lat": 35.22734,
+   "lng": 138.61002,
+   "coordSource": "OSM Nominatim, \"富士山本宮浅間大社\" (35.22734, 138.61002); ja.wikipedia Honden 35°13′38.66″N 138°36′36.01″E",
+   "area": "fujinomiya",
+   "type": "shrine",
+   "famousFor": "Đền chính của hơn 1.300 đền Sengen toàn quốc, thành phần di sản thế giới Fuji; điện thờ hiện tại do Tokugawa Ieyasu dâng năm 1604. Cổng torii lớn 16 m dựng năm 2006 cách khoảng 500 m về phía tây; Wikipedia có ảnh \"Ōtorii và Fuji\".",
+   "status2026": null,
+   "etiquette": null,
+   "bestTime": "Sáng.",
+   "hours": null,
+   "costYen": null,
+   "fit": "day5",
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "JR Tōkaidō tới ga Fuji, đổi sang JR Minobu Line tới Fujinomiya (10,7 km, 1–2 chuyến/giờ ban ngày; không có thời gian chính thức trong nguồn đã mở), rồi đi bộ khoảng 10 phút (800 m). Dự trù tối thiểu 3 giờ cả đi lại, không vừa với bữa trưa Shimizu."
+   },
+   "nearestStation": {
+    "name": "Fujinomiya",
+    "ja": "富士宮",
+    "lat": 35.22142,
+    "lng": 138.61495,
+    "walkMin": 10
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://bus.fujikyu.co.jp/fujitour/gouriki/",
+     "note": "Fujikyu: xe buýt tham quan \"Gōriki-kun\" xuất phát từ ga Fujinomiya, tuyến sáng và chiều đều ghé đền (vé ngày ¥3.000)."
+    }
+   ],
+   "images": [
+    {
+     "kind": "exterior",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Fujisan_Hong%C5%AB_Sengen_Taisha_20220724i.jpg/1280px-Fujisan_Hong%C5%AB_Sengen_Taisha_20220724i.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Fujisan_Hong%C5%AB_Sengen_Taisha_20220724i.jpg",
+     "credit": "江戸村のとくぞう",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Đền Fujisan Hongū Sengen Taisha"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Fujinomiya_Fujisan_Hongu_Sengen-taisha_Teich_Sakura.jpg/1280px-Fujinomiya_Fujisan_Hongu_Sengen-taisha_Teich_Sakura.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Fujinomiya_Fujisan_Hongu_Sengen-taisha_Teich_Sakura.jpg",
+     "credit": "Zairon",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Ao Wakutama trong khuôn viên đền"
+    }
+   ],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/富士山本宮浅間大社",
+    "https://ja.wikipedia.org/wiki/身延線",
+    "https://bus.fujikyu.co.jp/fujitour/gouriki/",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-shiraito-falls",
+   "name": "Shiraito Falls",
+   "ja": "白糸の滝",
+   "lat": 35.312991,
+   "lng": 138.5872234,
+   "coordSource": "OSM Nominatim, \"白糸の滝\" (waterfall, 富士宮市)",
+   "area": "fujinomiya",
+   "type": "falls",
+   "famousFor": "Thác rộng 200 m, cao 20 m, nước từ tuyết tan Fuji rỉ ra từ vách đá thành nhiều dải như sợi tơ; thắng cảnh quốc gia và thành phần di sản thế giới Fuji.",
+   "status2026": null,
+   "etiquette": null,
+   "bestTime": "Sáng.",
+   "hours": null,
+   "costYen": null,
+   "fit": "day5",
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Từ ga Fujinomiya: xe buýt tham quan \"Gōriki-kun\" tuyến chiều 13:00 (4 giờ 10 phút, ¥2.300) ghé cả đền Hongū và thác; vé ngày ¥3.000, tuyến sáng ¥1.200 (Fujikyu). Cũng có vé \"Shiraito Falls–Tanuki Lake\" trên Fujiyama Connect (giá chưa lấy được). Không vừa lịch Day 5."
+   },
+   "nearestStation": {
+    "name": "Fujinomiya",
+    "ja": "富士宮",
+    "lat": 35.22142,
+    "lng": 138.61495,
+    "walkMin": null
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/白糸の滝",
+     "note": "Wikipedia ja: kích thước, danh hiệu thắng cảnh và di sản thế giới."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Shiraito_Falls_%28Fujinomiya%29.jpg/1280px-Shiraito_Falls_%28Fujinomiya%29.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Shiraito_Falls_(Fujinomiya).jpg",
+     "credit": "Alpsdake",
+     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+     "caption": "Thác Shiraito, Fujinomiya"
+    },
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Shiraito_Falls_%2834541900111%29.jpg/1280px-Shiraito_Falls_%2834541900111%29.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Shiraito_Falls_(34541900111).jpg",
+     "credit": "Big Ben in Japan",
+     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+     "caption": "Thác Shiraito và Fuji"
+    }
+   ],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/白糸の滝",
+    "https://bus.fujikyu.co.jp/fujitour/gouriki/",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-starbucks-fujikawa-sa",
+   "name": "Starbucks Fujikawa SA (Tōmei, hướng Nagoya)",
+   "ja": "スターバックス 富士川SA（下り）",
+   "lat": 35.15917,
+   "lng": 138.61861,
+   "coordSource": "ja.wikipedia (35°09′33″N 138°37′07″E), tọa độ của khu dịch vụ; vị trí quán trong khu SA chưa xác minh",
+   "area": "fuji-city",
+   "type": "cafe",
+   "famousFor": "Quán Starbucks duy nhất trong khu dịch vụ Fujikawa (làn xuống, hướng Nagoya, mở 7:00–22:00 theo Wikipedia ja); khu SA này nổi tiếng là điểm ngắm Fuji và có sân thượng ngoài trời. Đây là chi nhánh được nhắc nhiều nhất cho cụm \"Starbucks nhìn thấy Fuji\" (tổng hợp từ kết quả tìm kiếm; bài chi tiết chưa mở được).",
+   "status2026": null,
+   "etiquette": null,
+   "bestTime": "Sáng.",
+   "hours": "7:00–22:00 (Wikipedia ja)",
+   "costYen": null,
+   "fit": "day5",
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Tàu Tōkaidō tới ga Fujikawa, đi bộ khoảng 20 phút hoặc buýt Sanko Town Coach tới khu SA (Wikipedia ja). Chưa xác nhận người đi bộ có vào được làn xuống không; dễ hơn là vào Rakuza ở phía làn lên (có sảnh ngắm Fuji tầng 4, quán Tully's tầng 3). Cần thêm khoảng 1,5 giờ nếu xuống ở Fujikawa."
+   },
+   "nearestStation": {
+    "name": "Fujikawa",
+    "ja": "富士川",
+    "lat": 35.14122,
+    "lng": 138.61832,
+    "walkMin": 20
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/富士川サービスエリア",
+     "note": "Wikipedia ja: cơ sở trong khu SA (Starbucks làn xuống 7:00–22:00), lối vào từ đường thường."
+    }
+   ],
+   "images": [],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/富士川サービスエリア",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  },
+  {
+   "id": "fs-fujikawa-rakuza",
+   "name": "Michi-no-Eki Fujikawa Rakuza",
+   "ja": "道の駅 富士川楽座",
+   "lat": 35.16189,
+   "lng": 138.6185,
+   "coordSource": "ja.wikipedia (35.16189°N 138.6185°E), khớp OSM Nominatim 35.16188, 138.61847",
+   "area": "fuji-city",
+   "type": "viewpoint",
+   "famousFor": "Trạm dừng ven đường có vòng đu quay \"Fuji Sky View\" ngoài trời và sảnh ngắm tầng 4 nhìn Fuji cùng vịnh Suruga khi trời trong.",
+   "status2026": null,
+   "etiquette": null,
+   "bestTime": "Sáng.",
+   "hours": "8:00–21:00 (từng cơ sở có giờ riêng; sảnh ngắm tầng 4 8:00–21:00)",
+   "costYen": null,
+   "fit": "day5",
+   "access": {
+    "kawaguchiko": null,
+    "day4": null,
+    "day5": "Tàu Tōkaidō tới ga Fujikawa, buýt Sanko Town Coach tới bến \"Fujikawa Rakuza\"; Wikipedia ja không ghi số phút. Đi bộ ước khoảng 25 phút. Có thể ghép với việc ngắm Fuji ở Fujikawa trước khi tiếp tục về Shimizu."
+   },
+   "nearestStation": {
+    "name": "Fujikawa",
+    "ja": "富士川",
+    "lat": 35.14122,
+    "lng": 138.61832,
+    "walkMin": 25
+   },
+   "busStop": null,
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://ja.wikipedia.org/wiki/道の駅富士川楽座",
+     "note": "Wikipedia ja: vòng đu quay, sảnh ngắm tầng 4, nối tầng 3 với khu SA làn lên."
+    }
+   ],
+   "images": [
+    {
+     "kind": "view",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/8/88/Fujikawarakuza-tenbou.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Fujikawarakuza-tenbou.jpg",
+     "credit": "しんかわな",
+     "license": "CC BY 3.0 (Wikimedia Commons)",
+     "caption": "Sảnh ngắm cảnh của Rakuza"
+    },
+    {
+     "kind": "exterior",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/0/03/Fujikawarakuza2.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Fujikawarakuza2.jpg",
+     "credit": "しんかわな",
+     "license": "CC BY 3.0 (Wikimedia Commons)",
+     "caption": "Mặt tiền Michi-no-Eki Fujikawa Rakuza"
+    }
+   ],
+   "sources": [
+    "https://ja.wikipedia.org/wiki/道の駅富士川楽座",
+    "https://ja.wikipedia.org/wiki/富士川サービスエリア",
+    "https://nominatim.openstreetmap.org/"
+   ]
+  }
+ ],
+ "kawaguchikoDay": {
+  "trains": [
+   {
+    "name": "Fuji Kaiyu 富士回遊 (JR + Fujikyu chạy thẳng, toàn bộ ghế đặt trước), chiều đi, ngày thường",
+    "from": "Shinjuku (新宿)",
+    "to": "Kawaguchiko (河口湖)",
+    "depart": [
+     "07:30",
+     "08:30",
+     "09:30",
+     "10:30"
+    ],
+    "min": 118,
+    "yen": 4200,
+    "booking": "Giá ¥4.200 = vé ¥2.580 + phụ thu limited express ¥1.620 (Shinjuku–Shimoyoshida ¥4.010). Các số hiệu 3, 7, 11, 15 đến Kawaguchiko lúc 9:28, 10:26, 11:28, 12:24 (114–118 phút), dừng Shimoyoshida 9:13/10:13/11:14/12:12 và Fujisan 9:23/10:21/11:23/12:19. Bảng giờ hiệu lực từ 14/3/2026; bảng giờ tháng 10/2027 chưa công bố (4 chuyến/ngày; năm 2026 có thêm chuyến 93 lúc 11:34 vào ngày thường từ 22/10 đến 29/12). Đặt trên Eki-net (mở bán 1 tháng trước lúc 10:00, tức khoảng 20/9/2027 cho ngày 20/10) hoặc trang đặt chỗ Fujikyu https://www.express-reserve.fujikyu-railway.jp/ ; JR Pass chỉ phủ Shinjuku–Ōtsuki.",
+    "src": "https://www.fujikyu-railway.jp/fujikaiyuu/"
+   },
+   {
+    "name": "Fuji Kaiyu 富士回遊, chiều về, ngày thường",
+    "from": "Kawaguchiko (河口湖)",
+    "to": "Shinjuku (新宿)",
+    "depart": [
+     "14:08",
+     "14:58",
+     "15:39",
+     "16:48",
+     "17:41"
+    ],
+    "min": 120,
+    "yen": 4200,
+    "booking": "Số hiệu 32, 36, 94, 44, 48; đến Shinjuku lúc 16:08, 16:59, 17:45, 18:48, 19:48. Chuyến 15:39 (số 94) chỉ chạy một số ngày thường trong năm 2026; chuyến 16:48 là chuyến cuối kịp về khách sạn trước 20:00. Đặt cùng kênh với chiều đi.",
+    "src": "https://www.fujikyu-railway.jp/fujikaiyuu/"
+   },
+   {
+    "name": "Azusa/Kaiji (JR) rồi đổi sang tàu thường Fujikyu ở Ōtsuki",
+    "from": "Shinjuku (新宿)",
+    "to": "Kawaguchiko (河口湖)",
+    "depart": [],
+    "min": null,
+    "yen": 2580,
+    "booking": "Fuji Kaiyu thực chất ghép với Kaiji/Azusa giữa Shinjuku và Ōtsuki (Fujikyu), nên có thể đi Azusa/Kaiji tới Ōtsuki rồi đổi tàu thường Fujikyu (Ōtsuki–Kawaguchiko 26,6 km, ¥1.170). Vé chưa gồm phụ thu limited express Azusa/Kaiji (chưa tra); giờ Azusa/Kaiji và thời gian chuyển tàu cũng chưa kiểm. ¥2.580 là giá vé Shinjuku–Kawaguchiko theo bảng giá Fujikyu.",
+    "src": "https://www.fujikyu-railway.jp/fujikaiyuu/"
+   }
+  ],
+  "buses": [
+   {
+    "name": "Xe buýt cao tốc Busta Shinjuku – Kawaguchiko (Keio Bus và Fujikyu Bus chạy chung), chiều đi",
+    "from": "Busta Shinjuku (バスタ新宿)",
+    "to": "Ga Kawaguchiko (河口湖駅)",
+    "min": 100,
+    "yen": 2200,
+    "booking": "Toàn bộ ghế đặt trước. Từ 1/10/2026: 55 chuyến mỗi ngày mỗi chiều, cách nhau 10 phút khoảng 7:00–10:00 từ Shinjuku. Chuyến của Keio Bus đặt trên Highway Bus.com, chuyến của Fujikyu Bus đặt trên Fujiyama Connect (https://www.fujiyamaconnect.jp/); không đổi chuyển giữa hai trang, giá không đổi sau 1/10/2026. Thời gian: 1 giờ 35 phút (một chuyến lẻ trên bushikaku.net) đến khoảng 100 phút (Fujikyu). Giá và giờ cho tháng 10/2027 chưa công bố.",
+    "src": "https://bus.fujikyu.co.jp/highway/"
+   },
+   {
+    "name": "Xe buýt cao tốc Kawaguchiko – Busta Shinjuku, chiều về",
+    "from": "Ga Kawaguchiko (河口湖駅)",
+    "to": "Busta Shinjuku (バスタ新宿)",
+    "min": 100,
+    "yen": 2200,
+    "booking": "Từ ga Kawaguchiko mỗi 10 phút khoảng 15:00–18:00 theo timetable từ 1/10/2026, cùng kênh đặt chỗ như chiều đi. Giá ¥2.200 theo bảng giá hiện tại của Fujikyu (từ ¥2.200).",
+    "src": "https://tabiris.com/archives/shinjuku-kawaguchiko/"
+   }
+  ],
+  "local": [
+   {
+    "name": "Tàu Fujikyu Kawaguchiko ⇄ Shimoyoshida / Fujisan",
+    "what": "Tuyến Ōtsuki–Kawaguchiko dài 26,6 km. Vé giấy người lớn: Kawaguchiko–Shimoyoshida ¥310 (5,5 km), Kawaguchiko–Fujisan ¥230, Shimoyoshida–Fujisan ¥230. Từ Shimoyoshida về Kawaguchiko, tàu thường chạy khoảng hai chuyến mỗi giờ (ví dụ 9:02, 9:32, 10:01, 10:32 ngày thường). Nếu xuống Shimoyoshida bằng Fuji Kaiyu (¥4.010), phải trả thêm ¥310 để tới Kawaguchiko.",
+    "yen": 310,
+    "pass": "Fuji Goko Passport 2 ngày ¥3.300 gồm tàu Kawaguchiko–Shimoyoshida và buýt; ¥4.700 nếu cần cả tuyến tàu (Fujikyu).",
+    "src": "https://www.fujikyu-railway.jp/fare/"
+   },
+   {
+    "name": "Buýt Red Line (河口湖周遊バス) quanh bờ bắc hồ",
+    "what": "Từ bến số 1 ga Kawaguchiko: tới \"Yūransen-Ropeway Iriguchi\" 11 phút ¥180; \"Kawaguchiko Herb Hall\" 7 phút; tới \"Kawaguchiko Natural Living Center (Ōishi Park)\" 27 phút ¥570. Chuyến đầu 9:00, 15 phút/chuyến đến 17:30, chuyến cuối từ ga 17:45; chiều về từ Ōishi Park cũng 15 phút một chuyến (chuyến đầu 9:27, chuyến cuối 18:27 tới ga 18:54). Bản đồ cập nhật 11/4/2026.",
+    "yen": 570,
+    "pass": "Vé ngày 3 tuyến Red/Green/Blue ¥1.500 (2 ngày ¥2.000), mua ở quầy ga Kawaguchiko (6:30–19:00), trên xe (chỉ vé 1 ngày) hoặc online; lượt Ōishi Park đi và về đã ¥1.140 nên chỉ lợi khi đi thêm ropeway hoặc tuyến khác.",
+    "src": "https://bus.fujikyu.co.jp/pdf/omni_map_202604.pdf"
+   },
+   {
+    "name": "Buýt Green Line (西湖周遊バス) tới Saiko / Nenba",
+    "what": "Từ ga Kawaguchiko 9:10, mỗi 30 phút đến 16:40; tới \"Saiko Iyashi-no-Sato Nenba\" sau 40 phút (9:10 → 9:50), khoảng ¥810 theo bản đồ; qua bến \"Fuji no Yado Ōhashi\" sau 11 phút (¥230). Chiều về từ Nenba lúc 10:10 cho chuyến 9:10 và cứ 30 phút một chuyến.",
+    "yen": 810,
+    "pass": "Vé ngày 3 tuyến ¥1.500 áp dụng cho Green Line.",
+    "src": "https://bus.fujikyu.co.jp/pdf/omni_map_202604.pdf"
+   },
+   {
+    "name": "Buýt Fujikko-go và tuyến tốc hành tới Oshino Hakkai / Yamanakako",
+    "what": "Từ ga Kawaguchiko: \"F3 Tokkyū Oshino Hakkai\" 9:40, 10:40, 11:40… tới Oshino Hakkai sau 30 phút; Fujikko-go F1/F2 khoảng 29 phút; tới Yamanakako Asahigaoka bằng A1 mất 48 phút. Giá lượt thường chưa tìm được (tối thiểu ¥100/lượt). Bản đồ cập nhật 1/6/2026.",
+    "yen": null,
+    "pass": "Vé ngày Fujiyoshida–Oshino–Yamanakako ¥1.800 (2 ngày ¥2.200).",
+    "src": "https://bus.fujikyu.co.jp/pdf/fujikko_routemap_202606.pdf"
+   },
+   {
+    "name": "Tổng chi phí di chuyển ước tính cho một người trong ngày (không gồm JR Akihabara–Shinjuku hai lượt và ăn uống)",
+    "what": "Fuji Kaiyu Shinjuku–Shimoyoshida ¥4.010 + Shimoyoshida–Kawaguchiko ¥310 + Red Line Ōishi đi và về ¥570 × 2 + Fuji Kaiyu Kawaguchiko–Shinjuku ¥4.200 = ¥9.660. Ăn trưa hōtō khoảng ¥1.380 (giá trên trang chính thức, có thể đã đổi).",
+    "yen": 9660,
+    "pass": null,
+    "src": "https://www.fujikyu-railway.jp/fujikaiyuu/"
+   }
+  ],
+  "schedule": [
+   {
+    "at": "06:35",
+    "what": "Rời Hotel RESOL Akihabara, đi bộ 3 phút ra ga Akihabara.",
+    "place": "resol-akihabara",
+    "min": 5
+   },
+   {
+    "at": "06:45",
+    "what": "JR Chūō–Sōbu Akihabara → Shinjuku (17 phút), tới khoảng 7:05; đủ thời gian ra ga Odakyu/JR và lên Fuji Kaiyu số 3.",
+    "place": null,
+    "min": 20
+   },
+   {
+    "at": "07:30",
+    "what": "Fuji Kaiyu số 3 rời Shinjuku (ghế đặt trước); tới Shimoyoshida lúc 9:13. Nếu muốn chụp Lawson trước 9h: đi xe buýt cao tốc chuyến khoảng 7:00–7:10, tới Kawaguchiko khoảng 8:40–8:50 (xem mục buses).",
+    "place": null,
+    "min": 103
+   },
+   {
+    "at": "09:13",
+    "what": "Xuống ga Shimoyoshida, đi bộ lên Arakurayama Sengen Park (15–25 phút tùy nguồn, kể cả 398 bậc).",
+    "place": "fs-shimoyoshida-station",
+    "min": 20
+   },
+   {
+    "at": "09:35",
+    "what": "Sàn ngắm tháp Chūreitō và Fuji; lá chưa đỏ cuối tháng 10 nhưng vắng hơn mùa hoa và mùa lá đỏ.",
+    "place": "fs-chureito-pagoda",
+    "min": 55
+   },
+   {
+    "at": "10:30",
+    "what": "Xuống núi, đi bộ khoảng 10 phút ra Honchō-dōri (5 phút từ ga Shimoyoshida), chụp phố Shōwa với Fuji ở cuối đường.",
+    "place": "fs-honcho-dori",
+    "min": 40
+   },
+   {
+    "at": "11:15",
+    "what": "Về ga Shimoyoshida, lên tàu thường Fujikyu về Kawaguchiko (khoảng 2 chuyến/giờ; chuyến cỡ 11:32, giờ ngoài khung 9–10h chưa kiểm, tra bảng giờ). Ước tới Kawaguchiko khoảng 11:50.",
+    "place": null,
+    "min": 35
+   },
+   {
+    "at": "11:55",
+    "what": "Lawson Kawaguchiko Ekimae, đi bộ 3 phút từ ga; đã quá giờ cao điểm đầu ngày nên đông và ngược sáng, chụp nhanh trong 15 phút từ bên đường đối diện.",
+    "place": "fs-lawson-kawaguchiko-ekimae",
+    "min": 15
+   },
+   {
+    "at": "12:15",
+    "what": "Ăn trưa hōtō tại Hōtō Fudō chi nhánh Kawaguchiko-ekimae (đối diện ga, tòa Marubun tầng 1, mở 11:00–19:00, 110 chỗ, không có bãi đỗ xe); ngày nghỉ chưa thấy trên trang chính thức, nên gọi 0555-72-5560 xác nhận.",
+    "place": null,
+    "min": 60
+   },
+   {
+    "at": "13:15",
+    "what": "Buýt Red Line từ bến số 1 ga Kawaguchiko tới Kawaguchiko Natural Living Center (Ōishi Park), ¥570, 27 phút.",
+    "place": null,
+    "min": 27
+   },
+   {
+    "at": "13:45",
+    "what": "Ōishi Park: đường Hana Kaido, kochia đỏ, quán cà phê nhìn Fuji ở Natural Living Center. Buổi chiều Fuji dễ ngược sáng và nhiều mây hơn buổi sáng.",
+    "place": "fs-oishi-park",
+    "min": 100
+   },
+   {
+    "at": "15:27",
+    "what": "Buýt Red Line về ga Kawaguchiko (dự kiến tới 15:54; giờ suy từ nhịp 15 phút trên bảng giờ, kiểm tra lại trước khi đi).",
+    "place": null,
+    "min": 27
+   },
+   {
+    "at": "15:55",
+    "what": "Dạo quanh ga Kawaguchiko: ngắm Fuji từ tòa nhà ga, mua quà. Còn khoảng 50 phút đệm trước tàu về.",
+    "place": null,
+    "min": 50
+   },
+   {
+    "at": "16:48",
+    "what": "Fuji Kaiyu số 44 từ Kawaguchiko, tới Shinjuku 18:48. Mặt trời lặn khoảng 17:05, nên tới ga lúc trời đã tối. Nếu muốn ở lại thêm: chuyến 17:41 (số 48) tới Shinjuku 19:48, về khách sạn khoảng 20:15, vượt khung 20:00.",
+    "place": null,
+    "min": 120
+   },
+   {
+    "at": "18:50",
+    "what": "JR Chūō–Sōbu Shinjuku → Akihabara (17 phút), đi bộ 3 phút về Hotel RESOL, tới khoảng 19:15.",
+    "place": "resol-akihabara",
+    "min": 25
+   }
+  ],
+  "october": "Lễ hội lá đỏ Fujikawaguchiko (Fuji Kawaguchiko Momiji Matsuri) năm 2026 diễn ra 7–29/11, thắp đèn từ hoàng hôn đến 21:00; năm 2025 là 1–30/11 (ban tổ chức nói lá ở bờ hồ đỏ nhất từ đầu đến giữa tháng 11), nên ngày 20/10/2027 rơi vào trước lễ hội và lá bờ hồ chưa tới đỉnh; năm 2026 bãi xe số 1 của lễ hội bắt đầu thu phí (xe thường ¥1.000). Kochia ở Ōishi Park đỏ rực khoảng giữa đến cuối tháng 10 (Banzoku, cập nhật 6/2026; thay đổi theo năm). Lá đỏ ở Chūreitō thường giữa đến cuối tháng 11. Đông đúc: Lawson đông nhất 10:00–16:00, nhất là khi xe tour từ Tokyo tới (Tabimania 9/2026); Chūreitō và Ōishi đông nhất cuối tuần và vào mùa hoa/lá đỏ; ngày 20/10/2027 là thứ Tư nên dễ thở hơn. Tầm nhìn Fuji: dữ liệu dự báo của isfujivisible.com cho phía Kawaguchiko chỉ có một tháng 10 (2025): 32% ngày buổi sáng và 23% ngày buổi chiều đạt điểm từ 8 trở lên; tháng 11 đến tháng 2 ổn định hơn (sáng 82–100%). Theo số liệu thành phố Fuji trong fuji.json, khoảng 41% ngày tháng 10 thấy trọn núi lúc 8h. Tuyết đầu mùa trên đỉnh: 5/10/2023, 7/11/2024, 23/10/2025, nên chóp trắng ngày 20/10 là chuyện may rủi. Mặt trời mọc khoảng 5:55, lặn khoảng 17:05 (số liệu Hakone, gần Kawaguchiko), chuyến về 16:48 rời ga lúc trời sắp tối.",
+  "sources": [
+   "https://www.fujikyu-railway.jp/fujikaiyuu/",
+   "https://ekitan.com/en/article/fujikaiyu",
+   "https://roote.ekispert.net/timetable/train/23419/5171",
+   "https://bus.fujikyu.co.jp/highway/",
+   "https://bus.fujikyu.co.jp/news/detail/mmpatv00000002xx.html",
+   "https://tabiris.com/archives/shinjuku-kawaguchiko/",
+   "https://www.bushikaku.net/bus/1465182/",
+   "https://bus.fujikyu.co.jp/pdf/omni_map_202604.pdf",
+   "https://bus.fujikyu.co.jp/pdf/fujikko_routemap_202606.pdf",
+   "https://bus.fujikyu.co.jp/fujitour/kawaguchiko/",
+   "https://bus.fujikyu.co.jp/otoku/fuji-passport/",
+   "https://www.fujikyu-railway.jp/fare/",
+   "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+   "http://www.houtou-fudou.jp/location.html",
+   "http://www.houtou-fudou.jp/menu.html",
+   "https://fujisan.ne.jp/news/6065/",
+   "https://banzokubiology.com/kawaguchiko-station-koyo-crowd/",
+   "https://banzokubiology.com/kawaguchiko-oishipark-time/",
+   "https://isfujivisible.com/blog/mount-fuji-lawson-photo-spot",
+   "https://tabimaniajapan.com/culture/how-to-safely-visit-the-kawaguchiko-mt-fuji-lawson-rules-parking-crowds"
+  ]
+ }
+}

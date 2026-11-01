@@ -138,6 +138,20 @@ export const LINES = {
     mode: 'subway',
     net: [['大阪市高速電気軌道', '1号線(御堂筋線)']],
   },
+  // Kawaguchiko alternative day: Fuji Excursion runs JR Chūō then Fujikyu without a change
+  fujiExcursion: {
+    name: 'Fuji Excursion',
+    color: '#5B8C3A',
+    mode: 'train',
+    net: [[JRE, '中央線'], ['富士山麓電気鉄道', '大月線'], ['富士山麓電気鉄道', '河口湖線']],
+  },
+  fujikyu: {
+    name: 'Fujikyu',
+    color: '#1F5EA8',
+    mode: 'train',
+    net: [['富士山麓電気鉄道', '大月線'], ['富士山麓電気鉄道', '河口湖線']],
+  },
+  kawaguchikoBus: { name: 'Xe buýt quanh hồ Kawaguchi', color: '#2F9E62', mode: 'bus' },
   nankai: {
     name: 'Nankai Airport Express',
     color: '#E15A26',

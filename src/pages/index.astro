@@ -7,6 +7,9 @@ import { boundsOf } from '../lib/geo';
 import { BUDGET, TRIP } from '../data/trip';
 import { LINES } from '../data/lines';
 import type { Pin } from '../lib/map';
+import { RIDES } from '../lib/rides';
+import { SLOTS } from '../lib/shopping';
+import { PHRASES } from '../data/enrich.gen';
 
 const totals = tripTotals();
 const allLegs = DAY_VIEWS.flatMap((v) => v.legs.map((l) => routeLeg(l, v.day.n)));
@@ -44,7 +47,11 @@ const foodStrip = foodIds
     return img ? { p, img } : null;
   })
   .filter(Boolean) as { p: ReturnType<typeof place>; img: ReturnType<typeof place>['images'][number] }[];
-const foodCount = allPlacesOf('food').filter((p) => p.role !== 'alt').length;
+const foodCount = allPlacesOf('food').filter((p) => p.role !== 'alt' && !p.snack).length;
+const snackCount = allPlacesOf('food').filter((p) => p.snack).length;
+const rideCount = RIDES.filter((r) => r.researched).length;
+const slotCount = SLOTS.length;
+const scenarioCount = PHRASES.scenarios.length;
 const daysOf = (n: number[]) => (n.length > 1 ? `Ngày ${n[0]}–${n.at(-1)}` : `Ngày ${n[0]}`);
 const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
 ---
@@ -153,16 +160,21 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
     <div class="ft-text">
       <h2 class="t-1" id="fuji-title">Fuji, nếu trời cho phép.</h2>
       <p class="t-lead">
-        Ba cơ hội nhìn núi: hồ Ashi ngày 4, cửa sổ tàu Tōkaidō ngày 5, và phương án Kawaguchiko. Mỗi điểm có khoảng cách tới đỉnh, hướng nhìn, phần núi lộ ra tính từ địa hình thật, và cách chụp.
+        Ba cơ hội nhìn núi: hồ Ashi ngày 4, cửa sổ tàu Tōkaidō ngày 5, và một ngày Kawaguchiko thay ngày 3. Mỗi điểm có khoảng cách tới đỉnh, hướng nhìn, phần núi lộ ra tính từ địa hình thật; những chỗ hay được đăng như Lawson hay phố Honchō có thời gian rẽ từ lịch.
       </p>
-      <a class="btn" href={url('fuji/')}>Xem Fuji</a>
+      <p class="ft-actions">
+        <a class="btn" href={url('fuji/')}>Xem Fuji</a>
+        <a class="btn btn-quiet" href={url('fuji/kawaguchiko/')}>Một ngày ở Kawaguchiko</a>
+      </p>
     </div>
   </section>
 
   <section class="band section" aria-labelledby="food-title">
     <div class="wrap">
       <h2 class="t-1" id="food-title">Những bữa đáng nhớ.</h2>
-      <p class="t-lead food-lead">{foodCount} quán, từ sandwich trứng ở Yanaka tới thịt nướng ở Namba. Ít sashimi liên tiếp, nhiều món nóng và món địa phương.</p>
+      <p class="t-lead food-lead">
+        {foodCount} quán, từ sandwich trứng ở Yanaka tới thịt nướng ở Namba, mỗi quán có món nên gọi kèm giá. Thêm {snackCount} chỗ ăn vặt, đồ ngọt, chợ nằm sát đường đi của từng ngày.
+      </p>
     </div>
     <div class="food-strip" role="list">
       {
@@ -180,6 +192,30 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
     <div class="wrap">
       <a class="btn btn-quiet" href={url('an-uong/')}>Tất cả nơi ăn</a>
     </div>
+  </section>
+
+  <section class="section wrap trip-tools" aria-labelledby="tools-title">
+    <h2 class="t-2" id="tools-title">Trong chuyến.</h2>
+    <ul class="tools">
+      <li>
+        <a href={url('tren-tau/')}>
+          <strong>Trên tàu</strong>
+          <span class="muted">{rideCount} chuyến tàu, thuyền, cáp treo: ngồi bên nào, nhìn gì, lúc nào chuẩn bị xuống.</span>
+        </a>
+      </li>
+      <li>
+        <a href={url('mua-sam/')}>
+          <strong>Mua sắm</strong>
+          <span class="muted">{slotCount} khung giờ mua theo ngày và thành phố, kèm giá tham chiếu, trong ngân sách cũ.</span>
+        </a>
+      </li>
+      <li>
+        <a href={url('so-tay/#tieng-nhat')}>
+          <strong>Nói tiếng Nhật</strong>
+          <span class="muted">{scenarioCount} tình huống có romaji; nút Nói ở mỗi điểm dừng mở đúng tình huống.</span>
+        </a>
+      </li>
+    </ul>
   </section>
 
   <section class="section wrap budget-teaser" aria-labelledby="budget-title">
@@ -536,5 +572,37 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
   }
   .stack-legend li span:nth-child(2) {
     flex: 1;
+  }
+  .ft-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .tools {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+    gap: 12px;
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tools a {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    height: 100%;
+    padding: 20px 22px;
+    border-radius: var(--r-l);
+    background: var(--bg-2);
+    color: var(--ink);
+    transition: background-color 150ms;
+  }
+  .tools a:hover {
+    text-decoration: none;
+    background: var(--bg-3);
+  }
+  .tools strong {
+    font-size: 20px;
+    letter-spacing: -0.02em;
   }
 </style>

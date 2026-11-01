@@ -48,6 +48,90 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": false
   }
  },
+ "1.sn-amanoya": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Hotel RESOL Akihabara → Kanda Myōjin",
+   "lat": 35.70110882865671,
+   "lng": 139.76715599608468,
+   "onWalk": true
+  }
+ },
+ "1.sn-omiya-yogashi": {
+  "p": "sb{xEwyatYNLq@rAcCjCNXtFlDp@V@I",
+  "km": 0.36,
+  "min": 5,
+  "mode": "walk",
+  "from": {
+   "label": "Manseibashi",
+   "lat": 35.69722,
+   "lng": 139.77004,
+   "onWalk": false
+  }
+ },
+ "1.sn-mitsubachi-honten": {
+  "p": "kd}xEimbtYUEC~@G@GLYrI",
+  "km": 0.21,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Kanda Myōjin → Tonkatsu Yamabe Okachimachi",
+   "lat": 35.707740771009405,
+   "lng": 139.77317343078607,
+   "onWalk": true
+  }
+ },
+ "1.sn-karinto-yushima-kagetsu": {
+  "p": "wb}xE}lbtYz@PS~@BPIxDoAHAI",
+  "km": 0.21,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Kanda Myōjin → Tonkatsu Yamabe Okachimachi",
+   "lat": 35.707481808731636,
+   "lng": 139.77311043996175,
+   "onWalk": true
+  }
+ },
+ "1.sn-mijinko": {
+  "p": "me|xEumatYL~Ge@QIXqAc@gB[WEAL",
+  "km": 0.29,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "Kanda Myōjin → Tonkatsu Yamabe Okachimachi",
+   "lat": 35.70279,
+   "lng": 139.76811,
+   "onWalk": true
+  }
+ },
+ "1.sn-minatoya-shokuhin": {
+  "p": "{g}xEq{btY?H|A@Ad@GRkAIKvAOCCNF@",
+  "km": 0.19,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Tonkatsu Yamabe Okachimachi",
+   "lat": 35.708301,
+   "lng": 139.77545,
+   "onWalk": false
+  }
+ },
+ "1.sn-french-toast-factory": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Tonkatsu Yamabe Okachimachi → Hotel RESOL Akihabara",
+   "lat": 35.698664254683656,
+   "lng": 139.77529528098844,
+   "onWalk": true
+  }
+ },
  "2.nihonbashi": {
   "p": "",
   "km": 0,
@@ -156,6 +240,102 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": true
   }
  },
+ "2.sn-himitsudo": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Kayaba Coffee → Nezu no Taiyaki",
+   "lat": 35.727311383537426,
+   "lng": 139.76668482371198,
+   "onWalk": true
+  }
+ },
+ "2.sn-usagiya-ueno": {
+  "p": "ka}xEskbtY@IFBMl@@Jb@FxBdABDGr@DFPCl@BAP",
+  "km": 0.21,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "ga Ueno-hirokōji",
+   "lat": 35.70726,
+   "lng": 139.7729,
+   "onWalk": false
+  }
+ },
+ "2.sn-niku-no-ooyama-ueno": {
+  "p": "{q}xEymbtYKQNeAcC}@^kBEgBHa@GC",
+  "km": 0.24,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Nezu Jinja → Ueno-hirokōji",
+   "lat": 35.7099,
+   "lng": 139.77325,
+   "onWalk": true
+  }
+ },
+ "2.sn-pelican": {
+  "p": "a{}xEomftY@IH@g@dHf@FBTpAVrA`@~Bf@DC@NLOp@Vl@JbC\\@K",
+  "km": 0.5,
+  "min": 7,
+  "mode": "walk",
+  "from": {
+   "label": "Owariya Honten",
+   "lat": 35.711368,
+   "lng": 139.793684,
+   "onWalk": false
+  }
+ },
+ "2.sn-asakusa-kagetsudo": {
+  "p": "_p~xEu`gtYt@DCfAi@fCMnA?HHA@LHA",
+  "km": 0.19,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Sensō-ji",
+   "lat": 35.71472,
+   "lng": 139.79675,
+   "onWalk": false
+  }
+ },
+ "2.sn-fruit-parlour-goto": {
+  "p": "_p~xEu`gtYt@DCfAi@fCMxAgALk@~FDx@gBa@DMD@",
+  "km": 0.43,
+  "min": 6,
+  "mode": "walk",
+  "from": {
+   "label": "Sensō-ji",
+   "lat": 35.71472,
+   "lng": 139.79675,
+   "onWalk": false
+  }
+ },
+ "2.sn-365-nichi-to-nihonbashi": {
+  "p": "ecxxEsnbtYRLDO|Ax@Rm@YM",
+  "km": 0.12,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "ga Nihonbashi",
+   "lat": 35.68195,
+   "lng": 139.77338,
+   "onWalk": false
+  }
+ },
+ "2.sn-takemura": {
+  "p": "kozxE}}atY{@VEUKDAEmCv@_AUGtADROHARcAAsAb@Pt@aAd@BJKDDJ",
+  "km": 0.42,
+  "min": 6,
+  "mode": "walk",
+  "from": {
+   "label": "ga Kanda",
+   "lat": 35.69414,
+   "lng": 139.77071,
+   "onWalk": false
+  }
+ },
  "3.shibuya-crossing": {
   "p": "ausxEcjtsYd@E@Nm@Lc@A?MGGG~A",
   "km": 0.13,
@@ -250,6 +430,102 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "lat": 35.66721,
    "lng": 139.7089,
    "onWalk": false
+  }
+ },
+ "3.sn-le-pain-joel-robuchon-newoman": {
+  "p": "inyxEojtsYIBSsBSDMy@ZI",
+  "km": 0.11,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Shinjuku → SUSHI TOKYO TEN Shinjuku",
+   "lat": 35.68885,
+   "lng": 139.70104,
+   "onWalk": true
+  }
+ },
+ "3.sn-oiwake-dango-shinjuku": {
+  "p": "euyxEwgtsY?Bp@CBH`@CHz@d@Iy@yI]cCM}AIOS}COcADEI?aCyAEYb@mADB",
+  "km": 0.63,
+  "min": 8,
+  "mode": "walk",
+  "from": {
+   "label": "ga Shinjuku",
+   "lat": 35.68995,
+   "lng": 139.7006,
+   "onWalk": false
+  }
+ },
+ "3.sn-marion-crepes-takeshita": {
+  "p": "gbvxEeutsYiCc@fB^ABJBFo@KAB[R?fAyIKE@E",
+  "km": 0.37,
+  "min": 5,
+  "mode": "walk",
+  "from": {
+   "label": "ga Harajuku",
+   "lat": 35.67156,
+   "lng": 139.70275,
+   "onWalk": false
+  }
+ },
+ "3.sn-totti-candy-factory": {
+  "p": "gbvxEeutsYiCc@fB^ABJBFo@KAB[R?|@kHPB",
+  "km": 0.35,
+  "min": 5,
+  "mode": "walk",
+  "from": {
+   "label": "ga Harajuku",
+   "lat": 35.67156,
+   "lng": 139.70275,
+   "onWalk": false
+  }
+ },
+ "3.sn-mizuho": {
+  "p": "a_uxEwhusYEGORDTMPiAgAw@nAID_@@KC@I",
+  "km": 0.18,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Harajuku → Toritake Sōhonten",
+   "lat": 35.66593,
+   "lng": 139.70588,
+   "onWalk": true
+  }
+ },
+ "3.sn-higashiya-man": {
+  "p": "aguxEs{usYZRnIqUEUb@{@FDXAnBoDQOJU",
+  "km": 0.58,
+  "min": 8,
+  "mode": "walk",
+  "from": {
+   "label": "Omotesandō",
+   "lat": 35.66721,
+   "lng": 139.7089,
+   "onWalk": false
+  }
+ },
+ "3.sn-initial-omotesando": {
+  "p": "k|txEsdusYd@p@TNc@dA`@v@]j@J^mB}BSLS]OP",
+  "km": 0.28,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "Harajuku → Toritake Sōhonten",
+   "lat": 35.66550231711158,
+   "lng": 139.70521929995945,
+   "onWalk": true
+  }
+ },
+ "3.sn-shibuya-nishimura-fruit-parlour": {
+  "p": "mssxEcgtsYuA_@o@f@Bj@CAGd@@`Ae@E@W",
+  "km": 0.19,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Harajuku → Toritake Sōhonten",
+   "lat": 35.65895,
+   "lng": 139.7005,
+   "onWalk": true
   }
  },
  "4.hakone-sekisho": {
@@ -348,6 +624,78 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": false
   }
  },
+ "4.sn-sawamura-shinjuku": {
+  "p": "euyxEwgtsYLB~BKjAMZ@CSYBYcDSDAE",
+  "km": 0.25,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "ga Shinjuku",
+   "lat": 35.68995,
+   "lng": 139.7006,
+   "onWalk": false
+  }
+ },
+ "4.sn-chimoto-ekimae": {
+  "p": "ko`vEqt_pYL@^j@RHRTF?JKr@z@tBlDLGDHLh@LpAZG",
+  "km": 0.31,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "ga Hakone-Yumoto",
+   "lat": 35.23334,
+   "lng": 139.10361,
+   "onWalk": false
+  }
+ },
+ "4.sn-kurotama-shop": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ōwakudani",
+   "lat": 35.24442,
+   "lng": 139.01958,
+   "onWalk": false
+  }
+ },
+ "4.sn-yu-land": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ōwakudani",
+   "lat": 35.24442,
+   "lng": 139.01958,
+   "onWalk": false
+  }
+ },
+ "4.sn-pan-no-mimi": {
+  "p": "}|cvEsztoYAG^EKLLJRC@VQ@q@TCGc@LKeAWUd@aAWgAIu@DqAIu@?}CIIU@cAvAIAYkAHmAE]c@R`@iAt@{@iA]BKJBTU\\ONSLsAQm@uBnAi@Na@Qc@|@c@TU??dA",
+  "km": 1.07,
+  "min": 14,
+  "mode": "walk",
+  "from": {
+   "label": "ga Gōra",
+   "lat": 35.25087,
+   "lng": 139.04826,
+   "onWalk": false
+  }
+ },
+ "4.fs-gotemba-premium-outlets": {
+  "p": "stbvEkgooYVB?NJZv@vARJVBT?Bg@JY`AkAb@Ij@P`@p@P|@IdA[n@]h@SNcB\\e@PWRg@pAo@rC_@`@SDsCGm@B_HbAeDdBURWj@o@xC_CvFQvBMf@{@tAyC`EEPAXDL\\RR@h@IjD{@h@?`@DxCbAp@Xb@`@~BrDh@\\d@Hj@AjEcA~@Cj@P`@Xd@n@uLvH[Xu@bAa@n@M^OjADd@|@`ADRGlEETiAxCaAd@_@Xg@l@UjBMf@kAxCW`Am@t@CZJn@d@~@Gb@e@~@u@e@AjAF^PR\\Lp@z@Lb@GLsA`@_AOKDUMQAc@D_@Le@BSCWIU[s@sBOOUIW?q@TKLwDlG[^MJi@BUSKk@?{FGkAQSgAu@s@NyCjBoB\\]BSCa@UKS[gCI[QKe@KkCQ{Mm@y@Uo@a@{D{I_NhBg@@YGeBsA_CyAk@s@_@SuAWeA}@yBu@}F_E_CqDg@e@}Au@i@g@iDgJo@gAyAkA}C{@_BkBg@Ag@M{A}AmB{DqAbByC|CQXwFlNOhAShEs@dEiLxWo@|BUnDHtATl@VTjE|BN^B^y@tDIz@PxJNpAVp@|AzAxIhHfN|Gd@Zb@j@Bb@Kb@i@T]G]YoA}As@_@w@Sa\\eFm@@e@R{@nAyJxS_NnX_@`AIp@?n@Jr@dDdJ?lAMf@KN]TQBS?a@O_@_@KUa@sBa@y@]Wc@GS@s@ZYb@wApFUd@]Xe@Fq@UY]m@gBY_@]Qu@?w@f@iCnC{EfDq@`@sBl@_@VO`@Bh@RZ`@Hb@IrByA|Ay@xBq@R?`@NRb@BVEh@{C`JKn@Df@DNXZ`@Jh@CpB]f@Bh@b@Fd@ARO^k@XwC@iAKi@Wa@]mAyBY[[Ia@D[ZIVm@hFQr@cCbF]X_@LeEE]NKLK^B`@R\\^LT@~Hq@v@Bp@XRPd@r@Tz@`@xECbAYlB@j@Rb@^PdBTVTFTB`@Ih@}A`D_Af@uCzCeAz@oAv@gFfCu@LqAAg@GeAe@wC_BwEyBc@JQNI\\_@p@w@^_@Fy@KQOiCuE}@d@o@Pq@d@Qj@I\\J~A_@dBaBjFAXFNl@f@rB|BZx@j@vBDf@ALs@zAo@j@aFjBc@l@m@AsGvBuJhEqBjA_BrAsGwEiDoBeAw@IgC]qCEiEL_@v@OTM@_@WeAs@s@KSSBg@Y{@iAIUCa@DkAcAyAgEhE",
+  "km": 18.74,
+  "min": 40,
+  "mode": "car",
+  "from": {
+   "label": "Ōwakudani",
+   "lat": 35.24442,
+   "lng": 139.01958,
+   "onWalk": false
+  }
+ },
  "5.shimizu-port": {
   "p": "cawtEi~glY?d@~@?VTv@??c@",
   "km": 0.12,
@@ -432,6 +780,174 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": false
   }
  },
+ "5.sn-tokaken-odawara-higashiguchi": {
+  "p": "wzdvEeuipYcAvBcFiE}ByBGH|CxCG@}DyD_@_CB{@`AkC|GxCp@^RVtBrAX?Hm@",
+  "km": 1.07,
+  "min": 14,
+  "mode": "walk",
+  "from": {
+   "label": "ga Odawara",
+   "lat": 35.25564,
+   "lng": 139.15491,
+   "onWalk": false
+  }
+ },
+ "5.sn-suzuhiro-odawara-ekimae": {
+  "p": "wzdvEeuipYcAvBcFiE}ByBGH|CxCG@}DyD_@_CB{@`AkC|GxCp@^RVtBrAX?@EJD@G",
+  "km": 1.06,
+  "min": 14,
+  "mode": "walk",
+  "from": {
+   "label": "ga Odawara",
+   "lat": 35.25564,
+   "lng": 139.15491,
+   "onWalk": false
+  }
+ },
+ "5.sn-atami-pudding": {
+  "p": "g`guEskzoYc@tA^|@xB`El@JfBcBj@DLKNQuAiBEY?oAG_@c@w@IcAM]ED@D",
+  "km": 0.55,
+  "min": 7,
+  "mode": "walk",
+  "from": {
+   "label": "ga Atami",
+   "lat": 35.10292,
+   "lng": 139.07658,
+   "onWalk": false
+  }
+ },
+ "5.sn-tochuken-numazu": {
+  "p": "{`guE_dpnYG??_@t@ABnDn@ABnAHJAx@c@@?p@LPA`Bg@CgDFCUg@I@oByBEHeJAeCrDCPS",
+  "km": 0.93,
+  "min": 12,
+  "mode": "walk",
+  "from": {
+   "label": "ga Numazu",
+   "lat": 35.10302,
+   "lng": 138.86032,
+   "onWalk": false
+  }
+ },
+ "5.sn-kashi-no-ichi-ichibakan": {
+  "p": "cawtEi~glYOrAu@IgA@K{@",
+  "km": 0.14,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Kaizan · Kashi no Ichi",
+   "lat": 35.021142,
+   "lng": 138.490774,
+   "onWalk": false
+  }
+ },
+ "5.sn-tokaken-shizuoka": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "ga Shizuoka",
+   "lat": 34.97177,
+   "lng": 138.38892,
+   "onWalk": false
+  }
+ },
+ "5.sn-fujita-ya-kintetsu-nagoya": {
+  "p": "i}suEkbnbYDXXMa@cEgATEF",
+  "km": 0.17,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "ga Kintetsu Nagoya",
+   "lat": 35.16901,
+   "lng": 136.88374,
+   "onWalk": false
+  }
+ },
+ "5.fs-mishima-skywalk": {
+  "p": "udhuEqveoYnAJEp@Bx@|@`FPl@`@h@dCpB`@z@^lADp@S|A@x@Db@^~A_IpCo@h@_ApAc@b@s@f@[HgCNcCUw@Pa@@u@WcA_Ak@M]|AdAz@FJDf@\\f@Zv@d@l@r@b@nAhAHNCj@sCaAa@EoHH{Dh@cCw@aCAe@GcAe@kBUm@e@YKeCZ_@NoA~AQt@YzBDh@bBdEF\\]xA?r@JbB]bCy@g@i@g@w@Gg@Sk@?iFc@Yg@u@?eAJYCm@kAqByE[a@iBwAgHkJeAu@Oc@QgA]a@iDuAQCaA@k@HYLq@h@WFQCUUoAsB}@cDe@y@{DqCq@uBkDwB}@W_@?mBr@i@JO?wAq@{BNmAu@cCkAWa@@a@Ii@w@yAUMs@}@Ym@YaA[}Cc@{AMQe@YiBc@Y[m@oDDm@XcA?c@gAwBg@gGMg@IOmA}@_@c@_AwByC{DuA_C}D{DGAOHCTfAdBTnCAPUh@Ef@BLf@l@DRL|BCp@MF[G{C}BUGMLCVp@bABLG`@]XcBn@gCEc@BQh@GzAi@zAaD_AG[gEI{@LSRMXoBbGGb@A`@T|Ab@n@p@l@}@RaBo@iAIc@O_BiAyAu@_A{@eBm@qBoAe@i@i@UQUIiBk@}Ai@cAKGYDMaCQk@gC{CkCgBmB_B_AaCoAmAsA{@e@eAW]f@eA",
+  "km": 8.99,
+  "min": 21,
+  "mode": "car",
+  "from": {
+   "label": "ga Kannami",
+   "lat": 35.10875,
+   "lng": 138.97081,
+   "onWalk": false
+  }
+ },
+ "5.fs-fujisan-yume-no-ohashi": {
+  "p": "unpuEiigmYlAFF_ATQfH^t@_YxEwn@uYmExF{d@zAqLj@_DxA{LkBUeKkBBO",
+  "km": 3.17,
+  "min": 9,
+  "mode": "car",
+  "from": {
+   "label": "ga Fuji",
+   "lat": 35.15131,
+   "lng": 138.65125,
+   "onWalk": false
+  }
+ },
+ "5.fs-tagonoura-port": {
+  "p": "}aouEqaqmYo@u@EUAa@HmAq@MeAC[hPG|@Up@_@zCUvC?x@TtAr@vAV`@XV`@LT?b@M`@]b@q@Lu@ZyDcBQMJIRMhAIxA}@tIMzBA~BG|@[~BoEfc@DlBPf@t@t@~@x@jAp@tCrBXd@Tx@ZCZMd@k@xXid@l@]\\AZ@h@ZbB{BLg@?cAw@mFBe@V]nDwCv@QL@`@[RALHpA`DRbBV`A`Bs@",
+  "km": 3.97,
+  "min": 11,
+  "mode": "car",
+  "from": {
+   "label": "ga Yoshiwara",
+   "lat": 35.14415,
+   "lng": 138.70121,
+   "onWalk": false
+  }
+ },
+ "5.fs-fujisan-hongu-sengen-taisha": {
+  "p": "unpuEiigmYlAFF_ATQlBL[hEOnF_GeAg@]KQM]Kq@gHkAu@nGg@xF{I{Bq@_@_GkEoK_B{MhAwUfD}L@a@FaA^gBb@{WpBmDPoJfAuDN{D?aFOqFpJ]f@c@`@sAl@aJnBaOmBoDmHm@^k@PyIfAgBX[L__@nTsBzBq@h@sA@cE[i@FeAx@wWvVuOfKyUhOmAc@eCYm@QsFqC}CgDy@m@gA]aCi@gArAiJlMgClEaAtB}BfGaJ`XeVva@eB`EUtAw@`OyIte@}AIkHqAc@fH_BE{EXwCHAUk@aAEQMsCBELIt@EVdB",
+  "km": 11.54,
+  "min": 26,
+  "mode": "car",
+  "from": {
+   "label": "ga Fuji",
+   "lat": 35.15131,
+   "lng": 138.65125,
+   "onWalk": false
+  }
+ },
+ "5.fs-shiraito-falls": {
+  "p": "unpuEiigmYlAFF_ATQlBL[hEOnF_GeAg@]KQM]Kq@gHkAu@nGg@xF{I{Bq@_@_GkEoK_B{MhAwUfD}L@a@FaA^gBb@{WpBmDPoJfAuDN{D?aFOqFpJ]f@c@`@sAl@aJnBaOmBoDmHm@^k@PaM`B__@hTm@`@aBlBq@h@sA@cE[i@FeAx@wWvVuOfKyUhOmAc@eCYm@QsFqC}CgDy@m@gA]eFmAmFyBqAKe@MeDeCuCk@qDaCqDxBmAnAmAhB_@bBe@lA}@n@eFlE_ChAgCtBaDdG{@bA_@tBmAP[NYTqAbBIXe@rMaFZeBdC{@bA_FtE}WbTiDvBuCpAeIhBaYrEofB`XsKrAwKv@aBC_DHyi@D_INoD\\kB^eD|@oCnAqJdFqBx@aD~@qDj@iDVcCDgBEaEYmC]{E}@mCYwG]uEBsAFuFf@yFhAsBn@uChAqEzBaCxAmCnB}JjIcWfS{ChBsAn@qDnAcB`@cC^wBRqBHsEI_Fe@cOyC_D[uAGcD@wCPsBVyCr@i@PmCtAgCzAaCrByApB_@dZuBfTe@zDcBxAi@r@]j@i@xAMj@wAxNHF@Xh@f@DTQzDFr@dAzB`ByA",
+  "km": 21.85,
+  "min": 47,
+  "mode": "car",
+  "from": {
+   "label": "ga Fuji",
+   "lat": 35.15131,
+   "lng": 138.65125,
+   "onWalk": false
+  }
+ },
+ "5.fs-starbucks-fujikawa-sa": {
+  "p": "kgnuEi|`mYGxAcBKwB?eEi@mBi@}B}@iG}AmAQGNWSs@UoFs@gAUmCeAOR{A_@_A@oAIcClBmDTy@^{El@STeA^Q`A_@x@o@nCMTMFY@yAWcAVUAqEm@{BCaAe@}AxCQDiAK{ADyB|@cAXwALoBKP_GQ{@KOZo@",
+  "km": 2.58,
+  "min": 34,
+  "mode": "walk",
+  "from": {
+   "label": "ga Fujikawa",
+   "lat": 35.1399,
+   "lng": 138.61845,
+   "onWalk": false
+  }
+ },
+ "5.fs-fujikawa-rakuza": {
+  "p": "kgnuEi|`mYGxAcBKsB?SjA{AKyG_AiB]yAm@i@]uD{CYMiG{@gAUcLkEq@QsLgAqED_EEkCJ[Cm@UMMYDyA?yIOaBJaBVoDtAaBfAqAn@kC\\mCdAgBdAk@t@@b@HNTNBJ_@dAUM",
+  "km": 2.71,
+  "min": 8,
+  "mode": "car",
+  "from": {
+   "label": "ga Fujikawa",
+   "lat": 35.1399,
+   "lng": 138.61845,
+   "onWalk": false
+  }
+ },
  "6.uji-bridge": {
   "p": "",
   "km": 0,
@@ -441,6 +957,90 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "label": "Bến xe Naikū-mae → Ise Naikū",
    "lat": 34.45872966216758,
    "lng": 136.7232477313232,
+   "onWalk": true
+  }
+ },
+ "6.sn-dandelion-chocolate-ise": {
+  "p": "saoqEenkaYHF@VSd@HHpBkEk@YPgANF",
+  "km": 0.23,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Comfort Hotel ERA Ise → Ise Gekū",
+   "lat": 34.48874150579487,
+   "lng": 136.70642726842067,
+   "onWalk": true
+  }
+ },
+ "6.sn-tofuan-yamanaka": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ise Naikū → Fukusuke",
+   "lat": 34.461263044838425,
+   "lng": 136.72341874955364,
+   "onWalk": true
+  }
+ },
+ "6.sn-dango-ya-okage": {
+  "p": "y|iqEwvnaY[JOaAdCIEe@MH",
+  "km": 0.15,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Fukusuke",
+   "lat": 34.462372,
+   "lng": 136.723158,
+   "onWalk": false
+  }
+ },
+ "6.sn-maruyoshi-oharai": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ise Naikū → Fukusuke",
+   "lat": 34.460763675941514,
+   "lng": 136.7233092988365,
+   "onWalk": true
+  }
+ },
+ "6.sn-henbaya-oharai": {
+  "p": "u~iqEkynaYPCD^uBb@mF|AG]",
+  "km": 0.25,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Akafuku Honten",
+   "lat": 34.462671,
+   "lng": 136.723576,
+   "onWalk": false
+  }
+ },
+ "6.sn-ise-purin-tetsujin": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Ise Naikū → Fukusuke",
+   "lat": 34.460763675941514,
+   "lng": 136.7233092988365,
+   "onWalk": true
+  }
+ },
+ "6.sn-kawasaki-gura": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Bến xe Gekū-mae → Phố kho Kawasaki",
+   "lat": 34.49480670273253,
+   "lng": 136.7154186809274,
    "onWalk": true
   }
  },
@@ -553,7 +1153,7 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   }
  },
  "7.kenninji": {
-  "p": "ypttEoqt{XQ@@kBhROrG??HbCBzB?BIh@Nt@mC?QGCJc@DMRDF[TgEzC^L_Bf@eA~ARF_B",
+  "p": "ypttEoqt{XQ@@kBhROrG??HbCBzB?BIh@Nt@mCEUJe@DKPFF[TiEzC^L_Bf@eA~ARF_B",
   "km": 1.23,
   "min": 16,
   "mode": "walk",
@@ -574,6 +1174,114 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "lat": 35.008294,
    "lng": 135.769995,
    "onWalk": false
+  }
+ },
+ "7.sn-umezono-kawaramachi": {
+  "p": "ypttEoqt{XQ@DjD`DI?M",
+  "km": 0.18,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Cross Hotel Kyoto",
+   "lat": 35.008294,
+   "lng": 135.769995,
+   "onWalk": false
+  }
+ },
+ "7.sn-koe-donuts-kyoto": {
+  "p": "ypttEoqt{XQ@DjDvBG@h@P?@xAKpE|@?d@d@bGPfIA?M",
+  "km": 0.72,
+  "min": 10,
+  "mode": "walk",
+  "from": {
+   "label": "Cross Hotel Kyoto",
+   "lat": 35.008294,
+   "lng": 135.769995,
+   "onWalk": false
+  }
+ },
+ "7.sn-hayashi-manshodo": {
+  "p": "ypttEoqt{XQ@DjDvBG@h@P?@xAKpE|@?d@d@fEL~M@?n@E?",
+  "km": 0.79,
+  "min": 10,
+  "mode": "walk",
+  "from": {
+   "label": "Cross Hotel Kyoto",
+   "lat": 35.008294,
+   "lng": 135.769995,
+   "onWalk": false
+  }
+ },
+ "7.sn-salon-de-the-francois": {
+  "p": "ypttEoqt{XQ@@kBhROrG?B\\`@??Nx@F`AV@QPBAP",
+  "km": 0.69,
+  "min": 9,
+  "mode": "walk",
+  "from": {
+   "label": "Cross Hotel Kyoto",
+   "lat": 35.008294,
+   "lng": 135.769995,
+   "onWalk": false
+  }
+ },
+ "7.sn-londonya": {
+  "p": "ypttEoqt{XQ@DjDvBG@h@P?@xAKpE|@?d@d@bGPdJA?K",
+  "km": 0.73,
+  "min": 10,
+  "mode": "walk",
+  "from": {
+   "label": "Cross Hotel Kyoto",
+   "lat": 35.008294,
+   "lng": 135.769995,
+   "onWalk": false
+  }
+ },
+ "7.sn-minerva-toba": {
+  "p": "uunqE}kfbYeAxCUZSMEP",
+  "km": 0.12,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Toba → Bến Toba Marine Terminal",
+   "lat": 34.48683,
+   "lng": 136.84431,
+   "onWalk": true
+  }
+ },
+ "7.sn-kamome-bay-terrace-toba": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Toba → Bến Toba Marine Terminal",
+   "lat": 34.48628188587901,
+   "lng": 136.8426693889048,
+   "onWalk": true
+  }
+ },
+ "7.sn-musea-coffee-toba-eki": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Toba → Bến Toba Marine Terminal",
+   "lat": 34.48628188587901,
+   "lng": 136.8426693889048,
+   "onWalk": true
+  }
+ },
+ "7.sn-gion-tsujiri-kyoto-hachijoguchi": {
+  "p": "c`ptEgtr{XCwBIyAD?K{@D?L`A",
+  "km": 0.16,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Kyoto (Kintetsu) → Kyoto (Karasuma Line)",
+   "lat": 34.985142,
+   "lng": 135.7602,
+   "onWalk": true
   }
  },
  "8.ichizawa": {
@@ -606,10 +1314,10 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   "min": 0,
   "mode": "walk",
   "from": {
-   "label": "Gion Komori",
-   "lat": 35.005848,
-   "lng": 135.774572,
-   "onWalk": false
+   "label": "wargo Kyoto Gion (thuê kimono) → Gion Yorozuya",
+   "lat": 35.00558,
+   "lng": 135.7745,
+   "onWalk": true
   }
  },
  "8.kodaiji": {
@@ -637,14 +1345,14 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   }
  },
  "8.kenninji": {
-  "p": "instEmju{X?D\\DJHIl@bEj@@GbD`@DK~ARF_B",
-  "km": 0.37,
-  "min": 5,
+  "p": "slstEapu{XAHpBZ|AJ~C^B`@ZFEp@bAJIj@",
+  "km": 0.33,
+  "min": 4,
   "mode": "walk",
   "from": {
-   "label": "Gion Yorozuya",
-   "lat": 35.002766,
-   "lng": 135.773994,
+   "label": "Gion Tokuya",
+   "lat": 35.0025,
+   "lng": 135.774888,
    "onWalk": false
   }
  },
@@ -693,6 +1401,78 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "label": "Yamamoto Menzō",
    "lat": 35.014274,
    "lng": 135.784816,
+   "onWalk": false
+  }
+ },
+ "8.sn-arabica-kyoto-higashiyama": {
+  "p": "}wrtEohv{XI@ALEtBL@",
+  "km": 0.07,
+  "min": 1,
+  "mode": "walk",
+  "from": {
+   "label": "Kiyomizu-dera → wargo Kyoto Gion (thuê kimono)",
+   "lat": 34.99919111077529,
+   "lng": 135.77879607895767,
+   "onWalk": true
+  }
+ },
+ "8.sn-kasagiya": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Kiyomizu-dera → wargo Kyoto Gion (thuê kimono)",
+   "lat": 34.99802,
+   "lng": 135.78076,
+   "onWalk": true
+  }
+ },
+ "8.sn-kissho-karyo-gion": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "wargo Kyoto Gion (thuê kimono) → Yamamoto Menzō",
+   "lat": 35.00685,
+   "lng": 135.7779,
+   "onWalk": true
+  }
+ },
+ "8.sn-gion-kinana-honten": {
+  "p": "slstEapu{XAHnARSpBUEDW",
+  "km": 0.13,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Gion Tokuya",
+   "lat": 35.0025,
+   "lng": 135.774888,
+   "onWalk": false
+  }
+ },
+ "8.sn-cacao-market-mariebelle": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "wargo Kyoto Gion (thuê kimono) → Yamamoto Menzō",
+   "lat": 35.005141712606935,
+   "lng": 135.77230549346834,
+   "onWalk": true
+  }
+ },
+ "8.sn-chourakukan-dessert-cafe": {
+  "p": "qsstEigv{XLE@k@i@C@Mp@BCr@d@FARnBD?QF?IgAe@cD@cA[A",
+  "km": 0.37,
+  "min": 5,
+  "mode": "walk",
+  "from": {
+   "label": "Yasaka Jinja",
+   "lat": 35.00361,
+   "lng": 135.77861,
    "onWalk": false
   }
  },
@@ -757,7 +1537,7 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   }
  },
  "9.kenninji": {
-  "p": "eqstEw}t{X`AT@KvDfAJm@PuDzC^L_Bf@eA~ARF_B",
+  "p": "eqstEw}t{X`AT@KvDhAJo@PuDzC^L_Bf@eA~ARF_B",
   "km": 0.53,
   "min": 7,
   "mode": "walk",
@@ -840,6 +1620,78 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": false
   }
  },
+ "9.sn-arabica-kyoto-arashiyama": {
+  "p": "krutE}mb{XTCN`DM@?D",
+  "km": 0.1,
+  "min": 1,
+  "mode": "walk",
+  "from": {
+   "label": "Arashiyama Yoshimura",
+   "lat": 35.013655,
+   "lng": 135.677273,
+   "onWalk": false
+  }
+ },
+ "9.sn-mamemono-to-taiyaki-arashiyama": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Otagi Nenbutsu-ji → Cầu Togetsukyō",
+   "lat": 35.01509848529327,
+   "lng": 135.67732116408703,
+   "onWalk": true
+  }
+ },
+ "9.sn-shinpachi-chaya": {
+  "p": "krutE}mb{XTCM}AICSBCQDMMC",
+  "km": 0.1,
+  "min": 1,
+  "mode": "walk",
+  "from": {
+   "label": "Arashiyama Yoshimura",
+   "lat": 35.013655,
+   "lng": 135.677273,
+   "onWalk": false
+  }
+ },
+ "9.sn-ex-cafe-arashiyama": {
+  "p": "ywutEmob{XYFAG\\KQsAE?EY",
+  "km": 0.09,
+  "min": 1,
+  "mode": "walk",
+  "from": {
+   "label": "Otagi Nenbutsu-ji → Cầu Togetsukyō",
+   "lat": 35.01453205202303,
+   "lng": 135.6775120306909,
+   "onWalk": true
+  }
+ },
+ "9.sn-fushimi-yume-hyakushu": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Chūshojima → Torisei Honten",
+   "lat": 34.929887689438836,
+   "lng": 135.76105124414832,
+   "onWalk": true
+  }
+ },
+ "9.sn-gekkeikan-okura-museum": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Khu kho sake Fushimi",
+   "lat": 34.92887,
+   "lng": 135.76162,
+   "onWalk": false
+  }
+ },
  "10.naramachi": {
   "p": "",
   "km": 0,
@@ -877,9 +1729,9 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   }
  },
  "10.tofukuji": {
-  "p": "wwltE}lt{X?Y[A@kCkM^aDXGc@u@TCSeCG}@U@iC_NB@}ALIJuJFMOD[A{@c@]ADiCsCGDsByBMAp@",
+  "p": "wwltE}lt{X?Y[A@kCkM^aDXGc@u@TCSeCG}@U@iC_NB@}ALIJuJFMOD[A{@c@]A@aAu@C@gA{ACDsByBMAp@",
   "km": 1.54,
-  "min": 21,
+  "min": 20,
   "mode": "walk",
   "from": {
    "label": "ga Fushimi-Inari (Keihan)",
@@ -960,6 +1812,90 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": false
   }
  },
+ "10.sn-hougyokudo-fushimi-inari": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "ga Fushimi-Inari (Keihan)",
+   "lat": 34.96844,
+   "lng": 135.76927,
+   "onWalk": false
+  }
+ },
+ "10.sn-eight-fushimi-inari": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "ga Fushimi-Inari (Keihan)",
+   "lat": 34.96844,
+   "lng": 135.76927,
+   "onWalk": false
+  }
+ },
+ "10.sn-nakatani-do": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Kakigōri Hōsekibako → Kintetsu-Nara",
+   "lat": 34.68195892008094,
+   "lng": 135.82885665149317,
+   "onWalk": true
+  }
+ },
+ "10.sn-rokumei-coffee-nara": {
+  "p": "}eurEsv_|X@yAdA??J",
+  "km": 0.09,
+  "min": 1,
+  "mode": "walk",
+  "from": {
+   "label": "ga Kintetsu-Nara",
+   "lat": 34.68399,
+   "lng": 135.82714,
+   "onWalk": false
+  }
+ },
+ "10.sn-tama-usagi-kintetsu-nara": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Kintetsu-Nara → Kasuga Taisha",
+   "lat": 34.68422416554027,
+   "lng": 135.82878146855367,
+   "onWalk": true
+  }
+ },
+ "10.sn-kashiya-nara": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "AWA Naramachi",
+   "lat": 34.678649,
+   "lng": 135.830559,
+   "onWalk": false
+  }
+ },
+ "10.sn-hokkyoku-namba": {
+  "p": "_sqrEmv`zXCPZBE~@JhD`@pCVE",
+  "km": 0.21,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Fukutarō Honten",
+   "lat": 34.6656,
+   "lng": 135.504547,
+   "onWalk": false
+  }
+ },
  "11.amerikamura": {
   "p": "_arrEgj`zXY??Ni@@?r@kBB?nIqM??rAcD?EJ@`JEPi@d@FJ",
   "km": 0.88,
@@ -969,18 +1905,6 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "label": "Hōzen-ji Yokochō",
    "lat": 34.66784,
    "lng": 135.5026,
-   "onWalk": false
-  }
- },
- "11.kuromon": {
-  "p": "qhqrE}o`zXcAXq@qBc@}@R}OwBE",
-  "km": 0.45,
-  "min": 6,
-  "mode": "walk",
-  "from": {
-   "label": "Sennichimae Dōguyasuji",
-   "lat": 34.66393,
-   "lng": 135.50351,
    "onWalk": false
   }
  },
@@ -997,8 +1921,8 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
   }
  },
  "11.tsutenkaku": {
-  "p": "obqrEmj`zXsCpBh@bB|B{AAh@pDyBlAe@jBWhBN@ON@Hy@hEr@B[V?T}Fz@gHLKtBHDC?e@fDFRCJDfCDRCTFhCD`@ClCRXQb@JBOLLHAhH_BD_@`@F",
-  "km": 1.73,
+  "p": "obqrEmj`zXsCpBh@bB|B{AAh@pDyBlAe@jBWhBN@ON@Hy@hEr@B[V?T}Fz@gHLKbHNNFTElCFBDVE~DH?g@lABl@HXQb@JBOLLHAhH_BD_@`@F",
+  "km": 1.74,
   "min": 23,
   "mode": "walk",
   "from": {
@@ -1029,6 +1953,306 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "label": "Hanadako",
    "lat": 34.703165,
    "lng": 135.49799,
+   "onWalk": false
+  }
+ },
+ "11.sn-ibuki-coffee-kuromon": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Kuromon Market",
+   "lat": 34.6652,
+   "lng": 135.507,
+   "onWalk": false
+  }
+ },
+ "11.sn-meoto-zenzai": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Hōzen-ji Yokochō",
+   "lat": 34.66784,
+   "lng": 135.5026,
+   "onWalk": false
+  }
+ },
+ "11.sn-creperie-alcyon": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Namba (Midōsuji) → Hotel Forza Osaka Namba Dōtonbori",
+   "lat": 34.66743926430319,
+   "lng": 135.50223937310665,
+   "onWalk": true
+  }
+ },
+ "11.sn-umeda-mix-juice-honten": {
+  "p": "iqxrEiq_zXCBtBjFRr@HDX~@Zj@VRPDnABBz@F??Tf@k@AiAEIM?Cv@JLFCFSHCR?FHh@K",
+  "km": 0.51,
+  "min": 7,
+  "mode": "walk",
+  "from": {
+   "label": "Loft Hanshin Umeda",
+   "lat": 34.701165,
+   "lng": 135.498607,
+   "onWalk": false
+  }
+ },
+ "11.sn-echire-marche-au-beurre": {
+  "p": "y}xrEmm_zXNRfEwAGq@V?M\\]XoA`@O{@",
+  "km": 0.28,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "Hanadako",
+   "lat": 34.703165,
+   "lng": 135.49799,
+   "onWalk": false
+  }
+ },
+ "11.sn-bretonne-hankyu-umeda": {
+  "p": "y}xrEmm_zXNRfEwAGq@V?M\\]XoA`@O{@",
+  "km": 0.28,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "Hanadako",
+   "lat": 34.703165,
+   "lng": 135.49799,
+   "onWalk": false
+  }
+ },
+ "11.sn-hannoc-nakazakicho": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Umeda → Nakazakichō",
+   "lat": 34.70582768048841,
+   "lng": 135.50379662039455,
+   "onWalk": true
+  }
+ },
+ "12.sn-rikuro-ojisan-namba": {
+  "p": "ueqrE{f`zXc@X^hA|B{AEaA[sBs@DyDjBoAx@_AbAMVmD^s@@?M",
+  "km": 0.62,
+  "min": 8,
+  "mode": "walk",
+  "from": {
+   "label": "ga Nankai Namba",
+   "lat": 34.66347,
+   "lng": 135.50206,
+   "onWalk": false
+  }
+ },
+ "12.sn-die-gute-namba-walk": {
+  "p": "ueqrE{f`zXc@X^hA|B{AEaA[sBs@DyDjBoAx@_AbAMVmD^yCJ@fBM?",
+  "km": 0.73,
+  "min": 10,
+  "mode": "walk",
+  "from": {
+   "label": "ga Nankai Namba",
+   "lat": 34.66347,
+   "lng": 135.50206,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.coredo-muromachi": {
+  "p": "s_{xEarbtYV@Ax@T?EtArCd@ALx@L?OfG~BjDfAnDx@XLxFeBFM^MJFpKgDDQh@OLHzJ}CMs@",
+  "km": 1.31,
+  "min": 17,
+  "mode": "walk",
+  "from": {
+   "label": "Hotel RESOL Akihabara",
+   "lat": 35.696739,
+   "lng": 139.773928,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.mitsui-main": {
+  "p": "s_{xEarbtYV@Ax@T?EtArCd@ALx@L?OfG~BjDfAnDx@XLxFeBFM^MJFpKgDDQh@OLHjEqANj@~E}Ab@pBg@R",
+  "km": 1.41,
+  "min": 19,
+  "mode": "walk",
+  "from": {
+   "label": "Hotel RESOL Akihabara",
+   "lat": 35.696739,
+   "lng": 139.773928,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-fujiyama-cookie": {
+  "p": "ghtwEkf~mYT@Af@gA?CHExCM?G~BcALu@?@IgAGuCc@eAm@aACDO]BEC?Qg@Eu@_@iBmAe@i@mBkGoAsCkAiCe@q@s@s@L[",
+  "km": 1.06,
+  "min": 14,
+  "mode": "walk",
+  "from": {
+   "label": "ga Kawaguchiko",
+   "lat": 35.498436,
+   "lng": 138.768539,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-fabcafe-fuji": {
+  "p": "imswEgeenY@QfEd@C`@",
+  "km": 0.14,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Fujiyoshida Honchō-dōri",
+   "lat": 35.494131,
+   "lng": 138.804196,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-fuuto-coffee-bakeshop": {
+  "p": "imswEgeenY@QrBRVnEEn@dBQVr@p@b@@IPH",
+  "km": 0.32,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "Fujiyoshida Honchō-dōri",
+   "lat": 35.494131,
+   "lng": 138.804196,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-sakurai-udon": {
+  "p": "imswEgeenY@QnEf@l@PjAf@zDtBrMrGX{@EC",
+  "km": 0.64,
+  "min": 9,
+  "mode": "walk",
+  "from": {
+   "label": "Fujiyoshida Honchō-dōri",
+   "lat": 35.494131,
+   "lng": 138.804196,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-kawaguchiko-sweets-garden": {
+  "p": "olxwEyw~mYAIe@NEMmA`@i@s@uAh@I_@",
+  "km": 0.18,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Bến xe Kawaguchiko Bijutsukan",
+   "lat": 35.5196,
+   "lng": 138.771331,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-budoya-kofu-hana-terrace": {
+  "p": "qcywE{|ymYz@lAJZTJPToAn@X|@@lA",
+  "km": 0.21,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Ōishi Park",
+   "lat": 35.52329,
+   "lng": 138.74654,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.fs-shimoyoshida-station": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "ga Shimoyoshida",
+   "lat": 35.497729,
+   "lng": 138.803525,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.fs-kane-no-torii": {
+  "p": "{fswEo}cnYEcAlBcDf@o@jA}@rAsAdCwC|@yA`IdDzAuE|IrEBKl@ZTIn@ZJ\\zEfCpH`FHALHAR`@X",
+  "km": 1.42,
+  "min": 19,
+  "mode": "walk",
+  "from": {
+   "label": "ga Gekkōji",
+   "lat": 35.4931,
+   "lng": 138.79784,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.fs-kawaguchiko-ohashi": {
+  "p": "wgxwEgz~mYjAa@h@KZDHFLPZrAR`@VNr@?XHZ^d@tAl@jDFCRx@l@jA`ElDpDvEtBrBhLvJJU",
+  "km": 1.11,
+  "min": 15,
+  "mode": "walk",
+  "from": {
+   "label": "Bến xe Kawaguchiko Bijutsukan → Hōtō Fudō Kawaguchiko North",
+   "lat": 35.51884,
+   "lng": 138.77172,
+   "onWalk": true
+  }
+ },
+ "kawaguchiko.fs-kachikachi-ropeway": {
+  "p": "ghtwEkf~mYT@Af@gA?CHExCM?G~BcALu@?@IgAGuCc@eAm@aACDO]BEC?QU?_@KqCgBJYE[aAeDC_Cc@aAqAwEB_Be@wA{@w@q@mAk@k@e@ISW]qAtD_D",
+  "km": 1.37,
+  "min": 18,
+  "mode": "walk",
+  "from": {
+   "label": "ga Kawaguchiko",
+   "lat": 35.498436,
+   "lng": 138.768539,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.fs-oshino-hakkai": {
+  "p": "imswEgeenY@QnEf@xBx@~d@~UbGcUj@_BvDcHvOq[TOpLaVdAaB`CuEtC}DxDoE^y@LmACg@YmA_@g@}CeCu@w@sAqCi@m@_Aw@e@m@s@oAU_A{@kHaA}CIo@]uII_HHk@Vc@nD}Ab@e@Ti@Fs@Is@i@uAWkAAs@HeA^}@d@k@vAu@d@c@Z{@H{@D{GH{@\\w@p@m@r@]|Ec@t@]n@c@`@e@\\u@fCsHn@y@`A}@dFoC~YiJ~DcB`DcCb@O^GjB?tEOlQ_A|BGdEc@Ylh@JCfCtClB~K{E~@y@@IHCE",
+  "km": 7.99,
+  "min": 19,
+  "mode": "car",
+  "from": {
+   "label": "Fujiyoshida Honchō-dōri",
+   "lat": 35.494131,
+   "lng": 138.804196,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.fs-saiko-iyashi-no-sato-nenba": {
+  "p": "qcywE{|ymY_@nCv@p@uA|@|FlRTn@\\b@~GjBxCh@hKjDlCn@zAApJgDT?JF`BfC@XMn@A\\@TPn@Bn@Ul@uAjBu@nAYp@Qr@Gx@DbAFZVh@tCbEbAb@bAPrAd@d@V`@`@JPLr@BvEQ~@QRs@^yATg@R{AjAq@nASz@KjBDdAp@tF^bAZd@rDdDn@lANf@tB|QZbBJ\\\\h@fCxC\\`AZrALzBCbA_A|LBfAX`AX^bFbDnCpBpAj@zBp@lCzASdABj@nDv^@r@Ub@MBMC]_@{AaCUMa@@MJKREh@DXlFrIVnA\\vCh@`AtA|Ad@t@L^H^r@fJl@bJvB?hALvCxA^VRVRd@R~@FrACv@a@rB@t@Zl@rAL\\LHLNr@PVTBLGz@cBtAqAf@]f@MdAKl@Cb@BbA`@TP`@f@Zt@fAfDD\\EdBBPPVj@HdAOZBx@VNCr@c@L?h@VhAjAT^Lh@@n@Ed@Q^w@`AYj@eAzBE^Lb@z@t@H^@dATj@n@x@lCtAZt@f@nBHx@EzDVxBf@nAHl@Gp@a@nBAb@PXLBZAfASn@BxAr@jAx@h@p@|@|E^f@rA`@^TrD|EPf@Bt@U`DGT]d@{@h@i@n@MXM|@EvACjXMdBiEvT[nAeDjGK|@g@|MIX_@V}BEo@NoAbBO\\ObA?lBIdAy@|BMxB]vAw@lAy@r@gAtAkCvFw@v@cAp@c@H}DLgGSEyCuEEmAo@wBlBc@ViBj@ILATCtDOA",
+  "km": 12,
+  "min": 27,
+  "mode": "car",
+  "from": {
+   "label": "Ōishi Park",
+   "lat": 35.52329,
+   "lng": 138.74654,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.fs-yamanakako": {
+  "p": "imswEgeenY@QnEf@xBx@~d@~UbGcUj@_BvDcHvOq[TO|HxBl^hJxTfGzj@zN\\Jb@h@L^B\\bDeAnPkCfA@dCZtA?h@KlAm@jFqEjByB`KcSbJiPrAqCjAsBfFuGtKeUbUkh@hPad@dBeDtA}B|Wgc@t@cAtC}CzUgUnR_Mr@u@p@eAn@mAn@iBpAkChAyA|A{A~AkA~BqA`A]|@M`E\\t@CjAUpAq@`CoClWy[|OuPxP{OhFeErBmAj@SlF}@t@a@n@m@Ze@Ti@ZoAvEaW`AaMJiEJwAbB}L?{BGaAw@sHE{@jCe@CO",
+  "km": 13.81,
+  "min": 31,
+  "mode": "car",
+  "from": {
+   "label": "Fujiyoshida Honchō-dōri",
+   "lat": 35.494131,
+   "lng": 138.804196,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.fs-hananomiyako-park": {
+  "p": "imswEgeenY@QnEf@xBx@~d@~UbGcUj@_BvDcHvOq[TOpLaVdAaB`CuEtC}DxDoE^y@LmACg@YmA_@g@}CeCu@w@sAqCi@m@_Aw@e@m@s@oAU_A{@kHaA}COiBW{GI_HHk@Vc@nD}Ab@e@Ti@Fs@Is@i@uAWkAAs@HeA^}@d@k@vAu@d@c@Z{@H{@D{GH{@\\w@p@m@r@]|Ec@t@]n@c@`@e@\\u@fCsHn@y@`A}@dFoC~YiJ~DcB`DcCbAWjB?`J]`Mq@|BGdEc@d@y`@^cHr@yJ|BwOBa@GcC|@qCjAqCnCwLzF~C~EpB~FrAzp@vPlEhBjDbBhG|Bh@aEbB}IrJpCFF?Lo@|DhBf@",
+  "km": 10.8,
+  "min": 25,
+  "mode": "car",
+  "from": {
+   "label": "Fujiyoshida Honchō-dōri",
+   "lat": 35.494131,
+   "lng": 138.804196,
    "onWalk": false
   }
  }

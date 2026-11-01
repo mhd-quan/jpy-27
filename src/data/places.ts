@@ -117,7 +117,7 @@ export const PLACES: PlaceBase[] = [
     lat: 34.668694,
     lng: 135.503571,
     note: 'Forza Double 18 m², giường 160 cm. Lobby tầng 3, ngay khu Dōtonbori.',
-    tips: 'Nankai Namba (ra KIX) cách 12–15 phút đi bộ. Xin tầng cao, xa thang máy.',
+    tips: 'Nankai Namba (ra KIX) cách khoảng 20 phút đi bộ tính tới sân ga. Xin tầng cao, xa thang máy.',
     official: 'https://www.hotelforza.jp/osakanamba/rooms/',
     review: 'https://4travel.jp/dm_hotel-11872817/tips',
   },
@@ -125,19 +125,19 @@ export const PLACES: PlaceBase[] = [
   // ——— Food: Tokyo ———
   {
     id: 'tsumugi', name: 'Ramen Tsumugi', ja: 'らーめん紬麦', kind: 'food', area: 'tokyo',
-    dish: 'Chūka soba nước trong', price: '¥1.400–1.700',
+    dish: 'Chūka soba nước trong', price: '¥1.200–1.500',
     note: 'Nước dùng thanh, sợi mì là điểm nhấn — bữa đầu nhẹ bụng sau chuyến bay.',
     closed: 'Chủ nhật, lễ, vài thứ Bảy', tabelog: tb('tokyo/A1310/A131001/13120606'),
   },
   {
     id: 'yamabe', name: 'Tonkatsu Yamabe Okachimachi', ja: 'とんかつ やまべ 御徒町店', kind: 'food', area: 'tokyo',
-    dish: 'Set rosu hoặc hire katsu', price: '¥1.300–1.800',
+    dish: 'Set rosu hoặc hire katsu', price: '¥1.000–1.400',
     note: 'Bình dân, tiện đường, có cơm và bắp cải thêm thoải mái.',
     pay: 'cash', tips: 'Không nhận đặt chỗ.', tabelog: tb('tokyo/A1311/A131101/13138428'),
   },
   {
     id: 'kayaba', name: 'Kayaba Coffee', ja: 'カヤバ珈琲', kind: 'food', area: 'tokyo',
-    dish: 'Sandwich trứng và cà phê', price: '¥1.800–2.200',
+    dish: 'Sandwich trứng và cà phê', price: '¥1.500–2.000',
     note: 'Quán cà phê trong nhà gỗ năm 1938 ở Yanaka, tầng hai trải tatami.',
     closed: 'Thứ Hai', tabelog: tb('tokyo/A1311/A131104/13019585'),
   },
@@ -149,13 +149,13 @@ export const PLACES: PlaceBase[] = [
   },
   {
     id: 'owariya', name: 'Owariya Honten', ja: '尾張屋 本店', kind: 'food', area: 'tokyo',
-    dish: 'Soba tempura tôm lớn', price: '¥2.200–2.800',
+    dish: 'Soba tempura tôm lớn', price: '¥2.000–2.600',
     note: 'Quán soba từ thời Edo cạnh Sensō-ji; có khách quay lại hơn chục lần.',
     closed: 'Thứ Sáu', pay: 'cash', tabelog: tb('tokyo/A1311/A131102/13003714'),
   },
   {
     id: 'umezono', name: 'Umezono Asakusa', ja: '梅園 浅草本店', kind: 'food', area: 'tokyo',
-    dish: 'Anmitsu hoặc awa-zenzai', price: '¥1.100–1.500',
+    dish: 'Anmitsu hoặc awa-zenzai', price: '¥900–1.400',
     note: 'Tiệm ngọt truyền thống từ 1854 — chỗ ngồi nghỉ chân sau Sensō-ji.',
     tabelog: tb('tokyo/A1311/A131102/13003670'),
   },
@@ -193,7 +193,7 @@ export const PLACES: PlaceBase[] = [
   },
   {
     id: 'kaizan', name: 'Kaizan · Kashi no Ichi', ja: '海山 (河岸の市 まぐろ館)', kind: 'food', area: 'tokaido',
-    dish: 'Cơm cá ngừ, set tôm chiên', price: '¥2.500–3.500',
+    dish: 'Cơm cá ngừ, set tôm chiên', price: '¥2.000–3.000',
     note: 'Chợ cá cảng Shimizu, cách ga 3 phút — hợp ngày chuyển vùng.', tabelog: tb('shizuoka/A2201/A220102/22024359'),
   },
   {
@@ -212,13 +212,13 @@ export const PLACES: PlaceBase[] = [
   // ——— Food: Ise, Toba, Shima ———
   {
     id: 'butasute', name: 'Butasute Gekū-mae', ja: '豚捨 外宮前店', kind: 'food', area: 'ise',
-    dish: 'Gyūdon bò Ise', price: '¥1.800–2.500',
+    dish: 'Gyūdon bò Ise', price: '¥1.400–2.000',
     note: 'Gần Gekū và khách sạn. Bò Ise khác bò Matsusaka.',
     closed: 'Thứ Tư, thứ Năm', tips: 'Tối đóng sớm, gọi món cuối khoảng 19h.', tabelog: tb('mie/A2403/A240301/24011334'),
   },
   {
     id: 'fukusuke', name: 'Fukusuke', ja: 'ふくすけ', kind: 'food', area: 'ise',
-    dish: 'Ise udon', price: '¥900–1.400',
+    dish: 'Ise udon', price: '¥650–1.100',
     note: 'Sợi rất mềm, nước sốt đậm — món địa phương, khác hẳn udon dai kiểu Sanuki.',
     tips: 'Cuối tuần nên ăn trước 12h.', tabelog: tb('mie/A2403/A240301/24000009'),
   },
@@ -230,7 +230,7 @@ export const PLACES: PlaceBase[] = [
   },
   {
     id: 'manpuku', name: 'Manpuku Shokudō', ja: 'まんぷく食堂', kind: 'food', area: 'ise',
-    dish: 'Cơm gà karaage', price: '¥1.000–1.300',
+    dish: 'Cơm gà karaage', price: '¥850–1.200',
     note: 'Quán cơm bình dân gần Ujiyamada, phần lớn, nhiều khách quen.',
     pay: 'cash', closed: 'Không cố định', tabelog: tb('mie/A2403/A240301/24000115'),
   },
@@ -260,13 +260,13 @@ export const PLACES: PlaceBase[] = [
     tabelog: tb('kyoto/A2601/A260301/26000254'),
   },
   {
-    id: 'komori', name: 'Gion Komori', ja: 'ぎをん小森', kind: 'food', area: 'kyoto',
-    dish: 'Warabi mochi, parfait', price: '¥1.900–2.400',
-    note: 'Trà quán trong nhà machiya bên kênh Shirakawa.', tabelog: tb('kyoto/A2601/A260301/26000280'),
+    id: 'komori', name: 'Gion Komori', ja: 'ぎをん小森', kind: 'food', area: 'kyoto', role: 'alt',
+    dish: 'Warabi mochi, parfait', price: '¥1.400–2.000',
+    note: 'Trà quán trong nhà machiya bên kênh Shirakawa. Nghỉ thứ Hai nên không hợp ngày 8; dùng nếu đổi lịch Gion sang ngày khác.', closed: 'Thứ Hai', tabelog: tb('kyoto/A2601/A260301/26000280'),
   },
   {
     id: 'menzo', name: 'Yamamoto Menzō', ja: '山元麺蔵', kind: 'food', area: 'kyoto',
-    dish: 'Udon, gà chiên, tempura ngưu bàng', price: '¥1.800–2.400',
+    dish: 'Udon, gà chiên, tempura ngưu bàng', price: '¥1.200–2.000',
     note: 'Udon nổi tiếng nhất Kyoto, gần Heian Jingū.', pay: 'cash',
     tips: 'Đặt chỗ mở lúc 0h giờ Nhật, ba ngày trước (22h tối 21/10 giờ Việt Nam).',
     tabelog: tb('kyoto/A2601/A260301/26002504'),
@@ -331,7 +331,7 @@ export const PLACES: PlaceBase[] = [
   { id: 'maruzen-nihonbashi', name: 'Maruzen Nihonbashi', ja: '丸善 日本橋店', kind: 'shop', area: 'tokyo', lat: 35.682, lng: 139.7745, note: 'Văn phòng phẩm, sổ, bút.' },
   { id: 'nakagawa-masashichi-nara', name: 'Nakagawa Masashichi Nara', ja: '中川政七商店 奈良本店', kind: 'shop', area: 'nara', lat: 34.6793, lng: 135.8277, note: 'Khăn kaya fukin và đồ gia dụng thủ công.' },
   { id: 'ichizawa', name: 'Ichizawa Shinzaburō Hanpu', ja: '一澤信三郎帆布', kind: 'shop', area: 'kyoto', role: 'along', lat: 35.007759, lng: 135.777603, note: 'Túi canvas may tay; mẫu 148 khoảng ¥16.500. Nghỉ thứ Ba.' },
-  { id: 'ippodo-kyoto', name: 'Ippodo Kyoto Honten', ja: '一保堂茶舗 京都本店', kind: 'shop', area: 'kyoto', lat: 35.014042, lng: 135.767441, note: 'Hōjicha 極上 100 g khoảng ¥756.' },
+  { id: 'ippodo-kyoto', name: 'Ippodo Kyoto Honten', ja: '一保堂茶舗 京都本店', kind: 'shop', area: 'kyoto', lat: 35.014042, lng: 135.767441, note: 'Hōjicha gói 80 g khoảng ¥1.080 (giá 2026, tuỳ loại).' },
   { id: 'doguyasuji', name: 'Sennichimae Dōguyasuji', ja: '千日前道具屋筋商店街', kind: 'shop', area: 'osaka', lat: 34.663935, lng: 135.503517, note: 'Phố đồ bếp: bát, đũa, dao.' },
   { id: 'takashimaya-osaka', name: 'Takashimaya Osaka', ja: '高島屋 大阪店', kind: 'shop', area: 'osaka', lat: 34.664, lng: 135.5017, note: 'Tầng hầm thực phẩm: hộp bánh có hạn dùng dài.' },
   { id: 'loft-umeda', name: 'Loft Hanshin Umeda', ja: 'ロフト 阪神梅田本店', kind: 'shop', area: 'osaka', lat: 34.701165, lng: 135.498607, note: 'Tầng 6 Hanshin Umeda Honten.' },
@@ -437,5 +437,10 @@ export const PLACES: PlaceBase[] = [
   { id: 'st-namba', name: 'Namba (Midōsuji)', ja: 'なんば', kind: 'station', area: 'osaka', lat: 34.66561, lng: 135.50027 },
   { id: 'st-umeda', name: 'Umeda', ja: '梅田', kind: 'station', area: 'osaka', lat: 34.70211, lng: 135.49803 },
   { id: 'st-nankai-namba', name: 'Nankai Namba', ja: '難波', kind: 'station', area: 'osaka', lat: 34.66347, lng: 135.50206 },
+  // Kawaguchiko alternative day
+  { id: 'st-otsuki', name: 'Ōtsuki', ja: '大月', kind: 'station', area: 'kawaguchiko', lat: 35.61276, lng: 138.942796 },
+  { id: 'st-kawaguchiko', name: 'Kawaguchiko', ja: '河口湖', kind: 'station', area: 'kawaguchiko', lat: 35.498436, lng: 138.768539 },
+  { id: 'st-shimoyoshida', name: 'Shimoyoshida', ja: '下吉田', kind: 'station', area: 'kawaguchiko', lat: 35.497729, lng: 138.803525 },
+  { id: 'bus-kawaguchiko-bijutsukan', name: 'Bến xe Kawaguchiko Bijutsukan', ja: '河口湖美術館', kind: 'station', area: 'kawaguchiko', lat: 35.5196, lng: 138.771331 },
   { id: 'kix', name: 'Sân bay Kansai', ja: '関西空港', kind: 'station', area: 'osaka', lat: 34.43597, lng: 135.24349 },
 ];

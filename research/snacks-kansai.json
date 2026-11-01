@@ -1,0 +1,2488 @@
+{
+  "places": [
+    {
+      "id": "sn-umezono-kawaramachi",
+      "name": "Umezono Kawaramachi",
+      "ja": "梅園 河原町店",
+      "type": "dessert",
+      "day": 7,
+      "near": "cross-kyoto",
+      "when": "Chủ nhật 24/10, sau khi nhận phòng (khoảng 18:45), trước bữa tối ở Menami — quán đóng cửa 19:30",
+      "lat": 35.007542,
+      "lng": 135.769245,
+      "coordSource": "Nominatim (OSM) node \"梅園 河原町店\", 山崎町 (https://nominatim.openstreetmap.org/search?format=json&q=梅園+河原町店+京都)",
+      "address": "京都府京都市中京区河原町三条下る山崎町234-4",
+      "get": [
+        {
+          "ja": "みたらし団子と黒糖わらび餅",
+          "romaji": "mitarashi dango to kokutō warabi mochi",
+          "vi": "Dango mitarashi nướng kèm warabi mochi đường nâu (giá theo chú thích ảnh Tabelog, đã gồm thuế)",
+          "yen": 810
+        },
+        {
+          "ja": "白玉あんみつ",
+          "romaji": "shiratama anmitsu",
+          "vi": "Anmitsu với viên shiratama (giá theo chú thích ảnh Tabelog)",
+          "yen": 850
+        }
+      ],
+      "why": "Quán wagashi và giải khát ở góc Kawaramachi–Sanjō, cách khách sạn khoảng 100 m, mở đến 19:30 cả chủ nhật. Hợp để ăn nhẹ một món ngọt trước bữa tối.",
+      "hours": "10:30–19:30",
+      "open": "10:30",
+      "close": "19:30",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ cố định; chủ nhật vẫn mở 10:30–19:30",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260202/26001860/",
+          "rating": 3.64,
+          "count": 872,
+          "award": "Tabelog 百名店 Wagashi/Cafe WEST 2026, 2023"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/258601/640x640_rect_57cc66599dfe6788fadbd5c934004722.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/258601/57cc66599dfe6788fadbd5c934004722.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260202/26001860/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "熟睡猫 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Mitarashi dango nướng"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/258601/640x640_rect_8bbe9643a5bcac80e27e16ecae8251df.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/258601/8bbe9643a5bcac80e27e16ecae8251df.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260202/26001860/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "熟睡猫 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Shiratama anmitsu"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/258601/640x640_rect_0ad88bc9816343e6607eb423a7264f52.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/258601/0ad88bc9816343e6607eb423a7264f52.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260202/26001860/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "熟睡猫 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Warabi mochi đường nâu"
+        }
+      ]
+    },
+    {
+      "id": "sn-koe-donuts-kyoto",
+      "name": "koe donuts Kyoto",
+      "ja": "koe donuts 京都店",
+      "type": "bakery",
+      "day": 7,
+      "near": "cross-kyoto",
+      "when": "Chủ nhật 24/10, khoảng 18:50–19:30, trước bữa tối ở Menami — quán đóng cửa 20:00",
+      "lat": 35.00426,
+      "lng": 135.767259,
+      "coordSource": "Nominatim (OSM) node \"Koe Doughnuts\", 新京極通 (https://nominatim.openstreetmap.org/search?format=json&q=koe+donuts&viewbox=135.7665,35.007,135.770,35.0035&bounded=1)",
+      "address": "京都府京都市中京区新京極四条上ル中之町557 京都松竹第3ビル 1F",
+      "get": [
+        {
+          "ja": "ドーナツ",
+          "romaji": "dōnattsu",
+          "vi": "Donut mua mang đi hoặc ăn tại chỗ (quán có khoảng 30 vị thường trực; chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "ドーナツメルト",
+          "romaji": "dōnattsu meruto",
+          "vi": "Món \"Donut Melt\" được Tabelog nêu nổi bật (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quán donut trên phố Shinkyōgoku, cách ga Kawaramachi khoảng 1 phút đi bộ. Mở 8:00–20:00 mọi ngày nên ghé được vào tối chủ nhật.",
+      "hours": "8:00–20:00",
+      "open": "08:00",
+      "close": "20:00",
+      "closedDow": [],
+      "closedNote": "Không có ngày nghỉ cố định (theo Tabelog)",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260201/26032035/",
+          "rating": 3.67,
+          "count": 1297,
+          "award": "Tabelog 百名店 Cafe WEST 2025"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/213821/640x640_rect_144f8b661a325988bb2b67db949222d4.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/213821/144f8b661a325988bb2b67db949222d4.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26032035/dtlphotolst/1/smp2/?mode=user",
+          "credit": "カフェモカ男 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng, Tabelog)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/213358/640x640_rect_82bbc601d512ccdab5abe2754bdd1235.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/213358/82bbc601d512ccdab5abe2754bdd1235.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26032035/dtlphotolst/1/smp2/?mode=user",
+          "credit": "カフェモカ男 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng, Tabelog)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/213358/640x640_rect_ea5912a950314dbcf320354f812cd6ec.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/213358/ea5912a950314dbcf320354f812cd6ec.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26032035/dtlphotolst/1/smp2/?mode=user",
+          "credit": "カフェモカ男 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Donut tại koe donuts Kyoto (ảnh khách đăng, Tabelog)"
+        }
+      ]
+    },
+    {
+      "id": "sn-hayashi-manshodo",
+      "name": "Amaguri no Shinise Hayashi Manshōdō Honten",
+      "ja": "甘栗の老舗 林万昌堂 本店",
+      "type": "street-food",
+      "day": 7,
+      "near": "cross-kyoto",
+      "when": "Chủ nhật 24/10, khoảng 19:00–19:30, trước bữa tối ở Menami — quán đóng cửa 20:00",
+      "lat": 35.003827,
+      "lng": 135.766949,
+      "coordSource": "Nominatim (OSM) node \"林万昌堂\", 寺町通 (https://nominatim.openstreetmap.org/search?format=json&q=林万昌堂)",
+      "address": "京都府京都市下京区四条通寺町東入ル御旅宮本町3",
+      "get": [
+        {
+          "ja": "甘栗（特製）",
+          "romaji": "amaguri (tokusei)",
+          "vi": "Hạt dẻ rang đường, bán theo túi (Tabelog nhắc loại 200 g; chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Tiệm hạt dẻ rang đường lâu năm ngay ngã tư Shijō–Teramachi. Mua một túi nhỏ ăn vừa đi, mở 10:00–20:00 kể cả chủ nhật.",
+      "hours": "10:00–20:00",
+      "open": "10:00",
+      "close": "20:00",
+      "closedDow": [],
+      "closedNote": "Chỉ nghỉ mùng 1 Tết dương lịch",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260201/26000796/",
+          "rating": 3.66,
+          "count": 493,
+          "award": "Tabelog 百名店 Wagashi WEST 2026, 2023"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/41481/640x640_rect_41481191.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/41481/41481191.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000796/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "チンプリ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Hạt dẻ rang đường (amaguri)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/31015/640x640_rect_31015487.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/31015/31015487.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000796/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "てるてる!(^^)! / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Hạt dẻ rang tại tiệm"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/33937/640x640_rect_33937745.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/33937/33937745.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000796/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "京都娘ちろ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Hạt dẻ rang đựng túi"
+        }
+      ]
+    },
+    {
+      "id": "sn-salon-de-the-francois",
+      "name": "Salon de thé FRANCOIS",
+      "ja": "フランソア喫茶室",
+      "type": "cafe",
+      "day": 7,
+      "near": "menami",
+      "when": "Chủ nhật 24/10, sau bữa tối ở Menami (khoảng 21:00) — gọi món cuối 21:30, đóng cửa 22:00",
+      "lat": 35.003,
+      "lng": 135.7702,
+      "coordSource": "Nominatim (OSM) chō 船頭町 (35.00285,135.77012) và 西木屋町通 (35.00344,135.77034); quán không có trong OSM nên sai số khoảng 30–50 m",
+      "address": "京都府京都市下京区西木屋町通四条下ル船頭町184",
+      "get": [
+        {
+          "ja": "ケーキセット",
+          "romaji": "kēki setto",
+          "vi": "Set bánh (rare cheesecake) kèm cà phê hoặc trà, theo chú thích ảnh Tabelog (đã gồm thuế)",
+          "yen": 1350
+        }
+      ],
+      "why": "Quán kissaten bên sông Takase được Tabelog chọn vào 喫茶店 百名店 (2021, 2022, 2026). Mở đến 22:00 mọi ngày nên là nơi ngồi nghỉ sau bữa tối chủ nhật.",
+      "hours": "11:00–22:00 (gọi món cuối 21:30)",
+      "open": "11:00",
+      "close": "22:00",
+      "closedDow": [],
+      "closedNote": "Nghỉ 31/12–2/1",
+      "pay": "cash",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260201/26000900/",
+          "rating": 3.73,
+          "count": 1889,
+          "award": "Tabelog 百名店 喫茶店 2026, 2022, 2021"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/33840/640x640_rect_33840295.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/33840/33840295.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000900/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "まっすん / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Rare cheesecake"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/46509/640x640_rect_46509682.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/46509/46509682.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000900/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ｻｲｹﾝ8700 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Tart chanh"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/279538/640x640_rect_e5667b5b1d9a41926e1d0bf2422ace33.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/279538/e5667b5b1d9a41926e1d0bf2422ace33.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26000900/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "mm5-3 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Rare cheesecake"
+        }
+      ]
+    },
+    {
+      "id": "sn-londonya",
+      "name": "Londonya",
+      "ja": "ロンドンヤ",
+      "type": "street-food",
+      "day": 7,
+      "near": "cross-kyoto",
+      "when": "Chủ nhật 24/10, khoảng 18:50–20:00 — quán đóng cửa 20:30",
+      "lat": 35.004112,
+      "lng": 135.767246,
+      "coordSource": "Nominatim (OSM) node \"Rondon-yaki Pancake Shop\", 新京極通 (https://nominatim.openstreetmap.org/search?format=json&q=ロンドン&viewbox=135.7665,35.007,135.770,35.0035&bounded=1)",
+      "address": "京都府京都市中京区新京極通四条上ル中之町565",
+      "get": [
+        {
+          "ja": "ロンドン焼",
+          "romaji": "rondon-yaki",
+          "vi": "Bánh nướng nhỏ nhân đậu trắng, làm bằng máy ngay trước cửa; mua hộp 10 chiếc (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quầy bánh nướng nhân đậu trắng trên phố Shinkyōgoku, mở 9:30–20:30 mọi ngày. Mua vài chiếc mang về khách sạn ăn đêm.",
+      "hours": "9:30–20:30",
+      "open": "09:30",
+      "close": "20:30",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ",
+      "pay": "cash",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260201/26007251/",
+          "rating": 3.56,
+          "count": 381,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/31853/640x640_rect_31853455.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/31853/31853455.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26007251/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "まっすん / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Bánh London-yaki"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/31994/640x640_rect_31994904.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/31994/31994904.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26007251/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ぽぱい / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Mua hộp 10 chiếc London-yaki mang về khách sạn"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/31994/640x640_rect_31994902.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/31994/31994902.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260201/26007251/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ぽぱい / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Vỏ bánh mềm"
+        }
+      ]
+    },
+    {
+      "id": "sn-arabica-kyoto-higashiyama",
+      "name": "% Arabica Kyoto Higashiyama",
+      "ja": "アラビカ 京都 東山",
+      "type": "cafe",
+      "day": 8,
+      "near": "yasaka-shrine",
+      "when": "Thứ Hai 25/10, khoảng 9:00 khi đi bộ từ Kiyomizu-dera xuống phía tháp Yasaka (Tabelog ghi mở 9:00; trang du lịch ghi 8:00)",
+      "lat": 34.99921,
+      "lng": 135.778124,
+      "coordSource": "Nominatim (OSM) node \"% Arabica Kyoto 東山\", 八坂通 (https://nominatim.openstreetmap.org/search?format=json&q=%25+ARABICA+Kyoto+Higashiyama)",
+      "address": "京都府京都市東山区星野町87-5",
+      "get": [
+        {
+          "ja": "カフェラテ",
+          "romaji": "kafe rate",
+          "vi": "Latte, món được các bài viết du lịch khen nhất (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quán cà phê nhỏ ngay cạnh tháp Yasaka, nằm trên đường đi bộ xuống từ Kiyomizu-dera. Chỗ ngồi chật, hợp uống nhanh một ly rồi đi tiếp.",
+      "hours": "9:00–18:00",
+      "open": "09:00",
+      "close": "18:00",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ; trang Inside Kyoto ghi giờ mở là 8:00–18:00, nên xác nhận lại",
+      "pay": "card",
+      "queue": "Quán chật, theo bài viết du lịch nên chỉ ghé uống nhanh",
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260301/26024353/",
+          "rating": 3.54,
+          "count": 511,
+          "award": null
+        },
+        "social": [
+          {
+            "platform": "blog",
+            "url": "https://insidekyoto.com/arabica-higashiyama",
+            "note": "Inside Kyoto: khen cà phê, quán sáng và hiện đại giữa khu nhà gỗ, chỗ ngồi chật"
+          },
+          {
+            "platform": "blog",
+            "url": "https://en.japantravel.com/kyoto/arabica-higashiyama/60099",
+            "note": "Japan Travel (1/2024): khen latte và nhiều loại hạt, quán nhỏ, cách tháp Yasaka vài bước"
+          }
+        ]
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/31905/640x640_rect_31905484.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/31905/31905484.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26024353/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "オカデンチ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ảnh khách đăng trên Tabelog tại % Arabica Higashiyama"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/45069/640x640_rect_fc8d4300feb97d63ed92458506a2b420.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/45069/fc8d4300feb97d63ed92458506a2b420.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26024353/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "sakura007 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ảnh khách đăng trên Tabelog tại % Arabica Higashiyama"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/37744/640x640_rect_29b10ea3fa503504898b2b86f81a87e2.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/37744/29b10ea3fa503504898b2b86f81a87e2.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26024353/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "花咲トキ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ảnh khách đăng trên Tabelog tại % Arabica Higashiyama"
+        }
+      ]
+    },
+    {
+      "id": "sn-kasagiya",
+      "name": "Kasagiya",
+      "ja": "かさぎ屋",
+      "type": "dessert",
+      "day": 8,
+      "near": "kiyomizudera",
+      "when": "Thứ Hai 25/10, khoảng 10:45–11:30, từ Yasaka Jinja đi bộ khoảng 8 phút xuống Ninenzaka rồi quay lại Yorozuya — mở 10:00–17:00, nghỉ thứ Ba",
+      "lat": 34.998091,
+      "lng": 135.780794,
+      "coordSource": "Nominatim (OSM) node \"Kasagi-Ya\", 二寧坂 (https://nominatim.openstreetmap.org/search?format=json&q=かさぎ屋&viewbox=135.70,35.05,135.85,34.95&bounded=1)",
+      "address": "京都府京都市東山区桝屋町349",
+      "get": [
+        {
+          "ja": "うす茶のセット",
+          "romaji": "usucha no setto",
+          "vi": "Set trà matcha loãng kèm bánh ngọt (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "三色御萩",
+          "romaji": "sanshoku ohagi",
+          "vi": "Ohagi ba vị nhân anko (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "宇治金時",
+          "romaji": "uji kintoki",
+          "vi": "Đá bào matcha kèm đậu đỏ, có ảnh Tabelog; có thể đã hết mùa vào cuối tháng 10",
+          "yen": null
+        }
+      ],
+      "why": "Quán trà bán wagashi ngay trên Ninenzaka, được Tabelog chọn vào 百名店 Wagashi/Cafe WEST 2026 và 2023. Tabelog có nhiều ảnh ohagi ba vị và zenzai.",
+      "hours": "10:00–17:00",
+      "open": "10:00",
+      "close": "17:00",
+      "closedDow": [
+        2
+      ],
+      "closedNote": "Nghỉ thứ Ba",
+      "pay": "cash",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260301/26000596/",
+          "rating": 3.62,
+          "count": 460,
+          "award": "Tabelog 百名店 Wagashi/Cafe WEST 2026, 2023"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/262260/640x640_rect_39fc8560653eca4ee8930a31bbe8d649.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/262260/39fc8560653eca4ee8930a31bbe8d649.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000596/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "yuyuyu0147 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Đá bào Uji kintoki"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/144835/640x640_rect_144835183.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/144835/144835183.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000596/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "東行晋作 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ohagi ba vị anko"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/144835/640x640_rect_144835185.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/144835/144835185.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26000596/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "東行晋作 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Zenzai Kyoto với mochi nướng"
+        }
+      ]
+    },
+    {
+      "id": "sn-kissho-karyo-gion",
+      "name": "Kisshō Karyō Gion Honten",
+      "ja": "吉祥菓寮 祇園本店",
+      "type": "dessert",
+      "day": 8,
+      "near": "komori",
+      "when": "Thứ Hai 25/10, khoảng 13:00–13:45 thay cho Gion Komori (Komori nghỉ thứ Hai) — mở 11:00–18:00, gọi món cuối 17:30",
+      "lat": 35.00686,
+      "lng": 135.777796,
+      "coordSource": "Nominatim (OSM) trung tâm chō 石橋町 (https://nominatim.openstreetmap.org/search?format=json&q=石橋町&viewbox=135.70,35.014,135.783,35.003&bounded=1); quán không có trong OSM nên sai số khoảng 100–150 m, cần kiểm tra lại trên bản đồ",
+      "address": "京都府京都市東山区石橋町306",
+      "get": [
+        {
+          "ja": "きな粉の蕨餅",
+          "romaji": "kinako no warabi mochi",
+          "vi": "Warabi mochi với kinako rang đậm, món đặc trưng của quán (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "焦がしきな粉パフェ",
+          "romaji": "kogashi kinako pafe",
+          "vi": "Parfait kinako rang cháy (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "きな粉プリン",
+          "romaji": "kinako purin",
+          "vi": "Pudding kinako, chỉ bán mang đi (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quán sweets chuyên kinako ở bờ bắc Shirakawa, có warabi mochi và parfait. Là lựa chọn cho giờ 13:00 vì mở cả thứ Hai.",
+      "hours": "11:00–18:00 (món ăn gọi cuối 17:30)",
+      "open": "11:00",
+      "close": "18:00",
+      "closedDow": [],
+      "closedNote": "Chỉ nghỉ mùng 1 Tết dương lịch",
+      "pay": "card",
+      "queue": "Quán phát số thứ tự khi có từ 5 nhóm chờ trở lên (theo Tabelog); nên đến sớm",
+      "replacesKomori": true,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260301/26025412/",
+          "rating": 3.59,
+          "count": 608,
+          "award": "Tabelog 百名店 Cafe WEST 2025"
+        },
+        "social": [
+          {
+            "platform": "blog",
+            "url": "https://mai-ko.com/travel/japan/kyoto/gion/interesting-cafe-kissaten-in-gion",
+            "note": "Bài của Mai-ko: quán ở bờ bắc Shirakawa, bán kinako rang, warabi mochi, parfait, latte"
+          }
+        ]
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/150633/640x640_rect_150633938.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/150633/150633938.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26025412/dtlphotolst/1/smp2/",
+          "credit": "Jasmine_m / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Món ngọt tại Kisshō Karyō (ảnh khách đăng)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/150633/640x640_rect_150633940.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/150633/150633940.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26025412/dtlphotolst/1/smp2/",
+          "credit": "Jasmine_m / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Món ngọt tại Kisshō Karyō (ảnh khách đăng)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/131014/640x640_rect_131014708.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/131014/131014708.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26025412/dtlphotolst/1/smp2/",
+          "credit": "カフェモカ男 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Món ngọt tại Kisshō Karyō (ảnh khách đăng)"
+        }
+      ]
+    },
+    {
+      "id": "sn-gion-tokuya",
+      "name": "Gion Tokuya",
+      "ja": "ぎおん徳屋",
+      "type": "dessert",
+      "day": 8,
+      "near": "yorozuya",
+      "when": "Thứ Hai 25/10, khoảng 12:45–13:45, thay cho Gion Komori (Komori nghỉ thứ Hai); ngay cạnh Yorozuya — mở 12:00–18:00, bán đến khi hết",
+      "lat": 35.0025,
+      "lng": 135.774888,
+      "coordSource": "Nominatim (OSM) node \"ぎおん徳屋\", 花見小路 (https://nominatim.openstreetmap.org/search?format=json&q=ぎおん徳屋&viewbox=135.7725,35.004,135.7765,35.001&bounded=1)",
+      "address": "京都府京都市東山区祇園町南側570-127",
+      "get": [
+        {
+          "ja": "本わらびもち・葛もち盛り合わせ",
+          "romaji": "hon warabi mochi, kuzumochi moriawase",
+          "vi": "Đĩa warabi mochi làm từ bột warabi thật và kuzumochi, theo chú thích ảnh Tabelog",
+          "yen": 1420
+        },
+        {
+          "ja": "特上抹茶 宇治金時",
+          "romaji": "tokujō matcha uji kintoki",
+          "vi": "Đá bào matcha–đậu đỏ (có thể đã hết mùa vào cuối tháng 10; chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quán chè Nhật nổi tiếng nhất Gion với warabi mochi và kuzumochi, nằm trên Hanamikoji cách Yorozuya vài bước. Mở cả thứ Hai nên thay được Komori.",
+      "hours": "12:00–18:00 (bán đến khi hết)",
+      "open": "12:00",
+      "close": "18:00",
+      "closedDow": [],
+      "closedNote": "Ngày nghỉ không cố định, báo trên trang web chính thức của quán",
+      "pay": "card",
+      "queue": "Thường xếp hàng, lấy số thứ tự khi đến; không đặt chỗ được; có bán mang đi (theo Tabelog và Kanpai Japan)",
+      "replacesKomori": true,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260301/26002075/",
+          "rating": 3.76,
+          "count": 2266,
+          "award": "Tabelog 百名店 Wagashi WEST 2026, 2023 (Sweets WEST 2018–2022)"
+        },
+        "social": [
+          {
+            "platform": "blog",
+            "url": "https://www.kanpai-japan.com/kyoto/gion-tokuya-japanese-desserts",
+            "note": "Kanpai Japan (cập nhật 31/5/2024): warabi mochi, kuzumochi, yakimochi, kakigōri; lấy số thứ tự, món ngọt từ ¥880"
+          }
+        ]
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/247263/640x640_rect_ab59f0cf0823d2e48d9b8ff9821bbdef.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/247263/ab59f0cf0823d2e48d9b8ff9821bbdef.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002075/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "mapiko47 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Đĩa warabi mochi và kuzumochi"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/247263/640x640_rect_d7e9d2d88e8282a916c1440739ec6145.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/247263/d7e9d2d88e8282a916c1440739ec6145.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002075/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "mapiko47 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Kuzumochi matcha (trái) và warabi mochi (phải)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/66229/640x640_rect_66229161.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/66229/66229161.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002075/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "鉄道王 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Đá bào matcha Uji kintoki"
+        }
+      ]
+    },
+    {
+      "id": "sn-gion-kinana-honten",
+      "name": "Gion Kinana Honten",
+      "ja": "祇園きなな 本店",
+      "type": "dessert",
+      "day": 8,
+      "near": "yorozuya",
+      "when": "Thứ Hai 25/10, khoảng 13:30–14:15 thay cho Gion Komori, cách Yorozuya khoảng 60 m — mở 12:00–17:30, nghỉ thứ Năm",
+      "lat": 35.002294,
+      "lng": 135.774319,
+      "coordSource": "Nominatim (OSM) node \"祇園きなな\", 西花見小路 (https://nominatim.openstreetmap.org/search?format=json&q=祇園きなな)",
+      "address": "京都府京都市東山区祇園町南側570-119",
+      "get": [
+        {
+          "ja": "和栗のパフェ",
+          "romaji": "waguri no pafe",
+          "vi": "Parfait hạt dẻ Nhật, theo chú thích ảnh Tabelog (đã gồm thuế)",
+          "yen": 2100
+        },
+        {
+          "ja": "できたてきなな",
+          "romaji": "dekitate kinana",
+          "vi": "Kem kinako làm tại chỗ, món đặc trưng (giá hiện tại chưa xác minh)",
+          "yen": null
+        }
+      ],
+      "why": "Chuyên kem và parfait kinako, nằm ngay cạnh Yorozuya trên Hanamikoji. Mở 12:00–17:30 cả thứ Hai nên thay được Komori; trả bằng thẻ hoặc ví điện tử, không nhận tiền mặt.",
+      "hours": "12:00–17:30",
+      "open": "12:00",
+      "close": "17:30",
+      "closedDow": [
+        4
+      ],
+      "closedNote": "Nghỉ thứ Năm",
+      "pay": "card",
+      "queue": null,
+      "replacesKomori": true,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260301/26002500/",
+          "rating": 3.68,
+          "count": 1182,
+          "award": "Tabelog 百名店 Wagashi/Cafe WEST 2026 (Sweets WEST 2018–2020, 2022)"
+        },
+        "social": [
+          {
+            "platform": "blog",
+            "url": "https://kyotofoodie.com/?p=4793",
+            "note": "KyotoFoodie (3/2020): bài giới thiệu quán kem kinako, ghi giờ cũ 11:00–19:00 (Tabelog hiện ghi 12:00–17:30)"
+          }
+        ]
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/143466/640x640_rect_143466462.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/143466/143466462.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002500/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ぽまーず / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Đĩa kem Kinana 3 vị"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/54731/640x640_rect_54731740.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/54731/54731740.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002500/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ｻｲｹﾝ8700 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Kem kinako làm tại chỗ"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/69544/640x640_rect_69544415.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/69544/69544415.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26002500/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "鉄道王 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Kem Kinana vị nguyên bản"
+        }
+      ]
+    },
+    {
+      "id": "sn-cacao-market-mariebelle",
+      "name": "CACAO MARKET by MarieBelle",
+      "ja": "カカオ マーケット バイ マリベル",
+      "type": "dessert",
+      "day": 8,
+      "near": "wargo-gion",
+      "when": "Thứ Hai 25/10, khoảng 11:00–11:30 khi dạo Gion Shirakawa sau Yasaka Jinja — mở 11:00–19:00",
+      "lat": 35.005139,
+      "lng": 135.772481,
+      "coordSource": "Nominatim (OSM) node \"カカオマーケット バイ マリベル\", 常盤町 (https://nominatim.openstreetmap.org/search?format=json&q=cacao&viewbox=135.771,35.006,135.776,35.003&bounded=1)",
+      "address": "京都府京都市東山区常盤町165-2",
+      "get": [
+        {
+          "ja": "チョコレート菓子（ピロー・ブリック・ブラウニー）",
+          "romaji": "chokorēto gashi (pirō, burikku, buraunī)",
+          "vi": "Bánh quy/bánh sô-cô-la kiểu Pillow, Brick, Brownie (giá trên ảnh Tabelog đã cũ nên không ghi)",
+          "yen": null
+        }
+      ],
+      "why": "Tiệm sô-cô-la ngay cạnh Shirakawa, được Tabelog chọn vào 百名店 Sweets WEST 2026 và 2023. Mở cả thứ Hai (11:00–19:00).",
+      "hours": "11:00–19:00 (thứ Ba đóng 18:00)",
+      "open": "11:00",
+      "close": "19:00",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ; giờ có thể thay đổi",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260301/26022668/",
+          "rating": 3.65,
+          "count": 629,
+          "award": "Tabelog 百名店 Sweets WEST 2026, 2023"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/69215/640x640_rect_69215059.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/69215/69215059.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26022668/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ｻｲｹﾝ8700 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Bánh sô-cô-la Pillow bốn vị"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/69215/640x640_rect_69215063.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/69215/69215063.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26022668/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ｻｲｹﾝ8700 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Brick và Brownie"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/45520/640x640_rect_45520355.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/45520/45520355.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26022668/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "fujimo123 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Matcha"
+        }
+      ]
+    },
+    {
+      "id": "sn-chourakukan-dessert-cafe",
+      "name": "Dessert Café Chōrakukan",
+      "ja": "デザートカフェ長楽館",
+      "type": "cafe",
+      "day": 8,
+      "near": "yasaka-shrine",
+      "when": "Thứ Hai 25/10, khoảng 11:00–12:00 ngay sau Yasaka Jinja (đi bộ khoảng 3 phút qua công viên Maruyama) — mở 11:00–18:30, gọi món cuối 18:00",
+      "lat": 35.003085,
+      "lng": 135.780118,
+      "coordSource": "Nominatim (OSM) node \"長楽館\", 知恩院通 (https://nominatim.openstreetmap.org/search?format=json&q=長楽館+京都+円山町)",
+      "address": "京都府京都市東山区八坂鳥居前東入円山町604 長楽館",
+      "get": [
+        {
+          "ja": "クラシックモンブラン",
+          "romaji": "kurashikku monburan",
+          "vi": "Mont Blanc kiểu cổ điển (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "ウィンナーコーヒー",
+          "romaji": "wīnā kōhī",
+          "vi": "Cà phê Vienna (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quán cà phê trong tòa nhà thời Meiji bên công viên Maruyama, Tabelog chọn vào 百名店 Cafe WEST 2025. Giá trung bình 2.000–3.000 yen/người và tính thêm 10% phí phục vụ.",
+      "hours": "11:00–18:30 (gọi món cuối 18:00)",
+      "open": "11:00",
+      "close": "18:30",
+      "closedDow": [],
+      "closedNote": "Không có ngày nghỉ cố định; trà chiều cần đặt trước",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260301/26006416/",
+          "rating": 3.62,
+          "count": 765,
+          "award": "Tabelog 百名店 Cafe WEST 2025"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/224517/640x640_rect_7ccc93d0666224dc6c9e7049617c5787.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/224517/7ccc93d0666224dc6c9e7049617c5787.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26006416/dtlphotolst/1/smp2/",
+          "credit": "VOLVO850R / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Mont Blanc cổ điển"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/224517/640x640_rect_d82279dbf7df9b7f6536093140ceac00.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/224517/d82279dbf7df9b7f6536093140ceac00.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26006416/dtlphotolst/1/smp2/",
+          "credit": "VOLVO850R / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Cà phê Vienna"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/224517/640x640_rect_4f76e93cb53f5fac0e86e97fac226fc5.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/224517/4f76e93cb53f5fac0e86e97fac226fc5.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260301/26006416/dtlphotolst/1/smp2/",
+          "credit": "VOLVO850R / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Cà phê Vienna và Mont Blanc"
+        }
+      ]
+    },
+    {
+      "id": "sn-arabica-kyoto-arashiyama",
+      "name": "% Arabica Kyoto Arashiyama",
+      "ja": "アラビカ京都 嵐山",
+      "type": "cafe",
+      "day": 9,
+      "near": "yoshimura",
+      "when": "Thứ Ba 26/10, khoảng 12:15–12:45 sau bữa soba ở Yoshimura, ngay cạnh cầu Togetsukyō — Tabelog ghi mở 9:00–18:00",
+      "lat": 35.013541,
+      "lng": 135.676436,
+      "coordSource": "Nominatim (OSM) node \"アラビアカ 京都嵐山\" địa chỉ 3-47 (https://nominatim.openstreetmap.org/search?format=json&q=%25+Arabica+Arashiyama)",
+      "address": "京都府京都市右京区嵯峨天龍寺芒ノ馬場町3-47",
+      "get": [
+        {
+          "ja": "カフェラテ",
+          "romaji": "kafe rate",
+          "vi": "Latte (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "バゲットサンド",
+          "romaji": "bagetto sando",
+          "vi": "Sandwich baguette, có ảnh trên Tabelog (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quầy cà phê Arabica cách cầu Togetsukyō khoảng 150 m, Tabelog 3.57 với gần 600 đánh giá. Hợp uống một ly sau bữa trưa trước khi về ga Hankyu.",
+      "hours": "9:00–18:00",
+      "open": "09:00",
+      "close": "18:00",
+      "closedDow": [],
+      "closedNote": "Tabelog ghi \"không cố định\"; trang chính thức có thể ghi giờ mở sớm hơn",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260403/26025913/",
+          "rating": 3.57,
+          "count": 589,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/77973/640x640_rect_77973300.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/77973/77973300.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26025913/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "いつかはクラウン / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Cà phê latte nóng cỡ tall"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/77973/640x640_rect_77973298.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/77973/77973298.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26025913/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "いつかはクラウン / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Sandwich baguette"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/291159/640x640_rect_6c459e4310002509999639bcbf35e094.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/291159/6c459e4310002509999639bcbf35e094.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26025913/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "Jun 358535 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ảnh khách đăng trên Tabelog"
+        }
+      ]
+    },
+    {
+      "id": "sn-mamemono-to-taiyaki-arashiyama",
+      "name": "Mamemono to Taiyaki Arashiyama Honten",
+      "ja": "まめものとたい焼き 嵐山本店",
+      "type": "street-food",
+      "day": 9,
+      "near": "yoshimura",
+      "when": "Thứ Ba 26/10, khoảng 12:45–13:30, trên đường từ Togetsukyō ra ga Arashiyama — mở 10:00–17:00",
+      "lat": 35.01502,
+      "lng": 135.677047,
+      "coordSource": "Nominatim (OSM) node \"昇竜苑\" (tòa nhà 嵐山昇龍苑 nơi quán đặt, https://nominatim.openstreetmap.org/search?format=json&q=昇龍苑&viewbox=135.6755,35.0165,135.6805,35.0125&bounded=1)",
+      "address": "京都府京都市右京区嵯峨天龍寺芒ノ馬場町40-8 嵐山昇龍苑 1F",
+      "get": [
+        {
+          "ja": "あんバター",
+          "romaji": "an batā",
+          "vi": "Taiyaki nhân đậu đỏ và bơ, ăn trong vòng 1 phút cho giòn (giá theo chú thích ảnh Tabelog)",
+          "yen": 370
+        }
+      ],
+      "why": "Quầy taiyaki cách ga Randen Arashiyama khoảng 76 m, Tabelog 3.51 với 284 đánh giá. Mua một chiếc ăn dọc phố thay cho bữa nhẹ.",
+      "hours": "10:00–17:00",
+      "open": "10:00",
+      "close": "17:00",
+      "closedDow": [],
+      "closedNote": "Tabelog ghi \"không cố định\"",
+      "pay": "mixed",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260403/26034817/",
+          "rating": 3.51,
+          "count": 284,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/223402/640x640_rect_fe463a4235fa6059c6ba2d2d14a5b8b4.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/223402/fe463a4235fa6059c6ba2d2d14a5b8b4.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26034817/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "おむ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Taiyaki nhân đậu đỏ bơ (An Butter)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/237410/640x640_rect_ad3c17dc3b660a538ac5a9161d519494.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/237410/ad3c17dc3b660a538ac5a9161d519494.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26034817/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ショコラ❤ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Taiyaki tại Mamemono to Taiyaki"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/370300/640x640_rect_975e50b24d78e87ae6426fde18ce5f78.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/370300/975e50b24d78e87ae6426fde18ce5f78.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26034817/dtlphotolst/1/smp2/",
+          "credit": "けてぃちゃん / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Taiyaki tại Mamemono to Taiyaki"
+        }
+      ]
+    },
+    {
+      "id": "sn-shinpachi-chaya",
+      "name": "Shinpachi Chaya",
+      "ja": "新八茶屋",
+      "type": "dessert",
+      "day": 9,
+      "near": "yoshimura",
+      "when": "Thứ Ba 26/10, khoảng 12:30–13:15 ở chân cầu Togetsukyō — mở 10:00–18:00, nghỉ thứ Năm",
+      "lat": 35.013832,
+      "lng": 135.677938,
+      "coordSource": "Nominatim (OSM) node \"新八茶屋\" địa chỉ 37-17 (https://nominatim.openstreetmap.org/search?format=json&q=新八茶屋)",
+      "address": "京都府京都市右京区嵯峨天龍寺造路町37-17",
+      "get": [
+        {
+          "ja": "トリプル（ジェラート3種）",
+          "romaji": "toripuru (jerāto sanshu)",
+          "vi": "Gelato 3 vị, theo chú thích ảnh Tabelog; blog Tabiiro ghi gelato từ ¥400 đến ¥850",
+          "yen": 850
+        }
+      ],
+      "why": "Tiệm gelato kiểu Ý ngay chân cầu Togetsukyō, Tabelog chọn vào 百名店 Ice cream·Gelato 2023 và 2026. Có vị sakura mochi, đậu phụ Saga và pistachio theo bài viết của Tabiiro.",
+      "hours": "10:00–18:00",
+      "open": "10:00",
+      "close": "18:00",
+      "closedDow": [
+        4
+      ],
+      "closedNote": "Nghỉ thứ Năm",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260403/26001309/",
+          "rating": 3.62,
+          "count": 559,
+          "award": "Tabelog 百名店 Ice Cream/Gelato 2026, 2023"
+        },
+        "social": [
+          {
+            "platform": "blog",
+            "url": "https://en.tabiiro.travel/restaurants/article/arashiyama-streetfood-guide/",
+            "note": "Tabiiro (hướng dẫn street food Arashiyama): gelato vị sakura mochi, đậu phụ Saga, pistachio, ¥400–850"
+          }
+        ]
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/384283/640x640_rect_0ddfc98b00dc34a0aea1c01ae1561373.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/384283/0ddfc98b00dc34a0aea1c01ae1561373.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26001309/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "せんべろ５号 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Gelato 3 vị"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/384283/640x640_rect_8aa2c64b32349acf645795ffb39ca568.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/384283/8aa2c64b32349acf645795ffb39ca568.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26001309/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "せんべろ５号 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Gelato trước cầu Togetsukyō"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/37833/640x640_rect_37833245.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/37833/37833245.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26001309/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "kinako-anko / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Gelato vị Lemon Waltz"
+        }
+      ]
+    },
+    {
+      "id": "sn-ex-cafe-arashiyama",
+      "name": "eX cafe Kyoto Arashiyama Honten",
+      "ja": "eX cafe 京都嵐山本店",
+      "type": "cafe",
+      "day": 9,
+      "near": "yoshimura",
+      "when": "Thứ Ba 26/10, khoảng 12:30–13:30 gần ga Randen Arashiyama — mở 9:00–18:00",
+      "lat": 35.014667,
+      "lng": 135.678122,
+      "coordSource": "Nominatim (OSM) node \"イクスカフェ 嵐山本店\" (https://nominatim.openstreetmap.org/search?format=json&q=イクスカフェ+嵐山)",
+      "address": "京都府京都市右京区嵯峨天龍寺造路町35-3",
+      "get": [
+        {
+          "ja": "天竜寺パフェ",
+          "romaji": "Tenryū-ji pafe",
+          "vi": "Parfait Tenryū-ji, món của quán (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "葛餅",
+          "romaji": "kuzumochi",
+          "vi": "Kuzumochi (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quán cà phê và wagashi cách ga Randen Arashiyama khoảng 70 m, Tabelog 3.54 với 768 đánh giá. Có chỗ ngồi nghỉ chân giữa chuyến đi bộ ở Arashiyama.",
+      "hours": "9:00–18:00",
+      "open": "09:00",
+      "close": "18:00",
+      "closedDow": [],
+      "closedNote": "Tabelog ghi \"không cố định\"",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260403/26005251/",
+          "rating": 3.54,
+          "count": 768,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/292/640x640_rect_292253.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/292/292253.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26005251/dtlphotolst/1/smp2/",
+          "credit": "ntbn / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Kuzumochi"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/379403/640x640_rect_392ba73ffadbe7ae8619505a205d46f6.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/379403/392ba73ffadbe7ae8619505a205d46f6.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26005251/dtlphotolst/1/smp2/",
+          "credit": "酸素坊主 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ảnh khách đăng trên Tabelog"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/370074/640x640_rect_f13cb5be7c23153dcf79c6bfdd3e319f.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/370074/f13cb5be7c23153dcf79c6bfdd3e319f.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260403/26005251/dtlphotolst/1/smp2/",
+          "credit": "YHimawari / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ảnh khách đăng trên Tabelog"
+        }
+      ]
+    },
+    {
+      "id": "sn-fushimi-yume-hyakushu",
+      "name": "Fushimi Yume Hyakushu",
+      "ja": "伏見夢百衆",
+      "type": "cafe",
+      "day": 9,
+      "near": "fushimi-sake",
+      "when": "Thứ Ba 26/10, khoảng 15:45–16:30 trong khu kho sake, trước giờ đóng cửa 17:00 (nghỉ thứ Hai)",
+      "lat": 34.930016,
+      "lng": 135.761401,
+      "coordSource": "Nominatim (OSM) node \"伏見夢百衆\", 南浜通 (https://nominatim.openstreetmap.org/search?format=json&q=伏見夢百衆)",
+      "address": "京都府京都市伏見区南浜町247",
+      "get": [
+        {
+          "ja": "酒粕フィナンシェ・酒まんじゅうセット（アイスコーヒー付き）",
+          "romaji": "sakekasu finanshie, sake manjū setto",
+          "vi": "Set financier bã sake và bánh manju sake kèm cà phê đá; giá theo chú thích ảnh Tabelog cũ, có thể đã đổi",
+          "yen": 1000
+        }
+      ],
+      "why": "Quán trong khuôn viên Gekkeikan, bán bánh làm từ sake và bã sake, có quầy sake và cocktail. Nằm ngay giữa khu kho sake Fushimi.",
+      "hours": "10:30–17:00",
+      "open": "10:30",
+      "close": "17:00",
+      "closedDow": [
+        1
+      ],
+      "closedNote": "Nghỉ thứ Hai",
+      "pay": "mixed",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260601/26004759/",
+          "rating": 3.45,
+          "count": 133,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/276913/640x640_rect_889e16a973cb974c6907c27dd89a536d.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/276913/889e16a973cb974c6907c27dd89a536d.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26004759/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ｻｲｹﾝ8700 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Set financier bã sake, manju sake và cà phê đá"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/276913/640x640_rect_bdad93efe1b52a965c0762bca9bc1192.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/276913/bdad93efe1b52a965c0762bca9bc1192.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26004759/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ｻｲｹﾝ8700 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Financier bã sake và manju sake"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/139569/640x640_rect_139569419.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/139569/139569419.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26004759/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "一級うん築士 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Hạt rang ăn kèm sake"
+        }
+      ]
+    },
+    {
+      "id": "sn-gekkeikan-okura-museum",
+      "name": "Gekkeikan Ōkura Kinenkan",
+      "ja": "月桂冠大倉記念館",
+      "type": "snack",
+      "day": 9,
+      "near": "fushimi-sake",
+      "when": "Thứ Ba 26/10, khoảng 15:30–16:15 ở khu kho sake — mở 9:30–16:30, nhận khách vào đến 16:00",
+      "lat": 34.928879,
+      "lng": 135.761629,
+      "coordSource": "Nominatim (OSM) node \"月桂冠大倉記念館\" (https://nominatim.openstreetmap.org/search?format=json&q=月桂冠大倉記念館)",
+      "address": "京都府京都市伏見区南浜町247",
+      "get": [
+        {
+          "ja": "入館料（きき酒3種付き）",
+          "romaji": "nyūkanryō (kikizake san-shu tsuki)",
+          "vi": "Vé vào cho người từ 20 tuổi, kèm nếm 3 loại sake và quà lưu niệm (theo trang chính thức)",
+          "yen": 600
+        },
+        {
+          "ja": "酒まんじゅう",
+          "romaji": "sake manjū",
+          "vi": "Bánh manju nhân đậu đỏ mịn làm từ sake, có ảnh Tabelog (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Bảo tàng sake của Gekkeikan, vé vào đã gồm nếm 3 loại sake. Nằm ngay trong khu kho sake, cách Yume Hyakushu vài bước.",
+      "hours": "9:30–16:30 (nhận khách đến 16:00)",
+      "open": "09:30",
+      "close": "16:30",
+      "closedDow": [],
+      "closedNote": "Nghỉ 13–16/8, 28/12–4/1 và vài ngày đột xuất; cuối tháng 11 có lịch riêng. Chỉ nhận thanh toán không tiền mặt (https://www.gekkeikan.co.jp/enjoy/museum/access/)",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260601/26007339/",
+          "rating": 3.47,
+          "count": 128,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/35766/640x640_rect_35766694.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/35766/35766694.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007339/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "てんてんおめめ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Chai sake 1 gō tặng làm quà lưu niệm"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/35766/640x640_rect_35766747.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/35766/35766747.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007339/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "てんてんおめめ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Manju sake nhân đậu đỏ mịn"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/35766/640x640_rect_35766734.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/35766/35766734.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007339/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "てんてんおめめ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Yatsuhashi tươi"
+        }
+      ]
+    },
+    {
+      "id": "sn-hougyokudo-fushimi-inari",
+      "name": "Hōgyokudō",
+      "ja": "宝玉堂",
+      "type": "snack",
+      "day": 10,
+      "near": "fushimi-inari",
+      "when": "Thứ Tư 27/10, khoảng 8:10–8:25 khi quay lại ga Fushimi-Inari — mở từ 7:30 đến 19:00",
+      "lat": 34.968082,
+      "lng": 135.769482,
+      "coordSource": "Nominatim (OSM) node \"宝玉堂\", 稲荷新道 (https://nominatim.openstreetmap.org/search?format=json&q=宝玉堂+伏見稲荷)",
+      "address": "京都府京都市伏見区深草一ノ坪町27",
+      "get": [
+        {
+          "ja": "大きつね",
+          "romaji": "ōkitsune",
+          "vi": "Senbei hình cáo cỡ lớn, hộp 3 chiếc; giá theo ảnh Tabelog cũ",
+          "yen": 540
+        },
+        {
+          "ja": "白みそせんべい",
+          "romaji": "shiro-miso senbei",
+          "vi": "Senbei miso trắng hình tròn, 5 chiếc; giá theo chú thích ảnh Tabelog",
+          "yen": 500
+        }
+      ],
+      "why": "Tiệm senbei cách ga Fushimi-Inari khoảng 80 m, mở từ 7:30 nên ghé được lúc trở ra ga. Bánh hình cáo, gắn với đền Inari.",
+      "hours": "7:30–19:00",
+      "open": "07:30",
+      "close": "19:00",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ",
+      "pay": "cash",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260601/26007338/",
+          "rating": 3.51,
+          "count": 112,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/105227/640x640_rect_105227155.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/105227/105227155.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007338/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "KOUJI328 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Senbei hình cáo cỡ lớn, hộp 3 chiếc"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/68792/640x640_rect_68792997.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/68792/68792997.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007338/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "トンボ1024 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Senbei nướng hình mặt nạ Inari"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/76822/640x640_rect_76822956.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/76822/76822956.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26007338/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ゆっきょし / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Senbei hình cáo cỡ nhỏ"
+        }
+      ]
+    },
+    {
+      "id": "sn-eight-fushimi-inari",
+      "name": "eight",
+      "ja": "エイト",
+      "type": "bakery",
+      "day": 10,
+      "near": "fushimi-inari",
+      "when": "Thứ Tư 27/10, khoảng 8:10–8:25 khi quay lại ga Fushimi-Inari — mở 8:00–18:00 (nghỉ thứ Hai, Chủ nhật)",
+      "lat": 34.968531,
+      "lng": 135.769486,
+      "coordSource": "Nominatim (OSM) node \"eight\", 稲荷新道 (https://nominatim.openstreetmap.org/search?format=json&q=eight+bakery+Fushimi+Inari)",
+      "address": "京都府京都市伏見区深草一ノ坪町29-4",
+      "get": [
+        {
+          "ja": "コーヒーロール",
+          "romaji": "kōhī rōru",
+          "vi": "Bánh cuộn cà phê (tên theo chú thích ảnh Tabelog; chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "ジャンボンフロマージュ",
+          "romaji": "janbon furomāju",
+          "vi": "Bánh mì giăm bông phô mai (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Tiệm bánh nhỏ cách ga Fushimi-Inari khoảng 30 m, mở từ 8:00. Mua bánh ăn sáng lúc quay ra ga trước khi đi Nara.",
+      "hours": "8:00–18:00",
+      "open": "08:00",
+      "close": "18:00",
+      "closedDow": [
+        0,
+        1
+      ],
+      "closedNote": "Nghỉ Chủ nhật và thứ Hai",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/kyoto/A2601/A260601/26038881/",
+          "rating": 3.56,
+          "count": 122,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/279387/640x640_rect_a7797fb6d90f302e8af3e74dde4d0b83.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/279387/a7797fb6d90f302e8af3e74dde4d0b83.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26038881/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "釣りするカツオに食べるカツオ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Bánh tại eight (ảnh khách đăng)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/216948/640x640_rect_fc4387a22984242ce24f2e2e08d99455.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/216948/fc4387a22984242ce24f2e2e08d99455.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26038881/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "yuk1602 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Bánh lemon peel & cream cheese"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/251457/640x640_rect_b68d641269b7bf951181e53b1f4304df.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/251457/b68d641269b7bf951181e53b1f4304df.jpg",
+          "page": "https://tabelog.com/en/kyoto/A2601/A260601/26038881/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "カメさん7 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Bánh tại eight (ảnh khách đăng)"
+        }
+      ]
+    },
+    {
+      "id": "sn-nakatani-do",
+      "name": "Nakatani-dō",
+      "ja": "中谷堂",
+      "type": "street-food",
+      "day": 10,
+      "near": "hosekibako",
+      "when": "Thứ Tư 27/10, khoảng 15:30–15:50 trên đường từ Naramachi về ga Kintetsu Nara — mở 10:00–18:00, nghỉ thứ Ba",
+      "lat": 34.681925,
+      "lng": 135.828857,
+      "coordSource": "Nominatim (OSM) node \"中谷堂\", 三条通り (https://nominatim.openstreetmap.org/search?format=json&q=中谷堂+奈良)",
+      "address": "奈良県奈良市橋本町29",
+      "get": [
+        {
+          "ja": "よもぎ餅",
+          "romaji": "yomogi mochi",
+          "vi": "Mochi ngải cứu nhân anko, giã ngay tại quán và ăn nóng. Chú thích ảnh Tabelog ghi ¥200 (đã gồm thuế); các clip TikTok cũ ghi ¥150",
+          "yen": 200
+        }
+      ],
+      "why": "Tiệm mochi nổi tiếng vì màn giã mochi tốc độ cao ngay trước cửa, được Tabelog chọn vào 百名店 Wagashi WEST 2026 và 2023. Nằm trên phố Sanjō, cách ga Kintetsu Nara khoảng 300 m.",
+      "hours": "10:00–18:00",
+      "open": "10:00",
+      "close": "18:00",
+      "closedDow": [
+        2
+      ],
+      "closedNote": "Nghỉ thứ Ba",
+      "pay": "cash",
+      "queue": "Quanh giờ giã mochi thường có người đứng xem và xếp hàng mua",
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/nara/A2901/A290101/29000222/",
+          "rating": 3.72,
+          "count": 2700,
+          "award": "Tabelog 百名店 Wagashi WEST 2026, 2023 (Sweets WEST 2018–2020, 2022)"
+        },
+        "social": [
+          {
+            "platform": "tiktok",
+            "url": "https://www.tiktok.com/@rainbowholictv/video/7227637298181999873",
+            "note": "Clip du khách: giã mochi trước mặt, yomogi mochi ¥150, mở 10:00–19:00 (nội dung đọc qua kết quả tìm kiếm vì trang TikTok bị chặn bot)"
+          },
+          {
+            "platform": "tiktok",
+            "url": "https://www.tiktok.com/@estherbfjackson/video/7344484835282537760",
+            "note": "Clip du khách: màn giã mochi, ¥150 một chiếc (đọc qua kết quả tìm kiếm)"
+          },
+          {
+            "platform": "tiktok",
+            "url": "https://www.tiktok.com/@biteswithlily/video/7170306451691359489",
+            "note": "Clip du khách: màn giã mochi nổi tiếng ở Nara (đọc qua kết quả tìm kiếm)"
+          },
+          {
+            "platform": "youtube",
+            "url": "https://www.youtube.com/watch?v=mkkLjcco8o0",
+            "note": "Video \"SUPER FAST-POUNDING MOCHI in NARA\" (tiêu đề đọc qua kết quả tìm kiếm)"
+          },
+          {
+            "platform": "youtube",
+            "url": "https://www.youtube.com/watch?v=5AZ-R3VondI",
+            "note": "Video \"Mochi Pounding at Nakatanidou, Nara Japan\" (tiêu đề đọc qua kết quả tìm kiếm)"
+          }
+        ]
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/249783/640x640_rect_783047b5ffe1f98e769f3b6992eb2bd3.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/249783/783047b5ffe1f98e769f3b6992eb2bd3.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29000222/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "16uk_ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Mochi ngải cứu"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/52105/640x640_rect_52105902.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/52105/52105902.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29000222/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "鉄道王 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Yomogi mochi"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/50678/640x640_rect_50678072.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/50678/50678072.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29000222/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "高くて旨いは当たり前 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Mochi xếp trong hộp gỗ"
+        }
+      ]
+    },
+    {
+      "id": "sn-rokumei-coffee-nara",
+      "name": "Rokumei Coffee Nara",
+      "ja": "ロクメイコーヒー 奈良店",
+      "type": "cafe",
+      "day": 10,
+      "near": "hosekibako",
+      "when": "Thứ Tư 27/10, khoảng 9:35–10:00 ngay khi xuống ga Kintetsu Nara, trước khi đi Tōdai-ji — mở 8:00–18:00",
+      "lat": 34.683634,
+      "lng": 135.827525,
+      "coordSource": "Nominatim (OSM) node \"ロクメイコーヒー奈良店\" (https://nominatim.openstreetmap.org/search?format=json&q=ロクメイコーヒー+奈良)",
+      "address": "奈良県奈良市西御門町31 吉村ビル 1F",
+      "get": [
+        {
+          "ja": "モーニングセット（クロワッサン＆ホットラテ）",
+          "romaji": "mōningu setto (kuroassan to hotto rate)",
+          "vi": "Set sáng: croissant và latte nóng, theo chú thích ảnh Tabelog (đã gồm thuế)",
+          "yen": 820
+        }
+      ],
+      "why": "Quán cà phê cách cửa ga Kintetsu Nara khoảng 1 phút đi bộ, mở từ 8:00, Tabelog chọn vào 百名店 Cafe WEST 2025. Tiện ăn sáng muộn trước khi lên Tōdai-ji.",
+      "hours": "8:00–18:00 (gọi món cuối 17:30)",
+      "open": "08:00",
+      "close": "18:00",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/nara/A2901/A290101/29002922/",
+          "rating": 3.6,
+          "count": 648,
+          "award": "Tabelog 百名店 Cafe WEST 2025"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/57448/640x640_rect_57448748.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/57448/57448748.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29002922/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "高くて旨いは当たり前 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Set sáng sandwich rau hữu cơ và thịt heo Nara (ảnh cũ)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/57448/640x640_rect_57448781.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/57448/57448781.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29002922/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "高くて旨いは当たり前 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Set sáng pizza hỗn hợp (ảnh cũ)"
+        }
+      ]
+    },
+    {
+      "id": "sn-tama-usagi-kintetsu-nara",
+      "name": "Kinako Dango Tama Usagi Kintetsu Nara Eki-ten",
+      "ja": "きなこだんご たまうさぎ 近鉄奈良駅店",
+      "type": "street-food",
+      "day": 10,
+      "near": "hosekibako",
+      "when": "Thứ Tư 27/10, khoảng 9:35–10:00 ngay trong ga hoặc khoảng 15:50 trước khi lên tàu về Namba — mở 10:00–18:00, bán đến khi hết",
+      "lat": 34.6843,
+      "lng": 135.82876,
+      "coordSource": "Nominatim (OSM) điểm đèn tín hiệu 東向 trên 登大路 cạnh cửa đông ga Kintetsu Nara (https://nominatim.openstreetmap.org/search?format=json&q=東向&viewbox=135.8265,34.687,135.831,34.683&bounded=1); Tabelog ghi quán cách ga 65 m, sai số khoảng 50 m",
+      "address": "奈良県奈良市東向中町29 近鉄奈良駅構内",
+      "get": [
+        {
+          "ja": "きなこだんご",
+          "romaji": "kinako dango",
+          "vi": "Dango tròn phủ kinako, mua từng xiên; giá từ 3/12/2025 theo ghi chú của Tabelog",
+          "yen": 130
+        }
+      ],
+      "why": "Quầy dango kinako trong ga Kintetsu Nara, ăn nhanh lúc vừa xuống tàu hoặc trước khi về. Bán đến khi hết hàng nên đi sớm thì chắc chắn có.",
+      "hours": "10:00–18:00 (bán đến khi hết)",
+      "open": "10:00",
+      "close": "18:00",
+      "closedDow": [
+        1,
+        2
+      ],
+      "closedNote": "Nghỉ thứ Hai và thứ Ba (mở nếu trùng ngày lễ); Tabelog còn liệt kê vài ngày nghỉ thêm trong tháng 10/2026, nên kiểm tra lại gần ngày đi",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/nara/A2901/A290101/29001469/",
+          "rating": 3.53,
+          "count": 173,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/50340/640x640_rect_50340719.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/50340/50340719.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29001469/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ななしょう / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Dango kinako, 5 xiên một phần"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/50340/640x640_rect_50340765.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/50340/50340765.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29001469/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ななしょう / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Dango kinako bày ra đĩa"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/30390/640x640_rect_30390839.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/30390/30390839.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29001469/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ぱたぱたぱたごにあ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Dango kinako tại Tama Usagi"
+        }
+      ]
+    },
+    {
+      "id": "sn-kashiya-nara",
+      "name": "Kashiya (Yorozu Onkashi Atsurae-dokoro Kashiya)",
+      "ja": "萬御菓子誂處 樫舎",
+      "type": "dessert",
+      "day": 10,
+      "near": "awa",
+      "when": "Thứ Tư 27/10, khoảng 12:15 hoặc 13:45 ở Naramachi, ngay cạnh AWA — mở 9:00–18:00",
+      "lat": 34.678581,
+      "lng": 135.830523,
+      "coordSource": "Nominatim (OSM) node \"樫舎\", 勝南院町 (https://nominatim.openstreetmap.org/search?format=json&q=樫舎+奈良)",
+      "address": "奈良県奈良市中院町22-3",
+      "get": [
+        {
+          "ja": "栗きんとん 丹波",
+          "romaji": "kurikinton Tanba",
+          "vi": "Kurikinton hạt dẻ Tamba, theo chú thích ảnh Tabelog",
+          "yen": 450
+        },
+        {
+          "ja": "蕨餅",
+          "romaji": "warabi mochi",
+          "vi": "Warabi mochi, có ảnh Tabelog (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "樫舎の氷（蕨餅入り）",
+          "romaji": "Kashiya no kōri (warabi mochi iri)",
+          "vi": "Đá bào kèm warabi mochi, theo mùa (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quán wagashi được Tabelog chấm 3.83 (cao nhất trong nhóm Nara) và chọn vào 百名店 Wagashi WEST 2026, 2023. Nằm ở Naramachi cạnh AWA nên tiện ghé sau bữa trưa.",
+      "hours": "9:00–18:00",
+      "open": "09:00",
+      "close": "18:00",
+      "closedDow": [],
+      "closedNote": "Tabelog liệt kê mở cả 7 ngày; nên xác nhận lại trước khi đi",
+      "pay": "cash",
+      "queue": "Chỉ 13 ghế chiếu, nhận đặt chỗ online và giới hạn ngồi 30 phút (theo Tabelog)",
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/nara/A2901/A290101/29002296/",
+          "rating": 3.83,
+          "count": 1115,
+          "award": "Tabelog 百名店 Wagashi WEST 2026, 2023 (Sweets WEST 2018–2020, 2022)"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/55431/640x640_rect_55431462.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/55431/55431462.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29002296/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "よっしー♫ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Matcha và bánh ngọt theo mùa"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/52147/640x640_rect_52147708.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/52147/52147708.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29002296/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "鉄道王 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Đá bào của Kashiya kèm warabi mochi"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/55431/640x640_rect_55431465.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/55431/55431465.jpg",
+          "page": "https://tabelog.com/en/nara/A2901/A290101/29002296/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "よっしー♫ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Bánh ngọt tươi (nama-gashi)"
+        }
+      ]
+    },
+    {
+      "id": "sn-hokkyoku-namba",
+      "name": "Hokkyoku Nanba Honten",
+      "ja": "北極 難波本店",
+      "type": "dessert",
+      "day": 10,
+      "near": "fukutaro",
+      "when": "Thứ Tư 27/10, khoảng 19:00–19:45 sau bữa tối ở Fukutarō — mở 10:00–20:00",
+      "lat": 34.665164,
+      "lng": 135.502572,
+      "coordSource": "Nominatim (OSM) node \"お菓子のデパート ほっきょく\", なんば南海通 (https://nominatim.openstreetmap.org/search?format=json&q=ほっきょく&viewbox=135.4980,34.670,135.504,34.663&bounded=1); trùng tên nhưng chưa đối chiếu được số nhà 3-8-22, sai số có thể vài chục mét",
+      "address": "大阪府大阪市中央区難波3-8-22",
+      "get": [
+        {
+          "ja": "北海道ミルクソフト",
+          "romaji": "Hokkaidō miruku sofuto",
+          "vi": "Kem mềm sữa Hokkaido, có ảnh Tabelog (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "アイスキャンデー",
+          "romaji": "aisu kyandē",
+          "vi": "Kem que của Hokkyoku, vị sữa hoặc azuki (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Tiệm kem lâu năm của Namba, Tabelog chọn vào 百名店 Ice Cream/Gelato 2026 và 2023. Mở đến 20:00 nên ghé được sau bữa tối.",
+      "hours": "10:00–20:00",
+      "open": "10:00",
+      "close": "20:00",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270202/27002810/",
+          "rating": 3.63,
+          "count": 602,
+          "award": "Tabelog 百名店 Ice Cream/Gelato 2026, 2023"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/102565/640x640_rect_102565202.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/102565/102565202.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27002810/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ぽまーず / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Kem que sữa của Hokkyoku"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/331431/640x640_rect_3f4aa8320c4f15932a25bb750727e40c.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/331431/3f4aa8320c4f15932a25bb750727e40c.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27002810/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "mapiko47 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Kem azuki"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/71418/640x640_rect_71418730.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/71418/71418730.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27002810/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "勧進聖 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ảnh khách đăng trên Tabelog"
+        }
+      ]
+    },
+    {
+      "id": "sn-ibuki-coffee-kuromon",
+      "name": "Ibuki Coffee Ten Kuromon Ichiba",
+      "ja": "伊吹珈琲店 黒門市場",
+      "type": "cafe",
+      "day": 11,
+      "near": "doguyasuji",
+      "when": "Thứ Năm 28/10, khoảng 9:30–10:15 giữa Dōguyasuji (9:00) và 551 Hōrai (11:15) — mở 7:00–18:30",
+      "lat": 34.665328,
+      "lng": 135.50698,
+      "coordSource": "Nominatim (OSM) điểm \"黒門市場\" (marketplace), 日本橋一丁目 (https://nominatim.openstreetmap.org/search?format=json&q=黒門市場&viewbox=135.504,34.667,135.510,34.659&bounded=1); quán nằm trong chợ nên sai số khoảng 100 m",
+      "address": "大阪府大阪市中央区日本橋1丁目22-31 黒門市場内",
+      "get": [
+        {
+          "ja": "エッグトーストセット",
+          "romaji": "eggu tōsuto setto",
+          "vi": "Set bánh mì nướng trứng kèm đồ uống, theo chú thích ảnh Tabelog",
+          "yen": 640
+        },
+        {
+          "ja": "玉子サンド",
+          "romaji": "tamago sando",
+          "vi": "Sandwich trứng, có ảnh Tabelog (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quán kissa trong chợ Kuromon, mở từ 7:00 nên chắc chắn mở khi bạn tới. Chỗ nghỉ chân giữa lúc đi chợ.",
+      "hours": "7:00–18:30 (món ăn gọi cuối 18:00)",
+      "open": "07:00",
+      "close": "18:30",
+      "closedDow": [],
+      "closedNote": "Chỉ nghỉ mùng 1 Tết dương lịch",
+      "pay": "cash",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270202/27012983/",
+          "rating": 3.52,
+          "count": 196,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/110416/640x640_rect_110416971.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/110416/110416971.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27012983/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "牛丼仮面 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Set sáng A"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/110416/640x640_rect_110416823.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/110416/110416823.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27012983/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "牛丼仮面 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Sandwich trứng"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/108873/640x640_rect_108873903.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/108873/108873903.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27012983/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ミスターＸＸＸ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Sandwich trứng (6/2019)"
+        }
+      ]
+    },
+    {
+      "id": "sn-meoto-zenzai",
+      "name": "Meoto Zenzai",
+      "ja": "夫婦善哉",
+      "type": "dessert",
+      "day": 11,
+      "near": "hozenji",
+      "when": "Thứ Năm 28/10, khoảng 10:00–10:45 ngay sau Dōguyasuji, cạnh Hōzen-ji Yokochō, trước khi sang 551 Hōrai — mở 10:00–22:00",
+      "lat": 34.667785,
+      "lng": 135.502398,
+      "coordSource": "Nominatim (OSM) node \"夫婦善哉\", 竹林寺横町通 (https://nominatim.openstreetmap.org/search?format=json&q=夫婦善哉+難波)",
+      "address": "大阪府大阪市中央区難波1-2-10 法善寺MEOUTOビル",
+      "get": [
+        {
+          "ja": "夫婦善哉",
+          "romaji": "meoto zenzai",
+          "vi": "Zenzai (chè đậu đỏ mochi), mỗi suất gồm 2 chén nhỏ cho một người; giá theo chú thích ảnh Tabelog, có thể đã đổi",
+          "yen": 815
+        },
+        {
+          "ja": "栗ミルクシロップのかき氷",
+          "romaji": "kuri miruku shiroppu no kakigōri",
+          "vi": "Đá bào sốt sữa hạt dẻ, theo đánh giá Tabelog; món theo mùa",
+          "yen": 1080
+        }
+      ],
+      "why": "Quán zenzai gắn với Hōzen-ji Yokochō, cách điểm dừng Hōzen-ji vài chục mét. Mở 10:00–22:00 nên ghé được ngay sau khi đi chợ đồ bếp.",
+      "hours": "10:00–22:00",
+      "open": "10:00",
+      "close": "22:00",
+      "closedDow": [],
+      "closedNote": "Tabelog liệt kê mở cả 7 ngày",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270202/27015375/",
+          "rating": 3.58,
+          "count": 426,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/85792/640x640_rect_85792776.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/85792/85792776.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27015375/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ぽまーず / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Meoto zenzai"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/50101/640x640_rect_50101003.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/50101/50101003.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27015375/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "眼鏡屋さん / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Zenzai: hai chén cho một suất"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/188648/640x640_rect_ae4e82bad649d835d62060bd75acf6d1.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/188648/ae4e82bad649d835d62060bd75acf6d1.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27015375/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "キレートれもん / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Meoto zenzai"
+        }
+      ]
+    },
+    {
+      "id": "sn-creperie-alcyon",
+      "name": "Crêperie Alcyon",
+      "ja": "クレープリー・アルション",
+      "type": "dessert",
+      "day": 11,
+      "near": "hozenji",
+      "when": "Thứ Năm 28/10, khoảng 16:45–17:10 trước bữa tối ở Tahei — mở 11:30–21:30, gọi món cuối 20:30",
+      "lat": 34.667398,
+      "lng": 135.50224,
+      "coordSource": "Nominatim (OSM) node \"Alcyon\", 相生通 (https://nominatim.openstreetmap.org/search?format=json&q=Alcyon&viewbox=135.501,34.670,135.5045,34.666&bounded=1); OSM còn một node \"Alcyon\" ở 法善寺こいさん通り (34.66809,135.50183) có thể là Salon de thé, sai số khoảng 50 m",
+      "address": "大阪府大阪市中央区難波1-4-18",
+      "get": [
+        {
+          "ja": "ベリーミルフィーユ",
+          "romaji": "berī mirufyūyu",
+          "vi": "Crêpe nhiều lớp (millefeuille) nhân berry, theo chú thích ảnh Tabelog",
+          "yen": 980
+        },
+        {
+          "ja": "マロンモンブラン",
+          "romaji": "maron monburan",
+          "vi": "Crêpe Mont Blanc hạt dẻ, theo chú thích ảnh Tabelog",
+          "yen": 980
+        }
+      ],
+      "why": "Quán crêpe trong Hōzen-ji Yokochō, Tabelog 3.72 với hơn 2.300 đánh giá và nhiều năm vào 百名店 Sweets WEST. Mở đến 21:30 nên ghé được trước hoặc sau bữa tối.",
+      "hours": "11:30–21:30 (gọi món cuối 20:30)",
+      "open": "11:30",
+      "close": "21:30",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ",
+      "pay": "cash",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270202/27003897/",
+          "rating": 3.72,
+          "count": 2335,
+          "award": "Tabelog 百名店 Sweets WEST 2026, 2023, 2022, 2020, 2018"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/295300/640x640_rect_e64eb4645c1551abf2e44ba3bfc4b1b0.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/295300/e64eb4645c1551abf2e44ba3bfc4b1b0.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27003897/dtlphotolst/1/smp2/",
+          "credit": "カフェモカ男 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Crêpe tại Alcyon"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/196052/640x640_rect_c8ce3b0e9d9fd4b6d20f345aa2d8406a.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/196052/c8ce3b0e9d9fd4b6d20f345aa2d8406a.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27003897/dtlphotolst/1/smp2/",
+          "credit": "kurea / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Crêpe Sucre & Vanilla"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/196052/640x640_rect_108e91b9811c08cf357ab7bb279e4042.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/196052/108e91b9811c08cf357ab7bb279e4042.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27003897/dtlphotolst/1/smp2/",
+          "credit": "kurea / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Crêpe với bơ Échiré"
+        }
+      ]
+    },
+    {
+      "id": "sn-umeda-mix-juice-honten",
+      "name": "Umeda Mix Juice Honten",
+      "ja": "梅田 ミックスジュース 本店",
+      "type": "street-food",
+      "day": 11,
+      "near": "loft-umeda",
+      "when": "Thứ Năm 28/10, khoảng 13:00–13:20 ngay khi tới Umeda — mở 7:00–22:00",
+      "lat": 34.698898,
+      "lng": 135.496457,
+      "coordSource": "Nominatim (OSM) tòa nhà \"大阪駅前第1ビル\" (https://nominatim.openstreetmap.org/search?format=json&q=大阪駅前第1ビル+梅田); quán ở tầng hầm khu 大阪駅前地下街6号 nên sai số khoảng 100 m",
+      "address": "大阪府大阪市北区梅田3 大阪駅前地下街6号",
+      "get": [
+        {
+          "ja": "ミックスジュース",
+          "romaji": "mikkusu jūsu",
+          "vi": "Nước ép trái cây xay hỗn hợp kiểu Osaka; ghi chú ảnh Tabelog tháng 1/2025 ghi ¥200",
+          "yen": 200
+        }
+      ],
+      "why": "Quầy mix juice nổi tiếng ở tầng hầm Umeda, Tabelog 3.76 với hơn 2.500 đánh giá và vào 百名店 Sweets WEST 2022, 2023, 2026. Giá rẻ, mua uống nhanh giữa hai điểm.",
+      "hours": "7:00–22:00",
+      "open": "07:00",
+      "close": "22:00",
+      "closedDow": [],
+      "closedNote": "Tabelog liệt kê mở cả 7 ngày; không nhận thẻ tín dụng, chỉ tiền mặt hoặc thẻ IC",
+      "pay": "mixed",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270101/27013772/",
+          "rating": 3.76,
+          "count": 2571,
+          "award": "Tabelog 百名店 Sweets WEST 2026, 2023, 2022"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/313685/640x640_rect_21539d7db6e50a0345eb10149381a762.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/313685/21539d7db6e50a0345eb10149381a762.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27013772/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ラコちゃんコウちゃん / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ngoài mix juice còn có nhiều đồ uống khác (29/6/2025)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/313685/640x640_rect_2b3eb03ed8db8a69348f28d96c89ce61.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/313685/2b3eb03ed8db8a69348f28d96c89ce61.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27013772/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ラコちゃんコウちゃん / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Mix juice (29/6/2025)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/271568/640x640_rect_0477e2263ae70620e6da0d0fcb57cd16.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/271568/0477e2263ae70620e6da0d0fcb57cd16.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27013772/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "菊ちゃん樟葉 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Ảnh khách đăng trên Tabelog"
+        }
+      ]
+    },
+    {
+      "id": "sn-echire-marche-au-beurre",
+      "name": "Échiré Marché au Beurre (Hankyu Umeda)",
+      "ja": "エシレ・マルシェ オ ブール 阪急うめだ本店",
+      "type": "bakery",
+      "day": 11,
+      "near": "hanadako",
+      "when": "Thứ Năm 28/10, khoảng 13:20–13:50 ở tầng B2 Hankyu Umeda, trước khi sang Nakazakichō — mở 10:00–20:00",
+      "lat": 34.702713,
+      "lng": 135.498432,
+      "coordSource": "Nominatim (OSM) node \"阪急うめだ本店\" (https://nominatim.openstreetmap.org/search?format=json&q=阪急うめだ本店); quán ở tầng B2 trong cửa hàng",
+      "address": "大阪府大阪市北区角田町8-7 阪急うめだ本店 B2F",
+      "get": [
+        {
+          "ja": "エシレバターのお菓子",
+          "romaji": "Eshire bātā no okashi",
+          "vi": "Bánh nướng làm từ bơ Échiré (gâteau sec, financier…); chưa xác minh được giá hiện tại",
+          "yen": null
+        }
+      ],
+      "why": "Cửa hàng bơ Échiré ở depachika Hankyu, Tabelog 3.77 và nhiều năm vào 百名店 Sweets WEST. Mua bánh bơ mang đi làm quà.",
+      "hours": "10:00–20:00 (theo lịch Hankyu Umeda)",
+      "open": "10:00",
+      "close": "20:00",
+      "closedDow": [],
+      "closedNote": "Theo ngày nghỉ của Hankyu Umeda Honten, kiểm tra lịch cửa hàng",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270101/27068734/",
+          "rating": 3.77,
+          "count": 1505,
+          "award": "Tabelog 百名店 Sweets WEST 2026, 2023, 2022, 2020, 2019, 2018 (Bread 2017)"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/122359/640x640_rect_122359902.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/122359/122359902.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27068734/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "＠すすむ / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Gâteau sec (12/2019)"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/41730/640x640_rect_41730926.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/41730/41730926.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27068734/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "fujimo123 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Bánh tại Échiré Marché au Beurre"
+        }
+      ]
+    },
+    {
+      "id": "sn-bretonne-hankyu-umeda",
+      "name": "BRETONNE Hankyu Umeda Honten",
+      "ja": "ブルトンヌ 阪急うめだ本店",
+      "type": "dessert",
+      "day": 11,
+      "near": "hanadako",
+      "when": "Thứ Năm 28/10, khoảng 13:20–13:50 ở tầng B1 Hankyu Umeda — mở 10:00–20:00",
+      "lat": 34.702713,
+      "lng": 135.498432,
+      "coordSource": "Nominatim (OSM) node \"阪急うめだ本店\" (https://nominatim.openstreetmap.org/search?format=json&q=阪急うめだ本店); quán ở tầng B1 trong cửa hàng",
+      "address": "大阪府大阪市北区角田町8-7 阪急うめだ本店 B1F",
+      "get": [
+        {
+          "ja": "フィナンシェ",
+          "romaji": "finanshie",
+          "vi": "Financier bơ, theo chú thích ảnh Tabelog 2026",
+          "yen": 260
+        },
+        {
+          "ja": "ガトー・ナンテ",
+          "romaji": "gatō nante",
+          "vi": "Gâteau nantais kiểu Brittany (chưa xác minh được giá hiện tại)",
+          "yen": null
+        }
+      ],
+      "why": "Tiệm bánh nướng kiểu Brittany ở depachika Hankyu, Tabelog 3.71 và vào 百名店 Sweets WEST 2023, 2026. Financier nhỏ, mua mang đi ăn dọc đường.",
+      "hours": "10:00–20:00 (theo lịch Hankyu Umeda)",
+      "open": "10:00",
+      "close": "20:00",
+      "closedDow": [],
+      "closedNote": "Theo ngày nghỉ của Hankyu Umeda Honten, kiểm tra lịch cửa hàng",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270101/27068956/",
+          "rating": 3.71,
+          "count": 822,
+          "award": "Tabelog 百名店 Sweets WEST 2026, 2023"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/103107/640x640_rect_103107740.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/103107/103107740.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27068956/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "ぽまーず / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Financier"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/83767/640x640_rect_83767667.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/83767/83767667.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27068956/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "fujimo123 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Gâteau nantais"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/83767/640x640_rect_83767691.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/83767/83767691.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27068956/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "fujimo123 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Croquant éclair"
+        }
+      ]
+    },
+    {
+      "id": "sn-hannoc-nakazakicho",
+      "name": "hannoc",
+      "ja": "ハノック",
+      "type": "cafe",
+      "day": 11,
+      "near": "nakazakicho",
+      "when": "Thứ Năm 28/10, khoảng 15:00–15:45 khi dạo Nakazakichō — mở 11:00–21:00",
+      "lat": 34.705584,
+      "lng": 135.50407,
+      "coordSource": "Nominatim (OSM) node \"hannoc\", 都島通 (https://nominatim.openstreetmap.org/search?format=json&q=hannoc&viewbox=135.503,34.709,135.5085,34.704&bounded=1)",
+      "address": "大阪府大阪市北区万歳町4-12",
+      "get": [
+        {
+          "ja": "モンブランとイチゴのシブースト",
+          "romaji": "monburan to ichigo no shibusuto",
+          "vi": "Mont Blanc và chiboust dâu, bánh theo mùa (chưa xác minh được giá)",
+          "yen": null
+        },
+        {
+          "ja": "ショコラ ラテ",
+          "romaji": "shokora rate",
+          "vi": "Đồ uống sô-cô-la \"Chocolatte\" của quán (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Quán bánh và sô-cô-la cách ga Nakazakichō khoảng 160 m, Tabelog chọn vào 百名店 Cafe WEST 2025. Hợp để ngồi nghỉ khi dạo các tiệm cà phê ở Nakazakichō.",
+      "hours": "11:00–21:00 (thứ Sáu, thứ Bảy đóng 22:00)",
+      "open": "11:00",
+      "close": "21:00",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270101/27121787/",
+          "rating": 3.61,
+          "count": 956,
+          "award": "Tabelog 百名店 Cafe WEST 2025"
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/170234/640x640_rect_742cd5d265b413332e3697cc4c90d68f.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/170234/742cd5d265b413332e3697cc4c90d68f.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27121787/dtlphotolst/1/smp2/",
+          "credit": "sakura52943 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Fleur, De Verre Blanc, Japonaise"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/170234/640x640_rect_cb27caa356c9a65f9690667658c6db38.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/170234/cb27caa356c9a65f9690667658c6db38.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27121787/dtlphotolst/1/smp2/",
+          "credit": "sakura52943 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "De Verre Blanc, Japone"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/170234/640x640_rect_5cd1888bc5b8b7c425b27f4689127bd8.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/170234/5cd1888bc5b8b7c425b27f4689127bd8.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270101/27121787/dtlphotolst/1/smp2/",
+          "credit": "sakura52943 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Fleur HOT"
+        }
+      ]
+    },
+    {
+      "id": "sn-rikuro-ojisan-namba",
+      "name": "Rikuro Ojisan no Mise Namba Honten",
+      "ja": "りくろーおじさんの店 なんば本店",
+      "type": "bakery",
+      "day": 12,
+      "near": "forza-osaka",
+      "when": "Thứ Sáu 29/10, trên đường từ khách sạn ra ga Nankai Namba (khoảng 160 m từ ga) — mở 9:00–20:00, quán cà phê tầng 2 đóng 17:30",
+      "lat": 34.666142,
+      "lng": 135.501505,
+      "coordSource": "Nominatim (OSM) node \"りくろーおじさんの店\" 3-2-28 (https://nominatim.openstreetmap.org/search?format=json&q=りくろー&viewbox=135.4995,34.6685,135.5045,34.6635&bounded=1)",
+      "address": "大阪府大阪市中央区難波3-2-28 1F～3F",
+      "get": [
+        {
+          "ja": "焼きたてチーズケーキ",
+          "romaji": "yakitate chīzu kēki",
+          "vi": "Cheesecake nướng nóng nguyên bánh, theo chú thích ảnh Tabelog 4/2025",
+          "yen": 1065
+        },
+        {
+          "ja": "クリーミープリン",
+          "romaji": "kurīmī purin",
+          "vi": "Pudding kem, theo chú thích ảnh Tabelog 4/2025",
+          "yen": 260
+        },
+        {
+          "ja": "サクパイ",
+          "romaji": "saku pai",
+          "vi": "Bánh pie giòn, theo chú thích ảnh Tabelog 4/2025",
+          "yen": 160
+        }
+      ],
+      "why": "Tiệm cheesecake nổi tiếng của Osaka nằm ngay trên đường ra ga Nankai Namba. Mua bánh pie hoặc pudding nhỏ ăn dọc đường ra sân bay.",
+      "hours": "9:00–20:00 (quán cà phê tầng 2 đóng 17:30)",
+      "open": "09:00",
+      "close": "20:00",
+      "closedDow": [],
+      "closedNote": "Tabelog không ghi ngày nghỉ",
+      "pay": "card",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270202/27002336/",
+          "rating": 3.51,
+          "count": 1508,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/101775/640x640_rect_101775165.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/101775/101775165.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27002336/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "nontan21 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Cheesecake mềm mới nướng"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/101775/640x640_rect_101775160.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/101775/101775160.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27002336/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "nontan21 / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Đáy bánh có nho khô"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/50278/640x640_rect_50278119.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/50278/50278119.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27002336/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "眼鏡屋さん / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Cheesecake mới ra lò, đựng trong túi"
+        }
+      ]
+    },
+    {
+      "id": "sn-die-gute-namba-walk",
+      "name": "Die Gute (Namba Walk)",
+      "ja": "なんばグーテ",
+      "type": "bakery",
+      "day": 12,
+      "near": "forza-osaka",
+      "when": "Thứ Sáu 29/10, sáng sớm trong Namba Walk gần ga Namba — mở 8:00–21:00",
+      "lat": 34.66671,
+      "lng": 135.50087,
+      "coordSource": "Nominatim (OSM) lối vào tàu điện \"なんばウォーク\" trên 馬場先筋 (https://nominatim.openstreetmap.org/search?format=json&q=なんばウォーク&viewbox=135.4995,34.6685,135.5035,34.664&bounded=1); quán ở tầng ngầm Namba Walk 1番街 nên sai số khoảng 60 m",
+      "address": "大阪府大阪市中央区難波2 なんばウォーク 1番街内 北通り",
+      "get": [
+        {
+          "ja": "パン各種",
+          "romaji": "pan kakushu",
+          "vi": "Các loại bánh mì mặn và ngọt, có ảnh basil-tomato, epi trên Tabelog (chưa xác minh được giá)",
+          "yen": null
+        }
+      ],
+      "why": "Tiệm bánh trong Namba Walk, mở từ 8:00 và cách ga Namba khoảng 25 m. Mua bánh mì ăn sáng trước khi lên tàu Nankai.",
+      "hours": "8:00–21:00",
+      "open": "08:00",
+      "close": "21:00",
+      "closedDow": [],
+      "closedNote": "Nghỉ thứ Tư tuần thứ ba của các tháng lẻ; 29/10 là thứ Sáu nên mở",
+      "pay": "mixed",
+      "queue": null,
+      "source": {
+        "tabelog": {
+          "url": "https://tabelog.com/osaka/A2701/A270202/27013487/",
+          "rating": 3.55,
+          "count": 324,
+          "award": null
+        },
+        "social": []
+      },
+      "images": [
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/29796/640x640_rect_29796959.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/29796/29796959.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27013487/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "gropop / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Bánh mì basil-tomato"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/29796/640x640_rect_29796954.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/29796/29796954.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27013487/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "gropop / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Các loại bánh mì"
+        },
+        {
+          "kind": "dish",
+          "url": "https://tblg.k-img.com/restaurant/images/Rvw/59846/640x640_rect_59846652.jpg",
+          "original": "https://tblg.k-img.com/restaurant/images/Rvw/59846/59846652.jpg",
+          "page": "https://tabelog.com/en/osaka/A2701/A270202/27013487/dtlphotolst/1/smp2/?sby=D&srt=like",
+          "credit": "眼鏡屋さん / Tabelog",
+          "license": "Tabelog user photo",
+          "caption": "Bánh mì được ưa thích"
+        }
+      ]
+    }
+  ]
+}

@@ -1,11 +1,22 @@
 ---
-import { fmtKm, imgSrc, type Along } from '../lib/trip';
+import { fmtKm, imgSrc, shortVi, type Along } from '../lib/trip';
 
 interface Props {
   a: Along;
+  /** weekday of the day shown, 0 = Sunday, to flag a shop that is closed */
+  dow?: number;
 }
-const { a } = Astro.props;
+const { a, dow } = Astro.props;
 const { p, km, detour: d } = Astro.props.a;
+const sn = p.snack;
+const closed = sn && dow != null && sn.closedDow.includes(dow);
+const DOW_VI = ['Chủ nhật', 'thứ Hai', 'thứ Ba', 'thứ Tư', 'thứ Năm', 'thứ Sáu', 'thứ Bảy'];
+const social = [...new Set((sn?.social ?? []).map((x) => (['instagram', 'tiktok', 'youtube'].includes(x.platform) ? x.platform : 'press')))];
+const SOCIAL_LABEL: Record<string, string> = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', press: 'Báo du lịch' };
+const get = sn?.get[0];
+// "Tabelog 百名店 Wagashi/Cafe WEST 2026 (…)" → "百名店 2026"
+const award = sn?.tabelog?.award ? (/百名店/.test(sn.tabelog.award) ? `百名店 ${sn.tabelog.award.match(/20\d\d/)?.[0] ?? ''}`.trim() : sn.tabelog.award) : null;
+const hours = sn?.open && sn?.close ? `${sn.open}–${sn.close}` : '';
 const img = p.images[0];
 const kicker = d
   ? d.km === 0
@@ -15,22 +26,37 @@ const kicker = d
     : d.mode === 'car'
       ? `Từ ${d.from.onWalk ? 'đường đi bộ' : d.from.label}, đi xe khoảng ${d.min} phút`
       : d.from.onWalk
-        ? `Rẽ ${d.min} phút khỏi đường đi bộ`
-        : `Từ ${d.from.label}, đi bộ ${d.min} phút`
+        ? `Rẽ ${d.min} phút khỏi đường đi bộ${d.up && d.up >= 20 ? `, lên ${d.up} m` : ''}`
+        : `Từ ${d.from.label}, đi bộ ${d.min} phút${d.up && d.up >= 20 ? `, lên ${d.up} m` : ''}`
   : km < 0.15
     ? 'Ngay trên đường đi'
     : `Cách đường đi ${fmtKm(km)}`;
 const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
 ---
 
-<li data-detour={a.p.id}>
+<li data-detour={a.p.id} class:list={[closed && 'is-closed']}>
   <button type="button" class="along-item" data-place={p.id}>
     <span class="al-img">
       {img && <img src={imgSrc(img.src)} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()" />}
     </span>
     <span class="al-text">
-      <span class="al-kicker t-micro">{kicker}{fee}</span>
+      <span class:list={['al-kicker t-micro', sn && 'is-food']}>{kicker}{fee}</span>
       <strong>{p.name}</strong>
+      {sn && (
+        <span class="al-tags">
+          {closed && <span class="tag tag-closed">Nghỉ {DOW_VI[dow!]}</span>}
+          {sn.tabelog?.rating && <span class="tag tag-tb tnum">Tabelog {sn.tabelog.rating.toFixed(2)}</span>}
+          {award && <span class="tag tag-tb">{award}</span>}
+          {social.map((x) => <span class:list={['tag', x === 'press' ? 'tag-press' : 'tag-sns']}>{SOCIAL_LABEL[x]}</span>)}
+          {hours && <span class="tag tnum">{hours}</span>}
+        </span>
+      )}
+      {get && (
+        <span class="t-small al-get">
+          {shortVi(get.vi)}
+          {get.yen ? <span class="tnum"> · ¥{get.yen.toLocaleString('vi-VN')}</span> : null}
+        </span>
+      )}
       {(p.note || p.why) && <span class="t-small muted al-why">{p.note ?? p.why}</span>}
     </span>
   </button>
@@ -79,6 +105,56 @@ const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
   .al-kicker {
     color: var(--sight);
     font-weight: 600;
+  }
+  .al-kicker.is-food {
+    color: var(--food);
+  }
+  .al-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 3px 0 2px;
+  }
+  .tag {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 20px;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 6px;
+    background: var(--bg-2);
+    color: var(--ink-2);
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .along-item:hover .tag {
+    background: var(--bg);
+  }
+  .tag-tb {
+    color: #b85c00;
+    background: color-mix(in srgb, #f39800 14%, transparent);
+  }
+  .tag-sns {
+    color: #c13584;
+    background: color-mix(in srgb, #c13584 11%, transparent);
+  }
+  .tag-press {
+    color: var(--ink-2);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+  }
+  .tag-closed {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--warn) 22%, transparent);
+  }
+  .is-closed .al-img,
+  .is-closed strong {
+    opacity: 0.55;
+  }
+  .al-get {
+    color: var(--ink);
   }
   .al-why {
     display: -webkit-box;

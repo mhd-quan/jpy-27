@@ -10,7 +10,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
@@ -20,15 +20,17 @@ const outDir = join(root, 'public/img/commons');
 mkdirSync(cacheDir, { recursive: true });
 mkdirSync(outDir, { recursive: true });
 
-const files = ['sights-east.json', 'sights-west.json', 'fuji.json'];
+// every Commons photo referenced anywhere in the research files (places, spots, walks, highlights)
 const urls = new Set();
-for (const f of files) {
-  const p = join(root, 'research', f);
-  if (!existsSync(p)) continue;
-  const data = JSON.parse(readFileSync(p, 'utf8'));
-  for (const place of [...(data.places ?? []), ...(data.spots ?? [])]) {
-    for (const im of place.images ?? []) if (im?.url?.includes('upload.wikimedia.org')) urls.add(im.url);
+const collect = (v) => {
+  if (Array.isArray(v)) v.forEach(collect);
+  else if (v && typeof v === 'object') {
+    if (typeof v.url === 'string' && v.url.includes('upload.wikimedia.org')) urls.add(v.url);
+    Object.values(v).forEach(collect);
   }
+};
+for (const f of readdirSync(join(root, 'research')).filter((x) => x.endsWith('.json') && x !== 'commons-map.json')) {
+  collect(JSON.parse(readFileSync(join(root, 'research', f), 'utf8')));
 }
 
 const mapFile = join(root, 'research/commons-map.json');

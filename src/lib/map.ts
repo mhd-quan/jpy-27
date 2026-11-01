@@ -18,7 +18,7 @@ export interface Pin {
   id: string;
   lat: number;
   lng: number;
-  kind: 'stay' | 'food' | 'sight' | 'shop' | 'station' | 'along' | 'fuji';
+  kind: 'stay' | 'food' | 'sight' | 'shop' | 'station' | 'along' | 'snack' | 'fuji';
   label: string;
   n?: number;
   day?: number;
@@ -29,6 +29,8 @@ export interface DetourLine {
   id: string; // the sight's place id, shared with its pin
   p: string; // encoded polyline [lat, lng]
   mode: 'walk' | 'car';
+  /** food for snack stops, otherwise a sight */
+  kind?: 'food' | 'sight';
 }
 
 export interface TripMapOptions {
@@ -46,6 +48,8 @@ export interface TripMapOptions {
   labels?: 'all' | 'main' | 'none';
   onPin?: (id: string) => void;
   padding?: maplibregl.PaddingOptions | number;
+  /** a georeferenced picture under the routes (Fuji viewshed); bounds [[w,s],[e,n]] */
+  image?: { src: string; bounds: [[number, number], [number, number]]; opacity?: number };
 }
 
 const prefersDark = () => {
@@ -98,7 +102,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
     features: (opts.detours ?? []).map((d) => ({
       type: 'Feature',
       id: d.id,
-      properties: { id: d.id, mode: d.mode },
+      properties: { id: d.id, mode: d.mode, kind: d.kind ?? 'sight' },
       geometry: { type: 'LineString', coordinates: decodePolyline(d.p).map(([lat, lng]) => [lng, lat]) },
     })),
   };
@@ -136,6 +140,12 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
         maxzoom: 13,
       });
       map.setTerrain({ source: 'terrain', exaggeration: 1.35 });
+    }
+
+    if (opts.image) {
+      const [[w, so], [e, n]] = opts.image.bounds;
+      map.addSource('overlay', { type: 'image', url: opts.image.src, coordinates: [[w, n], [e, n], [e, so], [w, so]] });
+      map.addLayer({ id: 'overlay', type: 'raster', source: 'overlay', paint: { 'raster-opacity': opts.image.opacity ?? 0.85, 'raster-resampling': 'linear', 'raster-fade-duration': 0 } });
     }
 
     map.addSource('route', { type: 'geojson', data: routes, promoteId: 'id' });
@@ -201,6 +211,32 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
       },
     });
 
+    // Walks around a hotel: a wide soft band where Fuji is in line of sight, then the walk itself
+    map.addLayer({
+      id: 'route-glow',
+      type: 'line',
+      source: 'route',
+      filter: isMode(['glow']),
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': ['get', 'color'], 'line-width': width(14), 'line-opacity': ['case', ['boolean', ['feature-state', 'dim'], false], 0.12, 0.32], 'line-blur': 2 },
+    });
+    map.addLayer({
+      id: 'route-stroll-case',
+      type: 'line',
+      source: 'route',
+      filter: isMode(['stroll']),
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': casing, 'line-width': width(6), 'line-opacity': dim },
+    });
+    map.addLayer({
+      id: 'route-stroll',
+      type: 'line',
+      source: 'route',
+      filter: isMode(['stroll']),
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': ['get', 'color'], 'line-width': width(3.6), 'line-opacity': dim },
+    });
+
     // Lines of sight to Fuji: solid when clear, dashed when terrain is in the way
     map.addLayer({
       id: 'route-sight',
@@ -219,6 +255,8 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
 
     // Detours to the suggestions: faint dashes, the chosen one solid with arrows towards the sight
     const sight = dark ? '#5aa2ff' : '#2f7de1';
+    const food = dark ? '#ff9f45' : '#e9792b';
+    const byKind: maplibregl.ExpressionSpecification = ['match', ['get', 'kind'], ['food', 'snack'], food, sight];
     const active: maplibregl.ExpressionSpecification = ['boolean', ['feature-state', 'active'], false];
     map.addSource('detours', { type: 'geojson', data: detours, promoteId: 'id' });
     for (const mode of ['walk', 'car'] as const) {
@@ -229,7 +267,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
         filter: ['==', ['get', 'mode'], mode],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': sight,
+          'line-color': byKind,
           'line-width': ['interpolate', ['linear'], ['zoom'], 10, ['case', active, 3, 1.6], 15, ['case', active, 4.5, 2.4]],
           'line-dasharray': mode === 'walk' ? [1, 1.6] : [3, 1.6],
           'line-opacity': ['case', active, 1, ['boolean', ['feature-state', 'dim'], false], 0.25, 0.6],
@@ -251,7 +289,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
         'text-ignore-placement': true,
       },
       paint: {
-        'text-color': sight,
+        'text-color': byKind,
         'text-halo-color': casing,
         'text-halo-width': 1.5,
         'text-opacity': ['case', active, 1, 0],
@@ -263,11 +301,11 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
       id: 'pin-along',
       type: 'circle',
       source: 'pins',
-      filter: ['==', ['get', 'kind'], 'along'],
+      filter: ['match', ['get', 'kind'], ['along', 'snack'], true, false],
       paint: {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 4, 14, 7.5],
-        'circle-color': ['case', active, sight, dark ? '#1c1c1e' : '#ffffff'],
-        'circle-stroke-color': ['case', active, casing, sight],
+        'circle-color': ['case', active, byKind, dark ? '#1c1c1e' : '#ffffff'],
+        'circle-stroke-color': ['case', active, casing, byKind],
         'circle-stroke-width': ['case', active, 2.5, 2.4],
       },
     });
@@ -333,7 +371,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
         filter:
           opts.labels === 'main'
             ? ['==', ['get', 'kind'], 'stay']
-            : ['match', ['get', 'kind'], ['stay', 'food', 'sight', 'shop', 'along', 'fuji'], true, false],
+            : ['match', ['get', 'kind'], ['stay', 'food', 'sight', 'shop', 'along', 'snack', 'fuji'], true, false],
         layout: {
           'text-field': ['get', 'label'],
           'text-font': ['Noto Sans Bold'],
@@ -344,7 +382,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
           'text-optional': true,
         },
         paint: {
-          'text-color': ['match', ['get', 'kind'], 'along', sight, dark ? '#f5f5f7' : '#1d1d1f'],
+          'text-color': ['match', ['get', 'kind'], 'along', sight, 'snack', food, dark ? '#f5f5f7' : '#1d1d1f'],
           'text-halo-color': dark ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.95)',
           'text-halo-width': 1.6,
         },
@@ -389,7 +427,7 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
   const setDetour = (id: string | null) => {
     if (!map.getSource('detours')) return;
     for (const f of detours.features) map.setFeatureState({ source: 'detours', id: f.id! }, { active: id === f.id, dim: id !== null && id !== f.id });
-    for (const f of pins.features) if (f.properties!.kind === 'along') map.setFeatureState({ source: 'pins', id: f.id! }, { active: id === f.id });
+    for (const f of pins.features) if (f.properties!.kind === 'along' || f.properties!.kind === 'snack') map.setFeatureState({ source: 'pins', id: f.id! }, { active: id === f.id });
   };
 
   const duration = (ms: number) => (reduced() ? 0 : ms);
@@ -426,12 +464,26 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
       if (b.isEmpty()) return;
       map.fitBounds(b, { padding: opts.padding ?? 64, maxZoom: 16, duration: duration(900) });
     },
+    /** Keep the legs and pins of these days bright, fade the rest, and frame them; [] shows everything. */
+    focusDays(days: number[]) {
+      if (!map.getSource('route')) return;
+      const on = (d: unknown) => !days.length || days.includes(Number(d));
+      const b = new maplibregl.LngLatBounds();
+      for (const f of routes.features) {
+        const keep = on(f.properties!.day) || ['sight', 'sightx'].includes(String(f.properties!.mode));
+        map.setFeatureState({ source: 'route', id: f.properties!.id as string }, { active: false, dim: !keep });
+        if (keep && days.length && !['sight', 'sightx'].includes(String(f.properties!.mode))) for (const c of f.geometry.coordinates) b.extend(c as [number, number]);
+      }
+      if (!days.length) return api.fit();
+      if (!b.isEmpty()) map.fitBounds(b, { padding: opts.padding ?? 48, duration: duration(900), pitch: map.getPitch() });
+    },
     fit(bounds = opts.bounds, padding: maplibregl.PaddingOptions | number = opts.padding ?? 48) {
       if (opts.center && bounds === opts.bounds) {
         map.easeTo({ center: opts.center, zoom: opts.zoom, pitch: opts.pitch ?? 0, bearing: opts.bearing ?? 0, duration: duration(900) });
         return;
       }
-      if (bounds) map.fitBounds(bounds as LngLatBoundsLike, { padding, duration: duration(900) });
+      // one store or one point: do not dive to street-level emptiness
+      if (bounds) map.fitBounds(bounds as LngLatBoundsLike, { padding, maxZoom: 16, duration: duration(900) });
     },
     clear() {
       activeLeg = null;

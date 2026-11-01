@@ -5,7 +5,9 @@ import Panorama from '../../components/Panorama.astro';
 import Gallery from '../../components/Gallery.astro';
 import { FUJI_SPOTS, FUJI_PANORAMAS, FUJI_TRACKS, FUJI_SUMMIT } from '../../data/fuji.gen';
 import { FUJI_RESEARCH } from '../../data/research.gen';
-import { hasPlace, place, url, fmtKm } from '../../lib/trip';
+import { hasPlace, place, url, fmtKm, DAY_VIEWS, ALT_VIEWS, routeLeg, imgSrc } from '../../lib/trip';
+import { DETOURS } from '../../data/detours.gen';
+import { hillAware } from '../../lib/trip';
 import { encodePolyline, compass } from '../../lib/geo';
 import { LINES } from '../../data/lines';
 import type { Pin, RouteLeg } from '../../lib/map';
@@ -56,9 +58,25 @@ const shown = (s: Spot) =>
 const GROUPS = [
   { day: 4, title: 'Ngày 4, Hakone', note: 'Hồ Ashi nằm trong lòng một miệng núi lửa cổ; vành núi phía tây che bớt chân Fuji, nên phần nhìn thấy phụ thuộc nhiều vào chỗ đứng.' },
   { day: 5, title: 'Ngày 5, dọc Tōkaidō', note: 'Ngồi bên phải tàu từ Mishima tới Fujikawa. Rẽ qua Satta hoặc Miho chỉ khi đổi hẳn bữa trưa.' },
-  { day: 3, title: 'Phương án Kawaguchiko thay ngày 3', note: 'Gần núi nhất, Fuji lớn nhất, nhưng đổi cả ngày Tokyo và thêm khoảng ¥8.000–12.000.' },
 ];
-const spotsBy = (day: number) => FUJI_SPOTS.filter((s) => s.day === day).sort((a, b) => Number(b.visible) - Number(a.visible) || a.km - b.km);
+const spotsBy = (day: number) => FUJI_SPOTS.filter((s) => s.day === day && s.role !== 'popular').sort((a, b) => Number(b.visible) - Number(a.visible) || a.km - b.km);
+
+// Spots people post about, grouped by the plan they fit, with the detour from that plan
+const POP_GROUPS = [
+  { key: '4', title: 'Từ Hakone, ngày 4', note: 'Rẽ khỏi vòng Hakone; xa hơn 25 phút xe thì là một buổi riêng, không phải đường rẽ.' },
+  { key: '5', title: 'Dọc Tōkaidō, ngày 5', note: 'Xuống tàu ở ga gần nhất trên tuyến của ngày 5, rồi quay lại tàu sau.' },
+  { key: 'kawaguchiko', title: 'Nếu đi Kawaguchiko', note: 'Thuộc phương án thay ngày 3; những chỗ đã nằm trong lịch Kawaguchiko được đánh dấu.' },
+];
+const altPlanned = new Set(ALT_VIEWS.flatMap((v) => v.day.items.flatMap((i) => (i.type === 'stop' && i.place ? [i.place] : []))));
+const popular = POP_GROUPS.map((g) => ({
+  ...g,
+  list: FUJI_SPOTS.filter((s) => s.role === 'popular' && hasPlace(s.id) && String(place(s.id).day) === g.key)
+    .map((s) => ({ s, p: place(s.id), d: hillAware(`${g.key}.${s.id}`), planned: altPlanned.has(s.id) }))
+    .sort((a, b) => Number(b.planned) - Number(a.planned) || (a.d?.min ?? 999) - (b.d?.min ?? 999)),
+})).filter((g) => g.list.length);
+const SOCIAL_LABEL: Record<string, string> = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
+const detourText = (d: ReturnType<typeof hillAware>) =>
+  !d ? null : d.km === 0 ? `Ngay cạnh ${d.from.label}` : d.mode === 'car' ? `${d.min} phút đường xe từ ${d.from.label}, ${fmtKm(d.km)}` : `${d.min} phút đi bộ từ ${d.from.label}, ${fmtKm(d.km)}`;
 
 // Map: summit, spots, lines of sight
 const pins: Pin[] = [
@@ -74,15 +92,26 @@ const sightLegs: RouteLeg[] = FUJI_SPOTS.map((s) => ({
   color: '#1d1d1f',
   mode: s.visible ? 'sight' : 'sightx',
 }));
-const trackLegs: RouteLeg[] = FUJI_TRACKS.map((t) => ({
-  id: t.id,
-  p: encodePolyline(t.samples.map((x) => [x.lat, x.lng])),
-  color: LINES[t.line as keyof typeof LINES].color,
-  mode: 'train',
-}));
+// The plan's own routes on the Fuji days: day 4 (Hakone), day 5 (Tōkaidō) and the Kawaguchiko
+// alternative (drawn as day 3, the day it would replace)
+const fujiDays = [DAY_VIEWS[3], DAY_VIEWS[4], ...ALT_VIEWS];
+const dayLegs: RouteLeg[] = [...new Map(fujiDays.flatMap((v) => v.legs.map((l) => routeLeg(l, v.day.n))).map((l) => [l.id, l])).values()];
+const dayPins: Pin[] = fujiDays.flatMap((v) =>
+  v.pins
+    .filter((p) => p.kind === 'stay' || p.kind === 'food' || (p.kind === 'sight' && !FUJI_SPOTS.some((s) => s.id === p.id)))
+    .map((p) => ({ ...p, n: undefined, day: v.day.n })),
+);
+const DAY_TABS = [
+  { label: 'Cả vùng', days: [] as number[] },
+  { label: 'Ngày 4, Hakone', days: [4] },
+  { label: 'Ngày 5, Tōkaidō', days: [5] },
+  ...(ALT_VIEWS.length ? [{ label: 'Kawaguchiko', days: [3] }] : []),
+];
+const popDetours = popular.flatMap((g) => g.list.flatMap(({ s, d }) => (d?.p ? [{ id: s.id, p: d.p, mode: d.mode, kind: 'sight' as const }] : [])));
 const mapConfig = {
-  legs: [...trackLegs, ...sightLegs],
-  pins,
+  detours: popDetours,
+  legs: [...dayLegs, ...sightLegs],
+  pins: [...pins, ...dayPins.filter((p) => !pins.some((x) => x.id === p.id))],
   bounds: [
     [138.4, 34.95],
     [139.2, 35.55],
@@ -104,6 +133,7 @@ const TRACK_LABEL: Record<string, { title: string; from: string; to: string; ski
   romancecar: { title: 'Romancecar, sáng ngày 4', from: 'Shinjuku', to: 'Hakone-Yumoto', skipUrbanKm: 30 },
   tokaido: { title: 'JR Tōkaidō, ngày 5', from: 'Odawara', to: 'Shimizu' },
   shinkansen: { title: 'Shinkansen, chiều ngày 5', from: 'Shizuoka', to: '70 km đầu' },
+  fujiExcursion: { title: 'Fuji Excursion, phương án Kawaguchiko', from: 'Shinjuku', to: 'Kawaguchiko', skipUrbanKm: 25 },
 };
 const tracks = FUJI_TRACKS.filter((t) => t.samples.length > 10).map((t) => {
   const info = TRACK_LABEL[t.line] ?? { title: t.line, from: '', to: '' };
@@ -127,11 +157,12 @@ const panoList = [
   { id: 'owakudani', label: 'Ōwakudani' },
   { id: 'satta-pass', label: 'Đèo Satta' },
   { id: 'oishi-park', label: 'Hồ Kawaguchi' },
+  { id: 'fs-chureito-pagoda', label: 'Chūreitō' },
 ].filter((p) => FUJI_PANORAMAS[p.id]);
 const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
 ---
 
-<Base title="Fuji" description="Nhìn Fuji ở đâu trong chuyến đi: khoảng cách, hướng, phần núi lộ ra tính từ địa hình thật, cửa sổ tàu và cách chụp." sheets={FUJI_SPOTS.filter((s) => hasPlace(s.id)).map((s) => s.id)}>
+<Base title="Fuji" description="Nhìn Fuji ở đâu trong chuyến đi: khoảng cách, hướng, phần núi lộ ra tính từ địa hình thật, những chỗ hay được đăng, cửa sổ tàu và cách chụp." sheets={[...FUJI_SPOTS.filter((s) => hasPlace(s.id)).map((s) => s.id), ...dayPins.map((p) => p.id)]}>
   <section class="wrap hero">
     <h1 class="t-display">Fuji.</h1>
     <p class="t-lead">
@@ -162,9 +193,18 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
   }
 
   <section class="map-wrap" aria-label="Bản đồ địa hình vùng Fuji">
-    <MapView id="fuji" config={mapConfig} class="fuji-map" label="Bản đồ 3D vùng Fuji, với tia ngắm từ từng điểm tới đỉnh" />
+    <div class="fuji-map-wrap">
+      <MapView id="fuji" config={mapConfig} class="fuji-map" label="Bản đồ 3D vùng Fuji, với tia ngắm từ từng điểm tới đỉnh" />
+      <div class="day-tabs" role="tablist" aria-label="Lộ trình">
+        {DAY_TABS.map((t, i) => (
+          <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-fuji-days={JSON.stringify(t.days)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+    </div>
     <p class="wrap t-small muted map-note">
-      Đường liền: tầm nhìn thông tới đỉnh. Đường nét đứt: bị núi gần hơn che. Một ngón để kéo bản đồ; hai ngón để phóng to, xoay, hoặc vuốt lên xuống để đổi góc nghiêng.
+      Màu theo tuyến tàu, xe, thuyền của lịch trình. Tia mảnh tới đỉnh: liền là tầm nhìn thông, nét đứt là bị núi gần hơn che. Một ngón để kéo bản đồ; hai ngón để phóng to, xoay, hoặc vuốt lên xuống để đổi góc nghiêng.
     </p>
   </section>
 
@@ -292,6 +332,84 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
     })
   }
 
+  {
+    popular.length > 0 && (
+      <section class="wrap section-tight popular" id="hay-dang" aria-labelledby="pop-t">
+        <h2 class="t-2" id="pop-t">
+          Những chỗ người ta hay đăng
+        </h2>
+        <p class="t-lead group-note">
+          Cửa hàng tiện lợi có Fuji trên mái, con phố có núi ở cuối đường, tháp chùa trên đồi. Mỗi chỗ có thời gian rẽ tính theo đường thật từ lịch trình, và tầm nhìn tới đỉnh tính từ địa hình.
+        </p>
+        {ALT_VIEWS.length > 0 && (
+          <p>
+            <a class="btn" href={url('fuji/kawaguchiko/')}>
+              Xem lịch một ngày ở Kawaguchiko
+            </a>
+          </p>
+        )}
+        {popular.map((g) => (
+          <div class="pop-group">
+            <h3 class="t-3">{g.title}</h3>
+            <p class="t-small muted">{g.note}</p>
+            <ul class="pop-list">
+              {g.list.map(({ s, p, d, planned }) => {
+                const fs = p.fujiSpot;
+                const social = [...new Set((fs?.social ?? []).map((x) => x.platform))].filter((x) => SOCIAL_LABEL[x]);
+                const access = fs?.access?.[g.key === '4' ? 'day4' : g.key === '5' ? 'day5' : 'kawaguchiko'];
+                return (
+                  <li class="pop">
+                    <button type="button" class="pop-img" data-place={p.id} aria-label={p.name}>
+                      {p.images[0] && <img src={imgSrc(p.images[0].src)} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()" />}
+                    </button>
+                    <div class="pop-body">
+                      <p class="pop-tags">
+                        {planned && <span class="tag tag-plan">Trong lịch Kawaguchiko</span>}
+                        <span class:list={['tag', s.visible ? 'tag-ok' : 'tag-no']}>{s.visible ? `Thấy Fuji · ${fmtKm(s.km)}` : 'Địa hình che đỉnh'}</span>
+                        {social.map((x) => (
+                          <span class="tag tag-sns">{SOCIAL_LABEL[x]}</span>
+                        ))}
+                      </p>
+                      <h4 class="pop-name">
+                        <button type="button" class="link-title" data-place={p.id}>
+                          {p.name}
+                        </button>
+                        {p.ja && (
+                          <span class="ja muted" lang="ja">
+                            {' '}
+                            {p.ja}
+                          </span>
+                        )}
+                      </h4>
+                      {p.why && <p class="t-small">{p.why}</p>}
+                      {detourText(d) && <p class="t-small pop-detour">{detourText(d)}</p>}
+                      {p.bestTime && <p class="t-small muted">Nên đến: {p.bestTime}</p>}
+                      {(access || fs?.status || fs?.etiquette) && (
+                        <details class="pop-more t-small">
+                          <summary>Đi thế nào, lưu ý</summary>
+                          {access && <p class="muted">{access}</p>}
+                          {fs?.status && <p class="pop-status">{fs.status}</p>}
+                          {fs?.etiquette && <p class="muted">{fs.etiquette}</p>}
+                        </details>
+                      )}
+                      {d?.p && (
+                        <p>
+                          <button type="button" class="btn btn-quiet sm" data-show-detour={s.id}>
+                            Xem đường trên bản đồ
+                          </button>
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </section>
+    )
+  }
+
   <section class="band section-tight" aria-labelledby="train-t">
     <div class="wrap">
       <h2 class="t-2" id="train-t">Cửa sổ tàu</h2>
@@ -374,6 +492,23 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
 </Base>
 
 <script>
+  // Route tabs: fade every leg that is not on the chosen day and frame what is left
+  const dayTabs = [...document.querySelectorAll<HTMLButtonElement>('[data-fuji-days]')];
+  dayTabs.forEach((t) =>
+    t.addEventListener('click', () => {
+      dayTabs.forEach((x) => x.setAttribute('aria-selected', String(x === t)));
+      window.__maps?.fuji?.focusDays(JSON.parse(t.dataset.fujiDays!));
+    }),
+  );
+  // Popular spots: show the way from the plan on the 3D map
+  document.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-show-detour]');
+    const m = window.__maps?.fuji;
+    if (!b || !m) return;
+    m.clear();
+    m.highlightDetour(b.dataset.showDetour!, true);
+    document.querySelector('.fuji-map-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
   const tabs = document.querySelectorAll<HTMLButtonElement>('[data-pano]');
   tabs.forEach((t) =>
     t.addEventListener('click', () => {
@@ -421,6 +556,41 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
   }
   .map-wrap {
     padding: 48px clamp(0px, 2vw, 24px) 0;
+  }
+  .fuji-map-wrap {
+    position: relative;
+    max-width: 1400px;
+    margin-inline: auto;
+  }
+  .day-tabs {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 2;
+    display: flex;
+    gap: 2px;
+    max-width: calc(100% - 64px);
+    overflow-x: auto;
+    padding: 3px;
+    border-radius: 12px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: var(--shadow-1);
+    scrollbar-width: none;
+  }
+  .day-tabs button {
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: none;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .day-tabs button[aria-selected='true'] {
+    background: var(--bg);
   }
   .fuji-map {
     height: min(80vh, 760px);
@@ -630,6 +800,109 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
   }
   .tw li + li {
     margin-top: 8px;
+  }
+  .popular .btn {
+    margin-top: 20px;
+  }
+  .pop-group {
+    margin-top: 40px;
+  }
+  .pop-group > .t-small {
+    margin: 6px 0 0;
+    max-width: 60ch;
+  }
+  .pop-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(460px, 100%), 1fr));
+    gap: 0 36px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pop {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .pop-img {
+    width: 96px;
+    height: 96px;
+    padding: 0;
+    border: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bg-2);
+    cursor: pointer;
+  }
+  .pop-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pop-body p {
+    margin: 4px 0 0;
+  }
+  .pop-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0 !important;
+  }
+  .pop-name {
+    margin: 6px 0 0;
+    font-size: 18px;
+    line-height: 1.3;
+  }
+  .pop-more {
+    margin-top: 6px;
+  }
+  .pop-more summary {
+    width: max-content;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+  }
+  .pop-more summary::-webkit-details-marker {
+    display: none;
+  }
+  .pop-detour {
+    font-weight: 600;
+    color: var(--sight);
+  }
+  .pop-status {
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--warn) 12%, transparent);
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: var(--bg-2);
+    color: var(--ink-2);
+  }
+  .tag-ok {
+    color: var(--good);
+    background: color-mix(in srgb, var(--good) 12%, transparent);
+  }
+  .tag-sns {
+    color: #c13584;
+    background: color-mix(in srgb, #c13584 11%, transparent);
+  }
+  .tag-plan {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .btn.sm {
+    min-height: 30px;
+    padding: 0 12px;
+    font-size: 13px;
   }
   .method {
     margin-top: 32px;

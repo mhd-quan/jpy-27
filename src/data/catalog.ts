@@ -7,10 +7,12 @@ export interface Place extends PlaceBase, Omit<Detail, 'lat' | 'lng' | 'images' 
   lat: number;
   lng: number;
   images: Img[];
-  /** day the research tied this sight to (along / detour suggestions) */
-  day?: number;
+  /** day the research tied this place to: a day number, or an alternative day's slug */
+  day?: number | string;
   category?: string;
   detourMin?: number;
+  /** plan place a snack stop sits beside */
+  near?: string;
 }
 
 const merged = new Map<string, Place>();
@@ -63,12 +65,13 @@ for (const extra of EXTRA_PLACES) {
     id: extra.id,
     name: extra.name,
     ja: extra.ja,
-    kind: 'sight',
+    kind: extra.kind,
     area: nearestArea(d.lat, d.lng),
     role: extra.role as Role,
     day: extra.day,
     category: extra.category,
     detourMin: extra.detourMin,
+    near: extra.near,
     note: d.why,
     lat: d.lat,
     lng: d.lng,

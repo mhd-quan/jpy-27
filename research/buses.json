@@ -1,0 +1,183 @@
+{
+ "rides": [
+  {
+   "id": "d4-tozan-bus-h",
+   "day": 4,
+   "line": "Hakone Tozan Bus tuyến H (箱根町線, 小田原駅–箱根町港, qua 箱根口)",
+   "from": "箱根湯本駅",
+   "to": "恩賜公園前",
+   "board": "Ra cửa ga, đi tới bến số 2 (2番のりば). Lên xe ghi 「H 元箱根港・箱根町港行（宮ノ下駅・小涌園・芦の湯経由）」. Cùng bến còn xe R (đường Hakone Shindō) và Ashinoko Liner, đừng lên nhầm. Bến số 1 là Izu Hakone Bus, Freepass không dùng được. Trang chính thức không nói cửa trước hay cửa sau, cứ theo người đứng trước; có máy chạm IC ở cạnh cửa lên.",
+   "pay": "Có Freepass: đưa vé cho tài xế xem rõ khi lên và cả khi xuống (từng người một), không cần lấy 整理券. Không có Freepass (tham khảo): ¥1.210/người theo Tokyo Cheapo; tiền mặt thì lấy 整理券 khi lên, khi xuống bỏ vé và tiền vào hộp cạnh tài xế (không thối tiền, có máy đổi tiền); thẻ IC thì chạm lúc lên và lúc xuống, không cần 整理券.",
+   "stops": 30,
+   "views": [],
+   "transfers": [],
+   "alight": {
+    "prevSt": "箱根支所前",
+    "announce": "次は、恩賜公園前です。",
+    "announceRomaji": "Tsugi wa, Onshi-kōen-mae desu.",
+    "text": "Mẫu thông báo chung, chưa nghe thực tế trên tuyến này; hãy nhìn bảng giá/tên trạm phía trước xe. Sau 元箱根港 (trạm lớn, nhiều người xuống đi thuyền hồ Ashi) chỉ còn 2 trạm: 箱根支所前 rồi 恩賜公園前 (số bến 153). Khi bảng hiện 恩賜公園前, bấm nút dừng, mọi nút sẽ sáng. Xuống xe, công viên ở ngay bên đường; Tokyo Cheapo ghi đi bộ 1 phút, một blog ghi băng qua bãi đỗ xe rồi đi thẳng. Nếu lỡ, trạm kế là 箱根関所跡."
+   },
+   "onboard": "Xe leo đèo theo đường cũ qua Miyanoshita, Kowakidani, Ashinoyu nên nhiều khúc cua; khoảng 30 trạm, Hakone Navi ghi khoảng 33 phút. Danh sách trạm lấy từ chiều ngược lại trên Ekitan, chưa kiểm chứng chiều đi.",
+   "sources": [
+    "https://www.hakonenavi.jp/transportation/station/hakone-yumoto/",
+    "https://www.hakonenavi.jp/hakone-tozanbus/free/",
+    "https://www.hakonenavi.jp/hakone-tozanbus/ic/",
+    "https://www.hakonenavi.jp/hakone-tozanbus/cash/",
+    "https://www.hakonenavi.jp/spot/1373",
+    "https://www.hakonenavi.jp/international/en/spot/479",
+    "https://ekitan.com/transit/bus-route/sf-1012550/st-1012517",
+    "https://tokyocheapo.com/travel/holidays/hakone-day-trip-guide/"
+   ]
+  },
+  {
+   "id": "d6-mie-kotsu-geku-naiku",
+   "day": 6,
+   "line": "Mie Kōtsū 51/55 外宮内宮線",
+   "from": "外宮前",
+   "to": "内宮前",
+   "board": "Ra bãi xe trước Gekū (外宮前), lên xe có bảng 「内宮前」 (Naikū). Các tuyến 51 và 55 đều đi, cũng có xe tăng chuyến ghi 「直行 内宮前」 (chạy thẳng). Theo mô tả chung cho xe Mie Kōtsū: lên cửa sau, xuống cửa trước (chưa kiểm chứng riêng tuyến này). Thứ Bảy 23/10 đông, chấp nhận xếp hàng và xe đầy.",
+   "pay": "Thẻ IC toàn quốc (Suica, PASMO, ICOCA...) chạm máy lúc lên và chạm máy ở hộp tiền lúc xuống; thẻ IC toàn quốc không nạp tiền được trên xe nên đủ số dư. Tiền mặt: lấy 整理券 có số khi lên, nhìn bảng giá phía trước theo số, bỏ vé và tiền vào hộp cạnh tài xế khi xuống. Giá khoảng ¥450–520/người/chiều theo blog, hãy xem bảng trên xe.",
+   "stops": null,
+   "views": [],
+   "transfers": [],
+   "alight": {
+    "prevSt": "神宮会館前",
+    "announce": "次は、内宮前です。",
+    "announceRomaji": "Tsugi wa, Naikū-mae desu.",
+    "text": "内宮前 là bến cuối (終点) của xe tới Naikū nên cả xe cùng xuống, khó lỡ. Trạm ngay trước đó là 神宮会館前, gần Oharai-machi/Okage Yokochō hơn, xuống đó cũng đi bộ được tới Naikū (bài Bestcar ghi một trạm). Lên tuyến thường, khoảng 10 trạm sau 外宮前 (số trạm tùy 51 hay 55, qua 猿田彦神社前 gần cuối). Mẫu thông báo chung, chưa nghe thực tế. Xuống ở 内宮前 là gần cầu Uji nhất."
+   },
+   "onboard": "Từ 外宮前 mất khoảng 15–20 phút tùy giao thông, ngày đông có làn bus. Có thêm xe 神都ライナー (ít trạm hơn) chạy vòng từ 内宮前, bài Bestcar năm 2024 ghi chuyến đầu 9:00; giờ cụ thể chưa kiểm chứng.",
+   "sources": [
+    "https://www.city.ise.mie.jp/_res/projects/default_project/_page_/001/012/897/20210824_2.bus_iccard.pdf",
+    "https://japanhandbook.com/ise-grand-shrine-pilgrimage-food-street-etiquette/",
+    "https://banzokubiology.com/ise-jingu-access-guide/",
+    "https://bestcarweb.jp/busmagazine/814572",
+    "https://mb.jorudan.co.jp/os/bus/2401/stop/95162.html"
+   ]
+  },
+  {
+   "id": "d6-mie-kotsu-naiku-geku",
+   "day": 6,
+   "line": "Mie Kōtsū 51/55 外宮内宮線",
+   "from": "内宮前",
+   "to": "外宮前",
+   "board": "Bến 内宮前 có nhiều bãi; xe 51 đi 外宮前 từng ghi ở bãi số 2 (2番のりば) nhưng bãi đổi theo ngày/giờ, nhìn bảng 「外宮前・伊勢市駅前」. Chiều thứ Bảy có nhiều xe tăng chuyến đi 伊勢市駅前 (qua 外宮前), cũng đi được. Lên cửa sau, xuống cửa trước theo mô tả chung cho xe Mie Kōtsū (chưa kiểm chứng riêng tuyến này).",
+   "pay": "Giống chiều đi: thẻ IC chạm khi lên và khi xuống, hoặc lấy 整理券 khi lên và trả theo bảng giá lúc xuống (không thối tiền, chuẩn bị tiền lẻ).",
+   "stops": null,
+   "views": [],
+   "transfers": [],
+   "alight": {
+    "prevSt": "明倫小学校前",
+    "announce": "次は、外宮前です。",
+    "announceRomaji": "Tsugi wa, Gekū-mae desu.",
+    "text": "Chuyến 内宮前 đi thẳng về 外宮前 qua 神宮会館前, 猿田彦神社前, 庁舎前, rồi 明倫小学校前 ngay trước 外宮前 (danh sách từ trang Jorudan qua tìm kiếm, chưa kiểm chứng). Xe tới 伊勢市駅前 thì 外宮前 là trạm trước ga. Khi bảng hiện 外宮前, bấm nút dừng và xuống ở cửa trước. Mẫu thông báo chung, chưa nghe thực tế. Nếu lỡ, trạm kế thường là 伊勢市駅前, đi bộ về lại 外宮 khoảng vài phút."
+   },
+   "onboard": "Khoảng 15–20 phút. Theo bài Bestcar, buổi chiều có nhiều xe tăng chuyến từ 内宮 về 伊勢市駅前.",
+   "sources": [
+    "https://www.city.ise.mie.jp/_res/projects/default_project/_page_/001/012/897/20210824_2.bus_iccard.pdf",
+    "https://japanhandbook.com/ise-grand-shrine-pilgrimage-food-street-etiquette/",
+    "https://banzokubiology.com/ise-jingu-access-guide/",
+    "https://bestcarweb.jp/busmagazine/814572",
+    "https://mb.jorudan.co.jp/os/bus/2401/stop/93196.html"
+   ]
+  },
+  {
+   "id": "d9-kyoto-bus-94",
+   "day": 9,
+   "line": "Kyoto Bus 94 (京都バス, hướng 清滝)",
+   "from": "阪急嵐山駅前",
+   "to": "愛宕寺前",
+   "board": "Bến trước ga Hankyu Arashiyama (阪急嵐山駅前, bãi xe buýt trước ga). Lên xe 94 có bảng 「清滝」 (Kiyotaki); xe ghi 大覚寺 thì hỏi tài xế vì có thể không tới 愛宕寺前. Chuyến thưa, kiểm giờ trên Kyoto Bus Navi trước khi đi. Cách Kyōto thông thường: lên cửa sau, xuống cửa trước (trang Kyoto Bus không nêu cửa).",
+   "pay": "Tuyến 94 nằm trong vùng đồng giá thành phố Kyōto (¥230/người theo nguồn ngoài, chưa thấy trên trang Kyoto Bus). Thẻ IC toàn quốc chạm một lần duy nhất ở máy cửa xuống, không chạm lúc lên (Kyoto Bus ghi rõ cho tuyến 94). Tiền mặt: bỏ tiền vào hộp khi xuống, chuẩn bị đủ tiền lẻ.",
+   "stops": null,
+   "views": [],
+   "transfers": [],
+   "alight": {
+    "prevSt": "鳥居本",
+    "announce": "次は、愛宕寺前です。",
+    "announceRomaji": "Tsugi wa, Otagi-dera-mae desu.",
+    "text": "Trạm trước là 鳥居本 (Toriimoto, phố cổ), trước đó 護法堂弁天前 (thứ tự lấy từ trang không chính thức và busmap, chưa kiểm chứng). Khi nghe 愛宕寺前 hoặc thấy tên này trên bảng, bấm nút dừng. Chùa Otagi Nenbutsu-ji cách bến khoảng 1 phút đi bộ (nhiều trang ghi vậy). Nếu lỡ thì trạm kế là 清滝 (Kiyotaki), bến cuối, khoảng 5 phút xe theo Kyoto Bus Navi; hãy xuống ở đó rồi quay lại bằng xe hay đi bộ xuống. Mẫu thông báo chung, chưa nghe thực tế."
+   },
+   "onboard": "Khoảng 25 phút từ ga Hankyu, đường leo dần vào núi. Số trạm chưa kiểm chứng.",
+   "sources": [
+    "https://www.kyotobus.jp/route/fare/",
+    "https://ume6234hp.ifdef.jp/Kyoto_bus/094/",
+    "https://busmap.info/busstop/158019/",
+    "https://koyo.walkerplus.com/detail/ar0726e520596",
+    "https://trafficnews.jp/post/99295"
+   ]
+  },
+  {
+   "id": "kawaguchiko-red-station-bijutsukan",
+   "day": "kawaguchiko",
+   "line": "Fujikyu Bus Red Line (河口湖周遊バス, レッドライン)",
+   "from": "河口湖駅",
+   "to": "河口湖美術館",
+   "board": "Bến số 1 (1番のりば) trước ga Kawaguchiko, xe sơn đỏ ghi Red Line (河口湖周遊バス); nhà bán vé ở ga mở 6:30–19:00. Bãi đỗ có thể đổi theo ngày giờ. Xe 15 phút một chuyến theo bảng giờ 2026 (giờ 2027 chưa công bố).",
+   "pay": "Tuyến Red Line tính tiền theo đoạn, tối thiểu ¥180/người. Cửa lên thường là cửa giữa (một số tuyến là cửa trước), lấy 整理券 ngay khi lên; khi xuống bỏ vé và tiền vào hộp cạnh tài xế, nhìn bảng giá theo số trên 整理券, không thối tiền (có máy đổi tiền). Thẻ IC toàn quốc chạm khi lên và khi xuống. Tiền mặt, không dùng thẻ tín dụng. Vé ngày Free Coupon 1 ngày ¥1.500, 2 ngày ¥2.000/người, mua ở quầy ga Kawaguchiko hoặc trên xe (chỉ vé 1 ngày).",
+   "stops": 13,
+   "views": [],
+   "transfers": [],
+   "alight": {
+    "prevSt": "うぶや前",
+    "announce": "次は、河口湖美術館です。",
+    "announceRomaji": "Tsugi wa, Kawaguchiko Bijutsukan desu.",
+    "text": "Đây là trạm thứ 13 từ ga, khoảng 18 phút theo bảng giờ 2026 (9:00 → 9:18). Các trạm quanh đó: 浅川温泉街 → 風のテラスKUKUNA前 → うぶや前 → 河口湖美術館. Trạm kế là 音楽と森の美術館・ほとりのホテルBan, tên cũng có 美術館 nên đừng xuống nhầm. Mẫu thông báo chung, chưa nghe thực tế trên tuyến này; hãy nhìn bảng trạm phía trước. Từ bến, 河口湖スイーツガーデン cách 3 phút đi bộ theo Tabelog."
+   },
+   "onboard": "Chuyến 13:00 qua trạm 遊覧船・ロープウェイ入口 lúc ~13:11; nhớ giữ 整理券 đến lúc xuống. Mùa lá đỏ xe có thể đầy và bị đi qua mà không dừng (một chuyến đi bộ mùa thu ghi vậy).",
+   "sources": [
+    "https://bus.fujikyu.co.jp/fujitour/kawaguchiko/",
+    "https://bus.fujikyu.co.jp/faq/",
+    "https://www.mlit.go.jp/tagengo-db/common/001538313.docx",
+    "https://tabelog.com/en/yamanashi/A1903/A190303/19005973/"
+   ]
+  },
+  {
+   "id": "kawaguchiko-red-bijutsukan-oishi",
+   "day": "kawaguchiko",
+   "line": "Fujikyu Bus Red Line (河口湖周遊バス, レッドライン)",
+   "from": "河口湖美術館",
+   "to": "河口湖自然生活館（大石公園）",
+   "board": "Tiếp tục hướng 河口湖自然生活館 (下り, chiều từ ga ra Ōishi). Đứng đúng phía bến mà xe từ ga tới, xe ghi 「河口湖自然生活館」 hoặc Red Line. Theo bảng giờ 2026 có xe 14:33 qua 河口湖美術館 (kế hoạch ghi 14:35), 15 phút một chuyến.",
+   "pay": "Tuyến Red Line tính tiền theo đoạn, tối thiểu ¥180/người. Cửa lên thường là cửa giữa (một số tuyến là cửa trước), lấy 整理券 ngay khi lên; khi xuống bỏ vé và tiền vào hộp cạnh tài xế, nhìn bảng giá theo số trên 整理券, không thối tiền (có máy đổi tiền). Thẻ IC toàn quốc chạm khi lên và khi xuống. Tiền mặt, không dùng thẻ tín dụng. Vé ngày Free Coupon 1 ngày ¥1.500, 2 ngày ¥2.000/người, mua ở quầy ga Kawaguchiko hoặc trên xe (chỉ vé 1 ngày).",
+   "stops": 6,
+   "views": [],
+   "transfers": [],
+   "alight": {
+    "prevSt": "北浜荘前",
+    "announce": "次は、河口湖自然生活館です。",
+    "announceRomaji": "Tsugi wa, Kawaguchiko Shizen Seikatsukan desu.",
+    "text": "Đây là trạm cuối của hướng này (終点), khoảng 9 phút, nên cả xe cùng xuống. Thứ tự sau 河口湖美術館: 音楽と森の美術館・ほとりのホテルBan → 河口湖猿まわし・木の花美術館 → 久保田一竹美術館 → サニーデ前・長崎公園入口 → 北浜荘前 → 河口湖自然生活館. Dưới xe là công viên Ōishi, Hana Terrace và Budoya cách 2 phút đi bộ (Tabelog). Mẫu thông báo chung, chưa nghe thực tế."
+   },
+   "onboard": null,
+   "sources": [
+    "https://bus.fujikyu.co.jp/fujitour/kawaguchiko/",
+    "https://bus.fujikyu.co.jp/faq/",
+    "https://tabelog.com/en/yamanashi/A1903/A190303/19010076/"
+   ]
+  },
+  {
+   "id": "kawaguchiko-red-oishi-station",
+   "day": "kawaguchiko",
+   "line": "Fujikyu Bus Red Line (河口湖周遊バス, レッドライン)",
+   "from": "河口湖自然生活館（大石公園）",
+   "to": "河口湖駅",
+   "board": "Chiều ngược lại ở bến 河口湖自然生活館 (bến đầu của chiều về). Xe ghi 「河口湖駅」. Theo bảng giờ 2026 có xe 15:57 (từ 15:12 cứ 15 phút có một chuyến) tới ga khoảng 16:24, kịp tàu Fuji Kaiyu 16:48. Chuyến cuối bảng giờ ghi 18:27.",
+   "pay": "Tuyến Red Line tính tiền theo đoạn, tối thiểu ¥180/người. Cửa lên thường là cửa giữa (một số tuyến là cửa trước), lấy 整理券 ngay khi lên; khi xuống bỏ vé và tiền vào hộp cạnh tài xế, nhìn bảng giá theo số trên 整理券, không thối tiền (có máy đổi tiền). Thẻ IC toàn quốc chạm khi lên và khi xuống. Tiền mặt, không dùng thẻ tín dụng. Vé ngày Free Coupon 1 ngày ¥1.500, 2 ngày ¥2.000/người, mua ở quầy ga Kawaguchiko hoặc trên xe (chỉ vé 1 ngày). Giá chiều về ¥570/người theo ghi chú của kế hoạch, chưa kiểm chứng riêng.",
+   "stops": 19,
+   "views": [],
+   "transfers": [],
+   "alight": {
+    "prevSt": "役場入口",
+    "announce": "次は、河口湖駅です。",
+    "announceRomaji": "Tsugi wa, Kawaguchiko-eki desu.",
+    "text": "Ga Kawaguchiko là bến cuối, cả xe cùng xuống, đi 19 trạm khoảng 27 phút (12:12 → 12:39). Ba trạm cuối: 乳ヶ崎 → 役場入口 → 河口湖駅. Chạm IC hoặc bỏ tiền lúc xuống, rồi đi bộ vào ga. Mẫu thông báo chung, chưa nghe thực tế."
+   },
+   "onboard": "Bảng giờ 2026 ghi giờ đến ga lệch vài phút tùy chuyến; chiều cuối tuần/mùa lá đỏ giao thông có thể kẹt, hãy để dư 15 phút trước tàu 16:48.",
+   "sources": [
+    "https://bus.fujikyu.co.jp/fujitour/kawaguchiko/",
+    "https://bus.fujikyu.co.jp/faq/"
+   ]
+  }
+ ]
+}

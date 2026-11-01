@@ -39,10 +39,14 @@ function spring(
   return { stop: () => cancelAnimationFrame(raf), finished, velocity: () => v, value: () => x };
 }
 
-export function initSheet() {
-  const dialog = document.getElementById('place-sheet') as HTMLDialogElement | null;
-  if (!dialog || dialog.dataset.ready) return;
-  dialog.dataset.ready = '1';
+export interface Sheet {
+  open(content: Node, from?: HTMLElement | null): void;
+  close(v?: number): Promise<void>;
+  body: HTMLElement;
+}
+
+/** Wire a `.sheet` dialog (panel, grab bar, body, close button) as a draggable bottom sheet / card. */
+export function makeSheet(dialog: HTMLDialogElement): Sheet {
   const panel = dialog.querySelector<HTMLElement>('[data-panel]')!;
   const body = dialog.querySelector<HTMLElement>('[data-body]')!;
   const grab = dialog.querySelector<HTMLElement>('[data-grab]')!;
@@ -68,11 +72,9 @@ export function initSheet() {
     return anim.finished;
   };
 
-  function open(id: string, from?: HTMLElement | null) {
-    const tpl = document.getElementById(`tpl-${id}`) as HTMLTemplateElement | null;
-    if (!tpl) return false;
+  function open(content: Node, from?: HTMLElement | null) {
     opener = from ?? (document.activeElement as HTMLElement | null);
-    body.replaceChildren(tpl.content.cloneNode(true));
+    body.replaceChildren(content);
     body.scrollTop = 0;
     if (!dialog!.open) dialog!.showModal();
     dialog!.classList.add('is-open');
@@ -89,7 +91,6 @@ export function initSheet() {
       if (!anim) setY(height());
       settle(0);
     }
-    return true;
   }
 
   async function close(v = 0) {
@@ -173,6 +174,21 @@ export function initSheet() {
   };
   grab.addEventListener('pointerdown', onDown);
   body.addEventListener('pointerdown', onDown);
+
+  return { open, close, body };
+}
+
+export function initSheet() {
+  const dialog = document.getElementById('place-sheet') as HTMLDialogElement | null;
+  if (!dialog || dialog.dataset.ready) return;
+  dialog.dataset.ready = '1';
+  const sheet = makeSheet(dialog);
+  const open = (id: string, from?: HTMLElement | null) => {
+    const tpl = document.getElementById(`tpl-${id}`) as HTMLTemplateElement | null;
+    if (!tpl) return false;
+    sheet.open(tpl.content.cloneNode(true), from);
+    return true;
+  };
 
   // Anything marked data-place opens its sheet.
   document.addEventListener('click', (e) => {

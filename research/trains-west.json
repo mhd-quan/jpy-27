@@ -1,0 +1,832 @@
+{
+ "rides": [
+  {
+   "id": "d5-shinkansen",
+   "day": 5,
+   "line": "Tōkaidō Shinkansen",
+   "from": "静岡",
+   "to": "名古屋",
+   "train": "Hikari hoặc Kodama (cùng đường ray). Hikari khoảng 54–57 phút, ban ngày chỉ dừng Hamamatsu mỗi giờ khoảng một chuyến (Toyohashi khoảng 2 giờ một chuyến); Kodama khoảng 1 giờ 14–16 phút, dừng đủ Kakegawa, Hamamatsu, Toyohashi, Mikawa-Anjō. Lịch thứ Sáu 13/11/2026: Kodama 823 rời Shizuoka 13:21 tới Nagoya 14:37; Kodama 825 rời 13:52 tới 15:06; Hikari 713 rời 14:07 tới 15:01. Ke Shizuoka số 6, Nagoya số 16 hoặc 17. Ghế chỉ định ¥6.470, ghế tự do ¥5.940 (giá mùa thường 2026; lịch và giá năm 2027 chưa công bố).",
+   "seat": "Toa thường xếp 3+2: A-B-C một bên, D-E bên kia. Đi Tokyo → Shin-Osaka, E là ghế bên phải (phía núi, phía Fuji), A là ghế bên trái (phía biển). Đoạn Shizuoka – Nagoya Fuji nằm phía sau nên không cần E; ghế A (trái) lợi hơn vì thấy Fuji thoáng qua sau Shizuoka, cổng torii đỏ ở Bentenjima và các đảo vịnh Mikawa, còn hồ Hamana thấy được từ cả hai bên (JR Central) nên A hay E đều được. Nếu muốn mặt hồ rộng và lâu đài Kakegawa thì chọn E. Hikari: toa 1–5 tự do, toa 6–16 chỉ định. Kodama: tự do toa 1–6 và 13–16 (toa 13 đôi khi chỉ định), chỉ định toa 7 (S Work), 11, 12; toa 8–10 là Green. Ghế cuối toa (trừ toa 7 và 11) có chỗ để vali cỡ lớn.",
+   "views": [
+    {
+     "side": "left",
+     "fromSt": "静岡",
+     "toSt": "掛川",
+     "what": "Ngay sau Shizuoka, khi tàu qua sông Abe, Fuji thoáng hiện bên trái, hơi chếch về phía sau (người Nhật gọi là 左富士, Fuji bên trái).",
+     "fuji": true,
+     "tip": "Chỉ thấy trong thời gian ngắn và khi trời rất trong; tàu chạy buổi chiều nên khả năng thấp (thành phố Fuji ghi 23% số lần thấy trọn núi lúc 12h và 22% lúc 16h, tính cả năm). Ngồi ghế A và nhìn ra ngay khi tàu qua cầu.",
+     "src": "https://trafficnews.jp/post/62565/2"
+    },
+    {
+     "side": "both",
+     "fromSt": "静岡",
+     "toSt": "掛川",
+     "what": "Tàu vượt sông Ōi rồi chạy qua cao nguyên Makinohara, vùng chè lớn của Shizuoka; đồi chè trải ra ở cả hai bên.",
+     "fuji": false,
+     "tip": "NTA ghi cảnh chè đẹp nhất vào đầu tháng 5, nên tháng 10 chỉ là cảnh đồi chè bình thường.",
+     "src": "https://tabifukurou.com/tokaidoshinkansen_view"
+    },
+    {
+     "side": "right",
+     "fromSt": "掛川",
+     "toSt": "浜松",
+     "what": "Gần ga Kakegawa đường ray uốn cong nên lâu đài Kakegawa hiện ra khá nổi khối ở bên phải (ghế E).",
+     "fuji": false,
+     "tip": "Kodama dừng Kakegawa, Hikari chạy qua không dừng.",
+     "src": "https://tabifukurou.com/tokaidoshinkansen_view"
+    },
+    {
+     "side": "both",
+     "fromSt": "掛川",
+     "toSt": "浜松",
+     "what": "Trước khi tới Hamamatsu, tàu vượt sông Tenryū trên cầu Shinkansen riêng.",
+     "fuji": false,
+     "tip": "NTA gợi ý ghế A cho cảnh sông.",
+     "src": "https://ja.wikipedia.org/wiki/%E5%A4%A9%E7%AB%9C%E5%B7%9D"
+    },
+    {
+     "side": "right",
+     "fromSt": "浜松",
+     "toSt": "豊橋",
+     "what": "Ngay sau Hamamatsu, mặt hồ Hamana rộng hiện ra ở bên phải; Shinkansen băng qua eo hồ trên ba cầu Hamana liên tiếp, cầu thứ ba dài khoảng 500 m.",
+     "fuji": false,
+     "tip": "Chỉ kéo dài vài giây, nên ngồi sẵn sát cửa sổ từ khi tàu rời Hamamatsu; đây là hồ duy nhất đường Shinkansen Tokyo – Osaka đi qua.",
+     "src": "https://trafficnews.jp/post/656766"
+    },
+    {
+     "side": "left",
+     "fromSt": "浜松",
+     "toSt": "豊橋",
+     "what": "Bên trái là phía Bentenjima: cổng torii đỏ nổi trên mặt nước (tháp biểu tượng Bentenjima), cầu Hamanako Ōhashi bắc qua eo Imagire và biển Enshū-nada ở phía nam.",
+     "fuji": false,
+     "tip": "Torii nằm phía nam đường ray nên chỉ ghế A thấy rõ; ghế E thấy phần hồ rộng ở phía bắc. Cả hai bên đều có nước khi tàu qua cầu.",
+     "src": "https://trafficnews.jp/post/93280/7"
+    },
+    {
+     "side": "left",
+     "fromSt": "豊橋",
+     "toSt": "三河安城",
+     "what": "Sau Toyohashi, những đảo nhỏ nổi trên vịnh Mikawa hiện ra ở phía nam, tức bên trái.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://tabifukurou.com/tokaidoshinkansen_view"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "名古屋",
+     "text": "Chuyển sang Kintetsu mất khoảng 3 phút đi bộ theo Yahoo Transit, nên dự trù 10 phút gồm cả mua vé. Xuống ở ke 16 hoặc 17, đi theo biển Kintetsu tới cổng liên lạc JR・Shinkansen (JR連絡改札口) của Kintetsu Nagoya, nằm ở đầu các ke ngầm Kintetsu; lối khác là ra cửa Hirokōji của JR rồi theo cầu thang Kintetsu xuống cổng ngầm. Cổng liên lạc chấp nhận hai vé giấy xếp chồng, hoặc một thẻ ICOCA; không quẹt hai thẻ IC cùng lúc được, nên nếu dùng Suica/Pasmo thì quẹt ra ở cổng JR rồi quẹt vào cổng Kintetsu. Cạnh cổng liên lạc có 5 máy bán vé: 2 máy ngoài bán vé đi gần, 3 máy giữa bán vé chỉ định (特急券)."
+    }
+   ],
+   "alight": {
+    "prevSt": "三河安城",
+    "announce": "まもなく、名古屋です。",
+    "announceRomaji": "Mamonaku, Nagoya desu.",
+    "text": "Kodama 823 rời Mikawa-Anjō 14:25 và tới Nagoya 14:37, tức khoảng 12 phút; Hikari không dừng Mikawa-Anjō nhưng vẫn chạy qua ga này ngay trước Nagoya. Lấy hành lý xuống và đứng ở cửa khi thấy các tòa nhà cao dày dần. Nagoya không phải ga cuối của Kodama 823 (đi tiếp Shin-Osaka), nên xuống ngay khi tàu dừng."
+   },
+   "onboard": "Trang JR Central về bán hàng trên tàu chỉ ghi dịch vụ xe đẩy có thể bị hủy theo tình hình chạy tàu và không xác nhận còn hay không, nên mua sẵn đồ ăn, nước ở ga Shizuoka. Hành lý: tổng ba cạnh ≤160 cm để trên giá hoặc ở chỗ để hành lý cạnh sàn nối toa 3, 5, 7, 9, 13, 15 (không cần đặt); từ 160 đến 250 cm phải đặt ghế có chỗ để hành lý cỡ lớn (ghế cuối toa, trừ toa 7 và 11, không phụ phí), nếu không đặt mà mang lên sẽ bị thu ¥1.000; trên 250 cm không mang lên được. N700S có ổ cắm ở tay vịn mọi ghế.",
+   "sources": [
+    "https://travel.jr-central.co.jp/plan/tokushu/shinkansen/seat/",
+    "https://tabifukurou.com/tokaidoshinkansen_view",
+    "https://trafficnews.jp/post/62565/2",
+    "https://trafficnews.jp/post/93280/7",
+    "https://trafficnews.jp/post/656766",
+    "https://trafficnews.jp/post/88767",
+    "https://www.nta.co.jp/media/tripa/articles/2NrdE",
+    "https://tetsunavi.net/shinkansen-kodama-unreserved/",
+    "https://shinkansen.tabiris.com/nonreserved03.html",
+    "https://shinkansen.tabiris.com/shizuoka_nagoya.html",
+    "https://travel.jr-central.co.jp/plan/tokushu/shinkansen/station/",
+    "https://transit.yahoo.co.jp/search/result?from=%E9%9D%99%E5%B2%A1&to=%E5%90%8D%E5%8F%A4%E5%B1%8B&y=2026&m=11&d=13&hh=13&m1=2&m2=0&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E5%A4%A9%E7%AB%9C%E5%B7%9D",
+    "https://ja.wikipedia.org/wiki/%E5%A4%A7%E4%BA%95%E5%B7%9D",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%90%8D%E5%8F%A4%E5%B1%8B%E9%A7%85",
+    "https://www.meieki.com/kintetsu_line.php",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E5%BC%81%E5%A4%A9%E5%B3%B6%20%E8%B5%A4%E9%B3%A5%E5%B1%85",
+    "https://faq.jr-central.co.jp/3f7e7d7c-5135-4daf-8a0e-85e6fde77ea4"
+   ]
+  },
+  {
+   "id": "d5-kintetsu-nagoya-iseshi",
+   "day": 5,
+   "line": "Kintetsu Nagoya Line / Yamada Line (limited express)",
+   "from": "近鉄名古屋",
+   "to": "伊勢市",
+   "train": "Limited express (特急) Nagoya → Toba/Kashikojima, khoảng 1 giờ 20 phút, khoảng 1–2 chuyến mỗi giờ. Lịch thứ Sáu 13/11/2026: 14:50 và 15:50 đi Toba (ke 5), 16:10 đi Kashikojima (ke 4), tới Iseshi lúc 16:10, 17:10, 17:30. Dừng Kuwana, Kintetsu-Yokkaichi, Shiroko, Tsu, Ise-Nakagawa, Matsusaka rồi Iseshi. Vé 乗車券 ¥1.740 + 特急券 ¥1.340 = ¥3.080 mỗi người. Rẻ hơn: express (急行) ¥1.740 mất 1 giờ 44 phút; hoặc JR Rapid Mie 15 rời JR Nagoya 15:37 tới Iseshi 17:11, ¥2.040. Chuyến sớm nhất sau mốc 15:30 trong lịch là 15:50, không phải 15:30.",
+   "seat": "Từ Nagoya đi Ise, dãy núi Suzuka ở bên phải, vịnh Ise và ba con sông Kiso – Nagara – Ibi nhìn rõ hơn từ bên trái (bên phải có cầu JR Kansai che một phần). Phần này dựa trên câu trả lời của người dùng Yahoo Chiebukuro về chiều ngược lại nên chỉ để tham khảo. Nếu chọn một bên: bên trái cho sông và vịnh, bên phải cho núi. Chưa rõ số toa nào tiện nhất.",
+   "views": [
+    {
+     "side": "left",
+     "fromSt": "近鉄弥富",
+     "toSt": "近鉄長島",
+     "what": "Tàu vượt sông Kiso trên cầu Kiso, đúng ranh giới tỉnh Aichi và Mie; sau đó vài phút là cầu Ibi – Nagara.",
+     "fuji": false,
+     "tip": "Chuyến 15:50 tới Kuwana lúc 16:07, nên cầu nằm ngay trước đó. Theo người dùng Yahoo Chiebukuro (nói về chiều ngược lại), bên trái thoáng hơn vì cầu đường sắt JR Kansai nằm ở phía bên phải và che một phần.",
+     "src": "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%90%8D%E5%8F%A4%E5%B1%8B%E7%B7%9A"
+    },
+    {
+     "side": "left",
+     "fromSt": "近鉄長島",
+     "toSt": "桑名",
+     "what": "Cầu Ibi – Nagara bắc qua hai con sông liền kề, ngay trước ga Kuwana; đây là đoạn thứ hai trong bộ ba sông Kiso – Nagara – Ibi.",
+     "fuji": false,
+     "tip": "Người dùng Yahoo ghi bên phải của chiều đi Nagoya là bên đẹp nhất, tương ứng bên trái khi đi Ise.",
+     "src": "https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q11247294451"
+    },
+    {
+     "side": "right",
+     "fromSt": "近鉄四日市",
+     "toSt": "津",
+     "what": "Dãy núi Suzuka cao khoảng 1.000 m chạy dọc bên phải, và núi Ibuki thấp thoáng ở phía xa quanh vùng Yokkaichi.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q11247294451"
+    },
+    {
+     "side": "left",
+     "fromSt": "津",
+     "toSt": "伊勢中川",
+     "what": "Quanh ga Tsu-Shinmachi và Minamigaoka, vịnh Ise thoáng hiện từ chỗ đất cao ở bên trái; đây là cảnh biển hiếm hoi và thấp thoáng.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q11247294451"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "近鉄名古屋",
+     "text": "Ga ngầm có 5 ke. Phần lớn limited express đi Ise-Shima xuất phát ở ke 5 (một số chuyến ở ke 4), express ở ke 3. Hinotori và Urban Liner đi Osaka-Namba cũng dùng ke 5; Hinotori chạy đúng phút :00 mỗi giờ (15:00 và 16:00 trong lịch 13/11/2026), nên chỉ lên tàu khi bảng ghi 鳥羽, 賢島 hoặc 宇治山田, không lên tàu ghi 大阪難波. Nếu lỡ lên Hinotori, nó chỉ dừng ở Tsu (tới 15:44); xuống đó rồi đổi express đi Iseshi, tới 16:23, tổng ¥2.760. Mua vé 特急 ở 3 máy giữa cạnh cổng JR; mua trước khi đi bộ ra ke."
+    }
+   ],
+   "alight": {
+    "prevSt": "松阪",
+    "announce": "まもなく、伊勢市です。",
+    "announceRomaji": "Mamonaku, Iseshi desu.",
+    "text": "Chuyến 15:50 rời Matsusaka 16:58 và tới Iseshi 17:10, tức khoảng 12 phút. Iseshi đứng trước Ujiyamada (cách 0,6 km); cả hai đều gần Gekū nhưng khách sạn ERA ở phía nam ga, đừng xuống nhầm ga kế. Ke Kintetsu (4–5) chỉ ra cổng phía bắc, trong khi Gekū và khách sạn ở phía nam; ngoài cổng không có hầm hay cầu vượt, phải đi vòng sang phía đông (dưới cầu cạn Kintetsu) hoặc phía tây qua đường ngang, nên dự trù thêm vài phút so với 3 phút trong lịch. Nếu lỡ sang Ujiyamada, quay lại bằng tàu thường một ga."
+   },
+   "onboard": "Toàn ghế chỉ định; phụ phí ¥1.340 mua ở máy chỉ định cạnh cổng JR. Chưa rõ có bán đồ ăn trên tàu limited express Nagoya – Ise, nên mua sẵn đồ ở ga Nagoya.",
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E8%BF%91%E9%89%84%E5%90%8D%E5%8F%A4%E5%B1%8B&to=%E4%BC%8A%E5%8B%A2%E5%B8%82&y=2026&m=11&d=13&hh=15&m1=3&m2=0&type=1&ticket=ic",
+    "https://transit.yahoo.co.jp/search/result?from=%E8%BF%91%E9%89%84%E5%90%8D%E5%8F%A4%E5%B1%8B&to=%E4%BC%8A%E5%8B%A2%E5%B8%82&y=2026&m=11&d=13&hh=14&m1=5&m2=0&type=1&ticket=ic",
+    "https://transit.yahoo.co.jp/search/result?from=%E8%BF%91%E9%89%84%E5%90%8D%E5%8F%A4%E5%B1%8B&to=%E4%BC%8A%E5%8B%A2%E5%B8%82&y=2026&m=11&d=13&hh=16&m1=0&m2=0&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%90%8D%E5%8F%A4%E5%B1%8B%E9%A7%85",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%90%8D%E5%8F%A4%E5%B1%8B%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%B1%B1%E7%94%B0%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E4%BC%8A%E5%8B%A2%E5%B8%82%E9%A7%85",
+    "https://ja.wikipedia.org/wiki/%E5%AE%87%E6%B2%BB%E5%B1%B1%E7%94%B0%E9%A7%85",
+    "https://www.meieki.com/kintetsu_line.php",
+    "https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q11247294451",
+    "https://banzokubiology.com/shimakaze-seaside-mountainside-seat-view-guide/",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E4%BC%8A%E5%8B%A2%E5%B8%82%E9%A7%85"
+   ]
+  },
+  {
+   "id": "d7-toba-ferry-out",
+   "day": 7,
+   "line": "Phà thị chính Toba (鳥羽市営定期船)",
+   "from": "佐田浜",
+   "to": "和具",
+   "train": "Phà từ Toba Marine Terminal (bến Sadahama) tới Wagu mất khoảng 15–18 phút theo bảng giờ có hiệu lực từ 1/10/2026, giá người lớn ¥550. Bảng giờ không có chuyến 8:15 như trong lịch; các chuyến sáng từ Toba là 7:40 (tới Wagu 7:55), 8:00 (đi thẳng Toshi 8:17, không ghé Wagu), 9:15 (Wagu 9:33, Toshi 9:42), 10:40 (Wagu 10:55), 11:40 (Wagu 11:58, Toshi 12:08). Tàu là catamaran cao tốc nhôm 150–200 chỗ (Habataki, Shiosai, Kagayaki, Kirameki) hoặc tàu dự phòng 250 chỗ; nguồn không nói chuyến nào dùng tàu nào.",
+   "seat": "Đi Toba → Wagu hướng đông bắc: mạn phải (đông nam) thấy đảo Mikimoto Pearl, đảo Sakate và xa hơn là đảo Sugashima; mạn trái (tây bắc) thấy đảo Hinata rồi bờ nam dài của Tōshijima. Hướng này tính từ toạ độ OpenStreetMap, chưa có nguồn chính thức. Trang thành phố không mô tả khoang hay boong ngoài trời, nên chưa biết có ra boong được hay không; hỏi nhân viên bến hoặc phòng Định kỳ thuyền thành phố (0599-25-4776).",
+   "views": [
+    {
+     "side": "right",
+     "fromSt": "佐田浜",
+     "toSt": "和具",
+     "what": "Vừa rời bến, đảo Mikimoto Pearl ở phía sau bên phải và đảo Sakate (坂手島) cách khoảng 1 km bên phải; xa hơn về phía đông nam là đảo Sugashima.",
+     "fuji": false,
+     "tip": "Theo toạ độ OpenStreetMap; chưa có ghi chú chính thức về tầm nhìn từ tàu.",
+     "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E5%9D%82%E6%89%8B%E5%B3%B6%20%E9%B3%A5%E7%BE%BD%E5%B8%82"
+    },
+    {
+     "side": "left",
+     "fromSt": "佐田浜",
+     "toSt": "和具",
+     "what": "Đảo nhỏ Hinata (日向島) ở bên trái lúc đầu; từ khoảng giữa hành trình, Tōshijima (đảo dài khoảng 6 km) hiện ra ở bên trái và bờ nam của nó chạy song song cho tới Wagu.",
+     "fuji": false,
+     "tip": "Wagu nằm ở đông nam đảo, Toshi ở đông bắc, Momotori ở tây bắc.",
+     "src": "https://ja.wikipedia.org/wiki/%E7%AD%94%E5%BF%97%E5%B3%B6"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "佐田浜",
+     "text": "Toba Marine Terminal (Sadahama) mở 6:40–20:20, quầy vé ở đó; từ ga Toba đi bộ khoảng 10 phút theo lịch. Vé lẻ ¥550 mỗi chiều, vé thả tự do 1 ngày ¥1.480 (không lợi nếu chỉ đi hai lượt). Trước khi mua, đối chiếu giờ chuyến hiện hành và hỏi giờ chuyến về cùng một chuyến sau đó."
+    }
+   ],
+   "alight": {
+    "prevSt": "佐田浜",
+    "announce": null,
+    "announceRomaji": null,
+    "text": "Chuyến đi thẳng nên không có bến trước Wagu. Xuống ở bến Wagu (和具); chuyến 8:00 đi thẳng Toshi (答志) mà không ghé Wagu, vì vậy xác nhận trên bảng đầu bến."
+   },
+   "onboard": "Hành lý xách tay miễn phí tối đa 2 kiện, tổng ba cạnh ≤200 cm và ≤30 kg mỗi kiện; vali lớn hơn tính như hàng gửi, nên để vali ở locker ga Toba như lịch. Chưa rõ có nhận thẻ hay không; chuẩn bị tiền mặt.",
+   "sources": [
+    "https://www.city.toba.mie.jp/kurashi/kotsu/kokyo_kotsu/5531.html",
+    "https://www.city.toba.mie.jp/material/files/group/45/r810jikoku1.pdf",
+    "https://www.city.toba.mie.jp/soshiki/t_kanri/gyomu/doro_kotsu/kokyo_kotsu/3163.html",
+    "https://www.city.toba.mie.jp/soshiki/t_kanri/gyomu/doro_kotsu/kokyo_kotsu/3164.html",
+    "https://www.city.toba.mie.jp/soshiki/t_kanri/gyomu/doro_kotsu/kokyo_kotsu/5205.html",
+    "https://ja.wikipedia.org/wiki/%E9%B3%A5%E7%BE%BD%E3%83%9E%E3%83%AA%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB",
+    "https://ja.wikipedia.org/wiki/%E7%AD%94%E5%BF%97%E5%B3%B6",
+    "https://ja.wikipedia.org/wiki/%E9%B3%A5%E7%BE%BD%E5%B8%82%E5%96%B6%E5%AE%9A%E6%9C%9F%E8%88%B9",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E9%B3%A5%E7%BE%BD%E3%83%9E%E3%83%AA%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E5%9D%82%E6%89%8B%E5%B3%B6%20%E9%B3%A5%E7%BE%BD%E5%B8%82",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E8%8F%85%E5%B3%B6%20%E9%B3%A5%E7%BE%BD%E5%B8%82",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E6%97%A5%E5%90%91%E5%B3%B6%20%E9%B3%A5%E7%BE%BD"
+   ]
+  },
+  {
+   "id": "d7-toba-ferry-back",
+   "day": 7,
+   "line": "Phà thị chính Toba (鳥羽市営定期船)",
+   "from": "答志",
+   "to": "佐田浜",
+   "train": "Chiều về chạy Toshi → Wagu → Toba Marine Terminal, tổng khoảng 30 phút, không phải 15–20 phút như trong lịch. Chuyến Toshi theo bảng giờ có hiệu lực từ 1/10/2026: 6:55, 8:30, 10:00 (Wagu 10:15, Toba 10:30), 12:20 (Wagu 12:35, Toba 12:51), 13:45 (Toba 14:16), 16:00 (Toba 16:30). Không có chuyến 11:15 như trong lịch; chọn 10:00 hoặc 12:20. Từ Wagu cũng có các chuyến đi Toba lúc 8:45, 10:15, 12:35, 14:00. Giá ¥550.",
+   "seat": "Hướng về Toba là tây nam: mạn trái (đông nam) thấy đảo Sugashima và đảo Sakate, rồi đảo Mikimoto Pearl khi gần bến; mạn phải (tây bắc) thấy bờ nam Tōshijima và đảo Hinata. Hướng tính từ toạ độ OpenStreetMap. Chưa có nguồn nói về boong ngoài trời của tàu.",
+   "views": [
+    {
+     "side": "left",
+     "fromSt": "和具",
+     "toSt": "佐田浜",
+     "what": "Rời Wagu, đảo Sugashima rồi đảo Sakate lần lượt hiện bên trái; gần Toba, đảo Mikimoto Pearl nằm bên trái ngay cạnh bến.",
+     "fuji": false,
+     "tip": "Theo toạ độ OpenStreetMap.",
+     "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E8%8F%85%E5%B3%B6%20%E9%B3%A5%E7%BE%BD%E5%B8%82"
+    },
+    {
+     "side": "right",
+     "fromSt": "和具",
+     "toSt": "佐田浜",
+     "what": "Bờ nam dài của Tōshijima ở bên phải sau khi rời Wagu, rồi đảo Hinata nhỏ ở bên phải gần Toba.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E7%AD%94%E5%BF%97%E5%B3%B6"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "和具",
+     "text": "Chuyến về từ Toshi ghé Wagu rồi mới tới Toba. Nếu bạn đã đi bộ Wagu → Toshi 20–30 phút thì lên tàu ở Toshi; nếu quay lại Wagu thì lên ở Wagu. Hỏi lại giờ chuyến về lúc mua vé đi."
+    }
+   ],
+   "alight": {
+    "prevSt": "和具",
+    "announce": null,
+    "announceRomaji": null,
+    "text": "Wagu là bến ngay trước Toba; từ Wagu tới Toba Marine Terminal khoảng 15–16 phút (10:15 → 10:30, 12:35 → 12:51). Khi tàu rời Wagu, chuẩn bị hành lý; xuống ở bến Sadahama (Toba Marine Terminal), cách ga Toba khoảng 10 phút đi bộ."
+   },
+   "onboard": null,
+   "sources": [
+    "https://www.city.toba.mie.jp/kurashi/kotsu/kokyo_kotsu/5531.html",
+    "https://www.city.toba.mie.jp/material/files/group/45/r810jikoku1.pdf",
+    "https://www.city.toba.mie.jp/soshiki/t_kanri/gyomu/doro_kotsu/kokyo_kotsu/3163.html",
+    "https://ja.wikipedia.org/wiki/%E7%AD%94%E5%BF%97%E5%B3%B6",
+    "https://ja.wikipedia.org/wiki/%E9%B3%A5%E7%BE%BD%E3%83%9E%E3%83%AA%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E8%8F%85%E5%B3%B6%20%E9%B3%A5%E7%BE%BD%E5%B8%82",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E6%97%A5%E5%90%91%E5%B3%B6%20%E9%B3%A5%E7%BE%BD"
+   ]
+  },
+  {
+   "id": "d7-shimakaze",
+   "day": 7,
+   "line": "Kintetsu Shimakaze (特急しまかぜ, Kashikojima → Kyoto)",
+   "from": "鳥羽",
+   "to": "京都",
+   "train": "Đây là chuyến Shimakaze từ Kashikojima đi Kyoto, rời Kashikojima 14:50, qua Toba 15:20 và tới Kyoto 17:30 vào cuối tuần, ngày lễ (17:34 ngày thường), tức 2 giờ 10 phút từ Toba. Chưa tìm thấy số hiệu chuyến trong lịch công bố. Lịch 2026 (chưa có lịch 2027): Ujiyamada 15:32, Iseshi 15:34, Yamato-Yagi 16:40, Yamato-Saidaiji 17:00, Kintetsu-Tambabashi 17:23. Tuyến Kyoto – Kashikojima chạy hằng ngày trừ thứ Tư; 24/10/2027 là Chủ Nhật nên có chạy. Giá Toba → Kyoto ¥2.740 vé + ¥2.690 phụ phí = ¥5.430 mỗi người. Ke Toba số 5, ke Kyoto số 2.",
+   "seat": "Tàu 6 toa. Chiều về Kyoto, toa 6 là toa đầu (sàn cao 72 cm, kính trước nhìn thấy cả buồng lái và đường ray; hàng ghế 1A–1C ở hàng đầu), toa 1 là toa đuôi (cũng ghế Premium sàn cao, nhìn về phía sau). Toa 2 và 5 là Premium thường, toa 3 là café (19 chỗ, ai đến trước ngồi trước, không đặt chỗ), toa 4 là salon và phòng riêng. Toilet ở toa 2, 3 hoặc 4, và 5; tủ khóa miễn phí ở toa 1 và 6. Chiều Toba → Kyoto biển ở bên phải (nguồn ghi bên trái khi đi hướng Kashikojima), Unebi-yama ở bên phải; lâu đài Kōriyama, các lăng mộ và tháp Tō-ji ở bên trái. Chọn bên nào cũng mất một nửa cảnh, nên ưu tiên toa 6 để nhìn phía trước. Mùa này mặt trời lặn khoảng 17:05 (fuji.json ghi 17:05 ở Hakone ngày 21/10), nên đoạn Tō-ji gần như đã tối.",
+   "views": [
+    {
+     "side": "right",
+     "fromSt": "鳥羽",
+     "toSt": "池の浦",
+     "what": "Vừa rời Toba, vịnh Toba hiện ra ở bên phải; đảo Pearl của Mikimoto thấy được từ tầng trên của toa café.",
+     "fuji": false,
+     "tip": "Nguồn ghi biển ở bên trái khi chạy về Kashikojima và nhìn rõ nhất từ ghế hàng đầu hoặc tầng trên toa café, nên chiều về Kyoto là bên phải.",
+     "src": "https://tourist-train.info/special/shimakaze/"
+    },
+    {
+     "side": "both",
+     "fromSt": "伊勢中川",
+     "toSt": "大和八木",
+     "what": "Sau Ise-Nakagawa tàu vào vùng núi Aoyama và chui qua hầm Shin-Aoyama (giữa Higashi-Aoyama và Nishi-Aoyama), vào hầm ở khoảng 130 km/h.",
+     "fuji": false,
+     "tip": "Chạy qua Matsusaka và Ise-Nakagawa không dừng.",
+     "src": "https://noritsubushi-japan.com/archives/2793"
+    },
+    {
+     "side": "right",
+     "fromSt": "耳成",
+     "toSt": "大和八木",
+     "what": "Đồi Miminashi-yama (耳成山), một trong ba ngọn Yamato Sanzan, hiện bên phải ngay trước Yamato-Yagi.",
+     "fuji": false,
+     "tip": "Kagu-yama ở bên trái giữa Daifuku và Mimigashi nhưng bị nhà cửa che.",
+     "src": "https://henreki-nihonshi.com/shimakazesyasou2/"
+    },
+    {
+     "side": "left",
+     "fromSt": "近鉄郡山",
+     "toSt": "九条",
+     "what": "Ngay sau ga Kintetsu-Kōriyama, hào nước, tường đá và tháp canh của lâu đài Kōriyama hiện ra bên trái.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://henreki-nihonshi.com/shimakazesyasou3/"
+    },
+    {
+     "side": "right",
+     "fromSt": "九条",
+     "toSt": "西ノ京",
+     "what": "Giữa Kujō và Nishinokyō, đỉnh tháp chùa Yakushi-ji nhô lên bên phải, cây cối che một phần.",
+     "fuji": false,
+     "tip": "Nhìn lên phần ngọn tháp.",
+     "src": "https://henreki-nihonshi.com/shimakazesyasou3/"
+    },
+    {
+     "side": "left",
+     "fromSt": "西ノ京",
+     "toSt": "尼ヶ辻",
+     "what": "Giữa Nishinokyō và Amagatsuji, lăng hoàng đế Suinin là gò hình lỗ khóa có hào nước bao quanh, ở bên trái.",
+     "fuji": false,
+     "tip": "Đây không phải khu Heijō-kyū; cung điện Heijō nằm trên tuyến Nara, không phải tuyến Kyoto của chuyến này.",
+     "src": "https://henreki-nihonshi.com/shimakazesyasou3/"
+    },
+    {
+     "side": "left",
+     "fromSt": "平城",
+     "toSt": "高の原",
+     "what": "Ngay sau ga Heijō có lăng hoàng hậu Jingū, gò thứ hai trong hai gò hiện bên trái, nhà cửa che một phần.",
+     "fuji": false,
+     "tip": "Tàu tới khu này khoảng 17:00–17:20, lúc trời bắt đầu tối.",
+     "src": "https://henreki-nihonshi.com/shimakazesyasou3/"
+    },
+    {
+     "side": "left",
+     "fromSt": "十条",
+     "toSt": "京都",
+     "what": "Sau Jūjō, tháp năm tầng chùa Tō-ji hiện bên trái và còn thấy một lúc sau ga Tōji; đây là báo hiệu sắp tới Kyoto.",
+     "fuji": false,
+     "tip": "Ngày 24/10 trời gần tối nên có thể chỉ thấy bóng tháp.",
+     "src": "https://henreki-nihonshi.com/shimakazesyasou3/"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "京都",
+     "text": "Ga Kintetsu Kyoto là ga cuối kiểu đầu cụt, nằm dưới ke Shinkansen, tàu vào ke 2. Ke vừa đủ 6 toa nên đi bộ giữa hai đầu ke chỉ vài chục mét; nguồn không nói toa nào gần cổng nhất. Cổng soát vé giữa (中央改札口) ở tầng 2. Để sang Karasuma Line, theo biển tàu điện ngầm tới cổng Nam (南改札口) của Kyoto Municipal Subway, cổng này tiện nhất để nối với Kintetsu và Shinkansen; lịch ghi 5 phút đi bộ."
+    }
+   ],
+   "alight": {
+    "prevSt": "近鉄丹波橋",
+    "announce": "まもなく、京都です。",
+    "announceRomaji": "Mamonaku, Kyōto desu.",
+    "text": "Kintetsu-Tambabashi 17:23 rồi Kyoto 17:30, khoảng 7 phút. Kyoto là ga cuối nên không lo đi quá ga; thu dọn đồ khi tàu rời Tambabashi và đứng gần cửa toa mình ngồi. Cổng soát vé giữa ở tầng 2."
+   },
+   "onboard": "Menu café (cập nhật 9/2026, giá đã gồm thuế). Món ăn chỉ ăn ở ghế café: cà ri bò Matsusaka ¥1.700 (kèm nước khoáng 310 ml), cơm bò Matsusaka ¥2.000 (kèm trà nóng), pilaf hải sản nghêu ¥1.850, mì miso aosa ¥1.300; bánh mì cutlet set ¥1.200 (ăn tại ghế được). Bento Shimakaze ¥1.600. Bộ tráng miệng ¥1.500, gelato vani ¥500, Akafuku 2 viên ¥400. Đồ uống: Shimakaze soda ¥800, cà phê và trà ¥500, nước khoáng ¥200, trà xanh chai ¥250, nước ép mikan Gokasho ¥500; craft beer lon ¥750, cocktail Shimakaze ¥1.000, vang 375 ml ¥1.200, highball ¥500, bia không cồn ¥400. Café không nhận đặt chỗ, ai đến trước ngồi trước; sau Toba nên đi sớm vì tàu chỉ có 19 chỗ café. Menu cập nhật theo mùa nên xem lại trang Kintetsu gần ngày đi.",
+   "sources": [
+    "https://www.kintetsu.co.jp/senden/shimakaze/",
+    "https://www.kintetsu.co.jp/senden/shimakaze/menu/",
+    "https://tourist-train.info/special/shimakaze/",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%8450000%E7%B3%BB%E9%9B%BB%E8%BB%8A",
+    "https://ja.wikipedia.org/wiki/%E3%81%97%E3%81%BE%E3%81%8B%E3%81%9C_%28%E5%88%97%E8%BB%8A%29",
+    "https://transit.yahoo.co.jp/search/result?from=%E9%B3%A5%E7%BE%BD&to=%E4%BA%AC%E9%83%BD&y=2026&m=11&d=15&hh=15&m1=0&m2=0&type=1&ticket=ic",
+    "https://noritsubushi-japan.com/archives/2793",
+    "https://tetsudoulab.com/24ise-07ise-shimakaze/",
+    "https://kisskillme.hatenablog.jp/entry/train-shimakaze",
+    "https://henreki-nihonshi.com/shimakazesyasou2/",
+    "https://henreki-nihonshi.com/shimakazesyasou3/",
+    "https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14169275774",
+    "https://ja.wikipedia.org/wiki/%E4%BA%AC%E9%83%BD%E9%A7%85",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E4%BA%AC%E9%83%BD%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E6%A9%BF%E5%8E%9F%E7%B7%9A"
+   ]
+  },
+  {
+   "id": "d9-hankyu-to-arashiyama",
+   "day": 9,
+   "line": "Hankyu Kyoto Line + Arashiyama Line",
+   "from": "京都河原町",
+   "to": "嵐山",
+   "train": "Hai đoạn: tàu Kyoto Line Kawaramachi → Katsura (khoảng 9 phút), rồi tàu con thoi Arashiyama Line Katsura → Arashiyama (4,1 km, 3 ga, khoảng 7 phút). Thứ Ba 10/11/2026: 7:31 Commuter Limited Express (通勤特急) → Katsura 7:40, nối 7:43 → Arashiyama 7:50; tổng 19 phút, ¥240. Chuyến 7:43 (準急) tới 8:05 (22 phút). Lịch ghi 40–50 phút là thừa. Tàu Arashiyama Line thường 4 toa, cách nhau khoảng 13–17 phút ban ngày, 8–12 phút giờ cao điểm.",
+   "seat": "Không có ghế chỉ định. Trên Kyoto Line, 特急 chỉ dừng Karasuma rồi Katsura; 通勤特急 dừng thêm Ōmiya, Saiin; 準急 dừng thêm cả Nishi-Kyōgoku. Một số chuyến 特急 có toa 4 là PRiVACE (toa riêng của Hankyu), tránh nếu không muốn trả thêm; chưa kiểm tra giá.",
+   "views": [
+    {
+     "side": "down",
+     "fromSt": "京都河原町",
+     "toSt": "西院",
+     "what": "Từ Kawaramachi tới Saiin tàu chạy ngầm dưới đường Shijō; đoạn Saiin – Ōmiya mở năm 1931, là tuyến ngầm đầu tiên của vùng Kansai.",
+     "fuji": false,
+     "tip": "Không có cảnh ngoài cửa sổ ở đoạn này.",
+     "src": "https://ja.wikipedia.org/wiki/%E9%98%AA%E6%80%A5%E4%BA%AC%E9%83%BD%E6%9C%AC%E7%B7%9A"
+    },
+    {
+     "side": "both",
+     "fromSt": "西京極",
+     "toSt": "桂",
+     "what": "Tàu ra khỏi khu ngầm và vượt sông Katsura trên cầu giữa Nishi-Kyōgoku và Katsura; đây là chỗ tầm nhìn mở nhất của chuyến.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E9%98%AA%E6%80%A5%E4%BA%AC%E9%83%BD%E6%9C%AC%E7%B7%9A"
+    },
+    {
+     "side": "front",
+     "fromSt": "桂",
+     "toSt": "嵐山",
+     "what": "Tuyến Arashiyama chỉ 4,1 km, đơn tuyến, qua Kamikatsura và Matsuo-taisha rồi tới ga cuối Arashiyama.",
+     "fuji": false,
+     "tip": "Nhà ga Arashiyama sửa năm 2010 theo kiểu machiya Kyoto; từ ga ra Togetsukyō khoảng 400 m về phía tây bắc.",
+     "src": "https://ja.wikipedia.org/wiki/%E5%B5%90%E5%B1%B1%E9%A7%85_%28%E9%98%AA%E6%80%A5%29"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "桂",
+     "text": "Tàu từ Kawaramachi vào ke 4–5 (hướng Umeda), tuyến Arashiyama xuất phát ở ke 1 (ke C・1); đổi tàu qua cầu và sảnh tầng 2 (ga kiểu bắc cầu), không cần ra khỏi cổng vì chỉ có một cổng soát vé. Nối tàu thường chỉ 3–6 phút (7:40 → 7:43 hoặc 7:59 → 8:05), nên rời cửa tàu ngay và đi theo biển 嵐山線. Tàu từ Kawaramachi rời từ ke 1 hoặc 3."
+    }
+   ],
+   "alight": {
+    "prevSt": "松尾大社",
+    "announce": "まもなく、嵐山です。",
+    "announceRomaji": "Mamonaku, Arashiyama desu.",
+    "text": "Arashiyama là ga cuối kiểu răng lược, tàu vào ke 1 hoặc 2 (Yahoo ghi 1・2番線). Chỉ có một cổng soát vé, tầng trệt, nhà vệ sinh ở trong cổng cạnh cổng soát vé. Ra khỏi ga đi thẳng về phía tây bắc khoảng 400 m là cầu Togetsukyō."
+   },
+   "onboard": null,
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E4%BA%AC%E9%83%BD%E6%B2%B3%E5%8E%9F%E7%94%BA&to=%E5%B5%90%E5%B1%B1(%E4%BA%AC%E9%83%BD%E5%BA%9C)&y=2026&m=11&d=10&hh=07&m1=3&m2=0&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E9%98%AA%E6%80%A5%E4%BA%AC%E9%83%BD%E6%9C%AC%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E9%98%AA%E6%80%A5%E5%B5%90%E5%B1%B1%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E6%A1%82%E9%A7%85",
+    "https://ja.wikipedia.org/wiki/%E5%B5%90%E5%B1%B1%E9%A7%85_%28%E9%98%AA%E6%80%A5%29",
+    "https://www.hankyu.co.jp/station/katsura.html",
+    "https://www.hankyu.co.jp/station/arashiyama.html"
+   ]
+  },
+  {
+   "id": "d9-hankyu-from-arashiyama",
+   "day": 9,
+   "line": "Hankyu Arashiyama Line + Kyoto Line",
+   "from": "嵐山",
+   "to": "京都河原町",
+   "train": "Chiều về cũng hai đoạn: Arashiyama → Katsura (khoảng 8 phút), đổi tàu Kyoto Line đi Kawaramachi (khoảng 7–11 phút). Thứ Ba 10/11/2026: 14:14 → Katsura 14:22, nối 14:26 bằng 特急, tới Kawaramachi 14:33 (19 phút, ¥240); hoặc 14:27 → 14:35, nối 14:38 bằng 準急 tới 14:49. Dự trù 19–22 phút thay vì 40 phút trong lịch.",
+   "seat": "Không có ghế chỉ định. Chọn chuyến 特急 từ Katsura (chỉ dừng Karasuma trước Kawaramachi). Toa 4 của một số chuyến 特急 là PRiVACE, toa trả phí riêng của Hankyu.",
+   "views": [
+    {
+     "side": "both",
+     "fromSt": "桂",
+     "toSt": "西京極",
+     "what": "Tàu Kyoto Line vượt sông Katsura giữa Katsura và Nishi-Kyōgoku; gần Saiin tàu xuống ngầm.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E9%98%AA%E6%80%A5%E4%BA%AC%E9%83%BD%E6%9C%AC%E7%B7%9A"
+    },
+    {
+     "side": "down",
+     "fromSt": "西院",
+     "toSt": "京都河原町",
+     "what": "Từ Saiin đến Kawaramachi tàu chạy ngầm dưới đường Shijō.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E9%98%AA%E6%80%A5%E4%BA%AC%E9%83%BD%E6%9C%AC%E7%B7%9A"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "桂",
+     "text": "Tàu từ Arashiyama vào ke 1 ở Katsura; tàu đi Kawaramachi chạy từ ke 2–3, đi qua cầu và sảnh tầng 2 trong ga mà không cần ra cổng. Nối tàu chỉ khoảng 3–4 phút (14:22 → 14:26), nên lên cầu ngay khi xuống tàu."
+    }
+   ],
+   "alight": {
+    "prevSt": "烏丸",
+    "announce": "まもなく、京都河原町です。",
+    "announceRomaji": "Mamonaku, Kyōto-Kawaramachi desu.",
+    "text": "Kawaramachi là ga cuối ngầm của Kyoto Line; trước đó 特急 chỉ dừng Karasuma. Khi qua Karasuma, còn khoảng 2 phút. Từ Kawaramachi đi bộ 7–10 phút tới Gion-Shijō theo lịch."
+   },
+   "onboard": null,
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E5%B5%90%E5%B1%B1(%E4%BA%AC%E9%83%BD%E5%BA%9C)&to=%E4%BA%AC%E9%83%BD%E6%B2%B3%E5%8E%9F%E7%94%BA&y=2026&m=11&d=10&hh=14&m1=0&m2=0&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E9%98%AA%E6%80%A5%E4%BA%AC%E9%83%BD%E6%9C%AC%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E9%98%AA%E6%80%A5%E5%B5%90%E5%B1%B1%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E6%A1%82%E9%A7%85",
+    "https://ja.wikipedia.org/wiki/%E5%B5%90%E5%B1%B1%E9%A7%85_%28%E9%98%AA%E6%80%A5%29",
+    "https://www.hankyu.co.jp/station/katsura.html",
+    "https://www.hankyu.co.jp/station/arashiyama.html"
+   ]
+  },
+  {
+   "id": "d9-keihan-gion-shijo-chushojima",
+   "day": 9,
+   "line": "Keihan Main Line",
+   "from": "祇園四条",
+   "to": "中書島",
+   "train": "Đi 特急 (limited express) ở ke 2 hướng Yodoyabashi: chỉ dừng Shichijō, Tambabashi rồi Chūshojima, mất khoảng 11 phút, ¥320. Thứ Ba 10/11/2026: 14:30 → 14:41, 14:42 → 14:53. 準急 mất 25 phút vì dừng mọi ga (kể cả Fushimi-Inari, Fushimi-Momoyama). Lịch 15 phút là thừa nếu bắt kịp 特急.",
+   "seat": "Keihan Premium Car (Yahoo ghi toa 6, hoặc toa 5–6 tùy chuyến) là toa trả phí riêng; toa thường không cần vé thêm. Ga Fushimi-Inari chỉ có 普通, 準急, 通勤準急 (chỉ sáng ngày thường) dừng; 急行 chỉ dừng vài khung giờ, còn 特急 không dừng, nên lên 特急 là đúng nếu chỉ cần tới Chūshojima.",
+   "views": [
+    {
+     "side": "down",
+     "fromSt": "祇園四条",
+     "toSt": "七条",
+     "what": "Từ Sanjō tới Shichijō tàu chạy ngầm; nó lên mặt đất sau Shichijō.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E4%BA%AC%E9%98%AA%E6%9C%AC%E7%B7%9A"
+    },
+    {
+     "side": "left",
+     "fromSt": "七条",
+     "toSt": "丹波橋",
+     "what": "Tàu 特急 chạy qua Tōfukuji, Toba-kaidō và Fushimi-Inari không dừng; đền Fushimi Inari nằm cách ga khoảng 5 phút đi bộ về phía đông, tức bên trái.",
+     "fuji": false,
+     "tip": "Hướng trái tính từ toạ độ OpenStreetMap của đền; chưa kiểm tra liệu từ tàu có nhìn thấy đền.",
+     "src": "https://ja.wikipedia.org/wiki/%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7%E9%A7%85"
+    },
+    {
+     "side": "both",
+     "fromSt": "丹波橋",
+     "toSt": "中書島",
+     "what": "Chūshojima nằm ngay trên đoạn cong gấp và tàu chậm lại khi vào ga; tuyến Uji rẽ nhánh ở đây.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E4%B8%AD%E6%9B%B8%E5%B3%B6%E9%A7%85"
+    }
+   ],
+   "transfers": [],
+   "alight": {
+    "prevSt": "丹波橋",
+    "announce": "まもなく、中書島です。",
+    "announceRomaji": "Mamonaku, Chūshojima desu.",
+    "text": "Sau Tambabashi chỉ khoảng 2 phút là Chūshojima (14:39 → 14:41). 特急 vào ke 2 (hướng Yodoyabashi). Ga có cổng Bắc (gần ke 1, phía Yodoyabashi) và cổng Nam (gần ke 4); hai cổng không nối với nhau, phải đi đường ngang khá dài. Torisei Honten nằm khoảng 500 m về phía bắc ga nên ra cổng Bắc."
+   },
+   "onboard": null,
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E7%A5%87%E5%9C%92%E5%9B%9B%E6%9D%A1&to=%E4%B8%AD%E6%9B%B8%E5%B3%B6&y=2026&m=11&d=10&hh=14&m1=3&m2=0&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E4%BA%AC%E9%98%AA%E6%9C%AC%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7%E9%A7%85",
+    "https://ja.wikipedia.org/wiki/%E4%B8%AD%E6%9B%B8%E5%B3%B6%E9%A7%85",
+    "https://ja.wikipedia.org/wiki/%E4%B8%B9%E6%B3%A2%E6%A9%8B%E9%A7%85",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E4%B8%AD%E6%9B%B8%E5%B3%B6%E9%A7%85"
+   ]
+  },
+  {
+   "id": "d10-keihan-sanjo-fushimiinari",
+   "day": 10,
+   "line": "Keihan Main Line",
+   "from": "三条",
+   "to": "伏見稲荷",
+   "train": "Khoảng 10 phút, ¥240. Chỉ tàu thường (普通), 準急 và 通勤準急 (chỉ sáng ngày thường, hướng Yodoyabashi) dừng ở Fushimi-Inari; 特急 không dừng; 急行 chỉ dừng vài khung giờ. Lịch thứ Ba 10/11/2026: 6:54 通勤準急 từ ke 4 Sanjō tới Fushimi-Inari 7:04 (ke 2), dừng Gion-Shijō, Shimizu-Gojō, Shichijō, Tōfukuji, Toba-kaidō; 7:07 tàu thường tới 7:17. Ngày 27/10/2027 là thứ Tư, nên 通勤準急 có chạy.",
+   "seat": "Không cần chọn ghế. Chỉ lên tàu đi Yodoyabashi ở ke 4 (hoặc ke 3); nếu lên 特急 ở Sanjō, bạn phải đổi ở Shichijō sang tàu thường rồi mới tới Fushimi-Inari (cách này chậm hơn 1 phút).",
+   "views": [
+    {
+     "side": "down",
+     "fromSt": "三条",
+     "toSt": "七条",
+     "what": "Tàu chạy ngầm từ Sanjō đến Shichijō, rồi lên mặt đất.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E4%BA%AC%E9%98%AA%E6%9C%AC%E7%B7%9A"
+    },
+    {
+     "side": "left",
+     "fromSt": "鳥羽街道",
+     "toSt": "伏見稲荷",
+     "what": "Trước khi tới Fushimi-Inari, đền Fushimi Inari nằm cách ga khoảng 5 phút đi bộ, về phía đông (bên trái).",
+     "fuji": false,
+     "tip": "Hướng tính từ toạ độ OpenStreetMap của đền; chưa kiểm tra tầm nhìn từ cửa sổ.",
+     "src": "https://ja.wikipedia.org/wiki/%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7%E9%A7%85"
+    }
+   ],
+   "transfers": [],
+   "alight": {
+    "prevSt": "鳥羽街道",
+    "announce": "まもなく、伏見稲荷です。",
+    "announceRomaji": "Mamonaku, Fushimi-Inari desu.",
+    "text": "Toba-kaidō là ga ngay trước Fushimi-Inari. Ga chỉ có hai ke bên (ke 1 hướng Sanjō, ke 2 hướng Yodoyabashi) và không có lối thông giữa hai ke trong cổng. Cổng chính gần đầu phía Tambabashi, ngoài ra có cổng tạm giữa ke. Đền cách ga khoảng 5 phút đi bộ, ga JR Inari cũng khoảng 5 phút về phía đông."
+   },
+   "onboard": null,
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E4%B8%89%E6%9D%A1(%E4%BA%AC%E9%98%AA)&to=%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7&y=2026&m=11&d=10&hh=06&m1=5&m2=0&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E4%BA%AC%E9%98%AA%E6%9C%AC%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7%E9%A7%85",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7%E5%A4%A7%E7%A4%BE"
+   ]
+  },
+  {
+   "id": "d10-keihan-fushimiinari-tambabashi",
+   "day": 10,
+   "line": "Keihan Main Line",
+   "from": "伏見稲荷",
+   "to": "丹波橋",
+   "train": "Khoảng 7–10 phút, ¥240, hướng Yodoyabashi, dừng thêm Ryūkoku-mae-Fukakusa, Fujinomori, Sumizome. Thứ Tư 11/11/2026: 8:34 tàu thường tới 8:41 (ke 2 → ke 3); 8:37 準急 tới 8:47; 8:44 tàu thường tới 8:52 (ke 4). Tàu 特急 không dừng Fushimi-Inari nên chỉ cần tàu thường hoặc 準急.",
+   "seat": "Vào ke 2, cùng phía với lúc bạn xuống; không phải qua đường ray khác vì cả hai chuyến cùng hướng Yodoyabashi. Không cần chọn ghế.",
+   "views": [],
+   "transfers": [
+    {
+     "at": "丹波橋",
+     "text": "Ga Keihan có hai ke đảo và 4 đường; ke 1–2 hướng Sanjō, ke 3–4 hướng Yodoyabashi, nên tàu từ Fushimi-Inari vào ke 3 hoặc 4. Cổng ra số 4 của Keihan nằm ngay đối diện cổng giữa của Kintetsu-Tambabashi, nối bằng lối đi liên thông; theo lịch 3 phút. Cả hai ga đều có cổng nhận PiTaPa và ICOCA; Kintetsu-Tambabashi chỉ có một cổng soát vé. Wikipedia chỉ nói hai ga nối bằng lối đi và có vận chuyển liên kết (連絡運輸), không nói có cổng chuyển tuyến miễn phí, nên dự trù quẹt thẻ ra khỏi Keihan rồi vào Kintetsu."
+    }
+   ],
+   "alight": {
+    "prevSt": "墨染",
+    "announce": "まもなく、丹波橋です。",
+    "announceRomaji": "Mamonaku, Tambabashi desu.",
+    "text": "Sumizome rồi 1–2 phút nữa là Tambabashi (ga thứ tư sau Fushimi-Inari). Xuống ở ke 3 hoặc 4, lên sảnh, đi theo biển 近鉄線 và cổng ra số 4. Keihan Tambabashi có 特急 dừng; 快速特急 洛楽 không."
+   },
+   "onboard": null,
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7&to=%E4%B8%B9%E6%B3%A2%E6%A9%8B&y=2026&m=11&d=11&hh=08&m1=3&m2=0&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E4%B8%B9%E6%B3%A2%E6%A9%8B%E9%A7%85",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E4%B8%B9%E6%B3%A2%E6%A9%8B%E9%A7%85",
+    "https://ja.wikipedia.org/wiki/%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7%E9%A7%85"
+   ]
+  },
+  {
+   "id": "d10-kintetsu-tambabashi-nara",
+   "day": 10,
+   "line": "Kintetsu Kyoto Line + Nara Line",
+   "from": "近鉄丹波橋",
+   "to": "近鉄奈良",
+   "train": "Hai cách. Lịch thứ Tư 11/11/2026: (1) 8:55 express (急行) đi thẳng Kintetsu-Nara, không phải đổi, tới 9:32, 37 phút, ¥680 (IC), vào ke 4; (2) 8:45 express đi Kashihara-jingumae, tới Yamato-Saidaiji 9:16 (ke 1), đổi sang tàu Nara Line ở ke 2 lúc 9:19, qua Shin-Ōmiya, tới Kintetsu-Nara 9:24 (ke 1), tổng 39 phút, ¥680; (3) 9:01 特急 đi thẳng, chỉ dừng Yamato-Saidaiji, 28 phút, ¥680 + ¥520 chỉ định = ¥1.200. Giá lịch ghi khoảng ¥1.600 cho hai người nhưng ¥680 × 2 = ¥1.360 (IC).",
+   "seat": "Nên lên tàu ghi 近鉄奈良 để khỏi đổi tàu; tàu ghi 橿原神宮前 thì đổi ở Yamato-Saidaiji. Đoạn Heijō-kyū ở bên trái là Daigokuden (xa), bên phải là Suzaku-mon (gần) khi đi hướng Nara, nên chọn bên trái nếu muốn thấy Daigokuden, hoặc đứng ở cửa phía đó.",
+   "views": [
+    {
+     "side": "right",
+     "fromSt": "高の原",
+     "toSt": "平城",
+     "what": "Gò lăng hoàng hậu Jingū (神功皇后陵) ở bên phải, nhà cửa che một phần; ghi nhận ở chiều ngược lại là bên trái ngay sau ga Heijō.",
+     "fuji": false,
+     "tip": "Express thường chạy qua Heijō không dừng.",
+     "src": "https://henreki-nihonshi.com/shimakazesyasou3/"
+    },
+    {
+     "side": "left",
+     "fromSt": "大和西大寺",
+     "toSt": "新大宮",
+     "what": "Daigokuden (第一次大極殿) phục dựng hiện ở xa bên trái, tàu chạy qua giữa khu di tích Heijō-kyū; thấy sau khoảng 600 m tính từ Yamato-Saidaiji và kéo dài khoảng 1 km.",
+     "fuji": false,
+     "tip": "Chỉ thoáng qua nên ngồi sẵn ở cửa sổ phía trái từ khi rời Yamato-Saidaiji. Bài năm 2017 cho biết tỉnh Nara đang xem xét dời đường ray khỏi khu di tích.",
+     "src": "https://www.rail-travel.net/archives/2768"
+    },
+    {
+     "side": "right",
+     "fromSt": "大和西大寺",
+     "toSt": "新大宮",
+     "what": "Suzaku-mon (朱雀門) phục dựng nằm rất gần đường ray ở bên phải, cách Yamato-Saidaiji khoảng 1,3 km, cùng cổng và tường đất của khu vườn Tōin.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://www.nikkei.com/article/DGXMZO62232350T00C20A8AA1P00/"
+    },
+    {
+     "side": "front",
+     "fromSt": "新大宮",
+     "toSt": "近鉄奈良",
+     "what": "Nhìn về phía trước từ khu cung điện, núi Wakakusa và Tōdai-ji hiện ra ở hướng Nara.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%A5%88%E8%89%AF%E7%B7%9A"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "大和西大寺",
+     "text": "Chỉ phải đổi nếu tàu đi Kashihara-jingumae. Tàu Kyoto Line vào ke 1, tàu Nara Line đi Kintetsu-Nara rời ke 2, nối khoảng 3 phút; chỉ hai ga (Shin-Ōmiya rồi Kintetsu-Nara). Không đổi tàu nếu tàu ghi 近鉄奈良."
+    }
+   ],
+   "alight": {
+    "prevSt": "新大宮",
+    "announce": "まもなく、近鉄奈良です。",
+    "announceRomaji": "Mamonaku, Kintetsu-Nara desu.",
+    "text": "Shin-Ōmiya rồi Kintetsu-Nara chỉ 2–3 phút (9:22 → 9:24 ở phương án đổi tàu). Kintetsu-Nara là ga cuối ngầm nên không đi quá ga; thu dọn đồ khi tàu rời Shin-Ōmiya."
+   },
+   "onboard": null,
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E8%BF%91%E9%89%84%E4%B8%B9%E6%B3%A2%E6%A9%8B&to=%E8%BF%91%E9%89%84%E5%A5%88%E8%89%AF&y=2026&m=11&d=11&hh=08&m1=4&m2=5&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E4%BA%AC%E9%83%BD%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E6%A9%BF%E5%8E%9F%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%A5%88%E8%89%AF%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E4%B8%B9%E6%B3%A2%E6%A9%8B%E9%A7%85",
+    "https://www.rail-travel.net/archives/2768",
+    "https://www.nikkei.com/article/DGXMZO62232350T00C20A8AA1P00/",
+    "https://henreki-nihonshi.com/shimakazesyasou3/"
+   ]
+  },
+  {
+   "id": "d10-kintetsu-nara-namba",
+   "day": 10,
+   "line": "Kintetsu Nara Line (Rapid Express)",
+   "from": "近鉄奈良",
+   "to": "大阪難波",
+   "train": "Rapid express (快速急行) 38–47 phút. Thứ Tư 11/11/2026: 16:04 rời ke 2 Kintetsu-Nara, tới Osaka-Namba 16:47 (ke 3), ¥680; tàu này đi tiếp Kobe-Sannomiya qua Hanshin Namba Line nhưng vẫn dừng ở Osaka-Namba. 16:03 là limited express (特急) tới 16:41, ¥680 + ¥520 chỉ định = ¥1.200. Rapid express dừng Shin-Ōmiya, Yamato-Saidaiji, Gakuenmae, Ikoma, Tsuruhashi, Osaka-Uehommachi, Kintetsu-Nipponbashi, Osaka-Namba. Lịch ghi ¥1.400 cho hai người, ¥680 × 2 = ¥1.360.",
+   "seat": "Đầu hành trình, tàu băng qua khu di tích Heijō-kyū (chiều đi Namba): Suzaku-mon gần ở bên trái, Daigokuden xa ở bên phải. Sau hầm Ikoma, hai bên đều mở ra đồng bằng Osaka. Ga Osaka-Namba có hai cổng, Đông và Tây; hướng Dōtonbori, Ebisubashi, Shōchikuza là cổng Đông (Wikipedia). Tàu vào ga từ phía đông, nên toa cuối đoàn (phía Nara) nhiều khả năng gần cổng Đông; chưa rõ số toa, nên nhìn biển 東改札口/道頓堀 trên ke để xác nhận.",
+   "views": [
+    {
+     "side": "left",
+     "fromSt": "近鉄奈良",
+     "toSt": "大和西大寺",
+     "what": "Sau Shin-Ōmiya, Suzaku-mon phục dựng nằm rất gần đường ray bên trái, khi tàu băng qua giữa khu di tích Heijō-kyū; Daigokuden ở xa bên phải.",
+     "fuji": false,
+     "tip": "Chiều đi Namba hai bên đảo ngược so với chiều đi Nara; chỉ xuất hiện chớp nhoáng ngay trước Yamato-Saidaiji.",
+     "src": "https://www.rail-travel.net/archives/2768"
+    },
+    {
+     "side": "both",
+     "fromSt": "生駒",
+     "toSt": "石切",
+     "what": "Tàu chui vào hầm Shin-Ikoma dài 3.494 m ngay sau ga Ikoma và ra ở Ishikiri, mất khoảng 3 phút.",
+     "fuji": false,
+     "tip": "Chuẩn bị máy ảnh cho đoạn tiếp theo: sau hầm là đoạn xuống dốc.",
+     "src": "https://ja.wikipedia.org/wiki/%E7%94%9F%E9%A7%92%E3%83%88%E3%83%B3%E3%83%8D%E3%83%AB"
+    },
+    {
+     "side": "both",
+     "fromSt": "石切",
+     "toSt": "東花園",
+     "what": "Sau hầm, tàu xuống dốc hơn 30‰ về phía đồng bằng Osaka; nhìn ra phía trước và hai bên là cả đồng bằng, ngày trong trời còn thấy nhà chọc trời xa và đảo Awaji.",
+     "fuji": false,
+     "tip": "Chuyến 16:04 ra khỏi hầm lúc khoảng 16:30, trước hoàng hôn (khoảng 17:05 ngày 21/10 ở Hakone theo fuji.json). Nguồn không nêu bên nào tốt hơn.",
+     "src": "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%A5%88%E8%89%AF%E7%B7%9A"
+    },
+    {
+     "side": "both",
+     "fromSt": "鶴橋",
+     "toSt": "大阪上本町",
+     "what": "Rapid express dừng ở Tsuruhashi; khu quanh ga nổi tiếng với mùi thịt nướng yakiniku.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%A5%88%E8%89%AF%E7%B7%9A"
+    }
+   ],
+   "transfers": [],
+   "alight": {
+    "prevSt": "近鉄日本橋",
+    "announce": "まもなく、大阪難波です。",
+    "announceRomaji": "Mamonaku, Ōsaka-Namba desu.",
+    "text": "Kintetsu-Nipponbashi rồi Osaka-Namba chỉ khoảng 2 phút (16:45 → 16:47). Nếu tàu ghi 神戸三宮 thì vẫn xuống ở Osaka-Namba, không ngồi tiếp. Tàu vào ke 3. Ga ngầm có cổng Đông và Tây; hướng khách sạn Forza qua Dōtonbori, đi cổng Đông rồi theo biển Dōtonbori, lịch ghi 8 phút bộ."
+   },
+   "onboard": null,
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E8%BF%91%E9%89%84%E5%A5%88%E8%89%AF&to=%E5%A4%A7%E9%98%AA%E9%9B%A3%E6%B3%A2&y=2026&m=11&d=11&hh=16&m1=0&m2=0&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%A5%88%E8%89%AF%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E7%94%9F%E9%A7%92%E3%83%88%E3%83%B3%E3%83%8D%E3%83%AB",
+    "https://ja.wikipedia.org/wiki/%E5%A4%A7%E9%98%AA%E9%9B%A3%E6%B3%A2%E9%A7%85",
+    "https://www.rail-travel.net/archives/2768"
+   ]
+  },
+  {
+   "id": "d12-nankai-airport",
+   "day": 12,
+   "line": "Nankai Main Line + Airport Line",
+   "from": "難波",
+   "to": "関西空港",
+   "train": "Airport Express (空港急行): ban ngày khoảng 4 chuyến mỗi giờ, không đặt chỗ, ¥970 (IC), 46 phút. Thứ Sáu 13/11/2026: 9:13 rời ke 6 Namba tới Kansai Airport 9:59 (ke 1). Dừng Shin-Imamiya, Tengachaya, Sakai, Hagoromo, Izumiōtsu, Haruki, Kishiwada, Kaizuka, Izumisano, Rinku Town. Rapi:t (特急) toàn ghế chỉ định, phụ phí Regular ¥700 hoặc Super ¥910 cộng ¥970 tiền vé, mua trên tàu thêm ¥300; Rapi:t cũng dừng Rinku Town trước KIX. Chưa kiểm tra được thời gian chạy của Rapi:t (bảng giờ PDF của Nankai). Lịch ghi ¥2.200 cho hai người, nhưng ¥970 × 2 = ¥1.940.",
+   "seat": "Airport Express dùng toa 4 cửa, 6 hoặc 8 toa; một số toa của dòng 8300 có khu hành lý (ラゲッジスペース) gần cửa nhưng chưa xác định được toa nào. Rapi:t có 6 toa, toa 1 là toa đầu hướng KIX; toa 5–6 là Super (3 ghế/hàng), toa 1–4 là Regular (4 ghế/hàng). Vịnh Osaka nằm ở phía tây của tuyến Nankai, tức bên phải khi đi từ Namba về hướng nam, nhưng chưa có nguồn nói biển lộ rõ từ tàu ở đoạn nào ngoài cầu sân bay.",
+   "views": [
+    {
+     "side": "both",
+     "fromSt": "泉佐野",
+     "toSt": "りんくうタウン",
+     "what": "Sau Izumisano, tàu rẽ phải về phía tây bắc. Bánh xe đu quay của SEACLE hiện phía trước bên trái, tòa Rinku Gate Tower phía trước bên phải.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E5%8D%97%E6%B5%B7%E7%A9%BA%E6%B8%AF%E7%B7%9A"
+    },
+    {
+     "side": "both",
+     "fromSt": "りんくうタウン",
+     "toSt": "関西空港",
+     "what": "Cầu liên kết sân bay dài 3.750 m, hai tầng: đường ô tô ở trên, đường sắt ở dưới; tàu chạy giữa vịnh Osaka theo hướng tây bắc, biển ở cả hai bên.",
+     "fuji": false,
+     "tip": "Khoảng 42,6% tuyến Airport Line nằm trên biển. Theo toạ độ OpenStreetMap (Rinku Town 34,411 N 135,300 E; Kansai Airport 34,436 N 135,243 E), tàu chạy hướng tây bắc: mạn trái nhìn ra phía tây nam, mạn phải về phía đông bắc. Chưa có nguồn nói bên nào đẹp hơn; ngồi sát cửa sổ vì tàu ở tầng dưới của cầu.",
+     "src": "https://ja.wikipedia.org/wiki/%E9%96%A2%E8%A5%BF%E5%9B%BD%E9%9A%9B%E7%A9%BA%E6%B8%AF%E9%80%A3%E7%B5%A1%E6%A9%8B"
+    },
+    {
+     "side": "front",
+     "fromSt": "りんくうタウン",
+     "toSt": "関西空港",
+     "what": "Hết cầu, tàu xuống thấp và rẽ trái qua đoạn hào cắt để vào ga Kansai Airport; đường JR tách ra ở bên phải.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/%E5%8D%97%E6%B5%B7%E7%A9%BA%E6%B8%AF%E7%B7%9A"
+    }
+   ],
+   "transfers": [],
+   "alight": {
+    "prevSt": "りんくうタウン",
+    "announce": "まもなく、関西空港です。",
+    "announceRomaji": "Mamonaku, Kansai-kūkō desu.",
+    "text": "Rinku Town (9:53) là ga trước sân bay, rồi 6 phút nữa là tới Kansai Airport (9:59). Cả Airport Express lẫn Rapi:t đều dừng Rinku Town. Kansai Airport là ga cuối, tàu vào ke 1; từ ga đi bộ khoảng 5–6 phút tới nhà ga hành khách theo Yahoo. Khi tàu qua Rinku Town, lấy hành lý xuống sẵn."
+   },
+   "onboard": "Rapi:t có giá trên đầu có nắp như máy bay và kệ hai tầng giữa sàn nối và khoang; phòng CAT ở toa 4 đã ngừng dùng từ 2001. Airport Express chưa có thông tin chỗ để hành lý chỉ định. Mua vé Rapi:t tại quầy Namba, máy hồng, máy trên ke hoặc online, bán trước một tháng.",
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E9%9B%A3%E6%B3%A2(%E5%8D%97%E6%B5%B7)&to=%E9%96%A2%E8%A5%BF%E7%A9%BA%E6%B8%AF&y=2026&m=11&d=13&hh=09&m1=0&m2=0&type=1&ticket=ic",
+    "https://transit.yahoo.co.jp/search/result?from=%E9%9B%A3%E6%B3%A2(%E5%8D%97%E6%B5%B7)&to=%E9%96%A2%E8%A5%BF%E7%A9%BA%E6%B8%AF(%E5%8D%97%E6%B5%B7)&y=2026&m=11&d=13&hh=09&m1=2&m2=5&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/%E5%8D%97%E6%B5%B7%E7%A9%BA%E6%B8%AF%E7%B7%9A",
+    "https://ja.wikipedia.org/wiki/%E9%96%A2%E8%A5%BF%E5%9B%BD%E9%9A%9B%E7%A9%BA%E6%B8%AF%E9%80%A3%E7%B5%A1%E6%A9%8B",
+    "https://ja.wikipedia.org/wiki/%E5%8D%97%E6%B5%B750000%E7%B3%BB%E9%9B%BB%E8%BB%8A",
+    "https://ja.wikipedia.org/wiki/%E5%8D%97%E6%B5%B78300%E7%B3%BB%E9%9B%BB%E8%BB%8A",
+    "https://ja.wikipedia.org/wiki/%E7%A9%BA%E6%B8%AF%E6%80%A5%E8%A1%8C",
+    "https://www.nankai.co.jp/traffic/express/rapit.html",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E3%82%8A%E3%82%93%E3%81%8F%E3%81%86%E3%82%BF%E3%82%A6%E3%83%B3%E9%A7%85",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E9%96%A2%E8%A5%BF%E7%A9%BA%E6%B8%AF%E9%A7%85"
+   ]
+  }
+ ]
+}

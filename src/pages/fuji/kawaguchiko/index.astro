@@ -1,0 +1,21 @@
+---
+// The Kawaguchiko alternative, laid out like any day of the plan: same map, timeline and detours.
+import Base from '../../../layouts/Base.astro';
+import DayPlan from '../../../components/DayPlan.astro';
+import { ALT_VIEWS, url } from '../../../lib/trip';
+
+const v = ALT_VIEWS.find((x) => x.day.id === 'kawaguchiko')!;
+const { day } = v;
+const sheetIds = v.pins.filter((p) => p.kind !== 'station').map((p) => p.id);
+const sayIds = [...new Set(day.items.flatMap((i) => (i.type === 'stop' ? (i.place ? [i.place] : []) : [i.leg.to])))];
+---
+
+<Base title={day.title} description={day.lead} sheets={sheetIds} say={sayIds}>
+  <DayPlan
+    v={v}
+    kicker={`Phương án thay ngày ${day.replaces}`}
+    prev={{ href: url('fuji/'), label: 'Quay lại', title: 'Fuji' }}
+    next={{ href: url(`ngay/${day.replaces}/`), label: `Lịch gốc ngày ${day.replaces}`, title: 'Sushi, Harajuku, Shibuya' }}
+    strip={false}
+  />
+</Base>
