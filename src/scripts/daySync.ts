@@ -1,11 +1,11 @@
-// Keeps the day map in step with the timeline: whatever sits in the middle band of
-// the viewport is highlighted on the map (a leg is fitted, a stop is centred, a
-// suggestion shows the way to it).
+// Keeps the day map in step with the timeline: whatever is being read is highlighted on the
+// map (a leg is fitted, a stop is centred, a suggestion shows the way to it).
 import type { TripMap } from '../lib/map';
+import { watchReading } from './reading';
 
 export function initDaySync() {
   const items = [...document.querySelectorAll<HTMLElement>('.timeline > li[data-leg], .timeline > li[data-pin], .along-list > li[data-detour]')];
-  const head = document.querySelector<HTMLElement>('[data-fit]');
+  const column = document.querySelector<HTMLElement>('.day-col');
   const aside = document.querySelector<HTMLElement>('.day-map');
   let map: TripMap | undefined;
   let current: HTMLElement | null = null;
@@ -37,33 +37,21 @@ export function initDaySync() {
     }
   };
 
-  const visible = new Set<HTMLElement>();
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) visible.add(e.target as HTMLElement);
-        else visible.delete(e.target as HTMLElement);
-      }
-      // the first item (in document order) inside the band wins
-      const next = items.find((i) => visible.has(i)) ?? null;
-      if (next) apply(next);
-    },
-    { rootMargin: '-42% 0px -52% 0px' },
-  );
-  items.forEach((i) => io.observe(i));
-
-  if (head) {
-    new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) apply(null);
-      },
-      { rootMargin: '0px 0px -40% 0px' },
-    ).observe(head);
-  }
+  // On phones the map sits above the text, so the line goes just under it, where the eye is;
+  // beside the text it sits a little above the middle of the screen.
+  const reading = column
+    ? watchReading(items, {
+        column,
+        covers: () => [document.querySelector('.nav'), document.querySelector('.days-strip'), aside],
+        share: (stacked) => (stacked ? 0.2 : 0.4),
+        onChange: apply,
+      })
+    : null;
 
   const attach = () => {
     map = window.__maps?.day;
     if (!map) return;
+    reading?.reset();
     map.map.on('dragstart', () => (userMovedAt = performance.now()));
     map.map.on('zoomstart', (e) => {
       if ((e as { originalEvent?: Event }).originalEvent) userMovedAt = performance.now();
@@ -109,7 +97,10 @@ export function initDaySync() {
     aside.dataset.collapsed = String(collapse);
     toggleBtn.textContent = collapse ? 'Mở bản đồ' : 'Thu bản đồ';
     toggleBtn.setAttribute('aria-expanded', String(!collapse));
-    setTimeout(() => map?.map.resize(), 340);
+    setTimeout(() => {
+      map?.map.resize();
+      reading?.refresh();
+    }, 340);
   };
   toggleBtn?.addEventListener('click', () => toggle(aside?.dataset.collapsed !== 'true'));
 }

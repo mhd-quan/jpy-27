@@ -253,14 +253,11 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
     max-width: 34ch;
     margin-top: 22px;
   }
-  .map-wrap {
-    padding-inline: clamp(0px, 2vw, 24px);
-  }
+  /* the inset goes on the map itself so the legend below keeps the page gutter */
   .trip-map {
     height: min(78vh, 760px);
     min-height: 420px;
-    max-width: 1400px;
-    margin-inline: auto;
+    margin-inline: max(clamp(0px, 2vw, 24px), calc((100% - 1400px) / 2));
     border-radius: clamp(0px, 2vw, var(--r-xl));
   }
   .legend {
@@ -576,6 +573,7 @@ const chapterNights = CHAPTERS.reduce((s, c) => s + c.nights, 0);
   .ft-actions {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 10px;
   }
   .tools {

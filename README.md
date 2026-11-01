@@ -1,4 +1,4 @@
-# Nhật Bản 2027
+# JP27
 
 Trang hành trình 12 ngày Tokyo → Osaka (18–29/10/2027) cho hai người: lịch từng ngày với bản đồ đi theo khi cuộn, món nên gọi và giá ở từng quán, ăn vặt dọc đường, chỗ ở và đường đi dạo quanh khách sạn, Fuji (kể cả một ngày Kawaguchiko thay ngày 3), từng chuyến tàu, kế hoạch mua sắm theo ngày, ngân sách và sổ tay có câu tiếng Nhật theo tình huống. Astro + TypeScript + CSS thuần, MapLibre GL cho bản đồ.
 
@@ -24,7 +24,8 @@ src/
     catalog.ts       gộp places.ts với dữ liệu nghiên cứu
     *.gen.ts         sinh ra bởi scripts/, không sửa tay
   lib/               map.ts (MapLibre), mapStyle.ts (basemap riêng), trip.ts (view model), geo.ts
-  components/        MapView, Gallery, PlaceSheet, Panorama, RouteSpark, AlongItem, Nav
+  components/        MapView, Gallery, PlaceSheet, Panorama, RouteSpark, AlongItem, RideStrip, Nav (wordmark JP27: Anybody 150% / 900, vẽ thành đường nét)
+  scripts/           daySync.ts và reading.ts (bản đồ theo đoạn đang đọc, tính cả bản đồ dính trên đầu khi dùng điện thoại)
   pages/             trang chủ, ngay/[n], fuji, fuji/kawaguchiko, tren-tau, an-uong, cho-o, mua-sam, ngan-sach, so-tay
 scripts/             pipeline dữ liệu (bên dưới)
 research/            dữ liệu nghiên cứu thô (JSON)
@@ -62,6 +63,7 @@ Thứ tự khi sửa dữ liệu: merge → localize → merge → geo → detou
 | `research/trains-*.json` | cảnh hai bên, đổi tàu, lúc chuẩn bị xuống cho từng chuyến |
 | `research/phrases.json` | sổ câu theo tình huống, có romaji |
 
+- **Lọc chữ nghiên cứu** (`scripts/tidy.mjs`, chạy khi gộp): bỏ phần ghi nguồn trong câu ("(Wikipedia ja)", "theo Tabelog", "mẫu Yahoo 2/11/2026") và câu rào đón ("chưa kiểm chứng", "cần kiểm tra lại"), giữ hệ quả ("chưa rõ X, nên Y" còn "nên Y"). Nguồn hiện thành thẻ một chữ (Tabelog, Wikipedia, Web…) bấm vào là mở trang gốc (`src/lib/sources.ts`). `stays.gen.ts` cần mạng để dựng lại nên được lọc thêm lúc hiển thị.
 - **Đường sắt** đi theo ray thật: đường ngắn nhất trên mạng ray của đúng hãng/tuyến trong 国土数値情報 鉄道データ (MLIT N02-23), tải tự động về `.cache/`.
 - **Đi bộ, xe buýt, shuttle** theo đường thật từ OSRM (routing.openstreetmap.de, dữ liệu OpenStreetMap); phản hồi được cache.
 - **Điểm gợi ý dọc đường** (mục "Trên đường đi"): chỉ tính từ những chỗ đang đi bộ (điểm dừng, khách sạn, các đoạn đi bộ), không tính đoạn ngồi tàu. Đường rẽ vào lấy từ OSRM đi bộ, hoặc đường ô tô khi đi bộ quá 2,5 km. Điểm ở xa thì xuất phát từ ga gần nhất trên chính tuyến tàu của ngày đó. Bỏ những chỗ phải đi xe quá 25 phút.

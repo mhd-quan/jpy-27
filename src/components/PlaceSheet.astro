@@ -29,6 +29,7 @@ const PICK: Record<string, string> = { signature: 'Món chính', popular: 'Hay g
 const yen = (n: number | null | undefined) => (n ? `¥${n.toLocaleString('vi-VN')}` : '—');
 const gmapsLL = (lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(q)}`;
+import { sourceLabel } from '../lib/sources';
 ---
 
 <dialog class="sheet" id="place-sheet" aria-labelledby="sheet-title">
@@ -127,7 +128,7 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
                         {m.romaji ? ` · ${m.romaji}` : ''}
                       </span>
                     )}
-                    {(m.note || m.yenNote) && <span class="s-mnote">{[m.yenNote, m.note].filter(Boolean).join('. ')}</span>}
+                    {m.note && <span class="s-mnote">{m.note}</span>}
                   </span>
                   <span class="tnum s-myen">{yen(m.yen)}</span>
                 </li>
@@ -182,7 +183,7 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
           )}
           {p.snack?.social.slice(0, 3).map((x) => (
             <a class="btn btn-quiet" href={x.url} target="_blank" rel="noopener">
-              {SOCIAL[x.platform] ?? 'Nguồn'}
+              {SOCIAL[x.platform] ?? sourceLabel(x.url)}
             </a>
           ))}
           {p.review && (

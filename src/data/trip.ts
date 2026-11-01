@@ -2,7 +2,7 @@
 // All yen amounts are for two people unless stated. Research date: 13/10/2026.
 
 export const TRIP = {
-  title: 'Nhật Bản 2027',
+  title: 'JP27',
   start: '2027-10-18',
   end: '2027-10-29',
   nights: 11,

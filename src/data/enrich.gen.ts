@@ -4935,7 +4935,7 @@ export const STAYS_AROUND: any = {
       139.77392
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Cầu Izumibashi",
@@ -5011,7 +5011,7 @@ export const STAYS_AROUND: any = {
     "title": "Kanda Myōjin, Yushima Seidō và Hijiribashi buổi sáng",
     "minutes": 55,
     "best": "Sáng sớm 6:30–8:30, sân đền mở tự do",
-    "text": "Đi lên phía bắc tới Kanda Myōjin khi sân đền còn vắng, rồi xuống Yushima Seidō và cầu Hijiribashi bắc qua sông Kanda ở Ochanomizu. Quay lại dọc sông Kanda qua Manseibashi. Khoảng 3,2 km, có vài đoạn dốc nhẹ; giờ mở cổng Yushima Seidō chưa kiểm chứng, nếu đóng thì chỉ ngắm từ ngoài.",
+    "text": "Đi lên phía bắc tới Kanda Myōjin khi sân đền còn vắng, rồi xuống Yushima Seidō và cầu Hijiribashi bắc qua sông Kanda ở Ochanomizu. Quay lại dọc sông Kanda qua Manseibashi. Khoảng 3,2 km, có vài đoạn dốc nhẹ.",
     "distanceM": 3188,
     "waypoints": [
      [
@@ -5071,7 +5071,7 @@ export const STAYS_AROUND: any = {
       139.77392
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Kanda Myōjin",
@@ -5147,7 +5147,7 @@ export const STAYS_AROUND: any = {
     "title": "Chūō-dōri và Electric Town về đêm",
     "minutes": 30,
     "best": "Tối 19:00–21:30",
-    "text": "Vòng ngắn quanh trục Chūō-dōri: cửa hàng game, điện máy, biển hiệu và loa quảng cáo. Đường rộng, sáng và đông; Daiso gần đó mở tới 22:00 (theo OSM) còn nhiều cửa hàng điện máy đóng sớm hơn nên đừng tính mua sắm sau 21:00. Ra khỏi trục chính về hướng khách sạn là yên ngay.",
+    "text": "Vòng ngắn quanh trục Chūō-dōri: cửa hàng game, điện máy, biển hiệu và loa quảng cáo. Đường rộng, sáng và đông; Daiso gần đó mở tới 22:00 còn nhiều cửa hàng điện máy đóng sớm hơn nên đừng tính mua sắm sau 21:00. Ra khỏi trục chính về hướng khách sạn là yên ngay.",
     "distanceM": 1676,
     "waypoints": [
      [
@@ -5195,7 +5195,7 @@ export const STAYS_AROUND: any = {
       139.77392
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Chūō-dōri",
@@ -5272,7 +5272,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.698441,
     "lng": 139.772493,
     "text": "Siêu thị đồ ăn ngon, có rượu vang, đồ hộp và bento; mở muộn nhất trong khu.",
-    "hours": "Thứ Hai–Sáu 8:00–22:30; Thứ Bảy, Chủ Nhật 10:00–22:30 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "Thứ Hai–Sáu 8:00–22:30; Thứ Bảy, Chủ Nhật 10:00–22:30",
     "distanceM": 229,
     "walkMin": 4,
     "src": "https://www.openstreetmap.org/node/9418883312"
@@ -5284,7 +5284,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.694518,
     "lng": 139.776583,
     "text": "Siêu thị nhỏ của Aeon, giá mềm hơn Seijo Ishii, mở từ sáng tới nửa đêm.",
-    "hours": "7:00–24:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "7:00–24:00 hằng ngày",
     "distanceM": 344,
     "walkMin": 6,
     "src": "https://www.openstreetmap.org/node/4674486995",
@@ -5299,7 +5299,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.698458,
     "lng": 139.775241,
     "text": "Hiệu thuốc và mỹ phẩm, mở tới 22:00.",
-    "hours": "8:00–22:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "8:00–22:00 hằng ngày",
     "distanceM": 225,
     "walkMin": 4,
     "src": "https://www.openstreetmap.org/node/1880740706",
@@ -5314,7 +5314,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.695314,
     "lng": 139.77411,
     "text": "Tiệm giặt tự động cách khách sạn khoảng 2 phút, mở rất sớm và rất khuya.",
-    "hours": "5:00–1:00 sáng hôm sau, hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "5:00–1:00 sáng hôm sau, hằng ngày",
     "distanceM": 159,
     "walkMin": 3,
     "src": "https://www.openstreetmap.org/node/7864692821",
@@ -5330,7 +5330,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.696317,
     "lng": 139.77513,
     "text": "Quán cà phê ăn sáng nhanh, mở sớm nhất khu vào ngày thường.",
-    "hours": "Thứ Hai–Sáu 6:50–21:30; Thứ Bảy 7:30–20:30; Chủ Nhật và ngày lễ 8:00–19:30 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "Thứ Hai–Sáu 6:50–21:30; Thứ Bảy 7:30–20:30; Chủ Nhật và ngày lễ 8:00–19:30",
     "distanceM": 118,
     "walkMin": 2,
     "src": "https://www.openstreetmap.org/node/3632374360"
@@ -5342,7 +5342,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.695883,
     "lng": 139.775104,
     "text": "Cà phê và bánh sandwich, mở từ 7 giờ đến 23 giờ.",
-    "hours": "7:00–23:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "7:00–23:00 hằng ngày",
     "distanceM": 143,
     "walkMin": 2,
     "src": "https://www.openstreetmap.org/node/3666676087",
@@ -5369,7 +5369,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.692765,
     "lng": 139.77555,
     "text": "Nhà tắm công cộng trong khu dân cư phía nam, đi bộ khoảng 7 phút. Theo OSM nghỉ thứ Bảy.",
-    "hours": "Chủ Nhật–Thứ Sáu 14:40–20:30 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "Chủ Nhật–Thứ Sáu 14:40–20:30",
     "distanceM": 466,
     "walkMin": 8,
     "src": "https://www.openstreetmap.org/node/6463426486",
@@ -5414,7 +5414,7 @@ export const STAYS_AROUND: any = {
   ]
  },
  "mizunoto": {
-  "area": "Kowakudani là thung lũng rừng ở độ cao khoảng 580 m, quanh có Yunessun, vườn Hōraien, thác Senjō-no-taki và vài khách sạn onsen; khu không có phố mua sắm, chỉ vài cửa hàng tiện lợi. Ban ngày khách đi qua bằng xe buýt và tàu leo núi, tối rất yên, đường dốc giữa rừng nên mang theo đèn pin nhỏ. Lúc 7 giờ sáng rừng mát và nắng trực tiếp tới thung lũng muộn (khoảng 7:20 theo địa hình); lúc 9 giờ tối gần như chỉ có tiếng nước chảy. Khách sạn nằm trên sườn dốc nên cửa hàng tiện lợi gần nhất cách khoảng 1,5 km (đi bộ khoảng 20 phút theo OSM) và không có hiệu thuốc, siêu thị hay tiệm giặt gần; hãy mua đồ cần thiết ở Tokyo.",
+  "area": "Kowakudani là thung lũng rừng ở độ cao khoảng 580 m, quanh có Yunessun, vườn Hōraien, thác Senjō-no-taki và vài khách sạn onsen; khu không có phố mua sắm, chỉ vài cửa hàng tiện lợi. Ban ngày khách đi qua bằng xe buýt và tàu leo núi, tối rất yên, đường dốc giữa rừng nên mang theo đèn pin nhỏ. Lúc 7 giờ sáng rừng mát và nắng trực tiếp tới thung lũng muộn (khoảng 7:20 theo địa hình); lúc 9 giờ tối gần như chỉ có tiếng nước chảy. Khách sạn nằm trên sườn dốc nên cửa hàng tiện lợi gần nhất cách khoảng 1,5 km và không có hiệu thuốc, siêu thị hay tiệm giặt gần; hãy mua đồ cần thiết ở Tokyo.",
   "walks": [
    {
     "id": "w-sengen-yama-morning",
@@ -5477,14 +5477,14 @@ export const STAYS_AROUND: any = {
       139.0595
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Thác Senjō-no-taki",
       "ja": "千条の滝",
       "lat": 35.23513,
       "lng": 139.05034,
-      "text": "Thác nhỏ cao 3 m, rộng 25 m, vách đá phủ rêu, là điểm bắt đầu đường leo Sengen-yama (theo trang du lịch Hakone).",
+      "text": "Thác nhỏ cao 3 m, rộng 25 m, vách đá phủ rêu, là điểm bắt đầu đường leo Sengen-yama.",
       "images": [
        {
         "kind": "view",
@@ -5538,7 +5538,7 @@ export const STAYS_AROUND: any = {
     "title": "Thác Senjō, vườn Hōraien và ga Kowakudani",
     "minutes": 40,
     "best": "Sáng sớm hoặc chiều muộn khi trời còn sáng",
-    "text": "Vòng ngắn trong thung lũng: thác Senjō-no-taki, vườn azalea Hōraien, rồi lên ga Kowakudani (khoảng 14 phút đi bộ từ khách sạn) và về lại. Đường dốc và ít đèn nên đi lúc trời còn sáng. Vườn Hōraien chưa xác nhận giờ vào cửa nên có thể chỉ ngắm từ ngoài.",
+    "text": "Vòng ngắn trong thung lũng: thác Senjō-no-taki, vườn azalea Hōraien, rồi lên ga Kowakudani (khoảng 14 phút đi bộ từ khách sạn) và về lại. Đường dốc và ít đèn nên đi lúc trời còn sáng.",
     "distanceM": 2994,
     "waypoints": [
      [
@@ -5590,7 +5590,7 @@ export const STAYS_AROUND: any = {
       139.05025
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Thác Senjō-no-taki",
@@ -5644,7 +5644,7 @@ export const STAYS_AROUND: any = {
     "type": "konbini",
     "lat": 35.240474,
     "lng": 139.050039,
-    "text": "Cửa hàng tiện lợi gần nhất, cạnh quốc lộ 1 gần ga Kowakudani; đi bộ khoảng 20 phút theo OSM (hoặc tiện thể khi đi bộ ra ga), nên mua đồ cần dùng trước khi lên núi.",
+    "text": "Cửa hàng tiện lợi gần nhất, cạnh quốc lộ 1 gần ga Kowakudani; đi bộ khoảng 20 phút (hoặc tiện thể khi đi bộ ra ga), nên mua đồ cần dùng trước khi lên núi.",
     "hours": "24 giờ",
     "distanceM": 155,
     "walkMin": 20,
@@ -5689,7 +5689,7 @@ export const STAYS_AROUND: any = {
     "type": "cafe",
     "lat": 35.238767,
     "lng": 139.047551,
-    "text": "Quầy lounge của khách sạn Kowakien lân cận; chưa xác nhận giờ và việc có nhận khách ngoài hay không. Bữa sáng ở Mizunoto đã gồm trong giá nên ít cần.",
+    "text": "Quầy lounge của khách sạn Kowakien lân cận. Bữa sáng ở Mizunoto đã gồm trong giá nên ít cần.",
     "hours": null,
     "distanceM": 249,
     "walkMin": 30,
@@ -5703,7 +5703,7 @@ export const STAYS_AROUND: any = {
     "type": "sento",
     "lat": 35.239446,
     "lng": 139.045863,
-    "text": "Khu tắm onsen thuộc Kowakien Yunessun, cách khách sạn khoảng 5 phút đi bộ. Chưa xác nhận giờ và giá, xem trang chính thức.",
+    "text": "Khu tắm onsen thuộc Kowakien Yunessun, cách khách sạn khoảng 5 phút đi bộ.",
     "hours": null,
     "distanceM": 401,
     "walkMin": 32,
@@ -5789,7 +5789,7 @@ export const STAYS_AROUND: any = {
      {
       "src": "https://dormy-hotels.com/resort/hotels/mizunoto/",
       "kind": "official",
-      "quote_vi": "Trang chủ chính thức chỉ nói khách sạn \"nằm giữa thiên nhiên Kowakudani, nơi tiếng nước làm lòng người yên\"; từ 富士山 không xuất hiện ở trang này.",
+      "quote_vi": "Khách sạn \"nằm giữa thiên nhiên Kowakudani, nơi tiếng nước làm lòng người yên\"; từ 富士山 không xuất hiện ở trang này.",
       "ja": "自然に包まれた小涌谷に構え、気清らかな水の音に心癒される温泉宿。"
      },
      {
@@ -5846,7 +5846,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.0595,
      "evidence": "guess",
      "access": "Đi bộ khoảng 27 phút một chiều (2,0 km, lên 220 m) từ khách sạn qua đường mòn bắt đầu gần thác Senjō-no-taki; cả đi và về khoảng 60–65 phút.",
-     "text": "Đỉnh 802 m ở ngay phía đông khách sạn, là bãi cỏ phẳng. Trang du lịch Hakone nói thác Senjō-no-taki là điểm bắt đầu leo Sengen-yama, và Wikipedia mô tả đỉnh là bãi cỏ rộng; không nguồn nào nói thấy Fuji. dữ liệu địa hình cho thấy Fuji ở hướng 295° lộ ra từ khoảng 1,5 km trên đường mòn và rõ nhất ở sống núi cỏ gần đỉnh (cao 801 m, lộ khoảng 1.300 m phần trên của Fuji). Ảnh Commons cho thấy bãi cỏ trên đỉnh có cây bao quanh, dữ liệu địa hình không tính cây nên có thể bị che một phần.",
+     "text": "Đỉnh 802 m ở ngay phía đông khách sạn, là bãi cỏ phẳng. Thác Senjō-no-taki là điểm bắt đầu leo Sengen-yama, và đỉnh là bãi cỏ rộng. Dữ liệu địa hình cho thấy Fuji ở hướng 295° lộ ra từ khoảng 1,5 km trên đường mòn và rõ nhất ở sống núi cỏ gần đỉnh (cao 801 m, lộ khoảng 1.300 m phần trên của Fuji). Ảnh Commons cho thấy bãi cỏ trên đỉnh có cây bao quanh, dữ liệu địa hình không tính cây nên có thể bị che một phần.",
      "demCheck": {
       "visible": true,
       "shownM": 830,
@@ -5885,13 +5885,13 @@ export const STAYS_AROUND: any = {
     },
     {
      "id": "miyagino-fuji-viewpoint",
-     "name": "Điểm ngắm Fuji ở sườn Myōjōgatake (OSM)",
+     "name": "Điểm ngắm Fuji ở sườn Myōjōgatake",
      "ja": "宮城野の富士山展望点",
      "lat": 35.25574,
      "lng": 139.06281,
      "evidence": "reported",
      "access": "Đi bộ từ ga Gōra khoảng 34 phút (2,5 km); từ khách sạn đi bộ trực tiếp khoảng 70 phút (5,2 km), hoặc tàu Kowakudani → Gōra 8 phút rồi đi bộ.",
-     "text": "Điểm được ghi trên OpenStreetMap là \"Viewpoint (Mt Fuji)\" ở sườn phía tây Myōjōgatake, cao khoảng 850 m. dữ liệu địa hình xác nhận Fuji nhô cao khoảng 2.000 m phần trên ở hướng 291°. Xa hơn 45 phút nên chỉ hợp nếu bạn có cả buổi sáng; không phù hợp với kế hoạch trả phòng 8:30.",
+     "text": "Điểm được ghi trên OpenStreetMap là \"Viewpoint (Mt Fuji)\" ở sườn phía tây Myōjōgatake, cao khoảng 850 m. Dữ liệu địa hình xác nhận Fuji nhô cao khoảng 2.000 m phần trên ở hướng 291°. Xa hơn 45 phút nên chỉ hợp nếu bạn có cả buổi sáng; không phù hợp với kế hoạch trả phòng 8:30.",
      "demCheck": {
       "visible": true,
       "shownM": 2040,
@@ -5909,8 +5909,8 @@ export const STAYS_AROUND: any = {
      "lat": 35.25612,
      "lng": 139.06749,
      "evidence": "guess",
-     "access": "Đi bộ từ ga Gōra khoảng 40 phút (3,0 km) theo OSM; từ khách sạn khoảng 75 phút.",
-     "text": "Đỉnh 924 m, nơi đốt chữ Đại (大文字焼) mỗi 16/8. Wikipedia không nói tầm nhìn có Fuji. dữ liệu địa hình cho thấy Fuji lộ khoảng 2.400 m phần trên ở hướng 291°. Cùng sườn núi với điểm ngắm Fuji ở trên nên rất có thể ngắm được nếu trời trong.",
+     "access": "Đi bộ từ ga Gōra khoảng 40 phút (3,0 km); từ khách sạn khoảng 75 phút.",
+     "text": "Đỉnh 924 m, nơi đốt chữ Đại (大文字焼) mỗi 16/8. Dữ liệu địa hình cho thấy Fuji lộ khoảng 2.400 m phần trên ở hướng 291°. Cùng sườn núi với điểm ngắm Fuji ở trên nên rất có thể ngắm được nếu trời trong.",
      "demCheck": {
       "visible": true,
       "shownM": 2380,
@@ -5929,8 +5929,8 @@ export const STAYS_AROUND: any = {
      "lat": 35.2795,
      "lng": 139.05252,
      "evidence": "reported",
-     "access": "Từ ga Gōra đi bộ lên đỉnh 2–3 giờ theo Wikipedia; không thể trong buổi sáng 22/10.",
-     "text": "Đỉnh 1.169 m của vành ngoài Hakone. Wikipedia có ảnh chú thích \"nhìn từ ngay dưới đỉnh Myōjingatake, thấy Kintoki-yama chồng lên Fuji\"; điểm ngắm trên OSM gọi tên là \"Great view of Mt. Fuji\". dữ liệu địa hình xác nhận Fuji lộ khoảng 2.500 m phần trên. Chỉ để tham khảo cho chuyến khác.",
+     "access": "Từ ga Gōra đi bộ lên đỉnh 2–3 giờ; không thể trong buổi sáng 22/10.",
+     "text": "Đỉnh 1.169 m của vành ngoài Hakone. Điểm ngắm trên OSM gọi tên là \"Great view of Mt. Fuji\". Dữ liệu địa hình xác nhận Fuji lộ khoảng 2.500 m phần trên.",
      "demCheck": {
       "visible": true,
       "shownM": 2540,
@@ -5950,7 +5950,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.0197,
      "evidence": "reported",
      "access": "Đã nằm trong lịch ngày 21/10 (12:30). Từ Mizunoto: tàu Kowakudani → Gōra, cáp treo lên Sōunzan rồi ropeway tới Ōwakudani; cần cả buổi sáng nên không hợp trước 8:30 ngày 22/10.",
-     "text": "Điểm Fuji nổi tiếng ở Hakone: ảnh Commons \"Mount Fuji from Owakudani\" và ghi chú trên trang Fuji cho thấy nhìn về Tây Tây Bắc, trời quang buổi sáng là rõ nhất. dữ liệu địa hình xác nhận: Fuji lộ khoảng 2.500 m phần trên ở hướng 296°.",
+     "text": "Điểm Fuji nổi tiếng ở Hakone: ảnh Commons \"Mount Fuji from Owakudani\" và ghi chú trên trang Fuji cho thấy nhìn về Tây Tây Bắc, trời quang buổi sáng là rõ nhất. Dữ liệu địa hình xác nhận: Fuji lộ khoảng 2.500 m phần trên ở hướng 296°.",
      "demCheck": {
       "visible": true,
       "shownM": 2480,
@@ -5986,8 +5986,8 @@ export const STAYS_AROUND: any = {
      "lat": 35.22684,
      "lng": 139.05415,
      "evidence": "guess",
-     "access": "Đi bộ khoảng 30 phút (2,1 km) theo OSM; Wikipedia nói có đường mòn lên từ Hata-juku, Ashinoyu và Kowakudani.",
-     "text": "Đỉnh 834 m, Wikipedia chỉ nhắc cỏ và hoa dại, không mô tả tầm nhìn hay Fuji. dữ liệu địa hình cho thấy Fuji bị sườn núi cách 2,9 km chắn (âm 3,9°), nên nhiều khả năng không thấy. Nêu ra để loại trừ.",
+     "access": "Đi bộ khoảng 30 phút (2,1 km); có đường mòn lên từ Hata-juku, Ashinoyu và Kowakudani.",
+     "text": "Đỉnh 834 m. Dữ liệu địa hình cho thấy Fuji bị sườn núi cách 2,9 km chắn (âm 3,9°), nên nhiều khả năng không thấy.",
      "demCheck": {
       "visible": false,
       "shownM": 0,
@@ -6006,8 +6006,8 @@ export const STAYS_AROUND: any = {
      "lat": 35.21982,
      "lng": 139.04223,
      "evidence": "guess",
-     "access": "Bus H của Hakone Tozan Bus (cùng tuyến đi Onshi Hakone Park) từ trạm Kowakudani hoặc Hōraien, vài trạm; thời gian và giờ chạy chuyến sớm chưa kiểm tra. Đi bộ từ khách sạn khoảng 45 phút (2,9 km).",
-     "text": "Khu suối nước nóng ở độ cao 850–900 m trên quốc lộ 1. Không nguồn nào cho biết thấy Fuji ở đây. dữ liệu địa hình cho thấy bị chắn ở cả bến xe (âm 19°) lẫn quanh suối nước nóng (âm 11°). Nêu ra để loại trừ.",
+     "access": "Bus H của Hakone Tozan Bus (cùng tuyến đi Onshi Hakone Park) từ trạm Kowakudani hoặc Hōraien, vài trạm. Đi bộ từ khách sạn khoảng 45 phút (2,9 km).",
+     "text": "Khu suối nước nóng ở độ cao 850–900 m trên quốc lộ 1. Dữ liệu địa hình cho thấy bị chắn ở cả bến xe (âm 19°) lẫn quanh suối nước nóng (âm 11°).",
      "demCheck": {
       "visible": false,
       "shownM": 0,
@@ -6024,7 +6024,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.0456,
      "evidence": "guess",
      "access": "Đi bộ khoảng 6–8 phút theo đường thẳng (có dốc); đường đi bộ trực tiếp từ khách sạn trên OSM vòng khá xa.",
-     "text": "Khu giải trí onsen nằm trong cùng thung lũng nên không có lý do thấy Fuji. dữ liệu địa hình cho thấy bị sườn núi cách 0,3 km chắn (âm 12,6°). Nêu ra để loại trừ.",
+     "text": "Khu giải trí onsen nằm trong cùng thung lũng nên không có lý do thấy Fuji. Dữ liệu địa hình cho thấy bị sườn núi cách 0,3 km chắn (âm 12,6°).",
      "demCheck": {
       "visible": false,
       "shownM": 0,
@@ -6041,7 +6041,7 @@ export const STAYS_AROUND: any = {
     "civilDawn": "05:30",
     "atHotel": "07:20",
     "text": "Mặt trời mọc ở Hakone lúc 5:56 ngày 22/10, hướng 103° (hơi chếch nam so với đông). Ở Mizunoto, trong thung lũng, sườn núi phía đông cao khoảng 15° nên nắng trực tiếp chỉ tới khoảng 7:20, trước đó chỉ có ánh sáng bầu trời. Trên đồi Sengen-yama (802 m) đường chân trời phía đông thoáng, thấy mặt trời nhô lên khỏi dãy núi thấp lúc 5:56. Fuji nằm hướng 295° (Tây Bắc), ngược phía mặt trời, nên buổi sáng nắng chiếu thẳng vào mặt đông của núi mà Hakone nhìn thấy; 6:00–9:00 là lúc ánh sáng đẹp nhất. Bình minh dân dụng bắt đầu lúc 5:30; đi trước 6:00 cần đèn pin vì đường mòn trong rừng.",
-    "method": "Công thức vị trí mặt trời NOAA (sai số khoảng 1–2 phút) cộng đường chân trời tính từ AWS Terrain Tiles; chưa tính cây cối. Ngày 21/10: mọc 5:55, lặn 17:05."
+    "method": "Công thức vị trí mặt trời NOAA (sai số khoảng 1–2 phút) cộng đường chân trời tính từ AWS Terrain Tiles; chưa tính cây cối. Số liệu ngày 21/10: mọc 5:55, lặn 17:05."
    }
   },
   "sources": [
@@ -6130,7 +6130,7 @@ export const STAYS_AROUND: any = {
       136.70952
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Chính điện Gekū",
@@ -6254,7 +6254,7 @@ export const STAYS_AROUND: any = {
       136.70952
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Phố kho Kawasaki",
@@ -6336,7 +6336,7 @@ export const STAYS_AROUND: any = {
     "lat": 34.491422,
     "lng": 136.713018,
     "text": "Siêu thị địa phương lớn gần nhất, đi bộ khoảng 5 phút.",
-    "hours": "9:00–21:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "9:00–21:00 hằng ngày",
     "distanceM": 366,
     "walkMin": 6,
     "src": "https://www.openstreetmap.org/node/1409749752",
@@ -6362,7 +6362,7 @@ export const STAYS_AROUND: any = {
     "type": "cafe",
     "lat": 34.489557,
     "lng": 136.709009,
-    "text": "Quán cà phê nhỏ sát khách sạn; chưa xác nhận giờ. Khách sạn có buffet sáng 6:30–9:30 (¥1.800/người) và library café dùng được trước giờ nhận và sau giờ trả phòng.",
+    "text": "Quán cà phê nhỏ sát khách sạn. Khách sạn có buffet sáng 6:30–9:30 (¥1.800/người) và library café dùng được trước giờ nhận và sau giờ trả phòng.",
     "hours": null,
     "distanceM": 56,
     "walkMin": 1,
@@ -6374,7 +6374,7 @@ export const STAYS_AROUND: any = {
     "type": "bakery",
     "lat": 34.491168,
     "lng": 136.707866,
-    "text": "Tiệm bánh mì cạnh phố mua sắm đường sang Gekū; chưa xác nhận giờ.",
+    "text": "Tiệm bánh mì cạnh phố mua sắm đường sang Gekū.",
     "hours": null,
     "distanceM": 219,
     "walkMin": 4,
@@ -6387,7 +6387,7 @@ export const STAYS_AROUND: any = {
     "lat": 34.491855,
     "lng": 136.716789,
     "text": "Nhà tắm công cộng, đi bộ khoảng 10 phút về phía đông.",
-    "hours": "12:00–24:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "12:00–24:00 hằng ngày",
     "distanceM": 701,
     "walkMin": 12,
     "src": "https://www.openstreetmap.org/node/10011870324",
@@ -6402,7 +6402,7 @@ export const STAYS_AROUND: any = {
     "lat": 34.486763,
     "lng": 136.716188,
     "text": "Nhà tắm công cộng thứ hai, đi bộ khoảng 10 phút. Theo OSM nghỉ thứ Sáu.",
-    "hours": "Thứ Bảy–Thứ Năm 14:00–24:00 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "Thứ Bảy–Thứ Năm 14:00–24:00",
     "distanceM": 693,
     "walkMin": 12,
     "src": "https://www.openstreetmap.org/way/1243638822",
@@ -6525,7 +6525,7 @@ export const STAYS_AROUND: any = {
       135.76999
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Cầu Sanjō-Ōhashi",
@@ -6644,7 +6644,7 @@ export const STAYS_AROUND: any = {
       135.77312
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Marutamachi",
@@ -6746,7 +6746,7 @@ export const STAYS_AROUND: any = {
       135.76999
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Pontochō về đêm",
@@ -6816,7 +6816,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.007505,
     "lng": 135.769239,
     "text": "Siêu thị giá rẻ đồ đóng gói, trái cây và đồ uống, mở tới 22:00.",
-    "hours": "10:00–22:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "10:00–22:00 hằng ngày",
     "distanceM": 112,
     "walkMin": 2,
     "src": "https://www.openstreetmap.org/node/5003398021",
@@ -6831,7 +6831,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.011561,
     "lng": 135.772618,
     "text": "Siêu thị 24 giờ ở phía bắc Sanjō gần sông Kamo, đi bộ khoảng 6 phút.",
-    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "24 giờ",
     "distanceM": 435,
     "walkMin": 7,
     "src": "https://www.openstreetmap.org/node/2126071415",
@@ -6858,7 +6858,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.004011,
     "lng": 135.770699,
     "text": "Hiệu thuốc và mỹ phẩm mở khuya, đi bộ khoảng 7 phút xuống phía Shijō.",
-    "hours": "10:00–23:00 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "10:00–23:00",
     "distanceM": 481,
     "walkMin": 8,
     "src": "https://www.openstreetmap.org/node/2959808444",
@@ -6873,7 +6873,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.006849,
     "lng": 135.774537,
     "text": "Tiệm giặt tự động 24 giờ phía đông sông Kamo, đi bộ khoảng 6 phút.",
-    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "24 giờ",
     "distanceM": 444,
     "walkMin": 7,
     "src": "https://www.openstreetmap.org/node/13945040101",
@@ -6912,7 +6912,7 @@ export const STAYS_AROUND: any = {
     "lat": 35.009161,
     "lng": 135.771203,
     "text": "Quán cà phê cạnh cầu Sanjō-Ōhashi, tiện ra bờ sông.",
-    "hours": "8:00–23:00 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "8:00–23:00",
     "distanceM": 146,
     "walkMin": 2,
     "src": "https://www.openstreetmap.org/node/603133272",
@@ -7033,7 +7033,7 @@ export const STAYS_AROUND: any = {
       135.50357
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Cầu Ebisu và kênh Dōtonbori",
@@ -7160,7 +7160,7 @@ export const STAYS_AROUND: any = {
       135.50357
      ]
     ],
-    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
     "highlights": [
      {
       "name": "Hōzenji Yokochō lúc sáng",
@@ -7227,7 +7227,7 @@ export const STAYS_AROUND: any = {
     "lat": 34.667716,
     "lng": 135.50632,
     "text": "Cửa hàng tiện lợi 24 giờ phía đông, đi bộ khoảng 4 phút.",
-    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "24 giờ",
     "distanceM": 274,
     "walkMin": 5,
     "src": "https://www.openstreetmap.org/node/2296909330",
@@ -7242,7 +7242,7 @@ export const STAYS_AROUND: any = {
     "lat": 34.669293,
     "lng": 135.502729,
     "text": "Cửa hàng tạp hóa lớn có đồ ăn, thuốc, mỹ phẩm; mở 24 giờ, tiện mua đồ buổi tối muộn.",
-    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "24 giờ",
     "distanceM": 102,
     "walkMin": 2,
     "src": "https://www.openstreetmap.org/way/161880871",
@@ -7269,7 +7269,7 @@ export const STAYS_AROUND: any = {
     "lat": 34.667482,
     "lng": 135.501239,
     "text": "Hiệu thuốc và mỹ phẩm dạng ưu đãi cho du khách, mở gần tới 23:00.",
-    "hours": "10:05–22:50 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "10:05–22:50",
     "distanceM": 252,
     "walkMin": 4,
     "src": "https://www.openstreetmap.org/node/14112212080",
@@ -7296,7 +7296,7 @@ export const STAYS_AROUND: any = {
     "lat": 34.67066,
     "lng": 135.508123,
     "text": "Tiệm giặt tự động 24 giờ phía đông, đi bộ khoảng 7 phút. Có thêm một tiệm gần hơn ở 34.66641, 135.50538 nhưng chưa có giờ.",
-    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "24 giờ",
     "distanceM": 470,
     "walkMin": 8,
     "src": "https://www.openstreetmap.org/node/11862323270",
@@ -7311,7 +7311,7 @@ export const STAYS_AROUND: any = {
     "lat": 34.668633,
     "lng": 135.501155,
     "text": "Quán cà phê có set sáng, mở sớm và tối muộn.",
-    "hours": "7:00–23:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "7:00–23:00 hằng ngày",
     "distanceM": 221,
     "walkMin": 4,
     "src": "https://www.openstreetmap.org/node/12326791430",
@@ -7326,7 +7326,7 @@ export const STAYS_AROUND: any = {
     "lat": 34.667319,
     "lng": 135.505899,
     "text": "Quán cà phê nhỏ phía đông, mở sớm, đóng lúc 19:00.",
-    "hours": "7:00–19:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "hours": "7:00–19:00 hằng ngày",
     "distanceM": 262,
     "walkMin": 4,
     "src": "https://www.openstreetmap.org/node/10780262605",
@@ -7393,7 +7393,7 @@ export const FUJI_SPOTS_R: any = {
    "area": "kawaguchiko",
    "type": "konbini",
    "famousFor": "Cửa hàng Lawson mà đỉnh Fuji hiện ngay phía trên mái và biển hiệu, được chụp đi chụp lại; lượng khách chụp ảnh đông đến mức thị trấn phải dựng nhiều lớp rào chắn từ năm 2024.",
-   "status2026": "Diễn biến: 21/5/2024 thị trấn treo màn lưới đen cao 2,5 m, dài 20 m bên kia đường; gỡ ngày 15/8/2024. Cuối 11/2024 thị trấn thông báo dựng rào mới phía cửa hàng; 17/12/2024 rào thấp (khoảng 80 cm) được lắp. 7/8/2025 dựng thêm rào cao khoảng 1,4 m đối diện cửa hàng để chặn người chạy ra đường mà vẫn chụp được núi (Tokyo Weekender 18/8/2025). Theo isfujivisible.com (23/8/2026) và Tabimania (21/9/2026): có rào nước màu vàng với biển 4 thứ tiếng, bảo vệ giờ cao điểm, từ xuân 2026 có giàn giáo ở tòa nhà bên phải khung hình. Chưa mở được thông báo chính thức của thị trấn; kiểm tra lại gần ngày đi.",
+   "status2026": "Diễn biến: 21/5/2024 thị trấn treo màn lưới đen cao 2,5 m, dài 20 m bên kia đường; gỡ ngày 15/8/2024. Cuối 11/2024 thị trấn thông báo dựng rào mới phía cửa hàng; 17/12/2024 rào thấp (khoảng 80 cm) được lắp. 7/8/2025 dựng thêm rào cao khoảng 1,4 m đối diện cửa hàng để chặn người chạy ra đường mà vẫn chụp được núi (Tokyo Weekender 18/8/2025). Theo isfujivisible.com (23/8/2026) và Tabimania (21/9/2026): có rào nước màu vàng với biển 4 thứ tiếng, bảo vệ giờ cao điểm, từ xuân 2026 có giàn giáo ở tòa nhà bên phải khung hình. Kiểm tra lại gần ngày đi.",
    "etiquette": "Đứng trên đường công cộng, sang đường ở vạch có đèn cách khoảng 80 m, không băng qua giữa xe. Sân trước thuộc phòng khám nha khoa còn bãi xe chỉ dành cho khách mua hàng; không đứng chụp trong ô đỗ xe, mang rác về, giữ yên lặng. Lawson đã đề nghị các công ty tour ngừng đưa đoàn tới đây từ 5/2024.",
    "bestTime": "Trước 8–9h sáng; cao điểm 10:00–16:00, buổi trưa Mặt Trời nằm sau núi nên ngược sáng. Tháng 11 đến tháng 2 ổn định nhất.",
    "hours": null,
@@ -7442,7 +7442,7 @@ export const FUJI_SPOTS_R: any = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E3%83%AD%E3%83%BC%E3%82%BD%E3%83%B3%20%E6%B2%B3%E5%8F%A3%E6%B9%96%E9%A7%85%E5%89%8D%E5%BA%97%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ],
    "images": [
@@ -7478,13 +7478,13 @@ export const FUJI_SPOTS_R: any = {
    "ja": "富士吉田 本町通り",
    "lat": 35.494131,
    "lng": 138.804196,
-   "coordSource": "OSM Nominatim, bưu điện 吉田本町 trên đường 富士みち (quốc lộ 139) tại Shimoyoshida; điểm đứng chụp chính xác ở ngã tư 本町2丁目 chưa xác minh, sai lệch vài chục mét.",
+   "coordSource": "OSM Nominatim, bưu điện 吉田本町 trên đường 富士みち (quốc lộ 139) tại Shimoyoshida.",
    "area": "fujiyoshida",
    "type": "street",
    "famousFor": "Phố cũ kiểu Shōwa với đèn đường, biển hiệu và dây điện chạy thẳng về phía Fuji ở cuối phố; Fujikyu ghi đây là \"điểm nổi tiếng trên SNS\".",
    "status2026": null,
    "etiquette": "Đường vẫn có xe chạy: chụp từ vỉa hè hoặc chờ đèn tín hiệu, không bước xuống lòng đường; tôn trọng cửa hàng và nhà dân hai bên.",
-   "bestTime": "Buổi sáng: số liệu thành phố Fuji trong trang Fuji cho thấy buổi sáng trong hơn buổi chiều.",
+   "bestTime": "Buổi sáng: số liệu thành phố Fuji cho thấy buổi sáng trong hơn buổi chiều.",
    "hours": null,
    "costYen": 0,
    "fit": "kawaguchiko",
@@ -7510,7 +7510,7 @@ export const FUJI_SPOTS_R: any = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E5%AF%8C%E5%A3%AB%E5%90%89%E7%94%B0%20%E6%9C%AC%E7%94%BA%E9%80%9A%E3%82%8A%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ],
    "images": [
@@ -7546,14 +7546,14 @@ export const FUJI_SPOTS_R: any = {
    "area": "fujiyoshida",
    "type": "pagoda",
    "famousFor": "Khung hình kinh điển: tháp năm tầng đỏ với Fuji phía sau, nhìn từ sàn ngắm sau 398 bậc đá; thành phố Fujiyoshida giới thiệu đây là điểm ngắm Fuji nổi tiếng.",
-   "status2026": "Lễ hội hoa anh đào 2026 của Fujiyoshida bị huỷ (tin ngày 6/2/2026) vì quá tải: rác, kẹt xe, vào nhà dân; thành phố tăng bảo vệ và đặt nhà vệ sinh di động. Công viên vẫn mở 24 giờ và miễn phí; sàn ngắm được đổi mới từ 1/2/2022. Có blog nói mùa hoa phải xếp hàng 1–3 giờ theo lượt, nhưng chưa tìm được thông báo chính thức về thu phí hay giới hạn lượt; cuối tháng 10 không phải mùa cao điểm.",
+   "status2026": "Lễ hội hoa anh đào 2026 của Fujiyoshida bị huỷ (tin ngày 6/2/2026) vì quá tải: rác, kẹt xe, vào nhà dân; thành phố tăng bảo vệ và đặt nhà vệ sinh di động. Công viên vẫn mở 24 giờ và miễn phí; sàn ngắm được đổi mới từ 1/2/2022. Có blog nói mùa hoa phải xếp hàng 1–3 giờ theo lượt; cuối tháng 10 không phải mùa cao điểm.",
    "etiquette": "Không vào nhà dân và không chụp tự do ở khu dân cư dưới chân đồi; tuân theo biển chỉ dẫn và bảo vệ trên sàn ngắm. Tới sớm hoặc ngày thường để tránh hàng.",
    "bestTime": "Sáng ngày thường; cao điểm 9:00–12:00. Lá đỏ thường giữa đến cuối tháng 11 nên cuối tháng 10 chưa đỏ; công viên có chiếu sáng buổi tối (tháng 10–11: 17:00–21:50).",
    "hours": "24 giờ (công viên); đền Arakura Fuji Sengen 9:00–16:00",
    "costYen": 0,
    "fit": "kawaguchiko",
    "access": {
-    "kawaguchiko": "Tàu Fujikyu tới ga Shimoyoshida (Fuji Kaiyu 15 phút, ¥310 từ Kawaguchiko), đi bộ qua đền rồi leo 398 bậc. Thời gian đi bộ tùy nguồn: 15 phút theo Fujikyu, 25 phút theo trang chính thức của thành phố (tính tới tháp).",
+    "kawaguchiko": "Tàu Fujikyu tới ga Shimoyoshida (Fuji Kaiyu 15 phút, ¥310 từ Kawaguchiko), đi bộ qua đền rồi leo 398 bậc. Thời gian đi bộ tùy nguồn: 15 phút theo Fujikyu, 25 phút (tính tới tháp).",
     "day4": null,
     "day5": null
    },
@@ -7579,7 +7579,7 @@ export const FUJI_SPOTS_R: any = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E6%96%B0%E5%80%89%E5%B1%B1%E6%B5%85%E9%96%93%E5%85%AC%E5%9C%92%20%E5%BF%A0%E9%9C%8A%E5%A1%94%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ],
    "images": [
@@ -7741,7 +7741,7 @@ export const FUJI_SPOTS_R: any = {
    "famousFor": "Bờ bắc hồ Kawaguchi, Fuji ở phía nam bên kia mặt hồ; đường hoa \"Hana Kaido\" dọc bờ, cây kochia đổi đỏ giữa tháng 10, có quán cà phê tầm nhìn Fuji ở Natural Living Center.",
    "status2026": null,
    "etiquette": "Bãi xe miễn phí nhưng đầy nhanh cuối tuần và mùa hoa; nên đi buýt. Mang rác về.",
-   "bestTime": "Sáng sớm hoặc cuối ngày; kochia đỏ rực khoảng giữa đến cuối tháng 10 (blog Banzoku, cập nhật 6/2026), có thể lệch theo năm. Ngày thường vắng hơn cuối tuần.",
+   "bestTime": "Sáng sớm hoặc cuối ngày; kochia đỏ rực khoảng giữa đến cuối tháng 10, có thể lệch theo năm. Ngày thường vắng hơn cuối tuần.",
    "hours": null,
    "costYen": null,
    "fit": "kawaguchiko",
@@ -7777,7 +7777,7 @@ export const FUJI_SPOTS_R: any = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E5%A4%A7%E7%9F%B3%E5%85%AC%E5%9C%92%20%E6%B2%B3%E5%8F%A3%E6%B9%96%20%E3%82%B3%E3%82%AD%E3%82%A2%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ],
    "images": [
@@ -7808,7 +7808,7 @@ export const FUJI_SPOTS_R: any = {
    "type": "bridge",
    "famousFor": "Cây cầu dài 500 m duy nhất bắc ngang mặt nước của Fuji Ngũ Hồ; không có vật chắn nên Fuji hiện rõ khi nhìn từ cầu, từng được chọn vào \"100 con đường đẹp của Nhật\" (1987).",
    "status2026": null,
-   "etiquette": "Cầu có xe chạy; bài Wikipedia không nhắc lề đi bộ, nên chụp từ hai đầu cầu và bờ hồ thay vì đứng giữa cầu.",
+   "etiquette": "Cầu có xe chạy; nên chụp từ hai đầu cầu và bờ hồ thay vì đứng giữa cầu.",
    "bestTime": "Sáng khi hồ lặng; nhìn về phía nam là Fuji.",
    "hours": null,
    "costYen": 0,
@@ -7878,14 +7878,14 @@ export const FUJI_SPOTS_R: any = {
    "area": "kawaguchiko",
    "type": "ropeway",
    "famousFor": "Cáp treo lên công viên Tenjōzan ở bờ bắc, nhìn xuống hồ Kawaguchi và Fuji; nổi tiếng với tượng thỏ và tanuki của truyện cổ \"Kachi Kachi Yama\".",
-   "status2026": "Ngừng chạy khi gió mạnh. Trang chính thức không mở được lúc kiểm tra (503); giá và giờ lấy từ iko-yo.net nên cần kiểm tra lại.",
+   "status2026": "Ngừng chạy khi gió mạnh.",
    "etiquette": null,
    "bestTime": "Sáng, trước 11h.",
    "hours": "8:30–17:00 (chuyến xuống cuối 17:20; 20/7–31/8 kéo dài đến 18:00); mở quanh năm, không có ngày nghỉ cố định",
    "costYen": 1000,
    "fit": "kawaguchiko",
    "access": {
-    "kawaguchiko": "Đi bộ khoảng 15 phút từ ga (iko-yo.net; OSM ước khoảng 0,8 km), hoặc buýt Red Line xuống \"Yūransen-Ropeway Iriguchi\" (11 phút, ¥180) rồi đi bộ 3 phút. Giá khứ hồi ¥1.000, một chiều ¥600 (iko-yo.net).",
+    "kawaguchiko": "Đi bộ khoảng 15 phút từ ga, hoặc buýt Red Line xuống \"Yūransen-Ropeway Iriguchi\" (11 phút, ¥180) rồi đi bộ 3 phút. Giá khứ hồi ¥1.000, một chiều ¥600.",
     "day4": null,
     "day5": null
    },
@@ -7916,7 +7916,7 @@ export const FUJI_SPOTS_R: any = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E6%B2%B3%E5%8F%A3%E6%B9%96%20%E3%83%91%E3%83%8E%E3%83%A9%E3%83%9E%E3%83%AD%E3%83%BC%E3%83%97%E3%82%A6%E3%82%A7%E3%82%A4%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ],
    "images": [
@@ -7992,7 +7992,7 @@ export const FUJI_SPOTS_R: any = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E5%BF%8D%E9%87%8E%E5%85%AB%E6%B5%B7%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ],
    "images": [
@@ -8038,7 +8038,7 @@ export const FUJI_SPOTS_R: any = {
    "costYen": 500,
    "fit": "kawaguchiko",
    "access": {
-    "kawaguchiko": "Buýt Green Line: 9:10 → 9:50 (40 phút), 30 phút một chuyến 9:10–16:40 (bản đồ Fujikyu 4/2026), khoảng ¥810 một chiều theo bản đồ; xuống bến \"Saiko Iyashi-no-Sato Nenba\" rồi đi bộ 3 phút. Vé phí vào làng ¥500 theo Wikipedia ja, cần kiểm tra lại.",
+    "kawaguchiko": "Buýt Green Line: 9:10 → 9:50 (40 phút), 30 phút một chuyến 9:10–16:40 (bản đồ Fujikyu 4/2026), khoảng ¥810 một chiều theo bản đồ; xuống bến \"Saiko Iyashi-no-Sato Nenba\" rồi đi bộ 3 phút. Vé phí vào làng ¥500.",
     "day4": null,
     "day5": null
    },
@@ -8140,7 +8140,7 @@ export const FUJI_SPOTS_R: any = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E5%B1%B1%E4%B8%AD%E6%B9%96%20%E5%AF%8C%E5%A3%AB%E5%B1%B1%20%E9%80%86%E3%81%95%E5%AF%8C%E5%A3%AB",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ],
    "images": [
@@ -8177,7 +8177,7 @@ export const FUJI_SPOTS_R: any = {
    "coordSource": "OSM Nominatim, \"花の都公園\" (park)",
    "area": "yamanakako",
    "type": "park",
-   "famousFor": "Công viên hoa rộng khoảng 300.000 m² ngay trước Fuji: tulip mùa xuân, hướng dương mùa hè, lá đỏ mùa thu, \"Diamond Fuji\" mùa đông (theo mô tả của Fujikyu); có nhà kính \"Furara\".",
+   "famousFor": "Công viên hoa rộng khoảng 300.000 m² ngay trước Fuji: tulip mùa xuân, hướng dương mùa hè, lá đỏ mùa thu, \"Diamond Fuji\" mùa đông; có nhà kính \"Furara\".",
    "status2026": null,
    "etiquette": null,
    "bestTime": "Sáng.",
@@ -8205,7 +8205,7 @@ export const FUJI_SPOTS_R: any = {
      "アウトレット線 C1"
     ],
     "walkMin": 1,
-    "coordSource": "Gần đúng: tọa độ cổng công viên trên 山中湖忍野富士吉田線 theo OSM, OSM không có nút bus_stop riêng"
+    "coordSource": "Gần đúng: tọa độ cổng công viên trên 山中湖忍野富士吉田線, OSM không có nút bus_stop riêng"
    },
    "social": [
     {
@@ -8247,16 +8247,16 @@ export const FUJI_SPOTS_R: any = {
    "coordSource": "OSM Nominatim, \"御殿場プレミアム・アウトレット\" (mall)",
    "area": "gotemba",
    "type": "outlet",
-   "famousFor": "Trung tâm outlet 290 cửa hàng với Fuji nhìn thấy từ khu sân rộng; khu Hillside trong khuôn viên có một cây cầu mang tên \"Yume no Ōhashi\" (夢の大橋, theo OSM).",
+   "famousFor": "Trung tâm outlet 290 cửa hàng với Fuji nhìn thấy từ khu sân rộng; khu Hillside trong khuôn viên có một cây cầu mang tên \"Yume no Ōhashi\" (夢の大橋).",
    "status2026": null,
    "etiquette": null,
    "bestTime": "Sáng, trước khi mây kéo lên.",
-   "hours": "10:00–20:00 (trang chính thức, tháng 10 chưa thấy ngoại lệ)",
+   "hours": "10:00–20:00",
    "costYen": null,
    "fit": "day4",
    "access": {
     "kawaguchiko": "Buýt C1 \"Outlet Line\" 10:30 từ Kawaguchiko → JR Gotemba 12:00 → Outlet 12:15 (105 phút, bản đồ Fujikyu 6/2026); trang Outlet nêu tuyến tốc hành Gotemba–Kawaguchiko khoảng 60 phút hoặc buýt thường khoảng 80 phút. Không nằm trong lịch ngày Kawaguchiko.",
-    "day4": "Từ Gōra: tuyến \"Kankō-shisetsu-meguri\" M khoảng 45 phút tới bến Outlet; từ Hakone-Yumoto: tuyến L khoảng 60 phút (Hakone Navi, trang Outlet); từ Sengoku chuyển sang tuyến M (Hakone Navi 14/8/2026). Giá chưa tìm được; Freepass có liệt kê \"Kankō-shisetsu-meguri bus\" và Odakyu Highway Bus nhưng chưa xác nhận chặng tới Outlet có miễn phí. Lịch Day 4 hiện không còn chỗ trừ khi bỏ ropeway chiều.",
+    "day4": "Từ Gōra: tuyến \"Kankō-shisetsu-meguri\" M khoảng 45 phút tới bến Outlet; từ Hakone-Yumoto: tuyến L khoảng 60 phút; từ Sengoku chuyển sang tuyến M. Lịch Day 4 hiện không còn chỗ trừ khi bỏ ropeway chiều.",
     "day5": "Từ ga Mishima: buýt thẳng tới Outlet khoảng 60 phút; hoặc Numazu → Gotemba bằng JR Gotemba Line 33 phút rồi xe đưa đón miễn phí 15 phút, mỗi 15 phút (phút :00/:15/:30/:45). Chưa có giá. Không vừa lịch Day 5."
    },
    "nearestStation": {
@@ -8278,7 +8278,7 @@ export const FUJI_SPOTS_R: any = {
      "無料シャトル（JR御殿場駅）"
     ],
     "walkMin": 3,
-    "coordSource": "OSM Nominatim, bus_station \"御殿場プレミアム・アウトレット\"; một số tuyến lấy từ trang chính thức"
+    "coordSource": "OSM Nominatim, bus_station \"御殿場プレミアム・アウトレット\""
    },
    "social": [
     {
@@ -8322,7 +8322,7 @@ export const FUJI_SPOTS_R: any = {
    "area": "mishima",
    "type": "bridge",
    "famousFor": "Cầu treo dài 400 m (khai trương 14/12/2015), nhìn thấy Fuji và vịnh Suruga từ giữa cầu; một trong những điểm ngắm Fuji nổi tiếng ở Shizuoka.",
-   "status2026": "Giá vé theo ngày (từ ¥1.100 người lớn); ngày 26/10/2026 đóng một phần cơ sở. Trang chính thức không nêu quy tắc đóng cửa vì gió, nhưng cơ sở ngừng hoạt động khi thời tiết xấu (Wikipedia ja). Giờ đóng cửa theo mùa xem trang chính thức.",
+   "status2026": "Giá vé theo ngày (từ ¥1.100 người lớn); ngày 26/10/2026 đóng một phần cơ sở. Cơ sở ngừng hoạt động khi thời tiết xấu. Giờ đóng cửa theo mùa xem trang chính thức.",
    "etiquette": null,
    "bestTime": "Sáng, trời trong; sau 11h Fuji dễ bị mây che.",
    "hours": "9:00–17:00 (ngày 1/11/2026; giờ mùa khác xem trang chính thức)",
@@ -8330,8 +8330,8 @@ export const FUJI_SPOTS_R: any = {
    "fit": "day5",
    "access": {
     "kawaguchiko": null,
-    "day4": "Có bến Tokai Bus trực tiếp từ Moto-Hakone (元箱根港) và Hakone-Yumoto tới Skywalk theo bảng giờ chính thức (PDF 10/2025); chưa đọc được số phút/giá vì PDF dạng ảnh. Freepass có liệt kê \"Tokai Bus (đoạn chỉ định)\", chưa xác nhận Skywalk nằm trong đoạn đó. Không có chỗ trong lịch Day 4.",
-    "day5": "Từ ga Mishima (cửa Nam, bến số 5): Tokai Bus tuyến cam \"Orange Shuttle\" đi Moto-Hakone, khoảng 20–25 phút (trang chính thức: khoảng 20 phút từ JR Mishima). Giá và tần suất chưa kiểm được. Tính tối thiểu 2,5 giờ cả đi lại, nên phải bỏ hoặc dời bữa trưa Shimizu."
+    "day4": "Có bến Tokai Bus trực tiếp từ Moto-Hakone (元箱根港) và Hakone-Yumoto tới Skywalk theo bảng giờ chính thức (PDF 10/2025); chưa đọc được số phút/giá vì PDF dạng ảnh. Freepass có liệt kê \"Tokai Bus (đoạn chỉ định)\". Không có chỗ trong lịch Day 4.",
+    "day5": "Từ ga Mishima (cửa Nam, bến số 5): Tokai Bus tuyến cam \"Orange Shuttle\" đi Moto-Hakone, khoảng 20–25 phút (khoảng 20 phút từ JR Mishima). Tính tối thiểu 2,5 giờ cả đi lại, nên phải bỏ hoặc dời bữa trưa Shimizu."
    },
    "nearestStation": {
     "name": "Mishima",
@@ -8359,7 +8359,7 @@ export const FUJI_SPOTS_R: any = {
     {
      "platform": "youtube",
      "url": "https://www.youtube.com/results?search_query=%E4%B8%89%E5%B3%B6%E3%82%B9%E3%82%AB%E3%82%A4%E3%82%A6%E3%82%A9%E3%83%BC%E3%82%AF%20%E5%AF%8C%E5%A3%AB%E5%B1%B1",
-     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể); chưa kiểm tra được nội dung."
+     "note": "Liên kết tìm kiếm YouTube (không phải một video cụ thể)."
     }
    ],
    "images": [
@@ -8398,7 +8398,7 @@ export const FUJI_SPOTS_R: any = {
    "area": "fuji-city",
    "type": "bridge",
    "famousFor": "Cầu bắc qua sông Junai (潤井川橋) trên quốc lộ 139, đứng trên cầu nhìn thẳng ra Fuji không bị nhà cửa hay dây điện che; thành điểm chụp ảnh nổi tiếng. Lưu ý trong khuôn viên Gotemba Premium Outlets cũng có một \"Yume no Ōhashi\" khác.",
-   "status2026": "Do quá đông, chính quyền đã lắp rào an toàn, bãi xe miễn phí và nhà vệ sinh tạm (Wikipedia ja, không ghi ngày).",
+   "status2026": "Do quá đông, chính quyền đã lắp rào an toàn, bãi xe miễn phí và nhà vệ sinh tạm.",
    "etiquette": "Cầu thuộc quốc lộ có xe chạy; theo dõi rào và biển chỉ dẫn, không băng qua đường.",
    "bestTime": "Sáng sớm và buổi sáng.",
    "hours": null,
@@ -8449,7 +8449,7 @@ export const FUJI_SPOTS_R: any = {
    "access": {
     "kawaguchiko": null,
     "day4": null,
-    "day5": "Wikipedia ja ghi công viên cách ga Yoshiwara (JR Tōkaidō) và ga Shin-Fuji khoảng 3,5 km, khoảng 10 phút ô tô; không có thông tin buýt, nên đi taxi. Tàu Tōkaidō dừng ở Higashi-Tagonoura nhưng ga này cách công viên khoảng 4,8 km theo OSM. Dự trù 1,5 giờ cho cả điểm."
+    "day5": "Công viên cách ga Yoshiwara (JR Tōkaidō) và ga Shin-Fuji khoảng 3,5 km, khoảng 10 phút ô tô; không có thông tin buýt, nên đi taxi. Tàu Tōkaidō dừng ở Higashi-Tagonoura nhưng ga này cách công viên khoảng 4,8 km. Dự trù 1,5 giờ cho cả điểm."
    },
    "nearestStation": {
     "name": "Yoshiwara",
@@ -8499,7 +8499,7 @@ export const FUJI_SPOTS_R: any = {
    "coordSource": "OSM Nominatim, \"富士山本宮浅間大社\" (35.22734, 138.61002); ja.wikipedia Honden 35°13′38.66″N 138°36′36.01″E",
    "area": "fujinomiya",
    "type": "shrine",
-   "famousFor": "Đền chính của hơn 1.300 đền Sengen toàn quốc, thành phần di sản thế giới Fuji; điện thờ hiện tại do Tokugawa Ieyasu dâng năm 1604. Cổng torii lớn 16 m dựng năm 2006 cách khoảng 500 m về phía tây; Wikipedia có ảnh \"Ōtorii và Fuji\".",
+   "famousFor": "Đền chính của hơn 1.300 đền Sengen toàn quốc, thành phần di sản thế giới Fuji; điện thờ hiện tại do Tokugawa Ieyasu dâng năm 1604. Cổng torii lớn 16 m dựng năm 2006 cách khoảng 500 m về phía tây.",
    "status2026": null,
    "etiquette": null,
    "bestTime": "Sáng.",
@@ -8617,20 +8617,20 @@ export const FUJI_SPOTS_R: any = {
    "ja": "スターバックス 富士川SA（下り）",
    "lat": 35.15917,
    "lng": 138.61861,
-   "coordSource": "ja.wikipedia (35°09′33″N 138°37′07″E), tọa độ của khu dịch vụ; vị trí quán trong khu SA chưa xác minh",
+   "coordSource": "ja.wikipedia (35°09′33″N 138°37′07″E), tọa độ của khu dịch vụ",
    "area": "fuji-city",
    "type": "cafe",
-   "famousFor": "Quán Starbucks duy nhất trong khu dịch vụ Fujikawa (làn xuống, hướng Nagoya, mở 7:00–22:00 theo Wikipedia ja); khu SA này nổi tiếng là điểm ngắm Fuji và có sân thượng ngoài trời. Đây là chi nhánh được nhắc nhiều nhất cho cụm \"Starbucks nhìn thấy Fuji\" (tổng hợp từ kết quả tìm kiếm; bài chi tiết chưa mở được).",
+   "famousFor": "Quán Starbucks duy nhất trong khu dịch vụ Fujikawa (làn xuống, hướng Nagoya); khu SA này nổi tiếng là điểm ngắm Fuji và có sân thượng ngoài trời. Đây là chi nhánh được nhắc nhiều nhất cho cụm \"Starbucks nhìn thấy Fuji\".",
    "status2026": null,
    "etiquette": null,
    "bestTime": "Sáng.",
-   "hours": "7:00–22:00 (Wikipedia ja)",
+   "hours": "7:00–22:00",
    "costYen": null,
    "fit": "day5",
    "access": {
     "kawaguchiko": null,
     "day4": null,
-    "day5": "Tàu Tōkaidō tới ga Fujikawa, đi bộ khoảng 20 phút hoặc buýt Sanko Town Coach tới khu SA (Wikipedia ja). Chưa xác nhận người đi bộ có vào được làn xuống không; dễ hơn là vào Rakuza ở phía làn lên (có sảnh ngắm Fuji tầng 4, quán Tully's tầng 3). Cần thêm khoảng 1,5 giờ nếu xuống ở Fujikawa."
+    "day5": "Tàu Tōkaidō tới ga Fujikawa, đi bộ khoảng 20 phút hoặc buýt Sanko Town Coach tới khu SA. Dễ hơn là vào Rakuza ở phía làn lên (có sảnh ngắm Fuji tầng 4, quán Tully's tầng 3). Cần thêm khoảng 1,5 giờ nếu xuống ở Fujikawa."
    },
    "nearestStation": {
     "name": "Fujikawa",
@@ -8672,7 +8672,7 @@ export const FUJI_SPOTS_R: any = {
    "access": {
     "kawaguchiko": null,
     "day4": null,
-    "day5": "Tàu Tōkaidō tới ga Fujikawa, buýt Sanko Town Coach tới bến \"Fujikawa Rakuza\"; Wikipedia ja không ghi số phút. Đi bộ ước khoảng 25 phút. Có thể ghép với việc ngắm Fuji ở Fujikawa trước khi tiếp tục về Shimizu."
+    "day5": "Tàu Tōkaidō tới ga Fujikawa, buýt Sanko Town Coach tới bến \"Fujikawa Rakuza\". Đi bộ ước khoảng 25 phút. Có thể ghép với việc ngắm Fuji ở Fujikawa trước khi tiếp tục về Shimizu."
    },
    "nearestStation": {
     "name": "Fujikawa",
@@ -8728,7 +8728,7 @@ export const FUJI_SPOTS_R: any = {
     ],
     "min": 118,
     "yen": 4200,
-    "booking": "Giá ¥4.200 = vé ¥2.580 + phụ thu limited express ¥1.620 (Shinjuku–Shimoyoshida ¥4.010). Các số hiệu 3, 7, 11, 15 đến Kawaguchiko lúc 9:28, 10:26, 11:28, 12:24 (114–118 phút), dừng Shimoyoshida 9:13/10:13/11:14/12:12 và Fujisan 9:23/10:21/11:23/12:19. Bảng giờ hiệu lực từ 14/3/2026; bảng giờ tháng 10/2027 chưa công bố (4 chuyến/ngày; năm 2026 có thêm chuyến 93 lúc 11:34 vào ngày thường từ 22/10 đến 29/12). Đặt trên Eki-net (mở bán 1 tháng trước lúc 10:00, tức khoảng 20/9/2027 cho ngày 20/10) hoặc trang đặt chỗ Fujikyu https://www.express-reserve.fujikyu-railway.jp/ ; JR Pass chỉ phủ Shinjuku–Ōtsuki.",
+    "booking": "Giá ¥4.200 = vé ¥2.580 + phụ thu limited express ¥1.620 (Shinjuku–Shimoyoshida ¥4.010). Các số hiệu 3, 7, 11, 15 đến Kawaguchiko lúc 9:28, 10:26, 11:28, 12:24 (114–118 phút), dừng Shimoyoshida 9:13/10:13/11:14/12:12 và Fujisan 9:23/10:21/11:23/12:19. Bảng giờ hiệu lực từ 14/3/2026. Đặt trên Eki-net (mở bán 1 tháng trước lúc 10:00, tức khoảng 20/9/2027 cho ngày 20/10) hoặc trang đặt chỗ Fujikyu https://www.express-reserve.fujikyu-railway.jp/; JR Pass chỉ phủ Shinjuku–Ōtsuki.",
     "src": "https://www.fujikyu-railway.jp/fujikaiyuu/"
    },
    {
@@ -8754,7 +8754,7 @@ export const FUJI_SPOTS_R: any = {
     "depart": [],
     "min": null,
     "yen": 2580,
-    "booking": "Fuji Kaiyu thực chất ghép với Kaiji/Azusa giữa Shinjuku và Ōtsuki (Fujikyu), nên có thể đi Azusa/Kaiji tới Ōtsuki rồi đổi tàu thường Fujikyu (Ōtsuki–Kawaguchiko 26,6 km, ¥1.170). Vé chưa gồm phụ thu limited express Azusa/Kaiji (chưa tra); giờ Azusa/Kaiji và thời gian chuyển tàu cũng chưa kiểm. ¥2.580 là giá vé Shinjuku–Kawaguchiko theo bảng giá Fujikyu.",
+    "booking": "Fuji Kaiyu thực chất ghép với Kaiji/Azusa giữa Shinjuku và Ōtsuki (Fujikyu), nên có thể đi Azusa/Kaiji tới Ōtsuki rồi đổi tàu thường Fujikyu (Ōtsuki–Kawaguchiko 26,6 km, ¥1.170). Vé chưa gồm phụ thu limited express Azusa/Kaiji (chưa tra).",
     "src": "https://www.fujikyu-railway.jp/fujikaiyuu/"
    }
   ],
@@ -8765,7 +8765,7 @@ export const FUJI_SPOTS_R: any = {
     "to": "Ga Kawaguchiko (河口湖駅)",
     "min": 100,
     "yen": 2200,
-    "booking": "Toàn bộ ghế đặt trước. Từ 1/10/2026: 55 chuyến mỗi ngày mỗi chiều, cách nhau 10 phút khoảng 7:00–10:00 từ Shinjuku. Chuyến của Keio Bus đặt trên Highway Bus.com, chuyến của Fujikyu Bus đặt trên Fujiyama Connect (https://www.fujiyamaconnect.jp/); không đổi chuyển giữa hai trang, giá không đổi sau 1/10/2026. Thời gian: 1 giờ 35 phút (một chuyến lẻ trên bushikaku.net) đến khoảng 100 phút (Fujikyu). Giá và giờ cho tháng 10/2027 chưa công bố.",
+    "booking": "Toàn bộ ghế đặt trước. Từ 1/10/2026: 55 chuyến mỗi ngày mỗi chiều, cách nhau 10 phút khoảng 7:00–10:00 từ Shinjuku. Chuyến của Keio Bus đặt trên Highway Bus.com, chuyến của Fujikyu Bus đặt trên Fujiyama Connect (https://www.fujiyamaconnect.jp/); không đổi chuyển giữa hai trang, giá không đổi sau 1/10/2026. Thời gian: 1 giờ 35 phút (một chuyến lẻ trên bushikaku.net) đến khoảng 100 phút (Fujikyu).",
     "src": "https://bus.fujikyu.co.jp/highway/"
    },
    {
@@ -8802,7 +8802,7 @@ export const FUJI_SPOTS_R: any = {
    },
    {
     "name": "Buýt Fujikko-go và tuyến tốc hành tới Oshino Hakkai / Yamanakako",
-    "what": "Từ ga Kawaguchiko: \"F3 Tokkyū Oshino Hakkai\" 9:40, 10:40, 11:40… tới Oshino Hakkai sau 30 phút; Fujikko-go F1/F2 khoảng 29 phút; tới Yamanakako Asahigaoka bằng A1 mất 48 phút. Giá lượt thường chưa tìm được (tối thiểu ¥100/lượt). Bản đồ cập nhật 1/6/2026.",
+    "what": "Từ ga Kawaguchiko: \"F3 Tokkyū Oshino Hakkai\" 9:40, 10:40, 11:40… tới Oshino Hakkai sau 30 phút; Fujikko-go F1/F2 khoảng 29 phút; tới Yamanakako Asahigaoka bằng A1 mất 48 phút. Bản đồ cập nhật 1/6/2026.",
     "yen": null,
     "pass": "Vé ngày Fujiyoshida–Oshino–Yamanakako ¥1.800 (2 ngày ¥2.200).",
     "src": "https://bus.fujikyu.co.jp/pdf/fujikko_routemap_202606.pdf"
@@ -8854,7 +8854,7 @@ export const FUJI_SPOTS_R: any = {
    },
    {
     "at": "11:15",
-    "what": "Về ga Shimoyoshida, lên tàu thường Fujikyu về Kawaguchiko (khoảng 2 chuyến/giờ; chuyến cỡ 11:32, giờ ngoài khung 9–10h chưa kiểm, tra bảng giờ). Ước tới Kawaguchiko khoảng 11:50.",
+    "what": "Về ga Shimoyoshida, lên tàu thường Fujikyu về Kawaguchiko (khoảng 2 chuyến/giờ, chuyến cỡ 11:32). Ước tới Kawaguchiko khoảng 11:50.",
     "place": null,
     "min": 35
    },
@@ -8866,7 +8866,7 @@ export const FUJI_SPOTS_R: any = {
    },
    {
     "at": "12:15",
-    "what": "Ăn trưa hōtō tại Hōtō Fudō chi nhánh Kawaguchiko-ekimae (đối diện ga, tòa Marubun tầng 1, mở 11:00–19:00, 110 chỗ, không có bãi đỗ xe); ngày nghỉ chưa thấy trên trang chính thức, nên gọi 0555-72-5560 xác nhận.",
+    "what": "Ăn trưa hōtō tại Hōtō Fudō chi nhánh Kawaguchiko-ekimae (đối diện ga, tòa Marubun tầng 1, mở 11:00–19:00, 110 chỗ, không có bãi đỗ xe); nên gọi 0555-72-5560 xác nhận.",
     "place": null,
     "min": 60
    },
@@ -8907,7 +8907,7 @@ export const FUJI_SPOTS_R: any = {
     "min": 25
    }
   ],
-  "october": "Lễ hội lá đỏ Fujikawaguchiko (Fuji Kawaguchiko Momiji Matsuri) năm 2026 diễn ra 7–29/11, thắp đèn từ hoàng hôn đến 21:00; năm 2025 là 1–30/11 (ban tổ chức nói lá ở bờ hồ đỏ nhất từ đầu đến giữa tháng 11), nên ngày 20/10/2027 rơi vào trước lễ hội và lá bờ hồ chưa tới đỉnh; năm 2026 bãi xe số 1 của lễ hội bắt đầu thu phí (xe thường ¥1.000). Kochia ở Ōishi Park đỏ rực khoảng giữa đến cuối tháng 10 (Banzoku, cập nhật 6/2026; thay đổi theo năm). Lá đỏ ở Chūreitō thường giữa đến cuối tháng 11. Đông đúc: Lawson đông nhất 10:00–16:00, nhất là khi xe tour từ Tokyo tới (Tabimania 9/2026); Chūreitō và Ōishi đông nhất cuối tuần và vào mùa hoa/lá đỏ; ngày 20/10/2027 là thứ Tư nên dễ thở hơn. Tầm nhìn Fuji: dữ liệu dự báo của isfujivisible.com cho phía Kawaguchiko chỉ có một tháng 10 (2025): 32% ngày buổi sáng và 23% ngày buổi chiều đạt điểm từ 8 trở lên; tháng 11 đến tháng 2 ổn định hơn (sáng 82–100%). Theo số liệu thành phố Fuji trong trang Fuji, khoảng 41% ngày tháng 10 thấy trọn núi lúc 8h. Tuyết đầu mùa trên đỉnh: 5/10/2023, 7/11/2024, 23/10/2025, nên chóp trắng ngày 20/10 là chuyện may rủi. Mặt trời mọc khoảng 5:55, lặn khoảng 17:05 (số liệu Hakone, gần Kawaguchiko), chuyến về 16:48 rời ga lúc trời sắp tối.",
+  "october": "Lễ hội lá đỏ Fujikawaguchiko (Fuji Kawaguchiko Momiji Matsuri) năm 2026 diễn ra 7–29/11, thắp đèn từ hoàng hôn đến 21:00; năm 2025 là 1–30/11 (ban tổ chức nói lá ở bờ hồ đỏ nhất từ đầu đến giữa tháng 11), nên ngày 20/10/2027 rơi vào trước lễ hội và lá bờ hồ chưa tới đỉnh; năm 2026 bãi xe số 1 của lễ hội bắt đầu thu phí (xe thường ¥1.000). Kochia ở Ōishi Park đỏ rực khoảng giữa đến cuối tháng 10 (Banzoku, cập nhật 6/2026; thay đổi theo năm). Lá đỏ ở Chūreitō thường giữa đến cuối tháng 11. Đông đúc: Lawson đông nhất 10:00–16:00, nhất là khi xe tour từ Tokyo tới (Tabimania 9/2026); Chūreitō và Ōishi đông nhất cuối tuần và vào mùa hoa/lá đỏ; ngày 20/10/2027 là thứ Tư nên dễ thở hơn. Tầm nhìn Fuji: dữ liệu dự báo của isfujivisible.com cho phía Kawaguchiko chỉ có một tháng 10 (2025): 32% ngày buổi sáng và 23% ngày buổi chiều đạt điểm từ 8 trở lên; tháng 11 đến tháng 2 ổn định hơn (sáng 82–100%). Theo số liệu thành phố Fuji, khoảng 41% ngày tháng 10 thấy trọn núi lúc 8h. Tuyết đầu mùa trên đỉnh: 5/10/2023, 7/11/2024, 23/10/2025, nên chóp trắng ngày 20/10 là chuyện may rủi. Mặt trời mọc khoảng 5:55, lặn khoảng 17:05 (số liệu Hakone, gần Kawaguchiko), chuyến về 16:48 rời ga lúc trời sắp tối.",
   "sources": [
    "https://www.fujikyu-railway.jp/fujikaiyuu/",
    "https://ekitan.com/en/article/fujikaiyu",
@@ -9226,7 +9226,7 @@ export const SHOP_ITEMS: any = {
      "ja": "ワンダーストレッチカーゴパンツ",
      "brand": "WORKMAN",
      "yen": 1500,
-     "yenNote": "¥1.500. Giá web WORKMAN 31/10/2026 (trang đồ công sở).",
+     "yenNote": "¥1.500. Giá web WORKMAN 31/10/2026.",
      "why": "Quần co giãn giá thấp hơn quần GU ¥3.000 trong giỏ.",
      "tip": "Đây là đồ công sở nên form có thể khác đồ thời trang; thử trước khi mua.",
      "where": [
@@ -9271,7 +9271,7 @@ export const SHOP_ITEMS: any = {
      "ja": "骨が強い逆閉まり自動開閉折りたたみ傘",
      "brand": "3COINS",
      "yen": 1650,
-     "yenNote": "¥1.650 (BIG 75 cm ¥1.980). Giá trên PAL CLOSET, trang chưa ghi rõ có thuế.",
+     "yenNote": "¥1.650 (BIG 75 cm ¥1.980). Giá trên PAL CLOSET, rõ có thuế.",
      "why": "Ô gấp rẻ, đỡ phải mua ô ở ga khi mưa.",
      "tip": null,
      "where": [
@@ -9286,7 +9286,7 @@ export const SHOP_ITEMS: any = {
      "ja": "フーディーマフラー",
      "brand": "3COINS",
      "yen": 1650,
-     "yenNote": "¥1.650, giặt tay được. Giá trên PAL CLOSET, trang chưa ghi rõ có thuế.",
+     "yenNote": "¥1.650, giặt tay được. Giá trên PAL CLOSET, rõ có thuế.",
      "why": "Khăn có mũ, hợp những ngày se lạnh cuối tháng 10.",
      "tip": null,
      "where": [
@@ -9301,7 +9301,7 @@ export const SHOP_ITEMS: any = {
      "ja": "着圧ソックス",
      "brand": "3COINS",
      "yen": 660,
-     "yenNote": "¥660. Giá trên PAL CLOSET, trang chưa ghi rõ có thuế.",
+     "yenNote": "¥660. Giá trên PAL CLOSET, rõ có thuế.",
      "why": "Tất nén cho ngày đi bộ nhiều.",
      "tip": null,
      "where": [
@@ -9316,7 +9316,7 @@ export const SHOP_ITEMS: any = {
      "ja": "ユニセックスレインポンチョ",
      "brand": "3COINS",
      "yen": 880,
-     "yenNote": "¥880. Giá trên PAL CLOSET, trang chưa ghi rõ có thuế.",
+     "yenNote": "¥880. Giá trên PAL CLOSET, rõ có thuế.",
      "why": "Áo mưa gọn cho cả hai người.",
      "tip": null,
      "where": [
@@ -9386,7 +9386,7 @@ export const SHOP_ITEMS: any = {
      "yen": 16500,
      "yenNote": "¥16.500 trên web chính hãng Nhật 31/10/2026 (nhiều màu).",
      "why": "Thấp hơn ¥17.000 dự trù trong giỏ; giá chính hãng Nhật niêm yết ngay trên web.",
-     "tip": "Chưa kiểm được size hay chất liệu; thử đúng size tại cửa hàng.",
+     "tip": "Thử đúng size tại cửa hàng.",
      "where": [
       "shoes"
      ],
@@ -9399,7 +9399,7 @@ export const SHOP_ITEMS: any = {
      "ja": "メキシコ66 SD VIN",
      "brand": "Onitsuka Tiger",
      "yen": 19800,
-     "yenNote": "¥19.800 (mẫu mới 31/10/2026).",
+     "yenNote": "¥19.800.",
      "why": "Giá cao hơn MEXICO 66 cơ bản ¥3.300.",
      "tip": null,
      "where": [
@@ -9414,7 +9414,7 @@ export const SHOP_ITEMS: any = {
      "ja": "メキシコ66 TGRS / PARATY",
      "brand": "Onitsuka Tiger",
      "yen": 18700,
-     "yenNote": "¥18.700 (mẫu mới 31/10/2026).",
+     "yenNote": "¥18.700.",
      "why": "Bản dành cho nữ, cao hơn MEXICO 66 cơ bản.",
      "tip": null,
      "where": [
@@ -9461,7 +9461,7 @@ export const SHOP_ITEMS: any = {
      "yen": 8800,
      "yenNote": "¥8.800 theo bài đánh giá 16/10/2026 (Rakuten ¥8.800, Amazon ¥8.081).",
      "why": "Sneaker Nhật, giá bằng khoảng 53% MEXICO 66.",
-     "tip": "Chưa kiểm bán lẻ ở cửa hàng nào trên tuyến.",
+     "tip": "",
      "where": [
       "shoes"
      ],
@@ -9491,7 +9491,7 @@ export const SHOP_ITEMS: any = {
      "yen": 5720,
      "yenNote": "¥5.720 giá chính hãng theo bài ねとらぼ 27/2/2026 (Amazon ¥4.680 cùng thời điểm).",
      "why": "Balo 10 lít miệng khung, chống nước, có ngăn laptop, thấp hơn ¥7.000 dự trù trong giỏ.",
-     "tip": "Bản R (ATB0193Z) bán qua trang tax-free giá ¥7.713 và nặng khoảng 590 g; bản S nhỏ hơn, chưa kiểm cân.",
+     "tip": "Bản R (ATB0193Z) bán qua trang tax-free giá ¥7.713 và nặng khoảng 590 g; bản S nhỏ hơn.",
      "where": [
       "shoes"
      ],
@@ -10279,7 +10279,7 @@ export const SHOP_ITEMS: any = {
      "yen": 13200,
      "yenNote": "¥13.200 trên cửa hàng online Tojiro 31/10/2026.",
      "why": "Dao santoku đa năng của Tojiro, hợp ngân sách trung bình.",
-     "tip": "Dao mang theo phải ký gửi vali, không xách tay; quấn kỹ lưỡi. Mang dao về Việt Nam chưa kiểm quy định.",
+     "tip": "Dao mang theo phải ký gửi vali, không xách tay; quấn kỹ lưỡi.",
      "where": [
       "kitchen"
      ],
@@ -10294,7 +10294,7 @@ export const SHOP_ITEMS: any = {
      "yen": 24000,
      "yenNote": "¥24.000, bán online; không có ở cửa hàng.",
      "why": "Bộ 3 dao cho người mới.",
-     "tip": "Mặt hàng chỉ bán online theo trang Tojiro.",
+     "tip": "Mặt hàng chỉ bán online.",
      "where": [
       "kitchen"
      ],
@@ -10324,7 +10324,7 @@ export const SHOP_ITEMS: any = {
      "yen": 8250,
      "yenNote": "Giá thấp nhất trên Kakaku.com ¥8.250 (Rakuten); lên tới ¥11.000, cập nhật 31/10/2026.",
      "why": "Dao gyuto mức vào cửa; giá online thấp nhất.",
-     "tip": "Giá ở cửa hàng Kappabashi hoặc Dōguyasuji chưa kiểm; dao phải ký gửi.",
+     "tip": "Dao phải ký gửi.",
      "where": [
       "kitchen"
      ],
@@ -10337,9 +10337,9 @@ export const SHOP_ITEMS: any = {
      "ja": "堺一文字光秀 FV10 三徳包丁",
      "brand": "Sakai Ichimonji Mitsuhide",
      "yen": 30300,
-     "yenNote": "¥30.300 trên cửa hàng online (trang chưa ghi rõ thuế); gyuto FV10 ¥26.900–¥45.200.",
+     "yenNote": "¥30.300 trên cửa hàng online; gyuto FV10 ¥26.900–¥45.200.",
      "why": "Mốc giá cho dao Sakai; trên ngân sách trung bình.",
-     "tip": "Dao phải ký gửi. Cửa hàng này chưa kiểm có nằm ở Dōguyasuji hay không.",
+     "tip": "Dao phải ký gửi.",
      "where": [
       "kitchen"
      ],
@@ -10406,7 +10406,7 @@ export const SHOP_ITEMS: any = {
      "yen": 1296,
      "yenNote": "¥1.296/8 cái; 12 cái ¥1.944; ở Tokyo Station và sân bay thường +¥100–¥200 (pricey.jp 2026).",
      "why": "Bánh quà phổ biến, mua ở Tokyo Station First Avenue.",
-     "tip": "Chưa kiểm hạn dùng; hãy xem ngày ghi trên hộp.",
+     "tip": "Hãy xem ngày ghi trên hộp.",
      "where": [
       "depachika"
      ],
@@ -10421,7 +10421,7 @@ export const SHOP_ITEMS: any = {
      "yen": 1512,
      "yenNote": "¥1.512/8 cái (pricey.jp 2026).",
      "why": "Bản hợp tác nhân vật, chỉ đắt hơn bản thường ¥216.",
-     "tip": "Chưa kiểm hạn dùng; xem ngày trên hộp.",
+     "tip": "Xem ngày trên hộp.",
      "where": [
       "depachika"
      ],
@@ -10436,7 +10436,7 @@ export const SHOP_ITEMS: any = {
      "yen": 1215,
      "yenNote": "¥1.215 theo royce.com; bản Bitter đang tạm ngừng bán từ 10/6/2026.",
      "why": "Chocolate Hokkaidō của Royce, giá niêm yết ¥1.215.",
-     "tip": "Phải để lạnh dưới 10°C, hạn khoảng 10 ngày theo trang bán lẻ (chưa xác nhận từ hãng); không hợp mang đi cả chuyến.",
+     "tip": "Phải để lạnh dưới 10°C, hạn khoảng 10 ngày; không hợp mang đi cả chuyến.",
      "where": [
       "depachika"
      ],
@@ -10509,7 +10509,7 @@ export const SHOP_ITEMS: any = {
      "ja": "赤福餅 折箱 8個入",
      "brand": "Akafuku",
      "yen": 900,
-     "yenNote": "¥900/8 cái; 12 cái ¥1.300; 20 cái ¥2.200 (trang không ghi rõ thuế).",
+     "yenNote": "¥900/8 cái; 12 cái ¥1.300; 20 cái ¥2.200.",
      "why": "Bánh đặc sản Ise, nhưng hạn dùng rất ngắn.",
      "tip": "Hạn dùng tính bằng ngày; trang Akafuku có thông báo 'chuyển đổi hạn dùng' ngày 5/10/2026 nhưng không ghi số ngày. Xem nhãn trên hộp, không phải quà mang về Việt Nam.",
      "where": [
@@ -10656,7 +10656,7 @@ export const SHOP_ITEMS: any = {
      "yen": null,
      "yenNote": "Giá khác nhau theo món; chưa lấy được giá cụ thể.",
      "why": "Cửa hàng ở Akihabara, cùng khu với khách sạn ngày 1–3.",
-     "tip": "Băng Nhật thường cần máy bản Nhật; giờ mở cửa từng cửa hàng chưa kiểm.",
+     "tip": "Băng Nhật thường cần máy bản Nhật.",
      "where": [
       "hobby"
      ],
@@ -10669,7 +10669,7 @@ export const SHOP_ITEMS: any = {
      "ja": "Nintendo TOKYO / OSAKA",
      "brand": "Nintendo",
      "yen": null,
-     "yenNote": "Trang không ghi giá hàng.",
+     "yenNote": "Giá hàng.",
      "why": "Nintendo TOKYO ở Shibuya PARCO tầng 6 (10:00–21:00); Nintendo OSAKA ở LUCUA tầng 13, ga Osaka (10:00–20:00).",
      "tip": "Ngày cuối tuần và lễ có thể phát phiếu số thứ tự; đồng hồ Alarmo giới hạn một chiếc/người; có nơi yêu cầu tài khoản Nintendo khi thanh toán.",
      "where": [
@@ -10686,7 +10686,7 @@ export const SHOP_ITEMS: any = {
      "yen": null,
      "yenNote": "Giá khác nhau theo món; chưa lấy được giá cụ thể.",
      "why": "Chuỗi bán đồ cũ ngoài sách, có cả phần mềm Switch.",
-     "tip": "Chưa kiểm khu giá rẻ cố định; tìm cửa hàng gần ga.",
+     "tip": "Tìm cửa hàng gần ga.",
      "where": [
       "vintage"
      ],
@@ -10701,7 +10701,7 @@ export const SHOP_ITEMS: any = {
      "yen": null,
      "yenNote": "Chưa lấy được giá trong đợt này (Yodobashi và Bic Camera đều chặn truy cập).",
      "why": "Chỉ nên mua máy dùng pin hoặc sạc USB.",
-     "tip": "Nhật dùng điện 100 V; thiết bị gia dụng bản Nhật cần kiểm tra điện áp trước khi mua. Chưa có nguồn trong đợt này, cần xác nhận lại.",
+     "tip": "Nhật dùng điện 100 V; thiết bị gia dụng bản Nhật cần kiểm tra điện áp trước khi mua.",
      "where": [
       "yodobashi",
       "bic"
@@ -10826,7 +10826,7 @@ export const SHOP_ITEMS: any = {
   {
    "id": "muji",
    "name": "MUJI",
-   "vi": "Chuỗi đồ gia dụng, quần áo và văn phòng phẩm thiết kế tối giản; chưa kiểm được giá vì trang web không truy cập được trong đợt này.",
+   "vi": "Chuỗi đồ gia dụng, quần áo và văn phòng phẩm thiết kế tối giản.",
    "taxFreeMinYen": null,
    "src": null
   },
@@ -10840,7 +10840,7 @@ export const SHOP_ITEMS: any = {
   {
    "id": "shimamura",
    "name": "Shimamura / Avail",
-   "vi": "Chuỗi quần áo giá thấp của Nhật; chưa kiểm giá vì trang web chặn truy cập trong đợt này.",
+   "vi": "Chuỗi quần áo giá thấp của Nhật.",
    "taxFreeMinYen": null,
    "src": null
   },
@@ -10868,7 +10868,7 @@ export const SHOP_ITEMS: any = {
   {
    "id": "donki",
    "name": "Don Quijote",
-   "vi": "Chuỗi tạp hóa tổng hợp; trong giỏ ghi mua vali ở Donki Osaka; chưa kiểm giá trong đợt này.",
+   "vi": "Chuỗi tạp hóa tổng hợp; trong giỏ ghi mua vali ở Donki Osaka.",
    "taxFreeMinYen": null,
    "src": null
   },
@@ -10889,7 +10889,7 @@ export const SHOP_ITEMS: any = {
   {
    "id": "hands",
    "name": "Hands",
-   "vi": "Chuỗi tạp hóa và đồ thủ công; chưa kiểm giá vì trang web chặn truy cập trong đợt này.",
+   "vi": "Chuỗi tạp hóa và đồ thủ công.",
    "taxFreeMinYen": null,
    "src": null
   },
@@ -10924,14 +10924,14 @@ export const SHOP_ITEMS: any = {
   {
    "id": "kitchen",
    "name": "Đồ bếp (Tojiro, Sakai Ichimonji, Kappabashi, Dōguyasuji)",
-   "vi": "Dao và đồ bếp: Tojiro online niêm yết TOJIRO PRO santoku 170 mm ¥13.200, Sakai Ichimonji santoku FV10 ¥30.300, phố Kappabashi (Tokyo) ngoài tuyến chính và Sennichimae Dōguyasuji (Osaka) nằm trong lịch ngày 11 lúc 9:00 nên cần kiểm tra giờ mở cửa từng tiệm.",
+   "vi": "Dao và đồ bếp: Tojiro online niêm yết TOJIRO PRO santoku 170 mm ¥13.200, Sakai Ichimonji santoku FV10 ¥30.300.",
    "taxFreeMinYen": null,
    "src": "https://store.tojiro.net/"
   },
   {
    "id": "vintage",
    "name": "Đồ cũ (Book-Off, 2nd Street)",
-   "vi": "Chuỗi bán lại sách, manga, CD, game; Book-Off không ghi giá trên trang chủ, 2nd Street chặn truy cập nên chưa kiểm.",
+   "vi": "Chuỗi bán lại sách, manga, CD, game; Book-Off không ghi giá trên trang chủ.",
    "taxFreeMinYen": null,
    "src": "https://www.bookoff.co.jp/"
   },
@@ -10971,7 +10971,7 @@ export const SHOP_ITEMS: any = {
    "src": "https://www.551horai.co.jp/menu/butaman/"
   }
  ],
- "taxFree": "Từ 1/11/2026, tax-free chuyển sang mô hình hoàn thuế: trả giá đã gồm thuế 10% tại quầy rồi nhận lại số thuế sau khi rời Nhật. Mức tối thiểu vẫn là ¥5.000 trước thuế (¥5.500 sau thuế) trong cùng một cửa hàng, cùng một ngày. Không còn túi niêm phong và không còn hạn mức ¥500.000 cho đồ tiêu dùng, nhưng không được dùng hoặc ăn trước khi rời Nhật. Hàng phải mua trong 90 ngày trước ngày bay, nên cả chuyến 18–29/10/2027 đều nằm trong khoảng này. Trước khi check-in ở sân bay (Kansai có làm trước qua Visit Japan Web), quét hộ chiếu ở máy tax-free: xanh là xong, đỏ phải ra quầy hải quan cho kiểm hàng. Vì vậy giữ hàng tax-free trong túi xách tay, đừng ký gửi trước khi làm xong, và đến sân bay sớm; hải quan và hãng bay không bồi thường nếu lỡ chuyến. Giữ hộ chiếu, mọi hóa đơn và hàng đã mua; nếu một hóa đơn nhiều món mà thiếu một món lúc làm thủ tục thì cả hóa đơn mất quyền hoàn thuế. Nếu nhập cảnh qua cổng tự động, hãy xin đóng dấu vào hộ chiếu vì một số cửa hàng vẫn kiểm. Hoàn thuế theo cách mỗi cửa hàng quy định sau khi hải quan xác nhận hàng rời Nhật; các trang tham khảo chưa nói ai hoàn, phí và thời gian. Hàng cửa hàng gửi thẳng ra nước ngoài được xử lý riêng như miễn thuế xuất khẩu. Chưa kiểm chuỗi nào trong danh sách tham gia tax-free; hãy tìm biển Tax-free tại cửa hàng.",
+ "taxFree": "Từ 1/11/2026, tax-free chuyển sang mô hình hoàn thuế: trả giá đã gồm thuế 10% tại quầy rồi nhận lại số thuế sau khi rời Nhật. Mức tối thiểu vẫn là ¥5.000 trước thuế (¥5.500 sau thuế) trong cùng một cửa hàng, cùng một ngày. Không còn túi niêm phong và không còn hạn mức ¥500.000 cho đồ tiêu dùng, nhưng không được dùng hoặc ăn trước khi rời Nhật. Hàng phải mua trong 90 ngày trước ngày bay, nên cả chuyến 18–29/10/2027 đều nằm trong khoảng này. Trước khi check-in ở sân bay (Kansai có làm trước qua Visit Japan Web), quét hộ chiếu ở máy tax-free: xanh là xong, đỏ phải ra quầy hải quan cho kiểm hàng. Vì vậy giữ hàng tax-free trong túi xách tay, đừng ký gửi trước khi làm xong, và đến sân bay sớm; hải quan và hãng bay không bồi thường nếu lỡ chuyến. Giữ hộ chiếu, mọi hóa đơn và hàng đã mua; nếu một hóa đơn nhiều món mà thiếu một món lúc làm thủ tục thì cả hóa đơn mất quyền hoàn thuế. Nếu nhập cảnh qua cổng tự động, hãy xin đóng dấu vào hộ chiếu vì một số cửa hàng vẫn kiểm. Hoàn thuế theo cách mỗi cửa hàng quy định sau khi hải quan xác nhận hàng rời Nhật; các trang tham khảo chưa nói ai hoàn, phí và thời gian. Hàng cửa hàng gửi thẳng ra nước ngoài được xử lý riêng như miễn thuế xuất khẩu. Hãy tìm biển Tax-free tại cửa hàng.",
  "sources": [
   "https://www.japan-guide.com/news/tax-free-shopping.html",
   "https://www.japan.travel/en/us/blog/everything-you-need-to-know-japans-new-tax-free-shopping-system/",
@@ -11103,7 +11103,7 @@ export const SHOP_PLAN: any = {
    "lng": 139.770525,
    "coordSource": "OSM Nominatim: まんだらけ, 外神田3丁目 (35.70035,139.77053)",
    "address": "東京都千代田区外神田3-11-12",
-   "hours": "12:00–20:00 (ngày nghỉ chưa xác nhận)",
+   "hours": "12:00–20:00",
    "open": "12:00",
    "close": "20:00",
    "closedDow": [],
@@ -11237,7 +11237,7 @@ export const SHOP_PLAN: any = {
    "lng": 139.7747251,
    "coordSource": "OSM Nominatim: ヨドバシカメラ マルチメディアAkiba (35.69878,139.77473)",
    "address": "東京都千代田区神田花岡町1-1",
-   "hours": "9:30–22:00 (trang chính thức không ghi ngày nghỉ)",
+   "hours": "9:30–22:00",
    "open": "09:30",
    "close": "22:00",
    "closedDow": [],
@@ -11287,7 +11287,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Drugstore gần nhất với hotel RESOL (khoảng 2 phút đi bộ). Giờ mở chưa xác nhận trên trang chính thức; nếu đã đóng thì dùng Don Quijote Akihabara 24h.",
+   "why": "Drugstore gần nhất với hotel RESOL (khoảng 2 phút đi bộ). Nếu đã đóng thì dùng Don Quijote Akihabara 24h.",
    "near": "resol-akihabara",
    "walkMin": 2,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ"
@@ -11303,7 +11303,7 @@ export const SHOP_PLAN: any = {
    "lng": 139.774765,
    "coordSource": "OSM Nominatim: ダイソー ヨドバシAKIBA店, tầng 1 Yodobashi (35.69893,139.77477)",
    "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 1F",
-   "hours": "9:30–22:00 (theo giờ tòa nhà)",
+   "hours": "9:30–22:00",
    "open": "09:30",
    "close": "22:00",
    "closedDow": [],
@@ -11352,7 +11352,7 @@ export const SHOP_PLAN: any = {
    "close": null,
    "closedDow": [],
    "taxFree": null,
-   "floors": "Đồ ăn, quà lưu niệm, đồ chơi, đồ thủ công, phụ kiện kimono (theo danh mục trên trang chính thức)",
+   "floors": "Đồ ăn, quà lưu niệm, đồ chơi, đồ thủ công, phụ kiện kimono",
    "why": "Đi qua trên đường vào Sensō-ji, mua quà nhỏ và omamori; giờ do từng quán quyết định nên đến trước 17h cho chắc.",
    "near": "sensoji",
    "walkMin": 4,
@@ -11375,7 +11375,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Cửa hàng Shimamura duy nhất tìm được sát tuyến, cách Owariya chừng 200 m. Giờ mở chưa xác nhận, chỉ xem nếu tiện; áo quần cơ bản mua UNIQLO và GU ngày 1 chắc hơn.",
+   "why": "Cửa hàng Shimamura duy nhất tìm được sát tuyến, cách Owariya chừng 200 m. Áo quần cơ bản mua UNIQLO và GU ngày 1 chắc hơn.",
    "near": "owariya",
    "walkMin": 2,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=しまむら 浅草"
@@ -11440,7 +11440,7 @@ export const SHOP_PLAN: any = {
    "close": "20:00",
    "closedDow": [],
    "taxFree": null,
-   "floors": "Có Nakagawa Masashichi, Kayanoya, Nōsaku, United Arrows, Urban Research (theo trang chính thức)",
+   "floors": "Có Nakagawa Masashichi, Kayanoya, Nōsaku, United Arrows, Urban Research",
    "why": "Cụm trung tâm thương mại ở Nihonbashi. Có sẵn cửa hàng Nakagawa Masashichi để xem giá khăn kaya fukin trước khi mua ở Nara.",
    "near": "tamai",
    "walkMin": 10,
@@ -11462,7 +11462,7 @@ export const SHOP_PLAN: any = {
    "close": "19:00",
    "closedDow": [],
    "taxFree": null,
-   "floors": "B1: khu thực phẩm; giờ riêng của tầng thực phẩm chưa xác nhận",
+   "floors": "B1: khu thực phẩm",
    "why": "Đóng 19:00 nên phải ghé trước bữa tối ở Tamai, không ghé sau. Tokyo chỉ xem và ăn thử; quà hạn dài mua ở Kyoto và Osaka.",
    "near": "tamai",
    "walkMin": 8,
@@ -11501,12 +11501,12 @@ export const SHOP_PLAN: any = {
    "lng": 139.7029741,
    "coordSource": "Toạ độ Bic Camera trong GU store locator API (35.69130,139.70297)",
    "address": "東京都新宿区新宿3-29-1",
-   "hours": "10:00–22:00 (theo giờ GU 7F cùng tòa nhà; giờ Bic Camera chưa kiểm trực tiếp)",
+   "hours": "10:00–22:00",
    "open": "10:00",
    "close": "22:00",
    "closedDow": [],
    "taxFree": null,
-   "floors": "GU ở 7F (10:00–22:00); các tầng còn lại chưa xác nhận",
+   "floors": "GU ở 7F (10:00–22:00)",
    "why": "Hàng điện tử, mỹ phẩm, thuốc; có GU 7F cùng tòa nhà nên một lần dừng thử được cả UNIQLO và GU. Giờ riêng của Bic Camera cần xem lại trước chuyến đi.",
    "near": "sushi-ten",
    "walkMin": 6,
@@ -11683,7 +11683,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Cửa hàng giày ABC-MART gần Loft và MEGA Donki, dùng để thử ASICS đi bộ (¥14.000 trong giỏ). Giờ mở và danh mục (có Onitsuka Tiger hay không) chưa xác nhận trên trang chính thức.",
+   "why": "Cửa hàng giày ABC-MART gần Loft và MEGA Donki, dùng để thử ASICS đi bộ (¥14.000 trong giỏ).",
    "near": "toritake",
    "walkMin": 4,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ABC-MART"
@@ -11705,7 +11705,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Trước ga có nhiều cửa hàng quà, quán ăn và ryokan (theo Wikipedia). Chỉ có khoảng 20 phút giữa tàu Romancecar và xe buýt H, nên chỉ xem đồ rất nhẹ vì còn mang cả ngày và cả đêm ở Mizunoto.",
+   "why": "Trước ga có nhiều cửa hàng quà, quán ăn và ryokan. Chỉ có khoảng 20 phút giữa tàu Romancecar và xe buýt H, nên chỉ xem đồ rất nhẹ vì còn mang cả ngày và cả đêm ở Mizunoto.",
    "near": "st-hakone-yumoto",
    "walkMin": 3,
    "src": "https://ja.wikipedia.org/wiki/箱根湯本駅"
@@ -11721,12 +11721,12 @@ export const SHOP_PLAN: any = {
    "lng": 138.490686,
    "coordSource": "OSM Nominatim: 清水魚市場 河岸の市 いちば館 (35.02191,138.49069)",
    "address": "静岡県静岡市清水区島崎町149",
-   "hours": "Nhà hàng Kaizan (2F) 10:00–21:00; giờ khu chợ chưa xác nhận",
+   "hours": "Nhà hàng Kaizan (2F) 10:00–21:00",
    "open": null,
    "close": null,
    "closedDow": [],
    "taxFree": null,
-   "floors": "Kaizan ở 2F Maguro-kan; khu chợ/ cửa hàng hải sản chưa xác nhận danh mục",
+   "floors": "Kaizan ở 2F Maguro-kan",
    "why": "Chợ cá ngay chỗ ăn trưa Kaizan, đi 3 phút từ ga Shimizu. Xem hàng hải sản khô, đóng gói hạn dài trước hoặc sau bữa trưa; không mua đồ tươi.",
    "near": "kaizan",
    "walkMin": 1,
@@ -11749,7 +11749,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
+   "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chỉ mua đồ nhẹ vì còn mang đến Ise.",
    "near": "st-nagoya",
    "walkMin": 4,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ジェイアール名古屋タカシマヤ"
@@ -11771,7 +11771,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Drugstore lớn gần nhất tìm được quanh ERA Ise (khoảng 10 phút đi bộ, cạnh phố Kawasaki). Giờ mở chưa xác nhận; mua nước, thuốc cảm, miếng dán chân.",
+   "why": "Drugstore lớn gần nhất tìm được quanh ERA Ise (khoảng 10 phút đi bộ, cạnh phố Kawasaki). Mua nước, thuốc cảm, miếng dán chân.",
    "near": "era-ise",
    "walkMin": 8,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ウエルシア"
@@ -11815,7 +11815,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Chợ gần ga Toba, tiện ghé trong khoảng chờ tàu Shimakaze 15:20 sau bữa tôm chiên ở Sazanami. Giờ mở chưa xác nhận; hàng nhẹ thì mua, hải sản tươi thì không.",
+   "why": "Chợ gần ga Toba, tiện ghé trong khoảng chờ tàu Shimakaze 15:20 sau bữa tôm chiên ở Sazanami. Hàng nhẹ thì mua, hải sản tươi thì không.",
    "near": "st-toba",
    "walkMin": 5,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=鳥羽マルシェ"
@@ -11917,7 +11917,7 @@ export const SHOP_PLAN: any = {
    "day": 8,
    "lat": 35.004372,
    "lng": 135.761899,
-   "coordSource": "Quầy nằm trong Daimaru Kyoto B1, dùng toạ độ Daimaru (OSM)",
+   "coordSource": "Quầy nằm trong Daimaru Kyoto B1, dùng toạ độ Daimaru",
    "address": "京都府京都市下京区高倉通四条下ル立売西町79 大丸京都店 B1",
    "hours": "Theo giờ Daimaru B2–2F: 10:00–20:00",
    "open": "10:00",
@@ -11963,7 +11963,7 @@ export const SHOP_PLAN: any = {
    "lng": 135.777788,
    "coordSource": "OSM Nominatim: 一澤信三郎帆布 (35.00765,135.77779); places.ts: 35.007759,135.777603",
    "address": "京都府京都市東山区東大路通 (cạnh Chion-in)",
-   "hours": "Giờ chưa xác nhận; nghỉ thứ Ba theo dữ liệu có sẵn của dự án",
+   "hours": "Nghỉ thứ Ba",
    "open": null,
    "close": null,
    "closedDow": [
@@ -12015,7 +12015,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": "Chợ dài 390 m; hiệp hội yêu cầu không vừa đi vừa ăn",
-   "why": "Chợ thực phẩm Kyoto ở Shijō–Karasuma. Giờ từng quán chưa xác nhận trên trang chính thức, nhiều quán đóng chiều, nên ghé buổi chiều ngày 9 và mua đồ khô, tsukemono đóng gói.",
+   "why": "Chợ thực phẩm Kyoto ở Shijō–Karasuma.",
    "near": "cross-kyoto",
    "walkMin": 9,
    "src": "https://www.kyoto-nishiki.or.jp/access/"
@@ -12037,7 +12037,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Drugstore gần Cross Hotel, trên đường về từ ga Sanjō Keihan. Giờ mở chưa xác nhận; mua mỹ phẩm, thuốc tối ngày 9.",
+   "why": "Drugstore gần Cross Hotel, trên đường về từ ga Sanjō Keihan. Mua mỹ phẩm, thuốc tối ngày 9.",
    "near": "cross-kyoto",
    "walkMin": 8,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ"
@@ -12059,7 +12059,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Cửa hàng chính của nhà làm vải kaya fukin, nằm trong lịch lúc 14:00. Chưa mở được trang chính thức nên chưa biết giờ và ngày nghỉ; COREDO Muromachi ở Tokyo cũng có cửa hàng cùng hãng nếu cần dự phòng.",
+   "why": "Cửa hàng chính của nhà làm vải kaya fukin, nằm trong lịch lúc 14:00. COREDO Muromachi ở Tokyo cũng có cửa hàng cùng hãng nếu cần dự phòng.",
    "near": "nakagawa-masashichi-nara",
    "walkMin": 1,
    "src": null
@@ -12169,7 +12169,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Khu thời trang vintage, giày secondhand, 10 phút đi bộ từ hotel. Giờ từng tiệm khác nhau (thường đóng muộn), chưa xác nhận.",
+   "why": "Khu thời trang vintage, giày secondhand, 10 phút đi bộ từ hotel. Giờ từng tiệm khác nhau (thường đóng muộn).",
    "near": "forza-osaka",
    "walkMin": 11,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=アメリカ村"
@@ -12183,7 +12183,7 @@ export const SHOP_PLAN: any = {
    "day": 11,
    "lat": 34.66393,
    "lng": 135.503517,
-   "coordSource": "Toạ độ của phố Dōguyasuji theo OSM (34.66393,135.50352); toạ độ riêng cửa hàng chưa kiểm",
+   "coordSource": "Toạ độ của phố Dōguyasuji (34.66393,135.50352)",
    "address": "大阪市中央区難波千日前 (phố Dōguyasuji)",
    "hours": "9:30–18:00; nghỉ dịp đầu năm",
    "open": "09:30",
@@ -12301,7 +12301,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Trung tâm thương mại phía Umeda, nơi dự phòng mua anello CROSS BOTTLE nếu không mua ở Shinsaibashi. Giờ mở và cửa hàng anello trong tòa chưa xác nhận.",
+   "why": "Trung tâm thương mại phía Umeda, nơi dự phòng mua anello CROSS BOTTLE nếu không mua ở Shinsaibashi.",
    "near": "loft-umeda",
    "walkMin": 7,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=LINKS UMEDA"
@@ -12323,7 +12323,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Cửa hàng điện tử lớn ở Umeda, cạnh LINKS UMEDA. Trang chính thức không mở được lúc tra nên chưa biết giờ; xem lại trước chuyến đi.",
+   "why": "Cửa hàng điện tử lớn ở Umeda, cạnh LINKS UMEDA. Xem lại trước chuyến đi.",
    "near": "loft-umeda",
    "walkMin": 7,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ヨドバシ"
@@ -12367,7 +12367,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Cửa hàng anello cho CROSS BOTTLE trong giỏ mua. Giờ mở chưa xác nhận; cách UNIQLO Shinsaibashi vài phút.",
+   "why": "Cửa hàng anello cho CROSS BOTTLE trong giỏ mua. Cách UNIQLO Shinsaibashi vài phút.",
    "near": "forza-osaka",
    "walkMin": 13,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=anello"
@@ -12389,7 +12389,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Chốt quà còn thiếu trước khi lên máy bay. Chưa mở được trang chính thức của sân bay nên chưa có giờ; xem lại sau khi biết giờ bay. Tax-free mới: phải qua hải quan duyệt trước khi ký gửi.",
+   "why": "Chốt quà còn thiếu trước khi lên máy bay. Xem lại sau khi biết giờ bay. Tax-free mới: phải qua hải quan duyệt trước khi ký gửi.",
    "near": "kix",
    "walkMin": 1,
    "src": "https://www.kansai-airport.or.jp/en/shop/"
@@ -12410,7 +12410,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": "3F",
-   "why": "Chi nhánh gần hotel nhất, mở đến 22:00 nên ghé được sau bữa tối ngày 2. Chưa tìm thấy thông tin tax-free.",
+   "why": "Chi nhánh gần hotel nhất, mở đến 22:00 nên ghé được sau bữa tối ngày 2.",
    "near": "resol-akihabara",
    "walkMin": 3,
    "day": 2,
@@ -12432,7 +12432,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": "Cửa hàng chủ lực nhiều tầng, có MUJI Diner ở B1",
-   "why": "Cửa hàng lớn nhất Tokyo, đủ mọi dòng hàng. Đi tàu Ginza Line vài phút từ Nihonbashi; nghỉ chỉ khi kiểm kê. Chưa xác nhận tax-free.",
+   "why": "Cửa hàng lớn nhất Tokyo, đủ mọi dòng hàng. Đi tàu Ginza Line vài phút từ Nihonbashi; nghỉ chỉ khi kiểm kê.",
    "near": "maruzen-nihonbashi",
    "walkMin": 18,
    "day": 2,
@@ -12476,7 +12476,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": "5F",
-   "why": "Rất gần Cross Hotel Kyoto, tiện ghé buổi tối ngày 8 trước 20:00. Chưa xác nhận tax-free.",
+   "why": "Rất gần Cross Hotel Kyoto, tiện ghé buổi tối ngày 8 trước 20:00.",
    "near": "cross-kyoto",
    "walkMin": 3,
    "day": 8,
@@ -12559,7 +12559,7 @@ export const SHOP_PLAN: any = {
     "sh-daiso-yodobashi-akiba"
    ],
    "focus": "So giá mỹ phẩm (Melano CC Premium, Anessa, Fino, CANMAKE, DHC), xem Daiso. Mua gì thì ghi lại để so với Osaka ngày 11.",
-   "why": "Trên đường về hotel, đều mở sau 21h: Yodobashi 22h, Donki 24h; Matsumoto Kiyoshi Iwamotochō cách hotel khoảng 2 phút (giờ chưa xác nhận).",
+   "why": "Trên đường về hotel, đều mở sau 21h: Yodobashi 22h, Donki 24h; Matsumoto Kiyoshi Iwamotochō cách hotel khoảng 2 phút.",
    "skipIf": "Bỏ nếu đã mệt; đi muộn hơn thì dùng Donki 24h vào tối ngày 2."
   },
   {
@@ -12652,7 +12652,7 @@ export const SHOP_PLAN: any = {
     "sh-abc-mart-shibuya",
     "sh-shibuya-parco"
    ],
-   "focus": "Giày ASICS thử ở ABC-MART Shibuya (Onitsuka Tiger chưa xác nhận được chi nhánh, xem lại gần chuyến đi). 3COINS và Loft cho đồ nhỏ, CANMAKE có tester ở Loft.",
+   "focus": "Giày ASICS thử ở ABC-MART Shibuya. 3COINS và Loft cho đồ nhỏ, CANMAKE có tester ở Loft.",
    "why": "Đi theo thứ tự Meiji Jingū → UNIQLO Harajuku (11–21) → Omotesandō → 3COINS (11–20) → Cat Street → GU/Loft/PARCO ở Udagawachō, rồi tới Toritake lúc 17:30. Đồ mua nằm trong túi xách.",
    "skipIf": "Bỏ PARCO nếu không quan tâm Pokémon Center và Nintendo TOKYO; mưa to thì chỉ ghé cụm Udagawachō."
   },
@@ -12687,7 +12687,7 @@ export const SHOP_PLAN: any = {
     "sh-hakone-yumoto-ekimae"
    ],
    "focus": "Chỉ xem đồ rất nhẹ: bánh manju đóng gói, đồ gỗ nhỏ. Còn mang cả ngày và cả đêm Mizunoto.",
-   "why": "Khoảng 20 phút chờ giữa Romancecar và xe buýt H. Giờ mở của phố trước ga chưa xác nhận.",
+   "why": "Khoảng 20 phút chờ giữa Romancecar và xe buýt H.",
    "skipIf": "Bỏ nếu Romancecar đến muộn hoặc xe buýt H sắp chạy."
   },
   {
@@ -12703,7 +12703,7 @@ export const SHOP_PLAN: any = {
     "sh-kashinoichi-shimizu"
    ],
    "focus": "Xem hàng hải sản khô, đóng gói hạn dài. Không mua đồ tươi vì còn nhiều tiếng tàu.",
-   "why": "Khu chợ nằm cạnh Kaizan, đi 3 phút từ ga Shimizu. Giờ khu chợ chưa xác nhận; nhà hàng Kaizan mở 10–21.",
+   "why": "Khu chợ nằm cạnh Kaizan, đi 3 phút từ ga Shimizu. Nhà hàng Kaizan mở 10–21.",
    "skipIf": "Bỏ nếu lịch tàu dày hoặc giờ chợ chưa mở."
   },
   {
@@ -12718,7 +12718,7 @@ export const SHOP_PLAN: any = {
    "stores": [
     "sh-jr-nagoya-takashimaya"
    ],
-   "focus": "Chỉ nếu dư thời gian trước tàu Kintetsu 15:50: đồ ăn nhẹ cho tàu. Quà Nagoya chưa xác nhận nên không lên danh mục.",
+   "focus": "Chỉ nếu dư thời gian trước tàu Kintetsu 15:50: đồ ăn nhẹ cho tàu.",
    "why": "Shinkansen tới khoảng 14:30–14:50, còn Kintetsu 15:50. Đổi từ JR sang Kintetsu mất 15–20 phút đi bộ, tính cả đông người.",
    "skipIf": "Bỏ nếu Shinkansen đến trễ hoặc phải xếp hàng đổi vé Kintetsu."
   },
@@ -12735,7 +12735,7 @@ export const SHOP_PLAN: any = {
     "sh-welcia-ise-kawasaki"
    ],
    "focus": "Nước, thuốc cảm, miếng dán chân sau hai ngày đi nhiều. Ise là thành phố nhỏ, quanh ga cửa hàng đóng sớm.",
-   "why": "Drugstore lớn gần nhất tìm được. Đi 10 phút từ Butasute hoặc ERA Ise; giờ mở chưa xác nhận.",
+   "why": "Drugstore lớn gần nhất tìm được. Đi 10 phút từ Butasute hoặc ERA Ise.",
    "skipIf": "Bỏ nếu đã đủ nước và thuốc; hoặc nhờ lễ tân ERA Ise chỉ cửa hàng tiện lợi gần hơn."
   },
   {
@@ -12766,7 +12766,7 @@ export const SHOP_PLAN: any = {
    "stores": [
     "sh-welcia-ise-kawasaki"
    ],
-   "focus": "Bổ sung nước, thuốc nếu thiếu. Tối Thứ Bảy, giờ đóng cửa chưa xác nhận.",
+   "focus": "Bổ sung nước, thuốc nếu thiếu. Tối Thứ Bảy.",
    "why": "Manpuku cách Welcia khoảng 10 phút, về ERA Ise cùng chiều.",
    "skipIf": "Bỏ nếu đã mua ở slot-5-3."
   },
@@ -12783,7 +12783,7 @@ export const SHOP_PLAN: any = {
     "sh-toba-marche"
    ],
    "focus": "Đồ khô, snack hải sản đóng gói. Vali đã gửi locker nên chỉ mua gì cầm được.",
-   "why": "Có hơn hai tiếng chờ trước Shimakaze 15:20 sau bữa ở Sazanami. Giờ Toba Marché chưa xác nhận.",
+   "why": "Có hơn hai tiếng chờ trước Shimakaze 15:20 sau bữa ở Sazanami.",
    "skipIf": "Bỏ nếu muốn ngồi quán cà phê chờ tàu; Chủ Nhật có thể đông."
   },
   {
@@ -12903,7 +12903,7 @@ export const SHOP_PLAN: any = {
     "sh-nakagawa-masashichi-nara"
    ],
    "focus": "Khăn kaya fukin ×6 (khoảng ¥700/cái), đồ gia dụng nhỏ làm tay.",
-   "why": "Trong lịch lúc 14:00. Chưa xác nhận giờ và ngày nghỉ, nhưng lịch Hōsekibako 15:00 là mốc cố định nên giữ đúng giờ.",
+   "why": "Trong lịch lúc 14:00. Lịch Hōsekibako 15:00 là mốc cố định nên giữ đúng giờ.",
    "skipIf": "Bỏ nếu muộn so với giờ Hōsekibako."
   },
   {
@@ -12957,7 +12957,7 @@ export const SHOP_PLAN: any = {
    ],
    "focus": "9:45–11:00 Dōguyasuji: hai bát nhỏ dùng được (khoảng ¥1.200/cái; ví dụ Taisei Shokki 10–18h, Yamaka Tōki 10–18h); dao chỉ khi biết thép và cách bảo quản. 12:00–12:45 Takashimaya: hộp bánh Yoku Moku ×4 và quà hạn dài. Workman Colors Namba CITY nếu còn thời gian.",
    "why": "Dōguyasuji mở 9:30–10:00, đóng 18:00; lịch tới đây lúc 9:45 sau chợ Kuromon. Takashimaya cạnh Namba, 551 Hōrai nằm giữa. Vali đã ở hotel, cân thử lúc 16:55 nên mua đồ nặng từ đây.",
-   "skipIf": "Den Den Town (ga Nipponbashi, cách Dōguyasuji khoảng 5 phút, giờ chưa xác nhận) chỉ ghé nếu thừa giờ; bỏ Workman nếu đã có đồ chống gió."
+   "skipIf": "Den Den Town (ga Nipponbashi, cách Dōguyasuji khoảng 5 phút) chỉ ghé nếu thừa giờ; bỏ Workman nếu đã có đồ chống gió."
   },
   {
    "id": "slot-11-2",
@@ -13035,7 +13035,7 @@ export const SHOP_PLAN: any = {
   "Vali gửi Kyoto → Osaka sáng ngày 9: mua nhẹ ngày 9–10; đồ nặng, dễ vỡ (bát, hộp bánh) để ngày 11 khi vali đã ở hotel Forza.",
   "Quà ăn hạn dài và trà mua ở Kyoto (ngày 8–9) và Osaka (ngày 11); bánh tươi như Akafuku và 551 Hōrai ăn tại chỗ.",
   "Drugstore và Donki để buổi tối muộn: Donki Akihabara, MEGA Donki Shibuya, Donki Dōtonbori Midōsuji mở 24h và có tax-free.",
-  "Tax-free từ 1/11/2026 (theo trang Daimaru Kyoto, chưa thấy trang chính phủ): trả giá có thuế, làm thủ tục tại quầy trong ngày với hộ chiếu, tối thiểu ¥5.000 trước thuế gộp trong ngày. Trước khi ký gửi ở sân bay phải qua hải quan duyệt, mang theo cả hàng; hoàn tiền sau, phí tới 2,3%.",
+  "Tax-free từ 1/11/2026: trả giá có thuế, làm thủ tục tại quầy trong ngày với hộ chiếu, tối thiểu ¥5.000 trước thuế gộp trong ngày. Trước khi ký gửi ở sân bay phải qua hải quan duyệt, mang theo cả hàng; hoàn tiền sau, phí tới 2,3%.",
   "Ippodo Honten mở 10:00–17:00 và nghỉ thứ Tư tuần thứ hai; sau 17h dùng quầy Ippodo B1 Daimaru Kyoto (mở đến 20:00).",
   "Phố Dōguyasuji mở khoảng 9:30–10:00 và đóng 18:00: nên đến 9:45, không phải 9:00 như lịch hiện tại.",
   "Hands Shibuya đóng cửa hẳn 15/11/2026 và Hands Nagoya ngày 11/1/2027; còn Hands Shinjuku, Kyoto, Shinsaibashi và Hands Be Akihabara.",
@@ -13118,7 +13118,7 @@ export const RIDES_R: any = [
   "line": "Keikyu Airport Line → Keikyu Main Line",
   "from": "羽田空港第3ターミナル",
   "to": "品川",
-  "train": "Tàu Keikyu (京急) hướng Shinagawa, khoảng 15 phút (trang sân bay Haneda). Loại エアポート快特 chạy thẳng T3 → Shinagawa, ban ngày khoảng 40 phút một chuyến (Wikipedia, cập nhật 11/2023); 快特 dừng thêm ở Keikyu-Kamata, 特急 dừng thêm 穴守稲荷, 大鳥居, 糀谷, 京急蒲田, 平和島, 青物横丁 (mẫu Yahoo 2/11/2026, từ 天空橋 mất 15 phút). Cẩn thận: đường 2 ở T3 còn có tàu đi Yokohama, chỉ lên tàu ghi Shinagawa, Asakusa hoặc Narita Airport.",
+  "train": "Tàu Keikyu (京急) hướng Shinagawa, khoảng 15 phút. Loại エアポート快特 chạy thẳng T3 → Shinagawa, ban ngày khoảng 40 phút một chuyến; 快特 dừng thêm ở Keikyu-Kamata, 特急 dừng thêm 穴守稲荷, 大鳥居, 糀谷, 京急蒲田, 平和島, 青物横丁 (từ 天空橋 mất 15 phút). Cẩn thận: đường 2 ở T3 còn có tàu đi Yokohama, chỉ lên tàu ghi Shinagawa, Asakusa hoặc Narita Airport.",
   "seat": "Không đặt chỗ, ngồi bên nào cũng được vì khoảng 3–5 phút đầu (ước tính) hoàn toàn trong hầm và phần còn lại là phố. Đứng gần cửa, kéo vali sát người; ga T3 nằm ở B2F, cổng soát vé hướng Tokyo/Yokohama ở tầng 2 sảnh đến (đi xuống thang máy tới đường 2).",
   "views": [
    {
@@ -13143,7 +13143,7 @@ export const RIDES_R: any = [
     "side": "both",
     "fromSt": "平和島",
     "toSt": "青物横丁",
-    "what": "Ga 平和島 nằm trên cao, gần trường đua thuyền 平和島 (không nằm trên đảo Heiwajima). Tàu chạy dọc quốc lộ 15 (第一京浜) ở phía tây; cảnh là phố nội thành, chưa tìm được nguồn nói thấy vịnh Tokyo từ tàu.",
+    "what": "Ga 平和島 nằm trên cao, gần trường đua thuyền 平和島 (không nằm trên đảo Heiwajima). Tàu chạy dọc quốc lộ 15 (第一京浜) ở phía tây; cảnh là phố nội thành.",
     "fuji": false,
     "tip": null,
     "src": "https://ja.wikipedia.org/wiki/平和島駅"
@@ -13163,7 +13163,7 @@ export const RIDES_R: any = [
    "prevSt": "北品川",
    "announce": "まもなく、品川です。",
    "announceRomaji": "Mamonaku, Shinagawa desu.",
-   "text": "Tàu từ Haneda thường vào đường 2 ở Keikyu Shinagawa (Wikipedia chưa xác nhận, nhìn biển trên sân ga). Đi theo biển 'JR線 / JR Lines' tới cổng trung gian trên đường 1, chạm thẻ Suica/PASMO để sang JR; nếu dùng vé giấy không từ tính thì dùng quầy bên cạnh cổng. Rồi lên JR Keihin-Tōhoku hướng Tokyo/Ōmiya ở đường 4 để đi Akihabara."
+   "text": "Tàu từ Haneda thường vào đường 2 ở Keikyu Shinagawa. Đi theo biển 'JR線 / JR Lines' tới cổng trung gian trên đường 1, chạm thẻ Suica/PASMO để sang JR; nếu dùng vé giấy không từ tính thì dùng quầy bên cạnh cổng. Rồi lên JR Keihin-Tōhoku hướng Tokyo/Ōmiya ở đường 4 để đi Akihabara."
   },
   "onboard": null,
   "sources": [
@@ -13184,7 +13184,7 @@ export const RIDES_R: any = [
   "line": "Odakyu Romancecar",
   "from": "新宿",
   "to": "箱根湯本",
-  "train": "Ngày thường hiện có GSE 70000 (7 toa, loại duy nhất có ghế quan sát), MSE 60000 (xanh dương, không có ghế quan sát) và EXE/EXEα 30000 (10 toa); VSE 50000 đã nghỉ từ 2023. Loại tàu mỗi chuyến đổi theo ngày (ký hiệu ▲ trong bảng giờ), tháng 5/2026 MSE bị lỗi thiết bị nên vài chuyến phải thay bằng EXE; Odakyu dự kiến đưa loại mới 80000 vào khoảng 3/2029. Bảng giờ ngày thường áp dụng từ 14/3/2026 không có chuyến はこね nào rời Shinjuku lúc 7:30: はこね41号 7:37 → Hakone-Yumoto 9:22 (loại E, 105 phút vì dừng Shin-Yurigaoka, Sagami-Ono, Hon-Atsugi, Isehara, Hadano, Odawara), はこね21号 8:11 → 9:53, はこね1号 8:31 → 10:18, はこね71号 9:20 → 10:55. Chuyến có ký hiệu ghế quan sát sớm nhất là さがみ91号 7:00 → Odawara 8:16, rồi đổi sang tàu Hakone Tozan khoảng 15 phút tới Hakone-Yumoto. Giá Shinjuku – Hakone-Yumoto khoảng ¥2.470 (vé tàu ¥1.270 + phụ phí ¥1.200, Ekitan 3/2026). Giờ 2027 chưa công bố, cần kiểm tra lại sau kỳ đổi giờ tháng 3/2027.",
+  "train": "Ngày thường hiện có GSE 70000 (7 toa, loại duy nhất có ghế quan sát), MSE 60000 (xanh dương, không có ghế quan sát) và EXE/EXEα 30000 (10 toa); VSE 50000 đã nghỉ từ 2023. Loại tàu mỗi chuyến đổi theo ngày (ký hiệu ▲ trong bảng giờ), tháng 5/2026 MSE bị lỗi thiết bị nên vài chuyến phải thay bằng EXE; Odakyu dự kiến đưa loại mới 80000 vào khoảng 3/2029. Bảng giờ ngày thường áp dụng từ 14/3/2026 không có chuyến はこね nào rời Shinjuku lúc 7:30: はこね41号 7:37 → Hakone-Yumoto 9:22 (loại E, 105 phút vì dừng Shin-Yurigaoka, Sagami-Ono, Hon-Atsugi, Isehara, Hadano, Odawara), はこね21号 8:11 → 9:53, はこね1号 8:31 → 10:18, はこね71号 9:20 → 10:55. Chuyến có ký hiệu ghế quan sát sớm nhất là さがみ91号 7:00 → Odawara 8:16, rồi đổi sang tàu Hakone Tozan khoảng 15 phút tới Hakone-Yumoto. Giá Shinjuku – Hakone-Yumoto khoảng ¥2.470 (vé tàu ¥1.270 + phụ phí ¥1.200).",
   "seat": "Fuji, núi Tanzawa và sông Tama ở bên PHẢI theo chiều đi (ghế C/D theo hướng dẫn của Odakyu), nên chọn cửa sổ C hoặc D. Muốn nhìn thẳng phía trước: GSE toa 1 (đầu tàu hướng Hakone), hàng 1; ghế B/C sát lối đi nhìn tốt nhất, ghế cửa sổ A/D bị trụ che. Ghế C hàng 1 vừa nhìn trước vừa nằm bên Fuji. Đặt vé lúc 10:00 giờ Nhật ngày 21/9/2027 (8:00 sáng giờ Việt Nam) trên e-Romancecar; ghế quan sát chỉ MUA ngay (trả tiền luôn), không giữ chỗ trước qua mạng. Nếu không có GSE: MSE chỉ có ghế 1C nhìn được phía trước, EXE ghế 1C/1D nhìn hạn chế.",
   "views": [
    {
@@ -13218,7 +13218,7 @@ export const RIDES_R: any = [
     "side": "both",
     "fromSt": "海老名",
     "toSt": "本厚木",
-    "what": "Tàu qua sông Sagami (相模川) giữa Ebina và Hon-Atsugi, sau đó núi bắt đầu hiện ở phía bên phải. Chưa tìm được nguồn nói rõ sông nằm bên nào của tàu nên cả hai bên đều nhìn được.",
+    "what": "Tàu qua sông Sagami (相模川) giữa Ebina và Hon-Atsugi, sau đó núi bắt đầu hiện ở phía bên phải.",
     "fuji": false,
     "tip": null,
     "src": "https://ja.wikipedia.org/wiki/相模川"
@@ -13263,7 +13263,7 @@ export const RIDES_R: any = [
    "announceRomaji": "Mamonaku, Hakone-Yumoto desu.",
    "text": "Tàu dừng cuối ở Odawara; sau đó khoảng 15 phút chạy qua 箱根板橋, 風祭, 入生田 mà không dừng, hãy sẵn sàng khi qua 入生田. Từ 2008 Romancecar chỉ vào đường 1 ở Hakone-Yumoto. Lên nhà ga trên cầu, qua cổng soát vé; nhà vệ sinh ở trong cổng phía tây nam. Xe buýt (kế hoạch: tuyến H của Hakone Tozan Bus) và taxi ở ngoài ga; GSE không có giá hành lý trên đầu nên kiểm tra kỹ dưới ghế khi xuống."
   },
-  "onboard": "Từ 3/2021 không còn bán đồ ăn trên tàu (Ekitan), được ăn uống tại chỗ; mua đồ ăn ở Shinjuku trước giờ lên tàu. Odakyu Navi (12/2023, giá và giờ mở cửa có thể đã đổi) gợi ý khu Shinjuku Delicious Park ở hầm toà Odakyu Ace Bắc; quầy nước Bubbles chỉ mở từ 8:00 nên không kịp tàu 7:37. GSE có 1 nhà vệ sinh rộng, ổ cắm và bàn gập ở tay vịn, hành lý để dưới ghế (trừ vài ghế), không có giá trên đầu; EXEα có chỗ để hành lý lớn.",
+  "onboard": "Từ 3/2021 không còn bán đồ ăn trên tàu, được ăn uống tại chỗ; mua đồ ăn ở Shinjuku trước giờ lên tàu. Odakyu Navi (12/2023, giá và giờ mở cửa có thể đã đổi) gợi ý khu Shinjuku Delicious Park ở hầm toà Odakyu Ace Bắc; quầy nước Bubbles chỉ mở từ 8:00 nên không kịp tàu 7:37. GSE có 1 nhà vệ sinh rộng, ổ cắm và bàn gập ở tay vịn, hành lý để dưới ghế (trừ vài ghế), không có giá trên đầu; EXEα có chỗ để hành lý lớn.",
   "sources": [
    "https://www.odakyu.jp/romancecar/timetable/weekday/down/",
    "https://www.odakyu.jp/romancecar/booking/",
@@ -13287,8 +13287,8 @@ export const RIDES_R: any = [
   "line": "Thuyền hồ Ashi (箱根海賊船)",
   "from": "元箱根港",
   "to": "桃源台",
-  "train": "Ba tàu 'cướp biển' luân phiên: Victory (2007), Royal II (2013, tân trang 7/2026) và Queen Ashinoko (2019, thân vàng); hôm đó chạy tàu nào do vận hành quyết định, hỏi quầy cảng. Tuyến chạy vòng 桃源台 → 箱根町 → 元箱根 → 桃源台 nên chiều Moto-Hakone → Tōgendai là chặng cuối vòng. Kế hoạch ghi khoảng 40 phút; Hakonenavi ghi các tuyến 25–40 phút. Cabin đặc biệt (特別船室) phụ thu ¥800 người lớn cho tuyến này. Giờ chạy 2027 chưa công bố.",
-  "seat": "Ra boong ngoài, đứng mạn TRÁI theo chiều đi, nửa phía mũi tàu: cổng torii hiện ở trước-trái ngay khi rời bến rồi lùi ra sau chỉ sau vài phút, còn hướng Fuji cũng nằm phía trước-trái suốt chặng. Trời mưa hoặc lạnh thì vào cabin đặc biệt cạnh cửa sổ trái. Hướng này chỉ suy ra từ toạ độ bến, torii và đỉnh Fuji; chưa tìm được nguồn chính thức nói rõ mạn nào.",
+  "train": "Ba tàu 'cướp biển' luân phiên: Victory (2007), Royal II (2013, tân trang 7/2026) và Queen Ashinoko (2019, thân vàng); hôm đó chạy tàu nào do vận hành quyết định, hỏi quầy cảng. Tuyến chạy vòng 桃源台 → 箱根町 → 元箱根 → 桃源台 nên chiều Moto-Hakone → Tōgendai là chặng cuối vòng. Kế hoạch ghi khoảng 40 phút; Hakonenavi ghi các tuyến 25–40 phút. Cabin đặc biệt (特別船室) phụ thu ¥800 người lớn cho tuyến này.",
+  "seat": "Ra boong ngoài, đứng mạn TRÁI theo chiều đi, nửa phía mũi tàu: cổng torii hiện ở trước-trái ngay khi rời bến rồi lùi ra sau chỉ sau vài phút, còn hướng Fuji cũng nằm phía trước-trái suốt chặng. Trời mưa hoặc lạnh thì vào cabin đặc biệt cạnh cửa sổ trái.",
   "views": [
    {
     "side": "left",
@@ -13328,9 +13328,9 @@ export const RIDES_R: any = [
    "prevSt": "元箱根港",
    "announce": "まもなく、桃源台港です。",
    "announceRomaji": "Mamonaku, Togendai-kō desu.",
-   "text": "Chuyến chạy thẳng theo tuyến vòng nên không có cảng giữa chặng (kiểm tra lại bảng giờ vì có chuyến ghé Hakone-machi). Khi thấy bến ở đầu hồ thì ra cửa lối xuống cầu tàu. Câu thông báo chỉ là mẫu phổ biến, chưa kiểm chứng cho tuyến này."
+   "text": "Chuyến chạy thẳng theo tuyến vòng nên không có cảng giữa chặng (kiểm tra lại bảng giờ vì có chuyến ghé Hakone-machi). Khi thấy bến ở đầu hồ thì ra cửa lối xuống cầu tàu. Câu thông báo chỉ là mẫu phổ biến."
   },
-  "onboard": "Mỗi tàu có quầy bán đồ (売店) và 3 nhà vệ sinh, một phòng đa năng. Queen Ashinoko bán bia tươi và cocktail ở tầng 1, Victory bán snack và đồ uống ở tầng 1 (chưa rõ giá). Tại cảng Moto-Hakone có quầy ăn vặt PIRATE'S GALLEY.",
+  "onboard": "Mỗi tàu có quầy bán đồ (売店) và 3 nhà vệ sinh, một phòng đa năng. Queen Ashinoko bán bia tươi và cocktail ở tầng 1, Victory bán snack và đồ uống ở tầng 1. Tại cảng Moto-Hakone có quầy ăn vặt PIRATE'S GALLEY.",
   "sources": [
    "https://www.hakonenavi.jp/hakone-kankosen/",
    "https://www.hakonenavi.jp/feature/15190",
@@ -13352,7 +13352,7 @@ export const RIDES_R: any = [
   "from": "桃源台",
   "to": "早雲山",
   "train": "Cabin 18 người, chạy khoảng mỗi phút, 9:00–17:00 (tháng 2–11). Bốn ga: 桃源台 – 姥子 – 大涌谷 – 早雲山, mỗi chặng khoảng 10 phút; 姥子 chỉ là ga đi qua, cứ ngồi yên; toàn tuyến phải ĐỔI cabin ở 大涌谷. Có thể ngừng khi gió mạnh, sấm, bão hoặc khí núi lửa tăng; xem tình trạng chạy trên Hakonenavi sáng hôm đó. Vé lẻ một chiều toàn tuyến ¥2.000 từ 1/10/2025.",
-  "seat": "Chặng 桃源台 → 大涌谷 chạy về hướng đông, Fuji ở phía SAU-bên trái (lệch khoảng 115°, cách ~28 km) nên đứng sát cửa sổ bên trái và ngoái ra sau; trang Hakonenavi khuyên đi chiều ngược lại (hướng Tōgendai) để Fuji và hồ ở phía trước. Chặng 大涌谷 → 早雲山 đứng bên PHẢI: vùng phun khí lưu huỳnh nằm ở phía nam, tức bên phải khi chạy về hướng đông (suy từ toạ độ, chưa có nguồn nói rõ).",
+  "seat": "Chặng 桃源台 → 大涌谷 chạy về hướng đông, Fuji ở phía SAU-bên trái (lệch khoảng 115°, cách ~28 km) nên đứng sát cửa sổ bên trái và ngoái ra sau; trang Hakonenavi khuyên đi chiều ngược lại (hướng Tōgendai) để Fuji và hồ ở phía trước. Chặng 大涌谷 → 早雲山 đứng bên PHẢI: vùng phun khí lưu huỳnh nằm ở phía nam, tức bên phải khi chạy về hướng đông.",
   "views": [
    {
     "side": "left",
@@ -13378,7 +13378,7 @@ export const RIDES_R: any = [
     "toSt": "大涌谷",
     "what": "Tại ga Ōwakudani, Fuji nhìn được về phía tây-tây bắc từ khu cửa hàng quanh ga khi trời quang; ga này đông khách đoàn từ 10h. Chỗ đổi cabin: sân ga theo hướng đi khác nhau nên xem biển 早雲山 / 桃源台.",
     "fuji": true,
-    "tip": "Trước 12h là thời điểm tốt; Ōwakudani có 大涌谷くろたまご館 (giá trứng đen chưa xác minh).",
+    "tip": "Trước 12h là thời điểm tốt; Ōwakudani có 大涌谷くろたまご館.",
     "src": "https://www.hakonenavi.jp/hakone-ropeway/"
    },
    {
@@ -13394,14 +13394,14 @@ export const RIDES_R: any = [
   "transfers": [
    {
     "at": "大涌谷",
-    "text": "Xuống cabin, đổi sang tuyến Sōunzan: sân ga khác nhau theo hướng đi, xem biển 早雲山. Toàn tuyến cần đổi ở đây (Wikipedia). Kế hoạch dành khoảng 1 giờ ở Ōwakudani; trời có khí gas thì tuyến này có thể ngừng."
+    "text": "Xuống cabin, đổi sang tuyến Sōunzan: sân ga khác nhau theo hướng đi, xem biển 早雲山. Toàn tuyến cần đổi ở đây. Kế hoạch dành khoảng 1 giờ ở Ōwakudani; trời có khí gas thì tuyến này có thể ngừng."
    }
   ],
   "alight": {
    "prevSt": "大涌谷",
    "announce": "まもなく、早雲山です。",
    "announceRomaji": "Mamonaku, Sōunzan desu.",
-   "text": "Chặng cuối từ Ōwakudani chạy thẳng không dừng. Ở Sōunzan đi theo biển 'ケーブルカー' sang cáp treo kéo đi Gōra; cáp treo không dùng được thẻ IC nên chuẩn bị Freepass hoặc vé giấy. Câu thông báo chỉ là mẫu phổ biến, chưa kiểm chứng cho tuyến này."
+   "text": "Chặng cuối từ Ōwakudani chạy thẳng không dừng. Ở Sōunzan đi theo biển 'ケーブルカー' sang cáp treo kéo đi Gōra; cáp treo không dùng được thẻ IC nên chuẩn bị Freepass hoặc vé giấy. Câu thông báo chỉ là mẫu phổ biến."
   },
   "onboard": "Không có dịch vụ trong cabin; ăn uống và nhà vệ sinh ở các ga (Tōgendai có nhà hàng ở B1F). Chưa có thông tin về chỗ để vali trong cabin, nên mang đồ gọn.",
   "sources": [
@@ -13451,7 +13451,7 @@ export const RIDES_R: any = [
    "prevSt": "公園下",
    "announce": "まもなく、強羅です。",
    "announceRomaji": "Mamonaku, Gōra desu.",
-   "text": "Cáp treo cuối tuyến nên xuống hết ở Gōra; để ý hành lý ở đầu toa. Câu thông báo chỉ là mẫu phổ biến, chưa kiểm chứng cho tuyến này."
+   "text": "Cáp treo cuối tuyến nên xuống hết ở Gōra; để ý hành lý ở đầu toa. Câu thông báo chỉ là mẫu phổ biến."
   },
   "onboard": null,
   "sources": [
@@ -13485,7 +13485,7 @@ export const RIDES_R: any = [
     "toSt": "小涌谷",
     "what": "Nhiều đường cong rất gấp, có chỗ bán kính chỉ 30 m: ray kêu rít và có phun nước làm mát ray. Cảnh là rừng và các khách sạn quanh Kowakudani.",
     "fuji": false,
-    "tip": "Chưa tìm được nguồn nói thấy Fuji ở đoạn này.",
+    "tip": "",
     "src": "https://hakutsuru583.hatenablog.com/entry/2026/09/10/173000"
    }
   ],
@@ -13512,7 +13512,7 @@ export const RIDES_R: any = [
   "from": "小涌谷",
   "to": "小田原",
   "train": "Tàu leo núi Hakone Tozan xuống Hakone-Yumoto rồi đổi sang tàu Odakyu/Tozan đi Odawara. Bảng giờ ngày thường từ 3/2026: 小涌谷 7:48 → 箱根湯本 8:17, 8:06 → 8:33, 8:21 → 8:56 (chờ tránh tàu nên lâu hơn), 8:46 → 9:16; Hakone-Yumoto → Odawara khoảng 14 phút (8:24 → 8:38, 8:43 → 8:57, 9:02 → 9:16, 9:24 → 9:38). Ví dụ 8:06 → 8:33 rồi 8:43 → 8:57 để kịp tàu JR 9:27 ở Odawara, dư khoảng 30 phút. Từ 14/3/2026 tàu địa phương Odawara – Hakone-Yumoto chạy kiểu một người lái. Ba điểm đảo chiều là 出山信号場, 大平台駅, 上大平台信号場; 仙人台信号場 chỉ là chỗ tránh tàu, không phải điểm đảo chiều.",
-  "seat": "Ngồi cửa sổ bên TRÁI theo chiều tàu lúc rời Kowakudani. Tàu đảo chiều 3 lần nhưng bạn giữ nguyên chỗ: cửa sổ này quay về phía thung lũng Hayakawa từ 大平台 trở xuống (suy ra từ vị trí đường ray và cầu trong dữ liệu đường sắt MLIT cộng với một bài đánh giá 2007 khuyên bên trái khi rời Hakone-Yumoto đi lên; chưa có nguồn chính thức). Khi có chỗ, ngồi toa đầu hoặc cuối để thấy dốc rõ hơn.",
+  "seat": "Ngồi cửa sổ bên TRÁI theo chiều tàu lúc rời Kowakudani. Tàu đảo chiều 3 lần nhưng bạn giữ nguyên chỗ: cửa sổ này quay về phía thung lũng Hayakawa từ 大平台 trở xuống (suy ra từ vị trí đường ray và cầu trong dữ liệu đường sắt MLIT cộng với một bài đánh giá 2007 khuyên bên trái khi rời Hakone-Yumoto đi lên). Khi có chỗ, ngồi toa đầu hoặc cuối để thấy dốc rõ hơn.",
   "views": [
    {
     "side": "both",
@@ -13538,7 +13538,7 @@ export const RIDES_R: any = [
     "toSt": "塔ノ沢",
     "what": "Tàu xuống tới 出山信号場 và đảo chiều lần 3, rồi băng qua cầu Hayakawa (早川橋梁, hay 出山の鉄橋) cao 43 m so với mặt nước, giàn Warren đôi dài nhịp 60,65 m, hai đầu là hầm. Cầu dựng năm 1888 cho tuyến Tōkaidō rồi dời về đây năm 1917, là di sản đã đăng ký; tàu qua rất nhanh.",
     "fuji": false,
-    "tip": "Chuẩn bị máy ảnh khi tàu dừng ở 出山: từ đó thấy cầu và cầu Tōnosawa (theo bài đánh giá 2007), cửa sổ bên trái hướng xuống thung lũng.",
+    "tip": "Chuẩn bị máy ảnh khi tàu dừng ở 出山: từ đó thấy cầu và cầu Tōnosawa, cửa sổ bên trái hướng xuống thung lũng.",
     "src": "https://foret-aventure.jp/news/9450/"
    },
    {
@@ -13554,7 +13554,7 @@ export const RIDES_R: any = [
     "side": "right",
     "fromSt": "箱根湯本",
     "toSt": "小田原",
-    "what": "Đoạn Hakone-Yumoto – Odawara (14 phút) qua 入生田, 風祭, 箱根板橋 dọc sông Hayakawa. Odakyu khuyên ghế bên trái cho cảnh sông và núi khi đi Odawara → Hakone-Yumoto, nên chiều ngược lại cảnh này nằm bên phải (suy ngược, chưa có nguồn nói riêng cho tàu thường).",
+    "what": "Đoạn Hakone-Yumoto – Odawara (14 phút) qua 入生田, 風祭, 箱根板橋 dọc sông Hayakawa. Odakyu khuyên ghế bên trái cho cảnh sông và núi khi đi Odawara → Hakone-Yumoto, nên chiều ngược lại cảnh này nằm bên phải (suy ngược).",
     "fuji": false,
     "tip": null,
     "src": "https://www.odakyu.jp/romancecar/navi/enjoy/76/"
@@ -13563,14 +13563,14 @@ export const RIDES_R: any = [
   "transfers": [
    {
     "at": "箱根湯本",
-    "text": "Tàu từ Kowakudani vào đường 3 (đường cụt dành cho tàu Gōra); tàu đi Odawara ở đường 1 hoặc 2 (tàu thường 4 toa dùng đường 2). Đường 2 và 3 nối đầu nhau với chắn ray ở giữa nên khoảng cách chuyển ngắn (suy từ Wikipedia, xem bảng điện để biết đường thực tế). Ga có cổng soát vé trong toà nhà trên cầu và quầy vé Romancecar; dư thời gian có thể chờ đến 10 phút (đến 8:33, tàu 8:43)."
+    "text": "Tàu từ Kowakudani vào đường 3 (đường cụt dành cho tàu Gōra); tàu đi Odawara ở đường 1 hoặc 2 (tàu thường 4 toa dùng đường 2). Đường 2 và 3 nối đầu nhau với chắn ray ở giữa nên khoảng cách chuyển ngắn (xem bảng điện để biết đường thực tế). Ga có cổng soát vé trong toà nhà trên cầu và quầy vé Romancecar; dư thời gian có thể chờ đến 10 phút (đến 8:33, tàu 8:43)."
    }
   ],
   "alight": {
    "prevSt": "箱根板橋",
    "announce": "まもなく、小田原です。",
    "announceRomaji": "Mamonaku, Odawara desu.",
-   "text": "Tàu Odakyu/Tozan thẳng dùng đường 7 khi đi Hakone-Yumoto và đường 10 khi đi Shinjuku; tàu 4 toa chạy đi lại với Hakone-Yumoto dùng đường 11 (Wikipedia). Rồi theo biển 'JR線' qua cổng chuyển Odakyu – JR; tàu JR Tōkaidō hướng Atami ở đường 3 hoặc 4 (mẫu Yahoo 2026). Dự trữ 10–15 phút nếu cần chạm IC hoặc mua vé giấy Odawara → Shimizu."
+   "text": "Tàu Odakyu/Tozan thẳng dùng đường 7 khi đi Hakone-Yumoto và đường 10 khi đi Shinjuku; tàu 4 toa chạy đi lại với Hakone-Yumoto dùng đường 11. Rồi theo biển 'JR線' qua cổng chuyển Odakyu – JR; tàu JR Tōkaidō hướng Atami ở đường 3 hoặc 4. Dự trữ 10–15 phút nếu cần chạm IC hoặc mua vé giấy Odawara → Shimizu."
   },
   "onboard": null,
   "sources": [
@@ -13595,7 +13595,7 @@ export const RIDES_R: any = [
   "line": "JR Tōkaidō Line (local)",
   "from": "小田原",
   "to": "清水",
-  "train": "Hai chặng: JR East Odawara → Atami (khoảng 23–24 phút, tàu 4 cửa 10/15 toa, ba chuyến một giờ) rồi JR Central Atami → Numazu → Shimizu (khoảng 1 giờ 4 phút, tàu 313/315, từ 3/2026 nhiều chuyến rút còn 4 toa). Mẫu thứ Hai 2/11/2026 (Yahoo): 小田原 9:27 → 熱海 9:50; 熱海 10:00 → 函南 10:07 → 三島 10:12 → 沼津 10:18 → 富士 10:40 → 富士川 10:45 → 由比 10:54 → 清水 11:04; cả hành trình 1 giờ 37 phút, ngắn hơn nhiều so với 2 giờ 30 trong kế hoạch. Chuyến tiếp theo: 小田原 9:43 → 熱海 10:06, 熱海 10:16 → 清水 11:19. Tàu JR Central xuất phát từ Atami chạy thẳng tới Hamamatsu nên không phải đổi ở Numazu. Giờ 2027 chưa công bố.",
+  "train": "Hai chặng: JR East Odawara → Atami (khoảng 23–24 phút, tàu 4 cửa 10/15 toa, ba chuyến một giờ) rồi JR Central Atami → Numazu → Shimizu (khoảng 1 giờ 4 phút, tàu 313/315, từ 3/2026 nhiều chuyến rút còn 4 toa). Mẫu thứ Hai 2/11/2026: 小田原 9:27 → 熱海 9:50; 熱海 10:00 → 函南 10:07 → 三島 10:12 → 沼津 10:18 → 富士 10:40 → 富士川 10:45 → 由比 10:54 → 清水 11:04; cả hành trình 1 giờ 37 phút, ngắn hơn nhiều so với 2 giờ 30 trong kế hoạch. Chuyến tiếp theo: 小田原 9:43 → 熱海 10:06, 熱海 10:16 → 清水 11:19. Tàu JR Central xuất phát từ Atami chạy thẳng tới Hamamatsu nên không phải đổi ở Numazu.",
   "seat": "Từ Atami trở đi ngồi bên PHẢI để thấy Fuji (Numazu → Fuji); bên TRÁI là biển ở Nebukawa trước Atami và ở Yui – Okitsu sau Fuji. Một chỗ không đủ cả hai: sang trái trước Atami, qua phải từ Mishima tới Fuji, rồi quay lại trái sau Fujikawa. Tàu JR Central 3 cửa, nhiều chuyến đông vào giờ đi làm.",
   "views": [
    {
@@ -13665,7 +13665,7 @@ export const RIDES_R: any = [
   "transfers": [
    {
     "at": "熱海",
-    "text": "Ranh giới JR East → JR Central. Ga có một cổng soát vé duy nhất trong toà nhà, các sân ga nối nhau bằng hầm bộ hành (Wikipedia). Đường 2·3 là của JR Central đi Mishima/Numazu/Shizuoka (đôi khi đường 4), đường 4·5 là của JR East đi Tokyo; mẫu Yahoo: tàu từ Odawara vào đường 4 (9:27 → 9:50) hoặc đường 2 (9:43 → 10:06), tàu đi Hamamatsu rời đường 3 lúc 10:00, 10:16, 10:31. Đường 2 và 3 chung một đảo nên đổi ngay trên sân ga (suy từ Wikipedia); từ đường 4 phải đi qua hầm bộ hành. Dành 10 phút; số đường thực tế xem bảng điện. Vé giấy Odawara → Shimizu mua ở máy JR tại Odawara thì không phải ra cổng ở Atami. Thẻ IC: Suica và TOICA dùng chung nhưng Atami là ranh giới, không đi một lèo qua Atami được; chạm ra ở cổng Atami rồi chạm vào lại để đi tiếp (từ 3/2021 Atami thuộc vùng TOICA). Giá IC mẫu: Odawara → Atami ¥440 và Atami → Shimizu ¥1.170 (Yahoo 2/11/2026)."
+    "text": "Ranh giới JR East → JR Central. Ga có một cổng soát vé duy nhất trong toà nhà, các sân ga nối nhau bằng hầm bộ hành. Đường 2·3 là của JR Central đi Mishima/Numazu/Shizuoka (đôi khi đường 4), đường 4·5 là của JR East đi Tokyo; tàu từ Odawara vào đường 4 (9:27 → 9:50) hoặc đường 2 (9:43 → 10:06), tàu đi Hamamatsu rời đường 3 lúc 10:00, 10:16, 10:31. Đường 2 và 3 chung một đảo nên đổi ngay trên sân ga; từ đường 4 phải đi qua hầm bộ hành. Dành 10 phút; số đường thực tế xem bảng điện. Vé giấy Odawara → Shimizu mua ở máy JR tại Odawara thì không phải ra cổng ở Atami. Thẻ IC: Suica và TOICA dùng chung nhưng Atami là ranh giới, không đi một lèo qua Atami được; chạm ra ở cổng Atami rồi chạm vào lại để đi tiếp (từ 3/2021 Atami thuộc vùng TOICA). Giá IC mẫu: Odawara → Atami ¥440 và Atami → Shimizu ¥1.170."
    },
    {
     "at": "沼津",
@@ -13678,7 +13678,7 @@ export const RIDES_R: any = [
    "announceRomaji": "Mamonaku, Shimizu desu.",
    "text": "Mẫu Yahoo: tàu Hamamatsu từ Atami vào đường 2 ở Shimizu. Đây là ga JR Shimizu, đừng nhầm với Shin-Shimizu của Shizutetsu. Ra cổng, chạm thẻ TOICA/Suica (hoặc đưa vé giấy); từ ga đến Kaizan khoảng 3 phút đi bộ theo kế hoạch."
   },
-  "onboard": "Không có phục vụ đồ ăn; mua nước và đồ ăn nhẹ ở Odawara hoặc Atami trước khi lên (bữa trưa 11:25 ở Kaizan nên chỉ cần nhẹ). Mọi đoàn tàu JR Central hiện nay đều có nhà vệ sinh (Wikipedia); tàu JR East 4 cửa cũng chạy 15 toa nên hành lý để gọn ở cửa.",
+  "onboard": "Không có phục vụ đồ ăn; mua nước và đồ ăn nhẹ ở Odawara hoặc Atami trước khi lên (bữa trưa 11:25 ở Kaizan nên chỉ cần nhẹ). Mọi đoàn tàu JR Central hiện nay đều có nhà vệ sinh; tàu JR East 4 cửa cũng chạy 15 toa nên hành lý để gọn ở cửa.",
   "sources": [
    "https://transit.yahoo.co.jp/search/result?from=%E5%B0%8F%E7%94%B0%E5%8E%9F&to=%E6%B8%85%E6%B0%B4&y=2026&m=11&d=02&hh=9&m1=2&m2=5&type=1&ticket=ic",
    "https://transit.yahoo.co.jp/search/result?from=%E7%86%B1%E6%B5%B7&to=%E6%B8%85%E6%B0%B4&y=2026&m=11&d=02&hh=9&m1=5&m2=0&type=1&ticket=ic",
@@ -13702,8 +13702,8 @@ export const RIDES_R: any = [
   "line": "Fuji Excursion (富士回遊): JR Chūō Line → Fujikyu Line",
   "from": "新宿",
   "to": "河口湖",
-  "train": "Tàu tốc hành 富士回遊 E353 ba toa, toàn bộ ghế đặt trước (hết chỗ thì được đứng), chạy suốt Shinjuku → Kawaguchiko, 4 chuyến mỗi ngày từ 14/3/2026; chạy ghép với Kaiji/Azusa từ Shinjuku tới Ōtsuki rồi tách ra, do JR East và Fujisan Densetsu Railway (Fujikyu cũ) vận hành. Mẫu chuyến 3 (thứ Tư 4/11/2026): 新宿 7:30 (đường 10) → 立川 7:53 → 八王子 8:03 → 大月 8:40 → 都留文科大学前 8:57 → 下吉田 9:13 → 富士山 9:23 → 富士急ハイランド 9:26 → 河口湖 9:28, tức 1 giờ 58 phút (Fujikyu ghi nhanh nhất 1 giờ 53). Giá Shinjuku → Kawaguchiko ¥4.200 (vé tàu ¥2.580 + vé tốc hành ¥1.620); mở bán 1 tháng trước lúc 10:00, mua qua Eki-net. Giờ 2027 chưa công bố.",
-  "seat": "Chọn cửa sổ bên TRÁI theo chiều đi từ Ōtsuki đến Fujisan: Fuji nằm phía trước-bên trái (lệch 7–33°, cách 34 km giảm còn 15 km; tính từ toạ độ ga và đỉnh núi). Tàu đảo chiều ở 富士山, sau đó Fuji vẫn nằm bên trái theo chiều mới nhưng ở phía sau-trái (lệch 105–116°), tức cửa sổ phía bên kia của toa, nhưng đoạn đó chỉ 5 phút. Chưa có nguồn nói ghế E353 có xoay theo chiều đi không; xem hướng ghế khi lên tàu. Khi đặt vé trên Eki-net chọn ghế cửa sổ phía trái theo chiều đi, chưa kiểm chứng quy ước chữ ghế A–D của E353.",
+  "train": "Tàu tốc hành 富士回遊 E353 ba toa, toàn bộ ghế đặt trước (hết chỗ thì được đứng), chạy suốt Shinjuku → Kawaguchiko, 4 chuyến mỗi ngày từ 14/3/2026; chạy ghép với Kaiji/Azusa từ Shinjuku tới Ōtsuki rồi tách ra, do JR East và Fujisan Densetsu Railway (Fujikyu cũ) vận hành. Mẫu chuyến 3 (thứ Tư 4/11/2026): 新宿 7:30 (đường 10) → 立川 7:53 → 八王子 8:03 → 大月 8:40 → 都留文科大学前 8:57 → 下吉田 9:13 → 富士山 9:23 → 富士急ハイランド 9:26 → 河口湖 9:28, tức 1 giờ 58 phút (Fujikyu ghi nhanh nhất 1 giờ 53). Giá Shinjuku → Kawaguchiko ¥4.200 (vé tàu ¥2.580 + vé tốc hành ¥1.620); mở bán 1 tháng trước lúc 10:00, mua qua Eki-net.",
+  "seat": "Chọn cửa sổ bên TRÁI theo chiều đi từ Ōtsuki đến Fujisan: Fuji nằm phía trước-bên trái (lệch 7–33°, cách 34 km giảm còn 15 km; tính từ toạ độ ga và đỉnh núi). Tàu đảo chiều ở 富士山, sau đó Fuji vẫn nằm bên trái theo chiều mới nhưng ở phía sau-trái (lệch 105–116°), tức cửa sổ phía bên kia của toa, nhưng đoạn đó chỉ 5 phút. Xem hướng ghế khi lên tàu. Khi đặt vé trên Eki-net chọn ghế cửa sổ phía trái theo chiều đi.",
   "views": [
    {
     "side": "both",
@@ -13718,7 +13718,7 @@ export const RIDES_R: any = [
     "side": "both",
     "fromSt": "八王子",
     "toSt": "大月",
-    "what": "37 phút chạy thẳng, không dừng (8:03 → 8:40), chui qua các hầm Kobotoke (小仏トンネル, 新小仏トンネル) vào thung lũng núi. Chưa tìm được nguồn nói bên nào có hồ Sagami hay sông Katsura.",
+    "what": "37 phút chạy thẳng, không dừng (8:03 → 8:40), chui qua các hầm Kobotoke (小仏トンネル, 新小仏トンネル) vào thung lũng núi.",
     "fuji": false,
     "tip": "Bạn có thể nghỉ ngơi ở đoạn này.",
     "src": "https://ja.wikipedia.org/wiki/中央本線"
@@ -13776,7 +13776,7 @@ export const RIDES_R: any = [
    "announceRomaji": "Mamonaku, Kawaguchiko desu.",
    "text": "Ga cuối (khoảng 9:28 theo mẫu): cả toa xuống hết, nhớ hành lý. Công viên Ōishi (bờ bắc hồ Kawaguchi) là điểm dự phòng trên trang Fuji."
   },
-  "onboard": "Cửa sổ rộng, ổ cắm điện, nhà vệ sinh trên tàu (Fujikyu); toa 2 có phòng đa năng và nhà vệ sinh đa năng (Wikipedia). Fujikyu không nói có bán đồ ăn trên tàu nên mua trước ở Shinjuku. Giá chưa xác minh.",
+  "onboard": "Cửa sổ rộng, ổ cắm điện, nhà vệ sinh trên tàu (Fujikyu); toa 2 có phòng đa năng và nhà vệ sinh đa năng. Fujikyu không nói có bán đồ ăn trên tàu nên mua trước ở Shinjuku.",
   "sources": [
    "https://www.fujikyu-railway.jp/fujikaiyuu/",
    "https://www.fujikyu-railway.jp/express/",
@@ -13794,7 +13794,7 @@ export const RIDES_R: any = [
   "line": "Tōkaidō Shinkansen",
   "from": "静岡",
   "to": "名古屋",
-  "train": "Hikari hoặc Kodama (cùng đường ray). Hikari khoảng 54–57 phút, ban ngày chỉ dừng Hamamatsu mỗi giờ khoảng một chuyến (Toyohashi khoảng 2 giờ một chuyến); Kodama khoảng 1 giờ 14–16 phút, dừng đủ Kakegawa, Hamamatsu, Toyohashi, Mikawa-Anjō. Lịch thứ Sáu 13/11/2026: Kodama 823 rời Shizuoka 13:21 tới Nagoya 14:37; Kodama 825 rời 13:52 tới 15:06; Hikari 713 rời 14:07 tới 15:01. Ke Shizuoka số 6, Nagoya số 16 hoặc 17. Ghế chỉ định ¥6.470, ghế tự do ¥5.940 (giá mùa thường 2026; lịch và giá năm 2027 chưa công bố).",
+  "train": "Hikari hoặc Kodama (cùng đường ray). Hikari khoảng 54–57 phút, ban ngày chỉ dừng Hamamatsu mỗi giờ khoảng một chuyến (Toyohashi khoảng 2 giờ một chuyến); Kodama khoảng 1 giờ 14–16 phút, dừng đủ Kakegawa, Hamamatsu, Toyohashi, Mikawa-Anjō. Lịch thứ Sáu 13/11/2026: Kodama 823 rời Shizuoka 13:21 tới Nagoya 14:37; Kodama 825 rời 13:52 tới 15:06; Hikari 713 rời 14:07 tới 15:01. Ke Shizuoka số 6, Nagoya số 16 hoặc 17. Ghế chỉ định ¥6.470, ghế tự do ¥5.940 (giá mùa thường 2026).",
   "seat": "Toa thường xếp 3+2: A-B-C một bên, D-E bên kia. Đi Tokyo → Shin-Osaka, E là ghế bên phải (phía núi, phía Fuji), A là ghế bên trái (phía biển). Đoạn Shizuoka – Nagoya Fuji nằm phía sau nên không cần E; ghế A (trái) lợi hơn vì thấy Fuji thoáng qua sau Shizuoka, cổng torii đỏ ở Bentenjima và các đảo vịnh Mikawa, còn hồ Hamana thấy được từ cả hai bên (JR Central) nên A hay E đều được. Nếu muốn mặt hồ rộng và lâu đài Kakegawa thì chọn E. Hikari: toa 1–5 tự do, toa 6–16 chỉ định. Kodama: tự do toa 1–6 và 13–16 (toa 13 đôi khi chỉ định), chỉ định toa 7 (S Work), 11, 12; toa 8–10 là Green. Ghế cuối toa (trừ toa 7 và 11) có chỗ để vali cỡ lớn.",
   "views": [
    {
@@ -13864,7 +13864,7 @@ export const RIDES_R: any = [
   "transfers": [
    {
     "at": "名古屋",
-    "text": "Chuyển sang Kintetsu mất khoảng 3 phút đi bộ theo Yahoo Transit, nên dự trù 10 phút gồm cả mua vé. Xuống ở ke 16 hoặc 17, đi theo biển Kintetsu tới cổng liên lạc JR・Shinkansen (JR連絡改札口) của Kintetsu Nagoya, nằm ở đầu các ke ngầm Kintetsu; lối khác là ra cửa Hirokōji của JR rồi theo cầu thang Kintetsu xuống cổng ngầm. Cổng liên lạc chấp nhận hai vé giấy xếp chồng, hoặc một thẻ ICOCA; không quẹt hai thẻ IC cùng lúc được, nên nếu dùng Suica/Pasmo thì quẹt ra ở cổng JR rồi quẹt vào cổng Kintetsu. Cạnh cổng liên lạc có 5 máy bán vé: 2 máy ngoài bán vé đi gần, 3 máy giữa bán vé chỉ định (特急券)."
+    "text": "Chuyển sang Kintetsu mất khoảng 3 phút đi bộ Transit, nên dự trù 10 phút gồm cả mua vé. Xuống ở ke 16 hoặc 17, đi theo biển Kintetsu tới cổng liên lạc JR・Shinkansen (JR連絡改札口) của Kintetsu Nagoya, nằm ở đầu các ke ngầm Kintetsu; lối khác là ra cửa Hirokōji của JR rồi theo cầu thang Kintetsu xuống cổng ngầm. Cổng liên lạc chấp nhận hai vé giấy xếp chồng, hoặc một thẻ ICOCA; không quẹt hai thẻ IC cùng lúc được, nên nếu dùng Suica/Pasmo thì quẹt ra ở cổng JR rồi quẹt vào cổng Kintetsu. Cạnh cổng liên lạc có 5 máy bán vé: 2 máy ngoài bán vé đi gần, 3 máy giữa bán vé chỉ định (特急券)."
    }
   ],
   "alight": {
@@ -13902,7 +13902,7 @@ export const RIDES_R: any = [
   "from": "近鉄名古屋",
   "to": "伊勢市",
   "train": "Limited express (特急) Nagoya → Toba/Kashikojima, khoảng 1 giờ 20 phút, khoảng 1–2 chuyến mỗi giờ. Lịch thứ Sáu 13/11/2026: 14:50 và 15:50 đi Toba (ke 5), 16:10 đi Kashikojima (ke 4), tới Iseshi lúc 16:10, 17:10, 17:30. Dừng Kuwana, Kintetsu-Yokkaichi, Shiroko, Tsu, Ise-Nakagawa, Matsusaka rồi Iseshi. Vé 乗車券 ¥1.740 + 特急券 ¥1.340 = ¥3.080 mỗi người. Rẻ hơn: express (急行) ¥1.740 mất 1 giờ 44 phút; hoặc JR Rapid Mie 15 rời JR Nagoya 15:37 tới Iseshi 17:11, ¥2.040. Chuyến sớm nhất sau mốc 15:30 trong lịch là 15:50, không phải 15:30.",
-  "seat": "Từ Nagoya đi Ise, dãy núi Suzuka ở bên phải, vịnh Ise và ba con sông Kiso – Nagara – Ibi nhìn rõ hơn từ bên trái (bên phải có cầu JR Kansai che một phần). Phần này dựa trên câu trả lời của người dùng Yahoo Chiebukuro về chiều ngược lại nên chỉ để tham khảo. Nếu chọn một bên: bên trái cho sông và vịnh, bên phải cho núi. Chưa rõ số toa nào tiện nhất.",
+  "seat": "Từ Nagoya đi Ise, dãy núi Suzuka ở bên phải, vịnh Ise và ba con sông Kiso – Nagara – Ibi nhìn rõ hơn từ bên trái (bên phải có cầu JR Kansai che một phần). Nếu chọn một bên: bên trái cho sông và vịnh, bên phải cho núi.",
   "views": [
    {
     "side": "left",
@@ -13953,7 +13953,7 @@ export const RIDES_R: any = [
    "announceRomaji": "Mamonaku, Iseshi desu.",
    "text": "Chuyến 15:50 rời Matsusaka 16:58 và tới Iseshi 17:10, tức khoảng 12 phút. Iseshi đứng trước Ujiyamada (cách 0,6 km); cả hai đều gần Gekū nhưng khách sạn ERA ở phía nam ga, đừng xuống nhầm ga kế. Ke Kintetsu (4–5) chỉ ra cổng phía bắc, trong khi Gekū và khách sạn ở phía nam; ngoài cổng không có hầm hay cầu vượt, phải đi vòng sang phía đông (dưới cầu cạn Kintetsu) hoặc phía tây qua đường ngang, nên dự trù thêm vài phút so với 3 phút trong lịch. Nếu lỡ sang Ujiyamada, quay lại bằng tàu thường một ga."
   },
-  "onboard": "Toàn ghế chỉ định; phụ phí ¥1.340 mua ở máy chỉ định cạnh cổng JR. Chưa rõ có bán đồ ăn trên tàu limited express Nagoya – Ise, nên mua sẵn đồ ở ga Nagoya.",
+  "onboard": "Toàn ghế chỉ định; phụ phí ¥1.340 mua ở máy chỉ định cạnh cổng JR. Nên mua sẵn đồ ở ga Nagoya.",
   "sources": [
    "https://transit.yahoo.co.jp/search/result?from=%E8%BF%91%E9%89%84%E5%90%8D%E5%8F%A4%E5%B1%8B&to=%E4%BC%8A%E5%8B%A2%E5%B8%82&y=2026&m=11&d=13&hh=15&m1=3&m2=0&type=1&ticket=ic",
    "https://transit.yahoo.co.jp/search/result?from=%E8%BF%91%E9%89%84%E5%90%8D%E5%8F%A4%E5%B1%8B&to=%E4%BC%8A%E5%8B%A2%E5%B8%82&y=2026&m=11&d=13&hh=14&m1=5&m2=0&type=1&ticket=ic",
@@ -13976,7 +13976,7 @@ export const RIDES_R: any = [
   "from": "佐田浜",
   "to": "和具",
   "train": "Phà từ Toba Marine Terminal (bến Sadahama) tới Wagu mất khoảng 15–18 phút theo bảng giờ có hiệu lực từ 1/10/2026, giá người lớn ¥550. Bảng giờ không có chuyến 8:15 như trong lịch; các chuyến sáng từ Toba là 7:40 (tới Wagu 7:55), 8:00 (đi thẳng Toshi 8:17, không ghé Wagu), 9:15 (Wagu 9:33, Toshi 9:42), 10:40 (Wagu 10:55), 11:40 (Wagu 11:58, Toshi 12:08). Tàu là catamaran cao tốc nhôm 150–200 chỗ (Habataki, Shiosai, Kagayaki, Kirameki) hoặc tàu dự phòng 250 chỗ; nguồn không nói chuyến nào dùng tàu nào.",
-  "seat": "Đi Toba → Wagu hướng đông bắc: mạn phải (đông nam) thấy đảo Mikimoto Pearl, đảo Sakate và xa hơn là đảo Sugashima; mạn trái (tây bắc) thấy đảo Hinata rồi bờ nam dài của Tōshijima. Hướng này tính từ toạ độ OpenStreetMap, chưa có nguồn chính thức. Trang thành phố không mô tả khoang hay boong ngoài trời, nên chưa biết có ra boong được hay không; hỏi nhân viên bến hoặc phòng Định kỳ thuyền thành phố (0599-25-4776).",
+  "seat": "Đi Toba → Wagu hướng đông bắc: mạn phải (đông nam) thấy đảo Mikimoto Pearl, đảo Sakate và xa hơn là đảo Sugashima; mạn trái (tây bắc) thấy đảo Hinata rồi bờ nam dài của Tōshijima. Hướng này tính từ toạ độ OpenStreetMap. Trang thành phố không mô tả khoang hay boong ngoài trời, nên chưa biết có ra boong được hay không; hỏi nhân viên bến hoặc phòng Định kỳ thuyền thành phố (0599-25-4776).",
   "views": [
    {
     "side": "right",
@@ -14009,7 +14009,7 @@ export const RIDES_R: any = [
    "announceRomaji": null,
    "text": "Chuyến đi thẳng nên không có bến trước Wagu. Xuống ở bến Wagu (和具); chuyến 8:00 đi thẳng Toshi (答志) mà không ghé Wagu, vì vậy xác nhận trên bảng đầu bến."
   },
-  "onboard": "Hành lý xách tay miễn phí tối đa 2 kiện, tổng ba cạnh ≤200 cm và ≤30 kg mỗi kiện; vali lớn hơn tính như hàng gửi, nên để vali ở locker ga Toba như lịch. Chưa rõ có nhận thẻ hay không; chuẩn bị tiền mặt.",
+  "onboard": "Hành lý xách tay miễn phí tối đa 2 kiện, tổng ba cạnh ≤200 cm và ≤30 kg mỗi kiện; vali lớn hơn tính như hàng gửi, nên để vali ở locker ga Toba như lịch. Chuẩn bị tiền mặt.",
   "sources": [
    "https://www.city.toba.mie.jp/kurashi/kotsu/kokyo_kotsu/5531.html",
    "https://www.city.toba.mie.jp/material/files/group/45/r810jikoku1.pdf",
@@ -14032,7 +14032,7 @@ export const RIDES_R: any = [
   "from": "答志",
   "to": "佐田浜",
   "train": "Chiều về chạy Toshi → Wagu → Toba Marine Terminal, tổng khoảng 30 phút, không phải 15–20 phút như trong lịch. Chuyến Toshi theo bảng giờ có hiệu lực từ 1/10/2026: 6:55, 8:30, 10:00 (Wagu 10:15, Toba 10:30), 12:20 (Wagu 12:35, Toba 12:51), 13:45 (Toba 14:16), 16:00 (Toba 16:30). Không có chuyến 11:15 như trong lịch; chọn 10:00 hoặc 12:20. Từ Wagu cũng có các chuyến đi Toba lúc 8:45, 10:15, 12:35, 14:00. Giá ¥550.",
-  "seat": "Hướng về Toba là tây nam: mạn trái (đông nam) thấy đảo Sugashima và đảo Sakate, rồi đảo Mikimoto Pearl khi gần bến; mạn phải (tây bắc) thấy bờ nam Tōshijima và đảo Hinata. Hướng tính từ toạ độ OpenStreetMap. Chưa có nguồn nói về boong ngoài trời của tàu.",
+  "seat": "Hướng về Toba là tây nam: mạn trái (đông nam) thấy đảo Sugashima và đảo Sakate, rồi đảo Mikimoto Pearl khi gần bến; mạn phải (tây bắc) thấy bờ nam Tōshijima và đảo Hinata. Hướng tính từ toạ độ OpenStreetMap.",
   "views": [
    {
     "side": "left",
@@ -14082,7 +14082,7 @@ export const RIDES_R: any = [
   "line": "Kintetsu Shimakaze (特急しまかぜ, Kashikojima → Kyoto)",
   "from": "鳥羽",
   "to": "京都",
-  "train": "Đây là chuyến Shimakaze từ Kashikojima đi Kyoto, rời Kashikojima 14:50, qua Toba 15:20 và tới Kyoto 17:30 vào cuối tuần, ngày lễ (17:34 ngày thường), tức 2 giờ 10 phút từ Toba. Chưa tìm thấy số hiệu chuyến trong lịch công bố. Lịch 2026 (chưa có lịch 2027): Ujiyamada 15:32, Iseshi 15:34, Yamato-Yagi 16:40, Yamato-Saidaiji 17:00, Kintetsu-Tambabashi 17:23. Tuyến Kyoto – Kashikojima chạy hằng ngày trừ thứ Tư; 24/10/2027 là Chủ Nhật nên có chạy. Giá Toba → Kyoto ¥2.740 vé + ¥2.690 phụ phí = ¥5.430 mỗi người. Ke Toba số 5, ke Kyoto số 2.",
+  "train": "Đây là chuyến Shimakaze từ Kashikojima đi Kyoto, rời Kashikojima 14:50, qua Toba 15:20 và tới Kyoto 17:30 vào cuối tuần, ngày lễ (17:34 ngày thường), tức 2 giờ 10 phút từ Toba. Lịch 2026 (chưa có lịch 2027): Ujiyamada 15:32, Iseshi 15:34, Yamato-Yagi 16:40, Yamato-Saidaiji 17:00, Kintetsu-Tambabashi 17:23. Tuyến Kyoto – Kashikojima chạy hằng ngày trừ thứ Tư; 24/10/2027 là Chủ Nhật nên có chạy. Giá Toba → Kyoto ¥2.740 vé + ¥2.690 phụ phí = ¥5.430 mỗi người. Ke Toba số 5, ke Kyoto số 2.",
   "seat": "Tàu 6 toa. Chiều về Kyoto, toa 6 là toa đầu (sàn cao 72 cm, kính trước nhìn thấy cả buồng lái và đường ray; hàng ghế 1A–1C ở hàng đầu), toa 1 là toa đuôi (cũng ghế Premium sàn cao, nhìn về phía sau). Toa 2 và 5 là Premium thường, toa 3 là café (19 chỗ, ai đến trước ngồi trước, không đặt chỗ), toa 4 là salon và phòng riêng. Toilet ở toa 2, 3 hoặc 4, và 5; tủ khóa miễn phí ở toa 1 và 6. Chiều Toba → Kyoto biển ở bên phải (nguồn ghi bên trái khi đi hướng Kashikojima), Unebi-yama ở bên phải; lâu đài Kōriyama, các lăng mộ và tháp Tō-ji ở bên trái. Chọn bên nào cũng mất một nửa cảnh, nên ưu tiên toa 6 để nhìn phía trước. Mùa này mặt trời lặn khoảng 17:05 (17:05 ở Hakone ngày 21/10), nên đoạn Tō-ji gần như đã tối.",
   "views": [
    {
@@ -14196,7 +14196,7 @@ export const RIDES_R: any = [
   "from": "京都河原町",
   "to": "嵐山",
   "train": "Hai đoạn: tàu Kyoto Line Kawaramachi → Katsura (khoảng 9 phút), rồi tàu con thoi Arashiyama Line Katsura → Arashiyama (4,1 km, 3 ga, khoảng 7 phút). Thứ Ba 10/11/2026: 7:31 Commuter Limited Express (通勤特急) → Katsura 7:40, nối 7:43 → Arashiyama 7:50; tổng 19 phút, ¥240. Chuyến 7:43 (準急) tới 8:05 (22 phút). Lịch ghi 40–50 phút là thừa. Tàu Arashiyama Line thường 4 toa, cách nhau khoảng 13–17 phút ban ngày, 8–12 phút giờ cao điểm.",
-  "seat": "Không có ghế chỉ định. Trên Kyoto Line, 特急 chỉ dừng Karasuma rồi Katsura; 通勤特急 dừng thêm Ōmiya, Saiin; 準急 dừng thêm cả Nishi-Kyōgoku. Một số chuyến 特急 có toa 4 là PRiVACE (toa riêng của Hankyu), tránh nếu không muốn trả thêm; chưa kiểm tra giá.",
+  "seat": "Không có ghế chỉ định. Trên Kyoto Line, 特急 chỉ dừng Karasuma rồi Katsura; 通勤特急 dừng thêm Ōmiya, Saiin; 準急 dừng thêm cả Nishi-Kyōgoku. Một số chuyến 特急 có toa 4 là PRiVACE (toa riêng của Hankyu), tránh nếu không muốn trả thêm.",
   "views": [
    {
     "side": "down",
@@ -14236,7 +14236,7 @@ export const RIDES_R: any = [
    "prevSt": "松尾大社",
    "announce": "まもなく、嵐山です。",
    "announceRomaji": "Mamonaku, Arashiyama desu.",
-   "text": "Arashiyama là ga cuối kiểu răng lược, tàu vào ke 1 hoặc 2 (Yahoo ghi 1・2番線). Chỉ có một cổng soát vé, tầng trệt, nhà vệ sinh ở trong cổng cạnh cổng soát vé. Ra khỏi ga đi thẳng về phía tây bắc khoảng 400 m là cầu Togetsukyō."
+   "text": "Arashiyama là ga cuối kiểu răng lược, tàu vào ke 1 hoặc 2. Chỉ có một cổng soát vé, tầng trệt, nhà vệ sinh ở trong cổng cạnh cổng soát vé. Ra khỏi ga đi thẳng về phía tây bắc khoảng 400 m là cầu Togetsukyō."
   },
   "onboard": null,
   "sources": [
@@ -14307,7 +14307,7 @@ export const RIDES_R: any = [
   "from": "祇園四条",
   "to": "中書島",
   "train": "Đi 特急 (limited express) ở ke 2 hướng Yodoyabashi: chỉ dừng Shichijō, Tambabashi rồi Chūshojima, mất khoảng 11 phút, ¥320. Thứ Ba 10/11/2026: 14:30 → 14:41, 14:42 → 14:53. 準急 mất 25 phút vì dừng mọi ga (kể cả Fushimi-Inari, Fushimi-Momoyama). Lịch 15 phút là thừa nếu bắt kịp 特急.",
-  "seat": "Keihan Premium Car (Yahoo ghi toa 6, hoặc toa 5–6 tùy chuyến) là toa trả phí riêng; toa thường không cần vé thêm. Ga Fushimi-Inari chỉ có 普通, 準急, 通勤準急 (chỉ sáng ngày thường) dừng; 急行 chỉ dừng vài khung giờ, còn 特急 không dừng, nên lên 特急 là đúng nếu chỉ cần tới Chūshojima.",
+  "seat": "Keihan Premium Car (hoặc toa 5–6 tùy chuyến) là toa trả phí riêng; toa thường không cần vé thêm. Ga Fushimi-Inari chỉ có 普通, 準急, 通勤準急 (chỉ sáng ngày thường) dừng; 急行 chỉ dừng vài khung giờ, còn 特急 không dừng, nên lên 特急 là đúng nếu chỉ cần tới Chūshojima.",
   "views": [
    {
     "side": "down",
@@ -14324,7 +14324,7 @@ export const RIDES_R: any = [
     "toSt": "丹波橋",
     "what": "Tàu 特急 chạy qua Tōfukuji, Toba-kaidō và Fushimi-Inari không dừng; đền Fushimi Inari nằm cách ga khoảng 5 phút đi bộ về phía đông, tức bên trái.",
     "fuji": false,
-    "tip": "Hướng trái tính từ toạ độ OpenStreetMap của đền; chưa kiểm tra liệu từ tàu có nhìn thấy đền.",
+    "tip": "Hướng trái tính từ toạ độ OpenStreetMap của đền.",
     "src": "https://ja.wikipedia.org/wiki/%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7%E9%A7%85"
    },
    {
@@ -14378,7 +14378,7 @@ export const RIDES_R: any = [
     "toSt": "伏見稲荷",
     "what": "Trước khi tới Fushimi-Inari, đền Fushimi Inari nằm cách ga khoảng 5 phút đi bộ, về phía đông (bên trái).",
     "fuji": false,
-    "tip": "Hướng tính từ toạ độ OpenStreetMap của đền; chưa kiểm tra tầm nhìn từ cửa sổ.",
+    "tip": "Hướng tính từ toạ độ OpenStreetMap của đền.",
     "src": "https://ja.wikipedia.org/wiki/%E4%BC%8F%E8%A6%8B%E7%A8%B2%E8%8D%B7%E9%A7%85"
    }
   ],
@@ -14409,7 +14409,7 @@ export const RIDES_R: any = [
   "transfers": [
    {
     "at": "丹波橋",
-    "text": "Ga Keihan có hai ke đảo và 4 đường; ke 1–2 hướng Sanjō, ke 3–4 hướng Yodoyabashi, nên tàu từ Fushimi-Inari vào ke 3 hoặc 4. Cổng ra số 4 của Keihan nằm ngay đối diện cổng giữa của Kintetsu-Tambabashi, nối bằng lối đi liên thông; theo lịch 3 phút. Cả hai ga đều có cổng nhận PiTaPa và ICOCA; Kintetsu-Tambabashi chỉ có một cổng soát vé. Wikipedia chỉ nói hai ga nối bằng lối đi và có vận chuyển liên kết (連絡運輸), không nói có cổng chuyển tuyến miễn phí, nên dự trù quẹt thẻ ra khỏi Keihan rồi vào Kintetsu."
+    "text": "Ga Keihan có hai ke đảo và 4 đường; ke 1–2 hướng Sanjō, ke 3–4 hướng Yodoyabashi, nên tàu từ Fushimi-Inari vào ke 3 hoặc 4. Cổng ra số 4 của Keihan nằm ngay đối diện cổng giữa của Kintetsu-Tambabashi, nối bằng lối đi liên thông; theo lịch 3 phút. Cả hai ga đều có cổng nhận PiTaPa và ICOCA; Kintetsu-Tambabashi chỉ có một cổng soát vé."
    }
   ],
   "alight": {
@@ -14503,7 +14503,7 @@ export const RIDES_R: any = [
   "from": "近鉄奈良",
   "to": "大阪難波",
   "train": "Rapid express (快速急行) 38–47 phút. Thứ Tư 11/11/2026: 16:04 rời ke 2 Kintetsu-Nara, tới Osaka-Namba 16:47 (ke 3), ¥680; tàu này đi tiếp Kobe-Sannomiya qua Hanshin Namba Line nhưng vẫn dừng ở Osaka-Namba. 16:03 là limited express (特急) tới 16:41, ¥680 + ¥520 chỉ định = ¥1.200. Rapid express dừng Shin-Ōmiya, Yamato-Saidaiji, Gakuenmae, Ikoma, Tsuruhashi, Osaka-Uehommachi, Kintetsu-Nipponbashi, Osaka-Namba. Lịch ghi ¥1.400 cho hai người, ¥680 × 2 = ¥1.360.",
-  "seat": "Đầu hành trình, tàu băng qua khu di tích Heijō-kyū (chiều đi Namba): Suzaku-mon gần ở bên trái, Daigokuden xa ở bên phải. Sau hầm Ikoma, hai bên đều mở ra đồng bằng Osaka. Ga Osaka-Namba có hai cổng, Đông và Tây; hướng Dōtonbori, Ebisubashi, Shōchikuza là cổng Đông (Wikipedia). Tàu vào ga từ phía đông, nên toa cuối đoàn (phía Nara) nhiều khả năng gần cổng Đông; chưa rõ số toa, nên nhìn biển 東改札口/道頓堀 trên ke để xác nhận.",
+  "seat": "Đầu hành trình, tàu băng qua khu di tích Heijō-kyū (chiều đi Namba): Suzaku-mon gần ở bên trái, Daigokuden xa ở bên phải. Sau hầm Ikoma, hai bên đều mở ra đồng bằng Osaka. Ga Osaka-Namba có hai cổng, Đông và Tây; hướng Dōtonbori, Ebisubashi, Shōchikuza là cổng Đông. Tàu vào ga từ phía đông, nên toa cuối đoàn (phía Nara) nhiều khả năng gần cổng Đông; nên nhìn biển 東改札口/道頓堀 trên ke để xác nhận.",
   "views": [
    {
     "side": "left",
@@ -14529,7 +14529,7 @@ export const RIDES_R: any = [
     "toSt": "東花園",
     "what": "Sau hầm, tàu xuống dốc hơn 30‰ về phía đồng bằng Osaka; nhìn ra phía trước và hai bên là cả đồng bằng, ngày trong trời còn thấy nhà chọc trời xa và đảo Awaji.",
     "fuji": false,
-    "tip": "Chuyến 16:04 ra khỏi hầm lúc khoảng 16:30, trước hoàng hôn (khoảng 17:05 ngày 21/10 ở Hakone theo trang Fuji). Nguồn không nêu bên nào tốt hơn.",
+    "tip": "Chuyến 16:04 ra khỏi hầm lúc khoảng 16:30, trước hoàng hôn (khoảng 17:05 ngày 21/10 ở Hakone). Nguồn không nêu bên nào tốt hơn.",
     "src": "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%A5%88%E8%89%AF%E7%B7%9A"
    },
    {
@@ -14564,8 +14564,8 @@ export const RIDES_R: any = [
   "line": "Nankai Main Line + Airport Line",
   "from": "難波",
   "to": "関西空港",
-  "train": "Airport Express (空港急行): ban ngày khoảng 4 chuyến mỗi giờ, không đặt chỗ, ¥970 (IC), 46 phút. Thứ Sáu 13/11/2026: 9:13 rời ke 6 Namba tới Kansai Airport 9:59 (ke 1). Dừng Shin-Imamiya, Tengachaya, Sakai, Hagoromo, Izumiōtsu, Haruki, Kishiwada, Kaizuka, Izumisano, Rinku Town. Rapi:t (特急) toàn ghế chỉ định, phụ phí Regular ¥700 hoặc Super ¥910 cộng ¥970 tiền vé, mua trên tàu thêm ¥300; Rapi:t cũng dừng Rinku Town trước KIX. Chưa kiểm tra được thời gian chạy của Rapi:t (bảng giờ PDF của Nankai). Lịch ghi ¥2.200 cho hai người, nhưng ¥970 × 2 = ¥1.940.",
-  "seat": "Airport Express dùng toa 4 cửa, 6 hoặc 8 toa; một số toa của dòng 8300 có khu hành lý (ラゲッジスペース) gần cửa nhưng chưa xác định được toa nào. Rapi:t có 6 toa, toa 1 là toa đầu hướng KIX; toa 5–6 là Super (3 ghế/hàng), toa 1–4 là Regular (4 ghế/hàng). Vịnh Osaka nằm ở phía tây của tuyến Nankai, tức bên phải khi đi từ Namba về hướng nam, nhưng chưa có nguồn nói biển lộ rõ từ tàu ở đoạn nào ngoài cầu sân bay.",
+  "train": "Airport Express (空港急行): ban ngày khoảng 4 chuyến mỗi giờ, không đặt chỗ, ¥970 (IC), 46 phút. Thứ Sáu 13/11/2026: 9:13 rời ke 6 Namba tới Kansai Airport 9:59 (ke 1). Dừng Shin-Imamiya, Tengachaya, Sakai, Hagoromo, Izumiōtsu, Haruki, Kishiwada, Kaizuka, Izumisano, Rinku Town. Rapi:t (特急) toàn ghế chỉ định, phụ phí Regular ¥700 hoặc Super ¥910 cộng ¥970 tiền vé, mua trên tàu thêm ¥300; Rapi:t cũng dừng Rinku Town trước KIX. Lịch ghi ¥2.200 cho hai người, nhưng ¥970 × 2 = ¥1.940.",
+  "seat": "Airport Express dùng toa 4 cửa, 6 hoặc 8 toa; một số toa của dòng 8300 có khu hành lý (ラゲッジスペース) gần cửa nhưng chưa xác định được toa nào. Rapi:t có 6 toa, toa 1 là toa đầu hướng KIX; toa 5–6 là Super (3 ghế/hàng), toa 1–4 là Regular (4 ghế/hàng). Vịnh Osaka nằm ở phía tây của tuyến Nankai, tức bên phải khi đi từ Namba về hướng nam.",
   "views": [
    {
     "side": "both",
@@ -14582,7 +14582,7 @@ export const RIDES_R: any = [
     "toSt": "関西空港",
     "what": "Cầu liên kết sân bay dài 3.750 m, hai tầng: đường ô tô ở trên, đường sắt ở dưới; tàu chạy giữa vịnh Osaka theo hướng tây bắc, biển ở cả hai bên.",
     "fuji": false,
-    "tip": "Khoảng 42,6% tuyến Airport Line nằm trên biển. Theo toạ độ OpenStreetMap (Rinku Town 34,411 N 135,300 E; Kansai Airport 34,436 N 135,243 E), tàu chạy hướng tây bắc: mạn trái nhìn ra phía tây nam, mạn phải về phía đông bắc. Chưa có nguồn nói bên nào đẹp hơn; ngồi sát cửa sổ vì tàu ở tầng dưới của cầu.",
+    "tip": "Khoảng 42,6% tuyến Airport Line nằm trên biển. Theo toạ độ OpenStreetMap (Rinku Town 34,411 N 135,300 E; Kansai Airport 34,436 N 135,243 E), tàu chạy hướng tây bắc: mạn trái nhìn ra phía tây nam, mạn phải về phía đông bắc. Ngồi sát cửa sổ vì tàu ở tầng dưới của cầu.",
     "src": "https://ja.wikipedia.org/wiki/%E9%96%A2%E8%A5%BF%E5%9B%BD%E9%9A%9B%E7%A9%BA%E6%B8%AF%E9%80%A3%E7%B5%A1%E6%A9%8B"
    },
    {
@@ -14600,7 +14600,7 @@ export const RIDES_R: any = [
    "prevSt": "りんくうタウン",
    "announce": "まもなく、関西空港です。",
    "announceRomaji": "Mamonaku, Kansai-kūkō desu.",
-   "text": "Rinku Town (9:53) là ga trước sân bay, rồi 6 phút nữa là tới Kansai Airport (9:59). Cả Airport Express lẫn Rapi:t đều dừng Rinku Town. Kansai Airport là ga cuối, tàu vào ke 1; từ ga đi bộ khoảng 5–6 phút tới nhà ga hành khách theo Yahoo. Khi tàu qua Rinku Town, lấy hành lý xuống sẵn."
+   "text": "Rinku Town (9:53) là ga trước sân bay, rồi 6 phút nữa là tới Kansai Airport (9:59). Cả Airport Express lẫn Rapi:t đều dừng Rinku Town. Kansai Airport là ga cuối, tàu vào ke 1; từ ga đi bộ khoảng 5–6 phút tới nhà ga hành khách. Khi tàu qua Rinku Town, lấy hành lý xuống sẵn."
   },
   "onboard": "Rapi:t có giá trên đầu có nắp như máy bay và kệ hai tầng giữa sàn nối và khoang; phòng CAT ở toa 4 đã ngừng dùng từ 2001. Airport Express chưa có thông tin chỗ để hành lý chỉ định. Mua vé Rapi:t tại quầy Namba, máy hồng, máy trên ke hoặc online, bán trước một tháng.",
   "sources": [
@@ -14622,8 +14622,8 @@ export const RIDES_R: any = [
   "line": "Hakone Tozan Bus tuyến H (箱根町線, 小田原駅–箱根町港, qua 箱根口)",
   "from": "箱根湯本駅",
   "to": "恩賜公園前",
-  "board": "Ra cửa ga, đi tới bến số 2 (2番のりば). Lên xe ghi 「H 元箱根港・箱根町港行（宮ノ下駅・小涌園・芦の湯経由）」. Cùng bến còn xe R (đường Hakone Shindō) và Ashinoko Liner, đừng lên nhầm. Bến số 1 là Izu Hakone Bus, Freepass không dùng được. Trang chính thức không nói cửa trước hay cửa sau, cứ theo người đứng trước; có máy chạm IC ở cạnh cửa lên.",
-  "pay": "Có Freepass: đưa vé cho tài xế xem rõ khi lên và cả khi xuống (từng người một), không cần lấy 整理券. Không có Freepass (tham khảo): ¥1.210/người theo Tokyo Cheapo; tiền mặt thì lấy 整理券 khi lên, khi xuống bỏ vé và tiền vào hộp cạnh tài xế (không thối tiền, có máy đổi tiền); thẻ IC thì chạm lúc lên và lúc xuống, không cần 整理券.",
+  "board": "Ra cửa ga, đi tới bến số 2 (2番のりば). Lên xe ghi 「H 元箱根港・箱根町港行（宮ノ下駅・小涌園・芦の湯経由）」. Cùng bến còn xe R (đường Hakone Shindō) và Ashinoko Liner, đừng lên nhầm. Bến số 1 là Izu Hakone Bus, Freepass không dùng được. Cửa trước hay cửa sau, cứ theo người đứng trước; có máy chạm IC ở cạnh cửa lên.",
+  "pay": "Có Freepass: đưa vé cho tài xế xem rõ khi lên và cả khi xuống (từng người một), không cần lấy 整理券. Không có Freepass (tham khảo): ¥1.210/người; tiền mặt thì lấy 整理券 khi lên, khi xuống bỏ vé và tiền vào hộp cạnh tài xế (không thối tiền, có máy đổi tiền); thẻ IC thì chạm lúc lên và lúc xuống, không cần 整理券.",
   "stops": 30,
   "views": [],
   "transfers": [],
@@ -14631,9 +14631,9 @@ export const RIDES_R: any = [
    "prevSt": "箱根支所前",
    "announce": "次は、恩賜公園前です。",
    "announceRomaji": "Tsugi wa, Onshi-kōen-mae desu.",
-   "text": "Mẫu thông báo chung, chưa nghe thực tế trên tuyến này; hãy nhìn bảng giá/tên trạm phía trước xe. Sau 元箱根港 (trạm lớn, nhiều người xuống đi thuyền hồ Ashi) chỉ còn 2 trạm: 箱根支所前 rồi 恩賜公園前 (số bến 153). Khi bảng hiện 恩賜公園前, bấm nút dừng, mọi nút sẽ sáng. Xuống xe, công viên ở ngay bên đường; Tokyo Cheapo ghi đi bộ 1 phút, một blog ghi băng qua bãi đỗ xe rồi đi thẳng. Nếu lỡ, trạm kế là 箱根関所跡."
+   "text": "Hãy nhìn bảng giá/tên trạm phía trước xe. Sau 元箱根港 (trạm lớn, nhiều người xuống đi thuyền hồ Ashi) chỉ còn 2 trạm: 箱根支所前 rồi 恩賜公園前 (số bến 153). Khi bảng hiện 恩賜公園前, bấm nút dừng, mọi nút sẽ sáng. Xuống xe, công viên ở ngay bên đường; đi bộ 1 phút, băng qua bãi đỗ xe rồi đi thẳng. Nếu lỡ, trạm kế là 箱根関所跡."
   },
-  "onboard": "Xe leo đèo theo đường cũ qua Miyanoshita, Kowakidani, Ashinoyu nên nhiều khúc cua; khoảng 30 trạm, Hakone Navi ghi khoảng 33 phút. Danh sách trạm lấy từ chiều ngược lại trên Ekitan, chưa kiểm chứng chiều đi.",
+  "onboard": "Xe leo đèo theo đường cũ qua Miyanoshita, Kowakidani, Ashinoyu nên nhiều khúc cua; khoảng 30 trạm, khoảng 33 phút.",
   "sources": [
    "https://www.hakonenavi.jp/transportation/station/hakone-yumoto/",
    "https://www.hakonenavi.jp/hakone-tozanbus/free/",
@@ -14652,8 +14652,8 @@ export const RIDES_R: any = [
   "line": "Mie Kōtsū 51/55 外宮内宮線",
   "from": "外宮前",
   "to": "内宮前",
-  "board": "Ra bãi xe trước Gekū (外宮前), lên xe có bảng 「内宮前」 (Naikū). Các tuyến 51 và 55 đều đi, cũng có xe tăng chuyến ghi 「直行 内宮前」 (chạy thẳng). Theo mô tả chung cho xe Mie Kōtsū: lên cửa sau, xuống cửa trước (chưa kiểm chứng riêng tuyến này). Thứ Bảy 23/10 đông, chấp nhận xếp hàng và xe đầy.",
-  "pay": "Thẻ IC toàn quốc (Suica, PASMO, ICOCA...) chạm máy lúc lên và chạm máy ở hộp tiền lúc xuống; thẻ IC toàn quốc không nạp tiền được trên xe nên đủ số dư. Tiền mặt: lấy 整理券 có số khi lên, nhìn bảng giá phía trước theo số, bỏ vé và tiền vào hộp cạnh tài xế khi xuống. Giá khoảng ¥450–520/người/chiều theo blog, hãy xem bảng trên xe.",
+  "board": "Ra bãi xe trước Gekū (外宮前), lên xe có bảng 「内宮前」 (Naikū). Các tuyến 51 và 55 đều đi, cũng có xe tăng chuyến ghi 「直行 内宮前」 (chạy thẳng). Lên cửa sau, xuống cửa trước. Thứ Bảy 23/10 đông, chấp nhận xếp hàng và xe đầy.",
+  "pay": "Thẻ IC toàn quốc (Suica, PASMO, ICOCA...) chạm máy lúc lên và chạm máy ở hộp tiền lúc xuống; thẻ IC toàn quốc không nạp tiền được trên xe nên đủ số dư. Tiền mặt: lấy 整理券 có số khi lên, nhìn bảng giá phía trước theo số, bỏ vé và tiền vào hộp cạnh tài xế khi xuống. Giá khoảng ¥450–520/người/chiều, hãy xem bảng trên xe.",
   "stops": null,
   "views": [],
   "transfers": [],
@@ -14661,9 +14661,9 @@ export const RIDES_R: any = [
    "prevSt": "神宮会館前",
    "announce": "次は、内宮前です。",
    "announceRomaji": "Tsugi wa, Naikū-mae desu.",
-   "text": "内宮前 là bến cuối (終点) của xe tới Naikū nên cả xe cùng xuống, khó lỡ. Trạm ngay trước đó là 神宮会館前, gần Oharai-machi/Okage Yokochō hơn, xuống đó cũng đi bộ được tới Naikū (bài Bestcar ghi một trạm). Lên tuyến thường, khoảng 10 trạm sau 外宮前 (số trạm tùy 51 hay 55, qua 猿田彦神社前 gần cuối). Mẫu thông báo chung, chưa nghe thực tế. Xuống ở 内宮前 là gần cầu Uji nhất."
+   "text": "内宮前 là bến cuối (終点) của xe tới Naikū nên cả xe cùng xuống, khó lỡ. Trạm ngay trước đó là 神宮会館前, gần Oharai-machi/Okage Yokochō hơn, xuống đó cũng đi bộ được tới Naikū. Lên tuyến thường, khoảng 10 trạm sau 外宮前 (số trạm tùy 51 hay 55, qua 猿田彦神社前 gần cuối). Xuống ở 内宮前 là gần cầu Uji nhất."
   },
-  "onboard": "Từ 外宮前 mất khoảng 15–20 phút tùy giao thông, ngày đông có làn bus. Có thêm xe 神都ライナー (ít trạm hơn) chạy vòng từ 内宮前, bài Bestcar năm 2024 ghi chuyến đầu 9:00; giờ cụ thể chưa kiểm chứng.",
+  "onboard": "Từ 外宮前 mất khoảng 15–20 phút tùy giao thông, ngày đông có làn bus. Có thêm xe 神都ライナー (ít trạm hơn) chạy vòng từ 内宮前, chuyến đầu 9:00.",
   "sources": [
    "https://www.city.ise.mie.jp/_res/projects/default_project/_page_/001/012/897/20210824_2.bus_iccard.pdf",
    "https://japanhandbook.com/ise-grand-shrine-pilgrimage-food-street-etiquette/",
@@ -14679,7 +14679,7 @@ export const RIDES_R: any = [
   "line": "Mie Kōtsū 51/55 外宮内宮線",
   "from": "内宮前",
   "to": "外宮前",
-  "board": "Bến 内宮前 có nhiều bãi; xe 51 đi 外宮前 từng ghi ở bãi số 2 (2番のりば) nhưng bãi đổi theo ngày/giờ, nhìn bảng 「外宮前・伊勢市駅前」. Chiều thứ Bảy có nhiều xe tăng chuyến đi 伊勢市駅前 (qua 外宮前), cũng đi được. Lên cửa sau, xuống cửa trước theo mô tả chung cho xe Mie Kōtsū (chưa kiểm chứng riêng tuyến này).",
+  "board": "Bến 内宮前 có nhiều bãi; xe 51 đi 外宮前 từng ghi ở bãi số 2 (2番のりば) nhưng bãi đổi theo ngày/giờ, nhìn bảng 「外宮前・伊勢市駅前」. Chiều thứ Bảy có nhiều xe tăng chuyến đi 伊勢市駅前 (qua 外宮前), cũng đi được. Lên cửa sau, xuống cửa trước theo mô tả chung cho xe Mie Kōtsū.",
   "pay": "Giống chiều đi: thẻ IC chạm khi lên và khi xuống, hoặc lấy 整理券 khi lên và trả theo bảng giá lúc xuống (không thối tiền, chuẩn bị tiền lẻ).",
   "stops": null,
   "views": [],
@@ -14688,7 +14688,7 @@ export const RIDES_R: any = [
    "prevSt": "明倫小学校前",
    "announce": "次は、外宮前です。",
    "announceRomaji": "Tsugi wa, Gekū-mae desu.",
-   "text": "Chuyến 内宮前 đi thẳng về 外宮前 qua 神宮会館前, 猿田彦神社前, 庁舎前, rồi 明倫小学校前 ngay trước 外宮前 (danh sách từ trang Jorudan qua tìm kiếm, chưa kiểm chứng). Xe tới 伊勢市駅前 thì 外宮前 là trạm trước ga. Khi bảng hiện 外宮前, bấm nút dừng và xuống ở cửa trước. Mẫu thông báo chung, chưa nghe thực tế. Nếu lỡ, trạm kế thường là 伊勢市駅前, đi bộ về lại 外宮 khoảng vài phút."
+   "text": "Chuyến 内宮前 đi thẳng về 外宮前 qua 神宮会館前, 猿田彦神社前, 庁舎前, rồi 明倫小学校前 ngay trước 外宮前. Xe tới 伊勢市駅前 thì 外宮前 là trạm trước ga. Khi bảng hiện 外宮前, bấm nút dừng và xuống ở cửa trước. Nếu lỡ, trạm kế thường là 伊勢市駅前, đi bộ về lại 外宮 khoảng vài phút."
   },
   "onboard": "Khoảng 15–20 phút. Theo bài Bestcar, buổi chiều có nhiều xe tăng chuyến từ 内宮 về 伊勢市駅前.",
   "sources": [
@@ -14706,8 +14706,8 @@ export const RIDES_R: any = [
   "line": "Kyoto Bus 94 (京都バス, hướng 清滝)",
   "from": "阪急嵐山駅前",
   "to": "愛宕寺前",
-  "board": "Bến trước ga Hankyu Arashiyama (阪急嵐山駅前, bãi xe buýt trước ga). Lên xe 94 có bảng 「清滝」 (Kiyotaki); xe ghi 大覚寺 thì hỏi tài xế vì có thể không tới 愛宕寺前. Chuyến thưa, kiểm giờ trên Kyoto Bus Navi trước khi đi. Cách Kyōto thông thường: lên cửa sau, xuống cửa trước (trang Kyoto Bus không nêu cửa).",
-  "pay": "Tuyến 94 nằm trong vùng đồng giá thành phố Kyōto (¥230/người theo nguồn ngoài, chưa thấy trên trang Kyoto Bus). Thẻ IC toàn quốc chạm một lần duy nhất ở máy cửa xuống, không chạm lúc lên (Kyoto Bus ghi rõ cho tuyến 94). Tiền mặt: bỏ tiền vào hộp khi xuống, chuẩn bị đủ tiền lẻ.",
+  "board": "Bến trước ga Hankyu Arashiyama (阪急嵐山駅前, bãi xe buýt trước ga). Lên xe 94 có bảng 「清滝」 (Kiyotaki); xe ghi 大覚寺 thì hỏi tài xế vì có thể không tới 愛宕寺前. Chuyến thưa, kiểm giờ trên Kyoto Bus Navi trước khi đi. Cách Kyōto thông thường: lên cửa sau, xuống cửa trước.",
+  "pay": "Tuyến 94 nằm trong vùng đồng giá thành phố Kyōto (¥230/người). Thẻ IC toàn quốc chạm một lần duy nhất ở máy cửa xuống, không chạm lúc lên (Kyoto Bus ghi rõ cho tuyến 94). Tiền mặt: bỏ tiền vào hộp khi xuống, chuẩn bị đủ tiền lẻ.",
   "stops": null,
   "views": [],
   "transfers": [],
@@ -14715,9 +14715,9 @@ export const RIDES_R: any = [
    "prevSt": "鳥居本",
    "announce": "次は、愛宕寺前です。",
    "announceRomaji": "Tsugi wa, Otagi-dera-mae desu.",
-   "text": "Trạm trước là 鳥居本 (Toriimoto, phố cổ), trước đó 護法堂弁天前 (thứ tự lấy từ trang không chính thức và busmap, chưa kiểm chứng). Khi nghe 愛宕寺前 hoặc thấy tên này trên bảng, bấm nút dừng. Chùa Otagi Nenbutsu-ji cách bến khoảng 1 phút đi bộ (nhiều trang ghi vậy). Nếu lỡ thì trạm kế là 清滝 (Kiyotaki), bến cuối, khoảng 5 phút xe theo Kyoto Bus Navi; hãy xuống ở đó rồi quay lại bằng xe hay đi bộ xuống. Mẫu thông báo chung, chưa nghe thực tế."
+   "text": "Trạm trước là 鳥居本 (Toriimoto, phố cổ), trước đó 護法堂弁天前. Khi nghe 愛宕寺前 hoặc thấy tên này trên bảng, bấm nút dừng. Chùa Otagi Nenbutsu-ji cách bến khoảng 1 phút đi bộ (nhiều trang ghi vậy). Nếu lỡ thì trạm kế là 清滝 (Kiyotaki), bến cuối, khoảng 5 phút xe; hãy xuống ở đó rồi quay lại bằng xe hay đi bộ xuống."
   },
-  "onboard": "Khoảng 25 phút từ ga Hankyu, đường leo dần vào núi. Số trạm chưa kiểm chứng.",
+  "onboard": "Khoảng 25 phút từ ga Hankyu, đường leo dần vào núi.",
   "sources": [
    "https://www.kyotobus.jp/route/fare/",
    "https://ume6234hp.ifdef.jp/Kyoto_bus/094/",
@@ -14733,7 +14733,7 @@ export const RIDES_R: any = [
   "line": "Fujikyu Bus Red Line (河口湖周遊バス, レッドライン)",
   "from": "河口湖駅",
   "to": "河口湖美術館",
-  "board": "Bến số 1 (1番のりば) trước ga Kawaguchiko, xe sơn đỏ ghi Red Line (河口湖周遊バス); nhà bán vé ở ga mở 6:30–19:00. Bãi đỗ có thể đổi theo ngày giờ. Xe 15 phút một chuyến theo bảng giờ 2026 (giờ 2027 chưa công bố).",
+  "board": "Bến số 1 (1番のりば) trước ga Kawaguchiko, xe sơn đỏ ghi Red Line (河口湖周遊バス); nhà bán vé ở ga mở 6:30–19:00. Bãi đỗ có thể đổi theo ngày giờ. Xe 15 phút một chuyến theo bảng giờ 2026.",
   "pay": "Tuyến Red Line tính tiền theo đoạn, tối thiểu ¥180/người. Cửa lên thường là cửa giữa (một số tuyến là cửa trước), lấy 整理券 ngay khi lên; khi xuống bỏ vé và tiền vào hộp cạnh tài xế, nhìn bảng giá theo số trên 整理券, không thối tiền (có máy đổi tiền). Thẻ IC toàn quốc chạm khi lên và khi xuống. Tiền mặt, không dùng thẻ tín dụng. Vé ngày Free Coupon 1 ngày ¥1.500, 2 ngày ¥2.000/người, mua ở quầy ga Kawaguchiko hoặc trên xe (chỉ vé 1 ngày).",
   "stops": 13,
   "views": [],
@@ -14742,7 +14742,7 @@ export const RIDES_R: any = [
    "prevSt": "うぶや前",
    "announce": "次は、河口湖美術館です。",
    "announceRomaji": "Tsugi wa, Kawaguchiko Bijutsukan desu.",
-   "text": "Đây là trạm thứ 13 từ ga, khoảng 18 phút theo bảng giờ 2026 (9:00 → 9:18). Các trạm quanh đó: 浅川温泉街 → 風のテラスKUKUNA前 → うぶや前 → 河口湖美術館. Trạm kế là 音楽と森の美術館・ほとりのホテルBan, tên cũng có 美術館 nên đừng xuống nhầm. Mẫu thông báo chung, chưa nghe thực tế trên tuyến này; hãy nhìn bảng trạm phía trước. Từ bến, 河口湖スイーツガーデン cách 3 phút đi bộ theo Tabelog."
+   "text": "Đây là trạm thứ 13 từ ga, khoảng 18 phút theo bảng giờ 2026 (9:00 → 9:18). Các trạm quanh đó: 浅川温泉街 → 風のテラスKUKUNA前 → うぶや前 → 河口湖美術館. Trạm kế là 音楽と森の美術館・ほとりのホテルBan, tên cũng có 美術館 nên đừng xuống nhầm. Hãy nhìn bảng trạm phía trước. Từ bến, 河口湖スイーツガーデン cách 3 phút đi bộ."
   },
   "onboard": "Chuyến 13:00 qua trạm 遊覧船・ロープウェイ入口 lúc ~13:11; nhớ giữ 整理券 đến lúc xuống. Mùa lá đỏ xe có thể đầy và bị đi qua mà không dừng (một chuyến đi bộ mùa thu ghi vậy).",
   "sources": [
@@ -14768,7 +14768,7 @@ export const RIDES_R: any = [
    "prevSt": "北浜荘前",
    "announce": "次は、河口湖自然生活館です。",
    "announceRomaji": "Tsugi wa, Kawaguchiko Shizen Seikatsukan desu.",
-   "text": "Đây là trạm cuối của hướng này (終点), khoảng 9 phút, nên cả xe cùng xuống. Thứ tự sau 河口湖美術館: 音楽と森の美術館・ほとりのホテルBan → 河口湖猿まわし・木の花美術館 → 久保田一竹美術館 → サニーデ前・長崎公園入口 → 北浜荘前 → 河口湖自然生活館. Dưới xe là công viên Ōishi, Hana Terrace và Budoya cách 2 phút đi bộ (Tabelog). Mẫu thông báo chung, chưa nghe thực tế."
+   "text": "Đây là trạm cuối của hướng này (終点), khoảng 9 phút, nên cả xe cùng xuống. Thứ tự sau 河口湖美術館: 音楽と森の美術館・ほとりのホテルBan → 河口湖猿まわし・木の花美術館 → 久保田一竹美術館 → サニーデ前・長崎公園入口 → 北浜荘前 → 河口湖自然生活館. Dưới xe là công viên Ōishi, Hana Terrace và Budoya cách 2 phút đi bộ."
   },
   "onboard": null,
   "sources": [
@@ -14785,7 +14785,7 @@ export const RIDES_R: any = [
   "from": "河口湖自然生活館（大石公園）",
   "to": "河口湖駅",
   "board": "Chiều ngược lại ở bến 河口湖自然生活館 (bến đầu của chiều về). Xe ghi 「河口湖駅」. Theo bảng giờ 2026 có xe 15:57 (từ 15:12 cứ 15 phút có một chuyến) tới ga khoảng 16:24, kịp tàu Fuji Kaiyu 16:48. Chuyến cuối bảng giờ ghi 18:27.",
-  "pay": "Tuyến Red Line tính tiền theo đoạn, tối thiểu ¥180/người. Cửa lên thường là cửa giữa (một số tuyến là cửa trước), lấy 整理券 ngay khi lên; khi xuống bỏ vé và tiền vào hộp cạnh tài xế, nhìn bảng giá theo số trên 整理券, không thối tiền (có máy đổi tiền). Thẻ IC toàn quốc chạm khi lên và khi xuống. Tiền mặt, không dùng thẻ tín dụng. Vé ngày Free Coupon 1 ngày ¥1.500, 2 ngày ¥2.000/người, mua ở quầy ga Kawaguchiko hoặc trên xe (chỉ vé 1 ngày). Giá chiều về ¥570/người theo ghi chú của kế hoạch, chưa kiểm chứng riêng.",
+  "pay": "Tuyến Red Line tính tiền theo đoạn, tối thiểu ¥180/người. Cửa lên thường là cửa giữa (một số tuyến là cửa trước), lấy 整理券 ngay khi lên; khi xuống bỏ vé và tiền vào hộp cạnh tài xế, nhìn bảng giá theo số trên 整理券, không thối tiền (có máy đổi tiền). Thẻ IC toàn quốc chạm khi lên và khi xuống. Tiền mặt, không dùng thẻ tín dụng. Vé ngày Free Coupon 1 ngày ¥1.500, 2 ngày ¥2.000/người, mua ở quầy ga Kawaguchiko hoặc trên xe (chỉ vé 1 ngày). Giá chiều về ¥570/người.",
   "stops": 19,
   "views": [],
   "transfers": [],
@@ -14793,7 +14793,7 @@ export const RIDES_R: any = [
    "prevSt": "役場入口",
    "announce": "次は、河口湖駅です。",
    "announceRomaji": "Tsugi wa, Kawaguchiko-eki desu.",
-   "text": "Ga Kawaguchiko là bến cuối, cả xe cùng xuống, đi 19 trạm khoảng 27 phút (12:12 → 12:39). Ba trạm cuối: 乳ヶ崎 → 役場入口 → 河口湖駅. Chạm IC hoặc bỏ tiền lúc xuống, rồi đi bộ vào ga. Mẫu thông báo chung, chưa nghe thực tế."
+   "text": "Ga Kawaguchiko là bến cuối, cả xe cùng xuống, đi 19 trạm khoảng 27 phút (12:12 → 12:39). Ba trạm cuối: 乳ヶ崎 → 役場入口 → 河口湖駅. Chạm IC hoặc bỏ tiền lúc xuống, rồi đi bộ vào ga."
   },
   "onboard": "Bảng giờ 2026 ghi giờ đến ga lệch vài phút tùy chuyến; chiều cuối tuần/mùa lá đỏ giao thông có thể kẹt, hãy để dư 15 phút trước tàu 16:48.",
   "sources": [

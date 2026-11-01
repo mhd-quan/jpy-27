@@ -8,13 +8,15 @@ import { WALK_STAYS } from '../data/walk.gen';
 import { FUJI_SPOTS } from '../data/fuji.gen';
 import { place, fmtKm, url } from '../lib/trip';
 import { boundsOf, compass, decodePolyline, encodePolyline, type LatLng } from '../lib/geo';
+import { deepTidy } from '../../scripts/tidy.mjs';
 import type { Pin, RouteLeg } from '../lib/map';
 
 interface Props {
   id: string;
 }
 const { id } = Astro.props;
-const g = STAYS_GEN[id];
+// stays.gen.ts needs the network to rebuild, so its research text is tidied again here (scripts/tidy.mjs)
+const g = STAYS_GEN[id] && deepTidy(STAYS_GEN[id]);
 const hotel = place(id);
 const WALK_COLORS = ['#2f7de1', '#e9792b', '#1e8a55', '#8a5cd0'];
 const TYPE: Record<string, string> = {

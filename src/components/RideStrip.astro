@@ -1,7 +1,8 @@
 ---
-// A ride drawn top to bottom like the line map above a train door: stations on a vertical line,
-// coloured bands beside it for the stretches worth watching on each side, notes where they start,
-// and the stops where you change or should get ready to get off.
+// A ride drawn top to bottom like the line map above a train door. One rail joins the stations;
+// each stretch of it takes the colour of the window worth watching (left, right, both, Fuji),
+// so where a view starts and ends reads straight off the line. Notes hang off the rail where
+// they start, each with a bar in the same colour.
 import type { Ride, Side } from '../lib/rides';
 
 interface Props {
@@ -9,8 +10,18 @@ interface Props {
 }
 const { r } = Astro.props;
 const SIDE: Record<Side, string> = { left: 'Trái', right: 'Phải', both: 'Hai bên', front: 'Phía trước', down: 'Nhìn xuống' };
-const covers = (i: number, sides: Side[], fuji?: boolean) =>
-  r.events.find((e) => sides.includes(e.side) && e.from <= i && e.to > i && (fuji === undefined || e.fuji === fuji));
+const LEFT: Side[] = ['left', 'both'];
+const RIGHT: Side[] = ['right', 'both', 'front', 'down'];
+/** colour of the stretch from station i to the next */
+const segOf = (i: number) => {
+  const on = r.events.filter((e) => e.from <= i && e.to > i);
+  if (!on.length) return null;
+  if (on.some((e) => e.fuji)) return 'fuji';
+  const l = on.some((e) => LEFT.includes(e.side));
+  const rt = on.some((e) => RIGHT.includes(e.side));
+  return l && rt ? 'both' : l ? 'left' : 'right';
+};
+const tone = (e: Ride['events'][number]) => (e.fuji ? 'fuji' : e.side === 'both' ? 'both' : LEFT.includes(e.side) ? 'left' : 'right');
 const startsAt = (i: number) => r.events.filter((e) => e.from === i);
 const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFractionDigits: 1 }) : Math.round(km).toString());
 ---
@@ -19,15 +30,22 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
   {
     r.stations.map((s, i) => {
       const last = i === r.stations.length - 1;
-      const L = !last && covers(i, ['left', 'both']);
-      const R = !last && covers(i, ['right', 'both', 'front', 'down']);
+      const seg = last ? null : segOf(i);
+      const prevSeg = i > 0 ? segOf(i - 1) : null;
       const evs = startsAt(i);
       const tr = r.transfers.filter((t) => t.idx === i);
       const prev = r.alight && r.alight.idx === i;
       return (
-        <li class:list={['st', s.stop ? 'is-stop' : 'is-pass', last && 'is-last', s.marks.map((m) => `m-${m}`)]}>
-          {L && <span class:list={['bar bar-l', L.fuji && 'is-fuji']} aria-hidden="true" />}
-          {R && <span class:list={['bar bar-r', R.fuji && 'is-fuji']} aria-hidden="true" />}
+        <li
+          class:list={[
+            'st',
+            s.stop ? 'is-stop' : 'is-pass',
+            last && 'is-last',
+            seg && `seg-${seg}`,
+            seg && seg !== prevSeg && 'seg-start',
+            s.marks.map((m) => `m-${m}`),
+          ]}
+        >
           <span class="node" aria-hidden="true" />
           <div class="st-body">
             <p class="st-name">
@@ -39,42 +57,51 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
               )}
               <span class="km tnum">{i === 0 ? 'lên tàu' : `${kmFmt(s.km)} km`}</span>
             </p>
-            {i > 0 && i === 1 && r.hidden > 0 && <p class="t-micro faint hid">Chỉ hiện ga tàu dừng và ga có cảnh; {r.hidden} ga khác chạy qua.</p>}
+            {i === 1 && r.hidden > 0 && <p class="t-micro faint hid">{r.hidden} ga chạy qua không hiện.</p>}
             {prev && r.alight && (
-              <div class="alert">
-                <p class="alert-k">Chuẩn bị xuống — ga sau là {r.stations.at(-1)!.en}</p>
-                {r.alight.text && <p class="t-small">{r.alight.text}</p>}
-                {r.alight.announce && (
-                  <p class="announce">
-                    <span class="ja" lang="ja">
-                      {r.alight.announce}
-                    </span>
-                    {r.alight.announceRomaji && <span class="ro">{r.alight.announceRomaji}</span>}
-                    <button type="button" class="speak" data-speak={r.alight.announce} aria-label="Nghe thông báo">
-                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                        <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" />
-                        <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                      </svg>
-                    </button>
-                  </p>
-                )}
+              <div class="note note-alight">
+                <span class="bar" aria-hidden="true" />
+                <div>
+                  <p class="note-k">Chuẩn bị xuống, ga sau là {r.stations.at(-1)!.en}</p>
+                  {r.alight.text && <p class="t-small">{r.alight.text}</p>}
+                  {r.alight.announce && (
+                    <p class="announce">
+                      <span class="ja" lang="ja">
+                        {r.alight.announce}
+                      </span>
+                      {r.alight.announceRomaji && <span class="ro">{r.alight.announceRomaji}</span>}
+                      <button type="button" class="speak" data-speak={r.alight.announce} aria-label="Nghe thông báo">
+                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                          <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" />
+                          <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                        </svg>
+                      </button>
+                    </p>
+                  )}
+                </div>
               </div>
             )}
             {tr.map((t) => (
-              <div class="transfer">
-                <p class="alert-k">Đổi tàu</p>
-                <p class="t-small">{t.text}</p>
+              <div class="note note-transfer">
+                <span class="bar" aria-hidden="true" />
+                <div>
+                  <p class="note-k">Đổi tàu</p>
+                  <p class="t-small">{t.text}</p>
+                </div>
               </div>
             ))}
             {evs.map((e) => (
-              <div class:list={['ev', `ev-${e.side}`, e.fuji && 'ev-fuji']}>
-                <p class="ev-k t-micro">
-                  <span class="side">{SIDE[e.side]}</span>
-                  {e.fuji && <span class="fuji">Fuji</span>}
-                  {e.to > e.from && <span class="span">tới {r.stations[e.to].en}</span>}
-                </p>
-                <p class="t-small">{e.what}</p>
-                {e.tip && <p class="t-small muted">{e.tip}</p>}
+              <div class:list={['note', `tone-${tone(e)}`]}>
+                <span class="bar" aria-hidden="true" />
+                <div>
+                  <p class="ev-k t-micro">
+                    <span class="side">{SIDE[e.side]}</span>
+                    {e.fuji && <span class="fuji">Fuji</span>}
+                    {e.to > e.from && <span class="span">tới {r.stations[e.to].en}</span>}
+                  </p>
+                  <p class="t-small">{e.what}</p>
+                  {e.tip && <p class="t-small muted">{e.tip}</p>}
+                </div>
               </div>
             ))}
           </div>
@@ -86,8 +113,8 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
 
 <style>
   .strip {
-    --node: 14px;
     --rail-x: 19px;
+    --rail-w: 6px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -99,45 +126,43 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
     min-height: 44px;
     padding-bottom: 14px;
   }
-  /* the line from this station's node down to the next one */
+  /* the rail from this station's node down to the next one, coloured by the window to watch */
   .st::before {
     content: '';
     position: absolute;
-    left: calc(var(--rail-x) - 2px);
+    left: calc(var(--rail-x) - var(--rail-w) / 2);
     top: 10px;
     bottom: -10px;
-    width: 4px;
-    border-radius: 2px;
-    background: var(--line);
+    width: var(--rail-w);
+    background: var(--rail, var(--line));
+  }
+  .st:first-child::before,
+  .st.seg-start::before {
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
   }
   .st.is-last::before {
     display: none;
   }
-  .bar {
-    position: absolute;
-    top: 10px;
-    bottom: -10px;
-    width: 5px;
-    border-radius: 3px;
+  .seg-left {
+    --rail: var(--side-l);
   }
-  .bar-l {
-    left: calc(var(--rail-x) - 11px);
-    background: var(--side-l);
+  .seg-right {
+    --rail: var(--side-r);
   }
-  .bar-r {
-    left: calc(var(--rail-x) + 6px);
-    background: var(--side-r);
+  .seg-fuji {
+    --rail: var(--side-f);
   }
-  .bar.is-fuji {
-    background: var(--side-f);
+  .seg-both {
+    --rail: linear-gradient(90deg, var(--side-l) 50%, var(--side-r) 50%);
   }
   .node {
     position: relative;
     z-index: 1;
     grid-column: 1;
     justify-self: center;
-    width: var(--node);
-    height: var(--node);
+    width: 14px;
+    height: 14px;
     margin-top: 3px;
     border-radius: 50%;
     background: var(--bg);
@@ -148,7 +173,8 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
     height: 8px;
     margin-top: 6px;
     border: 0;
-    background: var(--ink-3);
+    background: var(--ink);
+    box-shadow: 0 0 0 2px var(--bg);
   }
   .m-board .node,
   .m-alight .node {
@@ -157,6 +183,7 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
     margin-top: 1px;
     background: var(--ink);
     border-color: var(--ink);
+    box-shadow: 0 0 0 3px var(--bg);
   }
   .m-transfer .node {
     border-color: var(--accent-bright);
@@ -194,41 +221,56 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
   .hid {
     margin: 4px 0 0;
   }
-  .ev,
-  .alert,
-  .transfer {
-    margin-top: 8px;
-    padding: 10px 12px;
-    border-radius: 12px;
-    background: var(--bg-2);
-    border-left: 4px solid var(--ev, var(--line));
+
+  /* Notes: a bar beside the text, as on the walks and shopping slots, joined to the rail by a
+     short branch where the note starts */
+  .note {
+    --c: var(--ink-3);
+    position: relative;
+    display: grid;
+    grid-template-columns: 4px minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 12px;
   }
-  :global(.band) .ev,
-  :global(.band) .alert,
-  :global(.band) .transfer {
-    background: var(--bg);
+  .note::before {
+    content: '';
+    position: absolute;
+    top: 9px;
+    left: calc(var(--rail-x) - 38px + var(--rail-w) / 2);
+    width: calc(38px - var(--rail-x) - var(--rail-w) / 2);
+    height: 2px;
+    background: var(--c);
   }
-  .ev p,
-  .alert p,
-  .transfer p {
+  .note .bar {
+    border-radius: 2px;
+    background: var(--c);
+  }
+  .note p {
     margin: 0;
   }
-  .ev p + p {
+  .note p + p {
     margin-top: 3px;
   }
-  .ev-left {
-    --ev: var(--side-l);
+  .tone-left {
+    --c: var(--side-l);
   }
-  .ev-right,
-  .ev-front,
-  .ev-down {
-    --ev: var(--side-r);
+  .tone-right {
+    --c: var(--side-r);
   }
-  .ev-both {
-    --ev: var(--ink-3);
+  .tone-fuji {
+    --c: var(--side-f);
   }
-  .ev-fuji {
-    --ev: var(--side-f);
+  .tone-both {
+    --c: linear-gradient(90deg, var(--side-l) 50%, var(--side-r) 50%);
+  }
+  .tone-both::before {
+    background: var(--ink-3);
+  }
+  .note-alight {
+    --c: var(--warn);
+  }
+  .note-transfer {
+    --c: var(--accent-bright);
   }
   .ev-k {
     display: flex;
@@ -238,9 +280,9 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
     font-weight: 600;
   }
   .side {
-    color: var(--ev);
+    color: var(--c);
   }
-  .ev-both .side {
+  .tone-both .side {
     color: var(--ink-2);
   }
   .fuji {
@@ -250,17 +292,13 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
     color: var(--ink-3);
     font-weight: 500;
   }
-  .alert {
-    --ev: var(--warn);
-    background: color-mix(in srgb, var(--warn) 10%, var(--bg));
-  }
-  .transfer {
-    --ev: var(--accent-bright);
-  }
-  .alert-k {
-    font-size: 14px;
+  .note-k {
+    font-size: 15px;
     font-weight: 700;
     margin-bottom: 4px !important;
+  }
+  .note-alight .note-k {
+    color: var(--warn);
   }
   .announce {
     display: flex;
@@ -284,8 +322,11 @@ const kmFmt = (km: number) => (km < 10 ? km.toLocaleString('vi-VN', { maximumFra
     height: 32px;
     border: 0;
     border-radius: 50%;
-    background: var(--bg);
+    background: var(--bg-2);
     color: var(--ink-2);
     cursor: pointer;
+  }
+  :global(.band) .speak {
+    background: var(--bg);
   }
 </style>

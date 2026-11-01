@@ -1,5 +1,6 @@
 ---
 import type { Img } from '../data/catalog';
+import { sourceLabel } from '../lib/sources';
 import { imgSrc } from '../lib/trip';
 
 const isTabelog = (src: string) => src.includes('tblg.k-img.com');
@@ -34,8 +35,10 @@ const list = images.slice(0, limit).map((im) => {
   }
   return { ...im, text };
 });
+// "Ảnh: website khách sạn" says nothing the hotel sheet's link doesn't; a photographer's name stays
+const plainCredit = (c: string) => (/^(?:Ảnh:|Website)/i.test(c) ? '' : c);
 const creditLabel = (im: Img) => {
-  if (!isTabelog(im.src)) return im.credit || 'Nguồn';
+  if (!isTabelog(im.src)) return im.credit || sourceLabel(im.page ?? im.src);
   const who = im.credit.replace('/ Tabelog', '').trim();
   return who ? `${who} · Tabelog` : 'Tabelog';
 };
@@ -68,7 +71,7 @@ const creditLabel = (im: Img) => {
                     {creditLabel(im)}
                   </a>
                 ) : (
-                  im.credit
+                  plainCredit(im.credit)
                 )}
               </span>
             </figcaption>
@@ -135,10 +138,19 @@ const creditLabel = (im: Img) => {
     letter-spacing: -0.006em;
     color: var(--ink);
   }
+  /* photo credit: one quiet line, cut short rather than wrapping under the caption */
+  .credit {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   .credit,
   .credit a {
     font-size: 11px;
     color: var(--ink-3);
+  }
+  .credit:empty {
+    display: none;
   }
   .gallery-sm .cap {
     font-size: 13px;
