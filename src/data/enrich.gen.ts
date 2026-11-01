@@ -4874,7 +4874,2512 @@ export const PHRASES: PhraseBook = {
  ]
 };
 
-export const STAYS_AROUND: any = {};
+export const STAYS_AROUND: any = {
+ "resol-akihabara": {
+  "area": "Khách sạn nằm ở rìa nam khu điện máy, giữa ga JR Akihabara và ga Iwamotochō, sát sông Kanda. Ban ngày Chūō-dōri đông kín, bảng hiệu và loa quảng cáo kéo dài đến tối; chỉ cần rẽ vào các phố nhỏ phía khách sạn là yên, toàn văn phòng và tiệm phụ liệu. Lúc 7 giờ sáng hầu hết cửa hàng còn đóng, chủ yếu người đi làm ra ga và vài quán cà phê mở sớm; lúc 9 giờ tối trục chính vẫn sáng đèn và đông người nên đi bộ thoải mái.",
+  "walks": [
+   {
+    "id": "w-kanda-river-manseibashi-night",
+    "title": "Sông Kanda và Manseibashi buổi tối",
+    "minutes": 35,
+    "best": "Tối, sau 18:00",
+    "text": "Ra cầu Izumibashi bên sông Kanda, đi ngược về phía tây tới mAAch ecute ở Manseibashi, nơi các vòm gạch của ga cũ lên đèn. Quay về qua Chūō-dōri và lối ra Electric Town của ga Akihabara. Khoảng 1,6 km, đường phố có đèn, gần như toàn đường bằng.",
+    "distanceM": 1574,
+    "waypoints": [
+     [
+      35.69662,
+      139.77392
+     ],
+     [
+      35.69657,
+      139.77519
+     ],
+     [
+      35.69739,
+      139.77528
+     ],
+     [
+      35.69677,
+      139.77056
+     ],
+     [
+      35.69714,
+      139.76997
+     ],
+     [
+      35.69681,
+      139.77067
+     ],
+     [
+      35.69853,
+      139.77111
+     ],
+     [
+      35.69867,
+      139.77215
+     ],
+     [
+      35.69748,
+      139.77262
+     ],
+     [
+      35.69746,
+      139.77341
+     ],
+     [
+      35.69665,
+      139.77319
+     ],
+     [
+      35.69662,
+      139.77392
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Cầu Izumibashi",
+      "ja": "和泉橋",
+      "lat": 35.69693,
+      "lng": 139.77547,
+      "text": "Cầu bắc qua sông Kanda ngay phía đông khách sạn; điểm bắt đầu đoạn đi dọc sông, buổi tối mặt nước phản chiếu đèn tòa nhà hai bên.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Kanda_river_from_Izumibashi_bridge_%2824758523478%29.jpg/1280px-Kanda_river_from_Izumibashi_bridge_%2824758523478%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Kanda_river_from_Izumibashi_bridge_(24758523478).jpg",
+        "credit": "nakashi from Chofu, Tokyo, JAPAN",
+        "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+        "caption": "Sông Kanda nhìn từ cầu Izumibashi, cách khách sạn vài phút đi bộ"
+       }
+      ]
+     },
+     {
+      "name": "mAAch ecute Kanda Manseibashi",
+      "ja": "mAAch ecute 神田万世橋",
+      "lat": 35.69722,
+      "lng": 139.77004,
+      "text": "Cầu cạn gạch đỏ của ga Manseibashi cũ (1912), nay là dãy quán cà phê và cửa hàng; đèn dưới các vòm gạch sáng lên khi trời tối. Cửa hàng mở khoảng 11:00–22:00 tùy quán.",
+      "images": [
+       {
+        "kind": "exterior",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/MAAch_ecute_%E7%A5%9E%E7%94%B0%E8%90%AC%E4%B8%96%E6%A9%8B_%2849292011986%29.jpg/1280px-MAAch_ecute_%E7%A5%9E%E7%94%B0%E8%90%AC%E4%B8%96%E6%A9%8B_%2849292011986%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:MAAch_ecute_%E7%A5%9E%E7%94%B0%E8%90%AC%E4%B8%96%E6%A9%8B_(49292011986).jpg",
+        "credit": "Wei-Te Wong from Taipei City, Taiwan, Republic of China",
+        "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+        "caption": "Mặt tiền mAAch ecute dưới vòm gạch buổi tối"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/ManseibashiStationMaachEcute.JPG/1280px-ManseibashiStationMaachEcute.JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:ManseibashiStationMaachEcute.JPG",
+        "credit": "Ippukucho",
+        "license": "CC BY 3.0 (Wikimedia Commons)",
+        "caption": "Cầu cạn và toà nhà ga cũ lúc hoàng hôn"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Manseibashi_Viaduct_%26_JR_Kanda_Manseibashi_Building_at_night_%282014-09-28_18.17.09_by_superidoljp%29.jpg/1280px-Manseibashi_Viaduct_%26_JR_Kanda_Manseibashi_Building_at_night_%282014-09-28_18.17.09_by_superidoljp%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Manseibashi_Viaduct_&_JR_Kanda_Manseibashi_Building_at_night_(2014-09-28_18.17.09_by_superidoljp).jpg",
+        "credit": "superidoljp from Tokyo, Japan",
+        "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+        "caption": "Cầu cạn Manseibashi và tòa nhà ga cũ về đêm"
+       }
+      ]
+     },
+     {
+      "name": "Chūō-dōri về đêm",
+      "ja": "中央通り",
+      "lat": 35.69866,
+      "lng": 139.77215,
+      "text": "Trục chính của Akihabara, biển hiệu và màn hình quảng cáo sáng nhất vào buổi tối.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Akihabara_Night.jpg/1280px-Akihabara_Night.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Akihabara_Night.jpg",
+        "credit": "ElHeineken",
+        "license": "CC BY 4.0 (Wikimedia Commons)",
+        "caption": "Trục Chūō-dōri ở Akihabara về đêm"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "w-kanda-myojin-yushima-morning",
+    "title": "Kanda Myōjin, Yushima Seidō và Hijiribashi buổi sáng",
+    "minutes": 55,
+    "best": "Sáng sớm 6:30–8:30, sân đền mở tự do",
+    "text": "Đi lên phía bắc tới Kanda Myōjin khi sân đền còn vắng, rồi xuống Yushima Seidō và cầu Hijiribashi bắc qua sông Kanda ở Ochanomizu. Quay lại dọc sông Kanda qua Manseibashi. Khoảng 3,2 km, có vài đoạn dốc nhẹ; giờ mở cổng Yushima Seidō chưa kiểm chứng, nếu đóng thì chỉ ngắm từ ngoài.",
+    "distanceM": 3188,
+    "waypoints": [
+     [
+      35.69662,
+      139.77392
+     ],
+     [
+      35.69682,
+      139.77114
+     ],
+     [
+      35.6974,
+      139.77125
+     ],
+     [
+      35.6986,
+      139.76888
+     ],
+     [
+      35.70103,
+      139.76709
+     ],
+     [
+      35.70193,
+      139.76773
+     ],
+     [
+      35.69971,
+      139.76703
+     ],
+     [
+      35.70032,
+      139.76574
+     ],
+     [
+      35.69929,
+      139.7656
+     ],
+     [
+      35.69983,
+      139.76385
+     ],
+     [
+      35.69677,
+      139.77056
+     ],
+     [
+      35.69747,
+      139.77092
+     ],
+     [
+      35.69682,
+      139.77114
+     ],
+     [
+      35.69662,
+      139.77392
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Kanda Myōjin",
+      "ja": "神田明神",
+      "lat": 35.70194,
+      "lng": 139.76774,
+      "text": "Đền lớn trên đồi nhìn xuống Akihabara; sân đền mở tự do, quầy bùa và goshuin khoảng 9:00–17:00 nên đi sớm chỉ để ngắm và chụp ảnh.",
+      "images": [
+       {
+        "kind": "exterior",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Kanda_Jinja_entrance.JPG/1280px-Kanda_Jinja_entrance.JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:Kanda_Jinja_entrance.JPG",
+        "credit": "Tadill",
+        "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+        "caption": "Cổng Zuishinmon sơn đỏ của đền Kanda Myojin"
+       },
+       {
+        "kind": "exterior",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/KandaMyojinGate8837.jpg/1280px-KandaMyojinGate8837.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:KandaMyojinGate8837.jpg",
+        "credit": "No machine-readable author provided. Fg2 assumed (based on copyright claims).",
+        "license": "Public domain (Wikimedia Commons)",
+        "caption": "Cổng đền Kanda Myojin nhìn từ phía đường"
+       }
+      ]
+     },
+     {
+      "name": "Yushima Seidō",
+      "ja": "湯島聖堂",
+      "lat": 35.7004,
+      "lng": 139.76659,
+      "text": "Đền thờ Khổng Tử từ thời Edo, cây pistache Trung Hoa trong sân đổi đỏ vào mùa thu.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Yushima_Seido_03.JPG/1280px-Yushima_Seido_03.JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:Yushima_Seido_03.JPG",
+        "credit": "Reggaeman",
+        "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+        "caption": "Cây pistache Trung Hoa trong sân Yushima Seidō, đổi đỏ vào mùa thu"
+       }
+      ]
+     },
+     {
+      "name": "Cầu Hijiribashi",
+      "ja": "聖橋",
+      "lat": 35.69957,
+      "lng": 139.76445,
+      "text": "Cầu bê tông bắc qua thung lũng sông Kanda ngay cạnh ga Ochanomizu; đứng giữa cầu nhìn thấy tàu Chūō, Marunouchi và sông Kanda cùng lúc.",
+      "images": []
+     },
+     {
+      "name": "Manseibashi",
+      "ja": "万世橋",
+      "lat": 35.69722,
+      "lng": 139.77004,
+      "text": "Điểm cuối dọc sông trước khi rẽ về khách sạn.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/MAAch_ecute_Kanda-Manseibashi_riverside_deck_20130721-1.jpg/1280px-MAAch_ecute_Kanda-Manseibashi_riverside_deck_20130721-1.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:MAAch_ecute_Kanda-Manseibashi_riverside_deck_20130721-1.jpg",
+        "credit": "掬茶",
+        "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+        "caption": "Cầu cạn gạch đỏ bên sông Kanda ban ngày"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "w-chuo-dori-electric-town-night",
+    "title": "Chūō-dōri và Electric Town về đêm",
+    "minutes": 30,
+    "best": "Tối 19:00–21:30",
+    "text": "Vòng ngắn quanh trục Chūō-dōri: cửa hàng game, điện máy, biển hiệu và loa quảng cáo. Đường rộng, sáng và đông; Daiso gần đó mở tới 22:00 (theo OSM) còn nhiều cửa hàng điện máy đóng sớm hơn nên đừng tính mua sắm sau 21:00. Ra khỏi trục chính về hướng khách sạn là yên ngay.",
+    "distanceM": 1676,
+    "waypoints": [
+     [
+      35.69662,
+      139.77392
+     ],
+     [
+      35.69665,
+      139.77319
+     ],
+     [
+      35.69812,
+      139.77398
+     ],
+     [
+      35.69848,
+      139.77351
+     ],
+     [
+      35.69943,
+      139.77377
+     ],
+     [
+      35.69978,
+      139.77094
+     ],
+     [
+      35.69954,
+      139.77384
+     ],
+     [
+      35.70039,
+      139.77383
+     ],
+     [
+      35.69874,
+      139.77412
+     ],
+     [
+      35.69665,
+      139.77319
+     ],
+     [
+      35.69662,
+      139.77392
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Chūō-dōri",
+      "ja": "中央通り",
+      "lat": 35.69985,
+      "lng": 139.77095,
+      "text": "Trục chính của Akihabara, nhộn nhịp nhất khi trời tối.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Akihabara_Night.jpg/1280px-Akihabara_Night.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Akihabara_Night.jpg",
+        "credit": "ElHeineken",
+        "license": "CC BY 4.0 (Wikimedia Commons)",
+        "caption": "Trục Chūō-dōri ở Akihabara về đêm"
+       }
+      ]
+     },
+     {
+      "name": "Lối ra Electric Town của ga Akihabara",
+      "ja": "秋葉原駅 電気街口",
+      "lat": 35.69838,
+      "lng": 139.77322,
+      "text": "Khu cửa hàng điện máy và game ngay trước ga, cách khách sạn vài phút đi bộ.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Akihabara%2C_Tokyo%2C_Japan_002.jpg/1280px-Akihabara%2C_Tokyo%2C_Japan_002.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Akihabara,_Tokyo,_Japan_002.jpg",
+        "credit": "Vasconium",
+        "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+        "caption": "Phố điện máy Akihabara ban ngày"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "around": [
+   {
+    "name": "FamilyMart gần khách sạn",
+    "ja": "ファミリーマート",
+    "type": "konbini",
+    "lat": 35.697844,
+    "lng": 139.774191,
+    "text": "Cửa hàng tiện lợi gần nhất, có đồ ăn sáng và đồ uống.",
+    "hours": "24 giờ",
+    "distanceM": 125,
+    "walkMin": 2,
+    "src": "https://www.openstreetmap.org/node/2018264081",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "7-Eleven Akihabara",
+    "ja": "セブン-イレブン",
+    "type": "konbini",
+    "lat": 35.697999,
+    "lng": 139.775215,
+    "text": "Cửa hàng tiện lợi thứ hai, phía đông Chūō-dōri.",
+    "hours": "24 giờ",
+    "distanceM": 182,
+    "walkMin": 3,
+    "src": "https://www.openstreetmap.org/node/11224249804",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "Seijo Ishii",
+    "ja": "成城石井",
+    "type": "supermarket",
+    "lat": 35.698441,
+    "lng": 139.772493,
+    "text": "Siêu thị đồ ăn ngon, có rượu vang, đồ hộp và bento; mở muộn nhất trong khu.",
+    "hours": "Thứ Hai–Sáu 8:00–22:30; Thứ Bảy, Chủ Nhật 10:00–22:30 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 229,
+    "walkMin": 4,
+    "src": "https://www.openstreetmap.org/node/9418883312"
+   },
+   {
+    "name": "Maibasket",
+    "ja": "まいばすけっと",
+    "type": "supermarket",
+    "lat": 35.694518,
+    "lng": 139.776583,
+    "text": "Siêu thị nhỏ của Aeon, giá mềm hơn Seijo Ishii, mở từ sáng tới nửa đêm.",
+    "hours": "7:00–24:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 344,
+    "walkMin": 6,
+    "src": "https://www.openstreetmap.org/node/4674486995",
+    "open": "07:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "Tomod's Akihabara",
+    "ja": "トモズ",
+    "type": "drugstore",
+    "lat": 35.698458,
+    "lng": 139.775241,
+    "text": "Hiệu thuốc và mỹ phẩm, mở tới 22:00.",
+    "hours": "8:00–22:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 225,
+    "walkMin": 4,
+    "src": "https://www.openstreetmap.org/node/1880740706",
+    "open": "08:00",
+    "close": "22:00",
+    "closedDow": []
+   },
+   {
+    "name": "Coin laundry Pierrot",
+    "ja": "ピエロ コインランドリー",
+    "type": "laundry",
+    "lat": 35.695314,
+    "lng": 139.77411,
+    "text": "Tiệm giặt tự động cách khách sạn khoảng 2 phút, mở rất sớm và rất khuya.",
+    "hours": "5:00–1:00 sáng hôm sau, hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 159,
+    "walkMin": 3,
+    "src": "https://www.openstreetmap.org/node/7864692821",
+    "open": "05:00",
+    "close": "01:00",
+    "closedDow": [],
+    "closeNextDay": true
+   },
+   {
+    "name": "Doutor Coffee",
+    "ja": "ドトールコーヒーショップ",
+    "type": "cafe",
+    "lat": 35.696317,
+    "lng": 139.77513,
+    "text": "Quán cà phê ăn sáng nhanh, mở sớm nhất khu vào ngày thường.",
+    "hours": "Thứ Hai–Sáu 6:50–21:30; Thứ Bảy 7:30–20:30; Chủ Nhật và ngày lễ 8:00–19:30 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 118,
+    "walkMin": 2,
+    "src": "https://www.openstreetmap.org/node/3632374360"
+   },
+   {
+    "name": "Café Veloce",
+    "ja": "カフェ・ベローチェ",
+    "type": "cafe",
+    "lat": 35.695883,
+    "lng": 139.775104,
+    "text": "Cà phê và bánh sandwich, mở từ 7 giờ đến 23 giờ.",
+    "hours": "7:00–23:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 143,
+    "walkMin": 2,
+    "src": "https://www.openstreetmap.org/node/3666676087",
+    "open": "07:00",
+    "close": "23:00",
+    "closedDow": []
+   },
+   {
+    "name": "Vie de France Akihabara",
+    "ja": "ヴィ・ド・フランス",
+    "type": "bakery",
+    "lat": 35.698375,
+    "lng": 139.774981,
+    "text": "Tiệm bánh mì chuỗi gần ga, mua bánh mì mang đi cho bữa sáng.",
+    "hours": null,
+    "distanceM": 205,
+    "walkMin": 3,
+    "src": "https://www.openstreetmap.org/node/3412207298"
+   },
+   {
+    "name": "Otama-yu",
+    "ja": "於玉湯",
+    "type": "sento",
+    "lat": 35.692765,
+    "lng": 139.77555,
+    "text": "Nhà tắm công cộng trong khu dân cư phía nam, đi bộ khoảng 7 phút. Theo OSM nghỉ thứ Bảy.",
+    "hours": "Chủ Nhật–Thứ Sáu 14:40–20:30 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 466,
+    "walkMin": 8,
+    "src": "https://www.openstreetmap.org/node/6463426486",
+    "open": "14:40",
+    "close": "20:30",
+    "closedDow": [
+     6
+    ]
+   }
+  ],
+  "photos": [
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Akihabara_Night.jpg/1280px-Akihabara_Night.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Akihabara_Night.jpg",
+    "credit": "ElHeineken",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "caption": "Trục Chūō-dōri ở Akihabara về đêm"
+   },
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Kanda_river_from_Izumibashi_bridge_%2824758523478%29.jpg/1280px-Kanda_river_from_Izumibashi_bridge_%2824758523478%29.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Kanda_river_from_Izumibashi_bridge_(24758523478).jpg",
+    "credit": "nakashi from Chofu, Tokyo, JAPAN",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "caption": "Sông Kanda nhìn từ cầu Izumibashi, cách khách sạn vài phút đi bộ"
+   },
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Akihabara%2C_Tokyo%2C_Japan_002.jpg/1280px-Akihabara%2C_Tokyo%2C_Japan_002.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Akihabara,_Tokyo,_Japan_002.jpg",
+    "credit": "Vasconium",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "caption": "Phố điện máy Akihabara ban ngày"
+   }
+  ],
+  "sources": [
+   "https://www.openstreetmap.org/ (dữ liệu POI qua Overpass API)",
+   "https://routing.openstreetmap.de/ (tuyến đi bộ)",
+   "https://commons.wikimedia.org/",
+   "https://www.resol-hotel.jp/akihabara/rooms/"
+  ]
+ },
+ "mizunoto": {
+  "area": "Kowakudani là thung lũng rừng ở độ cao khoảng 580 m, quanh có Yunessun, vườn Hōraien, thác Senjō-no-taki và vài khách sạn onsen; khu không có phố mua sắm, chỉ vài cửa hàng tiện lợi. Ban ngày khách đi qua bằng xe buýt và tàu leo núi, tối rất yên, đường dốc giữa rừng nên mang theo đèn pin nhỏ. Lúc 7 giờ sáng rừng mát và nắng trực tiếp tới thung lũng muộn (khoảng 7:20 theo địa hình); lúc 9 giờ tối gần như chỉ có tiếng nước chảy. Khách sạn nằm trên sườn dốc nên cửa hàng tiện lợi gần nhất cách khoảng 1,5 km (đi bộ khoảng 20 phút theo OSM) và không có hiệu thuốc, siêu thị hay tiệm giặt gần; hãy mua đồ cần thiết ở Tokyo.",
+  "walks": [
+   {
+    "id": "w-sengen-yama-morning",
+    "title": "Lên đồi Sengen-yama tìm Fuji",
+    "minutes": 65,
+    "best": "Sáng sớm, xuất phát khoảng 6:15 để về kịp ăn sáng và trả phòng",
+    "text": "Đường mòn đi từ gần thác Senjō-no-taki lên bãi cỏ trên đỉnh Sengen-yama (802 m) ngay phía đông khách sạn, khoảng 2 km một chiều, lên 220 m. Theo địa hình, Fuji chỉ có thể lộ ra ở đoạn cuối, từ khoảng 1,5 km trên đường mòn; đây là suy luận từ DEM, không phải điểm được ghi nhận có Fuji, và cây trên đỉnh có thể che một phần. Quay lại theo đường cũ; trước 6 giờ cần đèn pin.",
+    "distanceM": 2020,
+    "waypoints": [
+     [
+      35.2391,
+      139.05025
+     ],
+     [
+      35.23945,
+      139.04897
+     ],
+     [
+      35.23882,
+      139.04876
+     ],
+     [
+      35.2354,
+      139.04906
+     ],
+     [
+      35.23557,
+      139.04984
+     ],
+     [
+      35.23506,
+      139.05028
+     ],
+     [
+      35.23446,
+      139.05353
+     ],
+     [
+      35.23505,
+      139.05325
+     ],
+     [
+      35.23499,
+      139.05398
+     ],
+     [
+      35.23543,
+      139.05423
+     ],
+     [
+      35.23546,
+      139.05707
+     ],
+     [
+      35.23358,
+      139.05873
+     ],
+     [
+      35.23347,
+      139.0595
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Thác Senjō-no-taki",
+      "ja": "千条の滝",
+      "lat": 35.23513,
+      "lng": 139.05034,
+      "text": "Thác nhỏ cao 3 m, rộng 25 m, vách đá phủ rêu, là điểm bắt đầu đường leo Sengen-yama (theo trang du lịch Hakone).",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg/1280px-Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Chisujino_Taki_(waterfall)_Kowakidani,_Hakone_(NYPL_Hades-2360099-4043898).jpg",
+        "credit": "Scan by NYPL",
+        "license": "Public domain (Wikimedia Commons)",
+        "caption": "Thác Senjō-no-taki (Chisujino-taki) ở Kowakudani, ảnh lịch sử năm 1907"
+       }
+      ]
+     },
+     {
+      "name": "Sống núi cỏ gần đỉnh",
+      "ja": "浅間山の尾根",
+      "lat": 35.23547,
+      "lng": 139.05707,
+      "text": "Đoạn đồi cỏ cao 801 m, nơi DEM cho thấy Fuji lộ nhiều nhất (khoảng 1.300 m phần trên) nếu không bị cây che.",
+      "images": []
+     },
+     {
+      "name": "Đỉnh Sengen-yama",
+      "ja": "浅間山",
+      "lat": 35.23349,
+      "lng": 139.0595,
+      "text": "Bãi cỏ phẳng 802 m, có biển chỉ đỉnh, ghế dài và cây bao quanh.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Mt.Sengen_%28Hakone%29_01.jpg/1280px-Mt.Sengen_%28Hakone%29_01.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Mt.Sengen_(Hakone)_01.jpg",
+        "credit": "Σ64",
+        "license": "CC BY 3.0 (Wikimedia Commons)",
+        "caption": "Biển chỉ đỉnh Sengen-yama (802 m)"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Mt.Sengen_%28Hakone%29_16.jpg/1280px-Mt.Sengen_%28Hakone%29_16.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Mt.Sengen_(Hakone)_16.jpg",
+        "credit": "Σ64",
+        "license": "CC BY 3.0 (Wikimedia Commons)",
+        "caption": "Toàn cảnh bãi cỏ trên đỉnh Sengen-yama, cây cối bao quanh (chụp mùa đông)"
+       }
+      ]
+     }
+    ],
+    "returnSame": true,
+    "oneWayMinutes": 27
+   },
+   {
+    "id": "w-senjo-horaien-kowakudani",
+    "title": "Thác Senjō, vườn Hōraien và ga Kowakudani",
+    "minutes": 40,
+    "best": "Sáng sớm hoặc chiều muộn khi trời còn sáng",
+    "text": "Vòng ngắn trong thung lũng: thác Senjō-no-taki, vườn azalea Hōraien, rồi lên ga Kowakudani (khoảng 14 phút đi bộ từ khách sạn) và về lại. Đường dốc và ít đèn nên đi lúc trời còn sáng. Vườn Hōraien chưa xác nhận giờ vào cửa nên có thể chỉ ngắm từ ngoài.",
+    "distanceM": 2994,
+    "waypoints": [
+     [
+      35.2391,
+      139.05025
+     ],
+     [
+      35.23945,
+      139.04897
+     ],
+     [
+      35.23882,
+      139.04876
+     ],
+     [
+      35.23576,
+      139.04893
+     ],
+     [
+      35.23517,
+      139.05005
+     ],
+     [
+      35.23693,
+      139.04819
+     ],
+     [
+      35.2402,
+      139.05354
+     ],
+     [
+      35.2404,
+      139.05288
+     ],
+     [
+      35.23985,
+      139.05359
+     ],
+     [
+      35.23707,
+      139.04908
+     ],
+     [
+      35.23945,
+      139.04897
+     ],
+     [
+      35.2391,
+      139.05025
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Thác Senjō-no-taki",
+      "ja": "千条の滝",
+      "lat": 35.23513,
+      "lng": 139.05034,
+      "text": "Thác rêu nhỏ trong rừng, mùa hè có đom đóm.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg/1280px-Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Chisujino_Taki_(waterfall)_Kowakidani,_Hakone_(NYPL_Hades-2360099-4043898).jpg",
+        "credit": "Scan by NYPL",
+        "license": "Public domain (Wikimedia Commons)",
+        "caption": "Thác Senjō-no-taki (Chisujino-taki) ở Kowakudani, ảnh lịch sử năm 1907"
+       }
+      ]
+     },
+     {
+      "name": "Vườn Hōraien",
+      "ja": "箱根小涌園 蓬莱園",
+      "lat": 35.2374,
+      "lng": 139.0481,
+      "text": "Vườn khoảng 1 ha với khoảng 30.000 cây azalea và satsuki, được giới thiệu là đẹp vào mùa lá đỏ.",
+      "images": []
+     },
+     {
+      "name": "Ga Kowakudani",
+      "ja": "小涌谷駅",
+      "lat": 35.2405,
+      "lng": 139.05285,
+      "text": "Ga của tàu leo núi Hakone Tozan; xe đưa đón của khách sạn chạy từ đây.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Tozan_Kowakidani_cross_Ekiden_Soudai.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Tozan_Kowakidani_cross_Ekiden_Soudai.jpg",
+        "credit": "Cassiopeia sweet",
+        "license": "Public domain (Wikimedia Commons)",
+        "caption": "Tàu Hakone Tozan qua ga Kowakudani (ảnh chụp khi có giải chạy Ekiden)"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "around": [
+   {
+    "name": "7-Eleven Kowakudani",
+    "ja": "セブン-イレブン",
+    "type": "konbini",
+    "lat": 35.240474,
+    "lng": 139.050039,
+    "text": "Cửa hàng tiện lợi gần nhất, cạnh quốc lộ 1 gần ga Kowakudani; đi bộ khoảng 20 phút theo OSM (hoặc tiện thể khi đi bộ ra ga), nên mua đồ cần dùng trước khi lên núi.",
+    "hours": "24 giờ",
+    "distanceM": 155,
+    "walkMin": 20,
+    "src": "https://www.openstreetmap.org/node/4258056389",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": [],
+    "routeM": 1510,
+    "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
+   },
+   {
+    "name": "FamilyMart gần Kowakien",
+    "ja": "ファミリーマート",
+    "type": "konbini",
+    "lat": 35.239412,
+    "lng": 139.047451,
+    "text": "Cửa hàng tiện lợi thứ hai, phía Kowakien.",
+    "hours": null,
+    "distanceM": 258,
+    "walkMin": 30,
+    "src": "https://www.openstreetmap.org/way/354207770",
+    "routeM": 2214,
+    "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
+   },
+   {
+    "name": "FamilyMart trước Yunessun",
+    "ja": "ファミリーマート",
+    "type": "konbini",
+    "lat": 35.239206,
+    "lng": 139.045592,
+    "text": "Cửa hàng tiện lợi cạnh Yunessun.",
+    "hours": null,
+    "distanceM": 424,
+    "walkMin": 32,
+    "src": "https://www.openstreetmap.org/node/11664117239",
+    "routeM": 2393,
+    "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
+   },
+   {
+    "name": "Lounge Azalea, Hakone Hotel Kowakien",
+    "ja": "箱根ホテル小涌園 ラウンジ アゼリア",
+    "type": "cafe",
+    "lat": 35.238767,
+    "lng": 139.047551,
+    "text": "Quầy lounge của khách sạn Kowakien lân cận; chưa xác nhận giờ và việc có nhận khách ngoài hay không. Bữa sáng ở Mizunoto đã gồm trong giá nên ít cần.",
+    "hours": null,
+    "distanceM": 249,
+    "walkMin": 30,
+    "src": "https://www.openstreetmap.org/node/3928205088",
+    "routeM": 2239,
+    "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
+   },
+   {
+    "name": "Mori no Yu (Kowakien Yunessun)",
+    "ja": "箱根小涌園 森の湯",
+    "type": "sento",
+    "lat": 35.239446,
+    "lng": 139.045863,
+    "text": "Khu tắm onsen thuộc Kowakien Yunessun, cách khách sạn khoảng 5 phút đi bộ. Chưa xác nhận giờ và giá, xem trang chính thức.",
+    "hours": null,
+    "distanceM": 401,
+    "walkMin": 32,
+    "src": "https://www.openstreetmap.org/node/6688304555",
+    "routeM": 2380,
+    "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
+   },
+   {
+    "name": "Thác Senjō-no-taki",
+    "ja": "千条の滝",
+    "type": "sight",
+    "lat": 35.23513,
+    "lng": 139.05034,
+    "text": "Thác nhỏ cao 3 m, rộng 25 m trong rừng; điểm đầu đường lên Sengen-yama.",
+    "hours": "Ngoài trời, không có giờ",
+    "distanceM": 441,
+    "walkMin": 10,
+    "src": "https://www.hakonenavi.jp/area/kowakudani",
+    "routeM": 763,
+    "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
+   },
+   {
+    "name": "Vườn Hōraien",
+    "ja": "箱根小涌園 蓬莱園",
+    "type": "sight",
+    "lat": 35.2374,
+    "lng": 139.0481,
+    "text": "Vườn azalea khoảng 1 ha, bến xe buýt H \"Hōraien\" nằm ngay cạnh.",
+    "hours": null,
+    "distanceM": 272,
+    "walkMin": 7,
+    "src": "https://www.hakonenavi.jp/area/kowakudani",
+    "routeM": 493,
+    "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
+   }
+  ],
+  "photos": [
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Tozan_Kowakidani_cross_Ekiden_Soudai.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Tozan_Kowakidani_cross_Ekiden_Soudai.jpg",
+    "credit": "Cassiopeia sweet",
+    "license": "Public domain (Wikimedia Commons)",
+    "caption": "Tàu Hakone Tozan qua ga Kowakudani (ảnh chụp khi có giải chạy Ekiden)"
+   },
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg/1280px-Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Chisujino_Taki_(waterfall)_Kowakidani,_Hakone_(NYPL_Hades-2360099-4043898).jpg",
+    "credit": "Scan by NYPL",
+    "license": "Public domain (Wikimedia Commons)",
+    "caption": "Thác Senjō-no-taki (Chisujino-taki) ở Kowakudani, ảnh lịch sử năm 1907"
+   },
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Mt.Sengen_%28Hakone%29_16.jpg/1280px-Mt.Sengen_%28Hakone%29_16.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Mt.Sengen_(Hakone)_16.jpg",
+    "credit": "Σ64",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "caption": "Toàn cảnh bãi cỏ trên đỉnh Sengen-yama, cây cối bao quanh (chụp mùa đông)"
+   }
+  ],
+  "fuji": {
+   "fromProperty": {
+    "verdict": "no-evidence",
+    "canSee": false,
+    "summary": "Không tìm thấy bất kỳ lời nhắc nào về Fuji từ khách sạn: không có trong trang chính thức, không có trong 113 đánh giá Jalan gần nhất, không có trong các đánh giá OZmall, Trip.com, 4travel và icotto mà tôi đọc được. Các đánh giá chỉ khen cây xanh, rừng tre và núi chung chung. Địa hình cũng khớp: từ khách sạn, Fuji nằm ở hướng 295° (Tây Bắc, cách 32 km) nhưng bị sườn núi cao 700 m chắn ngay ở 0,7–1,6 km phía trước, kể cả khi tính mắt ở độ cao tầng 8. Kết luận: đừng trông chờ thấy Fuji từ phòng, sân vườn hay bồn onsen ngoài trời; hãy lấy Fuji làm chuyện của ngày 21/10 (hồ Ashi, Ōwakudani) và vài điểm gần xa bên dưới.",
+    "dem": {
+     "km": 32.3,
+     "bearingDeg": 295,
+     "groundElevM": 579,
+     "visibleAt": {
+      "eye1_6m": false,
+      "eye15m": false,
+      "eye30m": false
+     },
+     "blockedAtKm": 0.7,
+     "ridgeElevM": 704,
+     "marginDegAtGround": -4.55,
+     "note": "Tính bằng AWS Terrain Tiles z12 (~30 m), khúc xạ k=0,13; không tính cây cối và nhà cửa; cùng kết quả với src/data/fuji.gen.ts của trang."
+    },
+    "evidence": [
+     {
+      "src": "https://dormy-hotels.com/resort/hotels/mizunoto/",
+      "kind": "official",
+      "quote_vi": "Trang chủ chính thức chỉ nói khách sạn \"nằm giữa thiên nhiên Kowakudani, nơi tiếng nước làm lòng người yên\"; từ 富士山 không xuất hiện ở trang này.",
+      "ja": "自然に包まれた小涌谷に構え、気清らかな水の音に心癒される温泉宿。"
+     },
+     {
+      "src": "https://dormy-hotels.com/resort/hotels/mizunoto/rooms/",
+      "kind": "official",
+      "quote_vi": "Trang phòng mô tả phòng 水月の庄 洋室 là \"cửa sổ lớn nhìn ra thiên nhiên Hakone\"; phòng 水花の庄 có bồn hinoki trên hiên (tầng 1). Không trang nào nhắc Fuji.",
+      "ja": "大きな窓の向こうに広がる箱根の自然が、日ごろの疲れを癒します。"
+     },
+     {
+      "src": "https://www.jalan.net/yad306000/kuchikomi/",
+      "kind": "review",
+      "quote_vi": "Tôi đọc 113 đánh giá Jalan từ 2/11/2025 đến 18/10/2026: không có đánh giá nào chứa chữ 富士山. Đánh giá 7/5/2026: \"Lần đầu ở phòng có bồn onsen riêng, rất tuyệt! Cảnh đẹp nhất.\" Đánh giá 6/5/2026: \"Cây xanh non nhìn từ bồn tắm ngoài ban công là điều tuyệt nhất.\" Đánh giá 24/11/2025: \"ở bồn ngoài trời, rừng tre rậm rạp ngay trước mắt\".",
+      "ja": "ベランダに設置してある露天風呂から見える新緑が何より最高でした / 露天風呂では竹林が生い茂る景色を目の前にしながら温泉を楽しむことができました"
+     },
+     {
+      "src": "https://www.jalan.net/yad306000/",
+      "kind": "official-listing",
+      "quote_vi": "Trang Jalan của khách sạn có ảnh chú thích \"cảnh nhìn từ phòng 水花の庄 ngày 23/11/2023\", lobby \"nhìn ra màu xanh\", và gói \"tầng 5 trở lên, ngắm cảnh\"; vẫn không nhắc Fuji.",
+      "ja": "【ロビー】凛とした緑を望むロビーテラス / 【上層階確約プラン】5階以上のお部屋で眺望満喫！"
+     },
+     {
+      "src": "https://www.ozmall.co.jp/travel/stay/280/review/",
+      "kind": "review",
+      "quote_vi": "OZmall: 2/2026 \"Cảnh từ bồn onsen trong phòng cũng đẹp, rất dễ chịu\"; 9/2024 (phòng tầng 2) \"đáng tiếc là cảnh nhìn không đẹp lắm vì ở tầng 2\"; 11/2024 \"phòng giản dị, cảnh bình thường\"; 7/2025 về lounge: \"nhìn qua cửa sổ thấy màu xanh\". Không có chữ 富士山.",
+      "ja": "客室露天風呂の眺望も良く、とても心地よかったです。 / 2階のお部屋だったので眺望があまり良くなかったのが残念"
+     },
+     {
+      "src": "https://icotto.jp/hotels-1835/",
+      "kind": "review",
+      "quote_vi": "Một khách nói phòng kiểu Nhật có hiên \"nhìn ra núi Hakone\"; cùng đêm thấy trăng tròn. Không nhắc Fuji.",
+      "ja": "箱根の山を見渡せる気持ちの良いテラスがある和室タイプのお部屋"
+     },
+     {
+      "src": "https://ph.trip.com/hotels/hakone-hotel-detail-1675429/mizunoto/review.html",
+      "kind": "review",
+      "quote_vi": "Trip.com (28/5/2026): \"bồn onsen riêng trong phòng rất tuyệt, view đẹp\". Không có đánh giá nào nhắc Fuji trong phần tôi đọc được.",
+      "ja": null
+     },
+     {
+      "src": "https://4travel.jp/travelogue/11981020",
+      "kind": "review",
+      "quote_vi": "Blog 4travel (ở 8–9/5/2025, phòng tầng 1 có onsen riêng): \"Vì ở tầng 1 nên không mong có cảnh đẹp\".",
+      "ja": "但し1階なので景色は期待できません。"
+     }
+    ],
+    "notChecked": "Không đọc được đánh giá Rakuten Travel, Booking.com, TripAdvisor và Google Maps (không mở được hoặc hết hạn mức tìm kiếm trong phiên này); nên \"không có bằng chứng\" ở đây có nghĩa là không thấy trong nguồn đã mở, không phải đã kiểm tra hết mọi nơi."
+   },
+   "nearbyViews": [
+    {
+     "id": "sengen-yama",
+     "name": "Sengen-yama (đồi cỏ Sengen)",
+     "ja": "浅間山",
+     "lat": 35.23349,
+     "lng": 139.0595,
+     "evidence": "guess",
+     "access": "Đi bộ khoảng 27 phút một chiều (2,0 km, lên 220 m) từ khách sạn qua đường mòn bắt đầu gần thác Senjō-no-taki; cả đi và về khoảng 60–65 phút.",
+     "text": "Đỉnh 802 m ở ngay phía đông khách sạn, là bãi cỏ phẳng. Trang du lịch Hakone nói thác Senjō-no-taki là điểm bắt đầu leo Sengen-yama, và Wikipedia mô tả đỉnh là bãi cỏ rộng; không nguồn nào nói thấy Fuji. DEM cho thấy Fuji ở hướng 295° lộ ra từ khoảng 1,5 km trên đường mòn và rõ nhất ở sống núi cỏ gần đỉnh (cao 801 m, lộ khoảng 1.300 m phần trên của Fuji). Ảnh Commons cho thấy bãi cỏ trên đỉnh có cây bao quanh, DEM không tính cây nên có thể bị che một phần.",
+     "demCheck": {
+      "visible": true,
+      "shownM": 830,
+      "marginDeg": 1.42,
+      "elevM": 802,
+      "bestSpot": [
+       35.23547,
+       139.05707
+      ],
+      "bestSpotShownM": 1340
+     },
+     "src": [
+      "https://www.hakonenavi.jp/area/kowakudani",
+      "https://ja.wikipedia.org/wiki/浅間山_(箱根山外輪山)",
+      "https://www.openstreetmap.org/node/2143486956",
+      "https://commons.wikimedia.org/wiki/File:Mt.Sengen_(Hakone)_16.jpg"
+     ],
+     "images": [
+      {
+       "kind": "view",
+       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Mt.Sengen_%28Hakone%29_01.jpg/1280px-Mt.Sengen_%28Hakone%29_01.jpg",
+       "page": "https://commons.wikimedia.org/wiki/File:Mt.Sengen_(Hakone)_01.jpg",
+       "credit": "Σ64",
+       "license": "CC BY 3.0 (Wikimedia Commons)",
+       "caption": "Biển chỉ đỉnh Sengen-yama (802 m)"
+      },
+      {
+       "kind": "view",
+       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Mt.Sengen_%28Hakone%29_16.jpg/1280px-Mt.Sengen_%28Hakone%29_16.jpg",
+       "page": "https://commons.wikimedia.org/wiki/File:Mt.Sengen_(Hakone)_16.jpg",
+       "credit": "Σ64",
+       "license": "CC BY 3.0 (Wikimedia Commons)",
+       "caption": "Toàn cảnh bãi cỏ trên đỉnh Sengen-yama, cây cối bao quanh (chụp mùa đông)"
+      }
+     ]
+    },
+    {
+     "id": "miyagino-fuji-viewpoint",
+     "name": "Điểm ngắm Fuji ở sườn Myōjōgatake (OSM)",
+     "ja": "宮城野の富士山展望点",
+     "lat": 35.25574,
+     "lng": 139.06281,
+     "evidence": "reported",
+     "access": "Đi bộ từ ga Gōra khoảng 34 phút (2,5 km); từ khách sạn đi bộ trực tiếp khoảng 70 phút (5,2 km), hoặc tàu Kowakudani → Gōra 8 phút rồi đi bộ.",
+     "text": "Điểm được ghi trên OpenStreetMap là \"Viewpoint (Mt Fuji)\" ở sườn phía tây Myōjōgatake, cao khoảng 850 m. DEM xác nhận Fuji nhô cao khoảng 2.000 m phần trên ở hướng 291°. Xa hơn 45 phút nên chỉ hợp nếu bạn có cả buổi sáng; không phù hợp với kế hoạch trả phòng 8:30.",
+     "demCheck": {
+      "visible": true,
+      "shownM": 2040,
+      "marginDeg": 3.57,
+      "elevM": 852
+     },
+     "src": [
+      "https://www.openstreetmap.org/node/6327216285"
+     ]
+    },
+    {
+     "id": "myojogatake",
+     "name": "Myōjōgatake",
+     "ja": "明星ヶ岳",
+     "lat": 35.25612,
+     "lng": 139.06749,
+     "evidence": "guess",
+     "access": "Đi bộ từ ga Gōra khoảng 40 phút (3,0 km) theo OSM; từ khách sạn khoảng 75 phút.",
+     "text": "Đỉnh 924 m, nơi đốt chữ Đại (大文字焼) mỗi 16/8. Wikipedia không nói tầm nhìn có Fuji. DEM cho thấy Fuji lộ khoảng 2.400 m phần trên ở hướng 291°. Cùng sườn núi với điểm ngắm Fuji ở trên nên rất có thể ngắm được nếu trời trong.",
+     "demCheck": {
+      "visible": true,
+      "shownM": 2380,
+      "marginDeg": 4.13,
+      "elevM": 918
+     },
+     "src": [
+      "https://ja.wikipedia.org/wiki/明星ヶ岳_(神奈川県)",
+      "https://www.openstreetmap.org/node/4730366635"
+     ]
+    },
+    {
+     "id": "myojingatake",
+     "name": "Myōjingatake",
+     "ja": "明神ヶ岳",
+     "lat": 35.2795,
+     "lng": 139.05252,
+     "evidence": "reported",
+     "access": "Từ ga Gōra đi bộ lên đỉnh 2–3 giờ theo Wikipedia; không thể trong buổi sáng 22/10.",
+     "text": "Đỉnh 1.169 m của vành ngoài Hakone. Wikipedia có ảnh chú thích \"nhìn từ ngay dưới đỉnh Myōjingatake, thấy Kintoki-yama chồng lên Fuji\"; điểm ngắm trên OSM gọi tên là \"Great view of Mt. Fuji\". DEM xác nhận Fuji lộ khoảng 2.500 m phần trên. Chỉ để tham khảo cho chuyến khác.",
+     "demCheck": {
+      "visible": true,
+      "shownM": 2540,
+      "marginDeg": 4.7,
+      "elevM": 1157
+     },
+     "src": [
+      "https://ja.wikipedia.org/wiki/明神ヶ岳_(神奈川県)",
+      "https://www.openstreetmap.org/node/5565433825"
+     ]
+    },
+    {
+     "id": "owakudani",
+     "name": "Ōwakudani",
+     "ja": "大涌谷",
+     "lat": 35.24364,
+     "lng": 139.0197,
+     "evidence": "reported",
+     "access": "Đã nằm trong lịch ngày 21/10 (12:30). Từ Mizunoto: tàu Kowakudani → Gōra, cáp treo lên Sōunzan rồi ropeway tới Ōwakudani; cần cả buổi sáng nên không hợp trước 8:30 ngày 22/10.",
+     "text": "Điểm Fuji nổi tiếng ở Hakone: ảnh Commons \"Mount Fuji from Owakudani\" và ghi chú trong research/fuji.json cho thấy nhìn về Tây Tây Bắc, trời quang buổi sáng là rõ nhất. DEM xác nhận: Fuji lộ khoảng 2.500 m phần trên ở hướng 296°.",
+     "demCheck": {
+      "visible": true,
+      "shownM": 2480,
+      "marginDeg": 4.79,
+      "elevM": 1044
+     },
+     "src": [
+      "https://commons.wikimedia.org/wiki/File:View_of_Mount_Fuji_from_Owakudani,_Hakone,_Japan.jpg"
+     ],
+     "images": [
+      {
+       "kind": "view",
+       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/View_of_Mount_Fuji_from_Owakudani%2C_Hakone%2C_Japan.jpg/1280px-View_of_Mount_Fuji_from_Owakudani%2C_Hakone%2C_Japan.jpg",
+       "page": "https://commons.wikimedia.org/wiki/File:View_of_Mount_Fuji_from_Owakudani,_Hakone,_Japan.jpg",
+       "credit": "Joli Rumi",
+       "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+       "caption": "Fuji nhìn từ Owakudani (tháng 11/2025)"
+      },
+      {
+       "kind": "view",
+       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Mount_Fuji_%40_Owakudani_%40_Hakone_%2810621122134%29.jpg/1280px-Mount_Fuji_%40_Owakudani_%40_Hakone_%2810621122134%29.jpg",
+       "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_@_Owakudani_@_Hakone_(10621122134).jpg",
+       "credit": "Guilhem Vellut from Annecy, France",
+       "license": "CC BY 2.0 (Wikimedia Commons)",
+       "caption": "Cáp treo qua đồi lá đỏ ở Owakudani (31/10/2013)"
+      }
+     ]
+    },
+    {
+     "id": "takasu-yama",
+     "name": "Takasu-yama",
+     "ja": "鷹巣山",
+     "lat": 35.22684,
+     "lng": 139.05415,
+     "evidence": "guess",
+     "access": "Đi bộ khoảng 30 phút (2,1 km) theo OSM; Wikipedia nói có đường mòn lên từ Hata-juku, Ashinoyu và Kowakudani.",
+     "text": "Đỉnh 834 m, Wikipedia chỉ nhắc cỏ và hoa dại, không mô tả tầm nhìn hay Fuji. DEM cho thấy Fuji bị sườn núi cách 2,9 km chắn (âm 3,9°), nên nhiều khả năng không thấy. Nêu ra để loại trừ.",
+     "demCheck": {
+      "visible": false,
+      "shownM": 0,
+      "marginDeg": -3.86,
+      "elevM": 839
+     },
+     "src": [
+      "https://ja.wikipedia.org/wiki/鷹巣山_(神奈川県)",
+      "https://www.openstreetmap.org/node/2143496664"
+     ]
+    },
+    {
+     "id": "ashinoyu",
+     "name": "Ashinoyu (bến xe Ashinoyu)",
+     "ja": "芦之湯",
+     "lat": 35.21982,
+     "lng": 139.04223,
+     "evidence": "guess",
+     "access": "Bus H của Hakone Tozan Bus (cùng tuyến đi Onshi Hakone Park) từ trạm Kowakudani hoặc Hōraien, vài trạm; thời gian và giờ chạy chuyến sớm chưa kiểm tra. Đi bộ từ khách sạn khoảng 45 phút (2,9 km).",
+     "text": "Khu suối nước nóng ở độ cao 850–900 m trên quốc lộ 1. Không nguồn nào cho biết thấy Fuji ở đây. DEM cho thấy bị chắn ở cả bến xe (âm 19°) lẫn quanh suối nước nóng (âm 11°). Nêu ra để loại trừ.",
+     "demCheck": {
+      "visible": false,
+      "shownM": 0,
+      "marginDeg": -19.32,
+      "elevM": 853
+     },
+     "src": null
+    },
+    {
+     "id": "kowakien-grounds",
+     "name": "Khuôn viên Kowakien, Yunessun",
+     "ja": "箱根小涌園",
+     "lat": 35.2393,
+     "lng": 139.0456,
+     "evidence": "guess",
+     "access": "Đi bộ khoảng 6–8 phút theo đường thẳng (có dốc); đường đi bộ trực tiếp từ khách sạn trên OSM vòng khá xa.",
+     "text": "Khu giải trí onsen nằm trong cùng thung lũng nên không có lý do thấy Fuji. DEM cho thấy bị sườn núi cách 0,3 km chắn (âm 12,6°). Nêu ra để loại trừ.",
+     "demCheck": {
+      "visible": false,
+      "shownM": 0,
+      "marginDeg": -12.63,
+      "elevM": 630
+     },
+     "src": null
+    }
+   ],
+   "sunrise": {
+    "date": "2027-10-22",
+    "time": "05:56",
+    "azimuthDeg": 103,
+    "civilDawn": "05:30",
+    "atHotel": "07:20",
+    "text": "Mặt trời mọc ở Hakone lúc 5:56 ngày 22/10, hướng 103° (hơi chếch nam so với đông). Ở Mizunoto, trong thung lũng, sườn núi phía đông cao khoảng 15° nên nắng trực tiếp chỉ tới khoảng 7:20, trước đó chỉ có ánh sáng bầu trời. Trên đồi Sengen-yama (802 m) đường chân trời phía đông thoáng, thấy mặt trời nhô lên khỏi dãy núi thấp lúc 5:56. Fuji nằm hướng 295° (Tây Bắc), ngược phía mặt trời, nên buổi sáng nắng chiếu thẳng vào mặt đông của núi mà Hakone nhìn thấy; 6:00–9:00 là lúc ánh sáng đẹp nhất. Bình minh dân dụng bắt đầu lúc 5:30; đi trước 6:00 cần đèn pin vì đường mòn trong rừng.",
+    "method": "Công thức vị trí mặt trời NOAA (sai số khoảng 1–2 phút) cộng đường chân trời tính từ AWS Terrain Tiles; chưa tính cây cối. Số liệu ngày 21/10 trong fuji.json: mọc 5:55, lặn 17:05."
+   }
+  },
+  "sources": [
+   "https://dormy-hotels.com/resort/hotels/mizunoto/",
+   "https://dormy-hotels.com/resort/hotels/mizunoto/rooms/",
+   "https://www.jalan.net/yad306000/",
+   "https://www.jalan.net/yad306000/kuchikomi/",
+   "https://www.ozmall.co.jp/travel/stay/280/review/",
+   "https://icotto.jp/hotels-1835/",
+   "https://ph.trip.com/hotels/hakone-hotel-detail-1675429/mizunoto/review.html",
+   "https://4travel.jp/travelogue/11981020",
+   "https://www.hakonenavi.jp/area/kowakudani",
+   "https://ja.wikipedia.org/wiki/浅間山_(箱根山外輪山)",
+   "https://ja.wikipedia.org/wiki/明神ヶ岳_(神奈川県)",
+   "https://ja.wikipedia.org/wiki/鷹巣山_(神奈川県)",
+   "https://ja.wikipedia.org/wiki/明星ヶ岳_(神奈川県)",
+   "https://www.openstreetmap.org/ (POI, viewpoint, peak qua Overpass; tuyến đi bộ OSRM)",
+   "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/ (DEM AWS Terrain Tiles z12)"
+  ]
+ },
+ "era-ise": {
+  "area": "Khách sạn nằm giữa ga Iseshi và Gekū, trong phố cũ của thành phố Ise: nhà thấp, quán ăn địa phương và tiệm quà dọc đường dẫn tới Gekū. Ban ngày có khách hành hương qua lại, buổi tối tiệm đóng sớm và phố khá vắng, quán còn mở tập trung quanh ga và Gekū-mae. Lúc 7 giờ sáng Gekū đã mở (từ 5:00, tháng 10 đóng lúc 17:00) và rừng rất yên; lúc 9 giờ tối đường vẫn có đèn nhưng ít người, nên ăn tối sớm.",
+  "walks": [
+   {
+    "id": "w-geku-forest-morning",
+    "title": "Rừng Gekū buổi sáng",
+    "minutes": 55,
+    "best": "Sáng sớm 5:30–8:00; Gekū mở từ 5:00 (tháng 10 đóng 17:00)",
+    "text": "Từ khách sạn đi theo Gekū-sandō vào Gekū (Toyouke Daijingū), qua cầu Hibashi tới chính điện, rồi lên bậc đá tới Taga-no-miya và Kaze-no-miya giữa rừng tuyết tùng, vòng ra Tsuchi-no-miya và quay lại bằng đường cũ. Khoảng 2,5 km; sáng sớm khách ít và rừng mát nên mặc áo ấm.",
+    "distanceM": 2501,
+    "waypoints": [
+     [
+      34.48973,
+      136.70952
+     ],
+     [
+      34.48921,
+      136.70779
+     ],
+     [
+      34.48777,
+      136.70677
+     ],
+     [
+      34.48886,
+      136.70429
+     ],
+     [
+      34.48762,
+      136.70411
+     ],
+     [
+      34.48761,
+      136.70294
+     ],
+     [
+      34.48721,
+      136.70446
+     ],
+     [
+      34.48546,
+      136.70357
+     ],
+     [
+      34.48645,
+      136.70391
+     ],
+     [
+      34.48743,
+      136.70665
+     ],
+     [
+      34.48819,
+      136.7061
+     ],
+     [
+      34.48777,
+      136.70677
+     ],
+     [
+      34.48921,
+      136.70779
+     ],
+     [
+      34.48973,
+      136.70952
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Chính điện Gekū",
+      "ja": "外宮 正宮",
+      "lat": 34.48724,
+      "lng": 136.70293,
+      "text": "Chính điện thờ Toyouke Ōmikami, hàng rào gỗ và mái tranh kiểu shinmei-zukuri; theo biển báo, khu chính điện không cho chụp ảnh.",
+      "images": [
+       {
+        "kind": "exterior",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Ise-jingu_Grand_Shrine_Geku_Maine_sanctuary._May%2C_2015.jpg/1280px-Ise-jingu_Grand_Shrine_Geku_Maine_sanctuary._May%2C_2015.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Ise-jingu_Grand_Shrine_Geku_Maine_sanctuary._May,_2015.jpg",
+        "credit": "Sakaori (talk) / Wikimedia Commons",
+        "license": "CC BY 3.0 (Wikimedia Commons)",
+        "caption": "Khu chính điện Geku"
+       }
+      ]
+     },
+     {
+      "name": "Kaze-no-miya và Taga-no-miya",
+      "ja": "風宮・多賀宮",
+      "lat": 34.4854,
+      "lng": 136.70384,
+      "text": "Hai cung phụ nằm trong rừng, Taga-no-miya ở trên đồi sau bậc đá; sáng sớm ánh nắng xuyên qua tán tuyết tùng.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Geku_Kazenomiya_Ise-jingu_Grand_Shrine_02-r.JPG/1280px-Geku_Kazenomiya_Ise-jingu_Grand_Shrine_02-r.JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:Geku_Kazenomiya_Ise-jingu_Grand_Shrine_02-r.JPG",
+        "credit": "Oilstreet / Wikimedia Commons",
+        "license": "CC BY 2.5 (Wikimedia Commons)",
+        "caption": "Đền phụ Kazenomiya trong Geku"
+       }
+      ]
+     },
+     {
+      "name": "Tsuchi-no-miya",
+      "ja": "土宮",
+      "lat": 34.48645,
+      "lng": 136.70391,
+      "text": "Cung phụ nhỏ cạnh lối đi chính, thường vắng người.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Geku_Tsuchinomiya_Ise-jingu_Grand_Shrine_01-r.jpg/1280px-Geku_Tsuchinomiya_Ise-jingu_Grand_Shrine_01-r.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Geku_Tsuchinomiya_Ise-jingu_Grand_Shrine_01-r.jpg",
+        "credit": "Oilstreet",
+        "license": "CC BY 2.5 (Wikimedia Commons)",
+        "caption": "Tsuchi-no-miya trong khuôn viên Gekū"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Ise-Shrine_Geku-Tsuchinomiya.jpg/1280px-Ise-Shrine_Geku-Tsuchinomiya.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Ise-Shrine_Geku-Tsuchinomiya.jpg",
+        "credit": "MaedaAkihiko",
+        "license": "CC0 (Wikimedia Commons)",
+        "caption": "Tsuchi-no-miya, cung phụ của Gekū"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "w-seta-river-kawasaki-dusk",
+    "title": "Dọc phố đến sông Seta và phố kho Kawasaki",
+    "minutes": 50,
+    "best": "Chiều muộn, trước khi tối (cửa hàng đóng sớm)",
+    "text": "Đi theo phố nhỏ về phía bắc tới Kawasaki, dãy nhà kho gỗ đen dọc kênh Seta, rồi quay lại bằng đường cũ. Khoảng 3 km; vì nhiều nhà đóng cửa khi trời tối nên đây là chuyến ngắm phố và kênh chứ không phải ăn uống. Ise Kawasaki Shōnin-kan nghỉ thứ Ba.",
+    "distanceM": 3045,
+    "waypoints": [
+     [
+      34.48973,
+      136.70952
+     ],
+     [
+      34.48922,
+      136.71041
+     ],
+     [
+      34.48943,
+      136.71257
+     ],
+     [
+      34.49011,
+      136.71239
+     ],
+     [
+      34.49127,
+      136.71374
+     ],
+     [
+      34.49392,
+      136.71455
+     ],
+     [
+      34.49576,
+      136.71613
+     ],
+     [
+      34.4968,
+      136.7186
+     ],
+     [
+      34.49533,
+      136.7158
+     ],
+     [
+      34.49392,
+      136.71455
+     ],
+     [
+      34.48943,
+      136.71257
+     ],
+     [
+      34.48922,
+      136.71041
+     ],
+     [
+      34.48973,
+      136.70952
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Phố kho Kawasaki",
+      "ja": "伊勢河崎",
+      "lat": 34.49658,
+      "lng": 136.71761,
+      "text": "Dãy nhà kho thương nhân thời Edo–Meiji bên kênh Seta; kế hoạch ngày 23/10 đã ghé đây lúc 15:30.",
+      "images": [
+       {
+        "kind": "exterior",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Ise_Kawasaki_ac_%281%29.jpg/1280px-Ise_Kawasaki_ac_%281%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Ise_Kawasaki_ac_(1).jpg",
+        "credit": "Asturio Cantabrio / Wikimedia Commons",
+        "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+        "caption": "Phố thương nhân Kawasaki"
+       },
+       {
+        "kind": "exterior",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Ise_Kawasaki_Syouninkan_ac_%281%29.jpg/1280px-Ise_Kawasaki_Syouninkan_ac_%281%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Ise_Kawasaki_Syouninkan_ac_(1).jpg",
+        "credit": "Asturio Cantabrio / Wikimedia Commons",
+        "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+        "caption": "Kawasaki Shonin-kan"
+       }
+      ]
+     },
+     {
+      "name": "Kênh Seta ở Kawasaki",
+      "ja": "勢田川",
+      "lat": 34.4968,
+      "lng": 136.7186,
+      "text": "Điểm quay lại của chuyến đi, bờ kênh nhìn về phía dãy kho gỗ; bờ kênh yên và gần như không có ánh đèn sau khi tắt đèn cửa hàng.",
+      "images": [
+       {
+        "kind": "exterior",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Ise_Kawasaki_Syouninkan_ac_%281%29.jpg/1280px-Ise_Kawasaki_Syouninkan_ac_%281%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Ise_Kawasaki_Syouninkan_ac_(1).jpg",
+        "credit": "Asturio Cantabrio / Wikimedia Commons",
+        "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+        "caption": "Kawasaki Shonin-kan"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "around": [
+   {
+    "name": "FamilyMart gần ga Iseshi",
+    "ja": "ファミリーマート",
+    "type": "konbini",
+    "lat": 34.490031,
+    "lng": 136.708095,
+    "text": "Cửa hàng tiện lợi gần nhất, tiện mua đồ ăn tối muộn.",
+    "hours": "24 giờ",
+    "distanceM": 138,
+    "walkMin": 2,
+    "src": "https://www.openstreetmap.org/node/2019292127",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "7-Eleven Gekū-mae",
+    "ja": "セブン-イレブン",
+    "type": "konbini",
+    "lat": 34.488858,
+    "lng": 136.707207,
+    "text": "Cửa hàng tiện lợi về phía Gekū, trên đường đi bộ ra đền.",
+    "hours": null,
+    "distanceM": 239,
+    "walkMin": 4,
+    "src": "https://www.openstreetmap.org/way/182527830"
+   },
+   {
+    "name": "Gyūtora Iseshi",
+    "ja": "ぎゅーとら",
+    "type": "supermarket",
+    "lat": 34.491422,
+    "lng": 136.713018,
+    "text": "Siêu thị địa phương lớn gần nhất, đi bộ khoảng 5 phút.",
+    "hours": "9:00–21:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 366,
+    "walkMin": 6,
+    "src": "https://www.openstreetmap.org/node/1409749752",
+    "open": "09:00",
+    "close": "21:00",
+    "closedDow": []
+   },
+   {
+    "name": "Welcia Iseshi",
+    "ja": "ウエルシア",
+    "type": "drugstore",
+    "lat": 34.493152,
+    "lng": 136.712872,
+    "text": "Hiệu thuốc chuỗi, đi bộ khoảng 6–7 phút; chưa có giờ mở cửa.",
+    "hours": null,
+    "distanceM": 482,
+    "walkMin": 8,
+    "src": "https://www.openstreetmap.org/node/5144894546"
+   },
+   {
+    "name": "Camino Coffee",
+    "ja": "Camino Coffee",
+    "type": "cafe",
+    "lat": 34.489557,
+    "lng": 136.709009,
+    "text": "Quán cà phê nhỏ sát khách sạn; chưa xác nhận giờ. Khách sạn có buffet sáng 6:30–9:30 (¥1.800/người) và library café dùng được trước giờ nhận và sau giờ trả phòng.",
+    "hours": null,
+    "distanceM": 56,
+    "walkMin": 1,
+    "src": "https://www.openstreetmap.org/node/11220249780"
+   },
+   {
+    "name": "Boulange Tontin",
+    "ja": "Boulange Tontin",
+    "type": "bakery",
+    "lat": 34.491168,
+    "lng": 136.707866,
+    "text": "Tiệm bánh mì cạnh phố mua sắm đường sang Gekū; chưa xác nhận giờ.",
+    "hours": null,
+    "distanceM": 219,
+    "walkMin": 4,
+    "src": "https://www.openstreetmap.org/node/11200538284"
+   },
+   {
+    "name": "Asahi-yu",
+    "ja": "旭湯",
+    "type": "sento",
+    "lat": 34.491855,
+    "lng": 136.716789,
+    "text": "Nhà tắm công cộng, đi bộ khoảng 10 phút về phía đông.",
+    "hours": "12:00–24:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 701,
+    "walkMin": 12,
+    "src": "https://www.openstreetmap.org/node/10011870324",
+    "open": "12:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "Kinsui-yu",
+    "ja": "錦水湯",
+    "type": "sento",
+    "lat": 34.486763,
+    "lng": 136.716188,
+    "text": "Nhà tắm công cộng thứ hai, đi bộ khoảng 10 phút. Theo OSM nghỉ thứ Sáu.",
+    "hours": "Thứ Bảy–Thứ Năm 14:00–24:00 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 693,
+    "walkMin": 12,
+    "src": "https://www.openstreetmap.org/way/1243638822",
+    "open": "14:00",
+    "close": "24:00",
+    "closedDow": [
+     5
+    ]
+   },
+   {
+    "name": "Sengūkan",
+    "ja": "せんぐう館",
+    "type": "sight",
+    "lat": 34.48687,
+    "lng": 136.70671,
+    "text": "Bảo tàng về lễ dựng lại điện Thần cung; nghỉ thứ Ba tuần thứ 2 và thứ 4.",
+    "hours": "9:00–16:30 (vào đến 16:00)",
+    "distanceM": 416,
+    "walkMin": 7,
+    "src": "https://www.sengukan.jp/en"
+   }
+  ],
+  "photos": [
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Iseshi_station_morning.jpg/1280px-Iseshi_station_morning.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Iseshi_station_morning.jpg",
+    "credit": "JNR583",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "caption": "Ga Iseshi buổi sáng, cách khách sạn 3 phút đi bộ"
+   },
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Iseshi_station_night.jpg/1280px-Iseshi_station_night.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Iseshi_station_night.jpg",
+    "credit": "JNR583",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "caption": "Ga Iseshi buổi tối"
+   },
+   {
+    "kind": "exterior",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Ise-jingu_Grand_Shrine_Geku_Maine_sanctuary._May%2C_2015.jpg/1280px-Ise-jingu_Grand_Shrine_Geku_Maine_sanctuary._May%2C_2015.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Ise-jingu_Grand_Shrine_Geku_Maine_sanctuary._May,_2015.jpg",
+    "credit": "Sakaori (talk) / Wikimedia Commons",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "caption": "Khu chính điện Geku"
+   }
+  ],
+  "sources": [
+   "https://www.choice-hotels.jp/era/ise/ (bữa sáng 6:30–9:30, ¥1.800)",
+   "https://www.openstreetmap.org/ (POI qua Overpass; tuyến đi bộ OSRM)",
+   "https://commons.wikimedia.org/"
+  ]
+ },
+ "cross-kyoto": {
+  "area": "Cross Hotel Kyoto ở góc Sanjō–Kawaramachi, cách sông Kamo, Pontochō và kênh Takase vài phút đi bộ, sát khu mua sắm Teramachi–Shinkyōgoku. Ban ngày là trung tâm mua sắm và ăn uống đông đúc; tối Kiyamachi và Pontochō sáng đèn, quán izakaya và quán bar mở muộn. Lúc 7 giờ sáng bờ sông Kamo yên, người chạy bộ và dắt chó; lúc 9 giờ tối các phố chính còn đông và sáng, ngõ Pontochō tối hơn nhưng nhiều khách.",
+  "walks": [
+   {
+    "id": "w-kamo-sanjo-shijo-sunrise",
+    "title": "Bờ sông Kamo từ Sanjō xuống Shijō rồi về qua Pontochō",
+    "minutes": 35,
+    "best": "Sáng sớm (khi mặt trời lên); đi lại vào tối cũng được",
+    "text": "Ra cầu Sanjō-Ōhashi, đi dọc bờ sông Kamo phía nam tới cầu Shijō-Ōhashi rồi quay lên qua ngõ Pontochō về khách sạn. Khoảng 1,7 km, toàn đường bằng; sáng sớm bờ sông gần như chỉ có người chạy bộ.",
+    "distanceM": 1722,
+    "waypoints": [
+     [
+      35.00838,
+      135.76999
+     ],
+     [
+      35.00837,
+      135.77052
+     ],
+     [
+      35.00888,
+      135.77059
+     ],
+     [
+      35.00909,
+      135.77215
+     ],
+     [
+      35.0049,
+      135.77234
+     ],
+     [
+      35.00401,
+      135.77221
+     ],
+     [
+      35.00382,
+      135.77182
+     ],
+     [
+      35.00372,
+      135.77066
+     ],
+     [
+      35.00598,
+      135.77035
+     ],
+     [
+      35.00672,
+      135.77057
+     ],
+     [
+      35.00673,
+      135.77107
+     ],
+     [
+      35.00807,
+      135.77104
+     ],
+     [
+      35.00807,
+      135.77053
+     ],
+     [
+      35.00838,
+      135.76999
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Cầu Sanjō-Ōhashi",
+      "ja": "三条大橋",
+      "lat": 35.00904,
+      "lng": 135.77172,
+      "text": "Cây cầu cuối đường Tōkaidō cổ, nhìn thấy sông Kamo và dãy nhà phía Pontochō.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Kamogawa_River_from_Sanjo-Ohashi_Bridge_1.JPG/1280px-Kamogawa_River_from_Sanjo-Ohashi_Bridge_1.JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:Kamogawa_River_from_Sanjo-Ohashi_Bridge_1.JPG",
+        "credit": "そらみみ / Wikimedia Commons",
+        "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+        "caption": "Sông Kamo nhìn từ cầu Sanjo Ohashi"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Night_in_Kyoto%2C_View_across_Kamo_River_south_of_Sanjo_Ohashi_Bridge_%28165453637%29.jpg/1280px-Night_in_Kyoto%2C_View_across_Kamo_River_south_of_Sanjo_Ohashi_Bridge_%28165453637%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Night_in_Kyoto,_View_across_Kamo_River_south_of_Sanjo_Ohashi_Bridge_(165453637).jpg",
+        "credit": "Thomas Roessler / Wikimedia Commons",
+        "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+        "caption": "Sông Kamo về đêm"
+       }
+      ]
+     },
+     {
+      "name": "Bờ sông Kamo phía nam",
+      "ja": "鴨川",
+      "lat": 35.0049,
+      "lng": 135.77234,
+      "text": "Đoạn bờ sông thấp có lối đi và bậc ngồi, nhìn về phía dãy nhà quán ăn Pontochō bên bờ tây.",
+      "images": []
+     },
+     {
+      "name": "Pontochō",
+      "ja": "先斗町",
+      "lat": 35.00598,
+      "lng": 135.77035,
+      "text": "Ngõ hẹp dài khoảng 500 m với nhà quán gỗ và đèn lồng; sáng sớm yên, tối đông khách.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Pontocho%2C_Kyoto_%283810351729%29.jpg/1280px-Pontocho%2C_Kyoto_%283810351729%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Pontocho,_Kyoto_(3810351729).jpg",
+        "credit": "Andrea Schaffer from Sydney, Australia",
+        "license": "CC BY 2.0 (Wikimedia Commons)",
+        "caption": "Ngõ Pontochō lúc chiều"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "w-kamo-north-delta-morning",
+    "title": "Bờ Kamo lên Kamogawa Delta",
+    "minutes": 45,
+    "best": "Sáng sớm; một chiều, kết thúc ở ga Demachiyanagi",
+    "text": "Từ Sanjō đi ngược dòng sông Kamo về phía bắc qua Marutamachi và Imadegawa tới Kamogawa Delta, nơi sông Kamo và sông Takano gặp nhau, có hàng đá bước qua sông. Khoảng 3,2 km một chiều; kết thúc cạnh ga Demachiyanagi của tàu Keihan, đi tàu về Sanjō rất gần. Đường dọc sông ít bóng cây nên sáng mát là hợp.",
+    "distanceM": 3213,
+    "waypoints": [
+     [
+      35.00838,
+      135.76999
+     ],
+     [
+      35.00931,
+      135.77221
+     ],
+     [
+      35.01326,
+      135.77219
+     ],
+     [
+      35.01328,
+      135.77113
+     ],
+     [
+      35.01451,
+      135.7711
+     ],
+     [
+      35.01451,
+      135.7716
+     ],
+     [
+      35.01604,
+      135.77113
+     ],
+     [
+      35.02183,
+      135.77113
+     ],
+     [
+      35.02184,
+      135.77232
+     ],
+     [
+      35.02239,
+      135.77253
+     ],
+     [
+      35.02896,
+      135.77266
+     ],
+     [
+      35.02999,
+      135.77167
+     ],
+     [
+      35.03052,
+      135.7719
+     ],
+     [
+      35.0307,
+      135.77312
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Marutamachi",
+      "ja": "丸太町",
+      "lat": 35.0143,
+      "lng": 135.7716,
+      "text": "Đoạn giữa của bờ sông, gần cầu Marutamachi.",
+      "images": []
+     },
+     {
+      "name": "Kamogawa Delta",
+      "ja": "鴨川デルタ",
+      "lat": 35.03012,
+      "lng": 135.77174,
+      "text": "Mũi đất nơi sông Kamo và sông Takano hợp lại; hàng đá bước qua sông là chỗ chụp ảnh quen thuộc.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Demachi_stepping_stones%2C_Kamo_river%2C_Kyoto_-_Jun_24%2C_2006.jpg/1280px-Demachi_stepping_stones%2C_Kamo_river%2C_Kyoto_-_Jun_24%2C_2006.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Demachi_stepping_stones,_Kamo_river,_Kyoto_-_Jun_24,_2006.jpg",
+        "credit": "masatsu",
+        "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+        "caption": "Hàng đá bước qua sông Kamo ở Kamogawa Delta"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Tadasu_River_Banks_-_Kamo_River_-_Kyoto_-_DSC06591.JPG/1280px-Tadasu_River_Banks_-_Kamo_River_-_Kyoto_-_DSC06591.JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:Tadasu_River_Banks_-_Kamo_River_-_Kyoto_-_DSC06591.JPG",
+        "credit": "Daderot",
+        "license": "CC0 (Wikimedia Commons)",
+        "caption": "Bãi cỏ nơi sông Kamo và sông Takano gặp nhau"
+       }
+      ]
+     },
+     {
+      "name": "Ga Demachiyanagi",
+      "ja": "出町柳駅",
+      "lat": 35.03067,
+      "lng": 135.77319,
+      "text": "Ga cuối tàu Keihan, về Sanjō mất vài phút.",
+      "images": []
+     }
+    ]
+   },
+   {
+    "id": "w-pontocho-kiyamachi-night",
+    "title": "Pontochō và Kiyamachi về đêm",
+    "minutes": 30,
+    "best": "Tối 19:00–21:30",
+    "text": "Từ khách sạn vào ngõ Pontochō, đi xuống cuối ngõ ở Shijō rồi quay lên qua Kiyamachi và kênh Takase. Khoảng 1,3 km; ngõ hẹp, quán đông nên đi chậm, đèn lồng sáng đẹp nhất sau khi trời tối.",
+    "distanceM": 1316,
+    "waypoints": [
+     [
+      35.00838,
+      135.76999
+     ],
+     [
+      35.00837,
+      135.77052
+     ],
+     [
+      35.00889,
+      135.7707
+     ],
+     [
+      35.00832,
+      135.77052
+     ],
+     [
+      35.00491,
+      135.77061
+     ],
+     [
+      35.00467,
+      135.77035
+     ],
+     [
+      35.00432,
+      135.77039
+     ],
+     [
+      35.00429,
+      135.76943
+     ],
+     [
+      35.00774,
+      135.76896
+     ],
+     [
+      35.00775,
+      135.76917
+     ],
+     [
+      35.00835,
+      135.76913
+     ],
+     [
+      35.00838,
+      135.76999
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Pontochō về đêm",
+      "ja": "先斗町",
+      "lat": 35.00598,
+      "lng": 135.77035,
+      "text": "Dãy nhà quán gỗ và đèn lồng; nhiều quán mời khách vào ăn.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Pontocho_Alley_at_night%2C_Kyoto_%2852409059926%29.jpg/1280px-Pontocho_Alley_at_night%2C_Kyoto_%2852409059926%29.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Pontocho_Alley_at_night,_Kyoto_(52409059926).jpg",
+        "credit": "Sergiy Galyonkin from Raleigh, USA",
+        "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+        "caption": "Ngõ Pontochō về đêm, đèn lồng hai bên"
+       }
+      ]
+     },
+     {
+      "name": "Kênh Takase, Kiyamachi",
+      "ja": "高瀬川",
+      "lat": 35.00884,
+      "lng": 135.77041,
+      "text": "Kênh nhỏ chảy giữa hàng quán; tối thắp đèn và đông khách.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Takase-gawa_River2.jpg/1280px-Takase-gawa_River2.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Takase-gawa_River2.jpg",
+        "credit": "Yanajin33 / Wikimedia Commons",
+        "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+        "caption": "Kênh Takase"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/202506_Takase-gawa%2C_Kyoto_03.jpg/1280px-202506_Takase-gawa%2C_Kyoto_03.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:202506_Takase-gawa,_Kyoto_03.jpg",
+        "credit": "Jonashtand / Wikimedia Commons",
+        "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+        "caption": "Takase ở Kiyamachi"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "around": [
+   {
+    "name": "FamilyMart Sanjō",
+    "ja": "ファミリーマート",
+    "type": "konbini",
+    "lat": 35.009014,
+    "lng": 135.769935,
+    "text": "Cửa hàng tiện lợi gần nhất, ngay đối diện lối vào khách sạn.",
+    "hours": "24 giờ",
+    "distanceM": 80,
+    "walkMin": 1,
+    "src": "https://www.openstreetmap.org/node/3162332161",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "Gyōmu Super Kawaramachi",
+    "ja": "業務スーパー",
+    "type": "supermarket",
+    "lat": 35.007505,
+    "lng": 135.769239,
+    "text": "Siêu thị giá rẻ đồ đóng gói, trái cây và đồ uống, mở tới 22:00.",
+    "hours": "10:00–22:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 112,
+    "walkMin": 2,
+    "src": "https://www.openstreetmap.org/node/5003398021",
+    "open": "10:00",
+    "close": "22:00",
+    "closedDow": []
+   },
+   {
+    "name": "Super Fresco gần sông Kamo",
+    "ja": "スーパーフレスコ",
+    "type": "supermarket",
+    "lat": 35.011561,
+    "lng": 135.772618,
+    "text": "Siêu thị 24 giờ ở phía bắc Sanjō gần sông Kamo, đi bộ khoảng 6 phút.",
+    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 435,
+    "walkMin": 7,
+    "src": "https://www.openstreetmap.org/node/2126071415",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "Sun Drug Kawaramachi",
+    "ja": "サンドラッグ",
+    "type": "drugstore",
+    "lat": 35.007478,
+    "lng": 135.768811,
+    "text": "Hiệu thuốc chuỗi cạnh Teramachi; chưa có giờ mở cửa.",
+    "hours": null,
+    "distanceM": 141,
+    "walkMin": 2,
+    "src": "https://www.openstreetmap.org/node/12171273405"
+   },
+   {
+    "name": "Matsumoto Kiyoshi gần Shijō",
+    "ja": "マツモトキヨシ",
+    "type": "drugstore",
+    "lat": 35.004011,
+    "lng": 135.770699,
+    "text": "Hiệu thuốc và mỹ phẩm mở khuya, đi bộ khoảng 7 phút xuống phía Shijō.",
+    "hours": "10:00–23:00 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 481,
+    "walkMin": 8,
+    "src": "https://www.openstreetmap.org/node/2959808444",
+    "open": "10:00",
+    "close": "23:00",
+    "closedDow": []
+   },
+   {
+    "name": "Royal Coin Laundry",
+    "ja": "ロイヤル コインランドリー",
+    "type": "laundry",
+    "lat": 35.006849,
+    "lng": 135.774537,
+    "text": "Tiệm giặt tự động 24 giờ phía đông sông Kamo, đi bộ khoảng 6 phút.",
+    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 444,
+    "walkMin": 7,
+    "src": "https://www.openstreetmap.org/node/13945040101",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "Shinshindō Sanjō-Kawaramachi",
+    "ja": "進々堂 三条河原町店",
+    "type": "bakery",
+    "lat": 35.008927,
+    "lng": 135.76942,
+    "text": "Tiệm bánh mì Kyoto lâu năm, mua bánh mì sáng; chưa có giờ mở cửa.",
+    "hours": null,
+    "distanceM": 88,
+    "walkMin": 1,
+    "src": "https://www.openstreetmap.org/node/4337853989"
+   },
+   {
+    "name": "Komeda Coffee Sanjō",
+    "ja": "コメダ珈琲店",
+    "type": "cafe",
+    "lat": 35.008984,
+    "lng": 135.770043,
+    "text": "Quán cà phê có set sáng; chưa có giờ mở cửa.",
+    "hours": null,
+    "distanceM": 77,
+    "walkMin": 1,
+    "src": "https://www.openstreetmap.org/node/12175844018"
+   },
+   {
+    "name": "Starbucks Sanjō-Ōhashi",
+    "ja": "スターバックス",
+    "type": "cafe",
+    "lat": 35.009161,
+    "lng": 135.771203,
+    "text": "Quán cà phê cạnh cầu Sanjō-Ōhashi, tiện ra bờ sông.",
+    "hours": "8:00–23:00 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 146,
+    "walkMin": 2,
+    "src": "https://www.openstreetmap.org/node/603133272",
+    "open": "08:00",
+    "close": "23:00",
+    "closedDow": []
+   },
+   {
+    "name": "Magobashi-yu",
+    "ja": "孫橋湯",
+    "type": "sento",
+    "lat": 35.010087,
+    "lng": 135.773865,
+    "text": "Nhà tắm công cộng phía đông sông Kamo, đi bộ khoảng 6 phút; chưa có giờ mở cửa.",
+    "hours": null,
+    "distanceM": 405,
+    "walkMin": 7,
+    "src": "https://www.openstreetmap.org/node/10981956405"
+   }
+  ],
+  "photos": [
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Kamogawa_River_from_Sanjo-Ohashi_Bridge_1.JPG/1280px-Kamogawa_River_from_Sanjo-Ohashi_Bridge_1.JPG",
+    "page": "https://commons.wikimedia.org/wiki/File:Kamogawa_River_from_Sanjo-Ohashi_Bridge_1.JPG",
+    "credit": "そらみみ / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "caption": "Sông Kamo nhìn từ cầu Sanjo Ohashi"
+   },
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Pontocho_Alley_at_night%2C_Kyoto_%2852409059926%29.jpg/1280px-Pontocho_Alley_at_night%2C_Kyoto_%2852409059926%29.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Pontocho_Alley_at_night,_Kyoto_(52409059926).jpg",
+    "credit": "Sergiy Galyonkin from Raleigh, USA",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "caption": "Ngõ Pontochō về đêm, đèn lồng hai bên"
+   },
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Takase-gawa_River2.jpg/1280px-Takase-gawa_River2.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Takase-gawa_River2.jpg",
+    "credit": "Yanajin33 / Wikimedia Commons",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "caption": "Kênh Takase"
+   }
+  ],
+  "sources": [
+   "https://cross-kyoto.orixhotelsandresorts.com/contents/standard/",
+   "https://www.openstreetmap.org/ (POI qua Overpass; tuyến đi bộ OSRM)",
+   "https://commons.wikimedia.org/"
+  ]
+ },
+ "forza-osaka": {
+  "area": "Khách sạn ở ngay khu Dōtonbori–Namba, cách kênh Dōtonbori và cầu Ebisu vài phút đi bộ; lobby ở tầng 3. Ban ngày là phố ẩm thực và mua sắm đông kín, tối biển hiệu neon, người mời chào và tiếng ồn kéo dài tới khuya. Lúc 7 giờ sáng phố vắng, xe dọn rác chạy và cửa hàng còn đóng; lúc 9 giờ tối là giờ đông nhất, nên xin phòng tầng cao và xa thang máy như ghi chú trong hồ sơ khách sạn.",
+  "walks": [
+   {
+    "id": "w-dotonbori-hozenji-night",
+    "title": "Dōtonbori và Hōzenji Yokochō về đêm",
+    "minutes": 30,
+    "best": "Tối 20:00–22:00",
+    "text": "Đi tới cầu Ebisu để xem tường biển hiệu và kênh Dōtonbori, rồi vào ngõ lát đá Hōzenji Yokochō có tượng Mizukake Fudō phủ rêu, và về qua Sennichimae. Khoảng 1,3 km, đông người và ồn; chú ý đồ đạc ở chỗ đông.",
+    "distanceM": 1321,
+    "waypoints": [
+     [
+      34.66873,
+      135.50357
+     ],
+     [
+      34.66873,
+      135.5013
+     ],
+     [
+      34.66907,
+      135.5013
+     ],
+     [
+      34.66895,
+      135.50034
+     ],
+     [
+      34.66872,
+      135.50223
+     ],
+     [
+      34.66818,
+      135.50225
+     ],
+     [
+      34.66797,
+      135.50252
+     ],
+     [
+      34.66797,
+      135.50315
+     ],
+     [
+      34.66646,
+      135.50322
+     ],
+     [
+      34.66643,
+      135.50379
+     ],
+     [
+      34.66646,
+      135.50322
+     ],
+     [
+      34.66727,
+      135.50314
+     ],
+     [
+      34.66872,
+      135.50312
+     ],
+     [
+      34.66873,
+      135.50357
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Cầu Ebisu và kênh Dōtonbori",
+      "ja": "戎橋・道頓堀",
+      "lat": 34.66907,
+      "lng": 135.5013,
+      "text": "Tường biển hiệu quen thuộc bên kênh, sáng nhất sau khi trời tối.",
+      "images": [
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg/1280px-Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Dotonbori,_Osaka,_at_night,_November_2016.jpg",
+        "credit": "Martin Falbisoner / Wikimedia Commons",
+        "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+        "caption": "Dotonbori về đêm"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Dotonbori_river_night.jpg/1280px-Dotonbori_river_night.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Dotonbori_river_night.jpg",
+        "credit": "Emma0mb / Wikimedia Commons",
+        "license": "CC BY 4.0 (Wikimedia Commons)",
+        "caption": "Kênh Dotonbori"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Osaka_Dotonbori_Ebisu_Bridge.jpg/1280px-Osaka_Dotonbori_Ebisu_Bridge.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Osaka_Dotonbori_Ebisu_Bridge.jpg",
+        "credit": "Type specimen",
+        "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+        "caption": "Tường biển hiệu ở cầu Ebisu bên kênh Dōtonbori"
+       }
+      ]
+     },
+     {
+      "name": "Hōzenji Yokochō",
+      "ja": "法善寺横丁",
+      "lat": 34.66784,
+      "lng": 135.5026,
+      "text": "Ngõ lát đá nhỏ giữa khu ồn ào; tượng Mizukake Fudō được khách té nước lên cho phủ rêu, chùa mở cả ngày.",
+      "images": [
+       {
+        "kind": "detail",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Hozen-ji_Temple_Osaka.jpg/1280px-Hozen-ji_Temple_Osaka.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Hozen-ji_Temple_Osaka.jpg",
+        "credit": "Ian G Shingler / Wikimedia Commons",
+        "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+        "caption": "Tượng Mizukake Fudo"
+       },
+       {
+        "kind": "view",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Hozenji_Yokocho_at_night.jpg/1280px-Hozenji_Yokocho_at_night.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Hozenji_Yokocho_at_night.jpg",
+        "credit": "Choi2451 / Wikimedia Commons",
+        "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+        "caption": "Hozenji Yokocho về đêm"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "w-namba-yasaka-morning",
+    "title": "Namba Yasaka-jinja lúc sáng sớm",
+    "minutes": 50,
+    "best": "Sáng sớm 6:30–8:30",
+    "text": "Đi qua Hōzenji Yokochō rồi xuống phía nam tới Namba Yasaka-jinja với sảnh hình đầu sư tử khổng lồ, rồi về qua khu Nankai Namba. Khoảng 2,7 km, hai chiều; sáng sớm hầu hết quán đóng cửa nên phố vắng và dễ chụp ảnh.",
+    "distanceM": 2684,
+    "waypoints": [
+     [
+      34.66873,
+      135.50357
+     ],
+     [
+      34.66872,
+      135.50312
+     ],
+     [
+      34.66797,
+      135.50315
+     ],
+     [
+      34.66743,
+      135.50135
+     ],
+     [
+      34.66588,
+      135.50145
+     ],
+     [
+      34.66579,
+      135.50056
+     ],
+     [
+      34.66488,
+      135.50054
+     ],
+     [
+      34.6614,
+      135.49671
+     ],
+     [
+      34.66484,
+      135.50022
+     ],
+     [
+      34.66501,
+      135.50161
+     ],
+     [
+      34.66743,
+      135.50135
+     ],
+     [
+      34.66774,
+      135.50314
+     ],
+     [
+      34.66872,
+      135.50312
+     ],
+     [
+      34.66873,
+      135.50357
+     ]
+    ],
+    "routeSource": "Tuyến tính bằng OSRM chế độ đi bộ (routing.openstreetmap.de) trên dữ liệu OpenStreetMap, rút gọn còn vài điểm uốn chính",
+    "highlights": [
+     {
+      "name": "Hōzenji Yokochō lúc sáng",
+      "ja": "法善寺横丁",
+      "lat": 34.66784,
+      "lng": 135.5026,
+      "text": "Ngõ yên và vắng hơn nhiều so với buổi tối.",
+      "images": [
+       {
+        "kind": "detail",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Hozen-ji_Temple_Osaka.jpg/1280px-Hozen-ji_Temple_Osaka.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Hozen-ji_Temple_Osaka.jpg",
+        "credit": "Ian G Shingler / Wikimedia Commons",
+        "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+        "caption": "Tượng Mizukake Fudo"
+       }
+      ]
+     },
+     {
+      "name": "Namba Yasaka-jinja",
+      "ja": "難波八阪神社",
+      "lat": 34.66148,
+      "lng": 135.49673,
+      "text": "Đền có sảnh haiden hình đầu sư tử cao khoảng 12 m; sân đền mở tự do, văn phòng đền chỉ mở ban ngày.",
+      "images": [
+       {
+        "kind": "exterior",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Nanba_yasaka_shrine_exterior.jpg/1280px-Nanba_yasaka_shrine_exterior.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Nanba_yasaka_shrine_exterior.jpg",
+        "credit": "sailko / Wikimedia Commons",
+        "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+        "caption": "Đền Namba Yasaka"
+       },
+       {
+        "kind": "exterior",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Front_of_the_Haiden_at_Namba_Yasaka_Jinja_in_Osaka.jpg/1280px-Front_of_the_Haiden_at_Namba_Yasaka_Jinja_in_Osaka.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Front_of_the_Haiden_at_Namba_Yasaka_Jinja_in_Osaka.jpg",
+        "credit": "Ethan Doyle White / Wikimedia Commons",
+        "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+        "caption": "Haiden hình đầu sư tử"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "around": [
+   {
+    "name": "FamilyMart ngay cạnh khách sạn",
+    "ja": "ファミリーマート",
+    "type": "konbini",
+    "lat": 34.668818,
+    "lng": 135.503515,
+    "text": "Cửa hàng tiện lợi gần nhất, cách khách sạn khoảng 14 m.",
+    "hours": null,
+    "distanceM": 15,
+    "walkMin": 1,
+    "src": "https://www.openstreetmap.org/node/2332942780"
+   },
+   {
+    "name": "7-Eleven phía đông gần Nipponbashi",
+    "ja": "セブン-イレブン",
+    "type": "konbini",
+    "lat": 34.667716,
+    "lng": 135.50632,
+    "text": "Cửa hàng tiện lợi 24 giờ phía đông, đi bộ khoảng 4 phút.",
+    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 274,
+    "walkMin": 5,
+    "src": "https://www.openstreetmap.org/node/2296909330",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "Don Quijote Dōtonbori",
+    "ja": "ドン・キホーテ 道頓堀店",
+    "type": "supermarket",
+    "lat": 34.669293,
+    "lng": 135.502729,
+    "text": "Cửa hàng tạp hóa lớn có đồ ăn, thuốc, mỹ phẩm; mở 24 giờ, tiện mua đồ buổi tối muộn.",
+    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 102,
+    "walkMin": 2,
+    "src": "https://www.openstreetmap.org/way/161880871",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "Seijo Ishii phía nam Namba",
+    "ja": "成城石井",
+    "type": "supermarket",
+    "lat": 34.664299,
+    "lng": 135.500532,
+    "text": "Siêu thị đồ ăn ngon phía nam, đi bộ khoảng 8 phút; chưa có giờ mở cửa.",
+    "hours": null,
+    "distanceM": 562,
+    "walkMin": 9,
+    "src": "https://www.openstreetmap.org/node/4767321431"
+   },
+   {
+    "name": "Daikoku Drug gần cầu Ebisu",
+    "ja": "ダイコクドラッグ",
+    "type": "drugstore",
+    "lat": 34.667482,
+    "lng": 135.501239,
+    "text": "Hiệu thuốc và mỹ phẩm dạng ưu đãi cho du khách, mở gần tới 23:00.",
+    "hours": "10:05–22:50 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 252,
+    "walkMin": 4,
+    "src": "https://www.openstreetmap.org/node/14112212080",
+    "open": "10:05",
+    "close": "22:50",
+    "closedDow": []
+   },
+   {
+    "name": "Matsumoto Kiyoshi gần khách sạn",
+    "ja": "マツモトキヨシ",
+    "type": "drugstore",
+    "lat": 34.668135,
+    "lng": 135.503275,
+    "text": "Hiệu thuốc cách khách sạn khoảng 1 phút; chưa có giờ mở cửa.",
+    "hours": null,
+    "distanceM": 68,
+    "walkMin": 1,
+    "src": "https://www.openstreetmap.org/node/11990197743"
+   },
+   {
+    "name": "Coin laundry phía đông gần Nipponbashi",
+    "ja": "コインランドリー",
+    "type": "laundry",
+    "lat": 34.67066,
+    "lng": 135.508123,
+    "text": "Tiệm giặt tự động 24 giờ phía đông, đi bộ khoảng 7 phút. Có thêm một tiệm gần hơn ở 34.66641, 135.50538 nhưng chưa có giờ.",
+    "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 470,
+    "walkMin": 8,
+    "src": "https://www.openstreetmap.org/node/11862323270",
+    "open": "00:00",
+    "close": "24:00",
+    "closedDow": []
+   },
+   {
+    "name": "Komeda Coffee Dōtonbori",
+    "ja": "コメダ珈琲",
+    "type": "cafe",
+    "lat": 34.668633,
+    "lng": 135.501155,
+    "text": "Quán cà phê có set sáng, mở sớm và tối muộn.",
+    "hours": "7:00–23:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 221,
+    "walkMin": 4,
+    "src": "https://www.openstreetmap.org/node/12326791430",
+    "open": "07:00",
+    "close": "23:00",
+    "closedDow": []
+   },
+   {
+    "name": "Nipponbashi Kōhī-ten",
+    "ja": "日本橋珈琲店",
+    "type": "cafe",
+    "lat": 34.667319,
+    "lng": 135.505899,
+    "text": "Quán cà phê nhỏ phía đông, mở sớm, đóng lúc 19:00.",
+    "hours": "7:00–19:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
+    "distanceM": 262,
+    "walkMin": 4,
+    "src": "https://www.openstreetmap.org/node/10780262605",
+    "open": "07:00",
+    "close": "19:00",
+    "closedDow": []
+   },
+   {
+    "name": "Suehiro-yu",
+    "ja": "末広湯",
+    "type": "sento",
+    "lat": 34.66631,
+    "lng": 135.507765,
+    "text": "Nhà tắm công cộng phía đông Sennichimae, đi bộ khoảng 7 phút; chưa có giờ mở cửa.",
+    "hours": null,
+    "distanceM": 466,
+    "walkMin": 8,
+    "src": "https://www.openstreetmap.org/node/11558490343"
+   }
+  ],
+  "photos": [
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Dotonbori_at_night_2019-04-12.jpg/1280px-Dotonbori_at_night_2019-04-12.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Dotonbori_at_night_2019-04-12.jpg",
+    "credit": "Dick Thomas Johnson from Tokyo, Japan",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "caption": "Dōtonbori về đêm"
+   },
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Osaka_Dotonbori_Ebisu_Bridge.jpg/1280px-Osaka_Dotonbori_Ebisu_Bridge.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Osaka_Dotonbori_Ebisu_Bridge.jpg",
+    "credit": "Type specimen",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "caption": "Tường biển hiệu ở cầu Ebisu bên kênh Dōtonbori"
+   },
+   {
+    "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Hozenji_Yokocho_at_night.jpg/1280px-Hozenji_Yokocho_at_night.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Hozenji_Yokocho_at_night.jpg",
+    "credit": "Choi2451 / Wikimedia Commons",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "caption": "Hozenji Yokocho về đêm"
+   }
+  ],
+  "sources": [
+   "https://www.hotelforza.jp/osakanamba/rooms/",
+   "https://www.openstreetmap.org/ (POI qua Overpass; tuyến đi bộ OSRM)",
+   "https://commons.wikimedia.org/"
+  ]
+ }
+};
 
 export const FUJI_SPOTS_R: any = {
  "spots": [

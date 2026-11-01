@@ -14703,7 +14703,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/That_famous_Lawson_and_Mount_Fuji_in_Kawaguchiko_%2854244854384%29.jpg/1280px-That_famous_Lawson_and_Mount_Fuji_in_Kawaguchiko_%2854244854384%29.jpg",
+    "src": "img/commons/e52a78326e08.webp",
     "caption": "Lawson Kawaguchiko Ekimae với Fuji phía sau mái cửa hàng",
     "credit": "Sergiy Galyonkin",
     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -14711,7 +14711,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Lawson_Fuji.jpg/1280px-Lawson_Fuji.jpg",
+    "src": "img/commons/c914082e5791.webp",
     "caption": "Góc chụp quen thuộc: biển Lawson và đỉnh Fuji",
     "credit": "Gabriel Hutchinson Photography",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -14775,7 +14775,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Honcho_Street_with_Mount_Fuji_in_the_daytime%2C_Fujiyoshida%2C_2016.jpg/1280px-Honcho_Street_with_Mount_Fuji_in_the_daytime%2C_Fujiyoshida%2C_2016.jpg",
+    "src": "img/commons/ed6f964d9317.webp",
     "caption": "Phố Honchō ban ngày với Fuji ở cuối đường",
     "credit": "DimiTalen",
     "license": "CC0 (Wikimedia Commons)",
@@ -14783,7 +14783,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Honcho_Street_with_Mount_Fuji_in_the_evening%2C_Fujiyoshida%2C_2016.jpg/1280px-Honcho_Street_with_Mount_Fuji_in_the_evening%2C_Fujiyoshida%2C_2016.jpg",
+    "src": "img/commons/c94358de4bfc.webp",
     "caption": "Cùng góc phố lúc chiều tối",
     "credit": "DimiTalen",
     "license": "CC0 (Wikimedia Commons)",
@@ -14827,7 +14827,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Chureito_Pagoda.jpg",
+    "src": "img/commons/a6c3e2a84926.webp",
     "caption": "Tháp Chūreitō lúc hoa anh đào nở",
     "credit": "Manish Prabhune",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -14835,7 +14835,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Arakurayama_Sengen_Park_09.jpg/1280px-Arakurayama_Sengen_Park_09.jpg",
+    "src": "img/commons/277c6f62b0ac.webp",
     "caption": "Công viên Arakurayama Sengen",
     "credit": "Olaf2",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -14843,7 +14843,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Mount_Fuji%2C_Arakurayama_Sengen_Park_20241022.jpg/1280px-Mount_Fuji%2C_Arakurayama_Sengen_Park_20241022.jpg",
+    "src": "img/commons/73ffbcbfbb6e.webp",
     "caption": "Fuji nhìn từ công viên Arakurayama ngày 22/10/2024, đúng thời điểm cuối tháng 10",
     "credit": "Supanut Arunoprayote",
     "license": "CC BY 4.0 (Wikimedia Commons)",
@@ -14851,7 +14851,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/View_towards_Mount_Fuji_from_Arakurayama_Sengen_Park_in_Fujiyoshida%2C_Yamanashi%2C_Japan%2C_2024_May_-_2.jpg/1280px-View_towards_Mount_Fuji_from_Arakurayama_Sengen_Park_in_Fujiyoshida%2C_Yamanashi%2C_Japan%2C_2024_May_-_2.jpg",
+    "src": "img/commons/4db90c123347.webp",
     "caption": "Nhìn về phía Fuji từ sườn đồi Arakurayama",
     "credit": "Ximonic (Simo Räsänen)",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -14899,7 +14899,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "exterior",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Fujikyuko_Shimoyoshida_Sta_20161026.jpg/1280px-Fujikyuko_Shimoyoshida_Sta_20161026.jpg",
+    "src": "img/commons/465f4d01ac75.webp",
     "caption": "Lối vào ga Shimoyoshida",
     "credit": "Kounoichi",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -14907,7 +14907,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Platform_at_Shimoyoshida_Station%2C_Fujiyoshida%2C_2016.jpg/1280px-Platform_at_Shimoyoshida_Station%2C_Fujiyoshida%2C_2016.jpg",
+    "src": "img/commons/19a03a0d7906.webp",
     "caption": "Sân ga Shimoyoshida",
     "credit": "DimiTalen",
     "license": "CC0 (Wikimedia Commons)",
@@ -14974,7 +14974,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Mount_Fuji_from_Oishi_Park.jpg/1280px-Mount_Fuji_from_Oishi_Park.jpg",
+    "src": "img/commons/fbbbc791f1ea.webp",
     "caption": "Hồ Kawaguchi và Fuji nhìn từ Ōishi Park",
     "credit": "Alpsdake",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15027,7 +15027,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Lake_Kawaguchiko_Ohashi_Bridge_%2816031531337%29.jpg/1280px-Lake_Kawaguchiko_Ohashi_Bridge_%2816031531337%29.jpg",
+    "src": "img/commons/1f46d002cbb2.webp",
     "caption": "Cầu Kawaguchiko Ōhashi bắc ngang hồ",
     "credit": "redlegsfan21",
     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -15035,7 +15035,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/6/63/Kawaguchiko_Ohashi_bridge.jpg",
+    "src": "img/commons/209e2f2d7199.webp",
     "caption": "Toàn cảnh cầu nhìn từ xa",
     "credit": "Volfgang",
     "license": "CC BY-SA 3.0 (Wikimedia Commons)",
@@ -15086,7 +15086,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Tenjosan_Park_Kachikachi-yama_Ropeway_01.JPG/1280px-Tenjosan_Park_Kachikachi-yama_Ropeway_01.JPG",
+    "src": "img/commons/09bfe51bb797.webp",
     "caption": "Cáp treo lên công viên Tenjōzan",
     "credit": "Abasaa",
     "license": "Public domain (Wikimedia Commons)",
@@ -15094,7 +15094,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/KachikachiyamaRopeway.JPG/1280px-KachikachiyamaRopeway.JPG",
+    "src": "img/commons/8a9895bbc15a.webp",
     "caption": "Cảnh nhìn từ cáp treo xuống hồ Kawaguchi",
     "credit": "Ippukucho",
     "license": "CC BY 3.0 (Wikimedia Commons)",
@@ -15147,7 +15147,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Oshino-Hakkai-Nakaike.jpg/1280px-Oshino-Hakkai-Nakaike.jpg",
+    "src": "img/commons/879bee97204b.webp",
     "caption": "Ao Nakaike nhìn về phía Fuji",
     "credit": "MaedaAkihiko",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15155,7 +15155,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Oshino_Hakkai_-_Oshino6878.jpg/1280px-Oshino_Hakkai_-_Oshino6878.jpg",
+    "src": "img/commons/b883a04ad429.webp",
     "caption": "Nhà mái tranh và guồng nước bên một ao",
     "credit": "lumoplank",
     "license": "CC0 (Wikimedia Commons)",
@@ -15210,7 +15210,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Mount_Fuji_view_from_Saiko_Iyashi_no_Sato_Nenba_-_Oct_31%2C_2024.jpg/1280px-Mount_Fuji_view_from_Saiko_Iyashi_no_Sato_Nenba_-_Oct_31%2C_2024.jpg",
+    "src": "img/commons/40ca8dcb979f.webp",
     "caption": "Fuji nhìn từ làng mái tranh Nenba cuối tháng 10/2024",
     "credit": "sergejf",
     "license": "CC BY 2.0 (Wikimedia Commons)",
@@ -15218,7 +15218,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Iyashinosato_village_04.jpg/1280px-Iyashinosato_village_04.jpg",
+    "src": "img/commons/f44f995a2564.webp",
     "caption": "Làng mái tranh Iyashi-no-Sato",
     "credit": "Davide Mauro",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15264,7 +15264,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Mount_Fuji_and_Lake_Yamanaka_%282015-11-21%29.jpg/1280px-Mount_Fuji_and_Lake_Yamanaka_%282015-11-21%29.jpg",
+    "src": "img/commons/1718af381cfb.webp",
     "caption": "Fuji và hồ Yamanaka tháng 11/2015",
     "credit": "Alpsdake",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15272,7 +15272,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Lake_Yamanaka_and_Mount_Fuji.JPG/1280px-Lake_Yamanaka_and_Mount_Fuji.JPG",
+    "src": "img/commons/6090605fc601.webp",
     "caption": "Hồ Yamanaka và Fuji",
     "credit": "Alpsdake",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15325,7 +15325,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Mount_Fuji_and_Tulips_2.jpg/1280px-Mount_Fuji_and_Tulips_2.jpg",
+    "src": "img/commons/d4f6e723bf6f.webp",
     "caption": "Tulip và Fuji ở Hananomiyako (mùa xuân)",
     "credit": "Arashiyama",
     "license": "CC BY-SA 3.0 (Wikimedia Commons)",
@@ -15333,7 +15333,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mt_Fuji_and_Sunflowers_on_August_5th_2017.jpg/1280px-Mt_Fuji_and_Sunflowers_on_August_5th_2017.jpg",
+    "src": "img/commons/3f4e2f503b06.webp",
     "caption": "Hướng dương và Fuji (mùa hè)",
     "credit": "Hrykt",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15381,7 +15381,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "detail",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/GotembaOutletShuttleBus_869.jpeg/1280px-GotembaOutletShuttleBus_869.jpeg",
+    "src": "img/commons/5f24f260c6bf.webp",
     "caption": "Xe đưa đón miễn phí giữa ga Gotemba và Outlet",
     "credit": "ja:User:江戸前鰻",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15439,7 +15439,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "exterior",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Mishima_Skywalk_North_Facade2023.jpg/1280px-Mishima_Skywalk_North_Facade2023.jpg",
+    "src": "img/commons/620e257e57e1.webp",
     "caption": "Mặt bắc cầu Mishima Skywalk",
     "credit": "Charlie fong",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15447,7 +15447,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/View_of_Suruga_Bay_and_Numazu_Alps_from_Mishima_Skywalk%2C_Hakone%2C_Japan1.jpg/1280px-View_of_Suruga_Bay_and_Numazu_Alps_from_Mishima_Skywalk%2C_Hakone%2C_Japan1.jpg",
+    "src": "img/commons/2500dd5502c5.webp",
     "caption": "Vịnh Suruga nhìn từ cầu",
     "credit": "Joli Rumi",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15528,7 +15528,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "detail",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Shore_of_Tago_Bay%2C_Ejiri_at_Tokaido.jpg/1280px-Shore_of_Tago_Bay%2C_Ejiri_at_Tokaido.jpg",
+    "src": "img/commons/fafc61655a3e.webp",
     "caption": "Tranh Hokusai \"Bờ vịnh Tago ở Ejiri trên Tōkaidō\", từ loạt Ba mươi sáu cảnh Fuji",
     "credit": "Katsushika Hokusai",
     "license": "Public domain (Wikimedia Commons)",
@@ -15536,7 +15536,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Shinkansen_N700S_series_photographed_at_Higashi-Tagonoura_with_Mount_Fuji_in_the_background%2C_10_April_2023.jpg/1280px-Shinkansen_N700S_series_photographed_at_Higashi-Tagonoura_with_Mount_Fuji_in_the_background%2C_10_April_2023.jpg",
+    "src": "img/commons/de24247444ef.webp",
     "caption": "Shinkansen N700S chạy ngang Fuji ở khu vực Higashi-Tagonoura",
     "credit": "Takeshi Aida",
     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -15573,7 +15573,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "exterior",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Fujisan_Hong%C5%AB_Sengen_Taisha_20220724i.jpg/1280px-Fujisan_Hong%C5%AB_Sengen_Taisha_20220724i.jpg",
+    "src": "img/commons/07c5e05645bd.webp",
     "caption": "Đền Fujisan Hongū Sengen Taisha",
     "credit": "江戸村のとくぞう",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15581,7 +15581,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Fujinomiya_Fujisan_Hongu_Sengen-taisha_Teich_Sakura.jpg/1280px-Fujinomiya_Fujisan_Hongu_Sengen-taisha_Teich_Sakura.jpg",
+    "src": "img/commons/0002b1cc164e.webp",
     "caption": "Ao Wakutama trong khuôn viên đền",
     "credit": "Zairon",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15618,7 +15618,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Shiraito_Falls_%28Fujinomiya%29.jpg/1280px-Shiraito_Falls_%28Fujinomiya%29.jpg",
+    "src": "img/commons/082e5cfaa265.webp",
     "caption": "Thác Shiraito, Fujinomiya",
     "credit": "Alpsdake",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -15626,7 +15626,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Shiraito_Falls_%2834541900111%29.jpg/1280px-Shiraito_Falls_%2834541900111%29.jpg",
+    "src": "img/commons/7a53dc17ebeb.webp",
     "caption": "Thác Shiraito và Fuji",
     "credit": "Big Ben in Japan",
     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -15693,7 +15693,7 @@ export const DETAILS: Record<string, Detail> = {
   "images": [
    {
     "kind": "view",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/8/88/Fujikawarakuza-tenbou.jpg",
+    "src": "img/commons/871a1c2d9ca0.webp",
     "caption": "Sảnh ngắm cảnh của Rakuza",
     "credit": "しんかわな",
     "license": "CC BY 3.0 (Wikimedia Commons)",
@@ -15701,7 +15701,7 @@ export const DETAILS: Record<string, Detail> = {
    },
    {
     "kind": "exterior",
-    "src": "https://upload.wikimedia.org/wikipedia/commons/0/03/Fujikawarakuza2.jpg",
+    "src": "img/commons/2a2d78672b9e.webp",
     "caption": "Mặt tiền Michi-no-Eki Fujikawa Rakuza",
     "credit": "しんかわな",
     "license": "CC BY 3.0 (Wikimedia Commons)",

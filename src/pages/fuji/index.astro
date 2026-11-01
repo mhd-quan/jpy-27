@@ -382,9 +382,15 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
                       </h4>
                       {p.why && <p class="t-small">{p.why}</p>}
                       {detourText(d) && <p class="t-small pop-detour">{detourText(d)}</p>}
-                      {access && <p class="t-small muted">{access}</p>}
-                      {fs?.status && <p class="t-small pop-status">{fs.status}</p>}
                       {p.bestTime && <p class="t-small muted">Nên đến: {p.bestTime}</p>}
+                      {(access || fs?.status || fs?.etiquette) && (
+                        <details class="pop-more t-small">
+                          <summary>Đi thế nào, lưu ý</summary>
+                          {access && <p class="muted">{access}</p>}
+                          {fs?.status && <p class="pop-status">{fs.status}</p>}
+                          {fs?.etiquette && <p class="muted">{fs.etiquette}</p>}
+                        </details>
+                      )}
                       {d?.p && (
                         <p>
                           <button type="button" class="btn btn-quiet sm" data-show-detour={s.id}>
@@ -847,6 +853,18 @@ const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
     margin: 6px 0 0;
     font-size: 18px;
     line-height: 1.3;
+  }
+  .pop-more {
+    margin-top: 6px;
+  }
+  .pop-more summary {
+    width: max-content;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+  }
+  .pop-more summary::-webkit-details-marker {
+    display: none;
   }
   .pop-detour {
     font-weight: 600;

@@ -435,8 +435,25 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
     margin: 8px auto 0;
   }
   @media (max-width: 560px) {
+    .budget {
+      padding-block: 8px;
+    }
+    .b-row {
+      gap: 8px;
+    }
+    .b-row .t-small {
+      font-size: 11px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .b-row strong {
-      font-size: 16px;
+      font-size: 15px;
+    }
+    .b-bar {
+      height: 4px;
+      margin-top: 6px;
     }
     .budget > p {
       display: none;
@@ -505,7 +522,7 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
     }
     .plan-map {
       position: sticky;
-      top: calc(var(--nav-h) + 76px);
+      top: calc(var(--nav-h) + 62px);
       z-index: 10;
       height: 34svh;
     }

@@ -22,7 +22,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Kanda_river_from_Izumibashi_bridge_%2824758523478%29.jpg/1280px-Kanda_river_from_Izumibashi_bridge_%2824758523478%29.jpg",
+        "url": "img/commons/474953b9f50b.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Kanda_river_from_Izumibashi_bridge_(24758523478).jpg",
         "credit": "nakashi from Chofu, Tokyo, JAPAN",
         "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -55,7 +55,7 @@ export const STAYS_GEN: Record<string, any> = {
        },
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Manseibashi_Viaduct_%26_JR_Kanda_Manseibashi_Building_at_night_%282014-09-28_18.17.09_by_superidoljp%29.jpg/1280px-Manseibashi_Viaduct_%26_JR_Kanda_Manseibashi_Building_at_night_%282014-09-28_18.17.09_by_superidoljp%29.jpg",
+        "url": "img/commons/60397298f1cd.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Manseibashi_Viaduct_&_JR_Kanda_Manseibashi_Building_at_night_(2014-09-28_18.17.09_by_superidoljp).jpg",
         "credit": "superidoljp from Tokyo, Japan",
         "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -72,7 +72,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Akihabara_Night.jpg/1280px-Akihabara_Night.jpg",
+        "url": "img/commons/f9da25d8cf7d.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Akihabara_Night.jpg",
         "credit": "ElHeineken",
         "license": "CC BY 4.0 (Wikimedia Commons)",
@@ -126,7 +126,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Yushima_Seido_03.JPG/1280px-Yushima_Seido_03.JPG",
+        "url": "img/commons/33a5007c497e.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Yushima_Seido_03.JPG",
         "credit": "Reggaeman",
         "license": "CC BY-SA 3.0 (Wikimedia Commons)",
@@ -180,7 +180,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Akihabara_Night.jpg/1280px-Akihabara_Night.jpg",
+        "url": "img/commons/f9da25d8cf7d.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Akihabara_Night.jpg",
         "credit": "ElHeineken",
         "license": "CC BY 4.0 (Wikimedia Commons)",
@@ -197,7 +197,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Akihabara%2C_Tokyo%2C_Japan_002.jpg/1280px-Akihabara%2C_Tokyo%2C_Japan_002.jpg",
+        "url": "img/commons/74fa222b4608.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Akihabara,_Tokyo,_Japan_002.jpg",
         "credit": "Vasconium",
         "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -357,7 +357,7 @@ export const STAYS_GEN: Record<string, any> = {
   "photos": [
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Akihabara_Night.jpg/1280px-Akihabara_Night.jpg",
+    "url": "img/commons/f9da25d8cf7d.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Akihabara_Night.jpg",
     "credit": "ElHeineken",
     "license": "CC BY 4.0 (Wikimedia Commons)",
@@ -365,7 +365,7 @@ export const STAYS_GEN: Record<string, any> = {
    },
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Kanda_river_from_Izumibashi_bridge_%2824758523478%29.jpg/1280px-Kanda_river_from_Izumibashi_bridge_%2824758523478%29.jpg",
+    "url": "img/commons/474953b9f50b.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Kanda_river_from_Izumibashi_bridge_(24758523478).jpg",
     "credit": "nakashi from Chofu, Tokyo, JAPAN",
     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -373,7 +373,7 @@ export const STAYS_GEN: Record<string, any> = {
    },
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Akihabara%2C_Tokyo%2C_Japan_002.jpg/1280px-Akihabara%2C_Tokyo%2C_Japan_002.jpg",
+    "url": "img/commons/74fa222b4608.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Akihabara,_Tokyo,_Japan_002.jpg",
     "credit": "Vasconium",
     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -409,7 +409,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg/1280px-Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg",
+        "url": "img/commons/a5701cfa77f3.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Chisujino_Taki_(waterfall)_Kowakidani,_Hakone_(NYPL_Hades-2360099-4043898).jpg",
         "credit": "Scan by NYPL",
         "license": "Public domain (Wikimedia Commons)",
@@ -434,7 +434,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Mt.Sengen_%28Hakone%29_01.jpg/1280px-Mt.Sengen_%28Hakone%29_01.jpg",
+        "url": "img/commons/e42e4b0177db.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Mt.Sengen_(Hakone)_01.jpg",
         "credit": "Σ64",
         "license": "CC BY 3.0 (Wikimedia Commons)",
@@ -442,7 +442,7 @@ export const STAYS_GEN: Record<string, any> = {
        },
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Mt.Sengen_%28Hakone%29_16.jpg/1280px-Mt.Sengen_%28Hakone%29_16.jpg",
+        "url": "img/commons/5086354873b0.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Mt.Sengen_(Hakone)_16.jpg",
         "credit": "Σ64",
         "license": "CC BY 3.0 (Wikimedia Commons)",
@@ -485,7 +485,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg/1280px-Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg",
+        "url": "img/commons/a5701cfa77f3.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Chisujino_Taki_(waterfall)_Kowakidani,_Hakone_(NYPL_Hades-2360099-4043898).jpg",
         "credit": "Scan by NYPL",
         "license": "Public domain (Wikimedia Commons)",
@@ -510,7 +510,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Tozan_Kowakidani_cross_Ekiden_Soudai.jpg",
+        "url": "img/commons/9180e307ea75.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Tozan_Kowakidani_cross_Ekiden_Soudai.jpg",
         "credit": "Cassiopeia sweet",
         "license": "Public domain (Wikimedia Commons)",
@@ -637,7 +637,7 @@ export const STAYS_GEN: Record<string, any> = {
   "photos": [
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Tozan_Kowakidani_cross_Ekiden_Soudai.jpg",
+    "url": "img/commons/9180e307ea75.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Tozan_Kowakidani_cross_Ekiden_Soudai.jpg",
     "credit": "Cassiopeia sweet",
     "license": "Public domain (Wikimedia Commons)",
@@ -645,7 +645,7 @@ export const STAYS_GEN: Record<string, any> = {
    },
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg/1280px-Chisujino_Taki_%28waterfall%29_Kowakidani%2C_Hakone_%28NYPL_Hades-2360099-4043898%29.jpg",
+    "url": "img/commons/a5701cfa77f3.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Chisujino_Taki_(waterfall)_Kowakidani,_Hakone_(NYPL_Hades-2360099-4043898).jpg",
     "credit": "Scan by NYPL",
     "license": "Public domain (Wikimedia Commons)",
@@ -653,7 +653,7 @@ export const STAYS_GEN: Record<string, any> = {
    },
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Mt.Sengen_%28Hakone%29_16.jpg/1280px-Mt.Sengen_%28Hakone%29_16.jpg",
+    "url": "img/commons/5086354873b0.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Mt.Sengen_(Hakone)_16.jpg",
     "credit": "Σ64",
     "license": "CC BY 3.0 (Wikimedia Commons)",
@@ -1124,7 +1124,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Geku_Tsuchinomiya_Ise-jingu_Grand_Shrine_01-r.jpg/1280px-Geku_Tsuchinomiya_Ise-jingu_Grand_Shrine_01-r.jpg",
+        "url": "img/commons/ed1feb1ae1d5.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Geku_Tsuchinomiya_Ise-jingu_Grand_Shrine_01-r.jpg",
         "credit": "Oilstreet",
         "license": "CC BY 2.5 (Wikimedia Commons)",
@@ -1132,7 +1132,7 @@ export const STAYS_GEN: Record<string, any> = {
        },
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Ise-Shrine_Geku-Tsuchinomiya.jpg/1280px-Ise-Shrine_Geku-Tsuchinomiya.jpg",
+        "url": "img/commons/022b5a399375.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Ise-Shrine_Geku-Tsuchinomiya.jpg",
         "credit": "MaedaAkihiko",
         "license": "CC0 (Wikimedia Commons)",
@@ -1324,7 +1324,7 @@ export const STAYS_GEN: Record<string, any> = {
   "photos": [
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Iseshi_station_morning.jpg/1280px-Iseshi_station_morning.jpg",
+    "url": "img/commons/91c504558aac.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Iseshi_station_morning.jpg",
     "credit": "JNR583",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -1332,7 +1332,7 @@ export const STAYS_GEN: Record<string, any> = {
    },
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Iseshi_station_night.jpg/1280px-Iseshi_station_night.jpg",
+    "url": "img/commons/f8de6576f4bd.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Iseshi_station_night.jpg",
     "credit": "JNR583",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
@@ -1408,7 +1408,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Pontocho%2C_Kyoto_%283810351729%29.jpg/1280px-Pontocho%2C_Kyoto_%283810351729%29.jpg",
+        "url": "img/commons/df506a85ecda.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Pontocho,_Kyoto_(3810351729).jpg",
         "credit": "Andrea Schaffer from Sydney, Australia",
         "license": "CC BY 2.0 (Wikimedia Commons)",
@@ -1445,7 +1445,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Demachi_stepping_stones%2C_Kamo_river%2C_Kyoto_-_Jun_24%2C_2006.jpg/1280px-Demachi_stepping_stones%2C_Kamo_river%2C_Kyoto_-_Jun_24%2C_2006.jpg",
+        "url": "img/commons/7c3a291f84f6.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Demachi_stepping_stones,_Kamo_river,_Kyoto_-_Jun_24,_2006.jpg",
         "credit": "masatsu",
         "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -1453,7 +1453,7 @@ export const STAYS_GEN: Record<string, any> = {
        },
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Tadasu_River_Banks_-_Kamo_River_-_Kyoto_-_DSC06591.JPG/1280px-Tadasu_River_Banks_-_Kamo_River_-_Kyoto_-_DSC06591.JPG",
+        "url": "img/commons/85f5e370d521.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Tadasu_River_Banks_-_Kamo_River_-_Kyoto_-_DSC06591.JPG",
         "credit": "Daderot",
         "license": "CC0 (Wikimedia Commons)",
@@ -1490,7 +1490,7 @@ export const STAYS_GEN: Record<string, any> = {
       "images": [
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Pontocho_Alley_at_night%2C_Kyoto_%2852409059926%29.jpg/1280px-Pontocho_Alley_at_night%2C_Kyoto_%2852409059926%29.jpg",
+        "url": "img/commons/02a3bd476ebd.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Pontocho_Alley_at_night,_Kyoto_(52409059926).jpg",
         "credit": "Sergiy Galyonkin from Raleigh, USA",
         "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -1677,7 +1677,7 @@ export const STAYS_GEN: Record<string, any> = {
    },
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Pontocho_Alley_at_night%2C_Kyoto_%2852409059926%29.jpg/1280px-Pontocho_Alley_at_night%2C_Kyoto_%2852409059926%29.jpg",
+    "url": "img/commons/02a3bd476ebd.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Pontocho_Alley_at_night,_Kyoto_(52409059926).jpg",
     "credit": "Sergiy Galyonkin from Raleigh, USA",
     "license": "CC BY-SA 2.0 (Wikimedia Commons)",
@@ -1736,7 +1736,7 @@ export const STAYS_GEN: Record<string, any> = {
        },
        {
         "kind": "view",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Osaka_Dotonbori_Ebisu_Bridge.jpg/1280px-Osaka_Dotonbori_Ebisu_Bridge.jpg",
+        "url": "img/commons/0da88c3cf419.webp",
         "page": "https://commons.wikimedia.org/wiki/File:Osaka_Dotonbori_Ebisu_Bridge.jpg",
         "credit": "Type specimen",
         "license": "CC BY-SA 3.0 (Wikimedia Commons)",
@@ -1969,7 +1969,7 @@ export const STAYS_GEN: Record<string, any> = {
   "photos": [
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Dotonbori_at_night_2019-04-12.jpg/1280px-Dotonbori_at_night_2019-04-12.jpg",
+    "url": "img/commons/031f90e5b9ab.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Dotonbori_at_night_2019-04-12.jpg",
     "credit": "Dick Thomas Johnson from Tokyo, Japan",
     "license": "CC BY 2.0 (Wikimedia Commons)",
@@ -1977,7 +1977,7 @@ export const STAYS_GEN: Record<string, any> = {
    },
    {
     "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Osaka_Dotonbori_Ebisu_Bridge.jpg/1280px-Osaka_Dotonbori_Ebisu_Bridge.jpg",
+    "url": "img/commons/0da88c3cf419.webp",
     "page": "https://commons.wikimedia.org/wiki/File:Osaka_Dotonbori_Ebisu_Bridge.jpg",
     "credit": "Type specimen",
     "license": "CC BY-SA 3.0 (Wikimedia Commons)",
