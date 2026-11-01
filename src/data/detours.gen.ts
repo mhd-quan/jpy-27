@@ -2088,6 +2088,78 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": false
   }
  },
+ "kawaguchiko.sn-fujiyama-cookie": {
+  "p": "ghtwEkf~mYT@Af@gA?CHExCM?G~BcALu@?@IgAGuCc@eAm@aACDO]BEC?Qg@Eu@_@iBmAe@i@mBkGoAsCkAiCe@q@s@s@L[",
+  "km": 1.06,
+  "min": 14,
+  "mode": "walk",
+  "from": {
+   "label": "ga Kawaguchiko",
+   "lat": 35.498436,
+   "lng": 138.768539,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-fabcafe-fuji": {
+  "p": "imswEgeenY@QfEd@C`@",
+  "km": 0.14,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Fujiyoshida Honchō-dōri",
+   "lat": 35.494131,
+   "lng": 138.804196,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-fuuto-coffee-bakeshop": {
+  "p": "imswEgeenY@QrBRVnEEn@dBQVr@p@b@@IPH",
+  "km": 0.32,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "Fujiyoshida Honchō-dōri",
+   "lat": 35.494131,
+   "lng": 138.804196,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-sakurai-udon": {
+  "p": "imswEgeenY@QnEf@l@PjAf@zDtBrMrGX{@EC",
+  "km": 0.64,
+  "min": 9,
+  "mode": "walk",
+  "from": {
+   "label": "Fujiyoshida Honchō-dōri",
+   "lat": 35.494131,
+   "lng": 138.804196,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-kawaguchiko-sweets-garden": {
+  "p": "olxwEyw~mYAIe@NEMmA`@i@s@uAh@I_@",
+  "km": 0.18,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Bến xe Kawaguchiko Bijutsukan",
+   "lat": 35.5196,
+   "lng": 138.771331,
+   "onWalk": false
+  }
+ },
+ "kawaguchiko.sn-budoya-kofu-hana-terrace": {
+  "p": "qcywE{|ymYz@lAJZTJPToAn@X|@@lA",
+  "km": 0.21,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Ōishi Park",
+   "lat": 35.52329,
+   "lng": 138.74654,
+   "onWalk": false
+  }
+ },
  "kawaguchiko.fs-shimoyoshida-station": {
   "p": "",
   "km": 0,

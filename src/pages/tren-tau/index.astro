@@ -316,9 +316,7 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs.at(-1)!.to
 
   .ride {
     padding-block: clamp(40px, 6vw, 72px);
-    /* a long page of rides: skip layout and paint for the ones off screen */
-    content-visibility: auto;
-    contain-intrinsic-size: auto 1400px;
+    scroll-margin-top: var(--nav-h);
   }
   .back {
     margin: 14px 4px 0;

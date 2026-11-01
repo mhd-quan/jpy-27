@@ -65,6 +65,12 @@ const ALIAS: Record<string, string> = {
   佐田浜港: '鳥羽マリンターミナル',
   鳥羽港: '鳥羽マリンターミナル',
   恩賜公園前: '恩賜箱根公園',
+  阪急嵐山駅前: '嵐山',
+  和具: '答志島和具',
+  和具港: '答志島和具',
+  答志: '答志島答志',
+  答志港: '答志島答志',
+  嵐山駅前: '嵐山',
   河口湖自然生活館: '大石公園',
 };
 /** 大阪難波駅 (Kintetsu) → 大阪難波 */
@@ -113,6 +119,7 @@ interface RRide {
   onboard?: string | null;
   board?: string | null;
   pay?: string | null;
+  kind?: 'bus';
   sources?: string[];
 }
 
@@ -228,6 +235,14 @@ function build(day: Day, legs: LegView[], r: RRide | null, at?: string): Ride {
     shown.add(t.idx);
   }
   let alight: Ride['alight'] = null;
+  // buses and boats only know their two ends: put the stop before yours on the strip
+  if (r?.alight?.prevSt && find(r.alight.prevSt) < 0 && stations.length === 2) {
+    const last = stations.pop()!;
+    stations.push({ ja: r.alight.prevSt, en: r.alight.prevSt, km: Math.round(last.km * 0.9 * 10) / 10, stop: true, marks: [] }, last);
+    shown.add(1);
+    shown.add(2);
+    shown.delete(1 + 0.5);
+  }
   if (r?.alight?.prevSt) {
     let idx = find(r.alight.prevSt);
     if (idx < 0 || idx >= stations.length - 1) idx = Math.max(0, [...shown].filter((i) => i < stations.length - 1 && stations[i].stop).sort((x, y) => y - x)[0] ?? 0);
@@ -253,7 +268,7 @@ function build(day: Day, legs: LegView[], r: RRide | null, at?: string): Ride {
     toName: last.toName,
     km: Math.round(legs.reduce((t, l) => t + l.km, 0) * 10) / 10,
     min: legs.length === 1 ? first.min : undefined,
-    title: (r?.line ?? first.lineName).replace(/\s*[（(].*?[）)]\s*/g, ' ').trim(),
+    title: (r?.line ?? first.lineName).replace(/\s*[（(].*?[）)]\s*/g, ' ').split(/\s*[:：]\s*/)[0].trim(),
     train: r?.train ?? null,
     seat: r?.seat ?? null,
     stations: drawn,
@@ -281,19 +296,24 @@ function ridesOf(day: Day): Ride[] {
     // first leg that boards at the research's "from", then legs until one reaches its "to"
     const fromN = norm(r.from);
     const toN = norm(r.to);
-    const same = (a: string, b: string) => a === b || a.includes(b) || b.includes(a);
+    // near-exact: 河口湖美術館 must not pass for 河口湖
+    const same = (a: string, b: string) => a === b || (Math.min(a.length, b.length) >= 3 && Math.abs(a.length - b.length) <= 2 && (a.includes(b) || b.includes(a)));
     const has = (l: LegView, n: string) => legStations(l).some((s) => same(norm(s.ja), n));
     const boards = (l: LegView, n: string) => same(norm(legStations(l)[0].ja), n);
     const ends = (l: LegView, n: string) => same(norm(legStations(l).at(-1)!.ja), n);
     // a ride boards at its first station; only when no leg does, accept one that passes it
-    let start = moves.findIndex(({ l }) => !used.has(l.id) && boards(l, fromN));
-    if (start < 0) start = moves.findIndex(({ l }) => !used.has(l.id) && has(l, fromN) && !ends(l, fromN));
+    // bus research matches bus legs only, rail research everything else
+    const busRide = r.kind === 'bus';
+    const fits = (l: LegView) => (l.mode === 'bus') === busRide;
+    let start = moves.findIndex(({ l }) => !used.has(l.id) && fits(l) && boards(l, fromN));
+    if (start < 0) start = moves.findIndex(({ l }) => !used.has(l.id) && fits(l) && has(l, fromN) && !ends(l, fromN));
     if (start < 0) continue;
-    const chosen = [];
-    for (let i = start; i < moves.length; i++) {
-      chosen.push(moves[i]);
-      if (has(moves[i].l, toN) && (ends(moves[i].l, toN) || !moves.slice(i + 1).some(({ l }) => ends(l, toN)))) break;
+    // legs up to the one reaching the destination; if it is never reached, just the boarding leg
+    let end = -1;
+    for (let i = start; i < moves.length && end < 0; i++) {
+      if (has(moves[i].l, toN) && (ends(moves[i].l, toN) || !moves.slice(i + 1).some(({ l }) => ends(l, toN)))) end = i;
     }
+    const chosen = moves.slice(start, (end < 0 ? start : end) + 1);
     chosen.forEach(({ l }) => used.add(l.id));
     out.push(build(day, chosen.map((c) => c.l), r, chosen[0].at));
   }

@@ -9901,6 +9901,464 @@ export const DETAILS: Record<string, Detail> = {
    "social": []
   }
  },
+ "sn-fujiyama-cookie": {
+  "lat": 35.504302,
+  "lng": 138.771703,
+  "address": "山梨県南都留郡富士河口湖町浅川1165-1",
+  "hours": "10:00–17:00, nghỉ thứ Ba theo Tabelog (một trang khác ghi nghỉ thứ Ba tuần 2 và 4)",
+  "why": "Tiệm bánh quy hình núi Fuji, nướng mỗi ngày, là món quà nhỏ dễ mang đi và ăn được ngay trên đường. Mua vài cái ăn thử là đủ.",
+  "rating": 3.36,
+  "ratingCount": 105,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/44552/640x640_rect_44552644.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/44552/44552644.jpg",
+    "caption": "Bánh quy Fuji phủ sô cô la trắng, vị trà đen",
+    "credit": "eb2002621 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19007468/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/44509/640x640_rect_44509420.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/44509/44509420.jpg",
+    "caption": "Hộp 5 cái vị sô cô la trắng",
+    "credit": "eb2002621 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19007468/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/44520/640x640_rect_44520889.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/44520/44520889.jpg",
+    "caption": "Năm vị: sô cô la, matcha, dâu, trà đen, vani",
+    "credit": "eb2002621 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19007468/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "富士山クッキー（ホワイトチョコ・抹茶・苺など）",
+     "romaji": "Fujisan kukkī",
+     "vi": "Bánh quy hình núi Fuji, nhiều vị phủ sô cô la; mua lẻ từng cái hoặc hộp",
+     "yen": null
+    }
+   ],
+   "when": "Cách ga Kawaguchiko khoảng 760 m (12 phút đi bộ). Đi bằng Red Line 13:00 thì xuống ở bến 遊覧船・ロープウェイ入口 (~13:11, cách tiệm 1 phút đi bộ) rồi lên chuyến 13:26 tới 河口湖美術館 lúc ~13:33 (giờ 2026), kịp bữa trưa 13:35. Tiệm mở 10:00 nên không ghé được lúc 9:35.",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [
+    2
+   ],
+   "closedNote": "Thứ Tư 20/10/2027 mở cửa theo cả hai nguồn; nên gọi 0555-72-2220 nếu muốn chắc",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190303/19007468/",
+    "rating": 3.36,
+    "count": 105,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://www.yukoyuko.net/onsen/spot/s0002308",
+     "note": "Yukoyuko: tiệm nướng bánh quy Fuji bằng bột mì trong nước, mở 10:00–17:00"
+    }
+   ]
+  }
+ },
+ "sn-fabcafe-fuji": {
+  "lat": 35.493144,
+  "lng": 138.803933,
+  "address": "山梨県富士吉田市下吉田3-5-16",
+  "hours": "8:00–17:00 (gọi món cuối 16:30), nghỉ thứ Ba",
+  "why": "Quán cà phê nhỏ gần phố Honchō, có bánh và cà phê ngồi nghỉ chân giữa buổi đi bộ. Không phải quán đồ ngọt nổi tiếng nên chỉ ghé nếu muốn ngồi.",
+  "rating": 3.4,
+  "ratingCount": 76,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/238834/640x640_rect_8101ca6df8709ae742519886f41e8870.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/238834/8101ca6df8709ae742519886f41e8870.jpg",
+    "caption": "Cà phê và tiramisu",
+    "credit": "ＹＲ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012749/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/189802/640x640_rect_43a82d33857a61cc5f747c49dd3135f5.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/189802/43a82d33857a61cc5f747c49dd3135f5.jpg",
+    "caption": "Bánh cà rốt phủ kem",
+    "credit": "souta そーた / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012749/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/189802/640x640_rect_5f21403545cb89478ee8d342948f7f93.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/189802/5f21403545cb89478ee8d342948f7f93.jpg",
+    "caption": "Tủ kính bánh của quán",
+    "credit": "souta そーた / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012749/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "コーヒー＋ティラミス",
+     "romaji": "kōhī to tiramisu",
+     "vi": "Cà phê kèm tiramisu trong ly, ảnh khách Tabelog",
+     "yen": null
+    },
+    {
+     "ja": "キャロットケーキ",
+     "romaji": "kyarotto kēki",
+     "vi": "Bánh cà rốt phủ kem, có trong tủ kính",
+     "yen": null
+    }
+   ],
+   "when": "Cách Honchō-dōri khoảng 110 m, Tabelog ghi 8 phút đi bộ từ ga Shimoyoshida. Ghé khoảng 11:45–12:15 ngay sau khi chụp phố, uống cà phê và ăn một miếng bánh trong 20 phút.",
+   "open": "08:00",
+   "close": "17:00",
+   "closedDow": [
+    2
+   ],
+   "closedNote": "Thứ Tư mở cửa; giờ có thể thay đổi nên kiểm tra trước",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190301/19012749/",
+    "rating": 3.4,
+    "count": 76,
+    "award": null
+   },
+   "social": []
+  }
+ },
+ "sn-fuuto-coffee-bakeshop": {
+  "lat": 35.492471,
+  "lng": 138.802564,
+  "address": "山梨県富士吉田市下吉田3-12-3",
+  "hours": "Thứ Tư–Chủ nhật 11:00–17:00 (gọi món cuối 16:30), nghỉ thứ Hai và thứ Ba",
+  "why": "Quán cà phê nổi với pudding tự làm và dorayaki nướng bản đồng. Hợp ăn nhẹ giữa buổi.",
+  "rating": 3.35,
+  "ratingCount": 46,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/360571/640x640_rect_06c6d5854f80035488b6ca99c465ab87.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/360571/06c6d5854f80035488b6ca99c465ab87.jpg",
+    "caption": "Pudding caramel kèm kem tươi",
+    "credit": "Abundantia1219 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012355/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/360571/640x640_rect_16af0402c01fb75b901e91c2ce4b78f5.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/360571/16af0402c01fb75b901e91c2ce4b78f5.jpg",
+    "caption": "Bánh phô mai nướng cháy",
+    "credit": "Abundantia1219 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012355/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/374806/640x640_rect_3d00f721aba06a993dba46dd1f81be99.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/374806/3d00f721aba06a993dba46dd1f81be99.jpg",
+    "caption": "Dorayaki in hình hạt cà phê, ăn kèm cà phê",
+    "credit": "ゆうすけだいすけ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19012355/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "自家製プリン",
+     "romaji": "jikasei purin",
+     "vi": "Pudding tự làm có caramel đậm, ăn kèm kem tươi",
+     "yen": null
+    },
+    {
+     "ja": "銅板どら焼き",
+     "romaji": "dōban dorayaki",
+     "vi": "Dorayaki nướng trên tấm đồng, in hình hạt cà phê",
+     "yen": null
+    }
+   ],
+   "when": "Cách Honchō-dōri khoảng 240 m; mở từ 11:00 nên ghé được khoảng 11:50–12:10 rồi đi tiếp ra ga Shimoyoshida cho chuyến 12:30.",
+   "open": "11:00",
+   "close": "17:00",
+   "closedDow": [
+    1,
+    2
+   ],
+   "closedNote": "Thứ Tư 20/10/2027 mở cửa; quán nhỏ có thể đổi giờ nên xem Instagram trước",
+   "queue": null,
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190301/19012355/",
+    "rating": 3.35,
+    "count": 46,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "instagram",
+     "url": "https://www.instagram.com/fuuto_coffee.bakeshop/",
+     "note": "Tài khoản được hamoni.jp nêu (chưa mở được từ máy chủ nên chưa kiểm tra giờ trên đó)"
+    },
+    {
+     "platform": "blog",
+     "url": "https://hamoni.jp/area/yamanashi/fujiyoshida/gekyoji/shops/sweets",
+     "note": "hamoni.jp: quán nổi với pudding tự làm và dorayaki bản đồng, hạng nhất mục đồ ngọt quanh Gekkoji"
+    }
+   ]
+  }
+ },
+ "sn-sakurai-udon": {
+  "lat": 35.48909,
+  "lng": 138.802154,
+  "address": "山梨県富士吉田市下吉田5-1-33",
+  "hours": "Thứ Hai–Thứ Bảy 10:00–14:30, nghỉ Chủ nhật",
+  "why": "Quán Yoshida udon trong danh sách Tabelog 100 nhiều năm, sợi dai cứng đặc trưng của Fujiyoshida. Một bát nhỏ chia đôi đủ để thử mà không ảnh hưởng bữa hōtō.",
+  "rating": 3.62,
+  "ratingCount": 556,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/55345/640x640_rect_55345052.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/55345/55345052.jpg",
+    "caption": "Udon nóng với aburaage và bắp cải",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19000357/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/99505/640x640_rect_99505510.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/99505/99505510.jpg",
+    "caption": "Udon nóng kiểu Yoshida",
+    "credit": "しのきち / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19000357/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/55345/640x640_rect_55345051.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/55345/55345051.jpg",
+    "caption": "Hũ ớt gia vị tự làm (suridane) để thêm vào bát",
+    "credit": "ぽまーず / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190301/19000357/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "snack",
+   "get": [
+    {
+     "ja": "ハーフ（Half Udon Soup）",
+     "romaji": "hāfu",
+     "vi": "Bát udon nhỏ nửa phần, chia hai người",
+     "yen": 300
+    },
+    {
+     "ja": "温かいうどん",
+     "romaji": "atatakai udon",
+     "vi": "Udon nóng dai, thêm bắp cải và aburaage",
+     "yen": 450
+    },
+    {
+     "ja": "冷たいうどん",
+     "romaji": "tsumetai udon",
+     "vi": "Udon lạnh chấm nước dùng",
+     "yen": 450
+    }
+   ],
+   "when": "Cách Honchō-dōri khoảng 590 m (9 phút từ ga Gekkoji). Đến khoảng 12:00 gọi bát nhỏ ¥300 để còn bụng cho Hōtō lúc 13:35; ăn rồi đi bộ ra ga Shimoyoshida cho chuyến 12:30 (khoảng 970 m).",
+   "open": "10:00",
+   "close": "14:30",
+   "closedDow": [
+    0
+   ],
+   "closedNote": "Thứ Tư mở cửa; udon có thể hết sớm nên đừng đến sát giờ đóng",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190301/19000357/",
+    "rating": 3.62,
+    "count": 556,
+    "award": "百名店 うどん EAST 2024, 2022, 2020"
+   },
+   "social": []
+  }
+ },
+ "sn-kawaguchiko-sweets-garden": {
+  "lat": 35.520914,
+  "lng": 138.77141,
+  "address": "山梨県南都留郡富士河口湖町河口2801-7",
+  "hours": "9:00–17:00 hằng ngày (một bài viết cũ ghi đến 18:00)",
+  "why": "Tiệm làm bánh ngọt tại xưởng, hơn 60 loại, nổi nhất là phô mai và dorayaki. Có sân vườn để ngồi ăn, gần bến Red Line nên dễ ghé sau bữa trưa.",
+  "rating": 3.38,
+  "ratingCount": 121,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/27612/640x640_rect_27612881.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/27612/27612881.jpg",
+    "caption": "Phô mai bán miếng, vị nguyên bản và óc chó",
+    "credit": "カ・ピパラ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19005973/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/27612/640x640_rect_27612851.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/27612/27612851.jpg",
+    "caption": "Dorayaki phô mai camembert",
+    "credit": "カ・ピパラ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19005973/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/27612/640x640_rect_27612890.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/27612/27612890.jpg",
+    "caption": "Tủ gelato nhiều vị",
+    "credit": "カ・ピパラ / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19005973/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "dessert",
+   "get": [
+    {
+     "ja": "朝霧チーズケーキ（1カット）",
+     "romaji": "Asagiri chīzukēki",
+     "vi": "Một miếng bánh phô mai làm từ sữa cao nguyên Asagiri, ăn tại chỗ hoặc mang đi",
+     "yen": 400
+    },
+    {
+     "ja": "カマンベールチーズどら焼き",
+     "romaji": "kamanbēru chīzu dorayaki",
+     "vi": "Dorayaki nhân phô mai camembert",
+     "yen": null
+    },
+    {
+     "ja": "ジェラート",
+     "romaji": "jerāto",
+     "vi": "Kem gelato nhiều vị, ảnh khách ghi ¥360 mỗi phần (bản cũ)",
+     "yen": null
+    }
+   ],
+   "when": "Cách bến 河口湖美術館 3 phút đi bộ theo Tabelog. Ghé sau bữa hōtō (13:35), khoảng 14:10–14:25, rồi quay lại bến cho chuyến Red Line 14:33 (giờ 2026); nếu ăn trưa lâu thì bỏ qua.",
+   "open": "09:00",
+   "close": "17:00",
+   "closedDow": [],
+   "closedNote": "Không thấy ghi ngày nghỉ cố định",
+   "queue": null,
+   "pay": "cash",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190303/19005973/",
+    "rating": 3.38,
+    "count": 121,
+    "award": null
+   },
+   "social": [
+    {
+     "platform": "blog",
+     "url": "https://macaro-ni.jp/64792?page=2",
+     "note": "macaro-ni: hơn 60 loại bánh làm tại xưởng, bánh phô mai Asagiri ¥400 một miếng, gần Kawaguchiko Music Forest Museum"
+    }
+   ]
+  }
+ },
+ "sn-budoya-kofu-hana-terrace": {
+  "lat": 35.52299,
+  "lng": 138.744903,
+  "address": "山梨県南都留郡富士河口湖町大石1477-1 富士大石ハナテラス D棟",
+  "hours": "10:00–17:00 (gọi món cuối 16:00), mở cả tuần; số thứ tự phát từ 9:30",
+  "why": "Quán trái cây Yamanashi gần công viên Ōishi, điểm Tabelog 3,56 với 290 đánh giá. Vào cuối tháng 10 menu theo mùa nên xem bảng tại quán.",
+  "rating": 3.56,
+  "ratingCount": 290,
+  "images": [
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/182490/640x640_rect_645b65062368b0d39a35a9cd6eed0770.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/182490/645b65062368b0d39a35a9cd6eed0770.jpg",
+    "caption": "Đĩa trái cây theo mùa kèm kem",
+    "credit": "東行晋作 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19010076/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/324064/640x640_rect_50f7558d3d3506e12e728925873b44c8.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/324064/50f7558d3d3506e12e728925873b44c8.jpg",
+    "caption": "Bánh sandwich nho khô",
+    "credit": "えもやん★スイーツハンター / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19010076/dtlphotolst/1/smp2/?sby=D&srt=like"
+   },
+   {
+    "kind": "dish",
+    "src": "https://tblg.k-img.com/restaurant/images/Rvw/182491/640x640_rect_d80e83300d9251aaa3ea4800f0a40c39.jpg",
+    "full": "https://tblg.k-img.com/restaurant/images/Rvw/182491/d80e83300d9251aaa3ea4800f0a40c39.jpg",
+    "caption": "Cà phê nóng và bánh quy",
+    "credit": "東行晋作 / Tabelog",
+    "license": "Tabelog user photo",
+    "page": "https://tabelog.com/en/yamanashi/A1903/A190303/19010076/dtlphotolst/1/smp2/?sby=D&srt=like"
+   }
+  ],
+  "snack": {
+   "type": "cafe",
+   "get": [
+    {
+     "ja": "フルーツソフト",
+     "romaji": "furūtsu sofuto",
+     "vi": "Kem mềm làm từ puree trái cây Yamanashi, không có sữa theo một trang mô tả",
+     "yen": null
+    },
+    {
+     "ja": "レーズンサンド",
+     "romaji": "rēzun sando",
+     "vi": "Bánh sandwich nho khô kiểu Nhật, ảnh khách Tabelog",
+     "yen": null
+    },
+    {
+     "ja": "季節のフルーツプレート",
+     "romaji": "kisetsu no furūtsu purēto",
+     "vi": "Đĩa trái cây theo mùa kèm kem, ảnh khách Tabelog",
+     "yen": null
+    }
+   ],
+   "when": "Cách bến 河口湖自然生活館 2 phút đi bộ và sát công viên Ōishi (~150 m). Ghé trong khung 14:50–15:45. Quán phát số thứ tự từ 9:30 và hay đông, nên nếu thấy chờ lâu thì mua kem hay đồ mang đi hoặc bỏ.",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [],
+   "closedNote": "Mở thứ Tư; một trang khác ghi cả khu Hana Terrace mở 9:30–17:30 tùy cửa hàng",
+   "queue": "Có phát số thứ tự từ 9:30 (Tabelog); giờ đông có thể chờ lâu, hãy xem số người đang chờ trước khi lấy số",
+   "pay": "mixed",
+   "tabelog": {
+    "url": "https://tabelog.com/yamanashi/A1903/A190303/19010076/",
+    "rating": 3.56,
+    "count": 290,
+    "award": null
+   },
+   "social": []
+  }
+ },
  "sn-sawamura-shinjuku": {
   "lat": 35.68911,
   "lng": 139.701599,
@@ -17191,6 +17649,66 @@ export const EXTRA_PLACES: ExtraPlace[] = [
   "day": 12,
   "category": "bakery",
   "near": "forza-osaka"
+ },
+ {
+  "id": "sn-fujiyama-cookie",
+  "name": "FUJIYAMA COOKIE",
+  "ja": "FUJIYAMA COOKIE（フジヤマクッキー）",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "snack",
+  "near": "st-kawaguchiko"
+ },
+ {
+  "id": "sn-fabcafe-fuji",
+  "name": "FabCafe Fuji",
+  "ja": "FabCafe Fuji",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "cafe",
+  "near": "fs-honcho-dori"
+ },
+ {
+  "id": "sn-fuuto-coffee-bakeshop",
+  "name": "Fuuto Coffee & Bakeshop",
+  "ja": "Fuuto Coffee&Bakeshop",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "cafe",
+  "near": "fs-honcho-dori"
+ },
+ {
+  "id": "sn-sakurai-udon",
+  "name": "Sakurai Udon",
+  "ja": "桜井うどん",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "snack",
+  "near": "fs-honcho-dori"
+ },
+ {
+  "id": "sn-kawaguchiko-sweets-garden",
+  "name": "Kawaguchiko Sweets Garden",
+  "ja": "河口湖スイーツガーデン",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "dessert",
+  "near": "bus-kawaguchiko-bijutsukan"
+ },
+ {
+  "id": "sn-budoya-kofu-hana-terrace",
+  "name": "Budoya Kofu Hana Terrace Café",
+  "ja": "葡萄屋kofu ハナテラスcafé",
+  "kind": "food",
+  "role": "along",
+  "day": "kawaguchiko",
+  "category": "cafe",
+  "near": "fs-oishi-park"
  },
  {
   "id": "sn-sawamura-shinjuku",
