@@ -5421,7 +5421,7 @@ export const STAYS_AROUND: any = {
     "title": "Lên đồi Sengen-yama tìm Fuji",
     "minutes": 65,
     "best": "Sáng sớm, xuất phát khoảng 6:15 để về kịp ăn sáng và trả phòng",
-    "text": "Đường mòn đi từ gần thác Senjō-no-taki lên bãi cỏ trên đỉnh Sengen-yama (802 m) ngay phía đông khách sạn, khoảng 2 km một chiều, lên 220 m. Theo địa hình, Fuji chỉ có thể lộ ra ở đoạn cuối, từ khoảng 1,5 km trên đường mòn; đây là suy luận từ DEM, không phải điểm được ghi nhận có Fuji, và cây trên đỉnh có thể che một phần. Quay lại theo đường cũ; trước 6 giờ cần đèn pin.",
+    "text": "Đường mòn đi từ gần thác Senjō-no-taki lên bãi cỏ trên đỉnh Sengen-yama (802 m) ngay phía đông khách sạn, khoảng 2 km một chiều, lên 220 m. Theo địa hình, Fuji chỉ có thể lộ ra ở đoạn cuối, từ khoảng 1,5 km trên đường mòn; đây là suy luận từ dữ liệu địa hình, không phải điểm được ghi nhận có Fuji, và cây trên đỉnh có thể che một phần. Quay lại theo đường cũ; trước 6 giờ cần đèn pin.",
     "distanceM": 2020,
     "waypoints": [
      [
@@ -5501,7 +5501,7 @@ export const STAYS_AROUND: any = {
       "ja": "浅間山の尾根",
       "lat": 35.23547,
       "lng": 139.05707,
-      "text": "Đoạn đồi cỏ cao 801 m, nơi DEM cho thấy Fuji lộ nhiều nhất (khoảng 1.300 m phần trên) nếu không bị cây che.",
+      "text": "Đoạn đồi cỏ cao 801 m, nơi dữ liệu địa hình cho thấy Fuji lộ nhiều nhất (khoảng 1.300 m phần trên) nếu không bị cây che.",
       "images": []
      },
      {
@@ -5846,7 +5846,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.0595,
      "evidence": "guess",
      "access": "Đi bộ khoảng 27 phút một chiều (2,0 km, lên 220 m) từ khách sạn qua đường mòn bắt đầu gần thác Senjō-no-taki; cả đi và về khoảng 60–65 phút.",
-     "text": "Đỉnh 802 m ở ngay phía đông khách sạn, là bãi cỏ phẳng. Trang du lịch Hakone nói thác Senjō-no-taki là điểm bắt đầu leo Sengen-yama, và Wikipedia mô tả đỉnh là bãi cỏ rộng; không nguồn nào nói thấy Fuji. DEM cho thấy Fuji ở hướng 295° lộ ra từ khoảng 1,5 km trên đường mòn và rõ nhất ở sống núi cỏ gần đỉnh (cao 801 m, lộ khoảng 1.300 m phần trên của Fuji). Ảnh Commons cho thấy bãi cỏ trên đỉnh có cây bao quanh, DEM không tính cây nên có thể bị che một phần.",
+     "text": "Đỉnh 802 m ở ngay phía đông khách sạn, là bãi cỏ phẳng. Trang du lịch Hakone nói thác Senjō-no-taki là điểm bắt đầu leo Sengen-yama, và Wikipedia mô tả đỉnh là bãi cỏ rộng; không nguồn nào nói thấy Fuji. dữ liệu địa hình cho thấy Fuji ở hướng 295° lộ ra từ khoảng 1,5 km trên đường mòn và rõ nhất ở sống núi cỏ gần đỉnh (cao 801 m, lộ khoảng 1.300 m phần trên của Fuji). Ảnh Commons cho thấy bãi cỏ trên đỉnh có cây bao quanh, dữ liệu địa hình không tính cây nên có thể bị che một phần.",
      "demCheck": {
       "visible": true,
       "shownM": 830,
@@ -5891,7 +5891,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.06281,
      "evidence": "reported",
      "access": "Đi bộ từ ga Gōra khoảng 34 phút (2,5 km); từ khách sạn đi bộ trực tiếp khoảng 70 phút (5,2 km), hoặc tàu Kowakudani → Gōra 8 phút rồi đi bộ.",
-     "text": "Điểm được ghi trên OpenStreetMap là \"Viewpoint (Mt Fuji)\" ở sườn phía tây Myōjōgatake, cao khoảng 850 m. DEM xác nhận Fuji nhô cao khoảng 2.000 m phần trên ở hướng 291°. Xa hơn 45 phút nên chỉ hợp nếu bạn có cả buổi sáng; không phù hợp với kế hoạch trả phòng 8:30.",
+     "text": "Điểm được ghi trên OpenStreetMap là \"Viewpoint (Mt Fuji)\" ở sườn phía tây Myōjōgatake, cao khoảng 850 m. dữ liệu địa hình xác nhận Fuji nhô cao khoảng 2.000 m phần trên ở hướng 291°. Xa hơn 45 phút nên chỉ hợp nếu bạn có cả buổi sáng; không phù hợp với kế hoạch trả phòng 8:30.",
      "demCheck": {
       "visible": true,
       "shownM": 2040,
@@ -5910,7 +5910,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.06749,
      "evidence": "guess",
      "access": "Đi bộ từ ga Gōra khoảng 40 phút (3,0 km) theo OSM; từ khách sạn khoảng 75 phút.",
-     "text": "Đỉnh 924 m, nơi đốt chữ Đại (大文字焼) mỗi 16/8. Wikipedia không nói tầm nhìn có Fuji. DEM cho thấy Fuji lộ khoảng 2.400 m phần trên ở hướng 291°. Cùng sườn núi với điểm ngắm Fuji ở trên nên rất có thể ngắm được nếu trời trong.",
+     "text": "Đỉnh 924 m, nơi đốt chữ Đại (大文字焼) mỗi 16/8. Wikipedia không nói tầm nhìn có Fuji. dữ liệu địa hình cho thấy Fuji lộ khoảng 2.400 m phần trên ở hướng 291°. Cùng sườn núi với điểm ngắm Fuji ở trên nên rất có thể ngắm được nếu trời trong.",
      "demCheck": {
       "visible": true,
       "shownM": 2380,
@@ -5930,7 +5930,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.05252,
      "evidence": "reported",
      "access": "Từ ga Gōra đi bộ lên đỉnh 2–3 giờ theo Wikipedia; không thể trong buổi sáng 22/10.",
-     "text": "Đỉnh 1.169 m của vành ngoài Hakone. Wikipedia có ảnh chú thích \"nhìn từ ngay dưới đỉnh Myōjingatake, thấy Kintoki-yama chồng lên Fuji\"; điểm ngắm trên OSM gọi tên là \"Great view of Mt. Fuji\". DEM xác nhận Fuji lộ khoảng 2.500 m phần trên. Chỉ để tham khảo cho chuyến khác.",
+     "text": "Đỉnh 1.169 m của vành ngoài Hakone. Wikipedia có ảnh chú thích \"nhìn từ ngay dưới đỉnh Myōjingatake, thấy Kintoki-yama chồng lên Fuji\"; điểm ngắm trên OSM gọi tên là \"Great view of Mt. Fuji\". dữ liệu địa hình xác nhận Fuji lộ khoảng 2.500 m phần trên. Chỉ để tham khảo cho chuyến khác.",
      "demCheck": {
       "visible": true,
       "shownM": 2540,
@@ -5950,7 +5950,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.0197,
      "evidence": "reported",
      "access": "Đã nằm trong lịch ngày 21/10 (12:30). Từ Mizunoto: tàu Kowakudani → Gōra, cáp treo lên Sōunzan rồi ropeway tới Ōwakudani; cần cả buổi sáng nên không hợp trước 8:30 ngày 22/10.",
-     "text": "Điểm Fuji nổi tiếng ở Hakone: ảnh Commons \"Mount Fuji from Owakudani\" và ghi chú trong research/fuji.json cho thấy nhìn về Tây Tây Bắc, trời quang buổi sáng là rõ nhất. DEM xác nhận: Fuji lộ khoảng 2.500 m phần trên ở hướng 296°.",
+     "text": "Điểm Fuji nổi tiếng ở Hakone: ảnh Commons \"Mount Fuji from Owakudani\" và ghi chú trên trang Fuji cho thấy nhìn về Tây Tây Bắc, trời quang buổi sáng là rõ nhất. dữ liệu địa hình xác nhận: Fuji lộ khoảng 2.500 m phần trên ở hướng 296°.",
      "demCheck": {
       "visible": true,
       "shownM": 2480,
@@ -5987,7 +5987,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.05415,
      "evidence": "guess",
      "access": "Đi bộ khoảng 30 phút (2,1 km) theo OSM; Wikipedia nói có đường mòn lên từ Hata-juku, Ashinoyu và Kowakudani.",
-     "text": "Đỉnh 834 m, Wikipedia chỉ nhắc cỏ và hoa dại, không mô tả tầm nhìn hay Fuji. DEM cho thấy Fuji bị sườn núi cách 2,9 km chắn (âm 3,9°), nên nhiều khả năng không thấy. Nêu ra để loại trừ.",
+     "text": "Đỉnh 834 m, Wikipedia chỉ nhắc cỏ và hoa dại, không mô tả tầm nhìn hay Fuji. dữ liệu địa hình cho thấy Fuji bị sườn núi cách 2,9 km chắn (âm 3,9°), nên nhiều khả năng không thấy. Nêu ra để loại trừ.",
      "demCheck": {
       "visible": false,
       "shownM": 0,
@@ -6007,7 +6007,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.04223,
      "evidence": "guess",
      "access": "Bus H của Hakone Tozan Bus (cùng tuyến đi Onshi Hakone Park) từ trạm Kowakudani hoặc Hōraien, vài trạm; thời gian và giờ chạy chuyến sớm chưa kiểm tra. Đi bộ từ khách sạn khoảng 45 phút (2,9 km).",
-     "text": "Khu suối nước nóng ở độ cao 850–900 m trên quốc lộ 1. Không nguồn nào cho biết thấy Fuji ở đây. DEM cho thấy bị chắn ở cả bến xe (âm 19°) lẫn quanh suối nước nóng (âm 11°). Nêu ra để loại trừ.",
+     "text": "Khu suối nước nóng ở độ cao 850–900 m trên quốc lộ 1. Không nguồn nào cho biết thấy Fuji ở đây. dữ liệu địa hình cho thấy bị chắn ở cả bến xe (âm 19°) lẫn quanh suối nước nóng (âm 11°). Nêu ra để loại trừ.",
      "demCheck": {
       "visible": false,
       "shownM": 0,
@@ -6024,7 +6024,7 @@ export const STAYS_AROUND: any = {
      "lng": 139.0456,
      "evidence": "guess",
      "access": "Đi bộ khoảng 6–8 phút theo đường thẳng (có dốc); đường đi bộ trực tiếp từ khách sạn trên OSM vòng khá xa.",
-     "text": "Khu giải trí onsen nằm trong cùng thung lũng nên không có lý do thấy Fuji. DEM cho thấy bị sườn núi cách 0,3 km chắn (âm 12,6°). Nêu ra để loại trừ.",
+     "text": "Khu giải trí onsen nằm trong cùng thung lũng nên không có lý do thấy Fuji. dữ liệu địa hình cho thấy bị sườn núi cách 0,3 km chắn (âm 12,6°). Nêu ra để loại trừ.",
      "demCheck": {
       "visible": false,
       "shownM": 0,
@@ -6041,7 +6041,7 @@ export const STAYS_AROUND: any = {
     "civilDawn": "05:30",
     "atHotel": "07:20",
     "text": "Mặt trời mọc ở Hakone lúc 5:56 ngày 22/10, hướng 103° (hơi chếch nam so với đông). Ở Mizunoto, trong thung lũng, sườn núi phía đông cao khoảng 15° nên nắng trực tiếp chỉ tới khoảng 7:20, trước đó chỉ có ánh sáng bầu trời. Trên đồi Sengen-yama (802 m) đường chân trời phía đông thoáng, thấy mặt trời nhô lên khỏi dãy núi thấp lúc 5:56. Fuji nằm hướng 295° (Tây Bắc), ngược phía mặt trời, nên buổi sáng nắng chiếu thẳng vào mặt đông của núi mà Hakone nhìn thấy; 6:00–9:00 là lúc ánh sáng đẹp nhất. Bình minh dân dụng bắt đầu lúc 5:30; đi trước 6:00 cần đèn pin vì đường mòn trong rừng.",
-    "method": "Công thức vị trí mặt trời NOAA (sai số khoảng 1–2 phút) cộng đường chân trời tính từ AWS Terrain Tiles; chưa tính cây cối. Số liệu ngày 21/10 trong fuji.json: mọc 5:55, lặn 17:05."
+    "method": "Công thức vị trí mặt trời NOAA (sai số khoảng 1–2 phút) cộng đường chân trời tính từ AWS Terrain Tiles; chưa tính cây cối. Ngày 21/10: mọc 5:55, lặn 17:05."
    }
   },
   "sources": [
@@ -7484,7 +7484,7 @@ export const FUJI_SPOTS_R: any = {
    "famousFor": "Phố cũ kiểu Shōwa với đèn đường, biển hiệu và dây điện chạy thẳng về phía Fuji ở cuối phố; Fujikyu ghi đây là \"điểm nổi tiếng trên SNS\".",
    "status2026": null,
    "etiquette": "Đường vẫn có xe chạy: chụp từ vỉa hè hoặc chờ đèn tín hiệu, không bước xuống lòng đường; tôn trọng cửa hàng và nhà dân hai bên.",
-   "bestTime": "Buổi sáng: số liệu thành phố Fuji trong fuji.json cho thấy buổi sáng trong hơn buổi chiều.",
+   "bestTime": "Buổi sáng: số liệu thành phố Fuji trong trang Fuji cho thấy buổi sáng trong hơn buổi chiều.",
    "hours": null,
    "costYen": 0,
    "fit": "kawaguchiko",
@@ -8907,7 +8907,7 @@ export const FUJI_SPOTS_R: any = {
     "min": 25
    }
   ],
-  "october": "Lễ hội lá đỏ Fujikawaguchiko (Fuji Kawaguchiko Momiji Matsuri) năm 2026 diễn ra 7–29/11, thắp đèn từ hoàng hôn đến 21:00; năm 2025 là 1–30/11 (ban tổ chức nói lá ở bờ hồ đỏ nhất từ đầu đến giữa tháng 11), nên ngày 20/10/2027 rơi vào trước lễ hội và lá bờ hồ chưa tới đỉnh; năm 2026 bãi xe số 1 của lễ hội bắt đầu thu phí (xe thường ¥1.000). Kochia ở Ōishi Park đỏ rực khoảng giữa đến cuối tháng 10 (Banzoku, cập nhật 6/2026; thay đổi theo năm). Lá đỏ ở Chūreitō thường giữa đến cuối tháng 11. Đông đúc: Lawson đông nhất 10:00–16:00, nhất là khi xe tour từ Tokyo tới (Tabimania 9/2026); Chūreitō và Ōishi đông nhất cuối tuần và vào mùa hoa/lá đỏ; ngày 20/10/2027 là thứ Tư nên dễ thở hơn. Tầm nhìn Fuji: dữ liệu dự báo của isfujivisible.com cho phía Kawaguchiko chỉ có một tháng 10 (2025): 32% ngày buổi sáng và 23% ngày buổi chiều đạt điểm từ 8 trở lên; tháng 11 đến tháng 2 ổn định hơn (sáng 82–100%). Theo số liệu thành phố Fuji trong fuji.json, khoảng 41% ngày tháng 10 thấy trọn núi lúc 8h. Tuyết đầu mùa trên đỉnh: 5/10/2023, 7/11/2024, 23/10/2025, nên chóp trắng ngày 20/10 là chuyện may rủi. Mặt trời mọc khoảng 5:55, lặn khoảng 17:05 (số liệu Hakone, gần Kawaguchiko), chuyến về 16:48 rời ga lúc trời sắp tối.",
+  "october": "Lễ hội lá đỏ Fujikawaguchiko (Fuji Kawaguchiko Momiji Matsuri) năm 2026 diễn ra 7–29/11, thắp đèn từ hoàng hôn đến 21:00; năm 2025 là 1–30/11 (ban tổ chức nói lá ở bờ hồ đỏ nhất từ đầu đến giữa tháng 11), nên ngày 20/10/2027 rơi vào trước lễ hội và lá bờ hồ chưa tới đỉnh; năm 2026 bãi xe số 1 của lễ hội bắt đầu thu phí (xe thường ¥1.000). Kochia ở Ōishi Park đỏ rực khoảng giữa đến cuối tháng 10 (Banzoku, cập nhật 6/2026; thay đổi theo năm). Lá đỏ ở Chūreitō thường giữa đến cuối tháng 11. Đông đúc: Lawson đông nhất 10:00–16:00, nhất là khi xe tour từ Tokyo tới (Tabimania 9/2026); Chūreitō và Ōishi đông nhất cuối tuần và vào mùa hoa/lá đỏ; ngày 20/10/2027 là thứ Tư nên dễ thở hơn. Tầm nhìn Fuji: dữ liệu dự báo của isfujivisible.com cho phía Kawaguchiko chỉ có một tháng 10 (2025): 32% ngày buổi sáng và 23% ngày buổi chiều đạt điểm từ 8 trở lên; tháng 11 đến tháng 2 ổn định hơn (sáng 82–100%). Theo số liệu thành phố Fuji trong trang Fuji, khoảng 41% ngày tháng 10 thấy trọn núi lúc 8h. Tuyết đầu mùa trên đỉnh: 5/10/2023, 7/11/2024, 23/10/2025, nên chóp trắng ngày 20/10 là chuyện may rủi. Mặt trời mọc khoảng 5:55, lặn khoảng 17:05 (số liệu Hakone, gần Kawaguchiko), chuyến về 16:48 rời ga lúc trời sắp tối.",
   "sources": [
    "https://www.fujikyu-railway.jp/fujikaiyuu/",
    "https://ekitan.com/en/article/fujikaiyu",
@@ -9105,6 +9105,54 @@ export const SHOP_ITEMS: any = {
      ],
      "weightG": null,
      "src": "https://www.gu-global.com/jp/ja/search?q=%E3%82%B9%E3%82%A6%E3%82%A7%E3%83%83%E3%83%88"
+    },
+    {
+     "id": "it-muji-compression-case",
+     "category": "basics",
+     "name": "MUJI Recycled Polyester Compression Case",
+     "ja": "再生ポリエステル仕分けケース 圧縮タイプ",
+     "brand": "MUJI",
+     "yen": 1690,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Túi nén quần áo để dành chỗ cho đồ mua thêm trong vali.",
+     "tip": "Mua sớm trong chuyến để dùng được cho phần sau.",
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-muji-passport-case",
+     "category": "basics",
+     "name": "MUJI Passport Case with Clear Pocket",
+     "ja": "ポリエステル パスポートケース クリアポケット付",
+     "brand": "MUJI",
+     "yen": 2290,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Giữ hộ chiếu và hóa đơn gọn một chỗ, tiện khi làm thủ tục hoàn thuế.",
+     "tip": null,
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-muji-right-angle-socks",
+     "category": "basics",
+     "name": "MUJI Right-Angle Socks (1 pair)",
+     "ja": "足なり直角靴下",
+     "brand": "MUJI",
+     "yen": 390,
+     "yenNote": "Giá từ ¥390 một đôi, theo bài viết 10/2026 (đã gồm thuế); tùy mẫu.",
+     "why": "Tất gót vuông 90 độ, giá từ ¥390 một đôi; size Nhật có thể nhỏ.",
+     "tip": "Thử size tại cửa hàng.",
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
     }
    ]
   },
@@ -9291,6 +9339,38 @@ export const SHOP_ITEMS: any = {
      ],
      "weightG": null,
      "src": "https://www.honeys-onlineshop.com/"
+    },
+    {
+     "id": "it-donki-expandable-suitcase",
+     "category": "value-fashion",
+     "name": "Johnetsu Kakaku expandable zipper suitcase",
+     "ja": "情熱拡張ジッパーキャリーケース",
+     "brand": "Don Quijote",
+     "yen": 16499,
+     "yenNote": "Giá đã gồm thuế theo bài LIVE JAPAN 2026; giá Donki khác nhau theo cửa hàng, nên kiểm lại ở kệ.",
+     "why": "Vali mở rộng nhãn riêng Donki, phương án khi hành lý đầy.",
+     "tip": "Giá ¥16.499; so sánh thêm kích cỡ trước khi mua.",
+     "where": [
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://livejapan.com/ja/article-a0005766/"
+    },
+    {
+     "id": "it-donki-front-door-suitcase-ll",
+     "category": "value-fashion",
+     "name": "Johnetsu Kakaku front-opening suitcase LL",
+     "ja": "情熱フロントドアキャリーケースLL",
+     "brand": "Don Quijote",
+     "yen": 21989,
+     "yenNote": "Giá đã gồm thuế theo bài LIVE JAPAN 2026; giá Donki khác nhau theo cửa hàng, nên kiểm lại ở kệ.",
+     "why": "Vali LL mở cửa trước, bản lớn của nhãn riêng Donki.",
+     "tip": null,
+     "where": [
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://livejapan.com/ja/article-a0005766/"
     }
    ]
   },
@@ -9646,6 +9726,118 @@ export const SHOP_ITEMS: any = {
      ],
      "weightG": null,
      "src": "https://sundrug-online.com/search?q=%E3%82%A8%E3%83%AA%E3%82%AF%E3%82%B7%E3%83%BC%E3%83%AB"
+    },
+    {
+     "id": "it-muji-fermented-booster-lotion",
+     "category": "beauty",
+     "name": "MUJI Fermented Booster Essence Lotion",
+     "ja": "発酵導入化粧液",
+     "brand": "MUJI",
+     "yen": 1590,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Lotion dạng toner trong dòng dưỡng da lên men, là món skincare MUJI được blog 2026 gợi ý.",
+     "tip": "Chai khá nặng, cân nhắc khi tính hành lý.",
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-muji-fermented-booster-serum",
+     "category": "beauty",
+     "name": "MUJI Fermented Booster Serum 50 mL",
+     "ja": "発酵導入美容液",
+     "brand": "MUJI",
+     "yen": 1990,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Dùng sau khi rửa mặt, trước toner; bản 50 mL dễ xếp vào vali.",
+     "tip": null,
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-muji-body-mist",
+     "category": "beauty",
+     "name": "MUJI Natural Water Body Mist",
+     "ja": "肌の天然水 全身用ミスト",
+     "brand": "MUJI",
+     "yen": 690,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Xịt khoáng toàn thân không cồn, không hương liệu, rẻ để dùng ngay trong chuyến đi.",
+     "tip": "Mua và dùng trong chuyến; đồ đã dùng không được hoàn thuế.",
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-muji-mild-gel-cleansing",
+     "category": "beauty",
+     "name": "MUJI Mild Gel Cleansing 220 g",
+     "ja": "マイルドジェルクレンジング 大容量",
+     "brand": "MUJI",
+     "yen": 850,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Gel tẩy trang bản lớn 220 g với giá thấp.",
+     "tip": null,
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-donki-cutuv-sunscreen",
+     "category": "beauty",
+     "name": "CUTUV sunscreen stick SPF50+ PA++++",
+     "ja": "CUTUV 日焼け止めスティック",
+     "brand": "Don Quijote",
+     "yen": 1418,
+     "yenNote": "Giá đã gồm thuế theo bài LIVE JAPAN 2026; giá Donki khác nhau theo cửa hàng, nên kiểm lại ở kệ.",
+     "why": "Kem chống nắng dạng thỏi, gọn để bỏ túi.",
+     "tip": null,
+     "where": [
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://livejapan.com/ja/article-a0005766/"
+    },
+    {
+     "id": "it-donki-niacinamide-mask",
+     "category": "beauty",
+     "name": "Johnetsu Kakaku Niacinamide Face Mask (30 sheets)",
+     "ja": "ナイアシンアミドFACE MASK 30枚",
+     "brand": "Don Quijote",
+     "yen": 658,
+     "yenNote": "Giá đã gồm thuế theo bài LIVE JAPAN 2026; giá Donki khác nhau theo cửa hàng, nên kiểm lại ở kệ.",
+     "why": "Mặt nạ giấy 30 miếng, giá chỉ vài trăm yên, nhãn riêng của Donki.",
+     "tip": "Tách hóa đơn mỹ phẩm mang về nước và đồ dùng trong chuyến.",
+     "where": [
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://livejapan.com/ja/article-a0005766/"
+    },
+    {
+     "id": "it-donki-allround-mask",
+     "category": "beauty",
+     "name": "100-ingredient all-round care mask (30 sheets)",
+     "ja": "100種類の美容成分配合 全方位ケアマスク 30枚",
+     "brand": "Don Quijote",
+     "yen": 550,
+     "yenNote": "Giá đã gồm thuế theo bài LIVE JAPAN 2026; giá Donki khác nhau theo cửa hàng, nên kiểm lại ở kệ.",
+     "why": "Hộp 30 mặt nạ giá khoảng ¥550, rẻ làm quà.",
+     "tip": null,
+     "where": [
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://livejapan.com/ja/article-a0005766/"
     }
    ]
   },
@@ -9844,6 +10036,38 @@ export const SHOP_ITEMS: any = {
      ],
      "weightG": null,
      "src": "https://sundrug-online.com/search?q=%E3%82%81%E3%81%90%E3%82%8A%E3%82%BA%E3%83%A0%20%E8%92%B8%E6%B0%97%E3%81%A7%E3%83%9B%E3%83%83%E3%83%88%E3%82%A2%E3%82%A4%E3%83%9E%E3%82%B9%E3%82%AF"
+    },
+    {
+     "id": "it-donki-kyusoku-bijin",
+     "category": "health",
+     "name": "Kyusoku Bijin cooling foot sheets (large, lavender)",
+     "ja": "休足美人 大判サイズラベンダー",
+     "brand": "Don Quijote",
+     "yen": 549,
+     "yenNote": "Giá đã gồm thuế theo bài LIVE JAPAN 2026; giá Donki khác nhau theo cửa hàng, nên kiểm lại ở kệ.",
+     "why": "Miếng dán làm mát chân, hữu ích sau những ngày đi bộ nhiều.",
+     "tip": null,
+     "where": [
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://livejapan.com/ja/article-a0005766/"
+    },
+    {
+     "id": "it-donki-gorilla-massager-foot",
+     "category": "health",
+     "name": "Super Gorilla foot and ankle massager",
+     "ja": "激イタスーパーゴリラのひとつかみ",
+     "brand": "Don Quijote",
+     "yen": 6578,
+     "yenNote": "Giá đã gồm thuế theo bài LIVE JAPAN 2026; giá Donki khác nhau theo cửa hàng, nên kiểm lại ở kệ.",
+     "why": "Máy massage cổ chân tại Donki, giá ¥6.578 theo bài 2026.",
+     "tip": "Món nặng, chỉ mua nếu còn chỗ trong hành lý.",
+     "where": [
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://livejapan.com/ja/article-a0005766/"
     }
    ]
   },
@@ -10008,6 +10232,38 @@ export const SHOP_ITEMS: any = {
      ],
      "weightG": null,
      "src": "https://jp.daisonet.com/pages/standardproductsec"
+    },
+    {
+     "id": "it-muji-gel-pen",
+     "category": "home-stationery",
+     "name": "MUJI Smooth Gel Ink Ballpoint Pen (knock type)",
+     "ja": "さらさら描けるゲルインキボールペン ノック式",
+     "brand": "MUJI",
+     "yen": 120,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Bút gel bán chạy nhất của MUJI năm 2025, rẻ nên mua nhiều màu làm quà.",
+     "tip": null,
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-muji-double-ring-notebook-a5",
+     "category": "home-stationery",
+     "name": "MUJI Double-Ring Notebook A5",
+     "ja": "植林木ペーパー ダブルリングノート",
+     "brand": "MUJI",
+     "yen": 150,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Sổ lò xo A5 giá rất thấp, nhẹ.",
+     "tip": null,
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
     }
    ]
   },
@@ -10291,6 +10547,70 @@ export const SHOP_ITEMS: any = {
      ],
      "weightG": null,
      "src": "https://www.ishiya.co.jp/shop/"
+    },
+    {
+     "id": "it-muji-butter-chicken-curry",
+     "category": "food-gifts",
+     "name": "MUJI Butter Chicken Curry",
+     "ja": "素材を生かしたカレー バターチキン",
+     "brand": "MUJI",
+     "yen": 390,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Cà ri gói ăn liền, được bài 2026 nói là món bán chạy nhất của MUJI năm 2025; làm quà nhẹ.",
+     "tip": "Chứa thịt gà, kiểm tra quy định nhập khẩu thực phẩm trước khi mang về Việt Nam.",
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-muji-fermented-butter-baum",
+     "category": "food-gifts",
+     "name": "MUJI Irregular Cultured Butter Baumkuchen",
+     "ja": "不揃い 発酵バターバウム",
+     "brand": "MUJI",
+     "yen": 190,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Bánh baumkuchen miếng không đều, rẻ, hợp làm quà chia nhỏ hoặc ăn vặt.",
+     "tip": "Có bản chuối và matcha.",
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-muji-pork-miso-soup",
+     "category": "food-gifts",
+     "name": "MUJI Freeze-dried Pork Miso Soup (4 servings)",
+     "ja": "素材を生かした味噌汁 豚汁",
+     "brand": "MUJI",
+     "yen": 450,
+     "yenNote": "Giá theo bài viết 10/2026 (đã gồm thuế); có thể đổi đến tháng 10/2027.",
+     "why": "Súp miso khô, chỉ cần thêm nước nóng; nhẹ, dễ ăn ở khách sạn.",
+     "tip": "Chứa thịt heo.",
+     "where": [
+      "muji"
+     ],
+     "weightG": null,
+     "src": "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/"
+    },
+    {
+     "id": "it-donki-tkg-sauce",
+     "category": "food-gifts",
+     "name": "Johnetsu Kakaku egg-style rice sauce",
+     "ja": "情熱価格たまごかけ風ごはんのたれ",
+     "brand": "Don Quijote",
+     "yen": 647,
+     "yenNote": "Giá đã gồm thuế theo bài LIVE JAPAN 2026; giá Donki khác nhau theo cửa hàng, nên kiểm lại ở kệ.",
+     "why": "Nước chấm vị trứng cho cơm, hàng nhãn riêng Donki, gọn nhẹ làm quà.",
+     "tip": null,
+     "where": [
+      "donki"
+     ],
+     "weightG": null,
+     "src": "https://livejapan.com/ja/article-a0005766/"
     }
    ]
   },
@@ -10736,7 +11056,15 @@ export const SHOP_ITEMS: any = {
   "http://wa-kanon.jp/",
   "https://sundrug-online.com/",
   "https://www.tamiya-plamodelfactory.co.jp/",
-  "http://www.nakagawa-masashichi.jp/staffblog/storelist/"
+  "http://www.nakagawa-masashichi.jp/staffblog/storelist/",
+  "https://jw-webmagazine.com/tips/muji-japan-shopping-guide-what-to-buy/",
+  "https://livejapan.com/ja/article-a0005766/",
+  "https://media.jreast.co.jp/articles/12",
+  "https://www.timeout.jp/tokyo/ja/ショッピング/mujirushiryohin-ginza",
+  "https://www.muji.com/jp/ja/shop/detail/061717",
+  "https://www.muji.com/jp/ja/shop/detail/045791",
+  "https://www.muji.com/jp/ja/shop/detail/045443",
+  "https://nominatim.openstreetmap.org/"
  ]
 };
 
@@ -11421,7 +11749,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:30. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
+   "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
    "near": "st-nagoya",
    "walkMin": 4,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ジェイアール名古屋タカシマヤ"
@@ -11863,7 +12191,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": "Bát đĩa Nhật và Tây, gốm, sơn mài",
-   "why": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00, đóng 18:00, nên mốc 9:00 trong lịch quá sớm, nên đến 9:45.",
+   "why": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00 và đóng 18:00; lịch tới đây lúc 9:45.",
    "near": "doguyasuji",
    "walkMin": 1,
    "src": "https://www.doguyasuji.or.jp/shop/kyouya/"
@@ -12065,6 +12393,116 @@ export const SHOP_PLAN: any = {
    "near": "kix",
    "walkMin": 1,
    "src": "https://www.kansai-airport.or.jp/en/shop/"
+  },
+  {
+   "id": "sh-muji-akiba-trim",
+   "name": "MUJI Akiba Trim",
+   "ja": "無印良品 アキバ・トリム",
+   "chain": "muji",
+   "city": "tokyo",
+   "lat": 35.6979,
+   "lng": 139.77383,
+   "coordSource": "OSM Nominatim: アキバ・トリム (35.69790,139.77383)",
+   "address": "東京都千代田区神田佐久間町1-6-5 アキバ・トリム 3F",
+   "hours": "11:00–22:00, mở hằng ngày",
+   "open": "11:00",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "floors": "3F",
+   "why": "Chi nhánh gần hotel nhất, mở đến 22:00 nên ghé được sau bữa tối ngày 2. Chưa tìm thấy thông tin tax-free.",
+   "near": "resol-akihabara",
+   "walkMin": 3,
+   "day": 2,
+   "src": "https://www.muji.com/jp/ja/shop/detail/045443"
+  },
+  {
+   "id": "sh-muji-ginza",
+   "name": "MUJI Ginza",
+   "ja": "無印良品 銀座",
+   "chain": "muji",
+   "city": "tokyo",
+   "lat": 35.67338,
+   "lng": 139.76552,
+   "coordSource": "OSM Nominatim: 無印良品, 銀座三丁目 (35.67338,139.76552)",
+   "address": "東京都中央区銀座3-3-5",
+   "hours": "11:00–21:00; MUJI Diner và Coffee & Salon mở đến 22:00",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "floors": "Cửa hàng chủ lực nhiều tầng, có MUJI Diner ở B1",
+   "why": "Cửa hàng lớn nhất Tokyo, đủ mọi dòng hàng. Đi tàu Ginza Line vài phút từ Nihonbashi; nghỉ chỉ khi kiểm kê. Chưa xác nhận tax-free.",
+   "near": "maruzen-nihonbashi",
+   "walkMin": 18,
+   "day": 2,
+   "src": "https://www.timeout.jp/tokyo/ja/ショッピング/mujirushiryohin-ginza"
+  },
+  {
+   "id": "sh-muji-lumine-shinjuku",
+   "name": "MUJI Lumine Shinjuku",
+   "ja": "無印良品 ルミネ新宿",
+   "chain": "muji",
+   "city": "tokyo",
+   "lat": 35.68918,
+   "lng": 139.69931,
+   "coordSource": "OSM Nominatim: ルミネ新宿 (35.68918,139.69931), tòa Lumine ngay cổng nam ga Shinjuku",
+   "address": "LUMINE 2 6F, ga JR Shinjuku (cổng nam)",
+   "hours": "11:00–21:00 (cập nhật 28/4/2026)",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "floors": "6F, một tầng",
+   "why": "Ngay cổng nam ga Shinjuku, cách SUSHI TOKYO TEN vài phút đi bộ, có tax-free. Mở sau 11:00 nên ghé sau bữa trưa.",
+   "near": "sushi-ten",
+   "walkMin": 4,
+   "day": 3,
+   "src": "https://media.jreast.co.jp/articles/12"
+  },
+  {
+   "id": "sh-muji-kyoto-bal",
+   "name": "MUJI Kyoto BAL",
+   "ja": "無印良品 京都BAL",
+   "chain": "muji",
+   "city": "kyoto",
+   "lat": 35.00679,
+   "lng": 135.76958,
+   "coordSource": "OSM Nominatim: 京都BAL (35.00679,135.76958)",
+   "address": "〒604-8032 京都市中京区河原町通三条下ル山崎町251 京都BAL 5F",
+   "hours": "11:00–20:00, mở hằng ngày (không tính dịp Tết)",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "floors": "5F",
+   "why": "Rất gần Cross Hotel Kyoto, tiện ghé buổi tối ngày 8 trước 20:00. Chưa xác nhận tax-free.",
+   "near": "cross-kyoto",
+   "walkMin": 3,
+   "day": 8,
+   "src": "https://www.muji.com/jp/ja/shop/detail/061717"
+  },
+  {
+   "id": "sh-muji-shinsaibashi-parco",
+   "name": "MUJI Shinsaibashi PARCO",
+   "ja": "無印良品 心斎橋パルコ",
+   "chain": "muji",
+   "city": "osaka",
+   "lat": 34.67387,
+   "lng": 135.50097,
+   "coordSource": "OSM Nominatim: 心斎橋PARCO (34.67387,135.50097)",
+   "address": "〒542-0085 大阪市中央区心斎橋筋一丁目8-3 心斎橋PARCO 7F",
+   "hours": "10:00–20:00, mở hằng ngày",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "floors": "7F",
+   "why": "Nối thẳng ga Shinsaibashi (Midōsuji), có tax-free. Đi bộ từ Forza khoảng 10 phút, đóng cửa lúc 20:00.",
+   "near": "forza-osaka",
+   "walkMin": 10,
+   "day": 11,
+   "src": "https://www.muji.com/jp/ja/shop/detail/045791"
   }
  ],
  "slots": [
@@ -12280,8 +12718,8 @@ export const SHOP_PLAN: any = {
    "stores": [
     "sh-jr-nagoya-takashimaya"
    ],
-   "focus": "Chỉ nếu dư thời gian trước tàu Kintetsu 15:30: đồ ăn nhẹ cho tàu. Quà Nagoya chưa xác nhận nên không lên danh mục.",
-   "why": "Shinkansen tới khoảng 14:30–14:50, còn Kintetsu 15:30. Ga Nagoya và Kintetsu Nagoya cách 10 phút đi bộ.",
+   "focus": "Chỉ nếu dư thời gian trước tàu Kintetsu 15:50: đồ ăn nhẹ cho tàu. Quà Nagoya chưa xác nhận nên không lên danh mục.",
+   "why": "Shinkansen tới khoảng 14:30–14:50, còn Kintetsu 15:50. Đổi từ JR sang Kintetsu mất 15–20 phút đi bộ, tính cả đông người.",
    "skipIf": "Bỏ nếu Shinkansen đến trễ hoặc phải xếp hàng đổi vé Kintetsu."
   },
   {
@@ -12377,7 +12815,7 @@ export const SHOP_PLAN: any = {
    "stores": [
     "sh-ichizawa-shinzaburo"
    ],
-   "focus": "Túi canvas Ichizawa (xem kiểu và giá; mẫu 148 khoảng ¥16.500 theo ghi chú trong dự án).",
+   "focus": "Túi canvas Ichizawa (xem kiểu và giá; mẫu 148 khoảng ¥16.500).",
    "why": "Cách Yasaka Jinja khoảng 5–10 phút, không xa Yorozuya. Thứ Hai mở; thứ Ba (ngày 9) đóng.",
    "skipIf": "Bỏ nếu không thích túi canvas hoặc đang mặc kimono thấy bất tiện."
   },
@@ -12518,7 +12956,7 @@ export const SHOP_PLAN: any = {
     "sh-workman-colors-namba-city"
    ],
    "focus": "9:45–11:00 Dōguyasuji: hai bát nhỏ dùng được (khoảng ¥1.200/cái; ví dụ Taisei Shokki 10–18h, Yamaka Tōki 10–18h); dao chỉ khi biết thép và cách bảo quản. 12:00–12:45 Takashimaya: hộp bánh Yoku Moku ×4 và quà hạn dài. Workman Colors Namba CITY nếu còn thời gian.",
-   "why": "Dōguyasuji mở 9:30–10:00, đóng 18:00, mốc 9:00 trong lịch quá sớm. Takashimaya cạnh Namba, 551 Hōrai nằm giữa. Vali đã ở hotel, cân thử ở 16:30 nên mua nặng từ đây.",
+   "why": "Dōguyasuji mở 9:30–10:00, đóng 18:00; lịch tới đây lúc 9:45 sau chợ Kuromon. Takashimaya cạnh Namba, 551 Hōrai nằm giữa. Vali đã ở hotel, cân thử lúc 16:55 nên mua đồ nặng từ đây.",
    "skipIf": "Den Den Town (ga Nipponbashi, cách Dōguyasuji khoảng 5 phút, giờ chưa xác nhận) chỉ ghé nếu thừa giờ; bỏ Workman nếu đã có đồ chống gió."
   },
   {
@@ -12800,7 +13238,7 @@ export const RIDES_R: any = [
     "toSt": "栢山",
     "what": "Đoạn dài nhất thấy Fuji, bên sông Sakawa (酒匂川), khi tàu vòng về hướng nam; Fuji lùi dần ra phía sau bên phải. Hỏi đáp trên Yahoo cũng ghi sau 渋沢 đến sát 新松田 Fuji ở bên phải.",
     "fuji": true,
-    "tip": "Mây hay che; theo research/fuji.json, lúc 8h tháng 10 ở thành phố Fuji chỉ khoảng 41% số ngày thấy trọn núi.",
+    "tip": "Mây hay che; theo số liệu quan trắc, lúc 8h tháng 10 ở thành phố Fuji chỉ khoảng 41% số ngày thấy trọn núi.",
     "src": "https://www.odakyu.jp/romancecar/navi/enjoy/76/"
    },
    {
@@ -12865,7 +13303,7 @@ export const RIDES_R: any = [
     "side": "left",
     "fromSt": "元箱根港",
     "toSt": "桃源台",
-    "what": "Fuji nằm phía trước-bên trái, lệch khoảng 18–22° so với hướng tàu, cách 28–33 km. Vành núi phía tây của hồ nằm gần nên càng vào giữa hồ càng dễ che đỉnh; đoạn đầu gần Moto-Hakone rõ nhất (ghi chú trong research/fuji.json).",
+    "what": "Fuji nằm phía trước-bên trái, lệch khoảng 18–22° so với hướng tàu, cách 28–33 km. Vành núi phía tây của hồ nằm gần nên càng vào giữa hồ càng dễ che đỉnh; đoạn đầu gần Moto-Hakone rõ nhất.",
     "fuji": true,
     "tip": "Đi chuyến trước 12h: buổi sáng ít mây hơn. Nếu thấy đỉnh nhô lên, chụp ngay vì có thể mất sau vài phút.",
     "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E5%B9%B3%E5%92%8C%E3%81%AE%E9%B3%A5%E5%B1%85"
@@ -13202,7 +13640,7 @@ export const RIDES_R: any = [
     "toSt": "吉原",
     "what": "Đoạn đẹp nhất: Fuji nằm ngay bên phải, chỉ 24–27 km, trải từ chéo trước ra vuông góc với cửa sổ khi qua 東田子の浦 và 吉原 (khoảng 10:25–10:38; tính từ toạ độ). Ga 東田子の浦 có tranh Fuji vẽ trên tường ga.",
     "fuji": true,
-    "tip": "Buổi sáng trong hơn hẳn: lúc 8h thành phố Fuji thấy trọn núi 37% số ngày cả năm so với 22% lúc 16h (research/fuji.json).",
+    "tip": "Buổi sáng trong hơn hẳn: lúc 8h thành phố Fuji thấy trọn núi 37% số ngày cả năm so với 22% lúc 16h.",
     "src": "https://ja.wikipedia.org/wiki/東田子の浦駅"
    },
    {
@@ -13240,7 +13678,7 @@ export const RIDES_R: any = [
    "announceRomaji": "Mamonaku, Shimizu desu.",
    "text": "Mẫu Yahoo: tàu Hamamatsu từ Atami vào đường 2 ở Shimizu. Đây là ga JR Shimizu, đừng nhầm với Shin-Shimizu của Shizutetsu. Ra cổng, chạm thẻ TOICA/Suica (hoặc đưa vé giấy); từ ga đến Kaizan khoảng 3 phút đi bộ theo kế hoạch."
   },
-  "onboard": "Không có phục vụ đồ ăn; mua nước và đồ ăn nhẹ ở Odawara hoặc Atami trước khi lên (bữa trưa dự kiến 12:00 ở Kaizan nên chỉ cần nhẹ). Mọi đoàn tàu JR Central hiện nay đều có nhà vệ sinh (Wikipedia); tàu JR East 4 cửa cũng chạy 15 toa nên hành lý để gọn ở cửa.",
+  "onboard": "Không có phục vụ đồ ăn; mua nước và đồ ăn nhẹ ở Odawara hoặc Atami trước khi lên (bữa trưa 11:25 ở Kaizan nên chỉ cần nhẹ). Mọi đoàn tàu JR Central hiện nay đều có nhà vệ sinh (Wikipedia); tàu JR East 4 cửa cũng chạy 15 toa nên hành lý để gọn ở cửa.",
   "sources": [
    "https://transit.yahoo.co.jp/search/result?from=%E5%B0%8F%E7%94%B0%E5%8E%9F&to=%E6%B8%85%E6%B0%B4&y=2026&m=11&d=02&hh=9&m1=2&m2=5&type=1&ticket=ic",
    "https://transit.yahoo.co.jp/search/result?from=%E7%86%B1%E6%B5%B7&to=%E6%B8%85%E6%B0%B4&y=2026&m=11&d=02&hh=9&m1=5&m2=0&type=1&ticket=ic",
@@ -13336,7 +13774,7 @@ export const RIDES_R: any = [
    "prevSt": "富士急ハイランド",
    "announce": "まもなく、河口湖です。",
    "announceRomaji": "Mamonaku, Kawaguchiko desu.",
-   "text": "Ga cuối (khoảng 9:28 theo mẫu): cả toa xuống hết, nhớ hành lý. Công viên Ōishi (bờ bắc hồ Kawaguchi) là điểm dự phòng trong research/fuji.json."
+   "text": "Ga cuối (khoảng 9:28 theo mẫu): cả toa xuống hết, nhớ hành lý. Công viên Ōishi (bờ bắc hồ Kawaguchi) là điểm dự phòng trên trang Fuji."
   },
   "onboard": "Cửa sổ rộng, ổ cắm điện, nhà vệ sinh trên tàu (Fujikyu); toa 2 có phòng đa năng và nhà vệ sinh đa năng (Wikipedia). Fujikyu không nói có bán đồ ăn trên tàu nên mua trước ở Shinjuku. Giá chưa xác minh.",
   "sources": [
@@ -13645,7 +14083,7 @@ export const RIDES_R: any = [
   "from": "鳥羽",
   "to": "京都",
   "train": "Đây là chuyến Shimakaze từ Kashikojima đi Kyoto, rời Kashikojima 14:50, qua Toba 15:20 và tới Kyoto 17:30 vào cuối tuần, ngày lễ (17:34 ngày thường), tức 2 giờ 10 phút từ Toba. Chưa tìm thấy số hiệu chuyến trong lịch công bố. Lịch 2026 (chưa có lịch 2027): Ujiyamada 15:32, Iseshi 15:34, Yamato-Yagi 16:40, Yamato-Saidaiji 17:00, Kintetsu-Tambabashi 17:23. Tuyến Kyoto – Kashikojima chạy hằng ngày trừ thứ Tư; 24/10/2027 là Chủ Nhật nên có chạy. Giá Toba → Kyoto ¥2.740 vé + ¥2.690 phụ phí = ¥5.430 mỗi người. Ke Toba số 5, ke Kyoto số 2.",
-  "seat": "Tàu 6 toa. Chiều về Kyoto, toa 6 là toa đầu (sàn cao 72 cm, kính trước nhìn thấy cả buồng lái và đường ray; hàng ghế 1A–1C ở hàng đầu), toa 1 là toa đuôi (cũng ghế Premium sàn cao, nhìn về phía sau). Toa 2 và 5 là Premium thường, toa 3 là café (19 chỗ, ai đến trước ngồi trước, không đặt chỗ), toa 4 là salon và phòng riêng. Toilet ở toa 2, 3 hoặc 4, và 5; tủ khóa miễn phí ở toa 1 và 6. Chiều Toba → Kyoto biển ở bên phải (nguồn ghi bên trái khi đi hướng Kashikojima), Unebi-yama ở bên phải; lâu đài Kōriyama, các lăng mộ và tháp Tō-ji ở bên trái. Chọn bên nào cũng mất một nửa cảnh, nên ưu tiên toa 6 để nhìn phía trước. Mùa này mặt trời lặn khoảng 17:05 (fuji.json ghi 17:05 ở Hakone ngày 21/10), nên đoạn Tō-ji gần như đã tối.",
+  "seat": "Tàu 6 toa. Chiều về Kyoto, toa 6 là toa đầu (sàn cao 72 cm, kính trước nhìn thấy cả buồng lái và đường ray; hàng ghế 1A–1C ở hàng đầu), toa 1 là toa đuôi (cũng ghế Premium sàn cao, nhìn về phía sau). Toa 2 và 5 là Premium thường, toa 3 là café (19 chỗ, ai đến trước ngồi trước, không đặt chỗ), toa 4 là salon và phòng riêng. Toilet ở toa 2, 3 hoặc 4, và 5; tủ khóa miễn phí ở toa 1 và 6. Chiều Toba → Kyoto biển ở bên phải (nguồn ghi bên trái khi đi hướng Kashikojima), Unebi-yama ở bên phải; lâu đài Kōriyama, các lăng mộ và tháp Tō-ji ở bên trái. Chọn bên nào cũng mất một nửa cảnh, nên ưu tiên toa 6 để nhìn phía trước. Mùa này mặt trời lặn khoảng 17:05 (17:05 ở Hakone ngày 21/10), nên đoạn Tō-ji gần như đã tối.",
   "views": [
    {
     "side": "right",
@@ -13669,7 +14107,7 @@ export const RIDES_R: any = [
     "side": "right",
     "fromSt": "耳成",
     "toSt": "大和八木",
-    "what": "Đồi Unebi-yama (耳成山), một trong ba ngọn Yamato Sanzan, hiện bên phải ngay trước Yamato-Yagi.",
+    "what": "Đồi Miminashi-yama (耳成山), một trong ba ngọn Yamato Sanzan, hiện bên phải ngay trước Yamato-Yagi.",
     "fuji": false,
     "tip": "Kagu-yama ở bên trái giữa Daifuku và Mimigashi nhưng bị nhà cửa che.",
     "src": "https://henreki-nihonshi.com/shimakazesyasou2/"
@@ -14091,7 +14529,7 @@ export const RIDES_R: any = [
     "toSt": "東花園",
     "what": "Sau hầm, tàu xuống dốc hơn 30‰ về phía đồng bằng Osaka; nhìn ra phía trước và hai bên là cả đồng bằng, ngày trong trời còn thấy nhà chọc trời xa và đảo Awaji.",
     "fuji": false,
-    "tip": "Chuyến 16:04 ra khỏi hầm lúc khoảng 16:30, trước hoàng hôn (khoảng 17:05 ngày 21/10 ở Hakone theo fuji.json). Nguồn không nêu bên nào tốt hơn.",
+    "tip": "Chuyến 16:04 ra khỏi hầm lúc khoảng 16:30, trước hoàng hôn (khoảng 17:05 ngày 21/10 ở Hakone theo trang Fuji). Nguồn không nêu bên nào tốt hơn.",
     "src": "https://ja.wikipedia.org/wiki/%E8%BF%91%E9%89%84%E5%A5%88%E8%89%AF%E7%B7%9A"
    },
    {

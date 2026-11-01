@@ -15,6 +15,7 @@ import { PNG } from 'pngjs';
 import { place } from '../src/data/catalog.ts';
 import { encode, haversine, lengthKm, osrm, simplify } from './geo-tools.mjs';
 import { SUMMIT, preload, sightline } from './fuji-tools.mjs';
+import { deepTidy } from './tidy.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const fresh = process.argv.includes('--fresh');
@@ -23,7 +24,7 @@ if (!existsSync(file)) {
   console.log('research/stays-around.json missing — nothing to do');
   process.exit(0);
 }
-const research = JSON.parse(readFileSync(file, 'utf8'));
+const research = deepTidy(JSON.parse(readFileSync(file, 'utf8')));
 // self-hosted copies of Commons photos (scripts/localize-images.mjs)
 const commonsFile = join(root, 'research/commons-map.json');
 const commons = existsSync(commonsFile) ? JSON.parse(readFileSync(commonsFile, 'utf8')) : {};
@@ -115,7 +116,7 @@ for (const [id, r] of Object.entries(research)) {
   const entry = {
     area: r.area ?? null,
     walks,
-    around: (r.around ?? []).filter((a) => num(a.lat) != null && num(a.lng) != null).map((a) => ({ ...a, lat: num(a.lat), lng: num(a.lng), walkMin: Math.max(1, Math.round((haversine(home, [num(a.lat), num(a.lng)]) * 1.3 / WALK_KMH) * 60)) })),
+    around: (r.around ?? []).filter((a) => num(a.lat) != null && num(a.lng) != null).map((a) => ({ ...a, lat: num(a.lat), lng: num(a.lng), walkMin: num(a.walkMin) ?? Math.max(1, Math.round(((haversine(home, [num(a.lat), num(a.lng)]) * 1.35) / 3.9) * 60)) })),
     photos: (r.photos ?? []).filter((im) => im?.url).map(localImg),
     sources: r.sources ?? [],
   };

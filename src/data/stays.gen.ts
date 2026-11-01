@@ -318,7 +318,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Cà phê và bánh sandwich, mở từ 7 giờ đến 23 giờ.",
     "hours": "7:00–23:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 143,
-    "walkMin": 3,
+    "walkMin": 2,
     "src": "https://www.openstreetmap.org/node/3666676087",
     "open": "07:00",
     "close": "23:00",
@@ -333,7 +333,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Tiệm bánh mì chuỗi gần ga, mua bánh mì mang đi cho bữa sáng.",
     "hours": null,
     "distanceM": 205,
-    "walkMin": 4,
+    "walkMin": 3,
     "src": "https://www.openstreetmap.org/node/3412207298"
    },
    {
@@ -345,7 +345,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Nhà tắm công cộng trong khu dân cư phía nam, đi bộ khoảng 7 phút. Theo OSM nghỉ thứ Bảy.",
     "hours": "Chủ Nhật–Thứ Sáu 14:40–20:30 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 466,
-    "walkMin": 9,
+    "walkMin": 8,
     "src": "https://www.openstreetmap.org/node/6463426486",
     "open": "14:40",
     "close": "20:30",
@@ -394,7 +394,7 @@ export const STAYS_GEN: Record<string, any> = {
     "id": "w-sengen-yama-morning",
     "title": "Lên đồi Sengen-yama tìm Fuji",
     "best": "Sáng sớm, xuất phát khoảng 6:15 để về kịp ăn sáng và trả phòng",
-    "text": "Đường mòn đi từ gần thác Senjō-no-taki lên bãi cỏ trên đỉnh Sengen-yama (802 m) ngay phía đông khách sạn, khoảng 2 km một chiều, lên 220 m. Theo địa hình, Fuji chỉ có thể lộ ra ở đoạn cuối, từ khoảng 1,5 km trên đường mòn; đây là suy luận từ DEM, không phải điểm được ghi nhận có Fuji, và cây trên đỉnh có thể che một phần. Quay lại theo đường cũ; trước 6 giờ cần đèn pin.",
+    "text": "Đường mòn đi từ gần thác Senjō-no-taki lên bãi cỏ trên đỉnh Sengen-yama (802 m) ngay phía đông khách sạn, khoảng 2 km một chiều, lên 220 m. Theo địa hình, Fuji chỉ có thể lộ ra ở đoạn cuối, từ khoảng 1,5 km trên đường mòn; đây là suy luận từ dữ liệu địa hình, không phải điểm được ghi nhận có Fuji, và cây trên đỉnh có thể che một phần. Quay lại theo đường cũ; trước 6 giờ cần đèn pin.",
     "minutes": 65,
     "routedMin": 28,
     "km": 1.97,
@@ -422,7 +422,7 @@ export const STAYS_GEN: Record<string, any> = {
       "ja": "浅間山の尾根",
       "lat": 35.23547,
       "lng": 139.05707,
-      "text": "Đoạn đồi cỏ cao 801 m, nơi DEM cho thấy Fuji lộ nhiều nhất (khoảng 1.300 m phần trên) nếu không bị cây che.",
+      "text": "Đoạn đồi cỏ cao 801 m, nơi dữ liệu địa hình cho thấy Fuji lộ nhiều nhất (khoảng 1.300 m phần trên) nếu không bị cây che.",
       "images": []
      },
      {
@@ -541,7 +541,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Cửa hàng tiện lợi gần nhất, cạnh quốc lộ 1 gần ga Kowakudani; đi bộ khoảng 20 phút theo OSM (hoặc tiện thể khi đi bộ ra ga), nên mua đồ cần dùng trước khi lên núi.",
     "hours": "24 giờ",
     "distanceM": 155,
-    "walkMin": 3,
+    "walkMin": 20,
     "src": "https://www.openstreetmap.org/node/4258056389",
     "open": "00:00",
     "close": "24:00",
@@ -558,7 +558,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Cửa hàng tiện lợi thứ hai, phía Kowakien.",
     "hours": null,
     "distanceM": 258,
-    "walkMin": 5,
+    "walkMin": 30,
     "src": "https://www.openstreetmap.org/way/354207770",
     "routeM": 2214,
     "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
@@ -572,7 +572,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Cửa hàng tiện lợi cạnh Yunessun.",
     "hours": null,
     "distanceM": 424,
-    "walkMin": 8,
+    "walkMin": 32,
     "src": "https://www.openstreetmap.org/node/11664117239",
     "routeM": 2393,
     "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
@@ -586,7 +586,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Quầy lounge của khách sạn Kowakien lân cận; chưa xác nhận giờ và việc có nhận khách ngoài hay không. Bữa sáng ở Mizunoto đã gồm trong giá nên ít cần.",
     "hours": null,
     "distanceM": 249,
-    "walkMin": 5,
+    "walkMin": 30,
     "src": "https://www.openstreetmap.org/node/3928205088",
     "routeM": 2239,
     "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
@@ -600,7 +600,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Khu tắm onsen thuộc Kowakien Yunessun, cách khách sạn khoảng 5 phút đi bộ. Chưa xác nhận giờ và giá, xem trang chính thức.",
     "hours": null,
     "distanceM": 401,
-    "walkMin": 7,
+    "walkMin": 32,
     "src": "https://www.openstreetmap.org/node/6688304555",
     "routeM": 2380,
     "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
@@ -614,7 +614,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Thác nhỏ cao 3 m, rộng 25 m trong rừng; điểm đầu đường lên Sengen-yama.",
     "hours": "Ngoài trời, không có giờ",
     "distanceM": 441,
-    "walkMin": 8,
+    "walkMin": 10,
     "src": "https://www.hakonenavi.jp/area/kowakudani",
     "routeM": 763,
     "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
@@ -628,7 +628,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Vườn azalea khoảng 1 ha, bến xe buýt H \"Hōraien\" nằm ngay cạnh.",
     "hours": null,
     "distanceM": 272,
-    "walkMin": 5,
+    "walkMin": 7,
     "src": "https://www.hakonenavi.jp/area/kowakudani",
     "routeM": 493,
     "note": "Cách khách sạn rất gần theo đường chim bay nhưng đường đi bộ trên OSM vòng xa; có thể có lối tắt chưa được vẽ."
@@ -757,7 +757,7 @@ export const STAYS_GEN: Record<string, any> = {
      "lng": 139.0595,
      "evidence": "guess",
      "access": "Đi bộ khoảng 27 phút một chiều (2,0 km, lên 220 m) từ khách sạn qua đường mòn bắt đầu gần thác Senjō-no-taki; cả đi và về khoảng 60–65 phút.",
-     "text": "Đỉnh 802 m ở ngay phía đông khách sạn, là bãi cỏ phẳng. Trang du lịch Hakone nói thác Senjō-no-taki là điểm bắt đầu leo Sengen-yama, và Wikipedia mô tả đỉnh là bãi cỏ rộng; không nguồn nào nói thấy Fuji. DEM cho thấy Fuji ở hướng 295° lộ ra từ khoảng 1,5 km trên đường mòn và rõ nhất ở sống núi cỏ gần đỉnh (cao 801 m, lộ khoảng 1.300 m phần trên của Fuji). Ảnh Commons cho thấy bãi cỏ trên đỉnh có cây bao quanh, DEM không tính cây nên có thể bị che một phần.",
+     "text": "Đỉnh 802 m ở ngay phía đông khách sạn, là bãi cỏ phẳng. Trang du lịch Hakone nói thác Senjō-no-taki là điểm bắt đầu leo Sengen-yama, và Wikipedia mô tả đỉnh là bãi cỏ rộng; không nguồn nào nói thấy Fuji. dữ liệu địa hình cho thấy Fuji ở hướng 295° lộ ra từ khoảng 1,5 km trên đường mòn và rõ nhất ở sống núi cỏ gần đỉnh (cao 801 m, lộ khoảng 1.300 m phần trên của Fuji). Ảnh Commons cho thấy bãi cỏ trên đỉnh có cây bao quanh, dữ liệu địa hình không tính cây nên có thể bị che một phần.",
      "demCheck": {
       "visible": true,
       "shownM": 830,
@@ -813,7 +813,7 @@ export const STAYS_GEN: Record<string, any> = {
      "lng": 139.06281,
      "evidence": "reported",
      "access": "Đi bộ từ ga Gōra khoảng 34 phút (2,5 km); từ khách sạn đi bộ trực tiếp khoảng 70 phút (5,2 km), hoặc tàu Kowakudani → Gōra 8 phút rồi đi bộ.",
-     "text": "Điểm được ghi trên OpenStreetMap là \"Viewpoint (Mt Fuji)\" ở sườn phía tây Myōjōgatake, cao khoảng 850 m. DEM xác nhận Fuji nhô cao khoảng 2.000 m phần trên ở hướng 291°. Xa hơn 45 phút nên chỉ hợp nếu bạn có cả buổi sáng; không phù hợp với kế hoạch trả phòng 8:30.",
+     "text": "Điểm được ghi trên OpenStreetMap là \"Viewpoint (Mt Fuji)\" ở sườn phía tây Myōjōgatake, cao khoảng 850 m. dữ liệu địa hình xác nhận Fuji nhô cao khoảng 2.000 m phần trên ở hướng 291°. Xa hơn 45 phút nên chỉ hợp nếu bạn có cả buổi sáng; không phù hợp với kế hoạch trả phòng 8:30.",
      "demCheck": {
       "visible": true,
       "shownM": 2040,
@@ -843,7 +843,7 @@ export const STAYS_GEN: Record<string, any> = {
      "lng": 139.06749,
      "evidence": "guess",
      "access": "Đi bộ từ ga Gōra khoảng 40 phút (3,0 km) theo OSM; từ khách sạn khoảng 75 phút.",
-     "text": "Đỉnh 924 m, nơi đốt chữ Đại (大文字焼) mỗi 16/8. Wikipedia không nói tầm nhìn có Fuji. DEM cho thấy Fuji lộ khoảng 2.400 m phần trên ở hướng 291°. Cùng sườn núi với điểm ngắm Fuji ở trên nên rất có thể ngắm được nếu trời trong.",
+     "text": "Đỉnh 924 m, nơi đốt chữ Đại (大文字焼) mỗi 16/8. Wikipedia không nói tầm nhìn có Fuji. dữ liệu địa hình cho thấy Fuji lộ khoảng 2.400 m phần trên ở hướng 291°. Cùng sườn núi với điểm ngắm Fuji ở trên nên rất có thể ngắm được nếu trời trong.",
      "demCheck": {
       "visible": true,
       "shownM": 2380,
@@ -874,7 +874,7 @@ export const STAYS_GEN: Record<string, any> = {
      "lng": 139.05252,
      "evidence": "reported",
      "access": "Từ ga Gōra đi bộ lên đỉnh 2–3 giờ theo Wikipedia; không thể trong buổi sáng 22/10.",
-     "text": "Đỉnh 1.169 m của vành ngoài Hakone. Wikipedia có ảnh chú thích \"nhìn từ ngay dưới đỉnh Myōjingatake, thấy Kintoki-yama chồng lên Fuji\"; điểm ngắm trên OSM gọi tên là \"Great view of Mt. Fuji\". DEM xác nhận Fuji lộ khoảng 2.500 m phần trên. Chỉ để tham khảo cho chuyến khác.",
+     "text": "Đỉnh 1.169 m của vành ngoài Hakone. Wikipedia có ảnh chú thích \"nhìn từ ngay dưới đỉnh Myōjingatake, thấy Kintoki-yama chồng lên Fuji\"; điểm ngắm trên OSM gọi tên là \"Great view of Mt. Fuji\". dữ liệu địa hình xác nhận Fuji lộ khoảng 2.500 m phần trên. Chỉ để tham khảo cho chuyến khác.",
      "demCheck": {
       "visible": true,
       "shownM": 2540,
@@ -905,7 +905,7 @@ export const STAYS_GEN: Record<string, any> = {
      "lng": 139.0197,
      "evidence": "reported",
      "access": "Đã nằm trong lịch ngày 21/10 (12:30). Từ Mizunoto: tàu Kowakudani → Gōra, cáp treo lên Sōunzan rồi ropeway tới Ōwakudani; cần cả buổi sáng nên không hợp trước 8:30 ngày 22/10.",
-     "text": "Điểm Fuji nổi tiếng ở Hakone: ảnh Commons \"Mount Fuji from Owakudani\" và ghi chú trong research/fuji.json cho thấy nhìn về Tây Tây Bắc, trời quang buổi sáng là rõ nhất. DEM xác nhận: Fuji lộ khoảng 2.500 m phần trên ở hướng 296°.",
+     "text": "Điểm Fuji nổi tiếng ở Hakone: ảnh Commons \"Mount Fuji from Owakudani\" và ghi chú trên trang Fuji cho thấy nhìn về Tây Tây Bắc, trời quang buổi sáng là rõ nhất. dữ liệu địa hình xác nhận: Fuji lộ khoảng 2.500 m phần trên ở hướng 296°.",
      "demCheck": {
       "visible": true,
       "shownM": 2480,
@@ -953,7 +953,7 @@ export const STAYS_GEN: Record<string, any> = {
      "lng": 139.05415,
      "evidence": "guess",
      "access": "Đi bộ khoảng 30 phút (2,1 km) theo OSM; Wikipedia nói có đường mòn lên từ Hata-juku, Ashinoyu và Kowakudani.",
-     "text": "Đỉnh 834 m, Wikipedia chỉ nhắc cỏ và hoa dại, không mô tả tầm nhìn hay Fuji. DEM cho thấy Fuji bị sườn núi cách 2,9 km chắn (âm 3,9°), nên nhiều khả năng không thấy. Nêu ra để loại trừ.",
+     "text": "Đỉnh 834 m, Wikipedia chỉ nhắc cỏ và hoa dại, không mô tả tầm nhìn hay Fuji. dữ liệu địa hình cho thấy Fuji bị sườn núi cách 2,9 km chắn (âm 3,9°), nên nhiều khả năng không thấy. Nêu ra để loại trừ.",
      "demCheck": {
       "visible": false,
       "shownM": 0,
@@ -984,7 +984,7 @@ export const STAYS_GEN: Record<string, any> = {
      "lng": 139.04223,
      "evidence": "guess",
      "access": "Bus H của Hakone Tozan Bus (cùng tuyến đi Onshi Hakone Park) từ trạm Kowakudani hoặc Hōraien, vài trạm; thời gian và giờ chạy chuyến sớm chưa kiểm tra. Đi bộ từ khách sạn khoảng 45 phút (2,9 km).",
-     "text": "Khu suối nước nóng ở độ cao 850–900 m trên quốc lộ 1. Không nguồn nào cho biết thấy Fuji ở đây. DEM cho thấy bị chắn ở cả bến xe (âm 19°) lẫn quanh suối nước nóng (âm 11°). Nêu ra để loại trừ.",
+     "text": "Khu suối nước nóng ở độ cao 850–900 m trên quốc lộ 1. Không nguồn nào cho biết thấy Fuji ở đây. dữ liệu địa hình cho thấy bị chắn ở cả bến xe (âm 19°) lẫn quanh suối nước nóng (âm 11°). Nêu ra để loại trừ.",
      "demCheck": {
       "visible": false,
       "shownM": 0,
@@ -1012,7 +1012,7 @@ export const STAYS_GEN: Record<string, any> = {
      "lng": 139.0456,
      "evidence": "guess",
      "access": "Đi bộ khoảng 6–8 phút theo đường thẳng (có dốc); đường đi bộ trực tiếp từ khách sạn trên OSM vòng khá xa.",
-     "text": "Khu giải trí onsen nằm trong cùng thung lũng nên không có lý do thấy Fuji. DEM cho thấy bị sườn núi cách 0,3 km chắn (âm 12,6°). Nêu ra để loại trừ.",
+     "text": "Khu giải trí onsen nằm trong cùng thung lũng nên không có lý do thấy Fuji. dữ liệu địa hình cho thấy bị sườn núi cách 0,3 km chắn (âm 12,6°). Nêu ra để loại trừ.",
      "demCheck": {
       "visible": false,
       "shownM": 0,
@@ -1040,7 +1040,7 @@ export const STAYS_GEN: Record<string, any> = {
     "civilDawn": "05:30",
     "atHotel": "07:20",
     "text": "Mặt trời mọc ở Hakone lúc 5:56 ngày 22/10, hướng 103° (hơi chếch nam so với đông). Ở Mizunoto, trong thung lũng, sườn núi phía đông cao khoảng 15° nên nắng trực tiếp chỉ tới khoảng 7:20, trước đó chỉ có ánh sáng bầu trời. Trên đồi Sengen-yama (802 m) đường chân trời phía đông thoáng, thấy mặt trời nhô lên khỏi dãy núi thấp lúc 5:56. Fuji nằm hướng 295° (Tây Bắc), ngược phía mặt trời, nên buổi sáng nắng chiếu thẳng vào mặt đông của núi mà Hakone nhìn thấy; 6:00–9:00 là lúc ánh sáng đẹp nhất. Bình minh dân dụng bắt đầu lúc 5:30; đi trước 6:00 cần đèn pin vì đường mòn trong rừng.",
-    "method": "Công thức vị trí mặt trời NOAA (sai số khoảng 1–2 phút) cộng đường chân trời tính từ AWS Terrain Tiles; chưa tính cây cối. Số liệu ngày 21/10 trong fuji.json: mọc 5:55, lặn 17:05."
+    "method": "Công thức vị trí mặt trời NOAA (sai số khoảng 1–2 phút) cộng đường chân trời tính từ AWS Terrain Tiles; chưa tính cây cối. Ngày 21/10: mọc 5:55, lặn 17:05."
    },
    "here": {
     "km": 32.3,
@@ -1207,7 +1207,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Cửa hàng tiện lợi gần nhất, tiện mua đồ ăn tối muộn.",
     "hours": "24 giờ",
     "distanceM": 138,
-    "walkMin": 3,
+    "walkMin": 2,
     "src": "https://www.openstreetmap.org/node/2019292127",
     "open": "00:00",
     "close": "24:00",
@@ -1234,7 +1234,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Siêu thị địa phương lớn gần nhất, đi bộ khoảng 5 phút.",
     "hours": "9:00–21:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 366,
-    "walkMin": 7,
+    "walkMin": 6,
     "src": "https://www.openstreetmap.org/node/1409749752",
     "open": "09:00",
     "close": "21:00",
@@ -1249,7 +1249,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Hiệu thuốc chuỗi, đi bộ khoảng 6–7 phút; chưa có giờ mở cửa.",
     "hours": null,
     "distanceM": 482,
-    "walkMin": 9,
+    "walkMin": 8,
     "src": "https://www.openstreetmap.org/node/5144894546"
    },
    {
@@ -1285,7 +1285,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Nhà tắm công cộng, đi bộ khoảng 10 phút về phía đông.",
     "hours": "12:00–24:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 701,
-    "walkMin": 13,
+    "walkMin": 12,
     "src": "https://www.openstreetmap.org/node/10011870324",
     "open": "12:00",
     "close": "24:00",
@@ -1300,7 +1300,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Nhà tắm công cộng thứ hai, đi bộ khoảng 10 phút. Theo OSM nghỉ thứ Sáu.",
     "hours": "Thứ Bảy–Thứ Năm 14:00–24:00 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 693,
-    "walkMin": 13,
+    "walkMin": 12,
     "src": "https://www.openstreetmap.org/way/1243638822",
     "open": "14:00",
     "close": "24:00",
@@ -1317,7 +1317,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Bảo tàng về lễ dựng lại điện Thần cung; nghỉ thứ Ba tuần thứ 2 và thứ 4.",
     "hours": "9:00–16:30 (vào đến 16:00)",
     "distanceM": 416,
-    "walkMin": 8,
+    "walkMin": 7,
     "src": "https://www.sengukan.jp/en"
    }
   ],
@@ -1566,7 +1566,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Siêu thị 24 giờ ở phía bắc Sanjō gần sông Kamo, đi bộ khoảng 6 phút.",
     "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 435,
-    "walkMin": 8,
+    "walkMin": 7,
     "src": "https://www.openstreetmap.org/node/2126071415",
     "open": "00:00",
     "close": "24:00",
@@ -1581,7 +1581,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Hiệu thuốc chuỗi cạnh Teramachi; chưa có giờ mở cửa.",
     "hours": null,
     "distanceM": 141,
-    "walkMin": 3,
+    "walkMin": 2,
     "src": "https://www.openstreetmap.org/node/12171273405"
    },
    {
@@ -1593,7 +1593,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Hiệu thuốc và mỹ phẩm mở khuya, đi bộ khoảng 7 phút xuống phía Shijō.",
     "hours": "10:00–23:00 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 481,
-    "walkMin": 9,
+    "walkMin": 8,
     "src": "https://www.openstreetmap.org/node/2959808444",
     "open": "10:00",
     "close": "23:00",
@@ -1608,7 +1608,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Tiệm giặt tự động 24 giờ phía đông sông Kamo, đi bộ khoảng 6 phút.",
     "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 444,
-    "walkMin": 8,
+    "walkMin": 7,
     "src": "https://www.openstreetmap.org/node/13945040101",
     "open": "00:00",
     "close": "24:00",
@@ -1623,7 +1623,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Tiệm bánh mì Kyoto lâu năm, mua bánh mì sáng; chưa có giờ mở cửa.",
     "hours": null,
     "distanceM": 88,
-    "walkMin": 2,
+    "walkMin": 1,
     "src": "https://www.openstreetmap.org/node/4337853989"
    },
    {
@@ -1647,7 +1647,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Quán cà phê cạnh cầu Sanjō-Ōhashi, tiện ra bờ sông.",
     "hours": "8:00–23:00 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 146,
-    "walkMin": 3,
+    "walkMin": 2,
     "src": "https://www.openstreetmap.org/node/603133272",
     "open": "08:00",
     "close": "23:00",
@@ -1662,7 +1662,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Nhà tắm công cộng phía đông sông Kamo, đi bộ khoảng 6 phút; chưa có giờ mở cửa.",
     "hours": null,
     "distanceM": 405,
-    "walkMin": 8,
+    "walkMin": 7,
     "src": "https://www.openstreetmap.org/node/10981956405"
    }
   ],
@@ -1878,7 +1878,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Siêu thị đồ ăn ngon phía nam, đi bộ khoảng 8 phút; chưa có giờ mở cửa.",
     "hours": null,
     "distanceM": 562,
-    "walkMin": 10,
+    "walkMin": 9,
     "src": "https://www.openstreetmap.org/node/4767321431"
    },
    {
@@ -1890,7 +1890,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Hiệu thuốc và mỹ phẩm dạng ưu đãi cho du khách, mở gần tới 23:00.",
     "hours": "10:05–22:50 (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 252,
-    "walkMin": 5,
+    "walkMin": 4,
     "src": "https://www.openstreetmap.org/node/14112212080",
     "open": "10:05",
     "close": "22:50",
@@ -1917,7 +1917,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Tiệm giặt tự động 24 giờ phía đông, đi bộ khoảng 7 phút. Có thêm một tiệm gần hơn ở 34.66641, 135.50538 nhưng chưa có giờ.",
     "hours": "24 giờ (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 470,
-    "walkMin": 9,
+    "walkMin": 8,
     "src": "https://www.openstreetmap.org/node/11862323270",
     "open": "00:00",
     "close": "24:00",
@@ -1947,7 +1947,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Quán cà phê nhỏ phía đông, mở sớm, đóng lúc 19:00.",
     "hours": "7:00–19:00 hằng ngày (giờ theo OpenStreetMap, nên kiểm tra lại trên bản đồ trước khi đi)",
     "distanceM": 262,
-    "walkMin": 5,
+    "walkMin": 4,
     "src": "https://www.openstreetmap.org/node/10780262605",
     "open": "07:00",
     "close": "19:00",
@@ -1962,7 +1962,7 @@ export const STAYS_GEN: Record<string, any> = {
     "text": "Nhà tắm công cộng phía đông Sennichimae, đi bộ khoảng 7 phút; chưa có giờ mở cửa.",
     "hours": null,
     "distanceM": 466,
-    "walkMin": 9,
+    "walkMin": 8,
     "src": "https://www.openstreetmap.org/node/11558490343"
    }
   ],

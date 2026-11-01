@@ -111,6 +111,15 @@ function legStations(l: LegView): { ja: string; en: string; km: number }[] {
   if (g) return g.stations.map((s) => ({ ja: s.ja, en: s.en ?? s.ja, km: s.km }));
   const a = place(l.from);
   const b = place(l.to);
+  // the ferry back from Tōshi calls at Wagu on the way to Toba
+  if (l.line === 'tobaFerry' && l.from === 'toshijima-toshi') {
+    const w = place('toshijima-wagu');
+    return [
+      { ja: a.ja ?? a.name, en: a.name, km: 0 },
+      { ja: w.ja ?? w.name, en: w.name, km: Math.round(l.km * 0.25 * 10) / 10 },
+      { ja: b.ja ?? b.name, en: b.name, km: l.km },
+    ];
+  }
   return [
     { ja: a.ja ?? a.name, en: a.name, km: 0 },
     { ja: b.ja ?? b.name, en: b.name, km: l.km },
@@ -121,7 +130,8 @@ function legStations(l: LegView): { ja: string; en: string; km: number }[] {
 function fujiRuns(l: LegView) {
   const t = FUJI_TRACKS.find((x) => x.id === l.id);
   if (!t) return [];
-  const skip = l.line === 'romancecar' ? 30 : 0; // Tokyo's buildings hide it whatever the terrain says
+  // Tokyo's buildings hide it whatever the terrain says: Romancecar to about Machida, Chūō line to Hachiōji
+  const skip = l.line === 'romancecar' ? 30 : l.line === 'fujiExcursion' && l.from === 'st-shinjuku' ? 42 : 0;
   const runs: { side: 'left' | 'right'; a: number; b: number; dist: number }[] = [];
   for (const s of t.samples) {
     if (!s.v || s.km < skip || s.dist > 75 || (s.side !== 'left' && s.side !== 'right')) continue;
@@ -282,4 +292,20 @@ function ridesOf(day: Day): Ride[] {
 }
 
 export const RIDES = DAYS.flatMap(ridesOf);
+/** Anchor of a ride on the trains page */
+export const rideAnchor = (r: Ride) => `r-${r.day.id ?? r.day.n}-${r.legs[0].line}-${r.legs[0].from}`;
+/** The seat advice in one line: the side the research names, else the side with more to see. */
+export function seatVerdict(r: Ride): string | null {
+  const first = (r.seat ?? '').split(/[.;]/)[0];
+  if (/không cần|chỗ nào cũng|bên nào cũng/i.test(first)) return 'Bên nào cũng được';
+  const left = /bên trái|trái/i.test(first);
+  const right = /bên phải|phải/i.test(first);
+  if (left !== right) return left ? 'Ngồi bên trái' : 'Ngồi bên phải';
+  if (r.seat) return null;
+  const w = { left: 0, right: 0 };
+  for (const e of r.events) if (e.side === 'left' || e.side === 'right') w[e.side] += (e.to - e.from + 1) * (e.fuji ? 1.5 : 1);
+  if (!w.left && !w.right) return null;
+  if (Math.abs(w.left - w.right) < 1) return 'Hai bên đều có cảnh';
+  return w.right > w.left ? 'Ngồi bên phải' : 'Ngồi bên trái';
+}
 export const ALT_RIDES = ALT_DAYS.flatMap(ridesOf);

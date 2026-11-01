@@ -59,7 +59,9 @@ export function chainKey(raw: string): string {
     [/kappabashi|doguyasuji|dōguyasuji|kitchen/, 'kitchen'],
     [/2nd-street|second-street|book-?off|kindal|vintage|thrift|used/, 'vintage'],
     [/pokemon|pokémon|nintendo|mandarake|super-potato|gachapon|tamiya|animate|hobby|kiddy/, 'hobby'],
-    [/onitsuka|asics|abc-mart|moonstar|anello|porter/, 'shoes'],
+    [/anello|porter|links-umeda/, 'bags'],
+    [/onitsuka|asics|abc-mart|moonstar/, 'shoes'],
+    [/maruzen/, 'maruzen'],
     [/nakagawa|kamawanu|eirakuya|ippodo|shoyeido|craft|tenugui|furoshiki/, 'craft'],
     [/kitkat|chocolatory|tokyo-station|airport|kix|duty/, 'other'],
   ];
@@ -79,6 +81,11 @@ const DROP = new Set(['slot-1-3', 'slot-6-2', 'slot-4-1']);
 const PATCH: Record<string, Record<string, unknown>> = {
   'slot-2-1': { start: '13:45', end: '14:30', area: 'Nakamise, Asakusa', stores: ['sh-nakamise'], focus: 'Omamori và quà nhỏ nhẹ dọc Nakamise trong lúc đi Sensō-ji; rẽ vào các phố phía sau cho bớt đông.', skipIf: null },
   'slot-2-2': { start: '16:35' },
+  'slot-2-3': { stores: ['sh-hands-be-atre-akiba', 'sh-donki-akihabara', 'sh-matsukiyo-iwamotocho', 'sh-yodobashi-akiba', 'sh-daiso-yodobashi-akiba', 'sh-muji-akiba-trim'] },
+  'slot-8-3': { stores: ['sh-daimaru-kyoto', 'sh-ippodo-daimaru-kyoto', 'sh-hands-kyoto', 'sh-muji-kyoto-bal', 'sh-teramachi-kyogoku'] },
+  'slot-11-3': { stores: ['sh-hands-shinsaibashi', 'sh-muji-shinsaibashi-parco', 'sh-anello-shinsaibashi', 'sh-donki-dotonbori-midosuji'] },
+  'slot-9-1': { start: '13:30', end: '14:30', why: 'Ăn trưa ở Yoshimura xong khoảng 12:50 thì đi Hankyu sớm hơn lịch, khoảng 13:00: có gần một giờ ở Shijō trước khi sang Fushimi.', skipIf: 'Muốn dạo Arashiyama tới 14:00 như lịch.' },
+  'slot-10-1': { focus: 'Khăn kaya fukin ×6 (khoảng ¥550 mỗi chiếc, giá 2026), đồ gia dụng nhỏ làm tay.' },
   'slot-5-1': { start: '12:15', end: '12:50', after: 'kaizan', before: 'st-shimizu' },
   'slot-6-1': { start: '12:25' },
   'slot-7-1': { start: '14:00', end: '15:00' },
@@ -123,17 +130,46 @@ export const TAX_FREE = itemsRaw.taxFree ?? null;
 export const RULES = plan.rules ?? [];
 export const SOURCES = [...new Set([...(plan.sources ?? []), ...(itemsRaw.sources ?? [])])];
 
-/** Slots whose stores sell what an item lists in `where` (chains or store ids). */
+// Which stores sell an item. A brand with its own shop on the route (Ippodo, Nakagawa Masashichi,
+// anello, Onitsuka Tiger…) is bought there and nowhere else; otherwise chains match by kind.
+const storeKey = (st: Place) => {
+  const k = chainKey(st.store?.chain ?? st.category ?? '');
+  if (k !== 'other' && k !== 'craft' && k !== 'street' && k !== 'market') return k;
+  const byName = chainKey(`${st.id} ${st.name}`);
+  if (/links-umeda|anello/i.test(st.id + st.name)) return 'bags';
+  if (/abc-mart|onitsuka|asics/i.test(st.id + st.name)) return 'shoes';
+  return byName;
+};
+const brandToken = (it: Item) =>
+  (it.brand ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .trim()
+    .split(/\s+/)[0] ?? '';
+const ownShop = (it: Item) => {
+  const t = brandToken(it);
+  return t.length >= 4 ? STORES.filter((st) => `${st.id} ${st.name}`.toLowerCase().includes(t)) : [];
+};
+// sweets sold only in their home region (no Tokyo Banana in Osaka department stores)
+const TOKYO_ONLY = /tokyo banana|東京ばな奈|shiroi koibito|白い恋人/i;
+function sells(st: Place, it: Item, slot?: Slot) {
+  if (slot && TOKYO_ONLY.test(`${it.name} ${it.ja ?? ''}`) && !/tokyo/i.test(slot.city ?? '')) return false;
+  const own = ownShop(it);
+  if (own.length) return own.includes(st);
+  const keys = new Set(it.where.map(chainKey));
+  // the bag brands in the catalogue sit under "shoes-bags"
+  if (keys.has('shoes') && /bag|túi|backpack|balo/i.test(`${it.name} ${it.ja ?? ''}`)) keys.add('bags');
+  return keys.has(st.id) || keys.has(storeKey(st));
+}
+
+/** Slots whose stores sell the item. */
 export function slotsFor(item: Item): Slot[] {
-  const keys = new Set(item.where.map(chainKey));
-  return SLOTS.filter((s) => s.stores.some((st) => keys.has(st.id) || keys.has(chainKey(st.store?.chain ?? st.category ?? ''))));
+  return SLOTS.filter((s) => s.stores.some((st) => sells(st, item, s)));
 }
 
 /** Catalogue items that can be bought in a slot. */
 export function itemsFor(slot: Slot): Item[] {
-  const chains = new Set(slot.stores.map((st) => chainKey(st.store?.chain ?? st.category ?? '')));
-  const ids = new Set(slot.stores.map((st) => st.id));
-  return CATEGORIES.flatMap((c) => c.items).filter((it) => it.where.some((w) => chains.has(chainKey(w)) || ids.has(w)));
+  return CATEGORIES.flatMap((c) => c.items).filter((it) => slot.stores.some((st) => sells(st, it, slot)));
 }
 
 export const BASKET_TOTAL = SHOPPING.reduce((t, i) => t + i.qty * i.unit, 0);

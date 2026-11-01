@@ -14127,7 +14127,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 35.171229,
   "lng": 136.882724,
   "address": "愛知県名古屋市中村区名駅 (nối ga Nagoya)",
-  "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:30. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
+  "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ジェイアール名古屋タカシマヤ",
   "store": {
    "chain": "depachika",
@@ -14509,7 +14509,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 135.503517,
   "address": "大阪市中央区難波千日前 (phố Dōguyasuji)",
   "hours": "9:30–18:00; nghỉ dịp đầu năm",
-  "why": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00, đóng 18:00, nên mốc 9:00 trong lịch quá sớm, nên đến 9:45.",
+  "why": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00 và đóng 18:00; lịch tới đây lúc 9:45.",
   "tips": "Bát đĩa Nhật và Tây, gốm, sơn mài",
   "official": "https://www.doguyasuji.or.jp/shop/kyouya/",
   "store": {
@@ -14693,6 +14693,106 @@ export const DETAILS: Record<string, Detail> = {
    "walkMin": 1
   }
  },
+ "sh-muji-akiba-trim": {
+  "images": [],
+  "lat": 35.6979,
+  "lng": 139.77383,
+  "address": "東京都千代田区神田佐久間町1-6-5 アキバ・トリム 3F",
+  "hours": "11:00–22:00, mở hằng ngày",
+  "why": "Chi nhánh gần hotel nhất, mở đến 22:00 nên ghé được sau bữa tối ngày 2. Chưa tìm thấy thông tin tax-free.",
+  "tips": "3F",
+  "official": "https://www.muji.com/jp/ja/shop/detail/045443",
+  "store": {
+   "chain": "muji",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "resol-akihabara",
+   "walkMin": 3
+  }
+ },
+ "sh-muji-ginza": {
+  "images": [],
+  "lat": 35.67338,
+  "lng": 139.76552,
+  "address": "東京都中央区銀座3-3-5",
+  "hours": "11:00–21:00; MUJI Diner và Coffee & Salon mở đến 22:00",
+  "why": "Cửa hàng lớn nhất Tokyo, đủ mọi dòng hàng. Đi tàu Ginza Line vài phút từ Nihonbashi; nghỉ chỉ khi kiểm kê. Chưa xác nhận tax-free.",
+  "tips": "Cửa hàng chủ lực nhiều tầng, có MUJI Diner ở B1",
+  "official": "https://www.timeout.jp/tokyo/ja/ショッピング/mujirushiryohin-ginza",
+  "store": {
+   "chain": "muji",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "maruzen-nihonbashi",
+   "walkMin": 18
+  }
+ },
+ "sh-muji-lumine-shinjuku": {
+  "images": [],
+  "lat": 35.68918,
+  "lng": 139.69931,
+  "address": "LUMINE 2 6F, ga JR Shinjuku (cổng nam)",
+  "hours": "11:00–21:00 (cập nhật 28/4/2026)",
+  "why": "Ngay cổng nam ga Shinjuku, cách SUSHI TOKYO TEN vài phút đi bộ, có tax-free. Mở sau 11:00 nên ghé sau bữa trưa.",
+  "tips": "6F, một tầng",
+  "official": "https://media.jreast.co.jp/articles/12",
+  "store": {
+   "chain": "muji",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "sushi-ten",
+   "walkMin": 4
+  }
+ },
+ "sh-muji-kyoto-bal": {
+  "images": [],
+  "lat": 35.00679,
+  "lng": 135.76958,
+  "address": "〒604-8032 京都市中京区河原町通三条下ル山崎町251 京都BAL 5F",
+  "hours": "11:00–20:00, mở hằng ngày (không tính dịp Tết)",
+  "why": "Rất gần Cross Hotel Kyoto, tiện ghé buổi tối ngày 8 trước 20:00. Chưa xác nhận tax-free.",
+  "tips": "5F",
+  "official": "https://www.muji.com/jp/ja/shop/detail/061717",
+  "store": {
+   "chain": "muji",
+   "city": "kyoto",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 3
+  }
+ },
+ "sh-muji-shinsaibashi-parco": {
+  "images": [],
+  "lat": 34.67387,
+  "lng": 135.50097,
+  "address": "〒542-0085 大阪市中央区心斎橋筋一丁目8-3 心斎橋PARCO 7F",
+  "hours": "10:00–20:00, mở hằng ngày",
+  "why": "Nối thẳng ga Shinsaibashi (Midōsuji), có tax-free. Đi bộ từ Forza khoảng 10 phút, đóng cửa lúc 20:00.",
+  "tips": "7F",
+  "official": "https://www.muji.com/jp/ja/shop/detail/045791",
+  "store": {
+   "chain": "muji",
+   "city": "osaka",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "forza-osaka",
+   "walkMin": 10
+  }
+ },
  "fs-lawson-kawaguchiko-ekimae": {
   "lat": 35.498582,
   "lng": 138.767118,
@@ -14768,7 +14868,7 @@ export const DETAILS: Record<string, Detail> = {
  "fs-honcho-dori": {
   "lat": 35.494131,
   "lng": 138.804196,
-  "bestTime": "Buổi sáng: số liệu thành phố Fuji trong fuji.json cho thấy buổi sáng trong hơn buổi chiều.",
+  "bestTime": "Buổi sáng: số liệu thành phố Fuji trong trang Fuji cho thấy buổi sáng trong hơn buổi chiều.",
   "station": "Shimoyoshida 5 phút",
   "why": "Phố cũ kiểu Shōwa với đèn đường, biển hiệu và dây điện chạy thẳng về phía Fuji ở cuối phố; Fujikyu ghi đây là \"điểm nổi tiếng trên SNS\".",
   "tips": "Đường vẫn có xe chạy: chụp từ vỉa hè hoặc chờ đèn tín hiệu, không bước xuống lòng đường; tôn trọng cửa hàng và nhà dân hai bên.",
@@ -18091,6 +18191,51 @@ export const EXTRA_PLACES: ExtraPlace[] = [
   "role": "alt",
   "day": 12,
   "category": "other"
+ },
+ {
+  "id": "sh-muji-akiba-trim",
+  "name": "MUJI Akiba Trim",
+  "ja": "無印良品 アキバ・トリム",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "muji"
+ },
+ {
+  "id": "sh-muji-ginza",
+  "name": "MUJI Ginza",
+  "ja": "無印良品 銀座",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "muji"
+ },
+ {
+  "id": "sh-muji-lumine-shinjuku",
+  "name": "MUJI Lumine Shinjuku",
+  "ja": "無印良品 ルミネ新宿",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "muji"
+ },
+ {
+  "id": "sh-muji-kyoto-bal",
+  "name": "MUJI Kyoto BAL",
+  "ja": "無印良品 京都BAL",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "muji"
+ },
+ {
+  "id": "sh-muji-shinsaibashi-parco",
+  "name": "MUJI Shinsaibashi PARCO",
+  "ja": "無印良品 心斎橋パルコ",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "muji"
  },
  {
   "id": "fs-lawson-kawaguchiko-ekimae",

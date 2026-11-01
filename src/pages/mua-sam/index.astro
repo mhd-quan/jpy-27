@@ -92,7 +92,7 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
         <MapView id="shop" config={mapConfig} class="shop-map" label="Bản đồ cửa hàng theo ngày" />
         <div class="city-tabs" role="tablist" aria-label="Vùng">
           {CITIES.map((c, i) => (
-            <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-city-bounds={JSON.stringify(c.bounds)}>
+            <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-city-bounds={JSON.stringify(c.bounds)} data-city-days={c.days.join(' ')}>
               {c.label}
             </button>
           ))}
@@ -112,7 +112,7 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
             {SLOTS.filter((s) => s.day === d.n).map((s, k) => {
               const items = itemsFor(s).slice(0, 6);
               return (
-                <div class="slot" data-slot={s.id} data-slot-bounds={slotBounds(s)} style={`--c:${COLORS[SLOTS.indexOf(s) % COLORS.length]}`}>
+                <div class="slot" data-slot={s.id} data-slot-day={s.day} data-slot-bounds={slotBounds(s)} style={`--c:${COLORS[SLOTS.indexOf(s) % COLORS.length]}`}>
                   <p class="slot-when">
                     <span class="tnum">
                       {s.start}
@@ -347,6 +347,9 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
     m.clear();
     m.highlightLeg(`${b.dataset.showSlot}#0`, false);
     m.fit(JSON.parse(slot.dataset.slotBounds!), 64);
+    // keep the city tab in step with the slot shown
+    const day = slot.dataset.slotDay!;
+    tabs.forEach((x) => x.setAttribute('aria-selected', String(x.dataset.cityDays!.split(' ').includes(day) && x === tabs.find((y) => y.dataset.cityDays!.split(' ').includes(day)))));
     if (matchMedia('(max-width: 900px)').matches) document.querySelector('.plan-map')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 </script>

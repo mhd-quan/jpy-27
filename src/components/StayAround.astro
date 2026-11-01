@@ -135,7 +135,7 @@ const climb = (w: any) => (WALK_STAYS[w.id]?.up ?? 0) >= 20 ? `lên dốc ${WALK
               </div>
             </dl>
           )}
-          {fuji.fromProperty && <p>{fuji.fromProperty}</p>}
+          {fuji.fromProperty && <p>{typeof fuji.fromProperty === 'string' ? fuji.fromProperty : fuji.fromProperty.summary}</p>}
           {fuji.viewshed && (
             <p class="t-small muted">
               Vùng tô xanh trên bản đồ: những chỗ trong ô 3,6 km quanh ryokan mà địa hình không che đỉnh Fuji ({fuji.viewshed.share}% diện tích). Chưa tính cây và nhà, nên thực tế ít hơn.
@@ -167,7 +167,7 @@ const climb = (w: any) => (WALK_STAYS[w.id]?.up ?? 0) >= 20 ? `lên dốc ${WALK
                 ))}
             </ul>
           )}
-          {fuji.sunrise && <p class="t-small muted">{fuji.sunrise}</p>}
+          {fuji.sunrise && <p class="t-small muted">{typeof fuji.sunrise === 'string' ? fuji.sunrise : fuji.sunrise.text}</p>}
         </div>
       )}
 

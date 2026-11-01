@@ -482,7 +482,8 @@ export function createTripMap(container: HTMLElement, opts: TripMapOptions) {
         map.easeTo({ center: opts.center, zoom: opts.zoom, pitch: opts.pitch ?? 0, bearing: opts.bearing ?? 0, duration: duration(900) });
         return;
       }
-      if (bounds) map.fitBounds(bounds as LngLatBoundsLike, { padding, duration: duration(900) });
+      // one store or one point: do not dive to street-level emptiness
+      if (bounds) map.fitBounds(bounds as LngLatBoundsLike, { padding, maxZoom: 16, duration: duration(900) });
     },
     clear() {
       activeLeg = null;

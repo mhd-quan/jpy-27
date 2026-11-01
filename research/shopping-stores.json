@@ -679,7 +679,7 @@
    "closedDow": [],
    "taxFree": null,
    "floors": null,
-   "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:30. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
+   "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
    "near": "st-nagoya",
    "walkMin": 4,
    "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ジェイアール名古屋タカシマヤ"
@@ -1121,7 +1121,7 @@
    "closedDow": [],
    "taxFree": null,
    "floors": "Bát đĩa Nhật và Tây, gốm, sơn mài",
-   "why": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00, đóng 18:00, nên mốc 9:00 trong lịch quá sớm, nên đến 9:45.",
+   "why": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00 và đóng 18:00; lịch tới đây lúc 9:45.",
    "near": "doguyasuji",
    "walkMin": 1,
    "src": "https://www.doguyasuji.or.jp/shop/kyouya/"
@@ -1538,8 +1538,8 @@
    "stores": [
     "sh-jr-nagoya-takashimaya"
    ],
-   "focus": "Chỉ nếu dư thời gian trước tàu Kintetsu 15:30: đồ ăn nhẹ cho tàu. Quà Nagoya chưa xác nhận nên không lên danh mục.",
-   "why": "Shinkansen tới khoảng 14:30–14:50, còn Kintetsu 15:30. Ga Nagoya và Kintetsu Nagoya cách 10 phút đi bộ.",
+   "focus": "Chỉ nếu dư thời gian trước tàu Kintetsu 15:50: đồ ăn nhẹ cho tàu. Quà Nagoya chưa xác nhận nên không lên danh mục.",
+   "why": "Shinkansen tới khoảng 14:30–14:50, còn Kintetsu 15:50. Đổi từ JR sang Kintetsu mất 15–20 phút đi bộ, tính cả đông người.",
    "skipIf": "Bỏ nếu Shinkansen đến trễ hoặc phải xếp hàng đổi vé Kintetsu."
   },
   {
@@ -1635,7 +1635,7 @@
    "stores": [
     "sh-ichizawa-shinzaburo"
    ],
-   "focus": "Túi canvas Ichizawa (xem kiểu và giá; mẫu 148 khoảng ¥16.500 theo ghi chú trong dự án).",
+   "focus": "Túi canvas Ichizawa (xem kiểu và giá; mẫu 148 khoảng ¥16.500).",
    "why": "Cách Yasaka Jinja khoảng 5–10 phút, không xa Yorozuya. Thứ Hai mở; thứ Ba (ngày 9) đóng.",
    "skipIf": "Bỏ nếu không thích túi canvas hoặc đang mặc kimono thấy bất tiện."
   },
@@ -1776,7 +1776,7 @@
     "sh-workman-colors-namba-city"
    ],
    "focus": "9:45–11:00 Dōguyasuji: hai bát nhỏ dùng được (khoảng ¥1.200/cái; ví dụ Taisei Shokki 10–18h, Yamaka Tōki 10–18h); dao chỉ khi biết thép và cách bảo quản. 12:00–12:45 Takashimaya: hộp bánh Yoku Moku ×4 và quà hạn dài. Workman Colors Namba CITY nếu còn thời gian.",
-   "why": "Dōguyasuji mở 9:30–10:00, đóng 18:00, mốc 9:00 trong lịch quá sớm. Takashimaya cạnh Namba, 551 Hōrai nằm giữa. Vali đã ở hotel, cân thử ở 16:30 nên mua nặng từ đây.",
+   "why": "Dōguyasuji mở 9:30–10:00, đóng 18:00; lịch tới đây lúc 9:45 sau chợ Kuromon. Takashimaya cạnh Namba, 551 Hōrai nằm giữa. Vali đã ở hotel, cân thử lúc 16:55 nên mua đồ nặng từ đây.",
    "skipIf": "Den Den Town (ga Nipponbashi, cách Dōguyasuji khoảng 5 phút, giờ chưa xác nhận) chỉ ghé nếu thừa giờ; bỏ Workman nếu đã có đồ chống gió."
   },
   {

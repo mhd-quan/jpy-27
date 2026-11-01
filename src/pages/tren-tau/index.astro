@@ -2,26 +2,17 @@
 import Base from '../../layouts/Base.astro';
 import SayButton from '../../components/SayButton.astro';
 import RideStrip from '../../components/RideStrip.astro';
-import { RIDES, ALT_RIDES, type Ride } from '../../lib/rides';
+import { RIDES, ALT_RIDES, rideAnchor, seatVerdict, type Ride } from '../../lib/rides';
 import { fmtKm, url, dateLabel } from '../../lib/trip';
 
 const MODE: Record<string, string> = { cruise: 'Thuyền', ferry: 'Phà', ropeway: 'Cáp treo', cable: 'Tàu cáp kéo' };
 const featured = RIDES.filter((r) => r.researched || r.km >= 20);
 const short = RIDES.filter((r) => !featured.includes(r));
 const days = [...new Set(featured.map((r) => r.day.n))];
-const sideOf = (r: Ride) => {
-  const w = { left: 0, right: 0 };
-  for (const e of r.events) {
-    if (e.side !== 'left' && e.side !== 'right') continue;
-    w[e.side] += (e.to - e.from + 1) * (e.fuji ? 1.5 : 1);
-  }
-  if (!w.left && !w.right) return null;
-  if (Math.abs(w.left - w.right) < 1) return 'Hai bên đều có cảnh';
-  return w.right > w.left ? 'Ngồi bên phải' : 'Ngồi bên trái';
-};
+const sideOf = seatVerdict;
 const minutes = (r: Ride) => (r.min ? `${r.min}${/\d$/.test(r.min) ? ' phút' : ''}` : '');
-const anchor = (r: Ride) => `r-${r.day.id ?? r.day.n}-${r.legs[0].line}-${r.legs[0].from}`;
-const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs[0].from))];
+const anchor = rideAnchor;
+const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs.at(-1)!.to))];
 ---
 
 <Base title="Trên tàu" description="Từng chuyến tàu, thuyền và cáp treo: ngồi bên nào, nhìn gì, lúc nào chuẩn bị đổi tàu hay xuống." say={sayIds}>
@@ -91,7 +82,7 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs[0].from))]
                 {r.title}
               </span>
               <span class="t-small muted tnum">{[minutes(r), fmtKm(r.km)].filter(Boolean).join(', ')}</span>
-              <SayButton tags={r.legs[0].mode === 'cruise' || r.legs[0].mode === 'ferry' ? ['ferry'] : ['station', 'ticket', 'platform']} place={r.legs[0].from} station={{ name: r.fromName, ja: r.stations[0]?.ja }} />
+              <SayButton tags={r.legs[0].mode === 'cruise' || r.legs[0].mode === 'ferry' ? ['ferry'] : ['station', 'ticket', 'platform']} place={r.legs.at(-1)!.to} station={{ name: r.toName, ja: r.stations.at(-1)?.ja }} />
             </p>
           </header>
 

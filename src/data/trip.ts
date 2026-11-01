@@ -153,10 +153,12 @@ export const BOOKINGS: Booking[] = [
   { title: 'Giữ ryokan và phòng Ise', rule: 'Ngay khi khách sạn mở lịch tháng 10/2027', text: 'Đặt loại có thể hủy. Mizunoto: tên phòng có 温泉, hai bữa. Sau đó Kyoto, Tokyo, Osaka.' },
   { title: 'Theo dõi giá phòng', rule: '90, 60 và 30 ngày trước', text: 'So cùng ngày, hai người, cùng hạng phòng, cùng điều kiện hủy.' },
   { title: 'Bàn ăn đặt trước', rule: '60–30 ngày trước, theo cửa sổ của từng quán', text: 'SUSHI TOKYO TEN lunch ¥5.500 (ResReserve), Menami, AWA Naramachi.' },
+  { at: '2027-09-20T10:00:00+09:00', title: 'Chốt có đi Kawaguchiko không (tuỳ chọn)', rule: '10h giờ Nhật, một tháng trước ngày 20/10', text: 'Ghế Fuji Excursion mở bán trên Eki-net lúc này và hết nhanh. Nếu đổi ngày 3 sang Kawaguchiko: mua ghế đi 7:30 và về 16:48, rồi huỷ bàn SUSHI TOKYO TEN trước hạn huỷ của ResReserve (huỷ sát ngày mất trọn tiền course).' },
+  { title: 'Slot sớm thuê kimono wargo Gion', rule: 'Khi chốt lịch, khoảng 1–2 tháng trước', text: 'Lịch ngày 25/10 tới tiệm 9:30, trước giờ mở 10h — slot sớm phải đặt trên web wargo. Gói web từ ¥3.300/người; mang giày riêng để thay khi trả.' },
   { at: '2027-09-21T10:00:00+09:00', title: 'Ghế đầu Romancecar (tuỳ chọn)', rule: '10h giờ Nhật, đúng một tháng trước', text: 'Hàng ghế đầu xe 1 của tàu GSE cho chuyến Hakone 41 ngày 21/10 (nếu chuyến đó chạy GSE). Hết rất nhanh; chỉ mua đứt, không giữ chỗ online. Không có thì ngồi bên phải như thường.' },
   { title: 'Vé JR và Shimakaze', rule: 'Khoảng một tháng trước', text: 'Ghế reserved Shinkansen Shizuoka → Nagoya ngày 22/10; Shimakaze Toba → Kyoto ngày 24/10, giữ tàu thường làm phương án.' },
-  { at: '2027-10-22T00:00:00+09:00', title: 'Đặt Yamamoto Menzō', rule: '0h giờ Nhật, ba ngày trước', text: 'Cho ngày 25/10 — tức 22h tối 21/10 giờ Việt Nam. Hủy trong 12 giờ mất ¥1.000/người.' },
-  { at: '2027-10-26T21:00:00+09:00', title: 'Đặt Hōsekibako', rule: '21h giờ Nhật, tối hôm trước', text: 'Cho ngày 27/10 — 19h giờ Việt Nam. Đúng chi nhánh 29011038.' },
+  { at: '2027-10-22T00:00:00+09:00', title: 'Đặt Yamamoto Menzō', rule: '0h giờ Nhật, ba ngày trước', text: 'Cho ngày 25/10. Lúc này đang ở Mizunoto (đêm 21 rạng sáng 22/10): đặt trên điện thoại đúng 0h trên TableCheck. Hủy trong 12 giờ mất ¥1.000/người.' },
+  { at: '2027-10-26T21:00:00+09:00', title: 'Đặt Hōsekibako', rule: '21h giờ Nhật, tối hôm trước', text: 'Cho ngày 27/10, đặt tối 26/10 khi đang ở Kyoto. Đúng tiệm Hōsekibako ở Naramachi (mã Tabelog 29011038), không phải quán cùng tên khác.' },
 ];
 
 export const CHECKS = [

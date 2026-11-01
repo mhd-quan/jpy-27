@@ -8,6 +8,7 @@ import SayButton from './SayButton.astro';
 import MenuMini from './MenuMini.astro';
 import { place, routeLeg, fmtKm, fmtYen, dateLabel, sayTags, url } from '../lib/trip';
 import { slotsOfDay } from '../lib/shopping';
+import { RIDES, ALT_RIDES, rideAnchor } from '../lib/rides';
 import type { DayView, LegView } from '../lib/trip';
 
 interface Link {
@@ -51,6 +52,12 @@ const dow = new Date(`${day.date}T12:00:00+09:00`).getUTCDay();
 const snacks = v.along.filter((a) => a.p.snack).sort((a, b) => Number(a.p.snack!.closedDow.includes(dow)) - Number(b.p.snack!.closedDow.includes(dow)));
 const sights = v.along.filter((a) => !a.p.snack);
 const shops = day.id ? [] : slotsOfDay(n);
+// legs that have a guide on the trains page (researched rides, or long ones)
+const rideOf = new Map(
+  [...RIDES, ...ALT_RIDES]
+    .filter((r) => (r.day.id ?? r.day.n) === (day.id ?? day.n) && (r.researched || r.km >= 20))
+    .flatMap((r) => r.legs.map((l) => [l.id, rideAnchor(r)] as const)),
+);
 // On foot: the slope-aware estimate, unless the plan's figure includes stops along the way
 const minutes = (l: LegView) => {
   if (l.mode === 'walk' && l.walk && !/dừng/.test(l.min ?? '')) return `${l.walk.min} phút${l.walk.up >= 25 ? `, lên dốc ${l.walk.up} m` : ''}`;
@@ -138,12 +145,17 @@ const firstImages = (id: string) => {
                   </span>
                   {l.note && <span class="move-note t-small muted">{l.note}</span>}
                 </button>
+                {rideOf.has(l.id) && (
+                  <a class="ride-link t-small" href={url(`tren-tau/#${rideOf.get(l.id)}`)}>
+                    Ngồi bên nào, xuống ở đâu ›
+                  </a>
+                )}
                 {l.mode !== 'walk' && (
                   <SayButton
                     class="move-say"
                     tags={l.mode === 'ferry' || l.mode === 'cruise' ? ['ferry'] : ['station']}
-                    place={l.from}
-                    station={place(l.from)}
+                    place={l.to}
+                    station={place(l.to)}
                     compact
                   />
                 )}
@@ -591,6 +603,11 @@ const firstImages = (id: string) => {
   }
   .move:has(.move-say) .move-line {
     padding-right: 36px;
+  }
+  .ride-link {
+    grid-column: 3;
+    justify-self: start;
+    margin: -2px 0 4px 10px;
   }
   .stop-gallery {
     --bleed: 0px;
