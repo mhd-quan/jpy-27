@@ -98,7 +98,7 @@ const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + 
             <ul>
               {g.snacks.map((p) => {
                 const g0 = p.snack!.get[0];
-                const social = [...new Set(p.snack!.social.map((x) => x.platform))].filter((x) => ['instagram', 'tiktok', 'youtube'].includes(x));
+                const social = [...new Set(p.snack!.social.map((x) => (['instagram', 'tiktok', 'youtube'].includes(x.platform) ? x.platform : 'press')))];
                 return (
                   <li>
                     <button type="button" class="sn" data-place={p.id}>
@@ -118,7 +118,7 @@ const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + 
                         <span class="sn-tags">
                           {p.snack!.tabelog?.rating && <span class="tag tag-tb tnum">Tabelog {p.snack!.tabelog.rating.toFixed(2)}</span>}
                           {social.map((x) => (
-                            <span class="tag tag-sns">{x === 'instagram' ? 'Instagram' : x === 'tiktok' ? 'TikTok' : 'YouTube'}</span>
+                            <span class:list={['tag', x === 'press' ? 'tag-press' : 'tag-sns']}>{x === 'instagram' ? 'Instagram' : x === 'tiktok' ? 'TikTok' : x === 'youtube' ? 'YouTube' : 'Báo du lịch'}</span>
                           ))}
                         </span>
                       </span>
@@ -219,6 +219,10 @@ const totalFood = DAYS.reduce((s, d) => s + d.meals.b + d.meals.l + d.meals.d + 
   .tag-tb {
     color: #b85c00;
     background: color-mix(in srgb, #f39800 14%, transparent);
+  }
+  .tag-press {
+    color: var(--ink-2);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
   }
   .tag-sns {
     color: #c13584;

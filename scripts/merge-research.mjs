@@ -238,6 +238,38 @@ for (const st of read('shopping-stores.json')?.stores ?? []) {
   extraPlaces.push({ id: st.id, name: clean(st.name) ?? st.id, ja: clean(st.ja), kind: 'shop', role: 'alt', day: num(st.day) ?? undefined, category: st.chain });
 }
 
+// Fuji spots people post about: sights tied to the plan day they fit (4, 5 or the Kawaguchiko day)
+const FIT_DAY = { day4: 4, day5: 5, kawaguchiko: 'kawaguchiko' };
+for (const sp of read('fuji-spots.json')?.spots ?? []) {
+  const lat = num(sp?.lat);
+  const lng = num(sp?.lng);
+  if (!sp?.id || lat == null || lng == null) continue;
+  const images = (sp.images ?? []).filter((im) => im?.url).map((im) => ({ kind: KIND[im.kind] ?? 'view', src: local(im.url), caption: clean(im.caption) ?? '', credit: clean(im.credit) ?? '', license: clean(im.license), page: im.page }));
+  details[sp.id] = {
+    ...(details[sp.id] ?? {}),
+    lat: round(lat),
+    lng: round(lng),
+    hours: clean(sp.hours),
+    fee: sp.costYen ? `¥${Number(sp.costYen).toLocaleString('vi-VN')}` : undefined,
+    bestTime: clean(sp.bestTime),
+    station: sp.nearestStation?.name ? `${clean(sp.nearestStation.name)}${sp.nearestStation.walkMin ? ` ${sp.nearestStation.walkMin} phút` : ''}` : undefined,
+    why: clean(sp.famousFor),
+    tips: [clean(sp.status2026), clean(sp.etiquette)].filter(Boolean).join(' ') || undefined,
+    images: images.length ? images : details[sp.id]?.images ?? [],
+    fujiSpot: {
+      area: sp.area ?? null,
+      type: sp.type ?? null,
+      fit: sp.fit ?? null,
+      status: clean(sp.status2026) ?? null,
+      etiquette: clean(sp.etiquette) ?? null,
+      access: sp.access ?? {},
+      busStop: sp.busStop ?? null,
+      social: (sp.social ?? []).filter((x) => x?.url).map((x) => ({ platform: x.platform ?? 'blog', url: x.url, note: clean(x.note) ?? null })),
+    },
+  };
+  extraPlaces.push({ id: sp.id, name: clean(sp.name) ?? sp.id, ja: clean(sp.ja), kind: 'sight', role: 'detour', day: FIT_DAY[sp.fit] ?? undefined, category: 'fuji-spot' });
+}
+
 // Everything that is not a place detail goes to enrich.gen.ts
 const merged = (prefix, key) => readAll(prefix).flatMap((f) => f?.[key] ?? []);
 const phrases = read('phrases.json') ?? { scenarios: [] };
@@ -309,6 +341,18 @@ export interface Detail {
   menu?: Menu;
   snack?: Snack;
   store?: Store;
+  fujiSpot?: FujiSpot;
+}
+
+export interface FujiSpot {
+  area: string | null;
+  type: string | null;
+  fit: 'day4' | 'day5' | 'kawaguchiko' | null;
+  status: string | null;
+  etiquette: string | null;
+  access: { kawaguchiko?: string | null; day4?: string | null; day5?: string | null };
+  busStop: { ja: string; lat: number; lng: number; lines?: string } | null;
+  social: { platform: string; url: string; note: string | null }[];
 }
 
 export interface Store {
@@ -362,7 +406,7 @@ export interface ExtraPlace {
   kind: 'sight' | 'food' | 'shop';
   near?: string;
   role: 'plan' | 'along' | 'detour' | 'alt';
-  day?: number;
+  day?: number | string;
   category?: string;
   detourMin?: number;
 }

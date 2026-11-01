@@ -48,6 +48,90 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": false
   }
  },
+ "1.sn-amanoya": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Hotel RESOL Akihabara → Kanda Myōjin",
+   "lat": 35.70110882865671,
+   "lng": 139.76715599608468,
+   "onWalk": true
+  }
+ },
+ "1.sn-omiya-yogashi": {
+  "p": "sb{xEwyatYNLq@rAcCjCNXtFlDp@V@I",
+  "km": 0.36,
+  "min": 5,
+  "mode": "walk",
+  "from": {
+   "label": "Manseibashi",
+   "lat": 35.69722,
+   "lng": 139.77004,
+   "onWalk": false
+  }
+ },
+ "1.sn-mitsubachi-honten": {
+  "p": "kd}xEimbtYUEC~@G@GLYrI",
+  "km": 0.21,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Kanda Myōjin → Tonkatsu Yamabe Okachimachi",
+   "lat": 35.707740771009405,
+   "lng": 139.77317343078607,
+   "onWalk": true
+  }
+ },
+ "1.sn-karinto-yushima-kagetsu": {
+  "p": "wb}xE}lbtYz@PS~@BPIxDoAHAI",
+  "km": 0.21,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Kanda Myōjin → Tonkatsu Yamabe Okachimachi",
+   "lat": 35.707481808731636,
+   "lng": 139.77311043996175,
+   "onWalk": true
+  }
+ },
+ "1.sn-mijinko": {
+  "p": "me|xEumatYL~Ge@QIXqAc@gB[WEAL",
+  "km": 0.29,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "Kanda Myōjin → Tonkatsu Yamabe Okachimachi",
+   "lat": 35.70279,
+   "lng": 139.76811,
+   "onWalk": true
+  }
+ },
+ "1.sn-minatoya-shokuhin": {
+  "p": "{g}xEq{btY?H|A@Ad@GRkAIKvAOCCNF@",
+  "km": 0.19,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Tonkatsu Yamabe Okachimachi",
+   "lat": 35.708301,
+   "lng": 139.77545,
+   "onWalk": false
+  }
+ },
+ "1.sn-french-toast-factory": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Tonkatsu Yamabe Okachimachi → Hotel RESOL Akihabara",
+   "lat": 35.698664254683656,
+   "lng": 139.77529528098844,
+   "onWalk": true
+  }
+ },
  "2.nihonbashi": {
   "p": "",
   "km": 0,
@@ -156,6 +240,102 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "onWalk": true
   }
  },
+ "2.sn-himitsudo": {
+  "p": "",
+  "km": 0,
+  "min": 0,
+  "mode": "walk",
+  "from": {
+   "label": "Kayaba Coffee → Nezu no Taiyaki",
+   "lat": 35.727311383537426,
+   "lng": 139.76668482371198,
+   "onWalk": true
+  }
+ },
+ "2.sn-usagiya-ueno": {
+  "p": "ka}xEskbtY@IFBMl@@Jb@FxBdABDGr@DFPCl@BAP",
+  "km": 0.21,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "ga Ueno-hirokōji",
+   "lat": 35.70726,
+   "lng": 139.7729,
+   "onWalk": false
+  }
+ },
+ "2.sn-niku-no-ooyama-ueno": {
+  "p": "{q}xEymbtYKQNeAcC}@^kBEgBHa@GC",
+  "km": 0.24,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Nezu Jinja → Ueno-hirokōji",
+   "lat": 35.7099,
+   "lng": 139.77325,
+   "onWalk": true
+  }
+ },
+ "2.sn-pelican": {
+  "p": "a{}xEomftY@IH@g@dHf@FBTpAVrA`@~Bf@DC@NLOp@Vl@JbC\\@K",
+  "km": 0.5,
+  "min": 7,
+  "mode": "walk",
+  "from": {
+   "label": "Owariya Honten",
+   "lat": 35.711368,
+   "lng": 139.793684,
+   "onWalk": false
+  }
+ },
+ "2.sn-asakusa-kagetsudo": {
+  "p": "_p~xEu`gtYt@DCfAi@fCMnA?HHA@LHA",
+  "km": 0.19,
+  "min": 3,
+  "mode": "walk",
+  "from": {
+   "label": "Sensō-ji",
+   "lat": 35.71472,
+   "lng": 139.79675,
+   "onWalk": false
+  }
+ },
+ "2.sn-fruit-parlour-goto": {
+  "p": "_p~xEu`gtYt@DCfAi@fCMxAgALk@~FDx@gBa@DMD@",
+  "km": 0.43,
+  "min": 6,
+  "mode": "walk",
+  "from": {
+   "label": "Sensō-ji",
+   "lat": 35.71472,
+   "lng": 139.79675,
+   "onWalk": false
+  }
+ },
+ "2.sn-365-nichi-to-nihonbashi": {
+  "p": "ecxxEsnbtYRLDO|Ax@Rm@YM",
+  "km": 0.12,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "ga Nihonbashi",
+   "lat": 35.68195,
+   "lng": 139.77338,
+   "onWalk": false
+  }
+ },
+ "2.sn-takemura": {
+  "p": "kozxE}}atY{@VEUKDAEmCv@_AUGtADROHARcAAsAb@Pt@aAd@BJKDDJ",
+  "km": 0.42,
+  "min": 6,
+  "mode": "walk",
+  "from": {
+   "label": "ga Kanda",
+   "lat": 35.69414,
+   "lng": 139.77071,
+   "onWalk": false
+  }
+ },
  "3.shibuya-crossing": {
   "p": "ausxEcjtsYd@E@Nm@Lc@A?MGGG~A",
   "km": 0.13,
@@ -250,6 +430,102 @@ export const DETOURS: Record<string, { p: string; km: number; min: number; mode:
    "lat": 35.66721,
    "lng": 139.7089,
    "onWalk": false
+  }
+ },
+ "3.sn-le-pain-joel-robuchon-newoman": {
+  "p": "inyxEojtsYIBSsBSDMy@ZI",
+  "km": 0.11,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Shinjuku → SUSHI TOKYO TEN Shinjuku",
+   "lat": 35.68885,
+   "lng": 139.70104,
+   "onWalk": true
+  }
+ },
+ "3.sn-oiwake-dango-shinjuku": {
+  "p": "euyxEwgtsY?Bp@CBH`@CHz@d@Iy@yI]cCM}AIOS}COcADEI?aCyAEYb@mADB",
+  "km": 0.63,
+  "min": 8,
+  "mode": "walk",
+  "from": {
+   "label": "ga Shinjuku",
+   "lat": 35.68995,
+   "lng": 139.7006,
+   "onWalk": false
+  }
+ },
+ "3.sn-marion-crepes-takeshita": {
+  "p": "gbvxEeutsYiCc@fB^ABJBFo@KAB[R?fAyIKE@E",
+  "km": 0.37,
+  "min": 5,
+  "mode": "walk",
+  "from": {
+   "label": "ga Harajuku",
+   "lat": 35.67156,
+   "lng": 139.70275,
+   "onWalk": false
+  }
+ },
+ "3.sn-totti-candy-factory": {
+  "p": "gbvxEeutsYiCc@fB^ABJBFo@KAB[R?|@kHPB",
+  "km": 0.35,
+  "min": 5,
+  "mode": "walk",
+  "from": {
+   "label": "ga Harajuku",
+   "lat": 35.67156,
+   "lng": 139.70275,
+   "onWalk": false
+  }
+ },
+ "3.sn-mizuho": {
+  "p": "a_uxEwhusYEGORDTMPiAgAw@nAID_@@KC@I",
+  "km": 0.18,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Harajuku → Toritake Sōhonten",
+   "lat": 35.66593,
+   "lng": 139.70588,
+   "onWalk": true
+  }
+ },
+ "3.sn-higashiya-man": {
+  "p": "aguxEs{usYZRnIqUEUb@{@FDXAnBoDQOJU",
+  "km": 0.58,
+  "min": 8,
+  "mode": "walk",
+  "from": {
+   "label": "Omotesandō",
+   "lat": 35.66721,
+   "lng": 139.7089,
+   "onWalk": false
+  }
+ },
+ "3.sn-initial-omotesando": {
+  "p": "k|txEsdusYd@p@TNc@dA`@v@]j@J^mB}BSLS]OP",
+  "km": 0.28,
+  "min": 4,
+  "mode": "walk",
+  "from": {
+   "label": "Harajuku → Toritake Sōhonten",
+   "lat": 35.66550231711158,
+   "lng": 139.70521929995945,
+   "onWalk": true
+  }
+ },
+ "3.sn-shibuya-nishimura-fruit-parlour": {
+  "p": "mssxEcgtsYuA_@o@f@Bj@CAGd@@`Ae@E@W",
+  "km": 0.19,
+  "min": 2,
+  "mode": "walk",
+  "from": {
+   "label": "Harajuku → Toritake Sōhonten",
+   "lat": 35.65895,
+   "lng": 139.7005,
+   "onWalk": true
   }
  },
  "4.hakone-sekisho": {

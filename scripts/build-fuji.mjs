@@ -40,7 +40,14 @@ const FALLBACK = [
 ];
 const spots = [];
 const seen = new Set();
-for (const s of [...(research?.spots ?? []), ...FALLBACK]) {
+// Spots people post about (research/fuji-spots.json): Kawaguchiko ones sit with the day-3 alternative
+const popularFile = join(root, 'research/fuji-spots.json');
+const POPULAR = existsSync(popularFile)
+  ? (JSON.parse(readFileSync(popularFile, 'utf8')).spots ?? [])
+      .filter((s) => typeof s.lat === 'number' && typeof s.lng === 'number')
+      .map((s) => ({ id: s.id, nameVi: s.name, nameJa: s.ja, lat: s.lat, lng: s.lng, day: s.fit === 'day4' ? 4 : s.fit === 'day5' ? 5 : 3, role: 'popular' }))
+  : [];
+for (const s of [...(research?.spots ?? []), ...FALLBACK, ...POPULAR]) {
   if (!s?.id || seen.has(s.id)) continue;
   let lat = s.lat;
   let lng = s.lng;

@@ -7,8 +7,8 @@ export interface Place extends PlaceBase, Omit<Detail, 'lat' | 'lng' | 'images' 
   lat: number;
   lng: number;
   images: Img[];
-  /** day the research tied this sight to (along / detour suggestions) */
-  day?: number;
+  /** day the research tied this place to: a day number, or an alternative day's slug */
+  day?: number | string;
   category?: string;
   detourMin?: number;
   /** plan place a snack stop sits beside */

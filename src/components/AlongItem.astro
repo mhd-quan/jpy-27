@@ -11,8 +11,8 @@ const { p, km, detour: d } = Astro.props.a;
 const sn = p.snack;
 const closed = sn && dow != null && sn.closedDow.includes(dow);
 const DOW_VI = ['Chủ nhật', 'thứ Hai', 'thứ Ba', 'thứ Tư', 'thứ Năm', 'thứ Sáu', 'thứ Bảy'];
-const social = [...new Set((sn?.social ?? []).map((x) => x.platform))].filter((x) => ['instagram', 'tiktok', 'youtube'].includes(x));
-const SOCIAL_LABEL: Record<string, string> = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
+const social = [...new Set((sn?.social ?? []).map((x) => (['instagram', 'tiktok', 'youtube'].includes(x.platform) ? x.platform : 'press')))];
+const SOCIAL_LABEL: Record<string, string> = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', press: 'Báo du lịch' };
 const get = sn?.get[0];
 const hours = sn?.open && sn?.close ? `${sn.open}–${sn.close}` : '';
 const img = p.images[0];
@@ -45,7 +45,7 @@ const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
           {closed && <span class="tag tag-closed">Nghỉ {DOW_VI[dow!]}</span>}
           {sn.tabelog?.rating && <span class="tag tag-tb tnum">Tabelog {sn.tabelog.rating.toFixed(2)}</span>}
           {sn.tabelog?.award && <span class="tag tag-tb">{sn.tabelog.award}</span>}
-          {social.map((x) => <span class="tag tag-sns">{SOCIAL_LABEL[x]}</span>)}
+          {social.map((x) => <span class:list={['tag', x === 'press' ? 'tag-press' : 'tag-sns']}>{SOCIAL_LABEL[x]}</span>)}
           {hours && <span class="tag tnum">{hours}</span>}
         </span>
       )}
@@ -135,6 +135,10 @@ const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
   .tag-sns {
     color: #c13584;
     background: color-mix(in srgb, #c13584 11%, transparent);
+  }
+  .tag-press {
+    color: var(--ink-2);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
   }
   .tag-closed {
     color: var(--ink);

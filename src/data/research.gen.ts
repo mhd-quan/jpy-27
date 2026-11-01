@@ -29,6 +29,18 @@ export interface Detail {
   menu?: Menu;
   snack?: Snack;
   store?: Store;
+  fujiSpot?: FujiSpot;
+}
+
+export interface FujiSpot {
+  area: string | null;
+  type: string | null;
+  fit: 'day4' | 'day5' | 'kawaguchiko' | null;
+  status: string | null;
+  etiquette: string | null;
+  access: { kawaguchiko?: string | null; day4?: string | null; day5?: string | null };
+  busStop: { ja: string; lat: number; lng: number; lines?: string } | null;
+  social: { platform: string; url: string; note: string | null }[];
 }
 
 export interface Store {
@@ -82,7 +94,7 @@ export interface ExtraPlace {
   kind: 'sight' | 'food' | 'shop';
   near?: string;
   role: 'plan' | 'along' | 'detour' | 'alt';
-  day?: number;
+  day?: number | string;
   category?: string;
   detourMin?: number;
 }
