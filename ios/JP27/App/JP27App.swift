@@ -128,11 +128,13 @@ struct SheetHost: View {
             }
         case .menuScan(let id):
             MenuScanView(placeID: id)
+                .presentationDetents([.large])
         case .listen:
             ListenView()
                 .presentationDetents([.large])
         case .fujiFinder:
             FujiFinderView()
+                .presentationDetents([.large])
         case .journal(let key):
             NavigationStack {
                 JournalView(dayKey: key)

@@ -85,6 +85,8 @@ enum AppSheet: Identifiable, Hashable {
     var spendPath = NavigationPath()
     /// a place the map should frame next time it shows
     var mapFocus: String?
+    /// a day the map should show next time it shows
+    var mapDay: String?
 
     // clock and choices
     private(set) var now: Date = Shared.now

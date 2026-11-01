@@ -92,7 +92,9 @@ import TripKit
 
     private func makeState(_ s: RideTracker.Status, model: AppModel) -> RideAttributes.ContentState {
         guard let ride else { return .init(next: "", nextJa: "", stopsLeft: 0, progress: 0, arrival: nil, fuji: nil, view: nil, alight: false, arrived: false) }
-        let next = s.nextStop.map { ride.stations[$0] } ?? ride.stations.last!
+        guard let next = s.nextStop.map({ ride.stations[$0] }) ?? ride.stations.last else {
+            return .init(next: ride.toName, nextJa: ride.toName, stopsLeft: 0, progress: s.progress, arrival: arrival, fuji: nil, view: nil, alight: s.alightSoon, arrived: s.arrived)
+        }
         let view = s.events.map { ride.events[$0] }.first { $0.side == .left || $0.side == .right }
         let viewText = view.map { e in "\(e.side == .left ? "Trái" : "Phải"): \(e.what.prefix(60))" }
         return .init(next: next.en, nextJa: next.ja, stopsLeft: s.stopsLeft, progress: s.progress, arrival: arrival,

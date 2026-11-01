@@ -56,7 +56,10 @@ nonisolated enum WidgetPlan {
 
         switch itinerary.phase(at: tripNow, days: days) {
         case .before(let n, let first):
-            let state = NextStopEntry.State.before(days: n, title: first.title, route: first.route, dateLabel: "\(first.dow), \(Fmt.shortDate(first.date))")
+            // the next booking window that opens at an exact time says more than the route
+            let booking = store.trip.bookings.compactMap { b in b.date.map { (b.title, $0) } }.filter { $0.1 > tripNow }.min { $0.1 < $1.1 }
+            let line = booking.map { "Đặt chỗ \(Fmt.shortDate(TripTime.isoDate(of: $0.1))): \($0.0)" } ?? first.route
+            let state = NextStopEntry.State.before(days: n, title: first.title, route: line, dateLabel: "\(first.dow), \(Fmt.shortDate(first.date))")
             return ([NextStopEntry(date: realNow, state: state)], tomorrow)
 
         case .after:

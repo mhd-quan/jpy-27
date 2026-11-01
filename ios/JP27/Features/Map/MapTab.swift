@@ -65,8 +65,12 @@ struct MapTab: View {
                 .padding(.trailing, 12)
             }
         }
-        .onAppear(perform: consumeFocus)
+        .onAppear {
+            consumeDay()
+            consumeFocus()
+        }
         .onChange(of: model.mapFocus) { consumeFocus() }
+        .onChange(of: model.mapDay) { consumeDay() }
         .sensoryFeedback(.selection, trigger: selected)
     }
 
@@ -98,6 +102,15 @@ struct MapTab: View {
         }
         focus = p
         focusID += 1
+    }
+
+    /// A day page asked for its map.
+    private func consumeDay() {
+        guard let key = model.mapDay else { return }
+        model.mapDay = nil
+        dayKey = key
+        selected = nil
+        reframe += 1
     }
 
     private func consumeFocus() {
