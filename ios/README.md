@@ -10,7 +10,7 @@ cd ios && xcodegen         # tạo JP27.xcodeproj từ project.yml
 open JP27.xcodeproj
 ```
 
-Cần Xcode 26 trở lên. Trước khi chạy trên máy thật: điền `DEVELOPMENT_TEAM` trong `project.yml` (hoặc chọn team trong Xcode), rồi bật cho App ID các capability **App Groups** (`group.tech.delphyra.jp27`), **WeatherKit** và **Time Sensitive Notifications**. Bản đồ MapLibre được Swift Package Manager tải về ở lần build đầu.
+Cần Xcode 26 trở lên; Xcode 27 để có mép cuộn mềm trên iOS 27 (xem Liquid Glass). Trước khi chạy trên máy thật: điền `DEVELOPMENT_TEAM` trong `project.yml` (hoặc chọn team trong Xcode), rồi bật cho App ID các capability **App Groups** (`group.tech.delphyra.jp27`), **WeatherKit** và **Time Sensitive Notifications**. Bản đồ MapLibre được Swift Package Manager tải về ở lần build đầu.
 
 Khi dữ liệu của site thay đổi:
 
@@ -57,6 +57,18 @@ ios/
 
 Thanh phụ dưới tab bar (bottom accessory) luôn cho biết chuyện đang diễn ra: chuyến tàu đang đi (ga kế, Fuji bên nào) hoặc đếm ngược tới lúc phải rời đi.
 
+## Liquid Glass
+
+Theo [Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass) và [Build a SwiftUI app with the new design](https://developer.apple.com/videos/play/wwdc2025/323/):
+
+- **Kính cho điều khiển, không cho nội dung.** Tab bar, toolbar, nút nổi trên bản đồ và camera, nút hành động dùng Liquid Glass; nội dung nằm trên thẻ của nền grouped. Nút kính dùng `.glass`/`.glassProminent`, không vẽ kính lên nhãn; các mảnh kính đứng gần nhau nằm chung một `GlassEffectContainer`.
+- **Nổi và co lại.** Tab bar thu nhỏ khi cuộn xuống, thanh phụ đổi bố cục khi nằm gọn trong tab bar (`tabViewBottomAccessoryPlacement`). Nút "+" của Chi tiêu và nút micro của Nghe là `safeAreaBar`, không phải overlay: nội dung cuộn xuống dưới chúng và mờ dần ở đó.
+- **Biến hình.** Nút "Theo dõi chuyến" thành "Đang theo dõi" tại chỗ (`glassEffectID`); trên camera Fuji, viên mây và viên địa hình mọc ra từ viên khoảng cách khi có dữ liệu; chip chọn ngày trên bản đồ là nút kính nên menu ngày mọc ra từ nó.
+- **Trình bày theo ngữ cảnh.** Mọi sheet mọc ra từ đúng nút hay dòng đã mở nó và thu về đó khi đóng (`matchedTransitionSource` + `navigationTransition(.zoom)`, `Design/Presentation.swift`); thẻ câu nói toàn màn hình mọc ra từ dòng câu. Sheet mở từ sheet thì chồng lên (ghi món từ màn quét menu, quét menu từ thẻ quán), đóng là về chỗ cũ.
+- **Toolbar.** Nghe và Cài đặt là hai nhóm kính riêng (`ToolbarSpacer(.fixed)`); nút ẩn đi thì ẩn cả item (`.hidden`) để thanh biến hình chứ không để lại ô trống.
+- **Ảnh đầu trang.** Ảnh của trang địa điểm kéo dài, soi gương và làm mờ, lên dưới thanh trên cùng (`backgroundExtensionEffect`).
+- **Mép cuộn mềm.** iOS 27 đổi mặc định của mép trên từ `.soft` (mờ dần) sang `.hard` (một dải mờ có vạch kẻ). App đặt lại `.soft` cho mọi mép, ở gốc tab bar và ở từng sheet (`progressiveEdges()`). Lệnh này chỉ được biên dịch bằng Xcode 27 (Swift 6.4): app build bằng SDK iOS 26 mà chạy trên iOS 27 chỉ được mép mềm dưới thanh trạng thái, trông tệ hơn dải mặc định. Trên iOS 26, `.soft` vốn là mặc định.
+
 ## Từng yêu cầu dùng gì
 
 | Yêu cầu | Cách làm |
@@ -85,4 +97,4 @@ Vị trí chỉ chạy liên tục khi app đang mở, khi đang đi tàu (Live 
 
 ## Kiểm tra trên máy thật
 
-Phần lõi đã được test; phần giao diện và các framework hệ thống chỉ build được bằng Xcode. Những API mới của iOS 18–26 nên soát đầu tiên nếu Xcode báo lỗi: `AlarmManager.AlarmConfiguration` và `AlarmPresentation.Alert` (`Services/AlarmService.swift`), `CLMonitor` (`Services/LocationService.swift`), `SpeechTranscriber`/`SpeechAnalyzer` (`Features/Talk/TalkListener.swift`), `RecognizeTextRequest` và `NormalizedRect.toImageCoordinates` (`Features/Talk/MenuScanView.swift`), `BillboardComponent` (`Features/Fuji/FujiFinderView.swift`), `tabViewBottomAccessoryPlacement` (`Features/Today/NowAccessory.swift`), `Button(role: .close/.confirm)` không nhãn, và `MLNSymbolStyleLayer.text` của MapLibre (`Design/TripMap.swift`). Những chỗ nên thử sớm: thông báo Time Sensitive (cần capability), geofence khi khoá màn hình, Live Activity cập nhật trong lúc đi tàu, gói ngôn ngữ Nhật–Việt của Translation và SpeechTranscriber (tải một lần khi có mạng), gói bản đồ offline (style lấy từ `https://jpy27.delphyra.tech/map/`, cần deploy site trước). "Chạy thử" trong Cài đặt dời đồng hồ của app tới bất kỳ lúc nào trong chuyến để tập dượt trước tháng 10/2027.
+Phần lõi đã được test; phần giao diện và các framework hệ thống chỉ build được bằng Xcode. Những API mới của iOS 18–26 nên soát đầu tiên nếu Xcode báo lỗi: `AlarmManager.AlarmConfiguration` và `AlarmPresentation.Alert` (`Services/AlarmService.swift`), `CLMonitor` (`Services/LocationService.swift`), `SpeechTranscriber`/`SpeechAnalyzer` (`Features/Talk/TalkListener.swift`), `RecognizeTextRequest` và `NormalizedRect.toImageCoordinates` (`Features/Talk/MenuScanView.swift`), `BillboardComponent` (`Features/Fuji/FujiFinderView.swift`), `tabViewBottomAccessoryPlacement` (`Features/Today/NowAccessory.swift`), `Button(role: .close/.confirm)` không nhãn, `MLNSymbolStyleLayer.text` của MapLibre (`Design/TripMap.swift`), `matchedTransitionSource` trên nút toolbar và trên thanh phụ, `scrollEdgeEffectStyle` đặt ở gốc `TabView` có lan xuống từng tab và từng sheet không (`Design/Presentation.swift`), `safeAreaBar`, `ToolbarSpacer`, `ToolbarContent.hidden` và `backgroundExtensionEffect` trên `TabView` dạng trang (`Features/Plan/PlaceView.swift`). Những chỗ nên thử sớm: thông báo Time Sensitive (cần capability), geofence khi khoá màn hình, Live Activity cập nhật trong lúc đi tàu, gói ngôn ngữ Nhật–Việt của Translation và SpeechTranscriber (tải một lần khi có mạng), gói bản đồ offline (style lấy từ `https://jpy27.delphyra.tech/map/`, cần deploy site trước). "Chạy thử" trong Cài đặt dời đồng hồ của app tới bất kỳ lúc nào trong chuyến để tập dượt trước tháng 10/2027.

@@ -150,21 +150,22 @@ private struct PlanRideLive: View {
                 Button(role: .destructive) {
                     Task { await model.live.end(model: model, immediately: true) }
                 } label: {
-                    Text("Kết thúc").frame(maxWidth: .infinity, minHeight: 32)
+                    Text("Kết thúc").frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
+                .controlSize(.large)
             }
         } else {
             VStack(spacing: 12) {
                 Button {
-                    model.live.start(ride, model: model)
+                    withAnimation(.smooth) { model.live.start(ride, model: model) }
                 } label: {
                     Label("Theo dõi chuyến", systemImage: "dot.radiowaves.left.and.right")
                         .font(.body.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 36)
+                        .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.glassProminent)
-                .controlSize(.large)
+                .controlSize(.extraLarge)
                 Toggle("Báo thức trước ga xuống", isOn: alarmBinding)
                     .padding(.horizontal, 4)
             }

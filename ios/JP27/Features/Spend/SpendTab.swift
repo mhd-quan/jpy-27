@@ -10,6 +10,7 @@ struct SpendTab: View {
     @Query(sort: \Expense.at, order: .reverse) private var expenses: [Expense]
     @Query private var topups: [Topup]
     @State private var topup: PayMethod?
+    @Environment(\.zoomSpace) private var space
 
     var body: some View {
         @Bindable var model = model
@@ -26,8 +27,12 @@ struct SpendTab: View {
             .listStyle(.insetGrouped)
             .navigationTitle("Chi tiêu")
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
-            .overlay(alignment: .bottomTrailing) { addButton }
-            .sheet(item: $topup) { SpendTopupSheet(method: $0) }
+            // a bar, not an overlay: the ledger ends above the button and fades out under it
+            .safeAreaBar(edge: .bottom, alignment: .trailing) { addButton }
+            .sheet(item: $topup) { method in
+                SpendTopupSheet(method: method)
+                    .zoomed(from: "spend.topup.\(method.rawValue)", in: space)
+            }
         }
     }
 
@@ -66,7 +71,9 @@ struct SpendTab: View {
             }
             HStack(spacing: 12) {
                 Button { topup = .cash } label: { Label("Rút tiền", systemImage: "plus.circle").frame(maxWidth: .infinity) }
+                    .sheetSource("spend.topup.\(PayMethod.cash.rawValue)")
                 Button { topup = .ic } label: { Label("Nạp Suica", systemImage: "plus.circle").frame(maxWidth: .infinity) }
+                    .sheetSource("spend.topup.\(PayMethod.ic.rawValue)")
             }
             .buttonStyle(.bordered)
         }
@@ -138,7 +145,7 @@ struct SpendTab: View {
 
     private var addButton: some View {
         Button {
-            model.sheet = .expense(placeID: nil, yen: nil)
+            model.present(.expense(placeID: nil, yen: nil), from: "spend.add")
         } label: {
             Image(systemName: "plus")
                 .font(.title2.weight(.semibold))
@@ -146,6 +153,7 @@ struct SpendTab: View {
         }
         .buttonStyle(.glassProminent)
         .buttonBorderShape(.circle)
+        .sheetSource("spend.add")
         .accessibilityLabel("Ghi khoản chi")
         .padding(.trailing, Metrics.gutter)
         .padding(.bottom, 16)

@@ -44,8 +44,10 @@ struct FujiFinderView: View {
         .overlay {
             if let sight, arSupported, !onScreen {
                 FujiTurnHint(sight: sight, heading: model.location.heading)
+                    .transition(.scale(scale: 0.85).combined(with: .opacity))
             }
         }
+        .animation(.smooth, value: onScreen)
         .overlay(alignment: .topTrailing) {
             Button {
                 dismiss()
@@ -70,7 +72,8 @@ struct FujiFinderView: View {
             model.location.resume(for: model)
             let hours = await model.forecasts.hours("summit", at: FujiSight.summit, online: model.network.online)
             let now = model.now
-            cloud = hours.min { abs($0.date.timeIntervalSince(now)) < abs($1.date.timeIntervalSince(now)) }?.cloud
+            let nearest = hours.min { abs($0.date.timeIntervalSince(now)) < abs($1.date.timeIntervalSince(now)) }?.cloud
+            withAnimation(.smooth) { cloud = nearest }
         }
     }
 }
@@ -83,8 +86,10 @@ private struct FujiInfo: View {
     let sight: FujiSight.Sight
     let cloud: Double?
     let spot: FujiGuide.Spot?
+    @Namespace private var glass
 
     var body: some View {
+        // the cloud and terrain pills grow out of the distance pill when their data arrives
         GlassEffectContainer(spacing: 8) {
             VStack(spacing: 8) {
                 HStack(spacing: 10) {
@@ -100,6 +105,7 @@ private struct FujiInfo: View {
                 .padding(.horizontal, 16)
                 .frame(minHeight: 40)
                 .glassEffect(.regular, in: .capsule)
+                .glassEffectID("sight", in: glass)
                 .accessibilityElement(children: .combine)
 
                 if cloud != nil || spot != nil {
@@ -109,12 +115,14 @@ private struct FujiInfo: View {
                                 .padding(.horizontal, 14)
                                 .frame(minHeight: 36)
                                 .glassEffect(.regular, in: .capsule)
+                                .glassEffectID("cloud", in: glass)
                         }
                         if let spot {
                             Label(verdict(spot), systemImage: spot.visible ? "eye" : "eye.slash")
                                 .padding(.horizontal, 14)
                                 .frame(minHeight: 36)
                                 .glassEffect(.regular, in: .capsule)
+                                .glassEffectID("spot", in: glass)
                         }
                     }
                     .font(.footnote.weight(.medium))

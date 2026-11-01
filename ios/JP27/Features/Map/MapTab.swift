@@ -55,7 +55,7 @@ struct MapTab: View {
             .overlay(alignment: .topTrailing) {
                 MapControls(
                     locate: locate,
-                    fuji: { model.sheet = .fujiFinder },
+                    fuji: { model.present(.fujiFinder, from: "map.fuji") },
                     frameDay: {
                         selected = nil
                         reframe += 1
@@ -122,7 +122,7 @@ struct MapTab: View {
 
 // MARK: - Chrome
 
-/// The day shown, as a glass capsule that opens the list of days.
+/// The day shown, as a glass button the list of days morphs out of.
 private struct MapDayChip: View {
     @Environment(AppModel.self) private var model
     let day: Day
@@ -158,11 +158,11 @@ private struct MapDayChip: View {
                 Image(systemName: "chevron.down").font(.caption.weight(.bold)).foregroundStyle(.secondary)
             }
             .font(.subheadline)
-            .padding(.horizontal, 16)
-            .frame(minHeight: 44)
-            .glassEffect(.regular.interactive(), in: .capsule)
         }
-        .buttonStyle(.plain)
+        // a glass button, not a label with glass painted on: the menu grows out of it and back
+        .buttonStyle(.glass)
+        .buttonBorderShape(.capsule)
+        .controlSize(.large)
         .accessibilityLabel("Ngày \(day.n), \(day.title)")
         .accessibilityHint("Chọn ngày khác")
     }
@@ -180,6 +180,7 @@ private struct MapControls: View {
                 button("location.fill", "Vị trí của tôi", locate)
                 Divider().frame(width: 26)
                 button("mountain.2.fill", "Tìm Fuji", fuji)
+                    .sheetSource("map.fuji")
                 Divider().frame(width: 26)
                 button("arrow.up.left.and.arrow.down.right", "Cả ngày", frameDay)
             }
@@ -318,7 +319,6 @@ private struct MapPanelHeader: View {
                     model.walk(to: place.id)
                 } label: {
                     Label("Đi bộ", systemImage: "figure.walk")
-                        .frame(minHeight: 30)
                 }
                 // the panel is glass already: a solid button, not glass on glass
                 .buttonStyle(.borderedProminent)
@@ -449,15 +449,16 @@ private struct MapPlaceRow: View {
                     Button {
                         model.walk(to: place.id)
                     } label: {
-                        Label("Đi bộ", systemImage: "figure.walk").frame(maxWidth: .infinity, minHeight: 30)
+                        Label("Đi bộ", systemImage: "figure.walk").frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
                     Button {
-                        model.sheet = .place(place.id)
+                        model.present(.place(place.id), from: "map.\(place.id)")
                     } label: {
-                        Label("Chi tiết", systemImage: "info.circle").frame(maxWidth: .infinity, minHeight: 30)
+                        Label("Chi tiết", systemImage: "info.circle").frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
+                    .sheetSource("map.\(place.id)")
                 }
                 .padding(.leading, 48)
                 .transition(.opacity.combined(with: .move(edge: .top)))

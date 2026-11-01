@@ -22,7 +22,7 @@ struct TalkTab: View {
             .navigationTitle("Sổ tay")
             .searchable(text: $query, prompt: "Tìm câu tiếng Nhật hoặc tiếng Việt")
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
-            .fullScreenCover(item: $shown) { TalkShowCard(item: $0) }
+            .phraseCover($shown)
         }
     }
 
@@ -58,7 +58,8 @@ struct TalkTab: View {
                     SectionTitle("Tên ga nên nhớ")
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 128), spacing: 10)], spacing: 10) {
                         ForEach(guide.phrases.stations, id: \.ja) { st in
-                            Button { shown = TalkShowItem(id: "st-\(st.ja)", ja: st.ja, romaji: st.romaji) } label: {
+                            let item = TalkShowItem(id: "st-\(st.ja)", ja: st.ja, romaji: st.romaji)
+                            Button { shown = item } label: {
                                 VStack(spacing: 2) {
                                     Text(st.ja).font(.title2.weight(.bold)).environment(\.locale, Locale(identifier: "ja_JP"))
                                     Text(st.romaji).font(.caption).foregroundStyle(.secondary)
@@ -67,6 +68,7 @@ struct TalkTab: View {
                                 .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 18, style: .continuous))
                             }
                             .buttonStyle(.plain)
+                            .sheetSource(item.source)
                             .accessibilityLabel("\(st.romaji), \(st.ja)")
                         }
                     }
@@ -93,8 +95,10 @@ struct TalkTab: View {
     private var actions: some View {
         GlassEffectContainer(spacing: 12) {
             HStack(spacing: 12) {
-                TalkActionTile(title: "Nghe", symbol: "ear") { model.sheet = .listen }
-                TalkActionTile(title: "Quét menu", symbol: "text.viewfinder") { model.sheet = .menuScan(TalkNearby.foodPlace(model)) }
+                TalkActionTile(title: "Nghe", symbol: "ear") { model.present(.listen, from: "talk.listen") }
+                    .sheetSource("talk.listen")
+                TalkActionTile(title: "Quét menu", symbol: "text.viewfinder") { model.present(.menuScan(TalkNearby.foodPlace(model)), from: "talk.scan") }
+                    .sheetSource("talk.scan")
             }
         }
         .padding(.top, 8)

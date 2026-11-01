@@ -53,10 +53,11 @@ private struct PlanPlaceContent: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    model.sheet = .expense(placeID: place.id, yen: nil)
+                    model.present(.expense(placeID: place.id, yen: nil), from: "place.\(place.id).expense")
                 } label: {
                     Label("Ghi chi", systemImage: "yensign")
                 }
+                .sheetSource("place.\(place.id).expense")
             }
         }
     }
@@ -91,6 +92,8 @@ private struct PlanPlacePhotos: View {
             }
             .tabViewStyle(.page(indexDisplayMode: photos.count > 1 ? .automatic : .never))
             .frame(height: 300)
+            // the photo carries on, mirrored and blurred, under the bar above it
+            .backgroundExtensionEffect()
             if photos.indices.contains(page) {
                 let p = photos[page]
                 VStack(alignment: .leading, spacing: 2) {
@@ -178,14 +181,14 @@ private struct PlanPlaceActions: View {
                 Button {
                     model.walk(to: place.id)
                 } label: {
-                    Label("Đi bộ", systemImage: "figure.walk").frame(maxWidth: .infinity, minHeight: 32)
+                    Label("Đi bộ", systemImage: "figure.walk").frame(maxWidth: .infinity)
                 }
                 Button {
                     model.mapFocus = place.id
-                    model.sheet = nil
+                    model.dismissSheets()
                     model.tab = .map
                 } label: {
-                    Label("Bản đồ", systemImage: "map").frame(maxWidth: .infinity, minHeight: 32)
+                    Label("Bản đồ", systemImage: "map").frame(maxWidth: .infinity)
                 }
                 talk
             }
@@ -200,13 +203,14 @@ private struct PlanPlaceActions: View {
     private var talk: some View {
         if place.kind == .food || place.kind == .shop {
             Button {
-                model.sheet = .atPlace(place.id)
+                model.present(.atPlace(place.id), from: "place.\(place.id).talk")
             } label: {
-                Label("Nói", systemImage: "character.bubble").frame(maxWidth: .infinity, minHeight: 32)
+                Label("Nói", systemImage: "character.bubble").frame(maxWidth: .infinity)
             }
+            .sheetSource("place.\(place.id).talk")
         } else if let scenario = model.store.scenarios(for: place).first {
             NavigationLink(value: Route.scenario(scenario.id)) {
-                Label("Nói", systemImage: "character.bubble").frame(maxWidth: .infinity, minHeight: 32)
+                Label("Nói", systemImage: "character.bubble").frame(maxWidth: .infinity)
             }
         }
     }
@@ -293,12 +297,14 @@ private struct PlanPlaceMenuSection: View {
                 }
             }
             Button {
-                model.sheet = .menuScan(place.id)
+                model.present(.menuScan(place.id), from: "place.\(place.id).scan")
             } label: {
                 Label("Quét thực đơn", systemImage: "text.viewfinder")
-                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
+            .controlSize(.large)
+            .sheetSource("place.\(place.id).scan")
         }
     }
 

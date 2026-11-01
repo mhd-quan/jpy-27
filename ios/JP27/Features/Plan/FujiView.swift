@@ -14,14 +14,15 @@ struct FujiView: View {
                 PlanFujiSummit()
                 CloudForecast(title: "Đỉnh Fuji", key: "summit", coordinate: FujiSight.summit)
                 Button {
-                    model.sheet = .fujiFinder
+                    model.present(.fujiFinder, from: "fuji.finder")
                 } label: {
                     Label("Tìm Fuji bằng camera", systemImage: "camera.viewfinder")
                         .font(.body.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 36)
+                        .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.glassProminent)
-                .controlSize(.large)
+                .controlSize(.extraLarge)
+                .sheetSource("fuji.finder")
                 PlanFujiClimate(climate: fuji.research?["climate"])
                 ForEach(groups) { group in
                     PlanFujiGroup(title: group.title, spots: group.spots)

@@ -43,6 +43,7 @@ struct JP27App: App {
 /// Five tabs for what is opened again and again on the road; everything else is one level deeper.
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @Namespace private var zoom
 
     var body: some View {
         @Bindable var model = model
@@ -67,10 +68,9 @@ struct RootView: View {
         .tabViewBottomAccessory {
             NowAccessory()
         }
-        .sheet(item: $model.sheet) { sheet in
-            SheetHost(sheet: sheet)
-                .environment(model)
-        }
+        .progressiveEdges()
+        .presentsSheets()
+        .environment(\.zoomSpace, zoom)
     }
 }
 
@@ -99,7 +99,8 @@ struct RouteHost: View {
     }
 }
 
-/// Where every modal leads. Sheets that show a place or a ride carry their own navigation.
+/// Where every modal leads. Sheets that show a place or a ride carry their own navigation;
+/// `presentsSheets` stacks them and grows each out of the control that opened it.
 struct SheetHost: View {
     let sheet: AppSheet
 

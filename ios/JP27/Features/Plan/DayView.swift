@@ -130,11 +130,12 @@ private struct PlanDayTimeline: View {
         case .stop(let s):
             ItemRow(day: day, index: i)
                 .contentShape(.rect)
+                .sheetSource("day.\(day.key).\(i)")
                 .onTapGesture {
-                    if let id = s.place { model.sheet = .place(id) }
+                    if let id = s.place { model.present(.place(id), from: "day.\(day.key).\(i)") }
                 }
                 .accessibilityAction(named: "Chi tiết") {
-                    if let id = s.place { model.sheet = .place(id) }
+                    if let id = s.place { model.present(.place(id), from: "day.\(day.key).\(i)") }
                 }
                 .contextMenu {
                     if model.store.place(s.place)?.kind != .station {

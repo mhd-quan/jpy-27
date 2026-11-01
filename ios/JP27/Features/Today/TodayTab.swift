@@ -26,17 +26,23 @@ struct TodayTab: View {
             .screen()
             .navigationTitle(title)
             .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
+                // listening is a tool, settings are not: two glass groups, not one
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        model.sheet = .listen
+                        model.present(.listen, from: "today.listen")
                     } label: {
                         Label("Nghe", systemImage: "ear")
                     }
+                    .sheetSource("today.listen")
+                }
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        model.sheet = .settings
+                        model.present(.settings, from: "today.settings")
                     } label: {
                         Label("Cài đặt", systemImage: "gearshape")
                     }
+                    .sheetSource("today.settings")
                 }
             }
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
@@ -91,7 +97,7 @@ private struct TodayBefore: View {
             }
 
             Button {
-                model.sheet = .settings
+                model.present(.settings, from: "today.rehearse")
             } label: {
                 Card {
                     HStack {
@@ -103,6 +109,7 @@ private struct TodayBefore: View {
                 }
             }
             .buttonStyle(.plain)
+            .sheetSource("today.rehearse")
         }
     }
 }
@@ -179,6 +186,7 @@ private struct TodayDuring: View {
 
             if let plan = model.replan {
                 TodayLateBanner(day: day, plan: plan)
+                    .transition(.move(edge: .top).combined(with: .opacity))
             }
 
             if let next = model.next {
@@ -216,6 +224,7 @@ private struct TodayDuring: View {
 
             TodayTimeline(day: day)
         }
+        .animation(.smooth, value: model.replan == nil)
     }
 }
 
@@ -238,6 +247,8 @@ private struct TodayLateBanner: View {
                 .font(.headline)
                 .foregroundStyle(.red)
                 .monospacedDigit()
+                .contentTransition(.numericText())
+                .animation(.smooth, value: plan.lateBy)
             if let advice = model.advice(plan, day: day) {
                 Text(advice).font(.subheadline)
             }
@@ -355,8 +366,13 @@ private struct TodayNextCard: View {
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
         .contentShape(.rect)
+        .sheetSource("today.next")
         .onTapGesture {
-            if let ride { model.sheet = .ride(ride.id) } else if let id = next.placeID { model.sheet = .place(id) }
+            if let ride {
+                model.present(.ride(ride.id), from: "today.next")
+            } else if let id = next.placeID {
+                model.present(.place(id), from: "today.next")
+            }
         }
         .accessibilityElement(children: .contain)
     }
@@ -378,8 +394,11 @@ private struct TodayNextActions: View {
     let ride: Ride?
 
     @State private var arrived = false
+    @Namespace private var glass
 
     var body: some View {
+        // one container: following a ride turns its button into the tracking one in place,
+        // and the row reflows as one piece of glass when the next stop changes
         GlassEffectContainer(spacing: 10) {
             HStack(spacing: 10) {
                 if let id = next.placeID {
@@ -387,37 +406,44 @@ private struct TodayNextActions: View {
                         model.walk(to: id)
                     } label: {
                         Label("Đi bộ", systemImage: "figure.walk")
-                            .frame(maxWidth: .infinity, minHeight: 32)
+                            .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glassProminent)
+                    .glassEffectID("walk", in: glass)
                 }
 
                 if let ride {
                     if model.live.ride?.id == ride.id {
                         Button {
-                            model.sheet = .ride(ride.id)
+                            model.present(.ride(ride.id), from: "today.ride")
                         } label: {
                             Label("Đang theo dõi", systemImage: "dot.radiowaves.left.and.right")
-                                .frame(maxWidth: .infinity, minHeight: 32)
+                                .symbolEffect(.variableColor.iterative)
+                                .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.glass)
+                        .glassEffectID("ride", in: glass)
+                        .sheetSource("today.ride")
                     } else {
                         Button {
-                            model.live.start(ride, model: model)
+                            withAnimation(.bouncy) { model.live.start(ride, model: model) }
                         } label: {
                             Label("Theo dõi chuyến", systemImage: "tram.fill")
-                                .frame(maxWidth: .infinity, minHeight: 32)
+                                .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.glass)
+                        .glassEffectID("ride", in: glass)
                     }
                 } else if place?.kind == .food, let id = place?.id {
                     Button {
-                        model.sheet = .atPlace(id)
+                        model.present(.atPlace(id), from: "today.order")
                     } label: {
                         Label("Gọi món", systemImage: "fork.knife")
-                            .frame(maxWidth: .infinity, minHeight: 32)
+                            .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glass)
+                    .glassEffectID("order", in: glass)
+                    .sheetSource("today.order")
                 }
 
                 if next.kind != .departure {
@@ -427,9 +453,10 @@ private struct TodayNextActions: View {
                     } label: {
                         Label("Đã tới", systemImage: "checkmark")
                             .labelStyle(.iconOnly)
-                            .frame(minWidth: 32, minHeight: 32)
                     }
                     .buttonStyle(.glass)
+                    .buttonBorderShape(.circle)
+                    .glassEffectID("arrived", in: glass)
                     .accessibilityLabel("Đã tới")
                     .sensoryFeedback(.success, trigger: arrived)
                 }
@@ -479,18 +506,21 @@ private struct TodayTimeline: View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(indices, id: \.self) { i in
                 ItemRow(day: day, index: i)
+                    .sheetSource(source(i))
                     .onTapGesture { open(i) }
                     .accessibilityAction(named: "Chi tiết") { open(i) }
             }
         }
     }
 
+    private func source(_ i: Int) -> String { "today.\(day.key).\(i)" }
+
     private func open(_ i: Int) {
         switch day.items[i] {
         case .stop(let s):
-            if let id = s.place { model.sheet = .place(id) }
+            if let id = s.place { model.present(.place(id), from: source(i)) }
         case .move(let m):
-            if let ride = model.store.ride(containing: m.leg.id, on: day) { model.sheet = .ride(ride.id) }
+            if let ride = model.store.ride(containing: m.leg.id, on: day) { model.present(.ride(ride.id), from: source(i)) }
         }
     }
 }

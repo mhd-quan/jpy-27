@@ -9,6 +9,7 @@ struct ShoppingView: View {
     @Environment(\.modelContext) private var context
     @Query private var purchases: [Purchase]
     @State private var buying: SpendBuyItem?
+    @Environment(\.zoomSpace) private var space
     @State private var bought = 0
 
     private var guide: Guide { model.guide }
@@ -45,7 +46,10 @@ struct ShoppingView: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Mua sắm")
         .navigationBarTitleDisplayMode(.large)
-        .sheet(item: $buying) { SpendBuySheet(item: $0) { bought += 1 } }
+        .sheet(item: $buying) { item in
+            SpendBuySheet(item: item) { bought += 1 }
+                .zoomed(from: item.source, in: space)
+        }
         .sensoryFeedback(.success, trigger: bought)
     }
 
@@ -70,7 +74,8 @@ struct ShoppingView: View {
 
     private func basketRow(_ item: Basket.Item, purchase: Purchase?) -> some View {
         HStack(alignment: .top, spacing: 8) {
-            CheckButton(isOn: purchase != nil) { toggle(id: item.id, name: item.name, yen: item.total, qty: item.qty, purchase: purchase) }
+            CheckButton(isOn: purchase != nil) { toggle(id: item.id, name: item.name, yen: item.total, qty: item.qty, purchase: purchase, source: "buy.basket.\(item.id)") }
+                .sheetSource("buy.basket.\(item.id)")
                 .padding(.top, -8)
                 .padding(.leading, -8)
             VStack(alignment: .leading, spacing: 2) {
@@ -122,7 +127,8 @@ struct ShoppingView: View {
     private func catalogRow(_ item: Shopping.CatalogItem, purchase: Purchase?) -> some View {
         let chains = Dictionary(guide.shopping.chains.map { ($0.id, $0.name) }, uniquingKeysWith: { a, _ in a })
         return HStack(alignment: .top, spacing: 8) {
-            CheckButton(isOn: purchase != nil) { toggle(id: item.id, name: item.name, yen: item.yen ?? 0, qty: 1, purchase: purchase) }
+            CheckButton(isOn: purchase != nil) { toggle(id: item.id, name: item.name, yen: item.yen ?? 0, qty: 1, purchase: purchase, source: "buy.catalog.\(item.id)") }
+                .sheetSource("buy.catalog.\(item.id)")
                 .padding(.top, -8)
                 .padding(.leading, -8)
             VStack(alignment: .leading, spacing: 3) {
@@ -149,14 +155,14 @@ struct ShoppingView: View {
 
     // MARK: Buying
 
-    private func toggle(id: String, name: String, yen: Int, qty: Int, purchase: Purchase?) {
+    private func toggle(id: String, name: String, yen: Int, qty: Int, purchase: Purchase?, source: String) {
         if purchase != nil {
             let linked: String? = id
             try? context.delete(model: Purchase.self, where: #Predicate { $0.itemID == id })
             try? context.delete(model: Expense.self, where: #Predicate { $0.itemID == linked })
             try? context.save()
         } else {
-            buying = SpendBuyItem(id: id, name: name, yen: yen, qty: qty)
+            buying = SpendBuyItem(id: id, name: name, yen: yen, qty: qty, source: source)
         }
     }
 }
@@ -166,6 +172,8 @@ struct SpendBuyItem: Identifiable {
     let name: String
     let yen: Int
     let qty: Int
+    /// the check it was ticked from, which the sheet grows out of
+    var source: String?
 }
 
 /// "Bought it": the real price and how it was paid; logs the purchase and the expense together.

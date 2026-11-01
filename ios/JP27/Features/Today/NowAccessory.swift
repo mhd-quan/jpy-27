@@ -19,6 +19,9 @@ struct NowAccessory: View {
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        // the ride sheet grows out of the accessory, the way Music's player grows out of its own
+        .sheetSource("now")
+        .animation(.smooth, value: model.live.ride?.id)
     }
 
     @ViewBuilder
@@ -53,7 +56,7 @@ struct NowAccessory: View {
 
     private func tap() {
         if let ride = model.live.ride {
-            model.sheet = .ride(ride.id)
+            model.present(.ride(ride.id), from: "now")
         } else {
             model.tab = .today
         }

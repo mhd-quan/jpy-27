@@ -22,7 +22,7 @@ struct AtPlaceView: View {
                 ContentUnavailableView("Không có địa điểm này", systemImage: "mappin.slash")
             }
         }
-        .fullScreenCover(item: $shown) { TalkShowCard(item: $0) }
+        .phraseCover($shown)
     }
 
     private func content(_ place: Place) -> some View {
@@ -51,10 +51,12 @@ struct AtPlaceView: View {
                     .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
             }
             if let ja = place.ja {
-                Button { shown = TalkShowItem(id: "name-\(place.id)", ja: ja, romaji: place.name) } label: {
+                let item = TalkShowItem(id: "name-\(place.id)", ja: ja, romaji: place.name)
+                Button { shown = item } label: {
                     Text(ja).font(.title2.weight(.semibold)).environment(\.locale, Locale(identifier: "ja_JP"))
                 }
                 .buttonStyle(.plain)
+                .sheetSource(item.source)
                 .accessibilityHint("Hiện tên quán chữ lớn")
             }
             if let tip = place.menu?.orderTip {
@@ -77,15 +79,18 @@ struct AtPlaceView: View {
                     if !dishes.isEmpty {
                         ForEach(Array(dishes.enumerated()), id: \.offset) { i, item in
                             if i > 0 { Divider() }
-                            Button { shown = TalkShowItem(id: "dish-\(item.ja)", ja: item.ja, romaji: item.romaji, vi: item.vi) } label: {
+                            let show = TalkShowItem(id: "dish-\(item.ja)", ja: item.ja, romaji: item.romaji, vi: item.vi)
+                            Button { shown = show } label: {
                                 DishRow(item: item).contentShape(.rect)
                             }
                             .buttonStyle(.plain)
+                            .sheetSource(show.source)
                         }
                     } else {
                         ForEach(Array(snacks.prefix(3).enumerated()), id: \.offset) { i, g in
                             if i > 0 { Divider() }
-                            Button { shown = TalkShowItem(id: "get-\(g.ja)", ja: g.ja, romaji: g.romaji, vi: g.vi) } label: {
+                            let show = TalkShowItem(id: "get-\(g.ja)", ja: g.ja, romaji: g.romaji, vi: g.vi)
+                            Button { shown = show } label: {
                                 HStack(alignment: .top) {
                                     JapaneseLine(ja: g.ja, romaji: g.romaji, vi: g.vi, size: .headline)
                                     Spacer(minLength: 0)
@@ -94,6 +99,7 @@ struct AtPlaceView: View {
                                 .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
+                            .sheetSource(show.source)
                         }
                     }
                 }
@@ -159,18 +165,20 @@ struct AtPlaceView: View {
         HStack(spacing: 12) {
             if place.menu != nil || place.kind == .food {
                 Button {
-                    model.sheet = .menuScan(place.id)
+                    model.present(.menuScan(place.id), from: "at.\(place.id).scan")
                 } label: {
-                    Label("Quét menu", systemImage: "text.viewfinder").frame(maxWidth: .infinity, minHeight: 34)
+                    Label("Quét menu", systemImage: "text.viewfinder").frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
+                .sheetSource("at.\(place.id).scan")
             }
             Button {
-                model.sheet = .expense(placeID: place.id, yen: estimate?.mid)
+                model.present(.expense(placeID: place.id, yen: estimate?.mid), from: "at.\(place.id).expense")
             } label: {
-                Label("Ghi chi thật", systemImage: "yensign").frame(maxWidth: .infinity, minHeight: 34)
+                Label("Ghi chi thật", systemImage: "yensign").frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
+            .sheetSource("at.\(place.id).expense")
         }
         .controlSize(.large)
     }

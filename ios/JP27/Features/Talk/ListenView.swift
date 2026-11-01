@@ -23,18 +23,19 @@ struct ListenView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 CloseButton()
-                if let listener, !listener.sentences.isEmpty {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button("Xoá", systemImage: "trash") { listener.clear() }
-                    }
+                // hide the item itself, so the bar morphs instead of leaving an empty slot
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Xoá", systemImage: "trash") { listener?.clear() }
                 }
+                .hidden(listener?.sentences.isEmpty ?? true)
             }
-            .safeAreaInset(edge: .bottom) {
+            // a bar, not an inset: the transcript scrolls under the button and fades out there
+            .safeAreaBar(edge: .bottom) {
                 if let listener { recordButton(listener) }
             }
         }
         .talkTranslation(translator)
-        .fullScreenCover(item: $shown) { TalkShowCard(item: $0) }
+        .phraseCover($shown)
         .task {
             if listener == nil { listener = TalkListener(scenarios: model.guide.phrases.scenarios) }
         }
@@ -141,8 +142,9 @@ private struct ListenBubble: View {
                         .font(.subheadline.weight(.medium))
                     if let reply = hit.heard.reply {
                         HStack(alignment: .top) {
+                            let item = TalkShowItem(id: "reply-\(sentence.id)", ja: reply.ja, romaji: reply.romaji)
                             Button {
-                                show(TalkShowItem(id: "reply-\(reply.ja)", ja: reply.ja, romaji: reply.romaji))
+                                show(item)
                             } label: {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(reply.ja).font(.headline).environment(\.locale, Locale(identifier: "ja_JP"))
@@ -152,6 +154,7 @@ private struct ListenBubble: View {
                                 .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
+                            .sheetSource(item.source)
                             TalkSpeakButton(ja: reply.ja)
                         }
                     }

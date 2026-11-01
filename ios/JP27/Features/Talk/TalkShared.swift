@@ -23,6 +23,29 @@ struct TalkShowItem: Identifiable, Hashable {
     init(_ p: Phrase) {
         self.init(id: p.id, ja: p.filledJa, romaji: p.filledRomaji, vi: p.vi)
     }
+
+    /// The `sheetSource` of the line the card grows out of.
+    var source: String { "show.\(id)" }
+}
+
+extension View {
+    /// The full-screen card for `item`, grown out of the line that was tapped (marked with
+    /// `sheetSource(item.source)`) and shrunk back into it on close.
+    func phraseCover(_ item: Binding<TalkShowItem?>) -> some View {
+        modifier(TalkPhraseCover(item: item))
+    }
+}
+
+private struct TalkPhraseCover: ViewModifier {
+    @Binding var item: TalkShowItem?
+    @Environment(\.zoomSpace) private var space
+
+    func body(content: Content) -> some View {
+        content.fullScreenCover(item: $item) { shown in
+            TalkShowCard(item: shown)
+                .zoomed(from: shown.source, in: space)
+        }
+    }
 }
 
 /// Full screen, black on white, Japanese as large as fits: for the person across the counter.
@@ -149,6 +172,7 @@ struct TalkPhraseRow: View {
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
+            .sheetSource(item.source)
             .accessibilityHint("Hiện chữ lớn cho nhân viên")
             TalkSpeakButton(ja: item.ja)
         }

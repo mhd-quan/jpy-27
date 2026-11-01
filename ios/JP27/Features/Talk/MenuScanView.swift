@@ -181,13 +181,15 @@ struct MenuScanView: View {
                     Tag(text: p.name, symbol: "fork.knife")
                 }
                 Spacer(minLength: 0)
+                // stacks on the scanner, so the scan is still there after logging
                 Button {
-                    model.sheet = .expense(placeID: m.candidate.placeID, yen: price.map { $0 * model.people })
+                    model.present(.expense(placeID: m.candidate.placeID, yen: price.map { $0 * model.people }), from: "scan.\(scanID).\(m.line)")
                 } label: {
                     Label("Ghi món này", systemImage: "yensign")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .sheetSource("scan.\(scanID).\(m.line)")
             }
         }
     }

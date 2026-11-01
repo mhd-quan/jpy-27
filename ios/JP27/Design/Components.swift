@@ -2,8 +2,8 @@ import SwiftUI
 import TripKit
 
 // The app's building blocks. Content sits on grouped backgrounds in rounded cards; Liquid Glass is
-// kept for what floats above content — the tab bar, toolbars, map controls, the action button —
-// as the HIG asks, so glass never sits on glass.
+// kept for controls — the tab bar, toolbars, map controls, action buttons — through the system's
+// glass button styles, so glass never sits on glass. How sheets come and go is in Presentation.swift.
 
 enum Metrics {
     /// screen edge inset; Pro Max gets a touch more room
@@ -202,15 +202,6 @@ extension View {
     /// The grouped background every scrolling screen sits on.
     func screen() -> some View {
         background(Color(.systemGroupedBackground))
-    }
-
-    /// Floating control on Liquid Glass.
-    func floating() -> some View {
-        glassEffect(.regular.interactive(), in: .capsule)
-    }
-
-    func floating(in shape: some Shape) -> some View {
-        glassEffect(.regular.interactive(), in: shape)
     }
 }
 

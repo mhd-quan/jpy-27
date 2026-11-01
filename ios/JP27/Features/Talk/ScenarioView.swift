@@ -17,7 +17,7 @@ struct ScenarioView: View {
             }
         }
         .navigationBarTitleDisplayMode(.large)
-        .fullScreenCover(item: $shown) { TalkShowCard(item: $0) }
+        .phraseCover($shown)
     }
 
     private func content(_ s: Scenario) -> some View {
@@ -72,8 +72,9 @@ private struct ScenarioHeardRow: View {
                         .foregroundStyle(Color.accentColor)
                         .padding(.top, 4)
                         .accessibilityLabel("Đáp")
+                    let item = TalkShowItem(id: "reply-\(heard.ja)", ja: reply.ja, romaji: reply.romaji)
                     Button {
-                        show(TalkShowItem(id: "reply-\(reply.ja)", ja: reply.ja, romaji: reply.romaji))
+                        show(item)
                     } label: {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(reply.ja).font(.headline).environment(\.locale, Locale(identifier: "ja_JP"))
@@ -83,6 +84,7 @@ private struct ScenarioHeardRow: View {
                         .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
+                    .sheetSource(item.source)
                     TalkSpeakButton(ja: reply.ja)
                 }
                 .padding(10)

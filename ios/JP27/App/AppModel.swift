@@ -78,7 +78,8 @@ enum AppSheet: Identifiable, Hashable {
 
     // navigation
     var tab: AppTab = .today
-    var sheet: AppSheet?
+    /// sheets on screen, bottom first; see `present(_:from:)`
+    var sheets: [Presented] = []
     var todayPath = NavigationPath()
     var planPath = NavigationPath()
     var talkPath = NavigationPath()
@@ -460,22 +461,44 @@ enum AppSheet: Identifiable, Hashable {
         case .today:
             tab = .today
         case .place(let id):
-            sheet = .place(id)
+            show(.place(id))
         case .walk(let id):
             walk(to: id)
         case .ride(let id):
-            sheet = .ride(id)
+            show(.ride(id))
         case .day(let key):
             tab = .plan
             planPath = NavigationPath([Route.day(key)])
         case .spend(let place):
             tab = .spend
-            sheet = .expense(placeID: place, yen: nil)
+            show(.expense(placeID: place, yen: nil))
         case .journal(let key):
-            sheet = .journal(key)
+            show(.journal(key))
         case .menu(let id):
-            sheet = .atPlace(id)
+            show(.atPlace(id))
         }
+    }
+
+    // MARK: - Sheets
+
+    /// Opens `sheet` over what is on screen, growing out of the control marked `sheetSource(source)`.
+    /// Only the top of the stack takes touches, so whoever calls this is on top. A sheet already
+    /// open further down is returned to instead of opened twice.
+    func present(_ sheet: AppSheet, from source: String? = nil) {
+        if let i = sheets.firstIndex(where: { $0.id == sheet.id }) {
+            sheets.removeSubrange((i + 1)...)
+            return
+        }
+        sheets.append(Presented(sheet: sheet, source: source))
+    }
+
+    /// From a link or a notification: this sheet alone, over whatever tab is showing.
+    func show(_ sheet: AppSheet) {
+        sheets = [Presented(sheet: sheet, source: nil)]
+    }
+
+    func dismissSheets() {
+        sheets = []
     }
 
     /// Walking directions in Apple Maps: turn-by-turn on foot is what MapLibre cannot give.
