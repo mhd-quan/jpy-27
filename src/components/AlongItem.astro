@@ -14,6 +14,8 @@ const DOW_VI = ['Chủ nhật', 'thứ Hai', 'thứ Ba', 'thứ Tư', 'thứ Nă
 const social = [...new Set((sn?.social ?? []).map((x) => (['instagram', 'tiktok', 'youtube'].includes(x.platform) ? x.platform : 'press')))];
 const SOCIAL_LABEL: Record<string, string> = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', press: 'Báo du lịch' };
 const get = sn?.get[0];
+// "Tabelog 百名店 Wagashi/Cafe WEST 2026 (…)" → "百名店 2026"
+const award = sn?.tabelog?.award ? (/百名店/.test(sn.tabelog.award) ? `百名店 ${sn.tabelog.award.match(/20\d\d/)?.[0] ?? ''}`.trim() : sn.tabelog.award) : null;
 const hours = sn?.open && sn?.close ? `${sn.open}–${sn.close}` : '';
 const img = p.images[0];
 const kicker = d
@@ -44,7 +46,7 @@ const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
         <span class="al-tags">
           {closed && <span class="tag tag-closed">Nghỉ {DOW_VI[dow!]}</span>}
           {sn.tabelog?.rating && <span class="tag tag-tb tnum">Tabelog {sn.tabelog.rating.toFixed(2)}</span>}
-          {sn.tabelog?.award && <span class="tag tag-tb">{sn.tabelog.award}</span>}
+          {award && <span class="tag tag-tb">{award}</span>}
           {social.map((x) => <span class:list={['tag', x === 'press' ? 'tag-press' : 'tag-sns']}>{SOCIAL_LABEL[x]}</span>)}
           {hours && <span class="tag tnum">{hours}</span>}
         </span>
@@ -114,8 +116,11 @@ const fee = p.fee ? `, ${p.fee.charAt(0).toLowerCase()}${p.fee.slice(1)}` : '';
     margin: 3px 0 2px;
   }
   .tag {
-    display: inline-flex;
-    align-items: center;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 20px;
     height: 20px;
     padding: 0 7px;
     border-radius: 6px;

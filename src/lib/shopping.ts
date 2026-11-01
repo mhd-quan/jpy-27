@@ -69,7 +69,31 @@ export function chainKey(raw: string): string {
 const plan = SHOP_PLAN as { stores: any[]; slots: any[]; rules?: string[]; sources?: string[] };
 const itemsRaw = SHOP_ITEMS as { categories: any[]; chains: any[]; taxFree?: string; sources?: string[] };
 
-export const SLOTS: Slot[] = plan.slots
+// Planner's edits on top of the store research (kept here so research/ stays as collected):
+// a third slot on arrival night and a second Ise drugstore run are too much; the Asakusa block is
+// really two things — Nakamise while at Sensō-ji, and Kappabashi only if it replaces Sumida + Umezono.
+const DROP = new Set(['slot-1-3', 'slot-6-2']);
+const PATCH: Record<string, Record<string, unknown>> = {
+  'slot-2-1': { start: '13:30', end: '14:15', area: 'Nakamise, Asakusa', stores: ['sh-nakamise'], focus: 'Omamori và quà nhỏ nhẹ dọc Nakamise trong lúc đi Sensō-ji; rẽ vào các phố phía sau cho bớt đông.', skipIf: null },
+  'slot-8-2': { focus: 'Ippodo hōjicha gói 80 g ×6 (khoảng ¥1.080 mỗi gói, giá 2026); thử trà ở phòng trà Kaboku nếu còn chỗ.' },
+};
+const EXTRA: any[] = [
+  {
+    id: 'slot-2-1b',
+    day: 2,
+    start: '14:45',
+    end: '15:45',
+    city: 'Tokyo',
+    area: 'Kappabashi',
+    after: 'sensoji',
+    before: 'st-asakusa',
+    stores: ['sh-kappabashi'],
+    focus: 'Phố đồ bếp: bát nhỏ, đũa, mẫu đồ ăn nhựa. Chỉ xem và mua món nhẹ; đồ gốm nặng để Dōguyasuji ngày 11.',
+    why: 'Thay cho bờ sông Sumida và Umezono nếu thích đồ bếp hơn; cách Sensō-ji khoảng 15 phút đi bộ.',
+    skipIf: 'Giữ Sumida và Umezono như lịch.',
+  },
+];
+export const SLOTS: Slot[] = [...plan.slots.filter((s) => !DROP.has(s.id)).map((s) => ({ ...s, ...(PATCH[s.id] ?? {}) })), ...EXTRA]
   .map((s) => ({
     ...s,
     day: Number(s.day),

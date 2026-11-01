@@ -1,0 +1,680 @@
+{
+ "rides": [
+  {
+   "id": "d1-keikyu-haneda",
+   "day": 1,
+   "line": "Keikyu Airport Line → Keikyu Main Line",
+   "from": "羽田空港第3ターミナル",
+   "to": "品川",
+   "train": "Tàu Keikyu (京急) hướng Shinagawa, khoảng 15 phút (trang sân bay Haneda). Loại エアポート快特 chạy thẳng T3 → Shinagawa, ban ngày khoảng 40 phút một chuyến (Wikipedia, cập nhật 11/2023); 快特 dừng thêm ở Keikyu-Kamata, 特急 dừng thêm 穴守稲荷, 大鳥居, 糀谷, 京急蒲田, 平和島, 青物横丁 (mẫu Yahoo 2/11/2026, từ 天空橋 mất 15 phút). Cẩn thận: đường 2 ở T3 còn có tàu đi Yokohama, chỉ lên tàu ghi Shinagawa, Asakusa hoặc Narita Airport.",
+   "seat": "Không đặt chỗ, ngồi bên nào cũng được vì khoảng 3–5 phút đầu (ước tính) hoàn toàn trong hầm và phần còn lại là phố. Đứng gần cửa, kéo vali sát người; ga T3 nằm ở B2F, cổng soát vé hướng Tokyo/Yokohama ở tầng 2 sảnh đến (đi xuống thang máy tới đường 2).",
+   "views": [
+    {
+     "side": "both",
+     "fromSt": "羽田空港第3ターミナル",
+     "toSt": "大鳥居",
+     "what": "Tàu chạy hoàn toàn dưới đất qua 天空橋 và 穴守稲荷 (tàu nhanh chạy thẳng), luồn dưới sông 海老取川. Không có gì để nhìn.",
+     "fuji": false,
+     "tip": "Dành vài phút này kiểm tra lại đường đi tiếp, ghi sẵn số đường JR 4 ở Shinagawa.",
+     "src": "https://ja.wikipedia.org/wiki/京急空港線"
+    },
+    {
+     "side": "both",
+     "fromSt": "大鳥居",
+     "toSt": "京急蒲田",
+     "what": "Tàu ra khỏi hầm, leo dốc lên đường cao ở 糀谷 rồi vào ga 京急蒲田 ba tầng. Đây là lúc đầu tiên thấy khu dân cư Ōta với nhà cao tầng, quán gia đình và phố nhỏ.",
+     "fuji": false,
+     "tip": "エアポート快特 chạy qua Kamata không dừng; tàu 快特/特急 dừng ở đây vài chục giây.",
+     "src": "https://ja.wikipedia.org/wiki/京急蒲田駅"
+    },
+    {
+     "side": "both",
+     "fromSt": "平和島",
+     "toSt": "青物横丁",
+     "what": "Ga 平和島 nằm trên cao, gần trường đua thuyền 平和島 (không nằm trên đảo Heiwajima). Tàu chạy dọc quốc lộ 15 (第一京浜) ở phía tây; cảnh là phố nội thành, chưa tìm được nguồn nói thấy vịnh Tokyo từ tàu.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/平和島駅"
+    },
+    {
+     "side": "both",
+     "fromSt": "北品川",
+     "toSt": "品川",
+     "what": "北品川 nằm ở đầu bắc của 品川宿 trên đường Tōkaidō cũ và hiện vẫn ở mặt đất (đang có dự án nâng lên cao). Sau đó tàu lên cao vào ga Keikyu Shinagawa ở phía tây tổ hợp ga.",
+     "fuji": false,
+     "tip": "Chuẩn bị xuống từ khi tàu qua 北品川, ga kế tiếp là Shinagawa.",
+     "src": "https://ja.wikipedia.org/wiki/北品川駅"
+    }
+   ],
+   "transfers": [],
+   "alight": {
+    "prevSt": "北品川",
+    "announce": "まもなく、品川です。",
+    "announceRomaji": "Mamonaku, Shinagawa desu.",
+    "text": "Tàu từ Haneda thường vào đường 2 ở Keikyu Shinagawa (Wikipedia chưa xác nhận, nhìn biển trên sân ga). Đi theo biển 'JR線 / JR Lines' tới cổng trung gian trên đường 1, chạm thẻ Suica/PASMO để sang JR; nếu dùng vé giấy không từ tính thì dùng quầy bên cạnh cổng. Rồi lên JR Keihin-Tōhoku hướng Tokyo/Ōmiya ở đường 4 để đi Akihabara."
+   },
+   "onboard": null,
+   "sources": [
+    "https://ja.wikipedia.org/wiki/京急空港線",
+    "https://ja.wikipedia.org/wiki/エアポート快特",
+    "https://ja.wikipedia.org/wiki/羽田空港第3ターミナル駅",
+    "https://ja.wikipedia.org/wiki/京急蒲田駅",
+    "https://ja.wikipedia.org/wiki/平和島駅",
+    "https://ja.wikipedia.org/wiki/北品川駅",
+    "https://ja.wikipedia.org/wiki/大鳥居駅",
+    "https://ja.wikipedia.org/wiki/品川駅",
+    "https://tokyo-haneda.com/access/train/index.html"
+   ]
+  },
+  {
+   "id": "d4-romancecar",
+   "day": 4,
+   "line": "Odakyu Romancecar",
+   "from": "新宿",
+   "to": "箱根湯本",
+   "train": "Ngày thường hiện có GSE 70000 (7 toa, loại duy nhất có ghế quan sát), MSE 60000 (xanh dương, không có ghế quan sát) và EXE/EXEα 30000 (10 toa); VSE 50000 đã nghỉ từ 2023. Loại tàu mỗi chuyến đổi theo ngày (ký hiệu ▲ trong bảng giờ), tháng 5/2026 MSE bị lỗi thiết bị nên vài chuyến phải thay bằng EXE; Odakyu dự kiến đưa loại mới 80000 vào khoảng 3/2029. Bảng giờ ngày thường áp dụng từ 14/3/2026 không có chuyến はこね nào rời Shinjuku lúc 7:30: はこね41号 7:37 → Hakone-Yumoto 9:22 (loại E, 105 phút vì dừng Shin-Yurigaoka, Sagami-Ono, Hon-Atsugi, Isehara, Hadano, Odawara), はこね21号 8:11 → 9:53, はこね1号 8:31 → 10:18, はこね71号 9:20 → 10:55. Chuyến có ký hiệu ghế quan sát sớm nhất là さがみ91号 7:00 → Odawara 8:16, rồi đổi sang tàu Hakone Tozan khoảng 15 phút tới Hakone-Yumoto. Giá Shinjuku – Hakone-Yumoto khoảng ¥2.470 (vé tàu ¥1.270 + phụ phí ¥1.200, Ekitan 3/2026). Giờ 2027 chưa công bố, cần kiểm tra lại sau kỳ đổi giờ tháng 3/2027.",
+   "seat": "Fuji, núi Tanzawa và sông Tama ở bên PHẢI theo chiều đi (ghế C/D theo hướng dẫn của Odakyu), nên chọn cửa sổ C hoặc D. Muốn nhìn thẳng phía trước: GSE toa 1 (đầu tàu hướng Hakone), hàng 1; ghế B/C sát lối đi nhìn tốt nhất, ghế cửa sổ A/D bị trụ che. Ghế C hàng 1 vừa nhìn trước vừa nằm bên Fuji. Đặt vé lúc 10:00 giờ Nhật ngày 21/9/2027 (8:00 sáng giờ Việt Nam) trên e-Romancecar; ghế quan sát chỉ MUA ngay (trả tiền luôn), không giữ chỗ trước qua mạng. Nếu không có GSE: MSE chỉ có ghế 1C nhìn được phía trước, EXE ghế 1C/1D nhìn hạn chế.",
+   "views": [
+    {
+     "side": "front",
+     "fromSt": "新宿",
+     "toSt": "箱根湯本",
+     "what": "Ghế quan sát GSE toa 1 hàng 1: 16 ghế ở mỗi đầu tàu, giá bằng ghế thường, hết rất nhanh. Với Hakone, đầu toa 1 là phía trước; toa 7 ở cuối tàu chỉ nhìn ngược lại đường ray.",
+     "fuji": false,
+     "tip": "Mua đúng giờ mở bán; nếu hết, ghế thường của GSE vẫn có cửa sổ cao hơn tàu cũ.",
+     "src": "https://trafficnews.jp/post/131991/3"
+    },
+    {
+     "side": "right",
+     "fromSt": "和泉多摩川",
+     "toSt": "登戸",
+     "what": "Khoảng 14 phút sau khi rời Shinjuku tàu qua cầu sông Tama (cũng là ranh Tokyo – Kanagawa). Ngày trong, Fuji hiện ở phía trước bên phải, cách khoảng 80 km.",
+     "fuji": true,
+     "tip": "Qua nhanh nên chuẩn bị điện thoại trước khi tàu qua 成城学園前. Một bài đi GSE cũng ghi thấy Fuji bên phải ngay trên cầu Tama.",
+     "src": "https://4travel.jp/travelogue/11449141"
+    },
+    {
+     "side": "left",
+     "fromSt": "愛甲石田",
+     "toSt": "秦野",
+     "what": "Đồng lúa rộng và cảnh quê, ít núi cao nên rất thoáng; Odakyu khuyên ghế A/B (bên trái) cho đoạn này.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://www.odakyu.jp/romancecar/navi/enjoy/76/"
+    },
+    {
+     "side": "both",
+     "fromSt": "海老名",
+     "toSt": "本厚木",
+     "what": "Tàu qua sông Sagami (相模川) giữa Ebina và Hon-Atsugi, sau đó núi bắt đầu hiện ở phía bên phải. Chưa tìm được nguồn nói rõ sông nằm bên nào của tàu nên cả hai bên đều nhìn được.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/相模川"
+    },
+    {
+     "side": "right",
+     "fromSt": "伊勢原",
+     "toSt": "小田原",
+     "what": "Núi Tanzawa (丹沢) với đỉnh Ōyama ở gần Isehara hiện bên phải và rõ nhất khi gần Odawara, xen ruộng và phố. Sau Shibusawa núi Hakone/Tanzawa áp sát, nhiều hầm và suối (渋沢 → 新松田).",
+     "fuji": false,
+     "tip": "Odakyu khuyên ghế C/D cho đoạn Isehara – Odawara và đoạn 渋沢 – 新松田.",
+     "src": "https://www.odakyu.jp/romancecar/navi/enjoy/76/"
+    },
+    {
+     "side": "right",
+     "fromSt": "新松田",
+     "toSt": "栢山",
+     "what": "Đoạn dài nhất thấy Fuji, bên sông Sakawa (酒匂川), khi tàu vòng về hướng nam; Fuji lùi dần ra phía sau bên phải. Hỏi đáp trên Yahoo cũng ghi sau 渋沢 đến sát 新松田 Fuji ở bên phải.",
+     "fuji": true,
+     "tip": "Mây hay che; theo research/fuji.json, lúc 8h tháng 10 ở thành phố Fuji chỉ khoảng 41% số ngày thấy trọn núi.",
+     "src": "https://www.odakyu.jp/romancecar/navi/enjoy/76/"
+    },
+    {
+     "side": "left",
+     "fromSt": "小田原",
+     "toSt": "箱根湯本",
+     "what": "Odakyu khuyên ghế A/B (bên trái) cho đoạn Odawara – Hakone-Yumoto vì cảnh sông Hayakawa và núi Hakone quen thuộc trên truyền hình Hakone Ekiden. Tàu đi qua 箱根板橋, 風祭, 入生田 không dừng.",
+     "fuji": false,
+     "tip": "Chuẩn bị xuống từ khi tàu rời Odawara.",
+     "src": "https://www.odakyu.jp/romancecar/navi/enjoy/76/"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "小田原",
+     "text": "Không phải đổi tàu: はこね chạy suốt từ Shinjuku vào đường Hakone Tozan tới Hakone-Yumoto. Chỉ đổi ở Odawara nếu lên nhầm tàu さがみ hoặc モーニングウェイ (kết thúc ở Odawara hoặc sớm hơn); khi đó chuyển sang tàu Hakone Tozan khoảng 15 phút."
+    }
+   ],
+   "alight": {
+    "prevSt": "入生田",
+    "announce": "まもなく、箱根湯本です。",
+    "announceRomaji": "Mamonaku, Hakone-Yumoto desu.",
+    "text": "Tàu dừng cuối ở Odawara; sau đó khoảng 15 phút chạy qua 箱根板橋, 風祭, 入生田 mà không dừng, hãy sẵn sàng khi qua 入生田. Từ 2008 Romancecar chỉ vào đường 1 ở Hakone-Yumoto. Lên nhà ga trên cầu, qua cổng soát vé; nhà vệ sinh ở trong cổng phía tây nam. Xe buýt (kế hoạch: tuyến H của Hakone Tozan Bus) và taxi ở ngoài ga; GSE không có giá hành lý trên đầu nên kiểm tra kỹ dưới ghế khi xuống."
+   },
+   "onboard": "Từ 3/2021 không còn bán đồ ăn trên tàu (Ekitan), được ăn uống tại chỗ; mua đồ ăn ở Shinjuku trước giờ lên tàu. Odakyu Navi (12/2023, giá và giờ mở cửa có thể đã đổi) gợi ý khu Shinjuku Delicious Park ở hầm toà Odakyu Ace Bắc; quầy nước Bubbles chỉ mở từ 8:00 nên không kịp tàu 7:37. GSE có 1 nhà vệ sinh rộng, ổ cắm và bàn gập ở tay vịn, hành lý để dưới ghế (trừ vài ghế), không có giá trên đầu; EXEα có chỗ để hành lý lớn.",
+   "sources": [
+    "https://www.odakyu.jp/romancecar/timetable/weekday/down/",
+    "https://www.odakyu.jp/romancecar/booking/",
+    "https://www.odakyu.jp/romancecar/features/line_up/70000/",
+    "https://www.odakyu.jp/romancecar/navi/enjoy/76/",
+    "https://www.odakyu.jp/romancecar/navi/enjoy/299/",
+    "https://www.odakyu.jp/support/ho5toc0000008ufh-att/mse260511.pdf",
+    "https://trafficnews.jp/post/131991/3",
+    "https://ekitan.com/vi/article/hakone-romancecar",
+    "https://temari-magazine.com/romancecar-seat-left-right/",
+    "https://4travel.jp/travelogue/11449141",
+    "https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14258205374",
+    "https://ja.wikipedia.org/wiki/小田急70000形電車",
+    "https://ja.wikipedia.org/wiki/小田急50000形電車",
+    "https://ja.wikipedia.org/wiki/箱根湯本駅"
+   ]
+  },
+  {
+   "id": "d4-lake-ashi-cruise",
+   "day": 4,
+   "line": "Thuyền hồ Ashi (箱根海賊船)",
+   "from": "元箱根港",
+   "to": "桃源台",
+   "train": "Ba tàu 'cướp biển' luân phiên: Victory (2007), Royal II (2013, tân trang 7/2026) và Queen Ashinoko (2019, thân vàng); hôm đó chạy tàu nào do vận hành quyết định, hỏi quầy cảng. Tuyến chạy vòng 桃源台 → 箱根町 → 元箱根 → 桃源台 nên chiều Moto-Hakone → Tōgendai là chặng cuối vòng. Kế hoạch ghi khoảng 40 phút; Hakonenavi ghi các tuyến 25–40 phút. Cabin đặc biệt (特別船室) phụ thu ¥800 người lớn cho tuyến này. Giờ chạy 2027 chưa công bố.",
+   "seat": "Ra boong ngoài, đứng mạn TRÁI theo chiều đi, nửa phía mũi tàu: cổng torii hiện ở trước-trái ngay khi rời bến rồi lùi ra sau chỉ sau vài phút, còn hướng Fuji cũng nằm phía trước-trái suốt chặng. Trời mưa hoặc lạnh thì vào cabin đặc biệt cạnh cửa sổ trái. Hướng này chỉ suy ra từ toạ độ bến, torii và đỉnh Fuji; chưa tìm được nguồn chính thức nói rõ mạn nào.",
+   "views": [
+    {
+     "side": "left",
+     "fromSt": "元箱根港",
+     "toSt": "桃源台",
+     "what": "Ngay sau khi rời bến, cổng torii đỏ 'Hòa bình' (平和の鳥居, dựng năm 1952) đứng giữa hồ cách bến khoảng 500 m về phía tây-tây bắc, đền Hakone ẩn trong rừng phía sau. Sau khoảng 1 km nó đã nằm sau lưng tàu.",
+     "fuji": false,
+     "tip": "Chuẩn bị máy ảnh ngay khi tàu chuẩn bị rời bến, chỉ có vài phút.",
+     "src": "https://ja.wikipedia.org/wiki/箱根神社"
+    },
+    {
+     "side": "left",
+     "fromSt": "元箱根港",
+     "toSt": "桃源台",
+     "what": "Fuji nằm phía trước-bên trái, lệch khoảng 18–22° so với hướng tàu, cách 28–33 km. Vành núi phía tây của hồ nằm gần nên càng vào giữa hồ càng dễ che đỉnh; đoạn đầu gần Moto-Hakone rõ nhất (ghi chú trong research/fuji.json).",
+     "fuji": true,
+     "tip": "Đi chuyến trước 12h: buổi sáng ít mây hơn. Nếu thấy đỉnh nhô lên, chụp ngay vì có thể mất sau vài phút.",
+     "src": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E5%B9%B3%E5%92%8C%E3%81%AE%E9%B3%A5%E5%B1%85"
+    },
+    {
+     "side": "both",
+     "fromSt": "元箱根港",
+     "toSt": "桃源台",
+     "what": "Hai bờ hồ là rừng núi liền một dải. Hakonenavi ghi đỉnh lá đỏ ở công viên Kojiri (đầu hồ) là đầu đến cuối tháng 11, nên 21/10 còn sớm hơn đỉnh.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://www.hakonenavi.jp/feature/7977"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "桃源台",
+     "text": "Cập bến Tōgendai ở tầng B2F. Muốn đi ropeway thì lên 1F (quầy vé và cổng), sân ga ropeway ở 2F; cabin chạy khoảng mỗi phút, hoạt động 9:00–17:00 (tháng 2–11). Nhà hàng Tōgendai ở B1F."
+    }
+   ],
+   "alight": {
+    "prevSt": "元箱根港",
+    "announce": "まもなく、桃源台港です。",
+    "announceRomaji": "Mamonaku, Togendai-kō desu.",
+    "text": "Chuyến chạy thẳng theo tuyến vòng nên không có cảng giữa chặng (kiểm tra lại bảng giờ vì có chuyến ghé Hakone-machi). Khi thấy bến ở đầu hồ thì ra cửa lối xuống cầu tàu. Câu thông báo chỉ là mẫu phổ biến, chưa kiểm chứng cho tuyến này."
+   },
+   "onboard": "Mỗi tàu có quầy bán đồ (売店) và 3 nhà vệ sinh, một phòng đa năng. Queen Ashinoko bán bia tươi và cocktail ở tầng 1, Victory bán snack và đồ uống ở tầng 1 (chưa rõ giá). Tại cảng Moto-Hakone có quầy ăn vặt PIRATE'S GALLEY.",
+   "sources": [
+    "https://www.hakonenavi.jp/hakone-kankosen/",
+    "https://www.hakonenavi.jp/feature/15190",
+    "https://www.hakonenavi.jp/transportation/station/togendai/",
+    "https://www.hakonenavi.jp/transportation/station/motohakone/",
+    "https://www.hakonenavi.jp/hakone-kankosen/queen/",
+    "https://www.hakonenavi.jp/hakone-kankosen/royal2/",
+    "https://www.hakonenavi.jp/hakone-kankosen/victory/",
+    "https://ja.wikipedia.org/wiki/箱根海賊船",
+    "https://ja.wikipedia.org/wiki/箱根神社",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E5%B9%B3%E5%92%8C%E3%81%AE%E9%B3%A5%E5%B1%85",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E6%A1%83%E6%BA%90%E5%8F%B0%E6%B8%AF"
+   ]
+  },
+  {
+   "id": "d4-hakone-ropeway",
+   "day": 4,
+   "line": "Hakone Ropeway",
+   "from": "桃源台",
+   "to": "早雲山",
+   "train": "Cabin 18 người, chạy khoảng mỗi phút, 9:00–17:00 (tháng 2–11). Bốn ga: 桃源台 – 姥子 – 大涌谷 – 早雲山, mỗi chặng khoảng 10 phút; 姥子 chỉ là ga đi qua, cứ ngồi yên; toàn tuyến phải ĐỔI cabin ở 大涌谷. Có thể ngừng khi gió mạnh, sấm, bão hoặc khí núi lửa tăng; xem tình trạng chạy trên Hakonenavi sáng hôm đó. Vé lẻ một chiều toàn tuyến ¥2.000 từ 1/10/2025.",
+   "seat": "Chặng 桃源台 → 大涌谷 chạy về hướng đông, Fuji ở phía SAU-bên trái (lệch khoảng 115°, cách ~28 km) nên đứng sát cửa sổ bên trái và ngoái ra sau; trang Hakonenavi khuyên đi chiều ngược lại (hướng Tōgendai) để Fuji và hồ ở phía trước. Chặng 大涌谷 → 早雲山 đứng bên PHẢI: vùng phun khí lưu huỳnh nằm ở phía nam, tức bên phải khi chạy về hướng đông (suy từ toạ độ, chưa có nguồn nói rõ).",
+   "views": [
+    {
+     "side": "left",
+     "fromSt": "桃源台",
+     "toSt": "姥子",
+     "what": "Hồ Ashi lùi dần phía dưới, Fuji nằm ở phía sau-trái khi tàu rời Tōgendai. Hakonenavi ghi chặng Ōwakudani – Tōgendai là nơi thấy tương phản giữa lá đỏ và Fuji (đỉnh lá đỏ đầu đến giữa tháng 11).",
+     "fuji": true,
+     "tip": "Đứng quay lưng về hướng đi và nhìn qua vai trái; mở vị trí sớm vì cabin chạy mỗi phút.",
+     "src": "https://www.hakonenavi.jp/hakone-ropeway/"
+    },
+    {
+     "side": "left",
+     "fromSt": "姥子",
+     "toSt": "大涌谷",
+     "what": "Cabin leo lên phía vùng núi lửa; gần ga Ōwakudani sườn núi trơ trụi và hơi nước hiện rõ. Fuji vẫn ở phía sau-trái và xa dần (cách khoảng 28–30 km).",
+     "fuji": true,
+     "tip": null,
+     "src": "https://www.hakonenavi.jp/feature/7977"
+    },
+    {
+     "side": "both",
+     "fromSt": "大涌谷",
+     "toSt": "大涌谷",
+     "what": "Tại ga Ōwakudani, Fuji nhìn được về phía tây-tây bắc từ khu cửa hàng quanh ga khi trời quang; ga này đông khách đoàn từ 10h. Chỗ đổi cabin: sân ga theo hướng đi khác nhau nên xem biển 早雲山 / 桃源台.",
+     "fuji": true,
+     "tip": "Trước 12h là thời điểm tốt; Ōwakudani có 大涌谷くろたまご館 (giá trứng đen chưa xác minh).",
+     "src": "https://www.hakonenavi.jp/hakone-ropeway/"
+    },
+    {
+     "side": "down",
+     "fromSt": "大涌谷",
+     "toSt": "早雲山",
+     "what": "Cabin băng qua thung lũng sâu khoảng 130 m so với mặt đất giữa Ōwakudani và Sōunzan, nhìn thẳng xuống thung lũng lưu huỳnh với hơi nước và sườn núi trọc, nơi trước đây gọi là Jigokudani (Địa ngục cốc). Hướng đông; hơi nước nằm bên phải theo chiều đi.",
+     "fuji": false,
+     "tip": "Cả hai bên đều nhìn xuống được; bên phải rõ hơn các cột hơi. Nếu khí gas tăng, tuyến này sẽ ngừng và đi xe thay thế theo thông báo.",
+     "src": "https://www.hakonenavi.jp/hakone-ropeway/"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "大涌谷",
+     "text": "Xuống cabin, đổi sang tuyến Sōunzan: sân ga khác nhau theo hướng đi, xem biển 早雲山. Toàn tuyến cần đổi ở đây (Wikipedia). Kế hoạch dành khoảng 1 giờ ở Ōwakudani; trời có khí gas thì tuyến này có thể ngừng."
+    }
+   ],
+   "alight": {
+    "prevSt": "大涌谷",
+    "announce": "まもなく、早雲山です。",
+    "announceRomaji": "Mamonaku, Sōunzan desu.",
+    "text": "Chặng cuối từ Ōwakudani chạy thẳng không dừng. Ở Sōunzan đi theo biển 'ケーブルカー' sang cáp treo kéo đi Gōra; cáp treo không dùng được thẻ IC nên chuẩn bị Freepass hoặc vé giấy. Câu thông báo chỉ là mẫu phổ biến, chưa kiểm chứng cho tuyến này."
+   },
+   "onboard": "Không có dịch vụ trong cabin; ăn uống và nhà vệ sinh ở các ga (Tōgendai có nhà hàng ở B1F). Chưa có thông tin về chỗ để vali trong cabin, nên mang đồ gọn.",
+   "sources": [
+    "https://www.hakonenavi.jp/hakone-ropeway/",
+    "https://www.hakonenavi.jp/feature/7977",
+    "https://ja.wikipedia.org/wiki/箱根ロープウェイ",
+    "https://ja.wikipedia.org/wiki/大涌谷",
+    "https://www.hakonenavi.jp/transportation/station/togendai/",
+    "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=%E6%A1%83%E6%BA%90%E5%8F%B0%E6%B8%AF"
+   ]
+  },
+  {
+   "id": "d4-cablecar-sounzan-gora",
+   "day": 4,
+   "line": "Hakone Tozan Cable Car",
+   "from": "早雲山",
+   "to": "強羅",
+   "train": "Cáp treo kéo 2 toa, 6 ga (早雲山 – 上強羅 – 中強羅 – 公園上 – 公園下 – 強羅), dài 1,2 km, hạ 209 m, dốc tối đa 200‰; theo bảng giờ ngày thường 3/2026 mất khoảng 11 phút (VD 12:46 → 12:57, 13:03 → 13:14, 13:46 → 13:57, 14:03 → 14:14) và khoảng 16–27 phút mới có một chuyến. Từ 3/2020 toa dùng ghế dọc hai bên. Thẻ IC KHÔNG dùng được trên cáp treo, chỉ vé giấy hoặc Freepass.",
+   "seat": "Không có hướng ưu tiên và không có Fuji; ngồi ghế dọc cạnh cửa sổ và nhìn ra ngoài. Hai xe tránh nhau ở khoảng giữa 中強羅 và 公園上.",
+   "views": [
+    {
+     "side": "both",
+     "fromSt": "早雲山",
+     "toSt": "中強羅",
+     "what": "Toa dốc xuống thẳng qua rừng; 2 xe chạy ngược chiều và tránh nhau ở làn tránh giữa 中強羅 và 公園上. Sàn toa có bậc theo độ dốc và đi qua lại được giữa hai toa.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://www.hakonenavi.jp/hakone-tozan/"
+    },
+    {
+     "side": "both",
+     "fromSt": "公園上",
+     "toSt": "強羅",
+     "what": "Ga 公園上 và 公園下 đặt tên theo công viên Gōra (強羅公園), từ ga Gōra đi bộ thêm khoảng 5 phút. Tàu đáp ở Gōra, nơi cáp treo xuất phát ngay bên cạnh sân ga số 2 của tàu leo núi.",
+     "fuji": false,
+     "tip": "Không có Fuji ở tuyến này.",
+     "src": "https://ja.wikipedia.org/wiki/強羅駅"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "強羅",
+     "text": "Xuống ở phía bắc ga cáp treo, đi hành lang nối sang ga tàu leo núi. Trong giờ cáp treo chạy tàu dùng đường 2, có cổng PASMO đơn giản ở lối vào, Freepass dùng được nhưng thẻ IC không dùng được trên cáp treo. Tàu Tozan đi Kowakudani ngày thường (bảng 3/2026): 13:08, 13:23, 13:38, 13:53, 14:08, 14:23, 14:38..., mất 5 phút."
+    }
+   ],
+   "alight": {
+    "prevSt": "公園下",
+    "announce": "まもなく、強羅です。",
+    "announceRomaji": "Mamonaku, Gōra desu.",
+    "text": "Cáp treo cuối tuyến nên xuống hết ở Gōra; để ý hành lý ở đầu toa. Câu thông báo chỉ là mẫu phổ biến, chưa kiểm chứng cho tuyến này."
+   },
+   "onboard": null,
+   "sources": [
+    "https://www.hakonenavi.jp/hakone-tozan/",
+    "https://ja.wikipedia.org/wiki/箱根登山ケーブルカー",
+    "https://ja.wikipedia.org/wiki/強羅駅",
+    "https://www.hakonenavi.jp/_wp/wp-content/uploads/2026/02/dea7e989e1d5e7a7dd432f62889824d8.pdf"
+   ]
+  },
+  {
+   "id": "d4-tozan-gora-kowakudani",
+   "day": 4,
+   "line": "Hakone Tozan Railway",
+   "from": "強羅",
+   "to": "小涌谷",
+   "train": "Tàu leo núi Hakone Tozan, 2–3 toa (có loại 1000 và Allegra 3000), dừng 彫刻の森 rồi 小涌谷. Theo bảng giờ ngày thường 3/2026 chặng này chỉ 5 phút (VD 強羅 14:08 → 小涌谷 14:13), ngắn hơn con số 8 phút trong kế hoạch. Tàu chạy khoảng 15 phút một chuyến. Freepass dùng được.",
+   "seat": "Chặng ngắn nên ngồi chỗ nào cũng được. Trong giờ cáp treo chạy tàu rời đường 2 ở Gōra. Trước khi tới 小涌谷 có đường cong gấp bán kính 30 m, nơi từ toa đầu có thể thấy toa cuối.",
+   "views": [
+    {
+     "side": "both",
+     "fromSt": "強羅",
+     "toSt": "彫刻の森",
+     "what": "Tàu rời ga cuối Gōra (cao 541 m) qua rừng và biệt thự; ga 彫刻の森 là điểm dừng gần Bảo tàng điêu khắc ngoài trời Hakone.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/彫刻の森駅"
+    },
+    {
+     "side": "both",
+     "fromSt": "彫刻の森",
+     "toSt": "小涌谷",
+     "what": "Nhiều đường cong rất gấp, có chỗ bán kính chỉ 30 m: ray kêu rít và có phun nước làm mát ray. Cảnh là rừng và các khách sạn quanh Kowakudani.",
+     "fuji": false,
+     "tip": "Chưa tìm được nguồn nói thấy Fuji ở đoạn này.",
+     "src": "https://hakutsuru583.hatenablog.com/entry/2026/09/10/173000"
+    }
+   ],
+   "transfers": [],
+   "alight": {
+    "prevSt": "彫刻の森",
+    "announce": "まもなく、小涌谷です。",
+    "announceRomaji": "Mamonaku, Kowakudani desu.",
+    "text": "Tàu hướng Hakone-Yumoto vào đường 2 ở Kowakudani. Ga không người từ 2/2024; hai đường nối với nhau bằng đường ngang trong ga, không có cầu. Xe đưa đón của Mizunoto đón 14–17h (kế hoạch), nếu đi bộ khoảng 15 phút dốc."
+   },
+   "onboard": null,
+   "sources": [
+    "https://www.hakonenavi.jp/hakone-tozan/",
+    "https://www.hakonenavi.jp/_wp/wp-content/uploads/2026/02/dea7e989e1d5e7a7dd432f62889824d8.pdf",
+    "https://ja.wikipedia.org/wiki/小涌谷駅",
+    "https://ja.wikipedia.org/wiki/彫刻の森駅",
+    "https://hakutsuru583.hatenablog.com/entry/2026/09/10/173000"
+   ]
+  },
+  {
+   "id": "d5-tozan-kowakudani-odawara",
+   "day": 5,
+   "line": "Hakone Tozan Railway",
+   "from": "小涌谷",
+   "to": "小田原",
+   "train": "Tàu leo núi Hakone Tozan xuống Hakone-Yumoto rồi đổi sang tàu Odakyu/Tozan đi Odawara. Bảng giờ ngày thường từ 3/2026: 小涌谷 7:48 → 箱根湯本 8:17, 8:06 → 8:33, 8:21 → 8:56 (chờ tránh tàu nên lâu hơn), 8:46 → 9:16; Hakone-Yumoto → Odawara khoảng 14 phút (8:24 → 8:38, 8:43 → 8:57, 9:02 → 9:16, 9:24 → 9:38). Ví dụ 8:06 → 8:33 rồi 8:43 → 8:57 để kịp tàu JR 9:27 ở Odawara, dư khoảng 30 phút. Từ 14/3/2026 tàu địa phương Odawara – Hakone-Yumoto chạy kiểu một người lái. Ba điểm đảo chiều là 出山信号場, 大平台駅, 上大平台信号場; 仙人台信号場 chỉ là chỗ tránh tàu, không phải điểm đảo chiều.",
+   "seat": "Ngồi cửa sổ bên TRÁI theo chiều tàu lúc rời Kowakudani. Tàu đảo chiều 3 lần nhưng bạn giữ nguyên chỗ: cửa sổ này quay về phía thung lũng Hayakawa từ 大平台 trở xuống (suy ra từ vị trí đường ray và cầu trong dữ liệu đường sắt MLIT cộng với một bài đánh giá 2007 khuyên bên trái khi rời Hakone-Yumoto đi lên; chưa có nguồn chính thức). Khi có chỗ, ngồi toa đầu hoặc cuối để thấy dốc rõ hơn.",
+   "views": [
+    {
+     "side": "both",
+     "fromSt": "小涌谷",
+     "toSt": "宮ノ下",
+     "what": "Tàu hạ dần qua rừng và khu nghỉ dưỡng xuống ga 宮ノ下 (khoảng 5 phút). Đây là phần dốc nhẹ trước khi vào đoạn zigzag.",
+     "fuji": false,
+     "tip": "Lá đỏ chỉ đạt đỉnh giữa đến cuối tháng 11 (Hakonenavi), nên 22/10 vẫn xanh.",
+     "src": "https://www.hakonenavi.jp/feature/7977"
+    },
+    {
+     "side": "both",
+     "fromSt": "宮ノ下",
+     "toSt": "大平台",
+     "what": "Đoạn zigzag đầu tiên: tàu dừng ngắn ở 仙人台信号場 (chỗ tránh tàu), rồi đảo chiều lần 1 ở 上大平台信号場 và lần 2 ở ga 大平台 (ga duy nhất cho khách lên xuống trong ba điểm đảo chiều). Mỗi lần đảo chiều tài xế và nhân viên đổi buồng lái; mất 10–15 phút tuỳ có chờ tránh tàu.",
+     "fuji": false,
+     "tip": "Sau mỗi lần đảo chiều 'trái' và 'phải' theo chiều tàu đổi chỗ nhưng cửa sổ của bạn không đổi.",
+     "src": "https://ja.wikipedia.org/wiki/大平台駅"
+    },
+    {
+     "side": "left",
+     "fromSt": "大平台",
+     "toSt": "塔ノ沢",
+     "what": "Tàu xuống tới 出山信号場 và đảo chiều lần 3, rồi băng qua cầu Hayakawa (早川橋梁, hay 出山の鉄橋) cao 43 m so với mặt nước, giàn Warren đôi dài nhịp 60,65 m, hai đầu là hầm. Cầu dựng năm 1888 cho tuyến Tōkaidō rồi dời về đây năm 1917, là di sản đã đăng ký; tàu qua rất nhanh.",
+     "fuji": false,
+     "tip": "Chuẩn bị máy ảnh khi tàu dừng ở 出山: từ đó thấy cầu và cầu Tōnosawa (theo bài đánh giá 2007), cửa sổ bên trái hướng xuống thung lũng.",
+     "src": "https://foret-aventure.jp/news/9450/"
+    },
+    {
+     "side": "both",
+     "fromSt": "塔ノ沢",
+     "toSt": "箱根湯本",
+     "what": "Ga 塔ノ沢 có đền Zeniarai Benten ngay trên sân ga; 3 phút nữa tàu vào Hakone-Yumoto, ga đầu mối chuyển sang tàu Odakyu.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://www.hakonenavi.jp/hakone-tozan/"
+    },
+    {
+     "side": "right",
+     "fromSt": "箱根湯本",
+     "toSt": "小田原",
+     "what": "Đoạn Hakone-Yumoto – Odawara (14 phút) qua 入生田, 風祭, 箱根板橋 dọc sông Hayakawa. Odakyu khuyên ghế bên trái cho cảnh sông và núi khi đi Odawara → Hakone-Yumoto, nên chiều ngược lại cảnh này nằm bên phải (suy ngược, chưa có nguồn nói riêng cho tàu thường).",
+     "fuji": false,
+     "tip": null,
+     "src": "https://www.odakyu.jp/romancecar/navi/enjoy/76/"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "箱根湯本",
+     "text": "Tàu từ Kowakudani vào đường 3 (đường cụt dành cho tàu Gōra); tàu đi Odawara ở đường 1 hoặc 2 (tàu thường 4 toa dùng đường 2). Đường 2 và 3 nối đầu nhau với chắn ray ở giữa nên khoảng cách chuyển ngắn (suy từ Wikipedia, xem bảng điện để biết đường thực tế). Ga có cổng soát vé trong toà nhà trên cầu và quầy vé Romancecar; dư thời gian có thể chờ đến 10 phút (đến 8:33, tàu 8:43)."
+    }
+   ],
+   "alight": {
+    "prevSt": "箱根板橋",
+    "announce": "まもなく、小田原です。",
+    "announceRomaji": "Mamonaku, Odawara desu.",
+    "text": "Tàu Odakyu/Tozan thẳng dùng đường 7 khi đi Hakone-Yumoto và đường 10 khi đi Shinjuku; tàu 4 toa chạy đi lại với Hakone-Yumoto dùng đường 11 (Wikipedia). Rồi theo biển 'JR線' qua cổng chuyển Odakyu – JR; tàu JR Tōkaidō hướng Atami ở đường 3 hoặc 4 (mẫu Yahoo 2026). Dự trữ 10–15 phút nếu cần chạm IC hoặc mua vé giấy Odawara → Shimizu."
+   },
+   "onboard": null,
+   "sources": [
+    "https://www.hakonenavi.jp/_wp/wp-content/uploads/2026/02/dea7e989e1d5e7a7dd432f62889824d8.pdf",
+    "https://ja.wikipedia.org/wiki/箱根登山鉄道鉄道線",
+    "https://ja.wikipedia.org/wiki/出山信号場",
+    "https://ja.wikipedia.org/wiki/大平台駅",
+    "https://ja.wikipedia.org/wiki/仙人台信号場",
+    "https://ja.wikipedia.org/wiki/上大平台信号場",
+    "https://foret-aventure.jp/news/9450/",
+    "https://www.zenkin.jp/list/629",
+    "https://4travel.jp/dm_shisetsu_tips/10077786",
+    "https://www.hakonenavi.jp/hakone-tozan/",
+    "https://www.hakonenavi.jp/feature/7977",
+    "https://ja.wikipedia.org/wiki/箱根湯本駅",
+    "https://ja.wikipedia.org/wiki/小田原駅"
+   ]
+  },
+  {
+   "id": "d5-tokaido-odawara-shimizu",
+   "day": 5,
+   "line": "JR Tōkaidō Line (local)",
+   "from": "小田原",
+   "to": "清水",
+   "train": "Hai chặng: JR East Odawara → Atami (khoảng 23–24 phút, tàu 4 cửa 10/15 toa, ba chuyến một giờ) rồi JR Central Atami → Numazu → Shimizu (khoảng 1 giờ 4 phút, tàu 313/315, từ 3/2026 nhiều chuyến rút còn 4 toa). Mẫu thứ Hai 2/11/2026 (Yahoo): 小田原 9:27 → 熱海 9:50; 熱海 10:00 → 函南 10:07 → 三島 10:12 → 沼津 10:18 → 富士 10:40 → 富士川 10:45 → 由比 10:54 → 清水 11:04; cả hành trình 1 giờ 37 phút, ngắn hơn nhiều so với 2 giờ 30 trong kế hoạch. Chuyến tiếp theo: 小田原 9:43 → 熱海 10:06, 熱海 10:16 → 清水 11:19. Tàu JR Central xuất phát từ Atami chạy thẳng tới Hamamatsu nên không phải đổi ở Numazu. Giờ 2027 chưa công bố.",
+   "seat": "Từ Atami trở đi ngồi bên PHẢI để thấy Fuji (Numazu → Fuji); bên TRÁI là biển ở Nebukawa trước Atami và ở Yui – Okitsu sau Fuji. Một chỗ không đủ cả hai: sang trái trước Atami, qua phải từ Mishima tới Fuji, rồi quay lại trái sau Fujikawa. Tàu JR Central 3 cửa, nhiều chuyến đông vào giờ đi làm.",
+   "views": [
+    {
+     "side": "left",
+     "fromSt": "早川",
+     "toSt": "根府川",
+     "what": "Từ Hayakawa tàu chạy sát vịnh Sagami, biển ở bên trái; cả đoạn Odawara – Atami nhiều hầm bờ biển xen kẽ. Ga 根府川 nằm trên vách đá cao 45 m so với mặt biển, sân ga nhìn thẳng xuống biển.",
+     "fuji": false,
+     "tip": "Khoảng phút thứ 6–8 sau khi rời Odawara (ước tính theo cự ly 6,6 km). Hầm nhiều nên đứng quay mặt ra cửa sổ trái.",
+     "src": "https://ja.wikipedia.org/wiki/根府川駅"
+    },
+    {
+     "side": "left",
+     "fromSt": "根府川",
+     "toSt": "熱海",
+     "what": "Ngay phía Atami của ga 根府川 là cầu 白糸川橋梁, dựng lại sau trận động đất 1923 và được chọn trong 100 cây cầu nổi tiếng của Kanagawa, nhưng rào chắn gió làm khó chụp. Qua 真鶴 và 湯河原, biển lộ ra giữa các hầm trước khi vào thị trấn suối nước nóng Atami.",
+     "fuji": false,
+     "tip": null,
+     "src": "https://ja.wikipedia.org/wiki/東海道線_(JR東日本)"
+    },
+    {
+     "side": "both",
+     "fromSt": "熱海",
+     "toSt": "函南",
+     "what": "Hầm Tanna đưa tàu xuyên qua dải núi của bán đảo Izu; theo mẫu 10:00 → 10:07 tàu ở trong bóng tối khoảng 7 phút. Ra khỏi hầm là đồng bằng Mishima.",
+     "fuji": false,
+     "tip": "Đây là lúc nên xem lại điện thoại và chuẩn bị ngồi sang bên phải.",
+     "src": "https://ja.wikipedia.org/wiki/東海道線_(静岡地区)"
+    },
+    {
+     "side": "right",
+     "fromSt": "三島",
+     "toSt": "片浜",
+     "what": "Fuji bắt đầu hiện ở phía trước-bên phải, cách khoảng 31 km, lệch khoảng 50–75° so với hướng tàu (tính từ toạ độ ga và đỉnh núi). Mishima khoảng 10:12, Numazu 10:18 theo mẫu.",
+     "fuji": true,
+     "tip": "Cửa sổ bên phải; nếu mây thấp thì chỉ thấy rặng chân núi.",
+     "src": "https://ja.wikipedia.org/wiki/東田子の浦駅"
+    },
+    {
+     "side": "right",
+     "fromSt": "原",
+     "toSt": "吉原",
+     "what": "Đoạn đẹp nhất: Fuji nằm ngay bên phải, chỉ 24–27 km, trải từ chéo trước ra vuông góc với cửa sổ khi qua 東田子の浦 và 吉原 (khoảng 10:25–10:38; tính từ toạ độ). Ga 東田子の浦 có tranh Fuji vẽ trên tường ga.",
+     "fuji": true,
+     "tip": "Buổi sáng trong hơn hẳn: lúc 8h thành phố Fuji thấy trọn núi 37% số ngày cả năm so với 22% lúc 16h (research/fuji.json).",
+     "src": "https://ja.wikipedia.org/wiki/東田子の浦駅"
+    },
+    {
+     "side": "right",
+     "fromSt": "富士",
+     "toSt": "富士川",
+     "what": "Tàu qua cầu sông Fuji (富士川橋梁, làn xuống dài 571 m), lúc này Fuji ở phía sau-bên phải (lệch hơn 150° so với hướng tàu) nên phải ngoái lại. Làn lên xây lại thập niên 1950 với mục tiêu lớn là giữ tầm nhìn Fuji.",
+     "fuji": true,
+     "tip": "Khoảng 10:42–10:45. Ngồi sát cửa sổ phải và quay người nhìn ra sau.",
+     "src": "https://ja.wikipedia.org/wiki/富士川橋梁_(東海道本線)"
+    },
+    {
+     "side": "left",
+     "fromSt": "蒲原",
+     "toSt": "興津",
+     "what": "Tàu chạy sát bờ vịnh Suruga, biển ở bên trái; ga 蒲原 chỉ cách bờ khoảng 100 m. Quốc lộ 1 và đường cao tốc Tōmei chạy song song, còn núi (đèo Satta) nằm bên phải.",
+     "fuji": false,
+     "tip": "Fuji lúc này ở sau lưng tàu nên khó thấy. Muốn ngắm Fuji từ đèo Satta phải đi bộ lên (đường mòn nối ga 由比 và 興津), không nằm trong tuyến tàu.",
+     "src": "https://ja.wikipedia.org/wiki/薩埵峠"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "熱海",
+     "text": "Ranh giới JR East → JR Central. Ga có một cổng soát vé duy nhất trong toà nhà, các sân ga nối nhau bằng hầm bộ hành (Wikipedia). Đường 2·3 là của JR Central đi Mishima/Numazu/Shizuoka (đôi khi đường 4), đường 4·5 là của JR East đi Tokyo; mẫu Yahoo: tàu từ Odawara vào đường 4 (9:27 → 9:50) hoặc đường 2 (9:43 → 10:06), tàu đi Hamamatsu rời đường 3 lúc 10:00, 10:16, 10:31. Đường 2 và 3 chung một đảo nên đổi ngay trên sân ga (suy từ Wikipedia); từ đường 4 phải đi qua hầm bộ hành. Dành 10 phút; số đường thực tế xem bảng điện. Vé giấy Odawara → Shimizu mua ở máy JR tại Odawara thì không phải ra cổng ở Atami. Thẻ IC: Suica và TOICA dùng chung nhưng Atami là ranh giới, không đi một lèo qua Atami được; chạm ra ở cổng Atami rồi chạm vào lại để đi tiếp (từ 3/2021 Atami thuộc vùng TOICA). Giá IC mẫu: Odawara → Atami ¥440 và Atami → Shimizu ¥1.170 (Yahoo 2/11/2026)."
+    },
+    {
+     "at": "沼津",
+     "text": "Thường không phải đổi: tàu xuất phát từ Atami chạy thẳng tới Hamamatsu. Chỉ đổi nếu lên nhầm tàu chạy ngắn (Mishima – Numazu) hoặc tàu bị rút ngắn; khi đó tàu kế tiếp đi Hamamatsu/Shimada nằm cùng ga, xem bảng điện. Đừng xuống ở Mishima trừ khi tàu kết thúc ở đó."
+    }
+   ],
+   "alight": {
+    "prevSt": "興津",
+    "announce": "まもなく、清水です。",
+    "announceRomaji": "Mamonaku, Shimizu desu.",
+    "text": "Mẫu Yahoo: tàu Hamamatsu từ Atami vào đường 2 ở Shimizu. Đây là ga JR Shimizu, đừng nhầm với Shin-Shimizu của Shizutetsu. Ra cổng, chạm thẻ TOICA/Suica (hoặc đưa vé giấy); từ ga đến Kaizan khoảng 3 phút đi bộ theo kế hoạch."
+   },
+   "onboard": "Không có phục vụ đồ ăn; mua nước và đồ ăn nhẹ ở Odawara hoặc Atami trước khi lên (bữa trưa dự kiến 12:00 ở Kaizan nên chỉ cần nhẹ). Mọi đoàn tàu JR Central hiện nay đều có nhà vệ sinh (Wikipedia); tàu JR East 4 cửa cũng chạy 15 toa nên hành lý để gọn ở cửa.",
+   "sources": [
+    "https://transit.yahoo.co.jp/search/result?from=%E5%B0%8F%E7%94%B0%E5%8E%9F&to=%E6%B8%85%E6%B0%B4&y=2026&m=11&d=02&hh=9&m1=2&m2=5&type=1&ticket=ic",
+    "https://transit.yahoo.co.jp/search/result?from=%E7%86%B1%E6%B5%B7&to=%E6%B8%85%E6%B0%B4&y=2026&m=11&d=02&hh=9&m1=5&m2=0&type=1&ticket=ic",
+    "https://transit.yahoo.co.jp/search/result?from=%E5%B0%8F%E7%94%B0%E5%8E%9F&to=%E7%86%B1%E6%B5%B7&y=2026&m=11&d=02&hh=9&m1=2&m2=5&type=1&ticket=ic",
+    "https://transit.yahoo.co.jp/search/result?from=%E7%86%B1%E6%B5%B7&to=%E5%AF%8C%E5%A3%AB&y=2026&m=11&d=06&hh=10&m1=0&m2=0&type=1&ticket=ic",
+    "https://ja.wikipedia.org/wiki/熱海駅",
+    "https://ja.wikipedia.org/wiki/TOICA",
+    "https://ja.wikipedia.org/wiki/東海道線_(静岡地区)",
+    "https://ja.wikipedia.org/wiki/東海道線_(JR東日本)",
+    "https://ja.wikipedia.org/wiki/根府川駅",
+    "https://ja.wikipedia.org/wiki/東田子の浦駅",
+    "https://ja.wikipedia.org/wiki/富士川橋梁_(東海道本線)",
+    "https://ja.wikipedia.org/wiki/薩埵峠",
+    "https://ja.wikipedia.org/wiki/蒲原駅",
+    "https://toica.jr-central.co.jp/area/"
+   ]
+  },
+  {
+   "id": "kawaguchiko-fuji-excursion",
+   "day": "kawaguchiko",
+   "line": "Fuji Excursion (富士回遊): JR Chūō Line → Fujikyu Line",
+   "from": "新宿",
+   "to": "河口湖",
+   "train": "Tàu tốc hành 富士回遊 E353 ba toa, toàn bộ ghế đặt trước (hết chỗ thì được đứng), chạy suốt Shinjuku → Kawaguchiko, 4 chuyến mỗi ngày từ 14/3/2026; chạy ghép với Kaiji/Azusa từ Shinjuku tới Ōtsuki rồi tách ra, do JR East và Fujisan Densetsu Railway (Fujikyu cũ) vận hành. Mẫu chuyến 3 (thứ Tư 4/11/2026): 新宿 7:30 (đường 10) → 立川 7:53 → 八王子 8:03 → 大月 8:40 → 都留文科大学前 8:57 → 下吉田 9:13 → 富士山 9:23 → 富士急ハイランド 9:26 → 河口湖 9:28, tức 1 giờ 58 phút (Fujikyu ghi nhanh nhất 1 giờ 53). Giá Shinjuku → Kawaguchiko ¥4.200 (vé tàu ¥2.580 + vé tốc hành ¥1.620); mở bán 1 tháng trước lúc 10:00, mua qua Eki-net. Giờ 2027 chưa công bố.",
+   "seat": "Chọn cửa sổ bên TRÁI theo chiều đi từ Ōtsuki đến Fujisan: Fuji nằm phía trước-bên trái (lệch 7–33°, cách 34 km giảm còn 15 km; tính từ toạ độ ga và đỉnh núi). Tàu đảo chiều ở 富士山, sau đó Fuji vẫn nằm bên trái theo chiều mới nhưng ở phía sau-trái (lệch 105–116°), tức cửa sổ phía bên kia của toa, nhưng đoạn đó chỉ 5 phút. Chưa có nguồn nói ghế E353 có xoay theo chiều đi không; xem hướng ghế khi lên tàu. Khi đặt vé trên Eki-net chọn ghế cửa sổ phía trái theo chiều đi, chưa kiểm chứng quy ước chữ ghế A–D của E353.",
+   "views": [
+    {
+     "side": "both",
+     "fromSt": "新宿",
+     "toSt": "八王子",
+     "what": "Nội thành Tokyo rồi vùng ngoại ô qua 立川 (7:53) và 八王子 (8:03). Chưa có Fuji ở đoạn này.",
+     "fuji": false,
+     "tip": "Xác nhận đang ngồi toa Fuji Excursion (cụm 3 toa nối vào tàu Kaiji/Azusa).",
+     "src": "https://transit.yahoo.co.jp/search/result?from=%E6%96%B0%E5%AE%BF&to=%E6%B2%B3%E5%8F%A3%E6%B9%96&y=2026&m=11&d=04&hh=7&m1=3&m2=0&type=1&ticket=ic&expkind=1&ws=2&s=0&al=1&shin=0&ex=1"
+    },
+    {
+     "side": "both",
+     "fromSt": "八王子",
+     "toSt": "大月",
+     "what": "37 phút chạy thẳng, không dừng (8:03 → 8:40), chui qua các hầm Kobotoke (小仏トンネル, 新小仏トンネル) vào thung lũng núi. Chưa tìm được nguồn nói bên nào có hồ Sagami hay sông Katsura.",
+     "fuji": false,
+     "tip": "Bạn có thể nghỉ ngơi ở đoạn này.",
+     "src": "https://ja.wikipedia.org/wiki/中央本線"
+    },
+    {
+     "side": "both",
+     "fromSt": "大月",
+     "toSt": "都留文科大学前",
+     "what": "Ở 大月 ba toa của 富士回遊 tách khỏi tàu Kaiji/Azusa rồi rẽ sang tuyến Fujikyu hướng nam; từ 8:40 đến 8:57 mới tới ga kế. Fuji nằm gần như thẳng phía trước (lệch 7–18° trái) nhưng ở xa 34 km và có thể còn bị núi che.",
+     "fuji": true,
+     "tip": "Chuẩn bị ngồi sát cửa sổ trái.",
+     "src": "https://ja.wikipedia.org/wiki/大月駅"
+    },
+    {
+     "side": "left",
+     "fromSt": "都留文科大学前",
+     "toSt": "下吉田",
+     "what": "Fuji dần hiện lên rõ hơn ở phía trước-bên trái (lệch 20–33°, cách 25 giảm xuống 17 km) khi tàu qua 三つ峠 và 寿 lên cao nguyên (8:57 → 9:13).",
+     "fuji": true,
+     "tip": "Khoảng 9:00–9:13; trời quang là lúc đẹp nhất.",
+     "src": "https://www.fujikyu-railway.jp/fujisan-view-spot/"
+    },
+    {
+     "side": "left",
+     "fromSt": "下吉田",
+     "toSt": "富士山",
+     "what": "Từ 下吉田 (9:13), ga có thể thấy Fuji ngay từ sân ga; ga này gần công viên Arakurayama Sengen với tháp Chūreitō khoảng 15 phút đi bộ. 10 phút sau tàu vào ga 富士山, nơi sảnh Q-Sta có đài ngắm Fuji tầng 6.",
+     "fuji": true,
+     "tip": "Tháp Chūreitō không nằm trên tuyến tàu; đi bộ khoảng 15 phút từ ga 下吉田.",
+     "src": "https://www.fujikyu-railway.jp/fujisan-view-spot/"
+    },
+    {
+     "side": "left",
+     "fromSt": "富士山",
+     "toSt": "河口湖",
+     "what": "Tàu đảo chiều ở ga 富士山 (9:23) rồi 5 phút qua 富士急ハイランド tới 河口湖 (9:28). Fuji ở phía sau-bên trái theo chiều mới, tức cửa sổ phía bên kia của toa so với đoạn trước. Chặng này chỉ 5 phút nên không cần đổi chỗ; Fujikyu ghi Fuji nhìn thấy ngay từ toà ga Kawaguchiko.",
+     "fuji": true,
+     "tip": "Đừng xuống nhầm ở 富士山; tàu chỉ đảo chiều rồi đi tiếp.",
+     "src": "https://ja.wikipedia.org/wiki/富士急行大月線"
+    }
+   ],
+   "transfers": [
+    {
+     "at": "大月",
+     "text": "Không phải đổi tàu: ở lại toa Fuji Excursion (3 toa của E353); các toa phía trước tiếp tục đi Kaiji/Azusa. Tàu nghỉ vài phút để tách rồi sang đường Fujikyu."
+    },
+    {
+     "at": "富士山",
+     "text": "Tàu đảo chiều ở đây (chặng Fujisan – Kawaguchiko chạy ngược); không phải đổi tàu, chỉ cần ngồi yên. Nếu xuống ở Fujisan để đi Q-Sta hoặc Fuji-Q thì xuống ở đây."
+    }
+   ],
+   "alight": {
+    "prevSt": "富士急ハイランド",
+    "announce": "まもなく、河口湖です。",
+    "announceRomaji": "Mamonaku, Kawaguchiko desu.",
+    "text": "Ga cuối (khoảng 9:28 theo mẫu): cả toa xuống hết, nhớ hành lý. Công viên Ōishi (bờ bắc hồ Kawaguchi) là điểm dự phòng trong research/fuji.json."
+   },
+   "onboard": "Cửa sổ rộng, ổ cắm điện, nhà vệ sinh trên tàu (Fujikyu); toa 2 có phòng đa năng và nhà vệ sinh đa năng (Wikipedia). Fujikyu không nói có bán đồ ăn trên tàu nên mua trước ở Shinjuku. Giá chưa xác minh.",
+   "sources": [
+    "https://www.fujikyu-railway.jp/fujikaiyuu/",
+    "https://www.fujikyu-railway.jp/express/",
+    "https://www.fujikyu-railway.jp/fujisan-view-spot/",
+    "https://ja.wikipedia.org/wiki/富士回遊",
+    "https://ja.wikipedia.org/wiki/富士急行大月線",
+    "https://ja.wikipedia.org/wiki/大月駅",
+    "https://ja.wikipedia.org/wiki/中央本線",
+    "https://transit.yahoo.co.jp/search/result?from=%E6%96%B0%E5%AE%BF&to=%E6%B2%B3%E5%8F%A3%E6%B9%96&y=2026&m=11&d=04&hh=7&m1=3&m2=0&type=1&ticket=ic&expkind=1&ws=2&s=0&al=1&shin=0&ex=1"
+   ]
+  }
+ ]
+}

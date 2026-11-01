@@ -351,7 +351,7 @@ export interface FujiSpot {
   status: string | null;
   etiquette: string | null;
   access: { kawaguchiko?: string | null; day4?: string | null; day5?: string | null };
-  busStop: { ja: string; lat: number; lng: number; lines?: string } | null;
+  busStop: { ja: string; lat: number; lng: number; lines?: string | string[]; walkMin?: number; [k: string]: unknown } | null;
   social: { platform: string; url: string; note: string | null }[];
 }
 

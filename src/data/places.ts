@@ -437,5 +437,10 @@ export const PLACES: PlaceBase[] = [
   { id: 'st-namba', name: 'Namba (Midōsuji)', ja: 'なんば', kind: 'station', area: 'osaka', lat: 34.66561, lng: 135.50027 },
   { id: 'st-umeda', name: 'Umeda', ja: '梅田', kind: 'station', area: 'osaka', lat: 34.70211, lng: 135.49803 },
   { id: 'st-nankai-namba', name: 'Nankai Namba', ja: '難波', kind: 'station', area: 'osaka', lat: 34.66347, lng: 135.50206 },
+  // Kawaguchiko alternative day
+  { id: 'st-otsuki', name: 'Ōtsuki', ja: '大月', kind: 'station', area: 'kawaguchiko', lat: 35.61276, lng: 138.942796 },
+  { id: 'st-kawaguchiko', name: 'Kawaguchiko', ja: '河口湖', kind: 'station', area: 'kawaguchiko', lat: 35.498436, lng: 138.768539 },
+  { id: 'st-shimoyoshida', name: 'Shimoyoshida', ja: '下吉田', kind: 'station', area: 'kawaguchiko', lat: 35.497729, lng: 138.803525 },
+  { id: 'bus-kawaguchiko-bijutsukan', name: 'Bến xe Kawaguchiko Bijutsukan', ja: '河口湖美術館', kind: 'station', area: 'kawaguchiko', lat: 35.5196, lng: 138.771331 },
   { id: 'kix', name: 'Sân bay Kansai', ja: '関西空港', kind: 'station', area: 'osaka', lat: 34.43597, lng: 135.24349 },
 ];

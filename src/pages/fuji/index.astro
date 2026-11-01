@@ -57,7 +57,6 @@ const shown = (s: Spot) =>
 const GROUPS = [
   { day: 4, title: 'Ngày 4, Hakone', note: 'Hồ Ashi nằm trong lòng một miệng núi lửa cổ; vành núi phía tây che bớt chân Fuji, nên phần nhìn thấy phụ thuộc nhiều vào chỗ đứng.' },
   { day: 5, title: 'Ngày 5, dọc Tōkaidō', note: 'Ngồi bên phải tàu từ Mishima tới Fujikawa. Rẽ qua Satta hoặc Miho chỉ khi đổi hẳn bữa trưa.' },
-  { day: 3, title: 'Phương án Kawaguchiko thay ngày 3', note: 'Gần núi nhất, Fuji lớn nhất, nhưng đổi cả ngày Tokyo và thêm khoảng ¥8.000–12.000.' },
 ];
 const spotsBy = (day: number) => FUJI_SPOTS.filter((s) => s.day === day && s.role !== 'popular').sort((a, b) => Number(b.visible) - Number(a.visible) || a.km - b.km);
 
@@ -133,6 +132,7 @@ const TRACK_LABEL: Record<string, { title: string; from: string; to: string; ski
   romancecar: { title: 'Romancecar, sáng ngày 4', from: 'Shinjuku', to: 'Hakone-Yumoto', skipUrbanKm: 30 },
   tokaido: { title: 'JR Tōkaidō, ngày 5', from: 'Odawara', to: 'Shimizu' },
   shinkansen: { title: 'Shinkansen, chiều ngày 5', from: 'Shizuoka', to: '70 km đầu' },
+  fujiExcursion: { title: 'Fuji Excursion, phương án Kawaguchiko', from: 'Shinjuku', to: 'Kawaguchiko', skipUrbanKm: 25 },
 };
 const tracks = FUJI_TRACKS.filter((t) => t.samples.length > 10).map((t) => {
   const info = TRACK_LABEL[t.line] ?? { title: t.line, from: '', to: '' };
@@ -156,6 +156,7 @@ const panoList = [
   { id: 'owakudani', label: 'Ōwakudani' },
   { id: 'satta-pass', label: 'Đèo Satta' },
   { id: 'oishi-park', label: 'Hồ Kawaguchi' },
+  { id: 'fs-chureito-pagoda', label: 'Chūreitō' },
 ].filter((p) => FUJI_PANORAMAS[p.id]);
 const onshi = FUJI_SPOTS.find((s) => s.id === 'onshi-hakone-park');
 ---

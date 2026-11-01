@@ -24,10 +24,10 @@ export const BUDGET: BudgetLine[] = [
   { id: 'ryokan', label: 'Ryokan Hakone', yen: 74_000, note: 'Phòng onsen riêng, hai bữa', color: '#8A5CD0' },
   { id: 'food', label: 'Ăn ngoài', yen: 172_000, note: 'Không tính lại hai bữa trong ryokan', color: '#E9792B' },
   { id: 'shop', label: 'Mua sắm và quà', yen: 130_000, note: 'Giỏ theo số lượng, gồm một vali mới', color: '#D23A3A' },
-  { id: 'move', label: 'Di chuyển', yen: 72_200, note: 'Một đoạn Shinkansen, có Shimakaze', color: '#1E8A55' },
+  { id: 'move', label: 'Di chuyển', yen: 71_660, note: 'Một đoạn Shinkansen, có Shimakaze', color: '#1E8A55' },
   { id: 'ticket', label: 'Vé tham quan, kimono', yen: 17_000, note: 'Kimono hai người, đền chùa có thu phí', color: '#0E9FB0' },
   { id: 'extra', label: 'Chi phí phụ', yen: 18_000, note: 'Thuế lưu trú, gửi vali, eSIM, giặt, locker', color: '#8E8E93' },
-  { id: 'reserve', label: 'Dự phòng', yen: 40_000, note: 'Tỷ giá, thời tiết, phát sinh thật — giữ tới đêm cuối', color: '#C7C7CC' },
+  { id: 'reserve', label: 'Dự phòng', yen: 40_540, note: 'Tỷ giá, thời tiết, phát sinh thật — giữ tới đêm cuối', color: '#C7C7CC' },
 ];
 
 export const RATE_SCENARIOS = [
@@ -99,10 +99,10 @@ export const TRANSPORT_LINES = [
   { label: 'Xe buýt Mie Kotsu', yen: 2_000 },
   { label: 'Phà Tōshijima', yen: 2_200 },
   { label: 'Kyoto: subway, Keihan, Hankyu, bus', yen: 5_000 },
-  { label: 'Kintetsu Tambabashi → Nara', yen: 1_600 },
-  { label: 'Kintetsu Nara → Namba', yen: 1_400 },
+  { label: 'Kintetsu Tambabashi → Nara', yen: 1_360 },
+  { label: 'Kintetsu Nara → Namba', yen: 1_360 },
   { label: 'Osaka Metro', yen: 1_500 },
-  { label: 'Nankai Namba → KIX', yen: 2_200 },
+  { label: 'Nankai Namba → KIX', yen: 1_940 },
 ];
 
 export const PASSES = [
@@ -153,6 +153,7 @@ export const BOOKINGS: Booking[] = [
   { title: 'Giữ ryokan và phòng Ise', rule: 'Ngay khi khách sạn mở lịch tháng 10/2027', text: 'Đặt loại có thể hủy. Mizunoto: tên phòng có 温泉, hai bữa. Sau đó Kyoto, Tokyo, Osaka.' },
   { title: 'Theo dõi giá phòng', rule: '90, 60 và 30 ngày trước', text: 'So cùng ngày, hai người, cùng hạng phòng, cùng điều kiện hủy.' },
   { title: 'Bàn ăn đặt trước', rule: '60–30 ngày trước, theo cửa sổ của từng quán', text: 'SUSHI TOKYO TEN lunch ¥5.500 (ResReserve), Menami, AWA Naramachi.' },
+  { at: '2027-09-21T10:00:00+09:00', title: 'Ghế đầu Romancecar (tuỳ chọn)', rule: '10h giờ Nhật, đúng một tháng trước', text: 'Hàng ghế đầu xe 1 của tàu GSE cho chuyến Hakone 41 ngày 21/10 (nếu chuyến đó chạy GSE). Hết rất nhanh; chỉ mua đứt, không giữ chỗ online. Không có thì ngồi bên phải như thường.' },
   { title: 'Vé JR và Shimakaze', rule: 'Khoảng một tháng trước', text: 'Ghế reserved Shinkansen Shizuoka → Nagoya ngày 22/10; Shimakaze Toba → Kyoto ngày 24/10, giữ tàu thường làm phương án.' },
   { at: '2027-10-22T00:00:00+09:00', title: 'Đặt Yamamoto Menzō', rule: '0h giờ Nhật, ba ngày trước', text: 'Cho ngày 25/10 — tức 22h tối 21/10 giờ Việt Nam. Hủy trong 12 giờ mất ¥1.000/người.' },
   { at: '2027-10-26T21:00:00+09:00', title: 'Đặt Hōsekibako', rule: '21h giờ Nhật, tối hôm trước', text: 'Cho ngày 27/10 — 19h giờ Việt Nam. Đúng chi nhánh 29011038.' },

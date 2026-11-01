@@ -456,9 +456,17 @@ export const GEO: Record<string, { p: string; km: number }> = {
   "p": "ifrrEip`zXG?CiCfH@?HlA@BkAxDB|@PBQ",
   "km": 0.46
  },
- "walk.forza-osaka.doguyasuji.s58mfo": {
-  "p": "ifrrEip`zXG?@xAtCE?lB?mBjC@@Ot@??Qb@?TTdGMpCQDDfAIbAY",
+ "walk.forza-osaka.hozenji.gjs5kp": {
+  "p": "ifrrEip`zXG?@xAtCE?lBX?",
+  "km": 0.19
+ },
+ "walk.hozenji.kuromon.gjs5kp": {
+  "p": "_arrEgj`zXY??mBfC@BsElA@HkHj@y@HC~ED?e@NAFeDV?",
   "km": 0.7
+ },
+ "walk.kuromon.doguyasuji.gjs5kp": {
+  "p": "opqrEweazXvBDS|Ob@|@p@pBbAY",
+  "km": 0.45
  },
  "walk.doguyasuji.horai-551.gjs5kp": {
   "p": "qhqrE}o`zXcAXg@Dl@fDoBfA{@~@CCi@p@?FmBTkBF@J",
@@ -503,5 +511,65 @@ export const GEO: Record<string, { p: string; km: number }> = {
  "nankai.st-nankai-namba.kix.gjs5kp": {
   "p": "ueqrE{f`zXbKgEfEDnyHfsAvc@rQb}@zVd}AbhBpLpJ|mCluAjuDrnAzJnLvpCpnE`H~DzeB|c@n}Bb}AvRd]|\\dcAxj@t_@|u@xcArW|Gp~BvlCxE~IhPlx@vKfPhCxOSvQob@nn@gIzQwzB`dDef@ng@kFbJcE~Uh@jZpAfHxItOdOnIbJxK",
   "km": 42.88
+ },
+ "fujiExcursion.st-shinjuku.st-kawaguchiko.nx5als": {
+  "p": "euyxEwgtsYma@fDgQ|DqX|OsJ|LeDfI_Fh`@dAdlCt\\fl]hOxcO|CbbAc@dl@nBpKnFvL`PtMrcBnt@z~@rQ~OnIbPvRpx@b|AjBlNa@j\\`JtYn@rMyWpz@iQ|nBgMdy@LvIdpAhyCd]psAt@dPqDr`AzKts@uAlqAzFf_@sAdn@rFlf@dTpfAtVhv@x~@pn@`Sf\\nCfKCvHsFl[{Nze@yFl_@tA~Lna@tt@xDhVwL|eBiPxb@yAnVMt]~Cj[s@|XrM|e@wB|_BnHr]`Vne@dD~N[dOwIjc@Hjq@bB~MxQdv@ph@j~@nExR{C|O_Wx\\iIdYpFdo@xGn[f@|K}FhYuBfYr@`l@qDl_BiXjn@wDr^DdNlM~i@DxIaIx[CnUmKrVq@fNfOth@YwDhIxV|EbBvDe@dP_PfHeCrFDrDdD~GxTvIpOtX|S|WuA~OoU|\\wQtEk@dD|@hMtOnDxOnSlQ|StVrYzl@d[`c@tMz^rG|Bn\\sBbGxAjDlBhFhIlVlF`Rr]~J|F`Yx|@|Crt@mBvTrTxl@f^hkAl[rk@vKt^tUh]j@rIyBzO`AlIdEdE~Q|FrF|RlCvCjFr@`LiC~CTrLnNlN|ZnXf~@xPnYjDjZhBbEhe@lYfTdc@rKtAnDwApCeEkAlOwDnKoXz[_Qjc@aTnM_IrIqCtJ_@tJqA`@",
+  "km": 102.57
+ },
+ "walk.st-kawaguchiko.fs-lawson-kawaguchiko-ekimae.gjs5kp": {
+  "p": "ghtwEkf~mYT@Af@gA?CHIdFd@@",
+  "km": 0.2
+ },
+ "walk.fs-lawson-kawaguchiko-ekimae.st-kawaguchiko.gjs5kp": {
+  "p": "citwEo}}mYe@AHeFBIfA?@g@UA",
+  "km": 0.2
+ },
+ "fujikyu.st-kawaguchiko.st-shimoyoshida.gjs5kp": {
+  "p": "ghtwEkf~mYpAa@^uJ`@eCd@_BhAoChBmCvA}A|BgB`IgE|FgD`B_B|A_C~@uBhIiVvAkD|BaD|MmN|AkBtB_DjA_Cz@}Bn@qCn@iFZcHkAxBeAjA}Az@qAZqAFgG{@wAw@aAaAo@eAwKgXkA{Bs@cA_BwA}@k@s\\qQwBwB}@_Bk@cBu@cIZiA",
+  "km": 4.95
+ },
+ "walk.st-shimoyoshida.fs-chureito-pagoda.gjs5kp": {
+  "p": "yctwEaaenY?FMBBf@h@ENtBa@dAUFTzBCLYd@UdA}@`B`@rC{@DiAVMW_Dw@Sa@TWi@c@?GsB_AqBiAaAs@Mb@JD",
+  "km": 0.87
+ },
+ "walk.fs-chureito-pagoda.fs-honcho-dori.gjs5kp": {
+  "p": "aztwEosdnYKELc@`Ar@pBhArB~@?Fh@b@UVR`@~Cv@LVhAWz@Ea@sC|@aBTeAXe@BMU{BTG`@eA~Di@AmAfCa@^O~@{@bAyABM\\ItCZAP",
+  "km": 1.22
+ },
+ "walk.fs-honcho-dori.st-shimoyoshida.gjs5kp": {
+  "p": "imswEgeenY@QuC[]HCLcAxA_Az@_@NeBZ{DNo@HCQi@DCg@LC?G",
+  "km": 0.49
+ },
+ "fujikyu.st-shimoyoshida.st-kawaguchiko.gjs5kp": {
+  "p": "yctwEaaenY[hAt@bIj@bB|@~AvBvBr\\pQ|@j@~AvAr@bAjAzBvKfXn@dA`A`AvAv@fGz@pAGpA[|A{@dAkAjAyB[bHo@hFo@pC{@|BkA~BuB~C}AjB}MlN}B`DwAjDiIhV_AtB}A~BaB~A}FfDaIfE}BfBwA|AiBlCiAnCe@~Aa@dC_@tJqA`@",
+  "km": 4.95
+ },
+ "kawaguchikoBus.st-kawaguchiko.bus-kawaguchiko-bijutsukan.gjs5kp": {
+  "p": "ghtwEkf~mYy@GBm@mAJ_Ad@WDmBKOI{@mAg@h@Yd@s@rDk@j@m@B_@KqCgBe@i@mBkG{C}GoA_BkBeAsAe@{CM_AO]Wc@q@m@aBc@w@cAiAeAm@aAWaQwBaB@aAJuAj@cBzAk@z@m@pAU~AA`AFbA`DrVGp@gAzDU\\oA|@SF_@B_@Gy@e@w@}@{@wBQW[Ia@Po@{@aEmDYc@[{@aAoF_@}@m@e@gAGYa@g@qBQQ_@CgBd@oDnAFV",
+  "km": 3.71
+ },
+ "walk.bus-kawaguchiko-bijutsukan.hoto-fudo.gjs5kp": {
+  "p": "olxwEyw~mYAIxCcAKc@BUIa@MU{@W{B_@m@E{@UuEy@oF}AGCBKOELs@JD",
+  "km": 0.63
+ },
+ "walk.hoto-fudo.bus-kawaguchiko-bijutsukan.gjs5kp": {
+  "p": "y_ywEig_nYKEMr@NDCJFBnF|AtEx@z@Tl@DzB^z@VLTH`@CTJb@yCbA@H",
+  "km": 0.63
+ },
+ "kawaguchikoBus.bus-kawaguchiko-bijutsukan.fs-oishi-park.gjs5kp": {
+  "p": "olxwEyw~mYGWsBp@iAj@uDbCuHfHaApAe@lAgAbGe@~AiBbE]jAO`Am@lJa@zAoA|BKp@@t@jB|Kf@pAdAvAz@r@xDpAvAx@`@`@Xh@Lt@D~A_@pGb@xECjCKrBG`@a@nAgDxEQ^UbAC`@\\jCDbA_@tDu@jCMx@FbArBlHtA}@w@q@^oC",
+  "km": 3.08
+ },
+ "kawaguchikoBus.fs-oishi-park.st-kawaguchiko.gjs5kp": {
+  "p": "qcywE{|ymY_@nCv@p@uA|@{BqJbB{J_@qFf@cBfDyEh@qBN_Gc@yEXqJiAaCqGkCaCkCwCsO~B}G|@oLlDoJvAkHvAwBtHgHcAaDCqC~Fm\\tDhEdLnUvB`FrB`J`AbAhFdC~AxDpBbBrACnA}@bBsF_DkW@uDz@aCzAkBhCwA`AKtDLnP~BhCvBrCbFzE\\~DjBnA~AzC|GlBjGvDpClAFj@k@r@sD`AoAjAvAlBJdDw@Cl@x@F",
+  "km": 7.43
+ },
+ "fujiExcursion.st-kawaguchiko.st-shinjuku.nx5als": {
+  "p": "ghtwEkf~mYpAa@^uJpCuJ~HsI`ToM~Pkc@nX{[vDoKjAmOqCdEoDvAsKuAgTec@ie@mYiBcEkDkZyPoYoXg~@mN}ZsLoN_DUaLhCkFs@mCwCsF}R_R}FeEeEaAmIxB{Ok@sIuUi]wKu^m[sk@g^ikAsTyl@lBwT}Cst@aYy|@_K}FaRs]mVmFiFiIkDmBcGyAo\\rBsG}BuM{^e[ac@sY{l@}SuVoSmQoDyOiMuOeD}@uEj@}\\vQ_PnU}WtAuX}SwIqO_HyTsDeDsFEgHdCeP~OwDd@}EcBiIyVXvDgOuh@p@gNlKsVBoU`Iy[EyImM_j@EeNvDs^hXkn@pDm_Bs@al@tBgY|FiYg@}KyGo[qFeo@hIeY~Vy\\zC}OoEyRqh@k~@yQev@cB_NIkq@vIkc@ZeOeD_OaVoe@oHs]vB}_BsM}e@r@}X_Dk[Lu]xAoVhPyb@vL}eByDiVoa@ut@uA_MxFm_@zN{e@rFm[BwHoCgKaSg\\y~@qn@uViv@eTqfAsFmf@rAen@{Fg_@tAmqA{Kus@pDs`Au@ePe]qsAepAiyCMwIfMey@hQ}nBxWqz@o@sMaJuY`@k\\kBmNqx@c|AcPwR_PoI{~@sQscBot@aPuMoFwLoBqKb@el@}CcbAiOycOu\\gl]eAelC~Ei`@dDgIrJ}LpX}OfQ}Dla@gD",
+  "km": 102.57
+ },
+ "chuoSobu.st-shinjuku.st-akihabara.gjs5kp": {
+  "p": "euyxEwgtsY~BHdG_AzPsFvNcCdDmFpA_H]yXdHg_Ad@kOqBmIaHsS}KqMqCcBcTcFeDwAcCwC{MwXeFeHiq@_f@}BaCsAmCu@mEBkEhBuk@lBwOGkQz@kFdFkK~E}VlAmZfA_F",
+  "km": 8.61
  }
 };

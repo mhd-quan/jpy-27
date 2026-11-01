@@ -45,7 +45,13 @@ const pins: Pin[] = [
   ...around.map((a, k) => ({ id: `${id}-a${k}`, lat: a.lat, lng: a.lng, kind: 'along' as const, label: a.name })),
   ...(fuji?.nearbyViews ?? []).map((v: any, k: number) => ({ id: `${id}-v${k}`, lat: v.lat, lng: v.lng, kind: (v.sight?.visible ? 'fuji' : 'along') as Pin['kind'], label: v.name })),
 ];
-const pts: LatLng[] = [[hotel.lat, hotel.lng], ...walks.flatMap((w) => decodePolyline(w.p)), ...pins.map((p) => [p.lat, p.lng] as LatLng)];
+// frame the door, the walks and what is within walking reach; far viewpoints stay as pins off-frame
+const near = (lat: number, lng: number) => Math.hypot((lat - hotel.lat) * 111, (lng - hotel.lng) * 91) < 2.5;
+const pts: LatLng[] = [
+  [hotel.lat, hotel.lng],
+  ...walks.flatMap((w) => decodePolyline(w.p)),
+  ...pins.filter((p) => near(p.lat, p.lng)).map((p) => [p.lat, p.lng] as LatLng),
+];
 const mapConfig = {
   legs,
   pins,

@@ -24,6 +24,10 @@ if (!existsSync(file)) {
   process.exit(0);
 }
 const research = JSON.parse(readFileSync(file, 'utf8'));
+// self-hosted copies of Commons photos (scripts/localize-images.mjs)
+const commonsFile = join(root, 'research/commons-map.json');
+const commons = existsSync(commonsFile) ? JSON.parse(readFileSync(commonsFile, 'utf8')) : {};
+const localImg = (im) => ({ ...im, url: commons[im.url] ?? im.url });
 const RYOKAN = 'mizunoto';
 const WALK_KMH = 4.2;
 const num = (v) => (v == null || v === '' ? null : Number(v));
@@ -84,7 +88,7 @@ for (const [id, r] of Object.entries(research)) {
       p: encode(simplify(pts, 0.00001)),
       highlights: (w.highlights ?? [])
         .filter((h) => num(h.lat) != null && num(h.lng) != null)
-        .map((h) => ({ name: h.name, ja: h.ja ?? null, lat: num(h.lat), lng: num(h.lng), text: h.text ?? null, images: (h.images ?? []).filter((im) => im?.url) })),
+        .map((h) => ({ name: h.name, ja: h.ja ?? null, lat: num(h.lat), lng: num(h.lng), text: h.text ?? null, images: (h.images ?? []).filter((im) => im?.url).map(localImg) })),
     };
     if (id === RYOKAN) {
       // line of sight every 50 m; consecutive samples with the same answer form one segment
@@ -112,7 +116,7 @@ for (const [id, r] of Object.entries(research)) {
     area: r.area ?? null,
     walks,
     around: (r.around ?? []).filter((a) => num(a.lat) != null && num(a.lng) != null).map((a) => ({ ...a, lat: num(a.lat), lng: num(a.lng), walkMin: Math.max(1, Math.round((haversine(home, [num(a.lat), num(a.lng)]) * 1.3 / WALK_KMH) * 60)) })),
-    photos: (r.photos ?? []).filter((im) => im?.url),
+    photos: (r.photos ?? []).filter((im) => im?.url).map(localImg),
     sources: r.sources ?? [],
   };
   if (id === RYOKAN && r.fuji) {

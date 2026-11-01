@@ -5,21 +5,21 @@
 // Output: src/data/shopping.gen.ts  { [slotId]: { p: string[], km, min } }
 // Usage: node scripts/build-shopping.mjs [--fresh]
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { place, hasPlace } from '../src/data/catalog.ts';
+import { SLOTS } from '../src/lib/shopping.ts';
 import { encode, haversine, lengthKm, osrm, simplify } from './geo-tools.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const fresh = process.argv.includes('--fresh');
-const file = join(root, 'research/shopping-stores.json');
 const WALK_MAX_KM = 2.2;
 const WALK_KMH = 4.2;
 const out = {};
-if (existsSync(file)) {
-  const { slots = [] } = JSON.parse(readFileSync(file, 'utf8'));
-  for (const s of slots) {
-    const stops = [s.after, ...(s.stores ?? []), s.before].filter((id) => id && hasPlace(id)).map((id) => place(id));
+{
+  // the planner's slot list (research slots with the edits in src/lib/shopping.ts)
+  for (const s of SLOTS) {
+    const stops = [s.after, ...s.stores.map((p) => p.id), s.before].filter((id) => id && hasPlace(id)).map((id) => place(id));
     // drop repeats next to each other (start and end at the same hotel is fine)
     const pts = stops.filter((p, i) => i === 0 || p.id !== stops[i - 1].id).map((p) => [p.lat, p.lng]);
     const parts = [];

@@ -21,7 +21,7 @@ import { allLegs } from '../src/data/days.ts';
 import { LINES } from '../src/data/lines.ts';
 import { place } from '../src/data/catalog.ts';
 import { GEO as PREV } from '../src/data/geo.gen.ts';
-import { encode, haversine, lengthKm, osrm as osrmCached, simplify } from './geo-tools.mjs';
+import { decode, encode, haversine, lengthKm, osrm as osrmCached, simplify } from './geo-tools.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const cache = join(root, '.cache');
@@ -213,7 +213,8 @@ const seen = new Set();
 for (const leg of allLegs()) {
   if (seen.has(leg.id)) continue;
   seen.add(leg.id);
-  if (!fresh && PREV[leg.id]) {
+  // reuse earlier geometry, except straight-line fallbacks from a failed routing
+  if (!fresh && PREV[leg.id] && !(PREV[leg.id].km > 1 && decode(PREV[leg.id].p).length <= 2)) {
     out[leg.id] = PREV[leg.id];
     continue;
   }
@@ -223,7 +224,25 @@ for (const leg of allLegs()) {
   let pts;
   try {
     if (line.net) {
-      pts = railPath(line.net, a, b);
+      // through trains that change operator (JR Chūō → Fujikyu at Ōtsuki) route each part on its own
+      const stops = [a, ...(leg.via ?? []).map(pt), b];
+      pts = [];
+      for (let i = 1; i < stops.length; i++) {
+        let part;
+        try {
+          part = railPath(line.net, stops[i - 1], stops[i]);
+        } catch (e) {
+          // at an interchange the nearest node may belong to the other operator's track: try each operator alone
+          for (const op of new Set(line.net.map(([o]) => o))) {
+            try {
+              part = railPath(line.net.filter(([o]) => o === op), stops[i - 1], stops[i]);
+              break;
+            } catch {}
+          }
+          if (!part) throw e;
+        }
+        pts.push(...part);
+      }
       // attach the exact station points so the line meets the markers
       pts = [a, ...pts, b];
     } else if (leg.path) {

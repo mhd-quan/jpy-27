@@ -136,6 +136,8 @@ export const ROMAJI = {
   片浜: 'Katahama', 原: 'Hara', 東田子の浦: 'Higashi-Tagonoura', 吉原: 'Yoshiwara', 富士: 'Fuji', 富士川: 'Fujikawa', 新蒲原: 'Shin-Kambara',
   蒲原: 'Kambara', 由比: 'Yui', 興津: 'Okitsu', 清水: 'Shimizu', 草薙: 'Kusanagi', 東静岡: 'Higashi-Shizuoka', 静岡: 'Shizuoka',
   掛川: 'Kakegawa', 浜松: 'Hamamatsu', 新富士: 'Shin-Fuji', 池の浦: 'Ikenoura', 淀屋橋: 'Yodoyabashi',
+  大月: 'Ōtsuki', 都留文科大学前: 'Tsurubunkadaigaku-mae', 下吉田: 'Shimoyoshida', 月江寺: 'Gekkōji', 富士山: 'Fujisan',
+  富士急ハイランド: 'Fuji-Q Highland', 河口湖: 'Kawaguchiko', 寿: 'Kotobuki', 三つ峠: 'Mitsutōge', 葭池温泉前: 'Yoshiike-Onsen-mae',
 };
 const stationFile = join(cache, 'n02/UTF-8/N02-23_Station.geojson');
 let stations;

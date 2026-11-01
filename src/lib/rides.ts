@@ -56,13 +56,17 @@ export interface Ride {
 
 const SCENIC = new Set(['train', 'shinkansen', 'cable', 'ropeway', 'cruise', 'ferry']);
 
+// Names research uses for places the plan names differently
+const ALIAS: Record<string, string> = { 佐田浜: '鳥羽マリンターミナル', 佐田浜港: '鳥羽マリンターミナル', 鳥羽港: '鳥羽マリンターミナル' };
 /** 大阪難波駅 (Kintetsu) → 大阪難波 */
-const norm = (s: string) =>
-  s
+const norm = (s: string) => {
+  const n = s
     .replace(/[（(].*?[）)]/g, '')
     .replace(/駅$/, '')
     .replace(/\s+/g, '')
     .trim();
+  return ALIAS[n] ?? n;
+};
 
 // Stops of the services the plan uses, where the line has many stations the train runs through.
 // Short rides and locals stop everywhere and need no list.
@@ -228,7 +232,7 @@ function build(day: Day, legs: LegView[], r: RRide | null, at?: string): Ride {
     toName: last.toName,
     km: Math.round(legs.reduce((t, l) => t + l.km, 0) * 10) / 10,
     min: legs.length === 1 ? first.min : undefined,
-    title: r?.line ?? first.lineName,
+    title: (r?.line ?? first.lineName).replace(/\s*[（(].*?[）)]\s*/g, ' ').trim(),
     train: r?.train ?? null,
     seat: r?.seat ?? null,
     stations: drawn,
@@ -253,13 +257,18 @@ function ridesOf(day: Day): Ride[] {
     // first leg that boards at the research's "from", then legs until one reaches its "to"
     const fromN = norm(r.from);
     const toN = norm(r.to);
-    const has = (l: LegView, n: string) => legStations(l).some((s) => norm(s.ja) === n || norm(s.ja).includes(n) || n.includes(norm(s.ja)));
-    const start = moves.findIndex(({ l }) => !used.has(l.id) && has(l, fromN));
+    const same = (a: string, b: string) => a === b || a.includes(b) || b.includes(a);
+    const has = (l: LegView, n: string) => legStations(l).some((s) => same(norm(s.ja), n));
+    const boards = (l: LegView, n: string) => same(norm(legStations(l)[0].ja), n);
+    const ends = (l: LegView, n: string) => same(norm(legStations(l).at(-1)!.ja), n);
+    // a ride boards at its first station; only when no leg does, accept one that passes it
+    let start = moves.findIndex(({ l }) => !used.has(l.id) && boards(l, fromN));
+    if (start < 0) start = moves.findIndex(({ l }) => !used.has(l.id) && has(l, fromN) && !ends(l, fromN));
     if (start < 0) continue;
     const chosen = [];
     for (let i = start; i < moves.length; i++) {
       chosen.push(moves[i]);
-      if (has(moves[i].l, toN)) break;
+      if (has(moves[i].l, toN) && (ends(moves[i].l, toN) || !moves.slice(i + 1).some(({ l }) => ends(l, toN)))) break;
     }
     chosen.forEach(({ l }) => used.add(l.id));
     out.push(build(day, chosen.map((c) => c.l), r, chosen[0].at));

@@ -104,7 +104,12 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs[0].from))]
                   {r.seat && <p class="t-small">{r.seat}</p>}
                 </div>
               )}
-              {r.train && <p class="t-small muted train">{r.train}</p>}
+              {r.train && (
+                <details class="train t-small">
+                  <summary>Chuyến tàu, giờ mẫu</summary>
+                  <p class="muted">{r.train}</p>
+                </details>
+              )}
               {r.onboard && (
                 <div class="onboard">
                   <p class="seat-k t-micro">Trên tàu</p>
@@ -322,7 +327,22 @@ const sayIds = [...new Set([...RIDES, ...ALT_RIDES].map((r) => r.legs[0].from))]
     margin: 12px 0 0;
   }
   .ride-line .chip {
+    height: auto;
+    min-height: 26px;
+    padding-block: 3px;
+    white-space: normal;
     background: color-mix(in srgb, var(--c) 13%, var(--bg));
+  }
+  .train summary {
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+  }
+  .train summary::-webkit-details-marker {
+    display: none;
+  }
+  .train p {
+    margin: 6px 0 0;
   }
   .ride-line .dot {
     background: var(--c);

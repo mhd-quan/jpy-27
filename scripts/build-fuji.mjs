@@ -14,7 +14,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { place, hasPlace } from '../src/data/catalog.ts';
-import { DAYS, legsOf } from '../src/data/days.ts';
+import { DAYS, ALT_DAYS, legsOf } from '../src/data/days.ts';
 import { GEO } from '../src/data/geo.gen.ts';
 import { LINES } from '../src/data/lines.ts';
 import { ROMAJI, stationsForNet } from './geo-tools.mjs';
@@ -45,7 +45,8 @@ const popularFile = join(root, 'research/fuji-spots.json');
 const POPULAR = existsSync(popularFile)
   ? (JSON.parse(readFileSync(popularFile, 'utf8')).spots ?? [])
       .filter((s) => typeof s.lat === 'number' && typeof s.lng === 'number')
-      .map((s) => ({ id: s.id, nameVi: s.name, nameJa: s.ja, lat: s.lat, lng: s.lng, day: s.fit === 'day4' ? 4 : s.fit === 'day5' ? 5 : 3, role: 'popular' }))
+      // a bridge deck stands well above the ground the terrain data sees; a ropeway is about its top station
+      .map((s) => ({ id: s.id, nameVi: s.name, nameJa: s.ja, lat: s.lat, lng: s.lng, day: s.fit === 'day4' ? 4 : s.fit === 'day5' ? 5 : 3, role: 'popular', eye: s.type === 'bridge' ? 40 : undefined, summitOf: s.type === 'ropeway' ? 0.8 : undefined }))
   : [];
 for (const s of [...(research?.spots ?? []), ...FALLBACK, ...POPULAR]) {
   if (!s?.id || seen.has(s.id)) continue;
@@ -82,9 +83,11 @@ function decode(str) {
   return pts;
 }
 const TRAIN_LEGS = [];
-for (const d of DAYS) {
+for (const d of [...DAYS, ...ALT_DAYS]) {
   for (const l of legsOf(d)) {
-    if (['romancecar', 'tokaido', 'shinkansen'].includes(l.line) && !TRAIN_LEGS.some((t) => t.id === l.id)) TRAIN_LEGS.push({ id: l.id, line: l.line, day: d.n });
+    // the Kawaguchiko alternative: only the morning run out of Tokyo, when the mountain is ahead
+    const fujiDay = l.line === 'fujiExcursion' && l.from === 'st-shinjuku';
+    if ((['romancecar', 'tokaido', 'shinkansen'].includes(l.line) || fujiDay) && !TRAIN_LEGS.some((t) => t.id === l.id)) TRAIN_LEGS.push({ id: l.id, line: l.line, day: d.n });
   }
 }
 function sampleTrack(id, every = 1500, maxKm = Infinity) {
@@ -125,13 +128,28 @@ for (let la = s - 0.05; la <= n + 0.05; la += 0.03) for (let lo = w - 0.05; lo <
 console.log('loading terrain…');
 await preload(fill);
 
+// ropeways: look from the highest ground within reach of the lower station (where the top station sits)
+for (const sp of spots.filter((x) => x.summitOf)) {
+  let best = { h: -1, lat: sp.lat, lng: sp.lng };
+  for (let dy = -sp.summitOf; dy <= sp.summitOf; dy += 0.02)
+    for (let dx = -sp.summitOf; dx <= sp.summitOf; dx += 0.02) {
+      if (dx * dx + dy * dy > sp.summitOf ** 2) continue;
+      const lat = sp.lat + dy / 111.2;
+      const lng = sp.lng + dx / (111.2 * Math.cos((sp.lat * Math.PI) / 180));
+      const h = elevSync(lat, lng);
+      if (h > best.h) best = { h, lat, lng };
+    }
+  console.log(`${sp.id}: top station taken at ${best.lat.toFixed(5)}, ${best.lng.toFixed(5)} (${Math.round(best.h)} m)`);
+  Object.assign(sp, { lat: best.lat, lng: best.lng });
+}
+
 const outSpots = spots.map((sp) => {
   const sl = sightline(sp, sp.eye ?? EYE, sp.fixedElev);
   console.log(`${sp.id.padEnd(26)} ${String(sl.km).padStart(6)} km  ${String(sl.bearing).padStart(3)}°  ${sl.visible ? `visible, ${sl.shownM} m shown, ${sl.heightDeg}° tall` : `blocked at ${sl.blockKm} km`}`);
   return { id: sp.id, name: sp.nameVi ?? sp.nameEn ?? null, ja: sp.nameJa ?? null, lat: sp.lat, lng: sp.lng, day: sp.day ?? null, role: sp.role ?? null, ...sl };
 });
 
-const PANORAMAS = ['onshi-hakone-park', 'lake-ashi-cruise-deck', 'owakudani', 'satta-pass', 'oishi-park'];
+const PANORAMAS = ['onshi-hakone-park', 'lake-ashi-cruise-deck', 'owakudani', 'satta-pass', 'oishi-park', 'fs-chureito-pagoda'];
 const panoramas = {};
 for (const id of PANORAMAS) {
   const sp = spots.find((x) => x.id === id);

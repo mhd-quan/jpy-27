@@ -39,7 +39,7 @@ export interface FujiSpot {
   status: string | null;
   etiquette: string | null;
   access: { kawaguchiko?: string | null; day4?: string | null; day5?: string | null };
-  busStop: { ja: string; lat: number; lng: number; lines?: string } | null;
+  busStop: { ja: string; lat: number; lng: number; lines?: string | string[]; walkMin?: number; [k: string]: unknown } | null;
   social: { platform: string; url: string; note: string | null }[];
 }
 
@@ -13539,6 +13539,1160 @@ export const DETAILS: Record<string, Detail> = {
    "social": []
   }
  },
+ "sh-super-potato-akiba": {
+  "images": [],
+  "lat": 35.69937,
+  "lng": 139.770741,
+  "address": "東京都千代田区外神田1-11-2 北林ビル 3F/4F/5F",
+  "hours": "11:00–20:00, không nghỉ",
+  "why": "Cửa hàng game retro nổi tiếng nhất Akihabara, cách hotel khoảng 10 phút đi bộ. Mở 7 ngày nên ghé được cả chiều ngày 1.",
+  "tips": "3–5F: máy game retro, đồ chơi, snack Nhật; 5F có phòng game retro và chỗ nghỉ",
+  "official": "https://www.superpotato.com/shop/akihabara/",
+  "store": {
+   "chain": "hobby",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "manseibashi",
+   "walkMin": 4
+  }
+ },
+ "sh-mandarake-complex": {
+  "images": [],
+  "lat": 35.700354,
+  "lng": 139.770525,
+  "address": "東京都千代田区外神田3-11-12",
+  "hours": "12:00–20:00 (ngày nghỉ chưa xác nhận)",
+  "why": "Cửa hàng đồ sưu tầm manga, anime, figure cũ lớn nhất của chuỗi, nằm giữa Manseibashi và Okachimachi. Chỉ mở từ 12h, đóng 20h nên không dồn vào buổi tối.",
+  "official": "https://www.timeout.jp/tokyo/ja/ショッピング/mandarake-complex",
+  "store": {
+   "chain": "hobby",
+   "city": "tokyo",
+   "open": "12:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "manseibashi",
+   "walkMin": 6
+  }
+ },
+ "sh-2k540": {
+  "images": [],
+  "lat": 35.703581,
+  "lng": 139.774158,
+  "address": "東京都台東区上野5-9 (dưới cầu cạn JR, giữa Akihabara và Okachimachi)",
+  "hours": "11:00–19:00, nghỉ thứ Tư",
+  "why": "Khu xưởng thủ công dưới đường tàu, đồ da, gốm, trang sức làm tay; nằm đúng đường từ Akihabara sang Okachimachi. Thứ Hai ngày 18/10 mở, thứ Tư nghỉ.",
+  "official": "https://www.jrtk.jp/2k540/",
+  "store": {
+   "chain": "craft",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "19:00",
+   "closedDow": [
+    3
+   ],
+   "taxFree": null,
+   "near": "yamabe",
+   "walkMin": 9
+  }
+ },
+ "sh-ameyoko": {
+  "images": [],
+  "lat": 35.710024,
+  "lng": 139.774541,
+  "address": "東京都台東区上野6-10-7",
+  "why": "Chợ đường phố cạnh Yamabe, mua snack và quà rẻ; giờ từng quán khác nhau nên coi như chỉ chắc đến chiều, không dựa vào buổi tối.",
+  "tips": "Khoảng 500 m, khoảng 500 cửa hàng: đồ ăn, hải sản, kẹo, quần áo, mỹ phẩm",
+  "official": "https://www.gotokyo.org/jp/spot/71/index.html",
+  "store": {
+   "chain": "market",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "yamabe",
+   "walkMin": 3
+  }
+ },
+ "sh-futaba-ameyoko": {
+  "images": [],
+  "lat": 35.708375,
+  "lng": 139.77447,
+  "address": "東京都台東区上野4-1-8",
+  "hours": "10:00–20:00, nghỉ bất thường",
+  "why": "Cửa hàng kẹo bánh sỉ, mở đến 20h nên ghé được sau bữa tối ở Yamabe. Hợp để mua KitKat vị lạ và bánh gạo chia bạn bè.",
+  "tips": "Quầy tax-free; khoảng 5.000 loại bánh kẹo, mua nhiều giá từng cái giảm",
+  "official": "https://livejapan.com/ja/in-tokyo/in-pref-tokyo/in-ueno/spot-lj0004520/",
+  "store": {
+   "chain": "market",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "yamabe",
+   "walkMin": 1
+  }
+ },
+ "sh-uniqlo-okachimachi": {
+  "images": [],
+  "lat": 35.707536,
+  "lng": 139.774358,
+  "address": "東京都台東区上野3-27-12 御徒町吉池本店ビル 1–4F",
+  "hours": "10:00–21:00",
+  "why": "Mở đến 21h, cách Yamabe vài bước nên thử size ngay tối ngày 1; đồ mua kịp vào vali lớn gửi đi Ise sáng ngày 3.",
+  "tips": "UNIQLO 1–4F (khoảng 2.800 m²); GU ở 5–6F cùng tòa nhà",
+  "official": "https://mitsui-shopping-park.com/urban/yoshiike/store/600358.html",
+  "store": {
+   "chain": "uniqlo",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "yamabe",
+   "walkMin": 2
+  }
+ },
+ "sh-gu-okachimachi": {
+  "images": [],
+  "lat": 35.707536,
+  "lng": 139.774358,
+  "address": "東京都台東区上野3-27-12 御徒町吉池本店ビル 5–6F",
+  "hours": "10:00–21:00",
+  "why": "Thử quần, áo GU ngay sau khi xem UNIQLO, cùng tòa nhà. Nếu có đổi size thì còn hai ngày ở Tokyo để quay lại.",
+  "tips": "5–6F (UNIQLO ở 1–4F cùng tòa nhà)",
+  "official": "https://mitsui-shopping-park.com/urban/yoshiike/store/600359.html",
+  "store": {
+   "chain": "gu",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "yamabe",
+   "walkMin": 2
+  }
+ },
+ "sh-yodobashi-akiba": {
+  "images": [],
+  "lat": 35.698784,
+  "lng": 139.774725,
+  "address": "東京都千代田区神田花岡町1-1",
+  "hours": "9:30–22:00 (trang chính thức không ghi ngày nghỉ)",
+  "why": "Trên đường Yamabe về hotel, mở đến 22h. Xem hàng điện tử, mỹ phẩm, đồ chơi; có Daiso tầng 1 trong tòa nhà.",
+  "tips": "B1 và 7F: cửa hàng chuyên (9:30–22:00); 8F nhà hàng 11:00–23:00",
+  "official": "https://www.yodobashi-akiba.com/information/access_map.html",
+  "store": {
+   "chain": "yodobashi",
+   "city": "tokyo",
+   "open": "09:30",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "resol-akihabara",
+   "walkMin": 4
+  }
+ },
+ "sh-donki-akihabara": {
+  "images": [],
+  "lat": 35.700717,
+  "lng": 139.77189,
+  "address": "東京都千代田区外神田4-3-3",
+  "hours": "24 giờ, không nghỉ",
+  "why": "Mở 24h, tax-free; thuốc chỉ bán khi có dược sĩ trực. Hợp mua snack, mỹ phẩm sau 21h khi các cửa hàng khác đã đóng.",
+  "official": "https://www.donki.com/store/shop_detail.php?shop_id=98",
+  "store": {
+   "chain": "donki",
+   "city": "tokyo",
+   "open": "00:00",
+   "close": "24:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "resol-akihabara",
+   "walkMin": 8
+  }
+ },
+ "sh-matsukiyo-iwamotocho": {
+  "images": [],
+  "lat": 35.696203,
+  "lng": 139.77506,
+  "address": "東京都千代田区神田岩本町 (cạnh ga Iwamotochō)",
+  "why": "Drugstore gần nhất với hotel RESOL (khoảng 2 phút đi bộ). Giờ mở chưa xác nhận trên trang chính thức; nếu đã đóng thì dùng Don Quijote Akihabara 24h.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ",
+  "store": {
+   "chain": "drugstore",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "resol-akihabara",
+   "walkMin": 2
+  }
+ },
+ "sh-daiso-yodobashi-akiba": {
+  "images": [],
+  "lat": 35.698925,
+  "lng": 139.774765,
+  "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 1F",
+  "hours": "9:30–22:00 (theo giờ tòa nhà)",
+  "why": "Daiso duy nhất sát tuyến ở Akihabara, nằm trong Yodobashi nên cùng giờ 9:30–22:00. Mua đồ nhỏ như túi zip, hộp đựng, móc treo.",
+  "official": "https://www.yodobashi-akiba.com/information/access_map.html",
+  "store": {
+   "chain": "daiso",
+   "city": "tokyo",
+   "open": "09:30",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "resol-akihabara",
+   "walkMin": 4
+  }
+ },
+ "sh-hands-be-atre-akiba": {
+  "images": [],
+  "lat": 35.698326,
+  "lng": 139.772479,
+  "address": "東京都千代田区外神田1-17-6 アトレ秋葉原1 2F",
+  "hours": "10:00–21:00",
+  "why": "Hands cỡ nhỏ ngay ga Akihabara, đóng 21h. Tối ngày 2 ghé nhanh mua văn phòng phẩm nếu không kịp Maruzen.",
+  "tips": "2F, nối thẳng ga JR Akihabara; nhóm làm đẹp, bếp, văn phòng phẩm, DIY",
+  "official": "https://be.hands.net/be_akihabara/",
+  "store": {
+   "chain": "hands",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "resol-akihabara",
+   "walkMin": 4
+  }
+ },
+ "sh-nakamise": {
+  "images": [],
+  "lat": 35.71252,
+  "lng": 139.796517,
+  "address": "東京都台東区浅草1丁目",
+  "why": "Đi qua trên đường vào Sensō-ji, mua quà nhỏ và omamori; giờ do từng quán quyết định nên đến trước 17h cho chắc.",
+  "tips": "Đồ ăn, quà lưu niệm, đồ chơi, đồ thủ công, phụ kiện kimono (theo danh mục trên trang chính thức)",
+  "official": "https://www.asakusa-nakamise.jp/",
+  "store": {
+   "chain": "street",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "sensoji",
+   "walkMin": 4
+  }
+ },
+ "sh-shimamura-asakusa": {
+  "images": [],
+  "lat": 35.712603,
+  "lng": 139.793402,
+  "address": "東京都台東区浅草1丁目 (đường Shin-Nakamise)",
+  "why": "Cửa hàng Shimamura duy nhất tìm được sát tuyến, cách Owariya chừng 200 m. Giờ mở chưa xác nhận, chỉ xem nếu tiện; áo quần cơ bản mua UNIQLO và GU ngày 1 chắc hơn.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=しまむら 浅草",
+  "store": {
+   "chain": "shimamura",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "owariya",
+   "walkMin": 2
+  }
+ },
+ "sh-kappabashi": {
+  "images": [],
+  "lat": 35.714251,
+  "lng": 139.788889,
+  "address": "東京都台東区松が谷3-18-2 (hiệp hội phố)",
+  "hours": "10:00–17:00 (giờ từng cửa hàng khác nhau)",
+  "why": "Phố đồ bếp, đi bộ 5 phút từ ga Tawaramachi (Ginza Line, cùng tuyến về Nihonbashi). Đồ nặng, dễ vỡ thì để dành Dōguyasuji ngày 11.",
+  "tips": "Khoảng 160 cửa hàng: dao, gốm, sơn mài, dụng cụ bếp, mẫu thức ăn nhựa",
+  "official": "https://www.gotokyo.org/jp/spot/59/index.html",
+  "store": {
+   "chain": "kitchen",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "sensoji",
+   "walkMin": 12
+  }
+ },
+ "sh-maruzen-nihonbashi": {
+  "images": [],
+  "lat": 35.681128,
+  "lng": 139.77252,
+  "address": "東京都中央区日本橋2-3-10",
+  "hours": "9:30–20:30",
+  "why": "Hiệu sách và văn phòng phẩm, ngay cạnh ga Nihonbashi. Hợp mua sổ, bút, đồ viết trước bữa tối ở Tamai; đóng 20:30 nên không gấp.",
+  "official": "https://tokubai.co.jp/prefectures/13/loconavi_spots/720/book_store",
+  "store": {
+   "chain": "other",
+   "city": "tokyo",
+   "open": "09:30",
+   "close": "20:30",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "maruzen-nihonbashi",
+   "walkMin": 3
+  }
+ },
+ "sh-coredo-muromachi": {
+  "images": [],
+  "lat": 35.686681,
+  "lng": 139.774207,
+  "address": "東京都中央区日本橋室町2-2-1 (COREDO Muromachi 2: 室町2-3-1, 3: 室町1-5-5, Terrace: 室町3-2-1)",
+  "hours": "Cửa hàng ngày thường 11:00–20:00, cuối tuần 10:00–20:00; nhà hàng 11:00–23:00",
+  "why": "Cụm trung tâm thương mại ở Nihonbashi. Có sẵn cửa hàng Nakagawa Masashichi để xem giá khăn kaya fukin trước khi mua ở Nara.",
+  "tips": "Có Nakagawa Masashichi, Kayanoya, Nōsaku, United Arrows, Urban Research (theo trang chính thức)",
+  "official": "https://mitsui-shopping-park.com/urban/muromachi/",
+  "store": {
+   "chain": "other",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "tamai",
+   "walkMin": 10
+  }
+ },
+ "sh-mitsukoshi-nihonbashi": {
+  "images": [],
+  "lat": 35.685633,
+  "lng": 139.773435,
+  "address": "東京都中央区日本橋室町1-4-1",
+  "hours": "10:00–19:00 (Tokyo tourism); ngày nghỉ bất thường",
+  "why": "Đóng 19:00 nên phải ghé trước bữa tối ở Tamai, không ghé sau. Tokyo chỉ xem và ăn thử; quà hạn dài mua ở Kyoto và Osaka.",
+  "tips": "B1: khu thực phẩm; giờ riêng của tầng thực phẩm chưa xác nhận",
+  "official": "https://www.gotokyo.org/jp/spot/82/index.html",
+  "store": {
+   "chain": "depachika",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "19:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "tamai",
+   "walkMin": 8
+  }
+ },
+ "sh-uniqlo-shinjuku-honten": {
+  "images": [],
+  "lat": 35.69138,
+  "lng": 139.703007,
+  "address": "東京都新宿区新宿3-29-1 MI新宿ビル 1–3F",
+  "hours": "10:00–22:00",
+  "why": "Mở 10h, sớm hơn UNIQLO Harajuku (11h), nên lấp được khoảng chờ 9:20–11:00 trước bữa sushi ở Shinjuku.",
+  "tips": "1–3F; cùng địa chỉ với Bic Camera Shinjuku East, GU ở 7F Bic Camera",
+  "official": "https://map.uniqlo.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%96%B0%E5%AE%BF",
+  "store": {
+   "chain": "uniqlo",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "sushi-ten",
+   "walkMin": 7
+  }
+ },
+ "sh-bic-shinjuku-east": {
+  "images": [],
+  "lat": 35.691304,
+  "lng": 139.702974,
+  "address": "東京都新宿区新宿3-29-1",
+  "hours": "10:00–22:00 (theo giờ GU 7F cùng tòa nhà; giờ Bic Camera chưa kiểm trực tiếp)",
+  "why": "Hàng điện tử, mỹ phẩm, thuốc; có GU 7F cùng tòa nhà nên một lần dừng thử được cả UNIQLO và GU. Giờ riêng của Bic Camera cần xem lại trước chuyến đi.",
+  "tips": "GU ở 7F (10:00–22:00); các tầng còn lại chưa xác nhận",
+  "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%96%B0%E5%AE%BF",
+  "store": {
+   "chain": "bic",
+   "city": "tokyo",
+   "open": "10:00",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "sushi-ten",
+   "walkMin": 6
+  }
+ },
+ "sh-uniqlo-harajuku": {
+  "images": [],
+  "lat": 35.670694,
+  "lng": 139.703039,
+  "address": "東京都渋谷区神宮前1-14-30 ウィズ原宿 B1–1F",
+  "hours": "11:00–21:00",
+  "why": "Ngay cạnh ga Harajuku, trên đường ra khỏi Meiji Jingū. Mở 11h, đúng để mua AIRism ngày 3 nếu chưa mua ở Okachimachi.",
+  "tips": "B1 và 1F trong tòa WITH HARAJUKU (tòa mở 7:30–23:30, cửa hàng mở 11:00)",
+  "official": "https://withharajuku.jp/",
+  "store": {
+   "chain": "uniqlo",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "meiji-jingu",
+   "walkMin": 12
+  }
+ },
+ "sh-3coins-harajuku": {
+  "images": [],
+  "lat": 35.666901,
+  "lng": 139.704508,
+  "address": "東京都渋谷区神宮前6-12-22 秋田ビル 1F",
+  "hours": "11:00–20:00",
+  "why": "Cửa hàng đầu tiên và lớn nhất của 3COINS, gần Cat Street. Đồ gia dụng nhỏ, nhẹ, hợp bỏ vào vali.",
+  "tips": "1F; lớn hơn 3COINS+plus thông thường, có hàng chỉ bán ở cửa hàng này",
+  "official": "https://www.3coins.jp/harajuku/",
+  "store": {
+   "chain": "3coins",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "omotesando",
+   "walkMin": 7
+  }
+ },
+ "sh-cat-street": {
+  "images": [],
+  "lat": 35.665862,
+  "lng": 139.705148,
+  "address": "東京都渋谷区神宮前5–6丁目",
+  "why": "Đường nhỏ từ Omotesandō xuống Shibuya, các cửa hàng thời trang và vintage nhỏ, giờ mỗi tiệm một khác. Đi theo hướng này để từ Omotesandō sang Shibuya trước 17:30.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=キャットストリート",
+  "store": {
+   "chain": "street",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "omotesando",
+   "walkMin": 6
+  }
+ },
+ "sh-gu-shibuya": {
+  "images": [],
+  "lat": 35.660969,
+  "lng": 139.697539,
+  "address": "東京都渋谷区宇田川町32-13 B1–3F",
+  "hours": "11:00–22:00",
+  "why": "GU lớn ở Shibuya, mở đến 22h nên vừa ghé chiều vừa ghé sau bữa tối ở Toritake. Gần Shibuya Loft và MEGA Donki.",
+  "tips": "B1–3F",
+  "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%B8%8B%E8%B0%B7",
+  "store": {
+   "chain": "gu",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "22:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "toritake",
+   "walkMin": 6
+  }
+ },
+ "sh-shibuya-loft": {
+  "images": [],
+  "lat": 35.660924,
+  "lng": 139.699574,
+  "address": "東京都渋谷区宇田川町18-2",
+  "hours": "11:00–21:00 (thủ tục tax-free đến 20:30)",
+  "why": "Loft lớn nhất khu Shibuya, có tester mỹ phẩm (CANMAKE) và văn phòng phẩm. Trang cửa hàng báo ngày 31/10/2026 đóng sớm 19:00 vì Halloween; ngày 20/10/2027 xem lại.",
+  "official": "https://www.loft.co.jp/shop_list/detail.php?shop_id=189",
+  "store": {
+   "chain": "loft",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "toritake",
+   "walkMin": 5
+  }
+ },
+ "sh-shibuya-parco": {
+  "images": [],
+  "lat": 35.662033,
+  "lng": 139.698791,
+  "address": "東京都渋谷区宇田川町15-1",
+  "hours": "Cửa hàng 11:00–21:00; 6F 10:00–21:00; nghỉ bất thường",
+  "why": "Có Pokémon Center và Nintendo TOKYO cùng tầng 6. Đóng 21h nên ghé được sau bữa tối ở Toritake.",
+  "tips": "6F: Pokémon Center Shibuya, Nintendo TOKYO (10:00–21:00); tax-free theo từng cửa hàng",
+  "official": "https://shibuya.parco.jp/info/access/",
+  "store": {
+   "chain": "other",
+   "city": "tokyo",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "toritake",
+   "walkMin": 7
+  }
+ },
+ "sh-mega-donki-shibuya": {
+  "images": [],
+  "lat": 35.660447,
+  "lng": 139.69784,
+  "address": "東京都渋谷区宇田川町28-6",
+  "hours": "24 giờ, không nghỉ",
+  "why": "Mở 24h, tax-free; thuốc chỉ bán khi có dược sĩ. Là drugstore buổi tối của ngày 3, đi bộ vài phút từ Toritake và ga Shibuya.",
+  "official": "https://www.donki.com/store/shop_detail.php?shop_id=442",
+  "store": {
+   "chain": "donki",
+   "city": "tokyo",
+   "open": "00:00",
+   "close": "24:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "toritake",
+   "walkMin": 5
+  }
+ },
+ "sh-abc-mart-shibuya": {
+  "images": [],
+  "lat": 35.660286,
+  "lng": 139.698608,
+  "address": "東京都渋谷区宇田川町 (Center-gai)",
+  "why": "Cửa hàng giày ABC-MART gần Loft và MEGA Donki, dùng để thử ASICS đi bộ (¥14.000 trong giỏ). Giờ mở và danh mục (có Onitsuka Tiger hay không) chưa xác nhận trên trang chính thức.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ABC-MART",
+  "store": {
+   "chain": "other",
+   "city": "tokyo",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "toritake",
+   "walkMin": 4
+  }
+ },
+ "sh-hakone-yumoto-ekimae": {
+  "images": [],
+  "lat": 35.232988,
+  "lng": 139.103443,
+  "address": "神奈川県足柄下郡箱根町湯本 (trước ga)",
+  "why": "Trước ga có nhiều cửa hàng quà, quán ăn và ryokan (theo Wikipedia). Chỉ có khoảng 20 phút giữa tàu Romancecar và xe buýt H, nên chỉ xem đồ rất nhẹ vì còn mang cả ngày và cả đêm ở Mizunoto.",
+  "official": "https://ja.wikipedia.org/wiki/箱根湯本駅",
+  "store": {
+   "chain": "street",
+   "city": "hakone",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "st-hakone-yumoto",
+   "walkMin": 3
+  }
+ },
+ "sh-kashinoichi-shimizu": {
+  "images": [],
+  "lat": 35.021907,
+  "lng": 138.490686,
+  "address": "静岡県静岡市清水区島崎町149",
+  "hours": "Nhà hàng Kaizan (2F) 10:00–21:00; giờ khu chợ chưa xác nhận",
+  "why": "Chợ cá ngay chỗ ăn trưa Kaizan, đi 3 phút từ ga Shimizu. Xem hàng hải sản khô, đóng gói hạn dài trước hoặc sau bữa trưa; không mua đồ tươi.",
+  "tips": "Kaizan ở 2F Maguro-kan; khu chợ/ cửa hàng hải sản chưa xác nhận danh mục",
+  "official": "https://tabelog.com/shizuoka/A2201/A220102/22024359/",
+  "store": {
+   "chain": "market",
+   "city": "tokaido",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "kaizan",
+   "walkMin": 1
+  }
+ },
+ "sh-jr-nagoya-takashimaya": {
+  "images": [],
+  "lat": 35.171229,
+  "lng": 136.882724,
+  "address": "愛知県名古屋市中村区名駅 (nối ga Nagoya)",
+  "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:30. Chưa mở được trang chính thức nên chưa biết giờ; chỉ mua đồ nhẹ vì còn mang đến Ise.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ジェイアール名古屋タカシマヤ",
+  "store": {
+   "chain": "depachika",
+   "city": "tokaido",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "st-nagoya",
+   "walkMin": 4
+  }
+ },
+ "sh-welcia-ise-kawasaki": {
+  "images": [],
+  "lat": 34.493152,
+  "lng": 136.712872,
+  "address": "三重県伊勢市河崎1丁目",
+  "why": "Drugstore lớn gần nhất tìm được quanh ERA Ise (khoảng 10 phút đi bộ, cạnh phố Kawasaki). Giờ mở chưa xác nhận; mua nước, thuốc cảm, miếng dán chân.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ウエルシア",
+  "store": {
+   "chain": "drugstore",
+   "city": "ise",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "era-ise",
+   "walkMin": 8
+  }
+ },
+ "sh-okage-yokocho": {
+  "images": [],
+  "lat": 34.46244,
+  "lng": 136.72291,
+  "address": "三重県伊勢市宇治中之切町52 (Ise Fuku)",
+  "hours": "Tháng 10: 9:30–17:30",
+  "why": "Phố quà Ise cạnh Fukusuke và Akafuku, mở đến 17:30 trong tháng 10. Quà hạn dài thì mua ở đây; Akafuku ăn tại chỗ, không mang theo.",
+  "official": "https://www.okageyokocho.com/about/",
+  "store": {
+   "chain": "market",
+   "city": "ise",
+   "open": "09:30",
+   "close": "17:30",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "okage-yokocho",
+   "walkMin": 1
+  }
+ },
+ "sh-toba-marche": {
+  "images": [],
+  "lat": 34.487117,
+  "lng": 136.844663,
+  "address": "三重県鳥羽市鳥羽3丁目",
+  "why": "Chợ gần ga Toba, tiện ghé trong khoảng chờ tàu Shimakaze 15:20 sau bữa tôm chiên ở Sazanami. Giờ mở chưa xác nhận; hàng nhẹ thì mua, hải sản tươi thì không.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=鳥羽マルシェ",
+  "store": {
+   "chain": "market",
+   "city": "toba",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "st-toba",
+   "walkMin": 5
+  }
+ },
+ "sh-uniqlo-kyoto-mina": {
+  "images": [],
+  "lat": 35.007939,
+  "lng": 135.768637,
+  "address": "京都府京都市中京区河原町通三条下ル大黒町58 ミーナ京都 B1–3F",
+  "hours": "11:00–21:00",
+  "why": "Cách Cross Hotel Kyoto vài phút, mở đến 21h, nên ghé tối được sau bữa tối. API báo cửa hàng tạm đóng sửa chữa, dự kiến mở lại 6/11/2026.",
+  "tips": "B1–3F; Loft ở 4–6F cùng tòa Mina Kyoto",
+  "official": "https://map.uniqlo.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E4%BA%AC%E9%83%BD",
+  "store": {
+   "chain": "uniqlo",
+   "city": "kyoto",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 2
+  }
+ },
+ "sh-loft-kyoto-mina": {
+  "images": [],
+  "lat": 35.007892,
+  "lng": 135.768698,
+  "address": "京都府京都市中京区河原町通三条下ル大黒町58 ミーナ京都 4–6F",
+  "hours": "11:00–21:00 (tax-free đến 20:30)",
+  "why": "Loft Kyoto cách hotel vài phút, mở đến 21h. Văn phòng phẩm, đồ làm đẹp, tester CANMAKE.",
+  "tips": "4–6F trong Mina Kyoto",
+  "official": "https://www.loft.co.jp/shop_list/detail.php?shop_id=37",
+  "store": {
+   "chain": "loft",
+   "city": "kyoto",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "cross-kyoto",
+   "walkMin": 2
+  }
+ },
+ "sh-hands-kyoto": {
+  "images": [],
+  "lat": 35.003551,
+  "lng": 135.760751,
+  "address": "京都府京都市下京区四条通烏丸東入長刀鉾町27",
+  "hours": "10:00–20:30",
+  "why": "Hands ở Shijō–Karasuma, mở đến 20:30, ngay cạnh Daimaru (khoảng 2 phút). Có thể thay Hands Shinsaibashi nếu không đủ thời gian ở Osaka.",
+  "official": "https://store.hands.net/kyoto/",
+  "store": {
+   "chain": "hands",
+   "city": "kyoto",
+   "open": "10:00",
+   "close": "20:30",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "cross-kyoto",
+   "walkMin": 17
+  }
+ },
+ "sh-daimaru-kyoto": {
+  "images": [],
+  "lat": 35.004372,
+  "lng": 135.761899,
+  "address": "京都府京都市下京区高倉通四条下ル立売西町79",
+  "hours": "B2–2F: 10:00–20:00; 3–7F: 10:00–19:00; nhà hàng 8F 11:00–22:00; mở cả năm trừ 1–2/1",
+  "why": "Depachika lớn ở Shijō, mở đến 20:00 mỗi ngày nên ghé được sau 17h. Chọn quà hạn dài cho Kyoto; từ 1/11/2026 thủ tục tax-free làm tại quầy 8F.",
+  "tips": "B1–B2: thực phẩm (ごちそうパラダイス) và mỹ phẩm; 5F vali; 6F văn phòng phẩm; 8F quầy tax-free và nhà hàng",
+  "official": "https://www.daimaru.co.jp/kyoto/hours.html",
+  "store": {
+   "chain": "depachika",
+   "city": "kyoto",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "cross-kyoto",
+   "walkMin": 14
+  }
+ },
+ "sh-ippodo-daimaru-kyoto": {
+  "images": [],
+  "lat": 35.004372,
+  "lng": 135.761899,
+  "address": "京都府京都市下京区高倉通四条下ル立売西町79 大丸京都店 B1",
+  "hours": "Theo giờ Daimaru B2–2F: 10:00–20:00",
+  "why": "Phương án thay khi đã quá 17:00, giờ đóng cửa của Honten ở Teramachi. Hōjicha 100 g mua ở đây tiện khoảng cách đến hotel.",
+  "tips": "B1, quầy Ippodo",
+  "official": "https://www.ippodo-tea.co.jp/blogs/news/shop_20261105",
+  "store": {
+   "chain": "other",
+   "city": "kyoto",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "cross-kyoto",
+   "walkMin": 14
+  }
+ },
+ "sh-ippodo-honten": {
+  "images": [],
+  "lat": 35.014463,
+  "lng": 135.767355,
+  "address": "京都府京都市中京区寺町通二条上ル常盤木町52",
+  "hours": "10:00–17:00; nghỉ thứ Tư tuần thứ 2 mỗi tháng; trà thất Kaboku order cuối 16:30",
+  "why": "Cửa hàng chính, đóng 17:00 nên chỉ ghé được ngày 8 sau khi trả kimono. 27/10 là thứ Tư tuần thứ 4, không trùng ngày nghỉ.",
+  "tips": "Có trà thất 嘉木 (44 chỗ) cùng chỗ",
+  "official": "https://www.ippodo-tea.co.jp/pages/store-kyoto?view=store-detail",
+  "store": {
+   "chain": "other",
+   "city": "kyoto",
+   "open": "10:00",
+   "close": "17:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 12
+  }
+ },
+ "sh-ichizawa-shinzaburo": {
+  "images": [],
+  "lat": 35.00765,
+  "lng": 135.777788,
+  "address": "京都府京都市東山区東大路通 (cạnh Chion-in)",
+  "hours": "Giờ chưa xác nhận; nghỉ thứ Ba theo dữ liệu có sẵn của dự án",
+  "why": "Túi canvas may tay, cách Yasaka Jinja khoảng 5–10 phút đi bộ. Ngày 8 (thứ Hai) mở; ngày 9 (thứ Ba) đóng nên không ghé ngày đó.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=一澤信三郎帆布",
+  "store": {
+   "chain": "craft",
+   "city": "kyoto",
+   "open": null,
+   "close": null,
+   "closedDow": [
+    2
+   ],
+   "taxFree": null,
+   "near": "yasaka-shrine",
+   "walkMin": 8
+  }
+ },
+ "sh-teramachi-kyogoku": {
+  "images": [],
+  "lat": 35.00578,
+  "lng": 135.766955,
+  "address": "京都府京都市中京区寺町通・新京極通 (Shijō–Sanjō)",
+  "why": "Hai phố có mái che nối Shijō với Sanjō, ngay sau lưng hotel. Dạo tối, cửa hàng thường đóng muộn hơn Nishiki; giờ từng tiệm khác nhau.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=寺町京極",
+  "store": {
+   "chain": "street",
+   "city": "kyoto",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 7
+  }
+ },
+ "sh-nishiki-market": {
+  "images": [],
+  "lat": 35.005024,
+  "lng": 135.765569,
+  "address": "京都府京都市中京区西大文字町609 (hiệp hội)",
+  "why": "Chợ thực phẩm Kyoto ở Shijō–Karasuma. Giờ từng quán chưa xác nhận trên trang chính thức, nhiều quán đóng chiều, nên ghé buổi chiều ngày 9 và mua đồ khô, tsukemono đóng gói.",
+  "tips": "Chợ dài 390 m; hiệp hội yêu cầu không vừa đi vừa ăn",
+  "official": "https://www.kyoto-nishiki.or.jp/access/",
+  "store": {
+   "chain": "market",
+   "city": "kyoto",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 9
+  }
+ },
+ "sh-matsukiyo-kiyamachi-kyoto": {
+  "images": [],
+  "lat": 35.004011,
+  "lng": 135.770699,
+  "address": "京都府京都市中京区木屋町通 (giữa Sanjō và Shijō)",
+  "why": "Drugstore gần Cross Hotel, trên đường về từ ga Sanjō Keihan. Giờ mở chưa xác nhận; mua mỹ phẩm, thuốc tối ngày 9.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ",
+  "store": {
+   "chain": "drugstore",
+   "city": "kyoto",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "cross-kyoto",
+   "walkMin": 8
+  }
+ },
+ "sh-nakagawa-masashichi-nara": {
+  "images": [],
+  "lat": 34.6793,
+  "lng": 135.8277,
+  "address": "奈良県奈良市 (Naramachi)",
+  "why": "Cửa hàng chính của nhà làm vải kaya fukin, nằm trong lịch lúc 14:00. Chưa mở được trang chính thức nên chưa biết giờ và ngày nghỉ; COREDO Muromachi ở Tokyo cũng có cửa hàng cùng hãng nếu cần dự phòng.",
+  "store": {
+   "chain": "craft",
+   "city": "nara",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "nakagawa-masashichi-nara",
+   "walkMin": 1
+  }
+ },
+ "sh-higashimuki": {
+  "images": [],
+  "lat": 34.683079,
+  "lng": 135.828732,
+  "address": "奈良県奈良市橋本町 (nối từ ga Kintetsu Nara)",
+  "why": "Nằm ngay ga Kintetsu Nara, ghé trong lúc đi bộ 12 phút từ Hōsekibako ra ga. Narazuke và quà nhỏ nhẹ.",
+  "tips": "Phố có mái che dài khoảng 250 m từ ga Kintetsu Nara, có hàng narazuke (Yamazaki-ya 10:00–20:00)",
+  "official": "https://en.wikivoyage.org/wiki/Nara",
+  "store": {
+   "chain": "street",
+   "city": "nara",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "hosekibako",
+   "walkMin": 5
+  }
+ },
+ "sh-uniqlo-shinsaibashisuji": {
+  "images": [],
+  "lat": 34.671254,
+  "lng": 135.501589,
+  "address": "大阪府大阪市中央区心斎橋筋2-1-17",
+  "hours": "11:00–21:00",
+  "why": "Cách hotel khoảng 10 phút, mở đến 21h. Nơi dự phòng nếu chưa kịp mua AIRism ở Tokyo.",
+  "tips": "Cùng địa chỉ với GU Shinsaibashi",
+  "official": "https://map.uniqlo.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E5%BF%83%E6%96%8E%E6%A9%8B",
+  "store": {
+   "chain": "uniqlo",
+   "city": "osaka",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "forza-osaka",
+   "walkMin": 6
+  }
+ },
+ "sh-gu-shinsaibashi": {
+  "images": [],
+  "lat": 34.671255,
+  "lng": 135.501611,
+  "address": "大阪府大阪市中央区心斎橋筋2-1-17",
+  "hours": "11:00–21:00",
+  "why": "Cùng địa chỉ với UNIQLO Shinsaibashisuji. Nếu đã bỏ quần GU ở Tokyo thì dự phòng ở đây.",
+  "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E5%BF%83%E6%96%8E%E6%A9%8B",
+  "store": {
+   "chain": "gu",
+   "city": "osaka",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "forza-osaka",
+   "walkMin": 6
+  }
+ },
+ "sh-donki-dotonbori-midosuji": {
+  "images": [],
+  "lat": 34.669274,
+  "lng": 135.499805,
+  "address": "大阪府大阪市中央区西心斎橋2-5-9",
+  "hours": "24 giờ, không nghỉ",
+  "why": "Mở 24h, tax-free, cách Nankai Namba và hotel vài phút. Mua vali S dự phòng, snack, drugstore; bước cân hành lý cuối cùng ngày 12.",
+  "tips": "Tầng 9–10 là phòng khám và nhà hàng; khu bán hàng chưa có sơ đồ trên trang",
+  "official": "https://www.donki.com/store/shop_detail.php?shop_id=373",
+  "store": {
+   "chain": "donki",
+   "city": "osaka",
+   "open": "00:00",
+   "close": "24:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "forza-osaka",
+   "walkMin": 6
+  }
+ },
+ "sh-amerikamura": {
+  "images": [],
+  "lat": 34.672085,
+  "lng": 135.497946,
+  "address": "大阪府大阪市中央区西心斎橋",
+  "why": "Khu thời trang vintage, giày secondhand, 10 phút đi bộ từ hotel. Giờ từng tiệm khác nhau (thường đóng muộn), chưa xác nhận.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=アメリカ村",
+  "store": {
+   "chain": "vintage",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "forza-osaka",
+   "walkMin": 11
+  }
+ },
+ "sh-doguyasuji-kyoya": {
+  "images": [],
+  "lat": 34.66393,
+  "lng": 135.503517,
+  "address": "大阪市中央区難波千日前 (phố Dōguyasuji)",
+  "hours": "9:30–18:00; nghỉ dịp đầu năm",
+  "why": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00, đóng 18:00, nên mốc 9:00 trong lịch quá sớm, nên đến 9:45.",
+  "tips": "Bát đĩa Nhật và Tây, gốm, sơn mài",
+  "official": "https://www.doguyasuji.or.jp/shop/kyouya/",
+  "store": {
+   "chain": "kitchen",
+   "city": "osaka",
+   "open": "09:30",
+   "close": "18:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "doguyasuji",
+   "walkMin": 1
+  }
+ },
+ "sh-takashimaya-osaka": {
+  "images": [],
+  "lat": 34.664628,
+  "lng": 135.501796,
+  "address": "大阪市中央区難波5-1-5",
+  "why": "Depachika cạnh Nankai Namba, nằm trong lịch lúc 12:00. Không mở được trang chính thức nên chưa biết giờ và ngày nghỉ; xem lại trên trang Takashimaya trước chuyến đi.",
+  "tips": "B1: thực phẩm (hộp bánh Yoku Moku trong giỏ mua)",
+  "store": {
+   "chain": "depachika",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "takashimaya-osaka",
+   "walkMin": 1
+  }
+ },
+ "sh-workman-colors-namba-city": {
+  "images": [],
+  "lat": 34.662544,
+  "lng": 135.502587,
+  "address": "大阪府大阪市中央区難波5-1-60 なんばCITY南館 2F",
+  "hours": "11:00–21:00",
+  "why": "Chi nhánh Workman duy nhất sát tuyến; Tokyo và Kyoto trung tâm không có. Cạnh Nankai Namba, tiện ghé sáng ngày 12 nếu mở cửa kịp.",
+  "tips": "2F, Nam館 (South Building)",
+  "official": "https://www.workman.co.jp/store/area/270008",
+  "store": {
+   "chain": "workman",
+   "city": "osaka",
+   "open": "11:00",
+   "close": "21:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "takashimaya-osaka",
+   "walkMin": 5
+  }
+ },
+ "sh-hankyu-umeda": {
+  "images": [],
+  "lat": 34.702712,
+  "lng": 135.498432,
+  "address": "大阪府大阪市北区角田町8-7",
+  "hours": "10:00–20:00 hằng ngày; nhà hàng 12–13F 11:00–22:00",
+  "why": "Depachika lớn ở Umeda, kế Loft Hanshin. Đóng 20:00 mỗi ngày, ghé trước 19:00 để chọn quà ăn hạn dài.",
+  "tips": "B1: bánh Nhật và Tây, bánh mì, đồ ăn, có quầy tư vấn quà; 2–3F HANKYU BEAUTY; 8F Gift Center; 10F Gift Salon",
+  "official": "https://www.hankyu-dept.co.jp/honten/",
+  "store": {
+   "chain": "depachika",
+   "city": "osaka",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": null,
+   "near": "loft-umeda",
+   "walkMin": 3
+  }
+ },
+ "sh-loft-umeda": {
+  "images": [],
+  "lat": 34.701165,
+  "lng": 135.498607,
+  "address": "大阪府大阪市北区梅田1-13-13 阪神梅田本店 6F",
+  "hours": "10:00–20:00 (tax-free đến 19:30)",
+  "why": "Nằm trong lịch lúc 13:15. Văn phòng phẩm, tester CANMAKE, đồ gia dụng nhỏ.",
+  "tips": "6F Hanshin Umeda Honten; không phải địa chỉ Loft Chayamachi cũ",
+  "official": "https://www.loft.co.jp/shop_list/detail.php?shop_id=143",
+  "store": {
+   "chain": "loft",
+   "city": "osaka",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "loft-umeda",
+   "walkMin": 1
+  }
+ },
+ "sh-links-umeda": {
+  "images": [],
+  "lat": 34.70445,
+  "lng": 135.496192,
+  "address": "大阪府大阪市北区大深町 (cạnh Yodobashi Umeda)",
+  "why": "Trung tâm thương mại phía Umeda, nơi dự phòng mua anello CROSS BOTTLE nếu không mua ở Shinsaibashi. Giờ mở và cửa hàng anello trong tòa chưa xác nhận.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=LINKS UMEDA",
+  "store": {
+   "chain": "other",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "loft-umeda",
+   "walkMin": 7
+  }
+ },
+ "sh-yodobashi-umeda": {
+  "images": [],
+  "lat": 34.704206,
+  "lng": 135.496361,
+  "address": "大阪府大阪市北区大深町1-1",
+  "why": "Cửa hàng điện tử lớn ở Umeda, cạnh LINKS UMEDA. Trang chính thức không mở được lúc tra nên chưa biết giờ; xem lại trước chuyến đi.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ヨドバシ",
+  "store": {
+   "chain": "yodobashi",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "loft-umeda",
+   "walkMin": 7
+  }
+ },
+ "sh-hands-shinsaibashi": {
+  "images": [],
+  "lat": 34.673865,
+  "lng": 135.500971,
+  "address": "大阪府大阪市中央区心斎橋筋1-8-3 心斎橋PARCO 9–11F",
+  "hours": "10:00–20:00",
+  "why": "Hands còn hoạt động ở Osaka; Hands Shibuya sẽ đóng vĩnh viễn 15/11/2026. Đóng 20:00 nên ghé ngay sau bữa tối sớm ở Tahei.",
+  "tips": "9–11F Shinsaibashi PARCO",
+  "official": "https://store.hands.net/shinsaibashi/",
+  "store": {
+   "chain": "hands",
+   "city": "osaka",
+   "open": "10:00",
+   "close": "20:00",
+   "closedDow": [],
+   "taxFree": true,
+   "near": "forza-osaka",
+   "walkMin": 10
+  }
+ },
+ "sh-anello-shinsaibashi": {
+  "images": [],
+  "lat": 34.675369,
+  "lng": 135.501859,
+  "address": "大阪府大阪市中央区南船場3丁目 (cạnh Nagahori-dōri)",
+  "why": "Cửa hàng anello cho CROSS BOTTLE trong giỏ mua. Giờ mở chưa xác nhận; cách UNIQLO Shinsaibashi vài phút.",
+  "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=anello",
+  "store": {
+   "chain": "other",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "forza-osaka",
+   "walkMin": 13
+  }
+ },
+ "sh-kix-shops": {
+  "images": [],
+  "lat": 34.43597,
+  "lng": 135.24349,
+  "address": "大阪府泉佐野市泉州空港北 (Sân bay Kansai)",
+  "why": "Chốt quà còn thiếu trước khi lên máy bay. Chưa mở được trang chính thức của sân bay nên chưa có giờ; xem lại sau khi biết giờ bay. Tax-free mới: phải qua hải quan duyệt trước khi ký gửi.",
+  "official": "https://www.kansai-airport.or.jp/en/shop/",
+  "store": {
+   "chain": "other",
+   "city": "osaka",
+   "open": null,
+   "close": null,
+   "closedDow": [],
+   "taxFree": null,
+   "near": "kix",
+   "walkMin": 1
+  }
+ },
  "fs-lawson-kawaguchiko-ekimae": {
   "lat": 35.498582,
   "lng": 138.767118,
@@ -16397,6 +17551,546 @@ export const EXTRA_PLACES: ExtraPlace[] = [
   "day": 3,
   "category": "dessert",
   "near": "toritake"
+ },
+ {
+  "id": "sh-super-potato-akiba",
+  "name": "Super Potato Akihabara",
+  "ja": "スーパーポテト 秋葉原店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "hobby"
+ },
+ {
+  "id": "sh-mandarake-complex",
+  "name": "Mandarake Complex",
+  "ja": "まんだらけ コンプレックス",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "hobby"
+ },
+ {
+  "id": "sh-2k540",
+  "name": "2k540 AKI-OKA ARTISAN",
+  "ja": "2k540 AKI-OKA ARTISAN",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "craft"
+ },
+ {
+  "id": "sh-ameyoko",
+  "name": "Ameyoko",
+  "ja": "アメ横商店街",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "market"
+ },
+ {
+  "id": "sh-futaba-ameyoko",
+  "name": "Futaba no Kashi (chi nhánh số 1, Ameyoko)",
+  "ja": "二木の菓子 第一営業所",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "market"
+ },
+ {
+  "id": "sh-uniqlo-okachimachi",
+  "name": "UNIQLO Okachimachi",
+  "ja": "ユニクロ 御徒町店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-gu-okachimachi",
+  "name": "GU Okachimachi",
+  "ja": "ジーユー (御徒町吉池本店ビル 5–6F)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "gu"
+ },
+ {
+  "id": "sh-yodobashi-akiba",
+  "name": "Yodobashi Camera Multimedia Akiba",
+  "ja": "ヨドバシカメラ マルチメディアAkiba",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "yodobashi"
+ },
+ {
+  "id": "sh-donki-akihabara",
+  "name": "Don Quijote Akihabara",
+  "ja": "ドン・キホーテ 秋葉原店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "donki"
+ },
+ {
+  "id": "sh-matsukiyo-iwamotocho",
+  "name": "Matsumoto Kiyoshi Iwamotochō-ekimae",
+  "ja": "マツモトキヨシ 岩本町駅前店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "drugstore"
+ },
+ {
+  "id": "sh-daiso-yodobashi-akiba",
+  "name": "Daiso Yodobashi Akiba",
+  "ja": "ダイソー ヨドバシAKIBA店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 1,
+  "category": "daiso"
+ },
+ {
+  "id": "sh-hands-be-atre-akiba",
+  "name": "Hands Be atre Akihabara 1",
+  "ja": "ハンズ ビーアトレ秋葉原1店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "hands"
+ },
+ {
+  "id": "sh-nakamise",
+  "name": "Phố Nakamise",
+  "ja": "仲見世通り",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "street"
+ },
+ {
+  "id": "sh-shimamura-asakusa",
+  "name": "Shimamura Asakusa (Shin-Nakamise)",
+  "ja": "しまむら (浅草・新仲見世)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "shimamura"
+ },
+ {
+  "id": "sh-kappabashi",
+  "name": "Kappabashi Dōgugai",
+  "ja": "かっぱ橋道具街",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "kitchen"
+ },
+ {
+  "id": "sh-maruzen-nihonbashi",
+  "name": "Maruzen Nihonbashi",
+  "ja": "丸善 日本橋店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "other"
+ },
+ {
+  "id": "sh-coredo-muromachi",
+  "name": "COREDO Muromachi 1",
+  "ja": "COREDO室町1",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "other"
+ },
+ {
+  "id": "sh-mitsukoshi-nihonbashi",
+  "name": "Nihombashi Mitsukoshi Honten",
+  "ja": "日本橋三越本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 2,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-uniqlo-shinjuku-honten",
+  "name": "UNIQLO Shinjuku Honten",
+  "ja": "ユニクロ 新宿本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-bic-shinjuku-east",
+  "name": "Bic Camera Shinjuku East Exit",
+  "ja": "ビックカメラ 新宿東口店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "bic"
+ },
+ {
+  "id": "sh-uniqlo-harajuku",
+  "name": "UNIQLO Harajuku (WITH HARAJUKU)",
+  "ja": "ユニクロ 原宿店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-3coins-harajuku",
+  "name": "3COINS Harajuku Honten",
+  "ja": "3COINS 原宿本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "3coins"
+ },
+ {
+  "id": "sh-cat-street",
+  "name": "Cat Street",
+  "ja": "キャットストリート",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "street"
+ },
+ {
+  "id": "sh-gu-shibuya",
+  "name": "GU Shibuya",
+  "ja": "ジーユー 渋谷店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "gu"
+ },
+ {
+  "id": "sh-shibuya-loft",
+  "name": "Shibuya Loft",
+  "ja": "渋谷ロフト",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "loft"
+ },
+ {
+  "id": "sh-shibuya-parco",
+  "name": "Shibuya PARCO",
+  "ja": "渋谷パルコ",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "other"
+ },
+ {
+  "id": "sh-mega-donki-shibuya",
+  "name": "MEGA Don Quijote Shibuya",
+  "ja": "MEGAドン・キホーテ 渋谷本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "donki"
+ },
+ {
+  "id": "sh-abc-mart-shibuya",
+  "name": "ABC-MART Shibuya Center-gai",
+  "ja": "ABCマート (渋谷センター街)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 3,
+  "category": "other"
+ },
+ {
+  "id": "sh-hakone-yumoto-ekimae",
+  "name": "Phố mua sắm trước ga Hakone-Yumoto",
+  "ja": "箱根湯本駅前",
+  "kind": "shop",
+  "role": "alt",
+  "day": 4,
+  "category": "street"
+ },
+ {
+  "id": "sh-kashinoichi-shimizu",
+  "name": "Shimizu Uoichiba Kashi no Ichi (Ichibakan)",
+  "ja": "清水魚市場 河岸の市 いちば館",
+  "kind": "shop",
+  "role": "alt",
+  "day": 5,
+  "category": "market"
+ },
+ {
+  "id": "sh-jr-nagoya-takashimaya",
+  "name": "JR Nagoya Takashimaya",
+  "ja": "ジェイアール名古屋タカシマヤ",
+  "kind": "shop",
+  "role": "alt",
+  "day": 5,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-welcia-ise-kawasaki",
+  "name": "Welcia Ise Kawasaki",
+  "ja": "ウエルシア薬局 (伊勢市河崎1丁目)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 5,
+  "category": "drugstore"
+ },
+ {
+  "id": "sh-okage-yokocho",
+  "name": "Okage Yokochō và Oharai-machi",
+  "ja": "おかげ横丁",
+  "kind": "shop",
+  "role": "alt",
+  "day": 6,
+  "category": "market"
+ },
+ {
+  "id": "sh-toba-marche",
+  "name": "Toba Marché",
+  "ja": "鳥羽マルシェ",
+  "kind": "shop",
+  "role": "alt",
+  "day": 7,
+  "category": "market"
+ },
+ {
+  "id": "sh-uniqlo-kyoto-mina",
+  "name": "UNIQLO Kyoto (Mina Kyoto)",
+  "ja": "ユニクロ 京都",
+  "kind": "shop",
+  "role": "alt",
+  "day": 7,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-loft-kyoto-mina",
+  "name": "Kyoto Loft (Mina Kyoto)",
+  "ja": "京都ロフト",
+  "kind": "shop",
+  "role": "alt",
+  "day": 7,
+  "category": "loft"
+ },
+ {
+  "id": "sh-hands-kyoto",
+  "name": "Hands Kyoto",
+  "ja": "ハンズ 京都店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "hands"
+ },
+ {
+  "id": "sh-daimaru-kyoto",
+  "name": "Daimaru Kyoto",
+  "ja": "大丸京都店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-ippodo-daimaru-kyoto",
+  "name": "Ippodo (quầy B1 Daimaru Kyoto)",
+  "ja": "一保堂茶舗 大丸京都店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "other"
+ },
+ {
+  "id": "sh-ippodo-honten",
+  "name": "Ippodo Kyoto Honten",
+  "ja": "一保堂茶舗 京都本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "other"
+ },
+ {
+  "id": "sh-ichizawa-shinzaburo",
+  "name": "Ichizawa Shinzaburō Hanpu",
+  "ja": "一澤信三郎帆布",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "craft"
+ },
+ {
+  "id": "sh-teramachi-kyogoku",
+  "name": "Teramachi–Shinkyōgoku",
+  "ja": "寺町京極",
+  "kind": "shop",
+  "role": "alt",
+  "day": 8,
+  "category": "street"
+ },
+ {
+  "id": "sh-nishiki-market",
+  "name": "Chợ Nishiki",
+  "ja": "錦市場",
+  "kind": "shop",
+  "role": "alt",
+  "day": 9,
+  "category": "market"
+ },
+ {
+  "id": "sh-matsukiyo-kiyamachi-kyoto",
+  "name": "Matsumoto Kiyoshi Kiyamachi",
+  "ja": "マツモトキヨシ (木屋町通)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 9,
+  "category": "drugstore"
+ },
+ {
+  "id": "sh-nakagawa-masashichi-nara",
+  "name": "Nakagawa Masashichi Nara Honten",
+  "ja": "中川政七商店 奈良本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "craft"
+ },
+ {
+  "id": "sh-higashimuki",
+  "name": "Phố Higashimuki",
+  "ja": "東向商店街",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "street"
+ },
+ {
+  "id": "sh-uniqlo-shinsaibashisuji",
+  "name": "UNIQLO Shinsaibashisuji",
+  "ja": "ユニクロ 心斎橋筋商店街店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "uniqlo"
+ },
+ {
+  "id": "sh-gu-shinsaibashi",
+  "name": "GU Shinsaibashi",
+  "ja": "ジーユー 心斎橋店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "gu"
+ },
+ {
+  "id": "sh-donki-dotonbori-midosuji",
+  "name": "Don Quijote Dōtonbori Midōsuji",
+  "ja": "ドン・キホーテ 道頓堀御堂筋店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "donki"
+ },
+ {
+  "id": "sh-amerikamura",
+  "name": "Amerikamura",
+  "ja": "アメリカ村",
+  "kind": "shop",
+  "role": "alt",
+  "day": 10,
+  "category": "vintage"
+ },
+ {
+  "id": "sh-doguyasuji-kyoya",
+  "name": "Kyōya Honten (Dōguyasuji)",
+  "ja": "京屋 本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "kitchen"
+ },
+ {
+  "id": "sh-takashimaya-osaka",
+  "name": "Takashimaya Osaka",
+  "ja": "髙島屋 大阪店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-workman-colors-namba-city",
+  "name": "Workman Colors Namba CITY",
+  "ja": "Workman Colors なんばCITY店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "workman"
+ },
+ {
+  "id": "sh-hankyu-umeda",
+  "name": "Hankyu Umeda Honten",
+  "ja": "阪急うめだ本店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "depachika"
+ },
+ {
+  "id": "sh-loft-umeda",
+  "name": "Loft Umeda (Hanshin Umeda Honten 6F)",
+  "ja": "梅田ロフト",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "loft"
+ },
+ {
+  "id": "sh-links-umeda",
+  "name": "LINKS UMEDA",
+  "ja": "LINKS UMEDA",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "other"
+ },
+ {
+  "id": "sh-yodobashi-umeda",
+  "name": "Yodobashi Camera Multimedia Umeda",
+  "ja": "ヨドバシ梅田",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "yodobashi"
+ },
+ {
+  "id": "sh-hands-shinsaibashi",
+  "name": "Hands Shinsaibashi",
+  "ja": "ハンズ 心斎橋店",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "hands"
+ },
+ {
+  "id": "sh-anello-shinsaibashi",
+  "name": "anello (Shinsaibashi, Nagahori-dōri)",
+  "ja": "anello (南船場3丁目)",
+  "kind": "shop",
+  "role": "alt",
+  "day": 11,
+  "category": "other"
+ },
+ {
+  "id": "sh-kix-shops",
+  "name": "Khu mua sắm sân bay Kansai",
+  "ja": "関西国際空港",
+  "kind": "shop",
+  "role": "alt",
+  "day": 12,
+  "category": "other"
  },
  {
   "id": "fs-lawson-kawaguchiko-ekimae",

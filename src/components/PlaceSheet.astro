@@ -81,6 +81,7 @@ const amaps = (lat: number, lng: number, q: string) => `https://maps.apple.com/?
             <p class="t-small muted">
               Tabelog {p.rating.toFixed(2)}
               {p.ratingCount ? ` từ ${p.ratingCount.toLocaleString('vi-VN')} đánh giá` : ''} (tham chiếu 10/2026)
+              {p.snack?.tabelog?.award ? ` · ${p.snack.tabelog.award}` : ''}
             </p>
           )}
         </header>
