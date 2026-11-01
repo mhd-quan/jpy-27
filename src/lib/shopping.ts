@@ -73,16 +73,23 @@ const itemsRaw = SHOP_ITEMS as { categories: any[]; chains: any[]; taxFree?: str
 // Planner's edits on top of the store research (kept here so research/ stays as collected):
 // a third slot on arrival night and a second Ise drugstore run are too much; the Asakusa block is
 // really two things — Nakamise while at Sensō-ji, and Kappabashi only if it replaces Sumida + Umezono.
-const DROP = new Set(['slot-1-3', 'slot-6-2']);
+// Hakone-Yumoto has no time on day 4: the train arrives 9:22 and the bus leaves minutes later.
+// Times follow the re-timed plan (scripts/check-plan.mjs).
+const DROP = new Set(['slot-1-3', 'slot-6-2', 'slot-4-1']);
 const PATCH: Record<string, Record<string, unknown>> = {
-  'slot-2-1': { start: '13:30', end: '14:15', area: 'Nakamise, Asakusa', stores: ['sh-nakamise'], focus: 'Omamori và quà nhỏ nhẹ dọc Nakamise trong lúc đi Sensō-ji; rẽ vào các phố phía sau cho bớt đông.', skipIf: null },
+  'slot-2-1': { start: '13:45', end: '14:30', area: 'Nakamise, Asakusa', stores: ['sh-nakamise'], focus: 'Omamori và quà nhỏ nhẹ dọc Nakamise trong lúc đi Sensō-ji; rẽ vào các phố phía sau cho bớt đông.', skipIf: null },
+  'slot-2-2': { start: '16:35' },
+  'slot-5-1': { start: '12:15', end: '12:50', after: 'kaizan', before: 'st-shimizu' },
+  'slot-6-1': { start: '12:25' },
+  'slot-7-1': { start: '14:00', end: '15:00' },
   'slot-8-2': { focus: 'Ippodo hōjicha gói 80 g ×6 (khoảng ¥1.080 mỗi gói, giá 2026); thử trà ở phòng trà Kaboku nếu còn chỗ.' },
+  'slot-11-2': { start: '13:35', end: '14:30' },
 };
 const EXTRA: any[] = [
   {
     id: 'slot-2-1b',
     day: 2,
-    start: '14:45',
+    start: '14:30',
     end: '15:45',
     city: 'Tokyo',
     area: 'Kappabashi',
