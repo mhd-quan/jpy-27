@@ -145,7 +145,10 @@ enum Records {
 
     /// In the App Group, so the widget could read it later; one store for everything recorded.
     static func container() -> ModelContainer {
-        let config = ModelConfiguration("Trip", schema: schema, groupContainer: .identifier(Shared.appGroup))
+        // without the App Group (a profile that grants another group, or none) keep the records in
+        // the app's own container: on disk, only the widget cannot see them
+        let shared = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Shared.appGroup) != nil
+        let config = ModelConfiguration("Trip", schema: schema, groupContainer: shared ? .identifier(Shared.appGroup) : .none)
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {

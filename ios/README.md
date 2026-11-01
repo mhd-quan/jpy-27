@@ -10,7 +10,19 @@ cd ios && xcodegen         # tạo JP27.xcodeproj từ project.yml
 open JP27.xcodeproj
 ```
 
-Cần Xcode 26 trở lên; Xcode 27 để có mép cuộn mềm trên iOS 27 (xem Liquid Glass). Trước khi chạy trên máy thật: điền `DEVELOPMENT_TEAM` trong `project.yml` (hoặc chọn team trong Xcode), rồi bật cho App ID các capability **App Groups** (`group.tech.delphyra.jp27`), **WeatherKit** và **Time Sensitive Notifications**. Bản đồ MapLibre được Swift Package Manager tải về ở lần build đầu.
+Cần Xcode 26 trở lên; Xcode 27 để có mép cuộn mềm trên iOS 27 (xem Liquid Glass). Bản đồ MapLibre được Swift Package Manager tải về ở lần build đầu. Bundle ID, App Group, team, profile và entitlements là build setting trong `Config/Signing.xcconfig`; cấu hình riêng của máy bạn nằm ở `Config/Signing.local.xcconfig` (không commit).
+
+**Simulator** không cần tài khoản: app tự ký để chạy cục bộ. WeatherKit từ chối bản này nên dự báo mây lấy từ Open-Meteo; camera, AR, geofence nền và báo thức chỉ thử được trên máy thật.
+
+**Máy thật**, tuỳ thứ bạn có:
+
+| Có gì | Làm gì | Thiếu so với bản đầy đủ |
+| --- | --- | --- |
+| Tài khoản Apple Developer | `JP27_TEAM = <team id>` trong `Config/Signing.local.xcconfig`, bật App Groups, WeatherKit, Time Sensitive cho App ID | không thiếu gì |
+| `.p12` + `.mobileprovision` được cấp | nhấp đúp `.p12` (nhập mật khẩu của nó), rồi `python3 scripts/use-profile.py app.mobileprovision [widgets.mobileprovision]` | những gì profile không cấp; không có profile cho widget thì không có widget và Live Activity |
+| Một Apple Account bất kỳ (miễn phí) | thêm vào Xcode → Settings → Accounts, tạo chứng chỉ Apple Development, rồi `python3 scripts/use-profile.py --personal-team` | WeatherKit, Time Sensitive; bản cài hết hạn sau 7 ngày |
+
+`use-profile.py` đọc profile (team, bundle ID, App Group, WeatherKit, Time Sensitive, loại profile, máy được cài, hạn), chép nó vào chỗ Xcode tìm, kiểm tra chứng chỉ của nó có trong Keychain, viết `Config/Signing.local.xcconfig` cùng entitlements chỉ gồm những gì profile cấp (một entitlement profile không có là ký hỏng), rồi chạy `xcodegen`. Chỉ có profile cho app thì nó dùng `project.app-only.yml`: cùng project, bỏ widget extension. Profile ad hoc hoặc enterprise không cho gắn debugger: Edit Scheme → Run → Info → bỏ chọn "Debug executable". Thiếu WeatherKit thì dự báo mây lấy từ [Open-Meteo](https://open-meteo.com/) (miễn phí, không cần khoá); thiếu Time Sensitive thì nhắc giờ tàu là thông báo thường.
 
 Khi dữ liệu của site thay đổi:
 
@@ -26,6 +38,9 @@ cd ios/Packages/TripKit && swift test           # chạy được cả trên Lin
 ```
 ios/
   project.yml                 XcodeGen: app, widget extension, quyền, chế độ nền
+  project.app-only.yml        như trên, bỏ widget extension (ký bằng một profile)
+  Config/Signing.xcconfig     bundle ID, App Group, team, profile, entitlements; *.local.* là của máy bạn
+  scripts/use-profile.py      ký bằng .p12 + .mobileprovision được cấp, hoặc bằng Personal Team
   Packages/TripKit/           lõi không có giao diện, build và test được trên Linux
     Model/                    Trip, Guide: đúng dạng JSON xuất từ site
     Plan/                     PlanEngine (bản Swift của check-plan.mjs), Replanner, Itinerary, Reminders
@@ -87,7 +102,7 @@ Theo [Adopting Liquid Glass](https://developer.apple.com/documentation/technolog
 | Tính lại lịch khi trễ | `PlanEngine` là bản Swift của `check-plan.mjs` (test khớp từng dòng), chạy từ vị trí và giờ hiện tại; `Replanner` tìm ít điểm nhất cần bỏ (ưu tiên điểm tuỳ chọn, không bao giờ bỏ chỗ đã đặt) để kịp chuyến kế: "Trễ 12 phút cho Ginza Line 16:15 — bỏ Umezono thì kịp" |
 | Tốc độ đi bộ thật | CoreMotion: nhịp đi bộ từ `CMPedometer` lúc đang đi, cộng thời gian thật của các đoạn đã đi; `PaceModel` chỉnh mọi giờ đi bộ của lịch |
 | Tìm Fuji bằng AR | ARKit (`gravityAndHeading`) + RealityKit đặt dấu theo hướng và góc cao của đỉnh (tính cả độ cong Trái Đất và khúc xạ); máy có LiDAR thì dựng lưới cảnh để nhà cửa gần che dấu đúng như che núi |
-| Dự báo mây theo giờ | WeatherKit hourly ở đỉnh Fuji và ở chỗ đứng, ra khả năng thấy núi từng giờ |
+| Dự báo mây theo giờ | WeatherKit hourly ở đỉnh Fuji và ở chỗ đứng, ra khả năng thấy núi từng giờ; bản ký không có WeatherKit lấy từ Open-Meteo |
 | Nhật ký tự động | `CLVisit` ghi nơi đã ghé, khớp với điểm trong lịch; PhotoKit lấy ảnh theo giờ và nơi chụp; mỗi tối một trang: đã ghé, trễ bao nhiêu, bỏ chỗ nào, ghé thêm đâu, heatmap đường đã đi, số bước |
 | Nghe rồi dịch | SpeechAnalyzer + SpeechTranscriber tiếng Nhật trên máy, Translation sang tiếng Việt; câu nào giống câu "bạn có thể nghe" trong sổ câu thì hiện luôn câu đáp |
 

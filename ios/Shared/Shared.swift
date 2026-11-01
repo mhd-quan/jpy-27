@@ -4,7 +4,9 @@ import TripKit
 
 /// What the app and its widgets share through the App Group.
 nonisolated enum Shared {
-    static let appGroup = "group.tech.delphyra.jp27"
+    /// From Info.plist (`JP27AppGroup`, the `JP27_APP_GROUP` build setting), so a build signed with
+    /// someone else's provisioning profile uses the group that profile grants.
+    static let appGroup = Bundle.main.object(forInfoDictionaryKey: "JP27AppGroup") as? String ?? "group.tech.delphyra.jp27"
     static let scheme = "jp27"
     static let widgetKind = "NextStop"
 

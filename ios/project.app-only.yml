@@ -1,0 +1,19 @@
+# The same project without the widget extension, for signing with one provisioning profile
+# (an extension needs its own bundle id, so its own profile):
+#   xcodegen --spec project.app-only.yml
+# The home-screen widget and the ride's Live Activity are drawn by the extension, so both are off;
+# everything else, the App Group included, works as in project.yml.
+include:
+  - project.yml
+
+targets:
+  JP27:
+    dependencies:REPLACE:
+      - package: TripKit
+      - package: MapLibre
+
+schemes:
+  JP27:
+    build:
+      targets:REPLACE:
+        JP27: all

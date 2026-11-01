@@ -10,3 +10,8 @@ ios/*.xcodeproj/
 ios/**/xcuserdata/
 ios/Packages/TripKit/.build/
 ios/Packages/TripKit/.swiftpm/
+# signing with a profile you were given (scripts/use-profile.py writes these)
+ios/Config/*.local.*
+# written by xcodegen from project.yml
+ios/JP27/Info.plist
+ios/JP27Widgets/Info.plist

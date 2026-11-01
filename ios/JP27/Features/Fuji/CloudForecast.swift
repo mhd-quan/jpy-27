@@ -74,7 +74,9 @@ struct CloudForecast: View {
                     .monospacedDigit()
             }
             Spacer(minLength: 4)
-            if let a = model.forecasts.attribution {
+            if model.forecasts.source("summit") == .openMeteo {
+                SwiftUI.Link("Open-Meteo", destination: URL(string: "https://open-meteo.com/")!)
+            } else if let a = model.forecasts.attribution {
                 AsyncImage(url: scheme == .dark ? a.combinedMarkDarkURL : a.combinedMarkLightURL) { image in
                     image.resizable().scaledToFit()
                 } placeholder: {

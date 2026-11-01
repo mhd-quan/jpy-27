@@ -424,6 +424,8 @@ private struct SourcesSection: View {
             Link(destination: model.forecasts.attribution?.legalPageURL ?? URL(string: "https://developer.apple.com/weatherkit/data-source-attribution/")!) {
                 Label("Dự báo:  Weather", systemImage: "cloud.sun")
             }
+            // the fallback when the build has no WeatherKit entitlement; CC BY 4.0 asks for the credit
+            source("Dự báo: Open-Meteo", "https://open-meteo.com/")
         } header: {
             Text("Nguồn")
         }
