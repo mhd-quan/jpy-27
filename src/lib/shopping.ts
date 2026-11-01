@@ -2,6 +2,7 @@
 // and the item catalogue linked to the slots where each item can be bought.
 import { SHOP_PLAN, SHOP_ITEMS } from '../data/enrich.gen.ts';
 import { SHOP_ROUTES } from '../data/shopping.gen.ts';
+import { WALK_SHOPS } from '../data/walk.gen.ts';
 import { SHOPPING, BUDGET } from '../data/trip.ts';
 import { DAYS } from '../data/days.ts';
 import { hasPlace, place, type Place } from './trip.ts';
@@ -98,7 +99,7 @@ export const SLOTS: Slot[] = [...plan.slots.filter((s) => !DROP.has(s.id)).map((
     ...s,
     day: Number(s.day),
     stores: (s.stores ?? []).filter(hasPlace).map(place),
-    route: SHOP_ROUTES[s.id],
+    route: SHOP_ROUTES[s.id] && { ...SHOP_ROUTES[s.id], min: WALK_SHOPS[s.id]?.min ?? SHOP_ROUTES[s.id].min },
   }))
   .filter((s) => s.day >= 1 && s.day <= DAYS.length)
   .sort((a, b) => a.day - b.day || String(a.start).localeCompare(String(b.start)));

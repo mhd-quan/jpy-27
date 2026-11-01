@@ -42,8 +42,13 @@ research/            dữ liệu nghiên cứu thô (JSON)
 | Ga dọc từng chuyến tàu | `node scripts/build-rides.mjs` | `src/data/rides.gen.ts` |
 | Đi dạo quanh khách sạn, Fuji từ ryokan | `node scripts/build-stays.mjs` | `src/data/stays.gen.ts`, `public/img/fuji-viewshed-mizunoto.png` |
 | Đường đi bộ của các khung mua sắm | `node scripts/build-shopping.mjs` | `src/data/shopping.gen.ts` |
+| Thời gian đi bộ có tính dốc | `node scripts/build-walk.mjs` | `src/data/walk.gen.ts` |
+| Kiểm tra lịch có kịp giờ | `npm run check:plan` | báo những điểm dừng hoặc chuyến tàu lên lịch sớm hơn lúc tới được |
 
-Thứ tự khi sửa dữ liệu: merge → localize → merge → geo → detours → rides → fuji → stays → shopping. `npm run geo` chạy liền geo và detours. Geometry của chặng đã có trong `geo.gen.ts` được giữ lại (id chặng băm theo tuyến, hai đầu và điểm đi qua); `--fresh` để tính lại hết.
+Thứ tự khi sửa dữ liệu: merge → localize → merge → geo → detours → rides → fuji → stays → shopping → walk → check:plan. `npm run geo` chạy liền geo, detours và walk.
+
+- **Đi bộ**: độ cao lấy mỗi 15 m trên Terrarium z14 (~10 m), làm mượt 105 m và bỏ dao động dưới 4 m (dữ liệu bề mặt thấy cả nhà và cầu vượt); tốc độ theo hàm Tobler nhân 0,78 — khoảng 3,9 km/h trên đường phẳng, chậm hơn khi leo hoặc xuống dốc gắt. Cộng 1 phút định hướng mỗi đoạn và thời gian từ sân ga ra đường ở các ga lớn (Shinjuku, Nagoya, Kyoto, Namba… 3–5 phút; đổi giữa hai ga tính một lần). Thời gian này hiện ở từng đoạn đi bộ, đường rẽ, đường dạo quanh khách sạn và khung mua sắm.
+- **Kiểm tra lịch**: chạy đồng hồ qua từng ngày — đi bộ theo mô hình trên, tàu xe theo cận dưới của thời gian ghi trong lịch cộng thời gian chờ khi không có giờ chạy cụ thể, mỗi điểm dừng có thời gian ở tối thiểu theo loại (bữa chính 45–60 phút, đền chùa lớn 40–50, chỗ chụp ảnh 10–20). Geometry của chặng đã có trong `geo.gen.ts` được giữ lại (id chặng băm theo tuyến, hai đầu và điểm đi qua); `--fresh` để tính lại hết.
 
 `merge-research` ghi thêm `src/data/enrich.gen.ts` (câu tiếng Nhật, chỗ ở, Fuji, mua sắm, tàu) từ các file nghiên cứu:
 

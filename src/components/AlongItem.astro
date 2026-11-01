@@ -26,8 +26,8 @@ const kicker = d
     : d.mode === 'car'
       ? `Từ ${d.from.onWalk ? 'đường đi bộ' : d.from.label}, đi xe khoảng ${d.min} phút`
       : d.from.onWalk
-        ? `Rẽ ${d.min} phút khỏi đường đi bộ`
-        : `Từ ${d.from.label}, đi bộ ${d.min} phút`
+        ? `Rẽ ${d.min} phút khỏi đường đi bộ${d.up && d.up >= 20 ? `, lên ${d.up} m` : ''}`
+        : `Từ ${d.from.label}, đi bộ ${d.min} phút${d.up && d.up >= 20 ? `, lên ${d.up} m` : ''}`
   : km < 0.15
     ? 'Ngay trên đường đi'
     : `Cách đường đi ${fmtKm(km)}`;

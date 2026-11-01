@@ -4,6 +4,7 @@
 import MapView from './MapView.astro';
 import Gallery from './Gallery.astro';
 import { STAYS_GEN, FUJI_SUMMIT_LL } from '../data/stays.gen';
+import { WALK_STAYS } from '../data/walk.gen';
 import { FUJI_SPOTS } from '../data/fuji.gen';
 import { place, fmtKm, url } from '../lib/trip';
 import { boundsOf, compass, decodePolyline, encodePolyline, type LatLng } from '../lib/geo';
@@ -62,7 +63,9 @@ const mapConfig = {
   padding: 40,
   image: fuji?.viewshed ? { src: url(fuji.viewshed.src), bounds: fuji.viewshed.bounds, opacity: 0.75 } : undefined,
 };
-const walkMin = (w: any) => w.minutes ?? w.routedMin;
+// the larger of the research's estimate and the slope-aware model; climbs shown when real
+const walkMin = (w: any) => Math.max(WALK_STAYS[w.id]?.min ?? 0, w.minutes ?? w.routedMin ?? 0);
+const climb = (w: any) => (WALK_STAYS[w.id]?.up ?? 0) >= 20 ? `lên dốc ${WALK_STAYS[w.id].up} m` : null;
 ---
 
 {
@@ -83,7 +86,7 @@ const walkMin = (w: any) => w.minutes ?? w.routedMin;
                     <span class="w-body">
                       <strong>{w.title}</strong>
                       <span class="t-small muted tnum">
-                        {[walkMin(w) && `${walkMin(w)} phút`, fmtKm(w.km), w.best].filter(Boolean).join(' · ')}
+                        {[walkMin(w) && `${walkMin(w)} phút`, fmtKm(w.km), climb(w), w.best].filter(Boolean).join(' · ')}
                       </span>
                       {w.text && <span class="t-small">{w.text}</span>}
                       {w.fuji && (

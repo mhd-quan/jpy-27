@@ -51,7 +51,11 @@ const dow = new Date(`${day.date}T12:00:00+09:00`).getUTCDay();
 const snacks = v.along.filter((a) => a.p.snack).sort((a, b) => Number(a.p.snack!.closedDow.includes(dow)) - Number(b.p.snack!.closedDow.includes(dow)));
 const sights = v.along.filter((a) => !a.p.snack);
 const shops = day.id ? [] : slotsOfDay(n);
-const minutes = (l: LegView) => (l.min ? `${l.min}${/\d$/.test(l.min) ? ' phút' : ''}` : '');
+// On foot: the slope-aware estimate, unless the plan's figure includes stops along the way
+const minutes = (l: LegView) => {
+  if (l.mode === 'walk' && l.walk && !/dừng/.test(l.min ?? '')) return `${l.walk.min} phút${l.walk.up >= 25 ? `, lên dốc ${l.walk.up} m` : ''}`;
+  return l.min ? `${l.min}${/\d$/.test(l.min) ? ' phút' : ''}` : '';
+};
 const kindOf = (id?: string) => (id ? place(id).kind : undefined);
 const firstImages = (id: string) => {
   const p = place(id);

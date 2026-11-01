@@ -4,6 +4,7 @@ import { LINES, MODE_LABEL, type Mode } from '../data/lines.ts';
 import { place, allPlaces, hasPlace, type Place } from '../data/catalog.ts';
 import { GEO } from '../data/geo.gen.ts';
 import { DETOURS } from '../data/detours.gen.ts';
+import { WALK_LEGS, WALK_DETOURS } from '../data/walk.gen.ts';
 import { decodePolyline, boundsOf, haversineKm, nearestOnLine, type LatLng } from './geo.ts';
 import type { Pin, RouteLeg } from './map.ts';
 
@@ -14,6 +15,8 @@ export const url = (path = '') => `${import.meta.env.BASE_URL.replace(/\/$/, '')
 export const imgSrc = (src: string) => (/^https?:/.test(src) ? src : url(src));
 
 export interface LegView extends Leg {
+  /** hill-aware walking time for legs on foot (scripts/build-walk.mjs) */
+  walk?: { km: number; up: number; down: number; min: number };
   mode: Mode;
   color: string;
   lineName: string;
@@ -36,6 +39,7 @@ export function legView(leg: Leg): LegView {
     pts,
     fromName: place(leg.from).name,
     toName: place(leg.to).name,
+    walk: line.mode === 'walk' ? WALK_LEGS[leg.id] : undefined,
   };
 }
 
@@ -63,7 +67,13 @@ export interface Origin {
   onWalk: boolean;
 }
 
-export type Detour = (typeof DETOURS)[string]; // origin → sight, encoded polyline [lat, lng]
+export type Detour = (typeof DETOURS)[string] & { up?: number }; // origin → sight, encoded polyline [lat, lng]
+/** A detour on foot takes its time from the slope-aware walk model; by car it keeps the road estimate. */
+export function hillAware(key: string): Detour | undefined {
+  const d = DETOURS[key];
+  const w = WALK_DETOURS[key];
+  return d && d.mode === 'walk' && w ? { ...d, min: w.min, up: w.up } : d;
+}
 
 /** "ga Kanda", but piers and airports keep their own word. */
 export const stationLabel = (name: string) => (/^(Bến|Sân bay|Ga )/.test(name) ? name : `ga ${name}`);
@@ -121,7 +131,7 @@ export function alongCandidates(day: Day, legs: LegView[]): Along[] {
     .filter((p) => p.role !== 'alt')
     // a snack is tied to the day it was picked for; elsewhere it would be open at the wrong hour
     .filter((p) => !p.snack || mine(p))
-    .map((p) => ({ p, ...nearestOrigin([p.lat, p.lng], origins), detour: DETOURS[`${key}.${p.id}`] }))
+    .map((p) => ({ p, ...nearestOrigin([p.lat, p.lng], origins), detour: hillAware(`${key}.${p.id}`) }))
     .filter(({ p, km }) => mine(p) || km < ALONG_KM);
 }
 

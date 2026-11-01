@@ -125,7 +125,7 @@ const nameOf = (id?: string) => (id && hasPlace(id) ? place(id).name : id ?? '')
                       {s.after && `Sau ${nameOf(s.after)}`}
                       {s.after && s.before && ', '}
                       {s.before && `trước ${nameOf(s.before)}`}
-                      {s.route && s.route.km > 0 ? ` · đi bộ ${fmtKm(s.route.km)}` : ''}
+                      {s.route && s.route.km > 0 ? ` · đi bộ ${fmtKm(s.route.km)}, khoảng ${s.route.min} phút` : ''}
                     </p>
                   )}
                   {s.focus && <p class="slot-focus">{s.focus}</p>}

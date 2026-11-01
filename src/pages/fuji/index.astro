@@ -7,6 +7,7 @@ import { FUJI_SPOTS, FUJI_PANORAMAS, FUJI_TRACKS, FUJI_SUMMIT } from '../../data
 import { FUJI_RESEARCH } from '../../data/research.gen';
 import { hasPlace, place, url, fmtKm, DAY_VIEWS, ALT_VIEWS, routeLeg, imgSrc } from '../../lib/trip';
 import { DETOURS } from '../../data/detours.gen';
+import { hillAware } from '../../lib/trip';
 import { encodePolyline, compass } from '../../lib/geo';
 import { LINES } from '../../data/lines';
 import type { Pin, RouteLeg } from '../../lib/map';
@@ -70,11 +71,11 @@ const altPlanned = new Set(ALT_VIEWS.flatMap((v) => v.day.items.flatMap((i) => (
 const popular = POP_GROUPS.map((g) => ({
   ...g,
   list: FUJI_SPOTS.filter((s) => s.role === 'popular' && hasPlace(s.id) && String(place(s.id).day) === g.key)
-    .map((s) => ({ s, p: place(s.id), d: DETOURS[`${g.key}.${s.id}`], planned: altPlanned.has(s.id) }))
+    .map((s) => ({ s, p: place(s.id), d: hillAware(`${g.key}.${s.id}`), planned: altPlanned.has(s.id) }))
     .sort((a, b) => Number(b.planned) - Number(a.planned) || (a.d?.min ?? 999) - (b.d?.min ?? 999)),
 })).filter((g) => g.list.length);
 const SOCIAL_LABEL: Record<string, string> = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
-const detourText = (d: (typeof DETOURS)[string] | undefined) =>
+const detourText = (d: ReturnType<typeof hillAware>) =>
   !d ? null : d.km === 0 ? `Ngay cạnh ${d.from.label}` : d.mode === 'car' ? `${d.min} phút đường xe từ ${d.from.label}, ${fmtKm(d.km)}` : `${d.min} phút đi bộ từ ${d.from.label}, ${fmtKm(d.km)}`;
 
 // Map: summit, spots, lines of sight

@@ -117,7 +117,7 @@ export const PLACES: PlaceBase[] = [
     lat: 34.668694,
     lng: 135.503571,
     note: 'Forza Double 18 m², giường 160 cm. Lobby tầng 3, ngay khu Dōtonbori.',
-    tips: 'Nankai Namba (ra KIX) cách 12–15 phút đi bộ. Xin tầng cao, xa thang máy.',
+    tips: 'Nankai Namba (ra KIX) cách khoảng 20 phút đi bộ tính tới sân ga. Xin tầng cao, xa thang máy.',
     official: 'https://www.hotelforza.jp/osakanamba/rooms/',
     review: 'https://4travel.jp/dm_hotel-11872817/tips',
   },

@@ -237,7 +237,7 @@ export const STAYS: StayPlan[] = [
     range: '¥12.000–17.000',
     room: 'Forza Double 18 m², giường 160 cm, unit bath.',
     good: 'Ngay khu Dōtonbori, tiện về cất đồ mua sắm. Hōzenji 3–5 phút, Dōguyasuji 8–10 phút.',
-    know: 'Phố đông có thể ồn. Nankai Namba để ra KIX cách 12–15 phút đi bộ. Ảnh phòng Triple không phải phòng Double.',
+    know: 'Phố đông có thể ồn. Nankai Namba để ra KIX cách khoảng 20 phút đi bộ tính tới sân ga. Ảnh phòng Triple không phải phòng Double.',
     switchAt: 'Có thể trả thêm một chút để giữ vị trí — đỡ bước đi trong ngày mua sắm.',
   },
 ];
