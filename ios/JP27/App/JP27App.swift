@@ -84,6 +84,14 @@ struct RootView: View {
         // on the first scroll up (`TabBarScroll`)
         .tabBarMinimizeBehavior(.onScrollDown)
         .environment(scroll)
+        // the bar is UIKit's: its tabs get their haptics once the window has laid it out
+        .task {
+            var tries = 0
+            while !scroll.attach(), tries < 20 {
+                tries += 1
+                try? await Task.sleep(for: .milliseconds(250))
+            }
+        }
         .modifier(NowAccessorySlot(live: model.live.ride != nil || model.next != nil))
         .progressiveEdges()
         .presentsSheets()

@@ -604,8 +604,11 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
         (overshoot * dimension * constant) / (dimension + constant * overshoot)
     }
 
+    /// Measured on the screen, not on the grabber: the grabber rides the panel's top edge, so in
+    /// its own space every frame the panel follows the finger takes back the translation that
+    /// moved it, and the panel shakes between the two heights for as long as the drag lasts.
     private var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 4)
+        DragGesture(minimumDistance: 4, coordinateSpace: .global)
             .updating($drag) { value, state, _ in state = value.translation.height }
             .onEnded { value in
                 let projected = height(stage) - value.predictedEndTranslation.height
