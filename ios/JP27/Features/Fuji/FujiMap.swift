@@ -402,6 +402,10 @@ struct FujiExplorer: View {
             if model.network.online {
                 FujiTerrainMap(spots: spots, position: $position, selection: $selection, interactive: true, scope: mapScope)
                     .ignoresSafeArea()
+                    // the map gives the bars an edge effect of its own, hard with the iOS 27 SDK:
+                    // none at the top, where FujiBarEdge draws the soft one, soft at the bottom
+                    .scrollEdgeEffectStyle(.soft, for: .all)
+                    .scrollEdgeEffectHidden(true, for: .top)
                 FujiBarEdge()
             } else {
                 FujiCompassPlot.backdrop.ignoresSafeArea()
@@ -451,6 +455,8 @@ struct FujiExplorer: View {
         }
         .navigationTitle("Bản đồ Fuji")
         .navigationBarTitleDisplayMode(.inline)
+        // the bar draws nothing behind itself: its only backdrop is FujiBarEdge
+        .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             // the name set as the JP27 wordmark is
@@ -508,6 +514,10 @@ struct FujiAreaChips: View {
             .padding(.vertical, 4)
         }
         .scrollIndicators(.hidden)
+        // a horizontal scroll view takes all the height it is offered; outside a vertical scroll
+        // view (over the map) the strip must hug its chips, or it covers the map and takes its
+        // pinches and twists
+        .fixedSize(horizontal: false, vertical: true)
         // a strip floating over the map draws no edge effect of its own (built with the iOS 27 SDK
         // it would be the hard, ruled one)
         .scrollEdgeEffectHidden(onMap, for: .all)
@@ -577,6 +587,9 @@ private struct FujiSpotCarousel: View {
         .scrollTargetBehavior(.viewAligned)
         .scrollPosition(id: $selection, anchor: .leading)
         .scrollIndicators(.hidden)
+        // hugs its cards: left to take the height offered, the strip spread over most of the map,
+        // floated the cards far above the tab bar and swallowed every gesture meant for the map
+        .fixedSize(horizontal: false, vertical: true)
         .scrollEdgeEffectHidden(true, for: .all)
         .contentMargins(.horizontal, 16, for: .scrollContent)
         .padding(.top, 4)

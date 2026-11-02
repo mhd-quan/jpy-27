@@ -81,8 +81,9 @@ struct RootView: View {
                 SpendTab()
             }
         }
-        // folds on a scroll down, opens again on any scroll up (iOS 27 waits for the top: `TabBarScroll`)
-        .tabBarMinimizeBehavior(scroll.up ? .never : .onScrollDown)
+        // folds on a scroll down; iOS 27 opens it again only at the top, so each page asks for it
+        // on the first scroll up (`TabBarScroll`)
+        .tabBarMinimizeBehavior(.onScrollDown)
         .environment(scroll)
         .modifier(NowAccessorySlot(live: model.live.ride != nil || model.next != nil))
         .progressiveEdges()

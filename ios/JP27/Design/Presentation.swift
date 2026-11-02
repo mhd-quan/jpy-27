@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // How things come on screen. A sheet grows out of the control that opened it (a navigation zoom
 // transition, as the system does for its own toolbar buttons) and shrinks back into it; a sheet
@@ -163,21 +164,46 @@ private struct SheetLayer: ViewModifier {
 // MARK: - Tab bar on scroll
 
 /// iOS 26 brought a minimized tab bar back on any scroll up; iOS 27 only does so at the very top
-/// of the page. Each page's scroll view says which way it last went, and while that is up the tab
-/// bar is told not to minimize (so it opens on the first flick up, as on iOS 26); the next scroll
-/// down hands it back to `.onScrollDown`, which folds it again.
+/// of the page (`.atScrollEdge` restoration, which only the navigation bar lets an app change).
+/// The bar stays `.onScrollDown` throughout, so folding it is the system's own, scroll-driven
+/// morph; each page's scroll view reports when it turns upward, and the bar is then asked to open.
+///
+/// Asking goes straight to UIKit. Re-applying the behaviour (`.never`, then `.onScrollDown` again)
+/// makes UIKit show the whole bar, and it does so with the same glass morph it folds with, run in
+/// reverse. Going through SwiftUI instead (flipping `tabBarMinimizeBehavior` from a state) changed
+/// the behaviour inside SwiftUI's own update, where UIKit's animation is turned off, so the bar
+/// jumped open; a `withAnimation` around it did not bring the morph back, and leaving the bar on
+/// `.never` until the next scroll down made UIKit start each fold from a scroll already under way.
 @Observable final class TabBarScroll {
-    var up = false
+    @ObservationIgnored private weak var tabs: UITabBarController?
 
-    /// The glass bar's own morph, which folding it on a scroll down already runs with. Opening it
-    /// is a change of state rather than a scroll the system follows, so without a transaction the
-    /// bar would jump open; inside one, SwiftUI hands the change to UIKit animated, and the glass
-    /// grows back with the same spring it shrank with.
-    static let morph = Animation.spring(duration: 0.45, bounce: 0.22)
+    /// Opens the bar if it is folded; an open bar is left as it is.
+    func open() {
+        guard let tabs = tabs ?? Self.find() else { return }
+        self.tabs = tabs
+        tabs.tabBarMinimizeBehavior = .never
+        tabs.tabBarMinimizeBehavior = .onScrollDown
+    }
+
+    /// The controller behind the root `TabView`: a child of the window's hosting controller, never
+    /// one presented over it (a sheet holds no tab bar).
+    private static func find() -> UITabBarController? {
+        let windows = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .sorted { $0.isKeyWindow && !$1.isKeyWindow }
+        var queue = windows.compactMap(\.rootViewController)
+        while !queue.isEmpty {
+            let next = queue.removeFirst()
+            if let tabs = next as? UITabBarController { return tabs }
+            queue += next.children
+        }
+        return nil
+    }
 }
 
 extension View {
-    /// Reports this scroll view's direction to the tab bar. `screen()` and `paperList()` add it.
+    /// Reports this scroll view's upward turns to the tab bar. `screen()` and `paperList()` add it.
     func tabBarFollowsScroll() -> some View {
         modifier(TabBarFollowsScroll())
     }
@@ -197,7 +223,13 @@ private struct TabBarFollowsScroll: ViewModifier {
     private static let slack: CGFloat = 24
 
     func body(content: Content) -> some View {
-        content.onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y + $0.contentInsets.top } action: { _, y in
+        // the offset within the page's real range: the rubber band past either end is not a scroll,
+        // or springing back from the bottom would read as a turn up and open the bar
+        content.onScrollGeometryChange(for: CGFloat.self) { g in
+            let top = -g.contentInsets.top
+            let bottom = max(top, g.contentSize.height + g.contentInsets.bottom - g.containerSize.height)
+            return min(max(g.contentOffset.y, top), bottom) - top
+        } action: { _, y in
             let t = track
             if t.up {
                 if y < t.turn { t.turn = y } else if y > t.turn + Self.slack { turn(up: false, at: y) }
@@ -207,12 +239,12 @@ private struct TabBarFollowsScroll: ViewModifier {
         }
     }
 
+    /// A turn down needs nothing: the bar is still `.onScrollDown` and folds by itself.
     private func turn(up: Bool, at y: CGFloat) {
         track.up = up
         track.turn = y
-        if let bar, bar.up != up {
-            withAnimation(TabBarScroll.morph) { bar.up = up }
-        }
+        // on the next turn of the run loop, outside SwiftUI's update, so UIKit animates the change
+        if up, let bar { Task { bar.open() } }
     }
 }
 
