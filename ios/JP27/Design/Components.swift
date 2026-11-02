@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import TripKit
 
 // The app's building blocks. Content sits on warm paper in white cards; Liquid Glass is kept for
@@ -373,5 +374,169 @@ struct HeroDots: View {
             .animation(.smooth(duration: 0.3), value: current)
             .accessibilityHidden(true)
         }
+    }
+}
+
+// MARK: - Ambient pages
+
+// Apple Music's album page, for the app's own pages: the photograph fills the top, under the bar,
+// and dissolves into one colour taken from its foot; the page is laid on that colour, its cards
+// are tints of it and its type takes the colour's side. The place page, the day page and a Fuji
+// viewpoint's card are built this way.
+
+/// The photographs, paged, each laid on its own blurred copy and fading out: sharp at the top,
+/// soft where the type sits, gone into the page's colour at the bottom. A shade at the very top
+/// keeps the status bar and the bar's buttons readable over a white sky.
+struct AmbientHero: View {
+    let photos: [Photo]
+    @Binding var page: Int
+
+    var body: some View {
+        TabView(selection: $page) {
+            ForEach(photos.indices, id: \.self) { i in
+                AmbientPhoto(photo: photos[i]).tag(i)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .mask {
+            LinearGradient(stops: [
+                .init(color: .black, location: 0),
+                .init(color: .black, location: 0.6),
+                .init(color: .black.opacity(0.8), location: 0.74),
+                .init(color: .black.opacity(0.4), location: 0.87),
+                .init(color: .black.opacity(0.12), location: 0.95),
+                .init(color: .clear, location: 1),
+            ], startPoint: .top, endPoint: .bottom)
+        }
+        .overlay(alignment: .top) {
+            LinearGradient(colors: [.black.opacity(0.24), .clear], startPoint: .top, endPoint: .bottom)
+                .frame(height: 100)
+                .allowsHitTesting(false)
+        }
+    }
+}
+
+/// One photograph: the sharp image over its pre-blurred copy, the sharp one fading out from the
+/// middle down so the blur takes over (no live blur: the copy is small and blurred once).
+struct AmbientPhoto: View {
+    @Environment(\.accessibilityReduceTransparency) private var plain
+    let photo: Photo
+    @State private var veil: UIImage?
+
+    var body: some View {
+        Color.clear
+            .overlay {
+                if let veil, !plain {
+                    Image(uiImage: veil)
+                        .resizable()
+                        .scaledToFill()
+                        .transition(.opacity)
+                }
+            }
+            .overlay {
+                PlacePhoto(photo: photo, maxPixel: 1800)
+                    .mask {
+                        LinearGradient(stops: [
+                            .init(color: .black, location: 0),
+                            .init(color: .black, location: 0.48),
+                            .init(color: .black.opacity(0.65), location: 0.62),
+                            .init(color: .black.opacity(0.2), location: 0.76),
+                            .init(color: .clear, location: 0.86),
+                        ], startPoint: .top, endPoint: .bottom)
+                    }
+            }
+            .clipped()
+            .task(id: photo.src) {
+                guard !plain else { return }
+                let loaded = await PhotoCache.shared.veil(photo)
+                withAnimation(.easeOut(duration: 0.25)) { veil = loaded }
+            }
+    }
+}
+
+/// Page dots in the type colour, for a pager over a photograph that may be light or dark.
+struct AmbientDots: View {
+    let count: Int
+    let current: Int
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(0..<count, id: \.self) { i in
+                Capsule()
+                    .fill(Color.primary.opacity(i == current ? 0.85 : 0.28))
+                    .frame(width: i == current ? 14 : 5, height: 5)
+            }
+        }
+        .animation(.smooth(duration: 0.3), value: current)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Who took the photograph on screen (CC BY and BY-SA ask for it), opening its Commons page.
+struct AmbientCredit: View {
+    @Environment(\.openURL) private var openURL
+    let photos: [Photo]
+    let page: Int
+
+    var body: some View {
+        if photos.indices.contains(page), let credit = photos[page].credit {
+            let photo = photos[page]
+            Button {
+                if let link = photo.page, let url = URL(string: link) { openURL(url) }
+            } label: {
+                Text(((photos.count > 1 ? "Ảnh \(page + 1)/\(photos.count)" : "Ảnh") + " · ") + (["© \(credit)", photo.license].compactMap { $0 }.joined(separator: " · ")))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+            }
+            .buttonStyle(.plain)
+            .disabled(photo.page == nil)
+            .accessibilityLabel("Ảnh: \(credit)")
+        }
+    }
+}
+
+/// A round secondary button over an ambient page: a tint of the type colour, like the shuffle disc.
+struct AmbientDisc: View {
+    let symbol: String
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.body.weight(.semibold))
+            .foregroundStyle(.primary)
+            .frame(width: 50, height: 50)
+            .background(Color.primary.opacity(0.1), in: .circle)
+            .contentShape(.circle)
+    }
+}
+
+extension View {
+    /// Lays a scroll view whose first child is an `AmbientHero` on the photograph's colour: the
+    /// page's fill, cards as lifted tints of it (opaque, so a rail can knock itself out of them),
+    /// controls in the type colour, light or dark type throughout. Until the colour is read the
+    /// page stays on paper. Includes `detailPage`, so the bar shows the title once the photograph
+    /// has gone.
+    func ambientPage(_ canvas: AmbientCanvas?, title: String, heroHeight: CGFloat) -> some View {
+        modifier(AmbientPageStyle(canvas: canvas, title: title, heroHeight: heroHeight))
+    }
+}
+
+private struct AmbientPageStyle: ViewModifier {
+    @Environment(\.colorScheme) private var system
+    let canvas: AmbientCanvas?
+    let title: String
+    let heroHeight: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .progressiveEdges()
+            .tabBarFollowsScroll()
+            .background { (canvas?.color ?? Palette.paper).ignoresSafeArea() }
+            .environment(\.cardSurface, canvas?.surface)
+            .tint(canvas == nil ? nil : Color.primary)
+            .environment(\.colorScheme, canvas?.scheme ?? system)
+            .animation(.easeInOut(duration: 0.45), value: canvas)
+            .detailPage(title: title, heroHeight: heroHeight, scheme: canvas?.scheme)
     }
 }

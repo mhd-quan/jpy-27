@@ -236,6 +236,17 @@ nonisolated struct AmbientCanvas: Sendable, Equatable {
 
     var color: Color { Color(.sRGB, red: red, green: green, blue: blue) }
     var scheme: ColorScheme { light ? .light : .dark }
+
+    /// A card on the page: the colour lifted toward white as a translucent white card reads over
+    /// it (40 % on a pale page, 9 % on a deep one), but opaque, so what is drawn on the card can
+    /// knock itself out of the card's fill.
+    var surface: Color {
+        let lift = light ? 0.4 : 0.09
+        return Color(.sRGB, red: red + (1 - red) * lift, green: green + (1 - green) * lift, blue: blue + (1 - blue) * lift)
+    }
+
+    /// For a page with no photograph to take a colour from: the deep blue of Fuji at dusk.
+    static let dusk = AmbientCanvas(red: 0.11, green: 0.13, blue: 0.22, light: false)
 }
 
 /// A place photo, filled edge to edge; a quiet placeholder while it loads or when there is none.

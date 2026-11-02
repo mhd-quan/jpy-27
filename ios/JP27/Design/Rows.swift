@@ -10,6 +10,8 @@ import TripKit
 /// Rows stack with no spacing so the rail runs on unbroken.
 struct ItemRow: View {
     @Environment(AppModel.self) private var model
+    /// the card the row sits on, which its nodes cut out of the rail with
+    @Environment(\.cardSurface) private var surface
     let day: Day
     let index: Int
     var showsCheck = true
@@ -85,13 +87,13 @@ struct ItemRow: View {
         case .move(let m):
             let line = model.store.line(m.leg.line)
             ModeDot(mode: line?.mode ?? .walk, color: Color(hex: line?.color ?? "#8E8E93"), size: 24)
-                .background(Circle().fill(Palette.card))
+                .background(Circle().fill(surface ?? Palette.card))
                 .padding(.top, Self.nodeCenter - 12 - 9)
         case .stop(let s):
             let place = model.store.place(s.place)
             if place?.kind == .station {
                 Circle()
-                    .fill(Palette.card)
+                    .fill(surface ?? Palette.card)
                     .overlay(Circle().strokeBorder(Color.primary.opacity(0.75), lineWidth: 3))
                     .frame(width: 16, height: 16)
                     .padding(.top, Self.nodeCenter - 8 - 9)
@@ -110,7 +112,7 @@ struct ItemRow: View {
                     .foregroundStyle(.white)
                     .frame(width: 22, height: 22)
                     .background((place?.kind ?? .sight).tint, in: .circle)
-                    .overlay(Circle().strokeBorder(Palette.card, lineWidth: 2))
+                    .overlay(Circle().strokeBorder(surface ?? Palette.card, lineWidth: 2))
                     .padding(.top, Self.nodeCenter - 11 - 9)
                     .opacity(model.isSkipped(day, index) ? 0.45 : 1)
             }

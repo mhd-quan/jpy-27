@@ -183,7 +183,7 @@ private struct PlanAmbientPage: View {
         let fill = canvas?.color ?? Palette.paper
         ScrollView {
             VStack(spacing: 0) {
-                PlanAmbientHero(photos: place.images, page: $page)
+                AmbientHero(photos: place.images, page: $page)
                     .containerRelativeFrame(.vertical) { length, _ in (length * 0.6).rounded() }
                     .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
                     .overlay(alignment: .bottom) {
@@ -209,7 +209,7 @@ private struct PlanAmbientPage: View {
                     PlanPlaceUses(place: place)
                     VStack(alignment: .leading, spacing: 10) {
                         PlanLinkChips(links: sources)
-                        PlanAmbientCredit(photos: place.images, page: page)
+                        AmbientCredit(photos: place.images, page: page)
                     }
                 }
                 .padding(.horizontal, Metrics.gutter)
@@ -239,75 +239,7 @@ private struct PlanAmbientPage: View {
     }
 }
 
-/// The photographs, paged, each laid on its own blurred copy and fading out: sharp at the top,
-/// soft where the type sits, gone into the page's colour at the bottom. A shade at the very top
-/// keeps the status bar and the bar's buttons readable over a white sky.
-private struct PlanAmbientHero: View {
-    let photos: [Photo]
-    @Binding var page: Int
 
-    var body: some View {
-        TabView(selection: $page) {
-            ForEach(photos.indices, id: \.self) { i in
-                PlanAmbientPhoto(photo: photos[i]).tag(i)
-            }
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .mask {
-            LinearGradient(stops: [
-                .init(color: .black, location: 0),
-                .init(color: .black, location: 0.6),
-                .init(color: .black.opacity(0.8), location: 0.74),
-                .init(color: .black.opacity(0.4), location: 0.87),
-                .init(color: .black.opacity(0.12), location: 0.95),
-                .init(color: .clear, location: 1),
-            ], startPoint: .top, endPoint: .bottom)
-        }
-        .overlay(alignment: .top) {
-            LinearGradient(colors: [.black.opacity(0.24), .clear], startPoint: .top, endPoint: .bottom)
-                .frame(height: 100)
-                .allowsHitTesting(false)
-        }
-    }
-}
-
-/// One photograph: the sharp image over its pre-blurred copy, the sharp one fading out from the
-/// middle down so the blur takes over (no live blur: the copy is small and blurred once).
-private struct PlanAmbientPhoto: View {
-    @Environment(\.accessibilityReduceTransparency) private var plain
-    let photo: Photo
-    @State private var veil: UIImage?
-
-    var body: some View {
-        Color.clear
-            .overlay {
-                if let veil, !plain {
-                    Image(uiImage: veil)
-                        .resizable()
-                        .scaledToFill()
-                        .transition(.opacity)
-                }
-            }
-            .overlay {
-                PlacePhoto(photo: photo, maxPixel: 1800)
-                    .mask {
-                        LinearGradient(stops: [
-                            .init(color: .black, location: 0),
-                            .init(color: .black, location: 0.48),
-                            .init(color: .black.opacity(0.65), location: 0.62),
-                            .init(color: .black.opacity(0.2), location: 0.76),
-                            .init(color: .clear, location: 0.86),
-                        ], startPoint: .top, endPoint: .bottom)
-                    }
-            }
-            .clipped()
-            .task(id: photo.src) {
-                guard !plain else { return }
-                let loaded = await PhotoCache.shared.veil(photo)
-                withAnimation(.easeOut(duration: 0.25)) { veil = loaded }
-            }
-    }
-}
 
 /// Centred where the photograph dissolves: page dots, the name, the Japanese name, what it is,
 /// and the actions.
@@ -321,7 +253,7 @@ private struct PlanAmbientHeadline: View {
     var body: some View {
         VStack(spacing: 5) {
             if count > 1 {
-                PlanAmbientDots(count: count, current: page)
+                AmbientDots(count: count, current: page)
                     .padding(.bottom, 6)
             }
             Text(place.name)
@@ -416,34 +348,11 @@ private struct PlanAmbientActions: View {
             .accessibilityLabel(label)
     }
 
-    /// A round secondary button: a tint of the type colour over the page, like the shuffle disc.
     private func disc(symbol: String) -> some View {
-        Image(systemName: symbol)
-            .font(.body.weight(.semibold))
-            .foregroundStyle(.primary)
-            .frame(width: 50, height: 50)
-            .background(Color.primary.opacity(0.1), in: .circle)
-            .contentShape(.circle)
+        AmbientDisc(symbol: symbol)
     }
 }
 
-/// Page dots in the type colour, for a pager over a photograph that may be light or dark.
-private struct PlanAmbientDots: View {
-    let count: Int
-    let current: Int
-
-    var body: some View {
-        HStack(spacing: 5) {
-            ForEach(0..<count, id: \.self) { i in
-                Capsule()
-                    .fill(Color.primary.opacity(i == current ? 0.85 : 0.28))
-                    .frame(width: i == current ? 14 : 5, height: 5)
-            }
-        }
-        .animation(.smooth(duration: 0.3), value: current)
-        .accessibilityHidden(true)
-    }
-}
 
 /// The description, three lines and a THÊM that opens the rest, as an album's notes.
 private struct PlanAmbientNote: View {
@@ -480,30 +389,6 @@ private struct PlanAmbientNote: View {
     }
 }
 
-/// Who took the photograph on screen (CC BY and BY-SA ask for it), opening its Commons page.
-private struct PlanAmbientCredit: View {
-    @Environment(\.openURL) private var openURL
-    let photos: [Photo]
-    let page: Int
-
-    var body: some View {
-        if photos.indices.contains(page), let credit = photos[page].credit {
-            let photo = photos[page]
-            Button {
-                if let link = photo.page, let url = URL(string: link) { openURL(url) }
-            } label: {
-                Text(((photos.count > 1 ? "Ảnh \(page + 1)/\(photos.count)" : "Ảnh") + " · ") + (["© \(credit)", photo.license].compactMap { $0 }.joined(separator: " · ")))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-            }
-            .buttonStyle(.plain)
-            .disabled(photo.page == nil)
-            .accessibilityLabel("Ảnh: \(credit)")
-        }
-    }
-}
 
 /// "Quán ăn · Tokyo · ★ Tabelog 3,63 (942)"
 private func placeFacts(_ place: Place) -> String {

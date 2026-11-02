@@ -17,14 +17,23 @@ struct DayView: View {
 
 private struct PlanDayContent: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.colorScheme) private var system
     let day: Day
+    /// the colour of the photograph's foot, once read
+    @State private var tone: AmbientTone?
+    @State private var heroHeight: CGFloat = 480
 
     var body: some View {
         let photo = HomePicks.photo(for: day, store: model.store)
         let label = day.isAlternative ? "Kawaguchiko" : "Ngày \(day.n)"
         let page = ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                if let photo { PlanDayHero(day: day, photo: photo) }
+                if let photo {
+                    AmbientHero(photos: [photo], page: .constant(0))
+                        .containerRelativeFrame(.vertical) { length, _ in (length * 0.56).rounded() }
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                        .overlay(alignment: .bottom) { PlanDayHeadline(day: day, label: label) }
+                }
                 LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                     PlanDayHeader(day: day, titled: photo == nil)
                     PlanDayTimeline(day: day)
@@ -49,17 +58,20 @@ private struct PlanDayContent: View {
                     }
                 }
                 .padding(.horizontal, Metrics.gutter)
-                .padding(.top, photo == nil ? 0 : Metrics.stack)
+                .padding(.top, photo == nil ? 0 : 14)
                 .padding(.bottom, 32)
             }
         }
-        .screen()
 
         Group {
-            if photo != nil {
-                page.detailPage(title: label)
+            if let photo {
+                // the album page: the photograph dissolves into its own colour, which the whole
+                // page is then laid on
+                page
+                    .ambientPage(canvas, title: label, heroHeight: heroHeight)
+                    .task(id: photo.src) { tone = await PhotoCache.shared.tone(photo) }
             } else {
-                page.navigationTitle(label)
+                page.screen().navigationTitle(label)
             }
         }
         .toolbar {
@@ -76,22 +88,41 @@ private struct PlanDayContent: View {
             CloseButton()
         }
     }
+
+    private var canvas: AmbientCanvas? {
+        tone.map { $0.canvas(light: $0.prefersLight, dim: system == .dark) }
+    }
 }
 
-/// The day's photograph to the top of the page; its title, city and date on the blur.
-private struct PlanDayHero: View {
+/// Centred where the photograph dissolves, as on a place's album page: which day and its date,
+/// the title, the city in kanji.
+private struct PlanDayHeadline: View {
     @Environment(AppModel.self) private var model
     let day: Day
-    let photo: Photo
+    let label: String
 
     var body: some View {
-        DetailHero(title: day.title, subtitle: model.store.chapter(of: day)?.kanji) {
-            PlacePhoto(photo: photo, maxPixel: 1800)
-        } foot: {
-            Text(planDateLabel(day))
-                .font(.subheadline.weight(.medium))
-                .opacity(0.9)
+        VStack(spacing: 5) {
+            Text("\(label) · \(planDateLabel(day))")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+            Text(day.title)
+                .font(.title.weight(.bold))
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+            if let kanji = model.store.chapter(of: day)?.kanji {
+                Text(kanji)
+                    .font(.mincho(22, bold: false, relativeTo: .title3))
+                    .environment(\.locale, Locale(identifier: "ja_JP"))
+                    .lineLimit(1)
+            }
         }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, Metrics.gutter)
+        .padding(.bottom, 12)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -149,6 +180,7 @@ private struct PlanDayHeader: View {
 
 private struct PlanDayTimeline: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.cardSurface) private var surface
     let day: Day
 
     var body: some View {
@@ -160,7 +192,7 @@ private struct PlanDayTimeline: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .background(Palette.card, in: .rect(cornerRadius: Metrics.card, style: .continuous))
+        .background(surface ?? Palette.card, in: .rect(cornerRadius: Metrics.card, style: .continuous))
     }
 
     @ViewBuilder
