@@ -238,12 +238,36 @@ private struct SpendArc: Identifiable {
 
     var share: Double { planned > 0 ? Double(spent) / Double(planned) : 0 }
     var left: Int { planned - spent }
+    /// How much of the arc the fill covers: its share, but never less than a nub once anything is
+    /// spent, so the first ¥500 on a ¥161.000 line still shows.
+    var filled: Double {
+        let length = end - start
+        return min(length, max(length * min(1, share), SpendRing.nub))
+    }
 }
 
-/// An arc of the dial from `start` to `end` (fractions of the circle, from twelve o'clock,
-/// clockwise), drawn only as far as `sweep` has gone round: animating `sweep` from 0 to 1 draws
-/// the whole dial in one stroke, arc after arc; animating `end` grows a fill.
-private nonisolated struct SpendArcShape: Shape {
+/// The proportions of Health's segmented ring, measured off its chart: the hole is 0.6 of the
+/// diameter, so the band is 0.4 of the radius; the gap between arcs is about an eighth of the band
+/// and runs the same width from the inside edge to the outside; the corners are rounded by a third
+/// of the band.
+private nonisolated enum SpendRing {
+    static let size: CGFloat = 256
+    static let hole: CGFloat = 0.6
+    static let gap: CGFloat = 6
+    static let corner: CGFloat = 17
+    static var inner: CGFloat { size / 2 * hole }
+    /// The shortest fill worth drawing: one that clears the gap at the inside edge with a few points
+    /// to spare, as a fraction of the circle.
+    static var nub: Double { Double(gap + 4) / (2 * .pi * Double(inner)) }
+}
+
+/// One arc of the dial, cut the way Health cuts its rings: a thick band whose ends run parallel to
+/// the radius between two arcs, half the gap in from it, so the gap is as wide at the inside edge
+/// as at the outside; and all four corners rounded. `start` and `end` are fractions of the circle
+/// from twelve o'clock, clockwise; the arc is drawn only as far as `sweep` has gone round, so
+/// animating `sweep` from 0 to 1 draws the dial arc after arc, and animating `end` grows a fill. An
+/// arc too short to clear the gap at its inside edge is not drawn.
+private nonisolated struct SpendSegment: Shape {
     let start: Double
     var end: Double
     var sweep: Double
@@ -257,22 +281,59 @@ private nonisolated struct SpendArcShape: Shape {
     }
 
     func path(in rect: CGRect) -> Path {
-        let to = min(end, sweep)
         var path = Path()
+        let to = min(end, sweep)
         guard to > start else { return path }
-        path.addArc(
-            center: CGPoint(x: rect.midX, y: rect.midY),
-            radius: min(rect.width, rect.height) / 2,
-            startAngle: .radians(2 * .pi * start - .pi / 2),
-            endAngle: .radians(2 * .pi * to - .pi / 2),
-            clockwise: false
-        )
+        let outer = Double(min(rect.width, rect.height)) / 2
+        let inner = outer * Double(SpendRing.hole)
+        let half = Double(SpendRing.gap) / 2
+        let span = 2 * Double.pi * (to - start)
+        // the sine of half the arc's angle: how much room is left beside the gap at a radius
+        let room = span < .pi ? sin(span / 2) : 1
+        guard room * inner > half else { return path }
+        // the corners shrink on a short arc so that all four still fit
+        var c = min(Double(SpendRing.corner), (outer - inner) / 2, (room * outer - half) / (1 + room))
+        if room < 1 { c = min(c, (room * inner - half) / (1 - room)) }
+        c = max(0, c)
+
+        let a0 = 2 * Double.pi * start - .pi / 2
+        let a1 = a0 + span
+        let mid = a0 + span / 2
+        // from an end of the arc to the centre of the circle that rounds its corner, at the
+        // outside edge and the inside one
+        let turnOut = min(asin(min(1, (half + c) / (outer - c))), span / 2)
+        let turnIn = min(asin(min(1, (half + c) / (inner + c))), span / 2)
+        let o = CGPoint(x: rect.midX, y: rect.midY)
+        func point(_ radius: Double, _ angle: Double) -> CGPoint {
+            CGPoint(x: o.x + radius * cos(angle), y: o.y + radius * sin(angle))
+        }
+        // on the straight end at `angle`, `along` from the centre and half the gap off the radius,
+        // toward the arc (`side` 1 at its start, -1 at its end)
+        func cut(_ angle: Double, _ along: Double, side: Double) -> CGPoint {
+            CGPoint(x: o.x + along * cos(angle) - side * half * sin(angle),
+                    y: o.y + along * sin(angle) + side * half * cos(angle))
+        }
+
+        path.move(to: cut(a0, (outer - c) * cos(turnOut), side: 1))
+        path.addArc(center: point(outer - c, a0 + turnOut), radius: c,
+                    startAngle: .radians(a0 - .pi / 2), endAngle: .radians(a0 + turnOut), clockwise: false)
+        path.addArc(center: o, radius: outer,
+                    startAngle: .radians(min(a0 + turnOut, mid)), endAngle: .radians(max(a1 - turnOut, mid)), clockwise: false)
+        path.addArc(center: point(outer - c, a1 - turnOut), radius: c,
+                    startAngle: .radians(a1 - turnOut), endAngle: .radians(a1 + .pi / 2), clockwise: false)
+        path.addArc(center: point(inner + c, a1 - turnIn), radius: c,
+                    startAngle: .radians(a1 + .pi / 2), endAngle: .radians(a1 - turnIn + .pi), clockwise: false)
+        path.addArc(center: o, radius: inner,
+                    startAngle: .radians(max(a1 - turnIn, mid)), endAngle: .radians(min(a0 + turnIn, mid)), clockwise: true)
+        path.addArc(center: point(inner + c, a0 + turnIn), radius: c,
+                    startAngle: .radians(a0 + turnIn + .pi), endAngle: .radians(a0 + 3 * .pi / 2), clockwise: false)
+        path.closeSubpath()
         return path
     }
 }
 
-/// The budget as one dial (Screen Time's and Storage's segmented ring): every line of the plan an
-/// arc as long as its share. Before anything is spent the arcs are drawn in full: the plan. Once
+/// The budget as one dial (Health's segmented ring): every line of the plan an arc as long as its
+/// share. Before anything is spent the arcs are drawn in full: the plan. Once
 /// money goes, they turn to faint tracks that fill from their start. Choosing a category below
 /// reads it in the middle of the dial; choosing it again, or the middle, goes back to the total.
 private struct SpendDial: View {
@@ -283,16 +344,11 @@ private struct SpendDial: View {
     @State private var selected: String?
     @State private var drawn = false
 
-    private static let size: CGFloat = 228
-    private static let width: CGFloat = 20
-
     private var arcs: [SpendArc] {
         var spent: [String: Int] = [:]
         for e in expenses { spent[e.spendCategory.rawValue, default: 0] += e.yen }
         let lines = model.guide.budget.lines.filter { $0.yen > 0 }
         let total = Double(max(1, lines.reduce(0) { $0 + $1.yen }))
-        // a hairline gap between arcs, the same few points whatever the arc's length
-        let gap = 3.0 / (Double.pi * Double(Self.size - Self.width))
         var at = 0.0
         return lines.map { line in
             let length = Double(line.yen) / total
@@ -305,8 +361,8 @@ private struct SpendDial: View {
                 color: Color(hex: line.color),
                 planned: line.yen,
                 spent: spent[line.id] ?? 0,
-                start: at + gap / 2,
-                end: max(at + gap / 2, at + length - gap / 2)
+                start: at,
+                end: at + length
             )
         }
     }
@@ -320,9 +376,9 @@ private struct SpendDial: View {
         VStack(spacing: 22) {
             ZStack {
                 ring(arcs, planning: planning)
-                    .frame(width: Self.size, height: Self.size)
+                    .frame(width: SpendRing.size, height: SpendRing.size)
                 centre(chosen, planned: planned, spent: spent, planning: planning)
-                    .frame(width: Self.size - Self.width * 2 - 20)
+                    .frame(width: SpendRing.inner * 2 - 16)
                     .contentShape(.circle)
                     .onTapGesture { withAnimation(.snappy) { selected = nil } }
             }
@@ -341,21 +397,19 @@ private struct SpendDial: View {
     }
 
     private func ring(_ arcs: [SpendArc], planning: Bool) -> some View {
-        let stroke = StrokeStyle(lineWidth: Self.width, lineCap: .butt)
         let sweep = drawn ? 1.0 : 0.0
         return ZStack {
             ForEach(arcs) { a in
                 let lit = selected == nil || selected == a.id
                 // the track: the plan in full before the trip, a faint groove once spending starts
-                SpendArcShape(start: a.start, end: a.end, sweep: sweep)
-                    .stroke(a.color.opacity(planning ? (lit ? 1 : 0.25) : (lit ? 0.2 : 0.08)), style: stroke)
-                if !planning {
-                    SpendArcShape(start: a.start, end: a.start + (a.end - a.start) * min(1, a.share), sweep: sweep)
-                        .stroke(a.color.opacity(lit ? 1 : 0.3), style: stroke)
+                SpendSegment(start: a.start, end: a.end, sweep: sweep)
+                    .fill(a.color.opacity(planning ? (lit ? 1 : 0.25) : (lit ? 0.2 : 0.08)))
+                if !planning, a.spent > 0 {
+                    SpendSegment(start: a.start, end: a.start + a.filled, sweep: sweep)
+                        .fill(a.color.opacity(lit ? 1 : 0.3))
                 }
             }
         }
-        .padding(Self.width / 2)
         .animation(.smooth(duration: 0.3), value: selected)
         .animation(.smooth(duration: 0.6), value: arcs.reduce(0) { $0 + $1.spent })
     }
@@ -416,7 +470,7 @@ private struct SpendDial: View {
 
     private func figure(_ yen: Int) -> some View {
         Text(Fmt.yen(yen))
-            .font(.figure(32))
+            .font(.figure(30))
             .monospacedDigit()
             .lineLimit(1)
             .minimumScaleFactor(0.6)
