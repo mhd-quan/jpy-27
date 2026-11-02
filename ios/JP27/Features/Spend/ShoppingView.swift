@@ -178,39 +178,37 @@ struct SpendBuyItem: Identifiable {
 }
 
 /// "Bought it": the real price and how it was paid; logs the purchase and the expense together.
+/// The price is typed on the sheet's own keypad, so the sheet grows out of its check undisturbed.
 private struct SpendBuySheet: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     let item: SpendBuyItem
     let done: () -> Void
-    @State private var amount = ""
+    @State private var value = 0
     @State private var method: PayMethod = .card
-    @FocusState private var focused: Bool
-
-    private var value: Int { Int(amount.filter(\.isNumber)) ?? 0 }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text("¥").font(.system(size: 30, weight: .semibold, design: .rounded)).foregroundStyle(.secondary)
-                        TextField("0", text: $amount)
-                            .font(.system(size: 40, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                            .keyboardType(.numberPad)
-                            .focused($focused)
-                    }
-                    Picker("Trả bằng", selection: $method) {
-                        ForEach(PayMethod.allCases) { m in Text(m.label).tag(m) }
-                    }
-                    .pickerStyle(.segmented)
-                } footer: {
+            VStack(spacing: 14) {
+                VStack(spacing: 4) {
+                    SpendAmountDisplay(yen: value, size: 52)
                     Text(item.qty > 1 ? "\(item.name) × \(item.qty)" : item.name)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
                 }
+                .frame(maxHeight: .infinity)
+                Picker("Trả bằng", selection: $method) {
+                    ForEach(PayMethod.allCases) { m in Text(m.label).tag(m) }
+                }
+                .pickerStyle(.segmented)
+                SpendKeypad(amount: $value)
             }
-            .progressiveEdges()
+            .padding(.horizontal, Metrics.gutter)
+            .padding(.bottom, 12)
+            .background(Palette.paper)
             .navigationTitle("Đã mua")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -223,11 +221,10 @@ private struct SpendBuySheet: View {
                 }
             }
             .onAppear {
-                if item.yen > 0 { amount = String(item.yen) }
-                focused = true
+                if value == 0, item.yen > 0 { value = min(item.yen, 9_999_999) }
             }
         }
-        .presentationDetents([.height(300)])
+        .presentationDetents([.height(540)])
     }
 
     private func save() {

@@ -102,10 +102,22 @@ Giống trang ngày của web (`daySync`), nhưng nằm trong tab Bản đồ (`
 - **Chỗ rẽ.** Ngay sau mỗi điểm dừng có một hàng viên nhỏ: các chỗ có thể rẽ, kèm số phút. Lấy từ dữ liệu: chỗ rẽ nghiên cứu cho ngày (`along`), quán ăn vặt gắn với điểm dừng (`near`), và các chỗ trong dữ liệu chưa ngày nào xếp lịch, cách điểm dừng một quãng đi bộ ngắn. Mỗi chỗ thuộc về điểm dừng gần nó nhất. Trên bản đồ chỉ có tên các chỗ rẽ của điểm đang đọc (hoặc của điểm mà chặng đang đọc dẫn tới). Chạm một chỗ (trên bản đồ hay ở hàng viên) thì vẽ đường tạm từ điểm dừng tới đó (đường rẽ đã nghiên cứu nếu có, không thì nét đứt thẳng) và hiện thẻ Đi bộ / Chi tiết / Ghi chi. Cuộn sang điểm khác thì đường tạm biến mất và các chỗ rẽ đổi theo điểm mới.
 - **Sang ngày sau.** Cuối danh sách là thẻ ngày kế tiếp; kéo quá cuối (có rung nhẹ khi đủ xa) rồi thả, hoặc chạm thẻ, thì chuyển sang ngày sau.
 - **Trong chuyến.** Mở đúng ngày hôm nay, ở điểm kế tiếp. Dòng đầu bảng là điểm kế tiếp, khoảng cách và nút Đi bộ, chỉ hiện khi bạn ở gần (trong vòng 30 km), nên ở nhà sẽ không thấy khoảng cách vô nghĩa.
+- **Mượt khi kéo bảng.** Kéo bảng không làm bản đồ dựng lại khung: phần đệm của bản đồ cố định ở nấc giữa, và bản đồ chỉ bay sau khi bảng đã dừng (đang ở nấc lớn thì không bay). Các lớp tuyến, vùng sáng và ghim được tạo một lần; cuộn timeline chỉ thay dữ liệu hình của chúng (`MLNShapeSource.shape`), độ dày và độ mờ của từng chặng là thuộc tính của chặng. Đồng hồ của app chỉ ghi khi phút đổi, nên các màn hình không vẽ lại mỗi 20 giây; ảnh bìa trang chủ ngừng tự chuyển khi đã cuộn khỏi màn hình.
+
+## Chi tiêu
+
+Tab Chi tiêu (`Features/Spend/SpendTab.swift`) đọc từ trên xuống như một bản tóm tắt:
+- **Vòng ngân sách.** Một vòng, mỗi khoản của ngân sách là một cung dài đúng tỉ lệ của nó (kiểu vòng của Screen Time và Dung lượng). Trước khi chi đồng nào, các cung tô đủ màu: đó là kế hoạch, giữa vòng là tổng dự tính và số đồng. Khi bắt đầu chi, cung thành rãnh mờ và tô dần theo tiền đã chi; giữa vòng là đã chi, trên tổng bao nhiêu và hôm nay bao nhiêu. Vòng tự vẽ một lần khi mở (trừ khi bật Giảm chuyển động). Dưới vòng là các viên của từng khoản: chạm một viên thì các cung khác mờ đi và giữa vòng đọc khoản đó (còn hay vượt bao nhiêu); chạm lại hoặc chạm giữa vòng để về tổng.
+- **Hai ví.** Tiền mặt (chàm, chữ 円 chìm) và Suica (xanh, dấu không chạm) là hai tấm thẻ với số dư lớn; chạm thẻ thì sheet nạp hoặc rút mọc ra từ chính thẻ đó. Dưới hai thẻ là một dòng: mấy ngày tới cần bao nhiêu tiền mặt, nên rút thêm bao nhiêu ở ATM 7-Eleven, hoặc đã đủ.
+- **Ngân sách và Mua sắm.** Hai ô dẫn sang trang chi tiết, kèm tổng ngân sách và số món đã mua.
+- **Sổ chi.** Theo ngày, đầu mỗi ngày có tổng của ngày; vuốt để xoá.
+- **Ghi chi.** Nút "+" trên thanh, sheet mọc ra từ viên kính của nút.
+
+Mọi sheet nhập tiền (ghi chi, rút tiền, nạp Suica, "Đã mua") dùng bàn phím số vẽ ngay trong sheet (`SpendKeypad`, có phím 000 và rung nhẹ mỗi lần bấm), không bật bàn phím hệ thống. Bàn phím hệ thống trồi lên đúng lúc sheet đang phóng ra từ nút là thứ làm hiệu ứng bị khựng; giờ sheet phóng ra một mạch và đứng yên ở độ cao cuối.
 
 ## Ghi chi
 
-Ghi chi không còn gắn cứng vào điểm trong lịch (`Features/Spend/ExpenseEditor.swift`):
+Màn ghi chi (`Features/Spend/ExpenseEditor.swift`): số tiền lớn ở trên kèm số đồng, một hàng bảy biểu tượng khoản chi có màu (tên khoản hiện ở dưới), cách trả, rồi một thẻ gồm Ở đâu, Tính vào ngày nào và Ghi chú. Bàn phím số nằm dưới cùng, nhường chỗ khi đang gõ ghi chú. Khoản chi không còn gắn cứng vào điểm trong lịch:
 - **Ngày.** Chọn được ngày mà khoản chi được tính vào (ví dụ ghi bù hoá đơn tối qua). Mặc định là hôm nay; trước chuyến thì là ngày có địa điểm đó. Sổ chi xếp khoản chi theo ngày này.
 - **Ở đâu.** Chọn theo ngày đã chọn: quanh bạn (các chỗ trong dữ liệu cách bạn dưới 300 m), các điểm trong lịch của ngày, các chỗ rẽ của ngày (giống tab Bản đồ). Có ô tìm trong mọi chỗ đã lưu; chỗ không có trong dữ liệu thì gõ tên vào (lưu ở `Expense.placeName`).
 
@@ -120,12 +132,18 @@ Ghi chi không còn gắn cứng vào điểm trong lịch (`Features/Spend/Expe
 Theo [Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass) và [Build a SwiftUI app with the new design](https://developer.apple.com/videos/play/wwdc2025/323/):
 
 - **Kính cho điều khiển, không cho nội dung.** Tab bar, toolbar, nút nổi trên bản đồ và camera, nút hành động dùng Liquid Glass; nội dung nằm trên thẻ của nền grouped. Nút kính dùng `.glass`/`.glassProminent`, không vẽ kính lên nhãn; các mảnh kính đứng gần nhau nằm chung một `GlassEffectContainer`.
-- **Nổi và co lại.** Tab bar thu nhỏ khi cuộn xuống, thanh phụ đổi bố cục khi nằm gọn trong tab bar (`tabViewBottomAccessoryPlacement`). Nút "+" của Chi tiêu và nút micro của Nghe là `safeAreaBar`, không phải overlay: nội dung cuộn xuống dưới chúng và mờ dần ở đó.
+- **Nổi và co lại.** Tab bar thu nhỏ khi cuộn xuống, thanh phụ đổi bố cục khi nằm gọn trong tab bar (`tabViewBottomAccessoryPlacement`). Nút micro của Nghe là `safeAreaBar`, không phải overlay: nội dung cuộn xuống dưới chúng và mờ dần ở đó.
 - **Biến hình.** Nút "Theo dõi chuyến" thành "Đang theo dõi" tại chỗ (`glassEffectID`); trên camera Fuji, viên mây và viên địa hình mọc ra từ viên khoảng cách khi có dữ liệu; chip chọn ngày trên bản đồ là nút kính nên menu ngày mọc ra từ nó.
-- **Trình bày theo ngữ cảnh.** Mọi sheet mọc ra từ đúng nút hay dòng đã mở nó và thu về đó khi đóng (`matchedTransitionSource` + `navigationTransition(.zoom)`, `Design/Presentation.swift`); thẻ câu nói toàn màn hình mọc ra từ dòng câu. Sheet mở từ sheet thì chồng lên (ghi món từ màn quét menu, quét menu từ thẻ quán), đóng là về chỗ cũ.
-- **Toolbar.** Nghe và Cài đặt là hai nhóm kính riêng (`ToolbarSpacer(.fixed)`); nút ẩn đi thì bỏ hẳn item (iOS không có `ToolbarContent.hidden`) để thanh biến hình chứ không để lại ô trống. Trên trang bìa, thanh không có tiêu đề; khi ảnh bìa cuộn khỏi màn hình, dấu Hinomaru và chữ JP27 hiện vào giữa thanh.
-- **Ảnh đầu trang.** Ảnh của trang địa điểm kéo dài, soi gương và làm mờ, lên dưới thanh trên cùng (`backgroundExtensionEffect`).
+- **Trình bày theo ngữ cảnh.** Mọi sheet mọc ra từ đúng nút hay dòng đã mở nó và thu về đó khi đóng (`matchedTransitionSource` + `navigationTransition(.zoom)`, `Design/Presentation.swift`); thẻ câu nói toàn màn hình mọc ra từ dòng câu. Sheet mở từ sheet thì chồng lên (ghi món từ màn quét menu, quét menu từ thẻ quán), đóng là về chỗ cũ. Với nút trên thanh, nguồn biến hình là chính item của thanh (`SheetToolbarButton`, đặt `matchedTransitionSource` lên `ToolbarItem`), không phải nút bên trong: sheet mọc ra từ viên kính và thu về đúng viên kính đó, như app của Apple.
+- **Toolbar.** Nghe và Cài đặt là hai nhóm kính riêng (`ToolbarSpacer(.fixed)`); nút ẩn đi thì bỏ hẳn item (iOS không có `ToolbarContent.hidden`) để thanh biến hình chứ không để lại ô trống. Trên trang bìa, thanh không có tiêu đề; khi ảnh bìa cuộn khỏi màn hình, dấu Hinomaru và chữ JP27 hiện vào giữa thanh. Nút đóng của sheet (`CloseButton`, chỉ có khi trang đang là sheet) luôn nằm ngoài cùng bên phải: trang đặt nó cuối cùng, sau một `ToolbarSpacer(.fixed)` nếu có nút riêng (Ghi chi, Bản đồ).
+- **Ảnh đầu trang.** Trang địa điểm, ngày, chỗ ở và trang "Đang ở quán" mở bằng ảnh tràn lên tận mép trên, dưới cả thanh trạng thái, không có dải thanh nào (`DetailHero` và `detailPage(title:)` trong `Design/Components.swift`). Tên đặt ở chân ảnh trên một lớp mờ dần (vật liệu mờ được che bằng gradient, cộng một lớp tối nhẹ để chữ trắng đọc được). Khi ảnh cuộn khỏi, mép mềm của thanh hiện lại và tên nhỏ hiện vào giữa thanh. Trang không có ảnh thì giữ tiêu đề thường.
 - **Mép cuộn mềm.** iOS 27 đổi mặc định của mép trên từ `.soft` (mờ dần) sang `.hard` (một dải mờ có vạch kẻ). App đặt lại `.soft` cho mọi mép, ở gốc tab bar và ở từng sheet (`progressiveEdges()`). Lệnh này chỉ được biên dịch bằng Xcode 27 (Swift 6.4): app build bằng SDK iOS 26 mà chạy trên iOS 27 chỉ được mép mềm dưới thanh trạng thái, trông tệ hơn dải mặc định. Trên iOS 26, `.soft` vốn là mặc định.
+
+## Sáng, tối và Cài đặt
+
+Mặc định app theo chế độ sáng, tối của iPhone; Cài đặt có thêm Sáng và Tối cố định (`Appearance` trong `Design/Theme.swift`). Lựa chọn được đặt lên cửa sổ (`overrideUserInterfaceStyle`) chứ không qua `preferredColorScheme`: quay về Tự động có hiệu lực ngay, và sheet, cảnh báo, bản đồ (đổi sang style tối) đều theo mà không cần truyền xuống. Mọi màu đều là colorset có biến thể tối; thẻ câu nói toàn màn hình cố ý giữ nền sáng để đưa cho người Nhật đọc.
+
+Cài đặt xếp như Settings của iOS: đầu trang là chuyến đi (dấu Hinomaru, ngày đi–về, số đêm, các thành phố bằng kanji); rồi Giao diện với ba màn hình thu nhỏ (Tự động chia chéo sáng–tối); Quyền, mỗi dòng có ô biểu tượng màu; Chuyến đi (ngày thay thế, tốc độ đi bộ, chạy thử) và Dùng khi mất sóng, Nguồn: mỗi mục là một dòng hiện giá trị hiện tại, chạm vào mới mở trang riêng.
 
 ## Từng yêu cầu dùng gì
 

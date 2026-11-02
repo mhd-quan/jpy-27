@@ -42,38 +42,51 @@ enum SpendSymbols {
     }
 }
 
-/// Money in: an ATM withdrawal or a Suica top-up.
+/// Money in: an ATM withdrawal or a Suica top-up. The amount is typed on the sheet's own keypad,
+/// or picked from the usual few, so the sheet grows out of its purse without a keyboard rising
+/// into the zoom.
 struct SpendTopupSheet: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     let method: PayMethod
-    @State private var amount = ""
-    @FocusState private var focused: Bool
+    @State private var yen = 0
 
-    private var yen: Int? { Int(amount.filter(\.isNumber)) }
+    private var quick: [Int] { method == .cash ? [10_000, 20_000, 30_000] : [2_000, 3_000, 5_000] }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("¥").font(.system(size: 34, weight: .semibold, design: .rounded)).foregroundStyle(.secondary)
-                    TextField("0", text: $amount)
-                        .font(.system(size: 44, weight: .semibold, design: .rounded))
-                        .monospacedDigit()
-                        .keyboardType(.numberPad)
-                        .focused($focused)
+            VStack(spacing: 14) {
+                VStack(spacing: 4) {
+                    SpendAmountDisplay(yen: yen, size: 52)
+                    Text(method == .cash ? "Rút ở ATM, vào ví tiền mặt" : "Nạp vào Suica")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, Metrics.gutter)
+                .frame(maxHeight: .infinity)
                 HStack(spacing: 8) {
-                    ForEach(method == .cash ? [10_000, 20_000, 30_000] : [2_000, 3_000, 5_000], id: \.self) { v in
-                        Button(Fmt.yen(v)) { amount = String(v) }
-                            .buttonStyle(.bordered)
-                            .monospacedDigit()
+                    ForEach(quick, id: \.self) { v in
+                        let on = yen == v
+                        Button {
+                            withAnimation(.snappy) { yen = v }
+                        } label: {
+                            Text(Fmt.yen(v))
+                                .font(.subheadline.weight(.semibold))
+                                .monospacedDigit()
+                                .foregroundStyle(on ? Color.white : Color.primary)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 38)
+                                .background(on ? AnyShapeStyle(SpendPurseTint.of(method)) : AnyShapeStyle(Color.primary.opacity(0.06)), in: .capsule)
+                                .contentShape(.capsule)
+                        }
+                        .buttonStyle(.pressable)
+                        .accessibilityAddTraits(on ? .isSelected : [])
                     }
                 }
-                Spacer(minLength: 0)
+                SpendKeypad(amount: $yen)
             }
-            .padding(.top, 8)
+            .padding(.horizontal, Metrics.gutter)
+            .padding(.bottom, 12)
+            .background(Palette.paper)
             .navigationTitle(method == .cash ? "Rút tiền" : "Nạp Suica")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -82,14 +95,143 @@ struct SpendTopupSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
-                        if let yen, yen > 0 { model.topUp(yen: yen, method: method) }
+                        if yen > 0 { model.topUp(yen: yen, method: method) }
                         dismiss()
                     }
-                    .disabled((yen ?? 0) <= 0)
+                    .disabled(yen <= 0)
                 }
             }
-            .onAppear { focused = true }
         }
-        .presentationDetents([.height(280)])
+        .presentationDetents([.height(540)])
+    }
+}
+
+/// The purses' own colours: indigo for cash, Suica's green.
+enum SpendPurseTint {
+    static let suica = Color(hex: "#2E9E4F")
+
+    static func of(_ method: PayMethod) -> Color {
+        switch method {
+        case .cash: Palette.ai
+        case .card: Palette.fuji
+        case .ic: suica
+        }
+    }
+}
+
+// MARK: - Amount and keypad
+
+/// The amount being typed, large: "¥" small and grey before it, grey "0" until a digit comes; each
+/// digit rolls in.
+struct SpendAmountDisplay: View {
+    let yen: Int
+    var size: CGFloat = 56
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            Text("¥")
+                .font(.figure(size * 0.6, weight: .semibold))
+                .foregroundStyle(.secondary)
+            Text(Fmt.grouped(yen))
+                .font(.figure(size, weight: .semibold))
+                .foregroundStyle(yen > 0 ? HierarchicalShapeStyle.primary : .tertiary)
+                .contentTransition(.numericText(value: Double(yen)))
+        }
+        .monospacedDigit()
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Số tiền")
+        .accessibilityValue(Fmt.yen(yen))
+    }
+}
+
+/// A number pad drawn in the sheet itself (1–9, 000, 0, delete), so a sheet that grows out of a
+/// button stays still while it grows: no system keyboard sliding in over the zoom. Every key taps
+/// lightly; the amount is capped below ten million yen.
+struct SpendKeypad: View {
+    @Binding var amount: Int
+    var limit = 9_999_999
+    @State private var taps = 0
+
+    private static let rows: [[SpendKey]] = [
+        [.digit(1), .digit(2), .digit(3)],
+        [.digit(4), .digit(5), .digit(6)],
+        [.digit(7), .digit(8), .digit(9)],
+        [.thousand, .digit(0), .delete],
+    ]
+
+    var body: some View {
+        Grid(horizontalSpacing: 8, verticalSpacing: 8) {
+            ForEach(Self.rows, id: \.self) { row in
+                GridRow {
+                    ForEach(row, id: \.self) { key in
+                        Button {
+                            press(key)
+                        } label: {
+                            label(key)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 54)
+                                .contentShape(.rect)
+                        }
+                        .buttonStyle(SpendKeyStyle())
+                        .accessibilityLabel(accessibility(key))
+                    }
+                }
+            }
+        }
+        .sensoryFeedback(.impact(weight: .light, intensity: 0.7), trigger: taps)
+    }
+
+    @ViewBuilder
+    private func label(_ key: SpendKey) -> some View {
+        switch key {
+        case .digit(let n):
+            Text("\(n)").font(.figure(28, weight: .medium))
+        case .thousand:
+            Text("000").font(.figure(22, weight: .medium))
+        case .delete:
+            Image(systemName: "delete.left").font(.title2)
+        }
+    }
+
+    private func accessibility(_ key: SpendKey) -> String {
+        switch key {
+        case .digit(let n): "\(n)"
+        case .thousand: "Ba số không"
+        case .delete: "Xoá"
+        }
+    }
+
+    private func press(_ key: SpendKey) {
+        let next: Int
+        switch key {
+        case .digit(let n): next = amount * 10 + n
+        case .thousand: next = amount * 1000
+        case .delete: next = amount / 10
+        }
+        guard next != amount, next <= limit else { return }
+        taps += 1
+        withAnimation(.snappy(duration: 0.25)) { amount = next }
+    }
+}
+
+private nonisolated enum SpendKey: Hashable {
+    case digit(Int)
+    case thousand
+    case delete
+}
+
+/// A key of the pad: a quiet tile that lights the moment it is touched and fades as it is let go.
+private struct SpendKeyStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(.primary)
+            .background(
+                Color.primary.opacity(configuration.isPressed ? 0.16 : 0.06),
+                in: .rect(cornerRadius: 16, style: .continuous)
+            )
+            .animation(configuration.isPressed ? nil : .easeOut(duration: 0.25), value: configuration.isPressed)
     }
 }

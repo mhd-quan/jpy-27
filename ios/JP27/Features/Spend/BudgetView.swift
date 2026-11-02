@@ -204,3 +204,49 @@ struct BudgetView: View {
         }
     }
 }
+
+/// Total spent against the plan, per category.
+private struct SpendSummary: View {
+    @Environment(AppModel.self) private var model
+    let expenses: [Expense]
+
+    private var status: BudgetStatus {
+        var spent: [SpendCategory: Int] = [:]
+        for e in expenses { spent[e.spendCategory, default: 0] += e.yen }
+        return BudgetStatus(budget: model.guide.budget, spent: spent)
+    }
+
+    var body: some View {
+        let budget = model.guide.budget
+        let status = self.status
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(Fmt.yen(status.spent))
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                Text("\(Fmt.vndMillions(status.spent, rate: model.rate)) · trên \(Fmt.yen(status.planned))")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+            }
+            Meter(value: status.planned > 0 ? Double(status.spent) / Double(status.planned) : 0)
+            ForEach(status.rows.filter { $0.planned > 0 || $0.spent > 0 }) { row in
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Label(row.category.label, systemImage: SpendSymbols.category(row.category))
+                            .font(.subheadline)
+                        Spacer()
+                        Text("\(Fmt.yen(row.spent)) / \(Fmt.grouped(row.planned))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+                    Meter(value: row.share, tint: SpendSymbols.color(row.category, budget: budget))
+                }
+                .accessibilityElement(children: .combine)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+}

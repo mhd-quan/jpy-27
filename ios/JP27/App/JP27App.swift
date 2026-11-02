@@ -152,8 +152,9 @@ struct SheetHost: View {
                     .toolbar { CloseButton() }
             }
         case .expense(let placeID, let yen):
+            // full height, set by the editor: its keypad needs the room, and a sheet that zooms out
+            // of a button reads cleanest when it lands in one place instead of at a half detent
             ExpenseEditor(placeID: placeID, yen: yen)
-                .presentationDetents([.medium, .large])
         case .atPlace(let id):
             NavigationStack {
                 AtPlaceView(id: id)

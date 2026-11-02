@@ -1,17 +1,18 @@
 import SwiftUI
 import TripKit
 
-/// Log what was really spent, in a few taps: the amount first, everything else guessed from where
-/// you are and the plan. The day it counts toward can be changed (a bill logged the next morning),
-/// and the place can be anything: a stop of that day, a side trip near one, a place around you,
-/// any place in the data, or one the data never had, named by hand.
+/// Log what was really spent, in a few taps: the amount first, on the sheet's own keypad, so the
+/// sheet grows out of its button with nothing rising into the zoom; everything else guessed from
+/// where you are and the plan. The day it counts toward can be changed (a bill logged the next
+/// morning), and the place can be anything: a stop of that day, a side trip near one, a place
+/// around you, any place in the data, or one the data never had, named by hand.
 struct ExpenseEditor: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     let placeID: String?
     let yen: Int?
 
-    @State private var amount = ""
+    @State private var value = 0
     @State private var category: SpendCategory = .food
     @State private var method: PayMethod = .cash
     @State private var dayKey: String?
@@ -20,59 +21,40 @@ struct ExpenseEditor: View {
     @State private var note = ""
     @State private var ready = false
     @State private var saved = false
-    @FocusState private var focused: Bool
+    @FocusState private var writing: Bool
 
-    private var value: Int { Int(amount.filter(\.isNumber)) ?? 0 }
     private var day: Day? { dayKey.flatMap { key in model.days.first { $0.key == key } ?? model.store.day(key) } }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text("¥").font(.system(size: 34, weight: .semibold, design: .rounded)).foregroundStyle(.secondary)
-                        TextField("0", text: $amount)
-                            .font(.system(size: 48, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                            .keyboardType(.numberPad)
-                            .focused($focused)
-                            .accessibilityLabel("Số tiền, yên")
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 22) {
+                        amount
+                        categories
+                        Picker("Trả bằng", selection: $method) {
+                            ForEach(PayMethod.allCases) { m in Text(m.label).tag(m) }
+                        }
+                        .pickerStyle(.segmented)
+                        details
                     }
-                    if value > 0 {
-                        Text(Fmt.vndMillions(value, rate: model.rate) + " đồng")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                    }
+                    .padding(.horizontal, Metrics.gutter)
+                    .padding(.top, 4)
+                    .padding(.bottom, 16)
                 }
-                Section {
-                    Picker("Trả bằng", selection: $method) {
-                        ForEach(PayMethod.allCases) { m in Text(m.label).tag(m) }
-                    }
-                    .pickerStyle(.segmented)
-                    Picker("Khoản", selection: $category) {
-                        ForEach(SpendCategory.allCases) { c in
-                            Label(c.label, systemImage: SpendSymbols.category(c)).tag(c)
-                        }
-                    }
-                    Picker("Ngày", selection: $dayKey) {
-                        ForEach(model.days) { d in
-                            Text("Ngày \(d.n) · \(Fmt.shortDate(d.date))").tag(Optional(d.key))
-                        }
-                        Text("Không theo ngày").tag(String?.none)
-                    }
-                    NavigationLink {
-                        ExpensePlacePicker(day: day, place: $place, placeName: $placeName)
-                    } label: {
-                        LabeledContent("Ở đâu") {
-                            Text(placeLabel)
-                                .lineLimit(1)
-                                .foregroundStyle(place == nil && placeName.isEmpty ? .secondary : .primary)
-                        }
-                    }
-                    TextField("Ghi chú", text: $note)
+                .scrollBounceBehavior(.basedOnSize)
+                .scrollDismissesKeyboard(.interactively)
+                // the pad steps aside while the note is being typed
+                if !writing {
+                    SpendKeypad(amount: $value)
+                        .padding(.horizontal, Metrics.gutter)
+                        .padding(.top, 8)
+                        .padding(.bottom, 12)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
+            .animation(.snappy, value: writing)
+            .background(Palette.paper)
             .progressiveEdges()
             .navigationTitle("Ghi chi")
             .navigationBarTitleDisplayMode(.inline)
@@ -89,10 +71,129 @@ struct ExpenseEditor: View {
             .onAppear(perform: setUp)
             .onChange(of: place) { _, id in
                 guard ready, let p = model.store.place(id) else { return }
-                category = SpendCategory.of(p)
-                method = Self.method(for: p)
+                withAnimation(.snappy) {
+                    category = SpendCategory.of(p)
+                    method = Self.method(for: p)
+                }
             }
         }
+        .presentationDetents([.large])
+    }
+
+    // MARK: Parts
+
+    /// The amount, large, with what it is in đồng under it.
+    private var amount: some View {
+        VStack(spacing: 2) {
+            SpendAmountDisplay(yen: value, size: 60)
+            Text("≈ \(Fmt.vndMillions(value, rate: model.rate)) đồng")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .opacity(value > 0 ? 1 : 0)
+        }
+        .padding(.top, 12)
+        .contentShape(.rect)
+        .onTapGesture { writing = false }
+    }
+
+    /// The seven kinds of spending as a row of coloured glyphs; the chosen one filled, its name under
+    /// the row.
+    private var categories: some View {
+        let budget = model.guide.budget
+        return VStack(spacing: 8) {
+            HStack(spacing: 0) {
+                ForEach(SpendCategory.allCases) { c in
+                    let on = c == category
+                    let tint = SpendSymbols.color(c, budget: budget)
+                    Button {
+                        withAnimation(.snappy) { category = c }
+                    } label: {
+                        Image(systemName: SpendSymbols.category(c))
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(on ? Color.white : tint)
+                            .frame(width: 42, height: 42)
+                            .background(on ? tint : tint.opacity(0.14), in: .circle)
+                            .overlay {
+                                Circle()
+                                    .strokeBorder(tint.opacity(on ? 0.35 : 0), lineWidth: 3)
+                                    .padding(-4)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.pressable)
+                    .accessibilityLabel(c.label)
+                    .accessibilityAddTraits(on ? .isSelected : [])
+                }
+            }
+            Text(category.label)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(SpendSymbols.color(category, budget: budget))
+                .contentTransition(.interpolate)
+                .accessibilityHidden(true)
+        }
+        .sensoryFeedback(.selection, trigger: category)
+    }
+
+    /// Where, which day it counts toward, and a note, as one card.
+    private var details: some View {
+        VStack(spacing: 0) {
+            NavigationLink {
+                ExpensePlacePicker(day: day, place: $place, placeName: $placeName)
+            } label: {
+                row(symbol: "mappin.and.ellipse", title: "Ở đâu") {
+                    HStack(spacing: 6) {
+                        Text(placeLabel)
+                            .lineLimit(1)
+                            .foregroundStyle(place == nil && placeName.isEmpty ? .secondary : .primary)
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            Divider().padding(.leading, 48)
+            row(symbol: "calendar", title: "Tính vào") {
+                Picker("Tính vào", selection: $dayKey) {
+                    ForEach(model.days) { d in
+                        Text("Ngày \(d.n) · \(Fmt.shortDate(d.date))").tag(Optional(d.key))
+                    }
+                    Text("Không theo ngày").tag(String?.none)
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+            }
+            Divider().padding(.leading, 48)
+            HStack(spacing: 12) {
+                Image(systemName: "text.alignleft")
+                    .foregroundStyle(.secondary)
+                    .frame(width: 24)
+                TextField("Ghi chú", text: $note)
+                    .focused($writing)
+                    .submitLabel(.done)
+                    .onSubmit { writing = false }
+            }
+            .padding(.horizontal, 12)
+            .frame(minHeight: 50)
+        }
+        .background(Palette.card, in: .rect(cornerRadius: 22, style: .continuous))
+    }
+
+    private func row<Value: View>(symbol: String, title: String, @ViewBuilder value: () -> Value) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: symbol)
+                .foregroundStyle(.secondary)
+                .frame(width: 24)
+            Text(title)
+            Spacer(minLength: 12)
+            value()
+        }
+        .padding(.horizontal, 12)
+        .frame(minHeight: 50)
+        .contentShape(.rect)
     }
 
     private var placeLabel: String {
@@ -101,9 +202,11 @@ struct ExpenseEditor: View {
         return "Không gắn chỗ"
     }
 
+    // MARK: Guesses
+
     private func setUp() {
         guard !ready else { return }
-        if let yen, yen > 0 { amount = String(yen) }
+        if let yen, yen > 0 { value = min(yen, 9_999_999) }
         place = placeID ?? nearestPlanned()
         let p = model.store.place(place)
         // the day it counts toward: today on the trip; else the day the place is planned for
@@ -111,7 +214,6 @@ struct ExpenseEditor: View {
         category = p.map { SpendCategory.of($0) } ?? .food
         method = p.map { Self.method(for: $0) } ?? .cash
         ready = true
-        focused = true
     }
 
     /// Today's planned place within 150 m of where you stand.
