@@ -6,6 +6,11 @@ import TripKit
 /// The basemap and its offline packs. The style is the site's own (src/lib/mapStyle.ts, exported to
 /// public/map/), on OpenFreeMap vector tiles; packs cover each area of the trip so the map works
 /// with no signal. Tiles are shared between styles, so the dark style reads the same packs.
+///
+/// A pack holds the tiles of one build: each is tagged with the tile URLs it was downloaded for.
+/// When the map moves to another build (`usesCurrentTiles`), the packs of the old one no longer
+/// match what the map asks for; they are `stale`, no longer counted as downloaded, and the app
+/// says so once (`needsReload`) so they are downloaded again while there is still Wi-Fi.
 @Observable final class OfflineMaps: NSObject {
     nonisolated struct Area: Identifiable, Hashable, Sendable {
         let id: String
@@ -24,6 +29,12 @@ import TripKit
     }
 
     // MARK: Pinned tiles
+
+    /// The tiles the map reads now: the pinned build's URL template, or "current".
+    static var tilesNow: String {
+        if usesCurrentTiles { return "current" }
+        return Bundle.main.url(forResource: "jp27-light", withExtension: "json", subdirectory: "map").flatMap(pinnedTiles(in:)) ?? "pinned"
+    }
 
     /// The style pins one OpenFreeMap build, so the offline packs keep matching its tile URLs.
     /// OpenFreeMap answers any build path today, but nothing promises it still will in October
@@ -80,21 +91,34 @@ import TripKit
         return out
     }
 
-    /// Served by the site, used for the packs (a pack downloads its style by URL).
-    static func remoteStyle(dark: Bool) -> URL {
-        URL(string: "https://jpy27.delphyra.tech/map/jp27-\(dark ? "dark" : "light").json")!
+    /// Served by the site, used for the packs (a pack downloads its style by URL): pinned to the
+    /// bundled build, or on OpenFreeMap's current one.
+    static func remoteStyle(dark: Bool, current: Bool = false) -> URL {
+        URL(string: "https://jpy27.delphyra.tech/map/jp27-\(dark ? "dark" : "light")\(current ? "-current" : "").json")!
     }
 
     private(set) var areas: [Area] = []
     private(set) var progress: [String: Double] = [:]
     private(set) var bytes: [String: UInt64] = [:]
     private(set) var complete: Set<String> = []
+    /// areas downloaded for another tile build than the map reads now: useless offline until downloaded again
+    private(set) var stale: Set<String> = []
+    /// the packs just went stale: say so once, for the travellers to download again
+    var needsReload = false
 
     var totalBytes: UInt64 { bytes.values.reduce(0, +) }
+
+    /// What a pack was made for, kept as its context.
+    private nonisolated struct Tag: Codable {
+        let area: String
+        /// the tile URL template of the build, or "current"
+        let tiles: String
+    }
 
     override init() {
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(packProgress(_:)), name: NSNotification.Name.MLNOfflinePackProgressChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(tilesMoved(_:)), name: Self.tilesChanged, object: nil)
     }
 
     /// One area per region of the plan, framed on its places with a margin.
@@ -110,29 +134,42 @@ import TripKit
     }
 
     func refresh() {
+        let hadStale = !stale.isEmpty
+        stale = []
         for pack in MLNOfflineStorage.shared.packs ?? [] {
             guard let id = Self.areaID(pack) else { continue }
             record(pack, id: id)
         }
+        if !hadStale, !stale.isEmpty { needsReload = true }
+        if stale.isEmpty { needsReload = false }
     }
 
+    /// Downloads an area for the tiles the map reads now; a pack of the area made for other tiles goes.
     func download(_ area: Area) {
-        if let existing = (MLNOfflineStorage.shared.packs ?? []).first(where: { Self.areaID($0) == area.id }) {
+        let packs = (MLNOfflineStorage.shared.packs ?? []).filter { Self.areaID($0) == area.id }
+        let now = Self.tilesNow
+        if let existing = packs.first(where: { Self.tiles(of: $0) == now }) {
             existing.resume()
             return
         }
+        for old in packs { MLNOfflineStorage.shared.removePack(old) { _ in } }
+        stale.remove(area.id)
         let bounds = MLNCoordinateBounds(sw: CLLocationCoordinate2D(latitude: area.sw.lat, longitude: area.sw.lng),
                                          ne: CLLocationCoordinate2D(latitude: area.ne.lat, longitude: area.ne.lng))
-        let region = MLNTilePyramidOfflineRegion(styleURL: Self.remoteStyle(dark: false), bounds: bounds, fromZoomLevel: 9, toZoomLevel: 16)
-        let context = Data(area.id.utf8)
+        let style = Self.remoteStyle(dark: false, current: now == "current")
+        let region = MLNTilePyramidOfflineRegion(styleURL: style, bounds: bounds, fromZoomLevel: 9, toZoomLevel: 16)
+        let context = (try? JSONEncoder().encode(Tag(area: area.id, tiles: now))) ?? Data(area.id.utf8)
         MLNOfflineStorage.shared.addPack(for: region, withContext: context) { pack, _ in
             pack?.resume()
         }
         progress[area.id] = 0
+        bytes[area.id] = nil
+        complete.remove(area.id)
     }
 
     func downloadAll() {
         for a in areas where !complete.contains(a.id) { download(a) }
+        needsReload = false
     }
 
     func remove(_ area: Area) {
@@ -151,7 +188,19 @@ import TripKit
         record(pack, id: id)
     }
 
+    /// The map moved to another tile build (posted on the main queue by `checkPinnedTiles`).
+    @objc private func tilesMoved(_ note: Notification) {
+        refresh()
+    }
+
     private func record(_ pack: MLNOfflinePack, id: String) {
+        guard Self.tiles(of: pack) == Self.tilesNow else {
+            stale.insert(id)
+            complete.remove(id)
+            progress[id] = nil
+            return
+        }
+        stale.remove(id)
         let p = pack.progress
         progress[id] = p.countOfResourcesExpected > 0 ? Double(p.countOfResourcesCompleted) / Double(p.countOfResourcesExpected) : 0
         bytes[id] = p.countOfBytesCompleted
@@ -159,6 +208,14 @@ import TripKit
     }
 
     private static func areaID(_ pack: MLNOfflinePack) -> String? {
-        String(data: pack.context, encoding: .utf8)
+        if let tag = try? JSONDecoder().decode(Tag.self, from: pack.context) { return tag.area }
+        return String(data: pack.context, encoding: .utf8)
+    }
+
+    /// The tiles a pack was made for. Packs from before they were tagged were made from the site's
+    /// style, pinned to the bundled build.
+    private static func tiles(of pack: MLNOfflinePack) -> String {
+        if let tag = try? JSONDecoder().decode(Tag.self, from: pack.context) { return tag.tiles }
+        return Bundle.main.url(forResource: "jp27-light", withExtension: "json", subdirectory: "map").flatMap(pinnedTiles(in:)) ?? "pinned"
     }
 }

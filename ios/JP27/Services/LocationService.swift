@@ -218,6 +218,21 @@ extension LocationService: CLLocationManagerDelegate {
         Task { @MainActor in self.entered(id) }
     }
 
+    /// A circle registered: ask at once whether the phone is already in it. iOS reports only
+    /// crossings, so a circle registered while standing inside it (the fences move on as the day
+    /// does, often while already at the next stop) would never say so on its own.
+    nonisolated func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
+        manager.requestState(for: region)
+    }
+
+    /// The answer to `requestState`, and also sent on every crossing next to `didEnterRegion`:
+    /// `entered` takes each arrival once (`reentry`).
+    nonisolated func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {
+        guard state == .inside else { return }
+        let id = region.identifier
+        Task { @MainActor in self.entered(id) }
+    }
+
     nonisolated func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: any Error) {}
 
     nonisolated func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {

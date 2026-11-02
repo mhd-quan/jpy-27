@@ -22,8 +22,9 @@ export interface Line {
   net?: [string, string][];
   /**
    * Minutes between departures in the daytime, for lines that run often enough that missing one
-   * only means waiting for the next (metro, city lines, gondolas). Absent for reserved seats and
-   * sparse lines: their departures are fixed points the day is planned around.
+   * only means waiting for the next (metro, city lines, gondolas, local trains every 20 minutes or
+   * less). Absent for reserved seats and sparse lines: their departures are fixed points the day
+   * is planned around. The app treats a line as frequent up to 20 (TripKit `Line.isFrequent`).
    */
   every?: number;
 }
@@ -104,16 +105,22 @@ export const LINES = {
   hakoneRopeway: { name: 'Hakone Ropeway', color: '#8A5CD0', mode: 'ropeway', every: 1 },
   ashiCruise: { name: 'Thuyền hồ Ashi', color: '#0E9FB0', mode: 'cruise' },
   tozanBus: { name: 'Hakone Tozan Bus (H)', color: '#2F9E62', mode: 'bus' },
+  // local trains, no seats to book: since the March 2024 timetable about three an hour between
+  // Atami and Shizuoka in the daytime, more often Odawara–Atami and Shimizu–Shizuoka
   tokaido: {
     name: 'JR Tōkaidō',
     color: '#F08A24',
     mode: 'train',
+    every: 20,
     net: [[JRE, '東海道線'], [JRC, '東海道線']],
   },
+  // Hikari and Kodama together stop at Shizuoka about three times an hour toward Nagoya; the plan
+  // gives no time for this leg, so until a seat is booked the next train is the one taken
   shinkansen: {
     name: 'Tōkaidō Shinkansen',
     color: '#1B5FB4',
     mode: 'shinkansen',
+    every: 20,
     net: [[JRC, '東海道新幹線']],
   },
   kintetsu: { name: 'Kintetsu', color: '#C8323F', mode: 'train', net: kintetsuNet },

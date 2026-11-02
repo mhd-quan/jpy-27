@@ -8,6 +8,10 @@ import WeatherKit
 /// build carries its entitlement; Open-Meteo otherwise, or when WeatherKit refuses (a profile without
 /// WeatherKit signs fine but every request fails). Each forecast is kept on disk so the last one still
 /// shows without signal, with the source it came from for the attribution.
+///
+/// Only a refusal sets WeatherKit aside for the session. A dropped connection or a timeout says
+/// nothing about WeatherKit: that request goes to Open-Meteo, and WeatherKit is tried again after a
+/// few minutes.
 @Observable final class ForecastService {
     nonisolated enum Source: String, Codable, Sendable {
         case weatherKit, openMeteo
@@ -34,8 +38,12 @@ import WeatherKit
     private(set) var attribution: WeatherAttribution?
     private(set) var failed = false
     /// Off when the build was signed without the WeatherKit entitlement (Info.plist `JP27WeatherKit`),
-    /// or after WeatherKit refused once this session.
+    /// or once WeatherKit has refused this session (`failedWeatherKit`).
     private var weatherKit = (Bundle.main.object(forInfoDictionaryKey: "JP27WeatherKit") as? String) != "NO"
+    /// WeatherKit rests until then after a failure, so a bad connection is not asked again and again
+    private var weatherKitRests = Date.distantPast
+    /// failures in a row that were not the network's
+    private var refusals = 0
 
     private var folder: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("Forecast", isDirectory: true)
@@ -45,13 +53,14 @@ import WeatherKit
     func hours(_ key: String, at c: Coordinate, online: Bool) async -> [Hour] {
         if series[key] == nil, let disk = load(key) { series[key] = disk }
         if let s = series[key], Date().timeIntervalSince(s.fetched) < 3600 || !online { return s.hours }
-        if weatherKit {
+        if weatherKit, Date() >= weatherKitRests {
             do {
                 let s = Series(fetched: Date(), hours: try await Self.fromWeatherKit(c), source: .weatherKit)
+                refusals = 0
                 if attribution == nil { attribution = try? await WeatherService.shared.attribution }
                 return keep(s, as: key)
             } catch {
-                weatherKit = false
+                failedWeatherKit(error)
             }
         }
         do {
@@ -60,6 +69,29 @@ import WeatherKit
             failed = true
             return series[key]?.hours ?? []
         }
+    }
+
+    /// After a WeatherKit failure: rest a few minutes whatever it was; set WeatherKit aside for the
+    /// session when it said no (permission denied, which a build without the entitlement gets every
+    /// time), or failed twice in a row for a reason that was not the network.
+    private func failedWeatherKit(_ error: any Error) {
+        weatherKitRests = Date().addingTimeInterval(5 * 60)
+        if let e = error as? WeatherError, case .permissionDenied = e {
+            weatherKit = false
+            return
+        }
+        guard !Self.isNetwork(error) else { return }
+        refusals += 1
+        if refusals >= 2 { weatherKit = false }
+    }
+
+    /// A failure of the connection, not of the service: offline, a timeout, a cancelled request.
+    nonisolated static func isNetwork(_ error: any Error) -> Bool {
+        if error is URLError || error is CancellationError { return true }
+        let ns = error as NSError
+        if ns.domain == NSURLErrorDomain { return true }
+        if let under = ns.userInfo[NSUnderlyingErrorKey] as? NSError, under.domain == NSURLErrorDomain { return true }
+        return false
     }
 
     /// The source of what is on screen for `key`.

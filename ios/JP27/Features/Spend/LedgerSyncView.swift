@@ -47,11 +47,14 @@ struct SpendPairCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Ghép với \(name)?")
                         .font(.subheadline.weight(.semibold))
-                    Text("\(name) đang mở JP27 ở gần. Hai máy sẽ dùng chung một sổ chi và tự đồng bộ mỗi khi ở gần nhau. Chạm đầu hai máy vào nhau cũng là đồng ý.")
+                    Text("\(name) đang mở JP27 ở gần. Hai máy sẽ dùng chung một sổ chi và tự đồng bộ mỗi khi ở gần nhau. Chỉ đồng ý khi máy kia hiện cùng mã này; chạm đầu hai máy vào nhau cũng là đồng ý.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+            }
+            if let code = model.ledgerSync.askingCode {
+                SyncPairCode(code: code)
             }
             // explicit styles: two buttons in one list row, each its own
             HStack(spacing: 10) {
@@ -67,14 +70,43 @@ struct SpendPairCard: View {
     }
 }
 
+/// The six digits both phones show while pairing, large enough to compare across a table.
+struct SyncPairCode: View {
+    let code: String
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Text("Mã ghép")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Text(code)
+                .font(.title2.weight(.semibold).monospacedDigit())
+                .tracking(2)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(.fill.tertiary, in: .rect(cornerRadius: 12, style: .continuous))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Mã ghép \(code)")
+    }
+}
+
 /// Two rows of the two phones that may be one expense.
 struct SpendDuplicatePair: Identifiable {
     let a: Expense
     let b: Expense
+    /// same place, kind, amount and day: one payment logged on both phones, or each paying their own
+    var same = false
+    /// the row to keep if it is one payment: the one paid from a purse, when only one was
+    var keep: Expense?
     var id: String { LedgerMerge.pairKey(a.id, b.id) }
 }
 
-/// The two rows side by side: drop one, or keep both (not asked again, on either phone).
+/// The two rows side by side. Nothing is merged without asking: two people buying the same ¥1.200
+/// bowl at one ticket machine is as common as one bowl logged twice. "Giữ khoản này" keeps one and
+/// deletes the other (for both phones); "Hai khoản riêng" keeps both, not asked again on either
+/// phone. The row paid in cash or by Suica is the one suggested, because only the phone that logged
+/// it counts it in its purse: dropping it would leave that phone thinking the money is still there.
 struct SpendDuplicateCard: View {
     @Environment(AppModel.self) private var model
     let pair: SpendDuplicatePair
@@ -82,34 +114,57 @@ struct SpendDuplicateCard: View {
     let resolve: (Expense?) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            line(pair.a)
+        VStack(alignment: .leading, spacing: 12) {
+            Text(question)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            line(pair.a, other: pair.b)
             Divider()
-            line(pair.b)
-            Button("Giữ cả hai") { resolve(nil) }
+            line(pair.b, other: pair.a)
+            Button("Hai khoản riêng") { resolve(nil) }
                 .buttonStyle(.bordered)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .padding(.vertical, 4)
     }
 
-    private func line(_ e: Expense) -> some View {
-        HStack(spacing: 10) {
+    private var question: String {
+        let place = model.store.place(pair.a.placeID)?.name ?? pair.a.placeName
+        let at = place.map { " ở \($0)" } ?? ""
+        if pair.same { return "Hai máy cùng ghi \(Fmt.yen(pair.a.yen))\(at). Một lần trả ghi hai lần, hay mỗi người trả một phần?" }
+        return "Hai máy cùng ghi một khoản\(at) trong cùng buổi, số tiền khác nhau. Có phải cùng một lần trả?"
+    }
+
+    private func line(_ e: Expense, other: Expense) -> some View {
+        let who = SpendOrigin.name(of: e, sync: model.ledgerSync)
+        let suggested = pair.keep?.id == e.id
+        return HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(model.store.place(e.placeID)?.name ?? e.placeName ?? (e.note.isEmpty ? e.spendCategory.label : e.note))
+                Text(who.prefix(1).uppercased() + who.dropFirst())
                     .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
-                Text("\(TripTime.clock(e.at)) · \(SpendOrigin.name(of: e, sync: model.ledgerSync))")
+                Text("\(TripTime.clock(e.at)) · \(e.payMethod.label)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
             YenText(yen: e.yen)
                 .font(.subheadline.weight(.semibold))
-            Button("Bỏ", role: .destructive) { resolve(e) }
-                .buttonStyle(.bordered)
+            keep(e, other: other, suggested: suggested)
                 .controlSize(.small)
-                .accessibilityLabel("Bỏ khoản của \(SpendOrigin.name(of: e, sync: model.ledgerSync))")
+                .accessibilityLabel("Giữ khoản của \(who), bỏ khoản kia")
+                .accessibilityHint(suggested ? "Gợi ý: khoản này trả bằng \(e.payMethod.label.lowercased()), được tính vào ví của \(who)" : "")
+        }
+    }
+
+    @ViewBuilder
+    private func keep(_ e: Expense, other: Expense, suggested: Bool) -> some View {
+        if suggested {
+            Button("Giữ khoản này") { resolve(other) }
+                .buttonStyle(.borderedProminent)
+        } else {
+            Button("Giữ khoản này") { resolve(other) }
+                .buttonStyle(.bordered)
         }
     }
 }
@@ -143,7 +198,7 @@ struct LedgerSyncSheet: View {
                             .accessibilityHidden(true)
                         Text("Dùng chung sổ chi")
                             .font(.title3.weight(.bold))
-                        Text("Hai máy cùng mở JP27 ở gần nhau thì sổ chi tự gộp qua Wi‑Fi trực tiếp giữa hai máy, không cần mạng: khoản mới, khoản sửa, khoản xoá. Một bữa cả hai máy cùng ghi thì chỉ tính một lần.")
+                        Text("Hai máy cùng mở JP27 ở gần nhau thì sổ chi tự gộp qua Wi‑Fi trực tiếp giữa hai máy, không cần mạng: khoản mới, khoản sửa, khoản xoá. Hai khoản trông như một bữa được cả hai máy cùng ghi thì app hỏi lại, không tự gộp.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -162,7 +217,7 @@ struct LedgerSyncSheet: View {
                             .onSubmit { sync.rename(name) }
                     }
                 } footer: {
-                    Text("Máy kia thấy tên này khi ghép. Lần đầu bật, iPhone hỏi quyền tìm thiết bị trong mạng cục bộ và quyền đo khoảng cách tới thiết bị ở gần.")
+                    Text("Ghép lần đầu: mở trang này trên cả hai máy. Máy kia thấy tên này khi ghép; máy lạ ở gần chỉ thấy “JP27”. Lần đầu bật, iPhone hỏi quyền tìm thiết bị trong mạng cục bộ và quyền đo khoảng cách tới thiết bị ở gần.")
                 }
 
                 if sync.enabled {
@@ -170,7 +225,10 @@ struct LedgerSyncSheet: View {
                         Label(sync.status, systemImage: sync.nearby != nil ? "arrow.triangle.2.circlepath" : "antenna.radiowaves.left.and.right")
                         if let asking = sync.asking {
                             VStack(alignment: .leading, spacing: 10) {
-                                Text("\(asking.name) ở gần và muốn dùng chung sổ chi.")
+                                Text("\(asking.name) ở gần và muốn dùng chung sổ chi. Chỉ đồng ý khi máy kia hiện cùng mã này.")
+                                if let code = sync.askingCode {
+                                    SyncPairCode(code: code)
+                                }
                                 HStack(spacing: 10) {
                                     Button("Để sau") { sync.decline() }
                                         .buttonStyle(.bordered)
@@ -226,7 +284,7 @@ struct LedgerSyncSheet: View {
                     } header: {
                         Text("Đã gộp vì ghi trùng")
                     } footer: {
-                        Text("Hai máy cùng ghi một khoản ở cùng chỗ, cùng số tiền, cùng buổi thì chỉ giữ một. Nếu thật ra là hai lần trả, chọn Không phải trùng.")
+                        Text("Bản trước của app tự gộp những khoản này khi hai máy cùng ghi một chỗ, cùng số tiền, cùng buổi. Nếu thật ra là hai lần trả, chọn Không phải trùng.")
                     }
                 }
 
@@ -249,7 +307,10 @@ struct LedgerSyncSheet: View {
             .onAppear {
                 name = sync.name
                 folded = Ledger.folded(context)
+                // while this page is open, a phone not paired yet may connect to be asked about
+                sync.setPairing(true)
             }
+            .onDisappear { sync.setPairing(false) }
         }
         .presentationDetents([.large])
     }

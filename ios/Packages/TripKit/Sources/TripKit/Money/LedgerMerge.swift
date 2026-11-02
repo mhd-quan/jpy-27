@@ -2,7 +2,10 @@ import Foundation
 
 // The two phones keep one ledger between them with no server: each sends the other everything it
 // has (expenses, the ones deleted, the pairs said not to be duplicates), each merges what it gets
-// with the same rules, and both end with the same ledger whichever merged first.
+// with the same rules, and both end with the same ledger whichever merged first. Merging never
+// drops a row on its own: two rows that look like one expense logged on both phones are asked
+// about (`nearDuplicates`), because two people buying the same ¥1.200 bowl at one counter is as
+// likely as one bowl logged twice.
 
 /// An expense as the phones exchange it: plain values, nothing of SwiftData.
 public struct LedgerRecord: Codable, Sendable, Hashable, Identifiable {
@@ -51,7 +54,8 @@ public struct LedgerRecord: Codable, Sendable, Hashable, Identifiable {
 public struct LedgerTombstone: Codable, Sendable, Hashable, Identifiable {
     public var id: UUID
     public var at: Date
-    /// set when the row went as the other phone's copy of this one
+    /// set when the row went as the other phone's copy of this one (builds before the travellers
+    /// were always asked folded such rows by themselves; their deletions still travel)
     public var duplicateOf: UUID?
     /// the row as it was, for bringing back a row wrongly taken for a copy
     public var record: LedgerRecord?
@@ -100,7 +104,7 @@ public struct LedgerChanges: Sendable, Equatable {
     public var tombstones: [LedgerTombstone] = []
     /// the full set of pairs kept apart, when it changed
     public var kept: [String]?
-    /// rows removed as the other phone's copy of one kept
+    /// rows removed as the other phone's copy of one kept (only ever from an older build's merge)
     public var folded: [LedgerTombstone] = []
 
     public var isEmpty: Bool { upserts.isEmpty && deletions.isEmpty && tombstones.isEmpty && kept == nil }
@@ -110,7 +114,19 @@ public struct LedgerChanges: Sendable, Equatable {
 public struct LedgerPair: Sendable, Hashable {
     public let a: UUID
     public let b: UUID
+    /// same place, kind, amount and day: one payment logged twice, or two people paying the same
+    public let same: Bool
+    /// the row to keep if they are one payment: the one paid from a phone's own cash or Suica, whose
+    /// purse already counts it (`LedgerMerge.keeper`); nil when that does not tell them apart
+    public let keep: UUID?
     public var key: String { LedgerMerge.pairKey(a, b) }
+
+    public init(a: UUID, b: UUID, same: Bool = false, keep: UUID? = nil) {
+        self.a = a
+        self.b = b
+        self.same = same
+        self.keep = keep
+    }
 }
 
 public enum LedgerMerge {
@@ -127,9 +143,9 @@ public enum LedgerMerge {
     /// The ledger both phones end with. The same whichever side is `a`, and merging again changes nothing:
     /// - per id, the latest write wins (`version`; equal versions are settled by content, the same way on both);
     /// - a deletion wins over any write not newer than it, and is kept;
-    /// - a meal logged on both phones (rows of different phones with the same place, category, amount and
-    ///   day, within three hours) is folded into one: the row with the smaller id stays, the other goes as
-    ///   its copy, unless the travellers said the two are separate.
+    /// - every row is kept otherwise: rows that look like one expense logged on both phones are left for
+    ///   the travellers to settle (`nearDuplicates`), never folded here. An earlier build folded them by
+    ///   itself and lost real expenses (two ¥1.200 bowls at one ticket machine became one).
     public static func merge(_ a: LedgerState, _ b: LedgerState) -> LedgerState {
         var tombs: [UUID: LedgerTombstone] = [:]
         for t in a.tombstones + b.tombstones {
@@ -143,7 +159,21 @@ public enum LedgerMerge {
             if let r = rows[id], r.version <= t.at { rows[id] = nil }
         }
         let kept = Set(a.kept).union(b.kept)
-        return fold(LedgerState(records: Array(rows.values), tombstones: Array(tombs.values), kept: Array(kept)))
+        return LedgerState(records: Array(rows.values), tombstones: Array(tombs.values), kept: Array(kept))
+    }
+
+    /// How far ahead of this phone's clock a write may be dated: phones set by the network agree to
+    /// the second, and a day covers one set by hand to the wrong date.
+    public static let clockSlack: TimeInterval = 24 * 3600
+
+    /// A ledger from elsewhere, with what no honest phone could have written left out: rows and
+    /// deletions dated more than `clockSlack` ahead of `now`. A deletion dated 2099 would outrank every
+    /// write to its row from then on, so a row could never come back.
+    public static func sanitized(_ s: LedgerState, now: Date) -> LedgerState {
+        let limit = now.addingTimeInterval(clockSlack)
+        return LedgerState(records: s.records.filter { $0.version <= limit && $0.at <= limit },
+                           tombstones: s.tombstones.filter { $0.at <= limit },
+                           kept: s.kept)
     }
 
     /// The writes that turn `local` into `merged`.
@@ -160,23 +190,36 @@ public enum LedgerMerge {
         return c
     }
 
-    /// Rows of the two phones that look like one expense but differ enough to ask: the same place on the
-    /// same day within three hours (another amount, say), or no place, the same kind and amount within
-    /// half an hour. Pairs already kept apart are left out.
+    /// Rows of the two phones that may be one expense, for the travellers to settle: the same place on
+    /// the same day within three hours (the same amount, or another), or no place, the same kind and
+    /// amount within half an hour. Pairs already kept apart are left out.
     public static func nearDuplicates(_ s: LedgerState) -> [LedgerPair] {
         var pairs: [LedgerPair] = []
         let kept = Set(s.kept)
         forEachClosePair(s.records) { a, b in
-            guard a.origin != b.origin, !kept.contains(pairKey(a.id, b.id)), !isSameExpense(a, b) else { return }
+            guard a.origin != b.origin, !kept.contains(pairKey(a.id, b.id)) else { return }
             let gap = abs(a.at.timeIntervalSince(b.at))
             let placed = samePlace(a, b) && sameDay(a, b) && gap <= sameMeal
             let unplaced = !hasPlace(a) && !hasPlace(b) && a.category == b.category && a.yen == b.yen && gap <= sameMoment
             if placed || unplaced {
-                let (x, y) = a.id.uuidString < b.id.uuidString ? (a.id, b.id) : (b.id, a.id)
-                pairs.append(LedgerPair(a: x, b: y))
+                let (x, y) = a.id.uuidString < b.id.uuidString ? (a, b) : (b, a)
+                pairs.append(LedgerPair(a: x.id, b: y.id, same: isSameExpense(x, y) || unplaced, keep: keeper(x, y)))
             }
         }
         return pairs.sorted { $0.key < $1.key }
+    }
+
+    /// Of two rows that are one payment, the one to keep: the one paid in cash or by Suica when the
+    /// other was not. A phone's purses count only the rows it logged itself, so dropping the cash row
+    /// would leave that phone thinking the money is still in its wallet. Nil when both or neither came
+    /// out of a purse: then only the travellers know who paid.
+    public static func keeper(_ a: LedgerRecord, _ b: LedgerRecord) -> UUID? {
+        let purse: (LedgerRecord) -> Bool = { $0.method == PayMethod.cash.rawValue || $0.method == PayMethod.ic.rawValue }
+        switch (purse(a), purse(b)) {
+        case (true, false): return a.id
+        case (false, true): return b.id
+        default: return nil
+        }
     }
 
     /// A row folded as a copy, brought back: written now, so it outranks its deletion, and its pair is
@@ -191,6 +234,7 @@ public enum LedgerMerge {
 
     // MARK: - Rules
 
+    /// One payment logged on both phones, by every field the two can share.
     static func isSameExpense(_ a: LedgerRecord, _ b: LedgerRecord) -> Bool {
         a.origin != b.origin && a.yen == b.yen && a.category == b.category && samePlace(a, b) && sameDay(a, b)
             && abs(a.at.timeIntervalSince(b.at)) <= sameMeal
@@ -214,26 +258,6 @@ public enum LedgerMerge {
     private static func normal(_ s: String) -> String {
         s.folding(options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive], locale: nil)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    /// Folds rows logged on both phones; deterministic, so both phones fold the same rows.
-    static func fold(_ s: LedgerState) -> LedgerState {
-        let kept = Set(s.kept)
-        var candidates: [(keep: LedgerRecord, drop: LedgerRecord)] = []
-        forEachClosePair(s.records) { a, b in
-            guard isSameExpense(a, b), !kept.contains(pairKey(a.id, b.id)) else { return }
-            candidates.append(a.id.uuidString < b.id.uuidString ? (a, b) : (b, a))
-        }
-        guard !candidates.isEmpty else { return s }
-        candidates.sort { ($0.keep.id.uuidString, $0.drop.id.uuidString) < ($1.keep.id.uuidString, $1.drop.id.uuidString) }
-        var dropped: Set<UUID> = []
-        var tombs = Dictionary(s.tombstones.map { ($0.id, $0) }, uniquingKeysWith: { x, _ in x })
-        for (keep, drop) in candidates where !dropped.contains(keep.id) && !dropped.contains(drop.id) {
-            dropped.insert(drop.id)
-            // dated at the row's own version: the deletion outranks it, and both phones write the same one
-            tombs[drop.id] = LedgerTombstone(id: drop.id, at: drop.version, duplicateOf: keep.id, record: drop)
-        }
-        return LedgerState(records: s.records.filter { !dropped.contains($0.id) }, tombstones: Array(tombs.values), kept: s.kept)
     }
 
     /// Each pair of rows logged within three hours of each other, once.

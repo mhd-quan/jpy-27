@@ -65,6 +65,7 @@ struct SpendTab: View {
                                 if let gone { delete(gone) } else { Ledger.keepApart(pair.a.id, pair.b.id, in: context) }
                                 keptTick += 1
                             }
+                            .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
                         }
                     } header: {
                         Text("Có thể ghi trùng")
@@ -72,7 +73,7 @@ struct SpendTab: View {
                             .foregroundStyle(.secondary)
                             .textCase(nil)
                     } footer: {
-                        Text("Hai máy cùng ghi một chỗ trong cùng buổi. Bỏ một khoản nếu đó là một lần trả.")
+                        Text("App không tự gộp hai khoản nào. Nếu là một lần trả, giữ khoản của máy đã trả; khoản trả bằng tiền mặt hay Suica được gợi ý sẵn, để ví của máy đó vẫn đúng.")
                     }
                 }
 
@@ -207,7 +208,7 @@ struct SpendTab: View {
         let byID = Dictionary(expenses.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         return LedgerMerge.nearDuplicates(state).compactMap { p in
             guard let a = byID[p.a], let b = byID[p.b] else { return nil }
-            return SpendDuplicatePair(a: a, b: b)
+            return SpendDuplicatePair(a: a, b: b, same: p.same, keep: p.keep.flatMap { byID[$0] })
         }
     }
 }

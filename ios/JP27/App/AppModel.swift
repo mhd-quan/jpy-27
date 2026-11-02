@@ -68,10 +68,19 @@ enum AppSheet: Identifiable, Hashable {
 
     let store: TripStore
     let itinerary: Itinerary
-    let container: ModelContainer
+    /// the records on disk
+    private let records: ModelContainer
+    /// what the app reads and writes: the records, or the rehearsal's own copy of them while one
+    /// runs (`clockOffset`, `Records.rehearsal`)
+    private(set) var container: ModelContainer
+    /// the last rehearsal's store, kept open until the next one starts: a view may still hold one
+    /// of its rows for a moment after the switch back
+    @ObservationIgnored private var retired: ModelContainer?
     /// shown once at launch when the records could not be opened as usual (`Records.problem`)
     var storeAlert = false
     var context: ModelContext { container.mainContext }
+    /// a rehearsal is running: the clock is shifted and the records are the rehearsal's
+    var rehearsing: Bool { clockOffset != 0 }
 
     let location = LocationService()
     let notifications = NotificationService()
@@ -110,6 +119,7 @@ enum AppSheet: Identifiable, Hashable {
     var clockOffset: TimeInterval = Shared.clockOffset {
         didSet {
             Shared.clockOffset = clockOffset
+            if (oldValue == 0) != (clockOffset == 0) { switchRecords() }
             refresh(reschedule: true)
         }
     }
@@ -163,7 +173,15 @@ enum AppSheet: Identifiable, Hashable {
             fatalError("trip.json and guide.json ship with the app: \(error)")
         }
         itinerary = Itinerary(store: store)
-        container = Records.container()
+        let real = Records.container()
+        records = real
+        if Shared.clockOffset != 0 {
+            container = Records.rehearsal(copying: real, fresh: false)
+        } else {
+            container = real
+            // a rehearsal that ended with the app closed leaves its store behind
+            Records.discardRehearsal()
+        }
         storeAlert = Records.problem != nil
         if let data = Shared.defaults.data(forKey: "paceModel"), let p = try? JSONDecoder().decode(PaceModel.self, from: data) {
             pace = p
@@ -171,6 +189,7 @@ enum AppSheet: Identifiable, Hashable {
             pace = PaceModel()
         }
         loadRecords()
+        ledgerSync.setPaused(clockOffset != 0)
         refresh(reschedule: false)
         location.onUpdate = { [weak self] in self?.positionChanged($0) }
         location.onVisit = { [weak self] in self?.visited($0) }
@@ -413,6 +432,23 @@ enum AppSheet: Identifiable, Hashable {
         }
         try? context.save()
         refresh(reschedule: true)
+    }
+
+    /// A rehearsal starts or ends: from now on everything reads and writes the rehearsal's records,
+    /// or the real ones again, and the rehearsal's are thrown away. The sync with the other phone
+    /// waits while a rehearsal runs, so nothing practised reaches it.
+    private func switchRecords() {
+        if rehearsing {
+            retired = nil
+            container = Records.rehearsal(copying: records, fresh: true)
+        } else {
+            retired = container
+            container = records
+            Records.discardRehearsal()
+        }
+        loadRecords()
+        ledgerSync.setPaused(rehearsing)
+        ledgerSync.activate(context: context)
     }
 
     private func loadRecords() {

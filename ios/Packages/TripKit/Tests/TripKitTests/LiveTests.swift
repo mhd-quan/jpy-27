@@ -34,6 +34,21 @@ import Testing
         #expect(!r.works)
     }
 
+    @Test func localTrainsAndAnUnbookedShinkansenAreNotDepartures() throws {
+        let engine = PlanEngine(store: store)
+        let day5 = try #require(store.day("5"))
+        // JR Tōkaidō Odawara → Shimizu at 9:27 is an example time: three local trains an hour
+        guard case .move(let local) = day5.items[3] else { Issue.record("day 5 item 3 is a ride"); return }
+        #expect(local.leg.line == "tokaido")
+        #expect(!engine.isHard(day5.items[3]))
+        #expect(!engine.isHard(day5.items[7]))
+        // the Shinkansen to Nagoya waits half its interval in a live projection, like any frequent line
+        guard case .move(let bullet) = day5.items[8] else { Issue.record("day 5 item 8 is a ride"); return }
+        #expect(engine.frequentWait(bullet.leg) == 10)
+        // the Kintetsu to Ise at 15:50 is still the departure the afternoon is held to
+        #expect(engine.isHard(day5.items[10]))
+    }
+
     @Test func aMetroWithATimeIsNotADeparture() throws {
         let engine = PlanEngine(store: store)
         // the Ginza Line runs every few minutes; the Romancecar is a reserved seat

@@ -181,6 +181,7 @@ enum Records {
     private static var folder: URL { URL.applicationSupportDirectory }
     static var mainURL: URL { folder.appending(path: "Trip.store") }
     private static var sideURL: URL { folder.appending(path: "Trip-side.store") }
+    private static var rehearsalURL: URL { folder.appending(path: "Trip-rehearsal.store") }
 
     /// The records, on disk, in the app's own container: the widget reads a snapshot, never this
     /// store, so it has no reason to live in the App Group, whose name follows the signing profile
@@ -233,7 +234,59 @@ enum Records {
         guard fm.fileExists(atPath: sideURL.path),
               let side = try? ModelContainer(for: schema, configurations: [ModelConfiguration("TripSide", schema: schema, url: sideURL)])
         else { return }
-        let from = ModelContext(side), to = ModelContext(main)
+        let to = ModelContext(main)
+        copyRecords(from: ModelContext(side), to: to, history: true)
+        guard (try? to.save()) != nil else { return }
+        let stamp = Int(Date().timeIntervalSince1970)
+        for suffix in ["", "-shm", "-wal"] {
+            let at = URL(fileURLWithPath: sideURL.path + suffix)
+            if fm.fileExists(atPath: at.path) {
+                try? fm.moveItem(at: at, to: folder.appending(path: "Trip-side-merged-\(stamp).store" + suffix))
+            }
+        }
+    }
+
+    // MARK: - Rehearsal
+
+    /// The records a rehearsal writes to (`AppModel.clockOffset`): a store of its own, beside the
+    /// real one. It starts as a copy of the real records (expenses, top-ups, purchases, stops done and
+    /// dropped, not the location history), takes everything recorded while the shifted clock runs,
+    /// and is thrown away when the clock goes back to real time. So a day walked through today is not
+    /// half done when it comes in October 2027, a stop dropped while practising stays in the plan,
+    /// and practice spending never reaches the budget or the other phone.
+    ///
+    /// `fresh` starts it again from the real records; otherwise one left by a rehearsal still
+    /// running when the app was closed is picked up. If the store will not open, the rehearsal runs
+    /// in memory: still apart from the real records, only gone when the app quits.
+    static func rehearsal(copying real: ModelContainer, fresh: Bool) -> ModelContainer {
+        if fresh { discardRehearsal() }
+        let existed = FileManager.default.fileExists(atPath: rehearsalURL.path)
+        let container = (try? ModelContainer(for: schema, configurations: [ModelConfiguration("TripRehearsal", schema: schema, url: rehearsalURL)]))
+            ?? (try? ModelContainer(for: schema, configurations: [ModelConfiguration("TripRehearsalMemory", schema: schema, isStoredInMemoryOnly: true)]))
+            ?? real
+        guard container !== real else { return real }
+        if !existed || container.configurations.first?.isStoredInMemoryOnly == true {
+            let to = ModelContext(container)
+            copyRecords(from: real.mainContext, to: to, history: false)
+            try? to.save()
+        }
+        return container
+    }
+
+    /// The rehearsal's store, deleted. A container still open on it keeps working on the unlinked
+    /// file until it goes, so this is safe while the last rehearsal's rows are still on screen.
+    static func discardRehearsal() {
+        let fm = FileManager.default
+        for suffix in ["", "-shm", "-wal"] {
+            let at = URL(fileURLWithPath: rehearsalURL.path + suffix)
+            if fm.fileExists(atPath: at.path) { try? fm.removeItem(at: at) }
+        }
+    }
+
+    /// Every record of one store put into another. Expenses and top-ups that exist there (by id) are
+    /// left; the rest are unique by day and index, by item or by id, so inserting one that exists
+    /// updates it. Visits and the location trace only with `history`.
+    private static func copyRecords(from: ModelContext, to: ModelContext, history: Bool) {
         for e in (try? from.fetch(FetchDescriptor<Expense>())) ?? [] {
             let id = e.id
             guard ((try? to.fetchCount(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }))) ?? 0) == 0 else { continue }
@@ -253,16 +306,9 @@ enum Records {
         for c in (try? from.fetch(FetchDescriptor<Checkmark>())) ?? [] { to.insert(Checkmark(day: c.day, index: c.index, at: c.at, source: c.source)) }
         for k in (try? from.fetch(FetchDescriptor<Skip>())) ?? [] { to.insert(Skip(day: k.day, index: k.index, at: k.at)) }
         for p in (try? from.fetch(FetchDescriptor<Purchase>())) ?? [] { to.insert(Purchase(itemID: p.itemID, qty: p.qty, yen: p.yen, placeID: p.placeID, at: p.at)) }
+        guard history else { return }
         for v in (try? from.fetch(FetchDescriptor<Visit>())) ?? [] { to.insert(Visit(arrival: v.arrival, departure: v.departure, coordinate: Coordinate(v.lat, v.lng), placeID: v.placeID)) }
         for t in (try? from.fetch(FetchDescriptor<Trace>())) ?? [] { to.insert(Trace(at: t.at, coordinate: t.coordinate)) }
-        guard (try? to.save()) != nil else { return }
-        let stamp = Int(Date().timeIntervalSince1970)
-        for suffix in ["", "-shm", "-wal"] {
-            let at = URL(fileURLWithPath: sideURL.path + suffix)
-            if fm.fileExists(atPath: at.path) {
-                try? fm.moveItem(at: at, to: folder.appending(path: "Trip-side-merged-\(stamp).store" + suffix))
-            }
-        }
     }
 }
 

@@ -56,8 +56,10 @@ public struct Line: Codable, Sendable {
     public let every: Int?
 
     /// Missing one only means waiting for the next: a planned time on it is a suggestion, not a
-    /// departure the day is held to. Reserved seats and sparse lines are not.
-    public var isFrequent: Bool { (every ?? .max) <= 15 }
+    /// departure the day is held to. Reserved seats and sparse lines are not. Up to 20 minutes:
+    /// JR Tōkaidō's local trains and the Shinkansen without a booked seat come that often.
+    public static let frequentEvery = 20
+    public var isFrequent: Bool { (every ?? .max) <= Self.frequentEvery }
 }
 
 public struct Chapter: Codable, Sendable, Identifiable {

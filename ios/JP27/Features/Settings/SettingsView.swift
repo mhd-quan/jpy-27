@@ -62,6 +62,7 @@ struct SettingsView: View {
     /// "4/10 vùng · 182 MB", or "Chưa tải"
     private var offlineValue: String {
         let offline = model.offline
+        if !offline.stale.isEmpty { return "Cần tải lại" }
         guard offline.totalBytes > 0 else { return "Chưa tải" }
         let size = ByteCountFormatter.string(fromByteCount: Int64(offline.totalBytes), countStyle: .file)
         return "\(offline.complete.count)/\(offline.areas.count) vùng · \(size)"
@@ -438,6 +439,11 @@ private struct OfflineSection: View {
     var body: some View {
         let offline = model.offline
         Section {
+            if !offline.stale.isEmpty {
+                Label("Nguồn bản đồ đã đổi, nên \(offline.stale.count) vùng đã tải không còn dùng được khi mất sóng. Tải lại khi có Wi‑Fi.", systemImage: "exclamationmark.triangle.fill")
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+            }
             ForEach(offline.areas) { area in
                 AreaRow(
                     name: area.name,
@@ -627,7 +633,7 @@ private struct RehearsalSection: View {
         } header: {
             Text("Chạy thử")
         } footer: {
-            Text("Giờ Nhật. Thông báo, widget và Live Activity chạy theo đồng hồ này.")
+            Text("Giờ Nhật. Thông báo, widget và Live Activity chạy theo đồng hồ này. Những gì ghi trong lúc chạy thử (điểm đã đi, điểm bỏ, khoản chi, đồ đã mua) nằm ở một sổ riêng, không sang máy kia, và bị xoá khi về giờ thật.")
         }
         .onAppear {
             guard !seeded else { return }

@@ -243,8 +243,9 @@ private struct SpendKeyStyle: ButtonStyle {
 /// The ledger as CSV: to keep (Numbers, Excel, a backup off the phone), and to merge the other
 /// phone's when the two cannot meet (`LedgerSync` does it by itself when they can). Merging follows
 /// `LedgerMerge`: rows are keyed by the expense's id, so merging twice never counts one twice; an edit
-/// newer than this phone's copy replaces it; a meal logged on both phones is folded into one. A file
-/// carries no deletions: a row deleted on the other phone stays here until the phones meet.
+/// newer than this phone's copy replaces it; a meal logged on both phones is kept twice and asked
+/// about in the Spend tab. A file carries no deletions: a row deleted on the other phone stays here
+/// until the phones meet.
 nonisolated struct SpendLedgerFile: Transferable, Sendable {
     let csv: String
 
@@ -287,13 +288,11 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
     struct Outcome {
         var added = 0
         var updated = 0
-        var folded = 0
 
         var summary: String {
             var parts: [String] = []
             if added > 0 { parts.append("thêm \(added) khoản") }
             if updated > 0 { parts.append("cập nhật \(updated) khoản") }
-            if folded > 0 { parts.append("gộp \(folded) khoản ghi trùng") }
             return parts.isEmpty ? "Sổ đã có đủ các khoản trong file." : "Đã " + parts.joined(separator: ", ") + "."
         }
     }
@@ -344,8 +343,9 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
                 origin: value(row, "may") ?? "other"))
         }
         let before = Set(Ledger.state(context).records.map(\.id))
-        let (_, changes) = Ledger.merge(LedgerState(records: records), into: context)
-        var outcome = Outcome(folded: changes.folded.count)
+        // a file is trusted no more than the other phone: rows dated far ahead are left out
+        let (_, changes) = Ledger.merge(LedgerMerge.sanitized(LedgerState(records: records), now: Date()), into: context)
+        var outcome = Outcome()
         for r in changes.upserts {
             if before.contains(r.id) { outcome.updated += 1 } else { outcome.added += 1 }
         }

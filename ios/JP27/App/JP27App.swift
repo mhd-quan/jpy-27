@@ -16,7 +16,6 @@ struct JP27App: App {
                 .environment(model)
                 .onOpenURL { model.open($0) }
         }
-        .modelContainer(model.container)
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active: model.activate()
@@ -100,6 +99,15 @@ struct RootView: View {
         } message: {
             Text(Records.problem ?? "")
         }
+        // offline packs made for a tile build the map no longer reads are useless without signal
+        .alert("Bản đồ offline cần tải lại", isPresented: Binding(get: { model.offline.needsReload }, set: { model.offline.needsReload = $0 })) {
+            Button("Để sau", role: .cancel) {}
+            Button("Tải lại") { model.offline.downloadAll() }
+        } message: {
+            Text("Nguồn bản đồ vừa đổi, nên các vùng đã tải không còn dùng được khi mất sóng. Nên tải lại khi có Wi‑Fi.")
+        }
+        // read here, in a view, so the whole app follows when a rehearsal swaps the records
+        .modelContainer(model.container)
     }
 }
 

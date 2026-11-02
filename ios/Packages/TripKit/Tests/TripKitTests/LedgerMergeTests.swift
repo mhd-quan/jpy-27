@@ -8,8 +8,8 @@ import Testing
     let noon = TripTime.date("2027-10-23", "12:00")!
 
     func row(_ n: Int, yen: Int = 1200, place: String? = "akafuku", name: String? = nil, category: String = "food",
-             at minutes: Double = 0, edited: Double? = nil, origin: String, day: String? = "6") -> LedgerRecord {
-        LedgerRecord(id: id(n), yen: yen, category: category, method: "cash", placeID: place, placeName: name, day: day,
+             method: String = "cash", at minutes: Double = 0, edited: Double? = nil, origin: String, day: String? = "6") -> LedgerRecord {
+        LedgerRecord(id: id(n), yen: yen, category: category, method: method, placeID: place, placeName: name, day: day,
                      at: noon.addingTimeInterval(minutes * 60), updatedAt: edited.map { noon.addingTimeInterval($0 * 60) }, origin: origin)
     }
 
@@ -51,26 +51,43 @@ import Testing
         #expect(LedgerMerge.merge(deleted, edited).records.map(\.yen) == [900])
     }
 
-    @Test func oneMealLoggedOnBothPhonesCountsOnce() {
-        // both logged lunch at Akafuku, twenty minutes apart, before the phones met
-        let mine = LedgerState(records: [row(7, origin: a, day: "6")])
-        let theirs = LedgerState(records: [row(3, at: 20, origin: b, day: "6")])
+    @Test func twoBowlsAtOneTicketMachineAreBothKept() {
+        // Ramen Tsumugi, day 1: each buys a ¥1.200 bowl at the machine and logs it on their own phone
+        let mine = LedgerState(records: [row(7, place: "ramen-tsumugi", origin: a, day: "1")])
+        let theirs = LedgerState(records: [row(3, place: "ramen-tsumugi", at: 4, origin: b, day: "1")])
         let m = LedgerMerge.merge(mine, theirs)
-        #expect(m.records.map(\.id) == [id(3)], "the smaller id stays")
-        #expect(m.tombstones.first?.duplicateOf == id(3))
-        #expect(m == LedgerMerge.merge(theirs, mine), "both phones fold the same row")
-        let c = LedgerMerge.changes(from: mine, to: m)
-        #expect(c.deletions == [id(7)])
-        #expect(c.folded.map(\.id) == [id(7)])
+        #expect(m.records.map(\.id) == [id(3), id(7)], "nothing is dropped without asking")
+        #expect(m.records.reduce(0) { $0 + $1.yen } == 2400)
+        #expect(m.tombstones.isEmpty)
+        #expect(m == LedgerMerge.merge(theirs, mine))
+        #expect(LedgerMerge.changes(from: mine, to: m).deletions.isEmpty)
+        // and the travellers are asked
+        let pairs = LedgerMerge.nearDuplicates(m)
+        #expect(pairs.map(\.key) == [LedgerMerge.pairKey(id(3), id(7))])
+        #expect(pairs.first?.same == true)
     }
 
-    @Test func oneLedgerNeverFoldsItsOwnRows() {
+    @Test func oneMealLoggedTwiceKeepsThePurseRow() {
+        // one lunch, paid in cash from phone B, also logged on phone A as paid by card
+        let s = LedgerMerge.merge(LedgerState(records: [row(1, method: "card", origin: a)]),
+                                  LedgerState(records: [row(2, method: "cash", at: 10, origin: b)]))
+        #expect(LedgerMerge.nearDuplicates(s).first?.keep == id(2), "B's purse counts its cash row")
+        let suica = LedgerMerge.merge(LedgerState(records: [row(1, method: "ic", origin: a)]),
+                                      LedgerState(records: [row(2, method: "card", at: 10, origin: b)]))
+        #expect(LedgerMerge.nearDuplicates(suica).first?.keep == id(1))
+        // both in cash: only the travellers know whose wallet it came from
+        let both = LedgerMerge.merge(LedgerState(records: [row(1, origin: a)]), LedgerState(records: [row(2, at: 10, origin: b)]))
+        #expect(LedgerMerge.nearDuplicates(both).first?.keep == nil)
+    }
+
+    @Test func oneLedgerNeverAsksAboutItsOwnRows() {
         // two bowls at the same counter logged on one phone are two bowls
         let s = LedgerState(records: [row(1, origin: a), row(2, at: 1, origin: a)])
         #expect(LedgerMerge.merge(s, .empty).records.count == 2)
+        #expect(LedgerMerge.nearDuplicates(s).isEmpty)
     }
 
-    @Test func otherAmountsOrDaysAreNotFolded() {
+    @Test func otherAmountsOrDaysAreKept() {
         let s = LedgerState(records: [
             row(1, yen: 1200, origin: a),
             row(2, yen: 1500, at: 10, origin: b),
@@ -92,13 +109,17 @@ import Testing
         ])
         let pairs = LedgerMerge.nearDuplicates(LedgerMerge.merge(s, .empty))
         #expect(pairs.map(\.key) == [LedgerMerge.pairKey(id(1), id(2)), LedgerMerge.pairKey(id(5), id(6))])
+        #expect(pairs.map(\.same) == [false, true], "another amount is asked as a near match")
         let kept = LedgerState(records: s.records, kept: [LedgerMerge.pairKey(id(2), id(1))])
         #expect(LedgerMerge.nearDuplicates(kept).count == 1, "a pair kept apart is not asked again")
     }
 
-    @Test func aRowWronglyFoldedComesBackOnBothPhones() throws {
-        // two people, two bowls at the same price: folded, then brought back
-        let m = LedgerMerge.merge(LedgerState(records: [row(1, origin: a)]), LedgerState(records: [row(2, at: 5, origin: b)]))
+    @Test func aRowFoldedByAnOlderBuildComesBackOnBothPhones() throws {
+        // two people, two bowls at the same price, folded by a build that still did that, then brought back
+        let gone = row(2, at: 5, origin: b)
+        let m = LedgerState(records: [row(1, origin: a)],
+                            tombstones: [LedgerTombstone(id: id(2), at: gone.version, duplicateOf: id(1), record: gone)])
+        #expect(LedgerMerge.merge(m, .empty) == m, "merging leaves the old fold as it was")
         let t = try #require(m.tombstones.first { $0.id == id(2) })
         let restored = try #require(LedgerMerge.restore(t, in: m, now: noon.addingTimeInterval(3600)))
         #expect(restored.records.map(\.id) == [id(1), id(2)])
@@ -113,7 +134,22 @@ import Testing
             row(1, place: nil, name: "Lawson Ōtsu", origin: a),
             row(2, place: nil, name: " lawson otsu", at: 30, origin: b),
         ])
-        #expect(LedgerMerge.merge(s, .empty).records.count == 1)
+        let merged = LedgerMerge.merge(s, .empty)
+        #expect(merged.records.count == 2)
+        #expect(LedgerMerge.nearDuplicates(merged).first?.same == true)
+    }
+
+    @Test func writesDatedFarAheadAreRefused() {
+        let now = noon
+        let remote = LedgerState(records: [row(1, origin: b), row(2, edited: 60 * 24 * 365 * 70, origin: b)],
+                                 tombstones: [LedgerTombstone(id: id(1), at: TripTime.date("2099-01-01", "00:00")!),
+                                              LedgerTombstone(id: id(3), at: now.addingTimeInterval(600))])
+        let s = LedgerMerge.sanitized(remote, now: now)
+        #expect(s.records.map(\.id) == [id(1)], "a write dated 2097 is left out")
+        #expect(s.tombstones.map(\.id) == [id(3)], "a deletion dated 2099 is left out")
+        // a phone a few hours ahead, as clocks set by hand are, still syncs
+        let ahead = LedgerState(records: [row(4, edited: 60 * 5, origin: b)])
+        #expect(LedgerMerge.sanitized(ahead, now: now).records.count == 1)
     }
 
     @Test func travelsAsJSONUnchanged() throws {
