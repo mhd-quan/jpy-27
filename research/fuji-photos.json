@@ -115,6 +115,14 @@
   "images": [
    {
     "kind": "view",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Mount_Fuji_and_Port_of_Shimizu.JPG/1280px-Mount_Fuji_and_Port_of_Shimizu.JPG",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Port_of_Shimizu.JPG",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "caption": "Cảng Shimizu, núi Hamaishi và Fuji nhìn từ đồi Nihondaira"
+   },
+   {
+    "kind": "view",
     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Shimizu-k%C5%8D_and_Mt._Fuji.jpg/1280px-Shimizu-k%C5%8D_and_Mt._Fuji.jpg",
     "page": "https://commons.wikimedia.org/wiki/File:Shimizu-k%C5%8D_and_Mt._Fuji.jpg",
     "credit": "オーイシ",
@@ -128,14 +136,6 @@
     "credit": "Halowand",
     "license": "CC BY-SA 4.0 (Wikimedia Commons)",
     "caption": "Toà nhà Ichiba-kan của chợ cá Kashi no Ichi, Shimizu"
-   },
-   {
-    "kind": "view",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Mount_Fuji_and_Port_of_Shimizu.JPG/1280px-Mount_Fuji_and_Port_of_Shimizu.JPG",
-    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Port_of_Shimizu.JPG",
-    "credit": "Alpsdake",
-    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
-    "caption": "Cảng Shimizu, núi Hamaishi và Fuji nhìn từ đồi Nihondaira"
    }
   ]
  },
@@ -176,14 +176,6 @@
     "credit": "tomohisa suna",
     "license": "CC BY 2.0 (Wikimedia Commons)",
     "caption": "Fuji và cầu Fujikawa trên sông Fuji, nhìn từ khu dịch vụ Fujikawa"
-   },
-   {
-    "kind": "exterior",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/HUJIKAWA-SA.jpg/1280px-HUJIKAWA-SA.jpg",
-    "page": "https://commons.wikimedia.org/wiki/File:HUJIKAWA-SA.jpg",
-    "credit": "たけんたる",
-    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
-    "caption": "Toà nhà khu dịch vụ Fujikawa, làn xuống (hướng Nagoya)"
    },
    {
     "kind": "exterior",
