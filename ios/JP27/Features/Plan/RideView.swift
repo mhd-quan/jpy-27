@@ -146,7 +146,7 @@ private struct PlanRideLive: View {
                     Label("Đang chờ vị trí trên tuyến", systemImage: "location.circle")
                         .foregroundStyle(.secondary)
                 }
-                Toggle("Báo thức trước ga xuống", isOn: alarmBinding)
+                alarmToggle
                 Button(role: .destructive) {
                     Task { await model.live.end(model: model, immediately: true) }
                 } label: {
@@ -166,14 +166,27 @@ private struct PlanRideLive: View {
                 }
                 .buttonStyle(.glassProminent)
                 .controlSize(.extraLarge)
-                Toggle("Báo thức trước ga xuống", isOn: alarmBinding)
+                alarmToggle
                     .padding(.horizontal, 4)
             }
         }
     }
 
+    /// A real alarm: it rings through silent mode, so it says so, and it is off by default on
+    /// boats, buses and short rides.
+    private var alarmToggle: some View {
+        Toggle(isOn: alarmBinding) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Báo thức trước ga xuống")
+                Text("Kêu cả khi máy để im lặng")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
     private var alarmBinding: Binding<Bool> {
-        Binding(get: { model.live.alarmOn }, set: { model.live.alarmOn = $0 })
+        Binding(get: { model.wakeAlarmIsOn(ride) }, set: { model.setWakeAlarm($0, for: ride) })
     }
 }
 

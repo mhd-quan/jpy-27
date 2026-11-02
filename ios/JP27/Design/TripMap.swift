@@ -86,8 +86,19 @@ struct TripMap: UIViewRepresentable {
         map.isScrollEnabled = interactive
         map.isZoomEnabled = interactive
         map.compassViewPosition = .topRight
-        map.logoViewPosition = .bottomLeft
+        // the MapLibre mark, small and tucked into the bottom-right corner; the attribution the
+        // licences ask for stays at the bottom left
+        map.logoViewPosition = .bottomRight
+        map.logoViewMargins = CGPoint(x: 4, y: 4)
+        if let size = map.logoView.image?.size {
+            let scale = 0.62
+            map.logoView.transform = CGAffineTransform(translationX: size.width * (1 - scale) / 2, y: size.height * (1 - scale) / 2)
+                .scaledBy(x: scale, y: scale)
+        }
+        map.logoView.alpha = 0.7
         map.attributionButtonPosition = .bottomLeft
+        NotificationCenter.default.addObserver(context.coordinator, selector: #selector(Coordinator.tilesChanged(_:)), name: OfflineMaps.tilesChanged, object: nil)
+        context.coordinator.map = map
         map.maximumZoomLevel = 18
         // the map's clear area is set from `chrome`, not guessed from the safe area
         map.automaticallyAdjustsContentInset = false
@@ -133,6 +144,7 @@ struct TripMap: UIViewRepresentable {
         var parent: TripMap
         var dark: Bool
         var loaded = false
+        weak var map: MLNMapView?
         var frameID: String
         var focus: Coordinate?
         var focusID = 0
@@ -149,6 +161,14 @@ struct TripMap: UIViewRepresentable {
             focus = parent.focus
             focusID = parent.focusID
             cameraID = parent.camera?.id
+        }
+
+        /// The pinned tile build went away (or came back): reload the style; the trip's layers are
+        /// rebuilt when it finishes loading.
+        @objc func tilesChanged(_ note: Notification) {
+            guard let map else { return }
+            loaded = false
+            map.styleURL = OfflineMaps.style(dark: dark)
         }
 
         nonisolated func mapView(_ mapView: MLNMapView, didFinishLoading style: MLNStyle) {

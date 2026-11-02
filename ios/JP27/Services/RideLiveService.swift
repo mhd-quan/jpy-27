@@ -17,8 +17,6 @@ import TripKit
     private var lastState: RideAttributes.ContentState?
     private var lastPush = Date.distantPast
     private var ending = false
-    /// ring the alarm before the station
-    var alarmOn = true
 
     var isAvailable: Bool { ActivityAuthorizationInfo().areActivitiesEnabled }
 
@@ -58,7 +56,7 @@ import TripKit
         let left = tracker.minutesLeft(km: s.km, speedKmh: model.location.speedKmh)
         arrival = left.map { model.now.addingTimeInterval($0 * 60) }
         let state = makeState(s, model: model)
-        if alarmOn, !s.arrived, let prompt = tracker.minutesToAlightPrompt(km: s.km, speedKmh: model.location.speedKmh) {
+        if model.wakeAlarmIsOn(ride), !s.arrived, let prompt = tracker.minutesToAlightPrompt(km: s.km, speedKmh: model.location.speedKmh) {
             // ring as the train leaves the stop before yours
             let at = Date().addingTimeInterval(max(0, prompt) * 60)
             Task { await model.alarms.alight(rideID: ride.id, station: ride.toName, at: at) }

@@ -14,10 +14,70 @@ import TripKit
         let ne: Coordinate
     }
 
-    /// Bundled copy, used by the map view: no network needed to read the style itself.
+    /// Bundled copy, used by the map view: no network needed to read the style itself. If the tile
+    /// build it pins has gone, the same style on OpenFreeMap's current build instead.
     static func style(dark: Bool) -> URL {
-        Bundle.main.url(forResource: dark ? "jp27-dark" : "jp27-light", withExtension: "json", subdirectory: "map")
+        let bundled = Bundle.main.url(forResource: dark ? "jp27-dark" : "jp27-light", withExtension: "json", subdirectory: "map")
             ?? remoteStyle(dark: dark)
+        guard usesCurrentTiles, let current = currentTilesStyle(from: bundled, dark: dark) else { return bundled }
+        return current
+    }
+
+    // MARK: Pinned tiles
+
+    /// The style pins one OpenFreeMap build, so the offline packs keep matching its tile URLs.
+    /// OpenFreeMap answers any build path today, but nothing promises it still will in October
+    /// 2027: once per launch, when online, the pinned build is asked for its first tile, and if it
+    /// answers 404 the maps read OpenFreeMap's current build (its TileJSON) until it answers again.
+    /// Offline nothing is asked and nothing changes, so the packs keep working.
+    static let tilesChanged = Notification.Name("JP27.tilesChanged")
+    private static let currentTilesKey = "map.currentTiles"
+    private static let currentTileJSON = "https://tiles.openfreemap.org/planet"
+
+    static var usesCurrentTiles: Bool { Shared.defaults.bool(forKey: currentTilesKey) }
+
+    static func checkPinnedTiles() async {
+        guard let bundled = Bundle.main.url(forResource: "jp27-light", withExtension: "json", subdirectory: "map"),
+              let template = pinnedTiles(in: bundled),
+              let url = URL(string: template.replacingOccurrences(of: "{z}/{x}/{y}", with: "0/0/0"))
+        else { return }
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
+        request.httpMethod = "GET"
+        // no answer (offline, a timeout) says nothing about the build
+        guard let (_, response) = try? await URLSession.shared.data(for: request), let http = response as? HTTPURLResponse else { return }
+        let gone = http.statusCode == 404 || http.statusCode == 410
+        guard gone != usesCurrentTiles, gone || http.statusCode == 200 else { return }
+        Shared.defaults.set(gone, forKey: currentTilesKey)
+        NotificationCenter.default.post(name: tilesChanged, object: nil)
+    }
+
+    private static func pinnedTiles(in style: URL) -> String? {
+        guard let data = try? Data(contentsOf: style),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let omt = (json["sources"] as? [String: Any])?["omt"] as? [String: Any]
+        else { return nil }
+        return (omt["tiles"] as? [String])?.first
+    }
+
+    /// The bundled style with its tile source pointed at the TileJSON that always names the current
+    /// build, written next to the caches.
+    private static func currentTilesStyle(from bundled: URL, dark: Bool) -> URL? {
+        guard bundled.isFileURL, let data = try? Data(contentsOf: bundled),
+              var json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              var sources = json["sources"] as? [String: Any],
+              var omt = sources["omt"] as? [String: Any]
+        else { return nil }
+        omt["tiles"] = nil
+        omt["minzoom"] = nil
+        omt["maxzoom"] = nil
+        omt["url"] = currentTileJSON
+        sources["omt"] = omt
+        json["sources"] = sources
+        let out = URL.cachesDirectory.appending(path: "jp27-\(dark ? "dark" : "light")-current.json")
+        guard let rewritten = try? JSONSerialization.data(withJSONObject: json),
+              (try? rewritten.write(to: out, options: .atomic)) != nil
+        else { return nil }
+        return out
     }
 
     /// Served by the site, used for the packs (a pack downloads its style by URL).
