@@ -16,6 +16,7 @@ enum Metrics {
 
 /// A content card on the grouped background.
 struct Card<Content: View>: View {
+    @Environment(\.cardSurface) private var surface
     var padding: CGFloat = 16
     @ViewBuilder var content: Content
 
@@ -23,7 +24,20 @@ struct Card<Content: View>: View {
         VStack(alignment: .leading, spacing: 12) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(padding)
-            .background(Palette.card, in: .rect(cornerRadius: Metrics.card, style: .continuous))
+            .background(surface ?? Palette.card, in: .rect(cornerRadius: Metrics.card, style: .continuous))
+    }
+}
+
+private nonisolated struct CardSurfaceKey: EnvironmentKey {
+    static var defaultValue: Color? { nil }
+}
+
+extension EnvironmentValues {
+    /// What cards are filled with: the card colour on paper, unless a page lays its cards as
+    /// translucent tints over a colour of its own (the ambient place page).
+    nonisolated var cardSurface: Color? {
+        get { self[CardSurfaceKey.self] }
+        set { self[CardSurfaceKey.self] = newValue }
     }
 }
 
@@ -304,14 +318,17 @@ extension View {
     /// A scroll view whose first child is a `DetailHero`: it runs under the bar, the bar shows no
     /// edge and no title over the photograph, and the name comes into the bar (with the system's
     /// soft edge) once the photograph has scrolled away.
-    func detailPage(title: String, heroHeight: CGFloat = 440) -> some View {
-        modifier(DetailPage(title: title, heroHeight: heroHeight))
+    /// `scheme` is the bar's once the photograph has gone: nil follows the system, a page laid on a
+    /// colour of its own passes that colour's.
+    func detailPage(title: String, heroHeight: CGFloat = 440, scheme: ColorScheme? = nil) -> some View {
+        modifier(DetailPage(title: title, heroHeight: heroHeight, scheme: scheme))
     }
 }
 
 private struct DetailPage: ViewModifier {
     let title: String
     let heroHeight: CGFloat
+    let scheme: ColorScheme?
     @State private var past = false
 
     func body(content: Content) -> some View {
@@ -335,7 +352,7 @@ private struct DetailPage: ViewModifier {
                 }
             }
             // light status bar and bar glyphs over the photograph
-            .toolbarColorScheme(past ? nil : .dark, for: .navigationBar)
+            .toolbarColorScheme(past ? scheme : .dark, for: .navigationBar)
     }
 }
 

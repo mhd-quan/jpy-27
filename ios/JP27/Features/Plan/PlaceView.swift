@@ -21,8 +21,30 @@ private struct PlanPlaceContent: View {
     let place: Place
 
     var body: some View {
-        let hero = !place.images.isEmpty
-        let page = ScrollView {
+        Group {
+            if planIsAmbient(place, reserved: model.store.reserved.contains(place.id)) {
+                PlanAmbientPage(place: place, sources: sources)
+            } else if !place.images.isEmpty {
+                standard(hero: true).detailPage(title: place.name)
+            } else {
+                standard(hero: false)
+                    .navigationTitle(place.name)
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+        }
+        // the page's own action, then close, always last at the trailing edge
+        .toolbar {
+            SheetToolbarButton(title: "Ghi chi", symbol: "yensign", source: "place.\(place.id).expense") {
+                model.present(.expense(placeID: place.id, yen: nil), from: "place.\(place.id).expense")
+            }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            CloseButton()
+        }
+    }
+
+    /// The page of small stops (and of places without photos): paper, cards, the photo strip on top.
+    private func standard(hero: Bool) -> some View {
+        ScrollView {
             VStack(alignment: .leading, spacing: Metrics.stack) {
                 if hero { PlanPlaceHero(place: place) }
                 VStack(alignment: .leading, spacing: Metrics.stack) {
@@ -53,24 +75,6 @@ private struct PlanPlaceContent: View {
             .padding(.bottom, 32)
         }
         .screen()
-
-        Group {
-            if hero {
-                page.detailPage(title: place.name)
-            } else {
-                page
-                    .navigationTitle(place.name)
-                    .navigationBarTitleDisplayMode(.inline)
-            }
-        }
-        // the page's own action, then close, always last at the trailing edge
-        .toolbar {
-            SheetToolbarButton(title: "Ghi chi", symbol: "yensign", source: "place.\(place.id).expense") {
-                model.present(.expense(placeID: place.id, yen: nil), from: "place.\(place.id).expense")
-            }
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            CloseButton()
-        }
     }
 
     private var sources: [(title: String, url: String)] {
@@ -127,6 +131,376 @@ private struct PlanPlaceHero: View {
                 .disabled(photos[page].page == nil)
                 .accessibilityLabel("Ảnh: \(credit)")
             }
+        }
+    }
+}
+
+// MARK: - Ambient page
+
+/// The places that are an outing rather than a stop get the album page: every sight, shop, stay
+/// and station with photographs, and the meals that are an occasion (booked, from ¥4.000 a head,
+/// or Tabelog 3,75 and up). Snack stands and everyday lunches keep the plain page.
+private func planIsAmbient(_ place: Place, reserved: Bool) -> Bool {
+    guard !place.images.isEmpty else { return false }
+    guard place.kind == .food else { return true }
+    if place.snack != nil { return false }
+    if reserved { return true }
+    if let floor = planPriceFloor(place.price), floor >= 4000 { return true }
+    return (place.rating ?? 0) >= 3.75
+}
+
+/// 4400 from "¥4.400–5.000"
+private func planPriceFloor(_ price: String?) -> Int? {
+    guard let price, let yen = price.firstIndex(of: "¥") else { return nil }
+    let figure = price[price.index(after: yen)...].prefix { $0.isNumber || $0 == "." || $0 == "," }
+    return Int(figure.filter(\.isNumber))
+}
+
+/// Apple Music's album page, for a place: the page is one colour taken from the photograph's
+/// foot; the photograph fills the top, under the bar, and dissolves into that colour, sharp at the
+/// top, blurring and fading toward the bottom; the name, what it is and the actions sit centred
+/// where it dissolves. Type, cards and controls take the colour's side (dark type on a pale page,
+/// white on a deep one), so the system's own styles adapt by themselves.
+private struct PlanAmbientPage: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.colorScheme) private var system
+    let place: Place
+    let sources: [(title: String, url: String)]
+    @State private var page = 0
+    /// photo index → the colour of its foot
+    @State private var tones: [Int: AmbientTone] = [:]
+    @State private var heroHeight: CGFloat = 520
+
+    /// The first photograph decides light or dark for the whole page; the others only move the hue.
+    private var canvas: AmbientCanvas? {
+        guard let first = tones[0] else { return nil }
+        return (tones[page] ?? first).canvas(light: first.prefersLight, dim: system == .dark)
+    }
+
+    var body: some View {
+        let canvas = self.canvas
+        let scheme = canvas?.scheme ?? system
+        let fill = canvas?.color ?? Palette.paper
+        ScrollView {
+            VStack(spacing: 0) {
+                PlanAmbientHero(photos: place.images, page: $page)
+                    .containerRelativeFrame(.vertical) { length, _ in (length * 0.6).rounded() }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                    .overlay(alignment: .bottom) {
+                        PlanAmbientHeadline(place: place, count: place.images.count, page: page, canvas: fill)
+                    }
+                VStack(alignment: .leading, spacing: Metrics.stack) {
+                    if let note = place.note {
+                        PlanAmbientNote(text: note, canvas: fill)
+                    }
+                    PlanPlaceFacts(place: place, showsNote: false)
+                    // a hotel's round button is its phrases; the walks round it stay here, as on the plain page
+                    if place.kind == .stay, model.guide.stays.contains(where: { $0.id == place.id }) {
+                        NavigationLink(value: Route.stay(place.id)) {
+                            Label("Quanh khách sạn", systemImage: "figure.walk.circle")
+                                .font(.body.weight(.semibold))
+                                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    if let menu = place.menu { PlanPlaceMenuSection(place: place, menu: menu) }
+                    if let store = place.store { PlanPlaceStore(store: store) }
+                    PlanPlaceFuji(place: place)
+                    PlanPlaceUses(place: place)
+                    VStack(alignment: .leading, spacing: 10) {
+                        PlanLinkChips(links: sources)
+                        PlanAmbientCredit(photos: place.images, page: page)
+                    }
+                }
+                .padding(.horizontal, Metrics.gutter)
+                .padding(.top, 14)
+            }
+            .padding(.bottom, 32)
+        }
+        .progressiveEdges()
+        .background { fill.ignoresSafeArea() }
+        // cards turn into tints of the page, controls into its type colour
+        .environment(\.cardSurface, canvas.map { $0.light ? Color.white.opacity(0.4) : Color.white.opacity(0.09) })
+        .tint(canvas == nil ? nil : Color.primary)
+        .environment(\.colorScheme, scheme)
+        .animation(.easeInOut(duration: 0.45), value: canvas)
+        .detailPage(title: place.name, heroHeight: heroHeight, scheme: canvas?.scheme)
+        .task(id: place.id) {
+            let photos = place.images
+            guard let first = photos.first else { return }
+            // the first one now, for the page to settle on; the rest in one go after
+            if let tone = await PhotoCache.shared.tone(first) { tones[0] = tone }
+            var rest: [Int: AmbientTone] = [:]
+            for i in photos.indices.dropFirst() {
+                if let tone = await PhotoCache.shared.tone(photos[i]) { rest[i] = tone }
+            }
+            tones.merge(rest) { a, _ in a }
+        }
+    }
+}
+
+/// The photographs, paged, each laid on its own blurred copy and fading out: sharp at the top,
+/// soft where the type sits, gone into the page's colour at the bottom. A shade at the very top
+/// keeps the status bar and the bar's buttons readable over a white sky.
+private struct PlanAmbientHero: View {
+    let photos: [Photo]
+    @Binding var page: Int
+
+    var body: some View {
+        TabView(selection: $page) {
+            ForEach(photos.indices, id: \.self) { i in
+                PlanAmbientPhoto(photo: photos[i]).tag(i)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .mask {
+            LinearGradient(stops: [
+                .init(color: .black, location: 0),
+                .init(color: .black, location: 0.6),
+                .init(color: .black.opacity(0.8), location: 0.74),
+                .init(color: .black.opacity(0.4), location: 0.87),
+                .init(color: .black.opacity(0.12), location: 0.95),
+                .init(color: .clear, location: 1),
+            ], startPoint: .top, endPoint: .bottom)
+        }
+        .overlay(alignment: .top) {
+            LinearGradient(colors: [.black.opacity(0.24), .clear], startPoint: .top, endPoint: .bottom)
+                .frame(height: 100)
+                .allowsHitTesting(false)
+        }
+    }
+}
+
+/// One photograph: the sharp image over its pre-blurred copy, the sharp one fading out from the
+/// middle down so the blur takes over (no live blur: the copy is small and blurred once).
+private struct PlanAmbientPhoto: View {
+    @Environment(\.accessibilityReduceTransparency) private var plain
+    let photo: Photo
+    @State private var veil: UIImage?
+
+    var body: some View {
+        Color.clear
+            .overlay {
+                if let veil, !plain {
+                    Image(uiImage: veil)
+                        .resizable()
+                        .scaledToFill()
+                        .transition(.opacity)
+                }
+            }
+            .overlay {
+                PlacePhoto(photo: photo, maxPixel: 1800)
+                    .mask {
+                        LinearGradient(stops: [
+                            .init(color: .black, location: 0),
+                            .init(color: .black, location: 0.48),
+                            .init(color: .black.opacity(0.65), location: 0.62),
+                            .init(color: .black.opacity(0.2), location: 0.76),
+                            .init(color: .clear, location: 0.86),
+                        ], startPoint: .top, endPoint: .bottom)
+                    }
+            }
+            .clipped()
+            .task(id: photo.src) {
+                guard !plain else { return }
+                let loaded = await PhotoCache.shared.veil(photo)
+                withAnimation(.easeOut(duration: 0.25)) { veil = loaded }
+            }
+    }
+}
+
+/// Centred where the photograph dissolves: page dots, the name, the Japanese name, what it is,
+/// and the actions.
+private struct PlanAmbientHeadline: View {
+    @Environment(AppModel.self) private var model
+    let place: Place
+    let count: Int
+    let page: Int
+    let canvas: Color
+
+    var body: some View {
+        VStack(spacing: 5) {
+            if count > 1 {
+                PlanAmbientDots(count: count, current: page)
+                    .padding(.bottom, 6)
+            }
+            Text(place.name)
+                .font(.title2.weight(.bold))
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+            if let ja = place.ja {
+                Text(ja)
+                    .font(.mincho(20, bold: false, relativeTo: .title3))
+                    .environment(\.locale, Locale(identifier: "ja_JP"))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            Text(facts)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+            PlanAmbientActions(place: place, canvas: canvas)
+                .padding(.top, 12)
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, Metrics.gutter)
+        .padding(.bottom, 10)
+    }
+
+    /// "Đã đặt · Tham quan · Kyoto · ★ 4,50 (12.000)"
+    private var facts: String {
+        var parts: [String] = []
+        if model.store.reserved.contains(place.id) { parts.append("Đã đặt") }
+        parts.append(placeFacts(place))
+        if let award = place.snack?.tabelog?.award { parts.append(award) }
+        return parts.joined(separator: " · ")
+    }
+}
+
+/// Map on the left, walking as the one filled capsule, and on the right what else this place is
+/// for: talking at the counter, the scenario for a sight, the walks round a hotel, or its day.
+private struct PlanAmbientActions: View {
+    @Environment(AppModel.self) private var model
+    let place: Place
+    let canvas: Color
+
+    var body: some View {
+        HStack(spacing: 16) {
+            round("Bản đồ", symbol: "map") {
+                model.mapFocus = place.id
+                model.dismissSheets()
+                model.tab = .map
+            }
+            Button {
+                model.walk(to: place.id)
+            } label: {
+                Label("Đi bộ", systemImage: "figure.walk")
+                    .font(.headline)
+                    .foregroundStyle(canvas)
+                    .frame(width: 168, height: 50)
+                    .background(Color.primary, in: .capsule)
+                    .contentShape(.capsule)
+            }
+            .buttonStyle(.pressable)
+            trailing
+        }
+        .labelStyle(.titleAndIcon)
+    }
+
+    @ViewBuilder
+    private var trailing: some View {
+        if place.kind == .food || place.kind == .shop {
+            round("Nói ở quán", symbol: "character.bubble") {
+                model.present(.atPlace(place.id), from: "place.\(place.id).talk")
+            }
+            .sheetSource("place.\(place.id).talk")
+        } else if let scenario = model.store.scenarios(for: place).first {
+            NavigationLink(value: Route.scenario(scenario.id)) { disc(symbol: "character.bubble") }
+                .buttonStyle(.pressable)
+                .accessibilityLabel("Câu nói")
+        } else if place.kind == .stay, model.guide.stays.contains(where: { $0.id == place.id }) {
+            NavigationLink(value: Route.stay(place.id)) { disc(symbol: "figure.walk.circle") }
+                .buttonStyle(.pressable)
+                .accessibilityLabel("Quanh khách sạn")
+        } else if let use = place.uses.first {
+            NavigationLink(value: Route.day(use.day)) { disc(symbol: "calendar") }
+                .buttonStyle(.pressable)
+                .accessibilityLabel("Ngày trong lịch")
+        }
+    }
+
+    private func round(_ label: String, symbol: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) { disc(symbol: symbol) }
+            .buttonStyle(.pressable)
+            .accessibilityLabel(label)
+    }
+
+    /// A round secondary button: a tint of the type colour over the page, like the shuffle disc.
+    private func disc(symbol: String) -> some View {
+        Image(systemName: symbol)
+            .font(.body.weight(.semibold))
+            .foregroundStyle(.primary)
+            .frame(width: 50, height: 50)
+            .background(Color.primary.opacity(0.1), in: .circle)
+            .contentShape(.circle)
+    }
+}
+
+/// Page dots in the type colour, for a pager over a photograph that may be light or dark.
+private struct PlanAmbientDots: View {
+    let count: Int
+    let current: Int
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(0..<count, id: \.self) { i in
+                Capsule()
+                    .fill(Color.primary.opacity(i == current ? 0.85 : 0.28))
+                    .frame(width: i == current ? 14 : 5, height: 5)
+            }
+        }
+        .animation(.smooth(duration: 0.3), value: current)
+        .accessibilityHidden(true)
+    }
+}
+
+/// The description, three lines and a THÊM that opens the rest, as an album's notes.
+private struct PlanAmbientNote: View {
+    let text: String
+    let canvas: Color
+    @State private var open = false
+
+    var body: some View {
+        let long = text.count > 150
+        let hint: String = long ? (open ? "Thu gọn" : "Đọc hết") : ""
+        Text(text)
+            .font(.subheadline)
+            .lineLimit(open || !long ? nil : 3)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .overlay(alignment: .bottomTrailing) {
+                if long, !open {
+                    Text("THÊM")
+                        .font(.subheadline.weight(.bold))
+                        .padding(.leading, 40)
+                        .background {
+                            LinearGradient(stops: [.init(color: canvas.opacity(0), location: 0), .init(color: canvas, location: 0.55)],
+                                           startPoint: .leading, endPoint: .trailing)
+                        }
+                        .accessibilityHidden(true)
+                }
+            }
+            .contentShape(.rect)
+            .onTapGesture {
+                guard long else { return }
+                withAnimation(.smooth(duration: 0.3)) { open.toggle() }
+            }
+            .accessibilityAddTraits(long ? .isButton : [])
+            .accessibilityHint(hint)
+    }
+}
+
+/// Who took the photograph on screen (CC BY and BY-SA ask for it), opening its Commons page.
+private struct PlanAmbientCredit: View {
+    @Environment(\.openURL) private var openURL
+    let photos: [Photo]
+    let page: Int
+
+    var body: some View {
+        if photos.indices.contains(page), let credit = photos[page].credit {
+            let photo = photos[page]
+            Button {
+                if let link = photo.page, let url = URL(string: link) { openURL(url) }
+            } label: {
+                Text(((photos.count > 1 ? "Ảnh \(page + 1)/\(photos.count)" : "Ảnh") + " · ") + (["© \(credit)", photo.license].compactMap { $0 }.joined(separator: " · ")))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+            }
+            .buttonStyle(.plain)
+            .disabled(photo.page == nil)
+            .accessibilityLabel("Ảnh: \(credit)")
         }
     }
 }
@@ -261,13 +635,16 @@ private struct PlanPlaceActions: View {
 
 private struct PlanPlaceFacts: View {
     let place: Place
+    /// the ambient page sets the note as its description, above the cards
+    var showsNote = true
     @State private var copied = false
 
     var body: some View {
         let rows = facts
-        if place.note != nil || place.tips != nil || !rows.isEmpty {
+        let note = showsNote ? place.note : nil
+        if note != nil || place.tips != nil || !rows.isEmpty {
             Card {
-                if let note = place.note { Text(note).font(.body) }
+                if let note { Text(note).font(.body) }
                 if let tips = place.tips {
                     Label {
                         Text(tips).font(.subheadline)
@@ -275,7 +652,7 @@ private struct PlanPlaceFacts: View {
                         Image(systemName: "lightbulb").foregroundStyle(.orange)
                     }
                 }
-                if !rows.isEmpty, place.note != nil || place.tips != nil { Divider() }
+                if !rows.isEmpty, note != nil || place.tips != nil { Divider() }
                 ForEach(rows, id: \.label) { row in
                     PlanInfoRow(symbol: row.symbol, text: row.text, label: row.label)
                 }
