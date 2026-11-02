@@ -53,7 +53,7 @@ private struct PlanDayContent: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     model.mapFocus = nil
-                    model.mapDay = key
+                    model.mapDay = day.key
                     model.tab = .map
                 } label: {
                     Label("Bản đồ", systemImage: "map")
@@ -84,7 +84,7 @@ private struct PlanDayHeader: View {
                 .overlay {
                     Button {
                         model.mapFocus = nil
-                        model.mapDay = key
+                        model.mapDay = day.key
                         model.tab = .map
                     } label: {
                         Color.clear.contentShape(.rect)
