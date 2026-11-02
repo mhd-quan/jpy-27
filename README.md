@@ -63,6 +63,8 @@ Thứ tự khi sửa dữ liệu: merge → localize → merge → geo → detou
 | `research/fuji-spots.json` | chỗ hay được đăng quanh Fuji; giờ tàu, xe cho ngày Kawaguchiko |
 | `research/stays-around.json` | khu quanh khách sạn, đường đi dạo, chỗ cần thiết gần đó, Fuji quanh ryokan |
 | `research/shopping-items.json`, `shopping-stores.json` | danh mục món có giá; cửa hàng và khung giờ mua theo ngày (chỉnh của người lập kế hoạch nằm ở `src/lib/shopping.ts`) |
+| `research/shopping-cards.json` | thẻ từng cửa hàng: cửa hàng là gì (thành ghi chú của địa điểm), nên tìm gì, mẹo, ảnh Commons |
+| `research/fuji-photos.json` | ảnh phong cảnh của từng chỗ ngắm Fuji (cho thẻ chỗ ngắm; thành ảnh của địa điểm khi địa điểm chưa có ảnh) |
 | `research/trains-*.json` | cảnh hai bên, đổi tàu, lúc chuẩn bị xuống cho từng chuyến |
 | `research/phrases.json` | sổ câu theo tình huống, có romaji |
 

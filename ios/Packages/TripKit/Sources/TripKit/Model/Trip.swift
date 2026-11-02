@@ -219,6 +219,12 @@ public struct Store: Codable, Sendable {
     public let taxFree: Bool?
     public let near: String?
     public let walkMin: Int?
+    /// how the store fits the day's plan (the place's note is what the store is)
+    public let plan: String?
+    /// what to look for there
+    @Many public var buy: [String]
+    /// tax-free counter, payment, the floor to head for, the quiet hours
+    public let advice: String?
 }
 
 public struct FujiSpotInfo: Codable, Sendable {

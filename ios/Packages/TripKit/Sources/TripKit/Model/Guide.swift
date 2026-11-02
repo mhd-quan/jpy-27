@@ -330,6 +330,8 @@ public struct FujiGuide: Codable, Sendable {
         public let widthDeg: Double?
         /// distance to the ridge that hides the summit, when it is hidden
         public let blockKm: Double?
+        /// what the place itself looks like, best first (a view of Fuji from there when it shows)
+        @Many public var images: [Photo]
     }
 
     /// The horizon around the summit's bearing, for drawing the expected silhouette.

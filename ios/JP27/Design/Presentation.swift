@@ -89,6 +89,12 @@ extension View {
         modifier(SheetSource(id: id))
     }
 
+    /// The same, for a card: the sheet grows out of the whole rounded card and shrinks back into
+    /// it, its corners following the card's.
+    func sheetSource(_ id: String, cornerRadius: CGFloat) -> some View {
+        modifier(SheetSource(id: id, cornerRadius: cornerRadius))
+    }
+
     /// The other half of `sheetSource`: put on the presented view.
     @ViewBuilder
     func zoomed(from source: String?, in space: Namespace.ID?) -> some View {
@@ -116,9 +122,14 @@ extension View {
 private struct SheetSource: ViewModifier {
     @Environment(\.zoomSpace) private var space
     let id: String
+    var cornerRadius: CGFloat?
 
     func body(content: Content) -> some View {
-        if let space {
+        if let space, let cornerRadius {
+            content.matchedTransitionSource(id: id, in: space) { source in
+                source.clipShape(.rect(cornerRadius: cornerRadius, style: .continuous))
+            }
+        } else if let space {
             content.matchedTransitionSource(id: id, in: space)
         } else {
             content
@@ -168,21 +179,33 @@ private struct SheetLayer: ViewModifier {
 /// The bar stays `.onScrollDown` throughout, so folding it is the system's own, scroll-driven
 /// morph; each page's scroll view reports when it turns upward, and the bar is then asked to open.
 ///
-/// Asking goes straight to UIKit. Re-applying the behaviour (`.never`, then `.onScrollDown` again)
-/// makes UIKit show the whole bar, and it does so with the same glass morph it folds with, run in
-/// reverse. Going through SwiftUI instead (flipping `tabBarMinimizeBehavior` from a state) changed
-/// the behaviour inside SwiftUI's own update, where UIKit's animation is turned off, so the bar
-/// jumped open; a `withAnimation` around it did not bring the morph back, and leaving the bar on
-/// `.never` until the next scroll down made UIKit start each fold from a scroll already under way.
+/// Asking goes straight to UIKit: the bar is set to `.never`, which shows it whole, and handed back
+/// to `.onScrollDown` a moment later. UIKit animates only the fold it drives from a scroll; a change
+/// of behaviour it applies at once, so the bar jumped open (first through SwiftUI state, then by
+/// re-applying the behaviour back to back). Now the change and the bar's layout run inside a
+/// spring, the glass capsule widening back into the bar with the tabs sliding out of it, and the
+/// behaviour stays `.never` until that spring has settled, so the expand is not cut short. Only the
+/// tab bar's own views are laid out inside the spring: the page under it, mid-scroll, is not.
 @Observable final class TabBarScroll {
     @ObservationIgnored private weak var tabs: UITabBarController?
+    /// hands the bar back to `.onScrollDown` once the expand has settled
+    @ObservationIgnored private var handBack: Task<Void, Never>?
 
     /// Opens the bar if it is folded; an open bar is left as it is.
     func open() {
         guard let tabs = tabs ?? Self.find() else { return }
         self.tabs = tabs
-        tabs.tabBarMinimizeBehavior = .never
-        tabs.tabBarMinimizeBehavior = .onScrollDown
+        handBack?.cancel()
+        UIView.animate(springDuration: 0.5, bounce: 0.18, initialSpringVelocity: 0, delay: 0,
+                       options: [.allowUserInteraction, .beginFromCurrentState]) {
+            tabs.tabBarMinimizeBehavior = .never
+            tabs.tabBar.layoutIfNeeded()
+        }
+        handBack = Task { [weak tabs] in
+            try? await Task.sleep(for: .milliseconds(550))
+            guard !Task.isCancelled else { return }
+            tabs?.tabBarMinimizeBehavior = .onScrollDown
+        }
     }
 
     /// The controller behind the root `TabView`: a child of the window's hosting controller, never

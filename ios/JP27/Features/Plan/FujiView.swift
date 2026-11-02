@@ -321,11 +321,15 @@ struct FujiSpotPage: View {
         }
     }
 
-    /// the views of the mountain first, then the rest of the place's photographs
+    /// What the place looks like: the viewpoint's own photographs (a view of Fuji from there when it
+    /// shows), then the place's views and outsides. A ryokan's rooms or a restaurant's dishes are
+    /// on their own pages; they come here only when there is nothing else.
     private func photos(_ spot: FujiGuide.Spot) -> [Photo] {
         let all = model.store.place(spot.id)?.images ?? []
         let isView: (Photo) -> Bool = { $0.kind == "view" || $0.kind == "exterior" }
-        return all.filter(isView) + all.filter { !isView($0) }
+        var seen = Set<String>()
+        let scenery = (spot.images + all.filter(isView)).filter { seen.insert($0.src).inserted }
+        return scenery.isEmpty ? all : scenery
     }
 
     /// The first photograph decides light or dark for the whole card; the others only move the hue.

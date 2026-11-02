@@ -137,17 +137,28 @@ private struct PlanPlaceHero: View {
 
 // MARK: - Ambient page
 
-/// The places that are an outing rather than a stop get the album page: every sight, shop, stay
-/// and station with photographs, and the meals that are an occasion (booked, from ¥4.000 a head,
-/// or Tabelog 3,75 and up). Snack stands and everyday lunches keep the plain page.
+/// The places that are an outing rather than a stop get the album page: every sight, stay and
+/// station with photographs, the shops worth the trip, and the meals that are an occasion (booked,
+/// from ¥4.000 a head, or Tabelog 3,75 and up). Snack stands, everyday lunches and chain branches
+/// keep the plain page.
 private func planIsAmbient(_ place: Place, reserved: Bool) -> Bool {
     guard !place.images.isEmpty else { return false }
+    if place.kind == .shop {
+        // a market, a street, a food hall or a craft shop is a destination; a branch of an everyday
+        // chain is one only when it has photographs of its own (a flagship), not of the street
+        guard let chain = place.store?.chain, planEverydayChains.contains(chain) else { return true }
+        return place.images.count >= 2
+    }
     guard place.kind == .food else { return true }
     if place.snack != nil { return false }
     if reserved { return true }
     if let floor = planPriceFloor(place.price), floor >= 4000 { return true }
     return (place.rating ?? 0) >= 3.75
 }
+
+/// chains whose branches are much alike (the store card still has their photographs)
+private let planEverydayChains: Set<String> = ["uniqlo", "gu", "muji", "donki", "drugstore", "hands", "loft",
+                                                "yodobashi", "bic", "daiso", "3coins", "shimamura", "workman"]
 
 /// 4400 from "¥4.400–5.000"
 private func planPriceFloor(_ price: String?) -> Int? {
@@ -684,6 +695,18 @@ private struct PlanPlaceStore: View {
             Card {
                 if let chain = model.guide.shopping.chains.first(where: { $0.id == store.chain }) {
                     PlanParagraph(title: chain.name, text: chain.vi ?? "")
+                }
+                if !store.buy.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Nên tìm").font(.subheadline.weight(.semibold))
+                        PlanBullets(lines: store.buy)
+                    }
+                }
+                if let advice = store.advice {
+                    PlanInfoRow(symbol: "lightbulb", text: advice, label: "Mẹo")
+                }
+                if let plan = store.plan {
+                    PlanInfoRow(symbol: "calendar", text: plan, label: "Trong lịch")
                 }
                 switch (store.open, store.close) {
                 case let (o?, c?): PlanInfoRow(symbol: "clock", text: "\(o)–\(c)", label: "Giờ mở")

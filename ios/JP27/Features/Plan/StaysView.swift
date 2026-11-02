@@ -85,33 +85,52 @@ struct StayView: View {
 
 private let planWalkColors = ["#2F7DE1", "#E9792B", "#1E8A55", "#8A5CD0"]
 
+/// The hotel as an album page: its own photographs and then the neighbourhood's fill the top and
+/// dissolve into one colour taken from them, which the page is laid on; the name, the nights and
+/// the hotel's actions sit centred where the photograph dissolves.
 private struct PlanStayContent: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.colorScheme) private var system
     let stay: StayPlan
+    @State private var page = 0
+    /// photo index → the colour of its foot
+    @State private var tones: [Int: AmbientTone] = [:]
+    @State private var heroHeight: CGFloat = 520
+
+    /// the hotel's own photographs first, then the walks' and the neighbourhood's
+    private var photos: [Photo] {
+        var seen = Set<String>()
+        let own = model.store.place(stay.id)?.images ?? []
+        return (own + (stay.around?.photos ?? [])).filter { seen.insert($0.src).inserted }
+    }
+
+    /// The first photograph decides light or dark for the whole page; the others only move the hue.
+    private var canvas: AmbientCanvas? {
+        guard let first = tones[0] else { return nil }
+        return (tones[page] ?? first).canvas(light: first.prefersLight, dim: system == .dark)
+    }
 
     var body: some View {
         let place = model.store.place(stay.id)
-        let photo = place?.hero
+        let photos = self.photos
         let title = place?.name ?? "Chỗ ở"
-        let page = ScrollView {
+        let scroll = ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                if let photo {
-                    DetailHero(title: title, subtitle: place?.ja) {
-                        PlacePhoto(photo: photo, maxPixel: 1800)
-                    } foot: {
-                        Text("\(stay.nights) · \(stay.dates)")
-                            .font(.subheadline.weight(.medium))
-                            .opacity(0.9)
-                    }
+                if !photos.isEmpty {
+                    AmbientHero(photos: photos, page: $page)
+                        .containerRelativeFrame(.vertical) { length, _ in (length * 0.6).rounded() }
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                        .overlay(alignment: .bottom) {
+                            PlanStayHeadline(stay: stay, place: place, count: photos.count, page: page, canvas: canvas?.color ?? Palette.paper)
+                        }
                 }
                 LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                     VStack(alignment: .leading, spacing: 4) {
-                        if photo == nil {
+                        if photos.isEmpty {
                             Text("\(stay.nights) · \(stay.dates)").font(.subheadline).foregroundStyle(.secondary)
                         }
                         Text("\(Fmt.yen(stay.target)) · \(stay.range)").font(.title3.weight(.semibold)).monospacedDigit()
                     }
-                    .padding(.top, photo == nil ? 8 : Metrics.stack)
                     Card {
                         PlanParagraph(title: "Phòng", text: stay.room)
                         Divider()
@@ -121,7 +140,7 @@ private struct PlanStayContent: View {
                         Divider()
                         PlanParagraph(title: "Đổi phương án khi", text: stay.switchAt)
                     }
-                    if place != nil {
+                    if place != nil, photos.isEmpty {
                         NavigationLink(value: Route.place(stay.id)) {
                             Label("Ảnh, địa chỉ, giờ nhận phòng", systemImage: "info.circle")
                                 .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
@@ -131,23 +150,106 @@ private struct PlanStayContent: View {
                     if let around = stay.around {
                         PlanNeighbourhood(stay: stay, around: around)
                     }
+                    AmbientCredit(photos: photos, page: page)
                 }
                 .padding(.horizontal, Metrics.gutter)
+                .padding(.top, photos.isEmpty ? 8 : 14)
                 .padding(.bottom, 32)
             }
         }
-        .screen()
 
         Group {
-            if photo != nil {
-                page.detailPage(title: title)
+            if !photos.isEmpty {
+                scroll
+                    .ambientPage(canvas, title: title, heroHeight: heroHeight)
+                    .task(id: stay.id) { await loadTones(photos) }
             } else {
-                page
+                scroll
+                    .screen()
                     .navigationTitle(title)
                     .navigationBarTitleDisplayMode(.inline)
             }
         }
         .toolbar { CloseButton() }
+    }
+
+    /// the first one now, for the page to settle on; the rest in one go after
+    private func loadTones(_ photos: [Photo]) async {
+        guard let first = photos.first else { return }
+        if let tone = await PhotoCache.shared.tone(first) { tones[0] = tone }
+        var rest: [Int: AmbientTone] = [:]
+        for i in photos.indices.dropFirst() {
+            if let tone = await PhotoCache.shared.tone(photos[i]) { rest[i] = tone }
+        }
+        tones.merge(rest) { a, _ in a }
+    }
+}
+
+/// Centred where the photograph dissolves: page dots, the hotel's name in both scripts, the nights,
+/// then the map, walking there, and the hotel's own card (photographs, address, check-in).
+private struct PlanStayHeadline: View {
+    @Environment(AppModel.self) private var model
+    let stay: StayPlan
+    let place: Place?
+    let count: Int
+    let page: Int
+    let canvas: Color
+
+    var body: some View {
+        VStack(spacing: 5) {
+            if count > 1 {
+                AmbientDots(count: count, current: page)
+                    .padding(.bottom, 6)
+            }
+            Text(place?.name ?? "Chỗ ở")
+                .font(.title2.weight(.bold))
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+            if let ja = place?.ja {
+                Text(ja)
+                    .font(.mincho(20, bold: false, relativeTo: .title3))
+                    .environment(\.locale, Locale(identifier: "ja_JP"))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            Text("\(stay.nights) · \(stay.dates)")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+            if let place {
+                HStack(spacing: 16) {
+                    Button {
+                        model.mapFocus = place.id
+                        model.dismissSheets()
+                        model.tab = .map
+                    } label: {
+                        AmbientDisc(symbol: "map")
+                    }
+                    .buttonStyle(.pressable)
+                    .accessibilityLabel("Bản đồ")
+                    Button {
+                        model.walk(to: place.id)
+                    } label: {
+                        Label("Đi bộ", systemImage: "figure.walk")
+                            .font(.headline)
+                            .foregroundStyle(canvas)
+                            .frame(width: 168, height: 50)
+                            .background(Color.primary, in: .capsule)
+                            .contentShape(.capsule)
+                    }
+                    .buttonStyle(.pressable)
+                    NavigationLink(value: Route.place(place.id)) { AmbientDisc(symbol: "info") }
+                        .buttonStyle(.pressable)
+                        .accessibilityLabel("Ảnh, địa chỉ, giờ nhận phòng")
+                }
+                .labelStyle(.titleAndIcon)
+                .padding(.top, 12)
+            }
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, Metrics.gutter)
+        .padding(.bottom, 10)
     }
 }
 
@@ -169,7 +271,7 @@ private struct PlanNeighbourhood: View {
                 VStack(alignment: .leading, spacing: 10) {
                     SectionTitle("Đi dạo từ cửa")
                     ForEach(Array(around.walks.enumerated()), id: \.element.id) { i, walk in
-                        PlanWalkCard(walk: walk, color: Color(hex: planWalkColors[i % planWalkColors.count]))
+                        PlanWalkCard(stay: stay.id, walk: walk, color: Color(hex: planWalkColors[i % planWalkColors.count]))
                     }
                 }
             }
@@ -202,6 +304,8 @@ private struct PlanNeighbourhood: View {
 }
 
 private struct PlanWalkCard: View {
+    @Environment(AppModel.self) private var model
+    let stay: String
     let walk: StayAround.Walk
     let color: Color
 
@@ -220,23 +324,56 @@ private struct PlanWalkCard: View {
                 if let up = walk.walk?.up, up >= 20 { Tag(text: "lên \(Int(up)) m", symbol: "arrow.up.right") }
             }
             Text(walk.text).font(.subheadline)
-            ForEach(walk.highlights, id: \.self) { h in
+            // each sight on the way opens its own page: the place's, when the trip already has it
+            ForEach(Array(walk.highlights.enumerated()), id: \.offset) { k, h in
                 Divider()
-                HStack(alignment: .top, spacing: 12) {
-                    if let photo = h.images.first {
-                        PlacePhoto(photo: photo, maxPixel: 240)
-                            .frame(width: 72, height: 72)
-                            .clipShape(.rect(cornerRadius: 12, style: .continuous))
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(h.name).font(.subheadline.weight(.semibold))
-                        if let ja = h.ja { Text(ja).font(.caption).foregroundStyle(.secondary) }
-                        if let text = h.text { Text(text).font(.caption) }
-                    }
+                NavigationLink(value: planHighlightRoute(stay: stay, walk: walk, index: k, store: model.store)) {
+                    PlanHighlightRow(highlight: h)
                 }
+                .buttonStyle(.plain)
             }
         }
     }
+}
+
+private struct PlanHighlightRow: View {
+    let highlight: StayAround.Walk.Highlight
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            if let photo = highlight.images.first {
+                PlacePhoto(photo: photo, maxPixel: 240)
+                    .frame(width: 72, height: 72)
+                    .clipShape(.rect(cornerRadius: 12, style: .continuous))
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(highlight.name).font(.subheadline.weight(.semibold))
+                if let ja = highlight.ja { Text(ja).font(.caption).foregroundStyle(.secondary) }
+                if let text = highlight.text { Text(text).font(.caption).multilineTextAlignment(.leading) }
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.forward")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary)
+                .padding(.top, 2)
+                .accessibilityHidden(true)
+        }
+        .contentShape(.rect)
+    }
+}
+
+/// A sight on a walk opens the trip's own page for it when there is one (a sight within 30 m:
+/// the walks were written round the same places), otherwise a page of its own.
+func planHighlightRoute(stay: String, walk: StayAround.Walk, index: Int, store: TripStore) -> Route {
+    let h = walk.highlights[index]
+    let here = Coordinate(h.lat, h.lng)
+    let near = store.places.values
+        .filter { $0.kind == .sight }
+        .map { (place: $0, m: Geo.km(here, $0.coordinate) * 1000) }
+        .filter { $0.m <= 30 }
+        .min { $0.m < $1.m }
+    if let near { return .place(near.place.id) }
+    return .highlight(stay: stay, walk: walk.id, index: index)
 }
 
 private struct PlanAmenities: View {
@@ -308,5 +445,189 @@ private struct PlanRyokanFuji: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - A sight on a walk
+
+/// A sight on one of a hotel's walks that the trip has no page of its own for: what it is, which
+/// walk passes it and how far it is from the door, on the album page when it has photographs.
+struct StayHighlightView: View {
+    @Environment(AppModel.self) private var model
+    let stay: String
+    let walk: String
+    let index: Int
+
+    var body: some View {
+        if let s = model.guide.stays.first(where: { $0.id == stay }),
+           let w = s.around?.walks.first(where: { $0.id == walk }),
+           w.highlights.indices.contains(index) {
+            PlanHighlightContent(stay: s, walk: w, index: index)
+        } else {
+            ContentUnavailableView("Không có điểm này", systemImage: "mappin.slash")
+        }
+    }
+}
+
+private struct PlanHighlightContent: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.colorScheme) private var system
+    let stay: StayPlan
+    let walk: StayAround.Walk
+    let index: Int
+    @State private var page = 0
+    @State private var tones: [Int: AmbientTone] = [:]
+    @State private var heroHeight: CGFloat = 520
+
+    private var highlight: StayAround.Walk.Highlight { walk.highlights[index] }
+
+    private var canvas: AmbientCanvas? {
+        guard let first = tones[0] else { return nil }
+        return (tones[page] ?? first).canvas(light: first.prefersLight, dim: system == .dark)
+    }
+
+    var body: some View {
+        let h = highlight
+        let photos = h.images
+        let scroll = ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                if !photos.isEmpty {
+                    AmbientHero(photos: photos, page: $page)
+                        .containerRelativeFrame(.vertical) { length, _ in (length * 0.58).rounded() }
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                        .overlay(alignment: .bottom) {
+                            PlanHighlightHeadline(highlight: h, walk: walk, count: photos.count, page: page, canvas: canvas?.color ?? Palette.paper)
+                        }
+                }
+                LazyVStack(alignment: .leading, spacing: Metrics.stack) {
+                    if photos.isEmpty {
+                        PlanHighlightHeadline(highlight: h, walk: walk, count: 0, page: 0, canvas: Palette.paper)
+                            .padding(.top, 8)
+                    }
+                    if let text = h.text {
+                        Card { Text(text).font(.body) }
+                    }
+                    Card {
+                        PlanInfoRow(symbol: "figure.walk", text: walk.title, label: "Trên vòng đi bộ")
+                        if let best = walk.best { PlanInfoRow(symbol: "clock", text: best, label: "Lúc nên đi") }
+                        if let hotel = model.store.place(stay.id) {
+                            let km = Geo.km(hotel.coordinate, Coordinate(h.lat, h.lng))
+                            PlanInfoRow(symbol: "bed.double", text: "\(Fmt.km(km)) đường chim bay từ \(hotel.name)", label: "Cách khách sạn")
+                        }
+                    }
+                    TripMap(content: content, showsUser: false, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: "\(walk.id)-\(index)")
+                        .frame(height: 240)
+                        .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
+                    if walk.highlights.count > 1 {
+                        VStack(alignment: .leading, spacing: 10) {
+                            SectionTitle("Cũng trên đường này")
+                            Card {
+                                ForEach(Array(walk.highlights.enumerated()).filter { $0.offset != index }, id: \.offset) { k, other in
+                                    if k != (index == 0 ? 1 : 0) { Divider() }
+                                    NavigationLink(value: planHighlightRoute(stay: stay.id, walk: walk, index: k, store: model.store)) {
+                                        PlanHighlightRow(highlight: other)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                    }
+                    AmbientCredit(photos: photos, page: page)
+                }
+                .padding(.horizontal, Metrics.gutter)
+                .padding(.top, photos.isEmpty ? 0 : 14)
+                .padding(.bottom, 32)
+            }
+        }
+
+        Group {
+            if !photos.isEmpty {
+                scroll
+                    .ambientPage(canvas, title: h.name, heroHeight: heroHeight)
+                    .task(id: "\(walk.id)-\(index)") {
+                        guard let first = photos.first else { return }
+                        if let tone = await PhotoCache.shared.tone(first) { tones[0] = tone }
+                        var rest: [Int: AmbientTone] = [:]
+                        for i in photos.indices.dropFirst() {
+                            if let tone = await PhotoCache.shared.tone(photos[i]) { rest[i] = tone }
+                        }
+                        tones.merge(rest) { a, _ in a }
+                    }
+            } else {
+                scroll
+                    .screen()
+                    .navigationTitle(h.name)
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+        }
+        .toolbar { CloseButton() }
+    }
+
+    /// The walk's loop in its colour, its sights, this one picked out, and the hotel.
+    private var content: MapContent {
+        let colorIndex = stay.around?.walks.firstIndex { $0.id == walk.id } ?? 0
+        var routes: [MapRoute] = []
+        if let p = walk.p {
+            routes.append(MapRoute(id: walk.id, points: Polyline.decode(p), color: planWalkColors[colorIndex % planWalkColors.count], width: 4))
+        }
+        var pins = walk.highlights.enumerated().map { k, h in
+            MapPin(id: "\(walk.id)-h\(k)", coordinate: Coordinate(h.lat, h.lng), kind: k == index ? .stop : .highlight, label: h.name)
+        }
+        if let hotel = model.store.place(stay.id) {
+            pins.append(MapPin(id: hotel.id, coordinate: hotel.coordinate, kind: .stay, label: hotel.name))
+        }
+        return MapContent(routes: routes, pins: pins)
+    }
+}
+
+/// Centred where the photograph dissolves (or at the top, without one): the sight's name in both
+/// scripts, the walk it is on, and walking there.
+private struct PlanHighlightHeadline: View {
+    @Environment(AppModel.self) private var model
+    let highlight: StayAround.Walk.Highlight
+    let walk: StayAround.Walk
+    let count: Int
+    let page: Int
+    let canvas: Color
+
+    var body: some View {
+        VStack(spacing: 5) {
+            if count > 1 {
+                AmbientDots(count: count, current: page)
+                    .padding(.bottom, 6)
+            }
+            Text(highlight.name)
+                .font(.title2.weight(.bold))
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+            if let ja = highlight.ja {
+                Text(ja)
+                    .font(.mincho(20, bold: false, relativeTo: .title3))
+                    .environment(\.locale, Locale(identifier: "ja_JP"))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            Text(walk.title)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+            Button {
+                model.walk(to: Coordinate(highlight.lat, highlight.lng), named: highlight.ja ?? highlight.name)
+            } label: {
+                Label("Đi bộ", systemImage: "figure.walk")
+                    .font(.headline)
+                    .foregroundStyle(canvas)
+                    .frame(width: 168, height: 50)
+                    .background(Color.primary, in: .capsule)
+                    .contentShape(.capsule)
+            }
+            .buttonStyle(.pressable)
+            .labelStyle(.titleAndIcon)
+            .padding(.top, 12)
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, Metrics.gutter)
+        .padding(.bottom, 10)
     }
 }

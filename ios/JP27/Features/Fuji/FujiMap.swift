@@ -400,12 +400,19 @@ struct FujiExplorer: View {
         let spots = self.spots
         ZStack {
             if model.network.online {
-                FujiTerrainMap(spots: spots, position: $position, selection: $selection, interactive: true, scope: mapScope)
-                    .ignoresSafeArea()
-                    // the map gives the bars an edge effect of its own, hard with the iOS 27 SDK:
-                    // none at the top, where FujiBarEdge draws the soft one, soft at the bottom
-                    .scrollEdgeEffectStyle(.soft, for: .all)
-                    .scrollEdgeEffectHidden(true, for: .top)
+                // The map sits in a scroll view that never scrolls. A bar over a page with no scroll
+                // view of its own draws the iOS 27 default edge, the hard ruled strip, and no
+                // modifier on the map reaches it; over a scroll view the bar takes that view's style,
+                // the soft progressive blur every other page has. Scrolling is off, so the pans,
+                // pinches and twists all go to the map.
+                ScrollView {
+                    FujiTerrainMap(spots: spots, position: $position, selection: $selection, interactive: true, scope: mapScope)
+                        .containerRelativeFrame([.horizontal, .vertical])
+                }
+                .scrollDisabled(true)
+                .scrollIndicators(.hidden)
+                .scrollEdgeEffectStyle(.soft, for: .all)
+                .ignoresSafeArea()
                 FujiBarEdge()
             } else {
                 FujiCompassPlot.backdrop.ignoresSafeArea()
@@ -415,14 +422,16 @@ struct FujiExplorer: View {
         }
         .overlay(alignment: .topTrailing) {
             if model.network.online {
-                VStack(spacing: 8) {
-                    MapCompass(scope: mapScope)
-                    MapPitchToggle(scope: mapScope)
-                    MapUserLocationButton(scope: mapScope)
+                // one column under the bar's camera button, the same width, evenly spaced (each
+                // control has its own size, so each gets the bar button's 44 pt square)
+                VStack(spacing: 10) {
+                    MapCompass(scope: mapScope).frame(width: 44, height: 44)
+                    MapPitchToggle(scope: mapScope).frame(width: 44, height: 44)
+                    MapUserLocationButton(scope: mapScope).frame(width: 44, height: 44)
                 }
                 .buttonBorderShape(.circle)
-                .padding(.trailing, 12)
-                .padding(.top, 8)
+                .padding(.trailing, FujiBarEdge.trailing)
+                .padding(.top, 12)
             }
         }
         .overlay(alignment: .bottomLeading) {
@@ -455,8 +464,6 @@ struct FujiExplorer: View {
         }
         .navigationTitle("Bản đồ Fuji")
         .navigationBarTitleDisplayMode(.inline)
-        // the bar draws nothing behind itself: its only backdrop is FujiBarEdge
-        .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             // the name set as the JP27 wordmark is
@@ -651,7 +658,6 @@ private struct FujiSpotCard: View {
                 }
                 .buttonStyle(.bordered)
                 .buttonBorderShape(.capsule)
-                .sheetSource("fuji.card.\(spot.id)")
             }
         }
         .padding(14)
@@ -660,28 +666,26 @@ private struct FujiSpotCard: View {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .strokeBorder(selected ? Palette.sun : .clear, lineWidth: 2)
         }
+        // the viewpoint's page grows out of the whole card, not its button, and goes back into it
+        .sheetSource("fuji.card.\(spot.id)", cornerRadius: 22)
         .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
     }
 }
 
-/// The soft edge under the bar over the map: the terrain blurs and darkens into the bar, from
-/// frosted at the top to nothing, instead of stopping at a ruled strip; the bar's white title and
-/// buttons read over bright ground.
+/// A shade under the bar over the map, so its white title and buttons read over bright ground; the
+/// blur itself is the bar's soft edge effect.
 private struct FujiBarEdge: View {
+    /// the bar's trailing button sits this far in from the edge (measured: its centre 42 pt in, 44 pt
+    /// wide); the map's controls share its column
+    static let trailing: CGFloat = 20
+
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .mask {
-                    LinearGradient(stops: [
-                        .init(color: .black, location: 0),
-                        .init(color: .black.opacity(0.7), location: 0.4),
-                        .init(color: .clear, location: 1),
-                    ], startPoint: .top, endPoint: .bottom)
-                }
-            LinearGradient(colors: [.black.opacity(0.36), .clear], startPoint: .top, endPoint: .bottom)
-        }
-        .frame(height: 160)
+        LinearGradient(stops: [
+            .init(color: .black.opacity(0.34), location: 0),
+            .init(color: .black.opacity(0.18), location: 0.5),
+            .init(color: .clear, location: 1),
+        ], startPoint: .top, endPoint: .bottom)
+        .frame(height: 150)
         .frame(maxHeight: .infinity, alignment: .top)
         .ignoresSafeArea()
         .allowsHitTesting(false)

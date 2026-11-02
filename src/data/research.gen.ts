@@ -52,6 +52,9 @@ export interface Store {
   taxFree: boolean | null;
   near: string | null;
   walkMin: number | null;
+  plan: string | null;
+  buy: string[];
+  advice: string | null;
 }
 
 export interface MenuItem {
@@ -14014,7 +14017,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "manseibashi",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-mandarake-complex": {
@@ -14033,7 +14039,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "manseibashi",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-2k540": {
@@ -14054,7 +14063,10 @@ export const DETAILS: Record<string, Detail> = {
    ],
    "taxFree": null,
    "near": "yamabe",
-   "walkMin": 9
+   "walkMin": 9,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-ameyoko": {
@@ -14073,7 +14085,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "yamabe",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-futaba-ameyoko": {
@@ -14093,7 +14108,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "yamabe",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-uniqlo-okachimachi": {
@@ -14113,7 +14131,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "yamabe",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-gu-okachimachi": {
@@ -14133,7 +14154,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "yamabe",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-yodobashi-akiba": {
@@ -14153,7 +14177,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "resol-akihabara",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-donki-akihabara": {
@@ -14172,7 +14199,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "resol-akihabara",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-matsukiyo-iwamotocho": {
@@ -14190,7 +14220,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "resol-akihabara",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-daiso-yodobashi-akiba": {
@@ -14209,7 +14242,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "resol-akihabara",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-hands-be-atre-akiba": {
@@ -14229,7 +14265,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "resol-akihabara",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-nakamise": {
@@ -14248,7 +14287,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "sensoji",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-shimamura-asakusa": {
@@ -14266,7 +14308,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "owariya",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-kappabashi": {
@@ -14286,7 +14331,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "sensoji",
-   "walkMin": 12
+   "walkMin": 12,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-maruzen-nihonbashi": {
@@ -14305,7 +14353,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "maruzen-nihonbashi",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-coredo-muromachi": {
@@ -14325,7 +14376,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "tamai",
-   "walkMin": 10
+   "walkMin": 10,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-mitsukoshi-nihonbashi": {
@@ -14345,7 +14399,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "tamai",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-uniqlo-shinjuku-honten": {
@@ -14365,7 +14422,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "sushi-ten",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-bic-shinjuku-east": {
@@ -14385,7 +14445,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "sushi-ten",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-uniqlo-harajuku": {
@@ -14405,7 +14468,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "meiji-jingu",
-   "walkMin": 12
+   "walkMin": 12,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-3coins-harajuku": {
@@ -14425,7 +14491,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "omotesando",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-cat-street": {
@@ -14443,7 +14512,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "omotesando",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-gu-shibuya": {
@@ -14463,7 +14535,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "toritake",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-shibuya-loft": {
@@ -14482,7 +14557,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "toritake",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-shibuya-parco": {
@@ -14502,7 +14580,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "toritake",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-mega-donki-shibuya": {
@@ -14521,7 +14602,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "toritake",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-abc-mart-shibuya": {
@@ -14539,7 +14623,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "toritake",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-hakone-yumoto-ekimae": {
@@ -14557,7 +14644,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "st-hakone-yumoto",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-kashinoichi-shimizu": {
@@ -14577,7 +14667,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "kaizan",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-jr-nagoya-takashimaya": {
@@ -14595,7 +14688,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "st-nagoya",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-welcia-ise-kawasaki": {
@@ -14613,7 +14709,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "era-ise",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-okage-yokocho": {
@@ -14632,7 +14731,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "okage-yokocho",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-toba-marche": {
@@ -14650,7 +14752,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "st-toba",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-uniqlo-kyoto-mina": {
@@ -14670,7 +14775,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-loft-kyoto-mina": {
@@ -14690,7 +14798,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "cross-kyoto",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-hands-kyoto": {
@@ -14709,7 +14820,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "cross-kyoto",
-   "walkMin": 17
+   "walkMin": 17,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-daimaru-kyoto": {
@@ -14729,7 +14843,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "cross-kyoto",
-   "walkMin": 14
+   "walkMin": 14,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-ippodo-daimaru-kyoto": {
@@ -14749,7 +14866,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "cross-kyoto",
-   "walkMin": 14
+   "walkMin": 14,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-ippodo-honten": {
@@ -14769,7 +14889,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 12
+   "walkMin": 12,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-ichizawa-shinzaburo": {
@@ -14790,7 +14913,10 @@ export const DETAILS: Record<string, Detail> = {
    ],
    "taxFree": null,
    "near": "yasaka-shrine",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-teramachi-kyogoku": {
@@ -14808,7 +14934,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-nishiki-market": {
@@ -14827,7 +14956,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 9
+   "walkMin": 9,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-matsukiyo-kiyamachi-kyoto": {
@@ -14845,7 +14977,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-nakagawa-masashichi-nara": {
@@ -14862,7 +14997,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "nakagawa-masashichi-nara",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-higashimuki": {
@@ -14881,7 +15019,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "hosekibako",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-uniqlo-shinsaibashisuji": {
@@ -14901,7 +15042,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "forza-osaka",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-gu-shinsaibashi": {
@@ -14920,7 +15064,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "forza-osaka",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-donki-dotonbori-midosuji": {
@@ -14940,7 +15087,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "forza-osaka",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-amerikamura": {
@@ -14958,7 +15108,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "forza-osaka",
-   "walkMin": 11
+   "walkMin": 11,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-doguyasuji-kyoya": {
@@ -14978,7 +15131,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "doguyasuji",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-takashimaya-osaka": {
@@ -14996,7 +15152,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "takashimaya-osaka",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-workman-colors-namba-city": {
@@ -15016,7 +15175,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "takashimaya-osaka",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-hankyu-umeda": {
@@ -15036,7 +15198,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "loft-umeda",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-loft-umeda": {
@@ -15056,7 +15221,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "loft-umeda",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-links-umeda": {
@@ -15074,7 +15242,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "loft-umeda",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-yodobashi-umeda": {
@@ -15092,7 +15263,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "loft-umeda",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-hands-shinsaibashi": {
@@ -15112,7 +15286,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "forza-osaka",
-   "walkMin": 10
+   "walkMin": 10,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-anello-shinsaibashi": {
@@ -15130,7 +15307,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "forza-osaka",
-   "walkMin": 13
+   "walkMin": 13,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-kix-shops": {
@@ -15148,7 +15328,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "kix",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-muji-akiba-trim": {
@@ -15168,7 +15351,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "resol-akihabara",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-muji-ginza": {
@@ -15188,7 +15374,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "maruzen-nihonbashi",
-   "walkMin": 18
+   "walkMin": 18,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-muji-lumine-shinjuku": {
@@ -15208,7 +15397,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "sushi-ten",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-muji-kyoto-bal": {
@@ -15228,7 +15420,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "sh-muji-shinsaibashi-parco": {
@@ -15248,7 +15443,10 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "forza-osaka",
-   "walkMin": 10
+   "walkMin": 10,
+   "plan": null,
+   "buy": [],
+   "advice": null
   }
  },
  "fs-lawson-kawaguchiko-ekimae": {

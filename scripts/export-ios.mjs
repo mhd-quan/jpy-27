@@ -8,11 +8,11 @@
 //
 // Usage: node scripts/export-ios.mjs
 
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { DAYS, ALT_DAYS, dayKey } from '../src/data/days.ts';
 import { LINES, MODE_LABEL } from '../src/data/lines.ts';
-import { allPlaces, place } from '../src/data/catalog.ts';
+import { allPlaces, hasPlace, place } from '../src/data/catalog.ts';
 import { GEO } from '../src/data/geo.gen.ts';
 import { WALK_LEGS, WALK_STAYS } from '../src/data/walk.gen.ts';
 import { SHOP_ROUTES } from '../src/data/shopping.gen.ts';
@@ -243,6 +243,20 @@ const slotOut = (s) => ({
   items: itemsFor(s).map((i) => i.id),
 });
 
+// What a Fuji viewpoint looks like: its own photos (research/fuji-photos.json), else those of the
+// trip's place for the same spot within 300 m (Ōishi Park and Chūreitō are listed twice).
+const commonsMap = JSON.parse(readFileSync(join(root, 'research/commons-map.json'), 'utf8'));
+const fujiPhotoFile = join(root, 'research/fuji-photos.json');
+const fujiPhotoSet = existsSync(fujiPhotoFile) ? JSON.parse(readFileSync(fujiPhotoFile, 'utf8')) : {};
+const fujiPhotos = (s) => {
+  const own = (fujiPhotoSet[s.id]?.images ?? []).filter((i) => i?.url).map((i) => img({ ...i, src: commonsMap[i.url] ?? i.url }));
+  if (own.length) return own;
+  if (hasPlace(s.id)) return [];
+  const m = (a, b) => Math.hypot((a.lat - b.lat) * 111_320, (a.lng - b.lng) * 111_320 * Math.cos((a.lat * Math.PI) / 180));
+  const twin = allPlaces().filter((p) => p.images?.length && m(p, s) < 300).sort((a, b) => m(a, s) - m(b, s))[0];
+  return (twin?.images ?? []).map(img);
+};
+
 const stayAround = (id) => {
   const g = STAYS_GEN[id] && deepTidy(STAYS_GEN[id]);
   if (!g) return undefined;
@@ -286,7 +300,7 @@ const guide = clean({
   hunt: HUNT_STEPS,
   fuji: {
     summit: FUJI_SUMMIT,
-    spots: FUJI_SPOTS.map((s) => ({ ...s, day: s.day == null ? undefined : String(s.day) })),
+    spots: FUJI_SPOTS.map((s) => ({ ...s, day: s.day == null ? undefined : String(s.day), images: fujiPhotos(s) })),
     panoramas: FUJI_PANORAMAS,
     research: FUJI_RESEARCH,
     kawaguchiko: FUJI_SPOTS_R.kawaguchikoDay,

@@ -27,6 +27,8 @@ enum Route: Hashable {
     case budget
     case shopping
     case slot(String)
+    /// a sight on one of a hotel's walks that the trip has no page of its own for
+    case highlight(stay: String, walk: String, index: Int)
 }
 
 /// Modal destinations.
@@ -604,11 +606,16 @@ enum AppSheet: Identifiable, Hashable {
     /// Walking directions in Apple Maps: turn-by-turn on foot is what MapLibre cannot give.
     func walk(to placeID: String) {
         guard let p = store.place(placeID) else { return }
+        walk(to: p.coordinate, named: p.ja ?? p.name)
+    }
+
+    /// The same for a point that is not a place of the trip (a sight on a hotel's walk).
+    func walk(to point: Coordinate, named name: String) {
         var c = URLComponents(string: "maps://")!
         c.queryItems = [
-            URLQueryItem(name: "daddr", value: "\(p.lat),\(p.lng)"),
+            URLQueryItem(name: "daddr", value: "\(point.lat),\(point.lng)"),
             URLQueryItem(name: "dirflg", value: "w"),
-            URLQueryItem(name: "q", value: p.ja ?? p.name),
+            URLQueryItem(name: "q", value: name),
         ]
         if let url = c.url { UIApplication.shared.open(url) }
     }

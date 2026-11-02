@@ -139,6 +139,7 @@ struct RouteHost: View {
         case .budget: BudgetView()
         case .shopping: ShoppingView()
         case .slot(let id): SlotView(id: id)
+        case .highlight(let stay, let walk, let index): StayHighlightView(stay: stay, walk: walk, index: index)
         }
     }
 }
