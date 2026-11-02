@@ -117,11 +117,6 @@ private struct HomeCover: View {
             .scrollPosition(id: $page)
             .scrollIndicators(.hidden)
             .onScrollVisibilityChange(threshold: 0.15) { visible = $0 }
-            // pulled down, the photograph grows instead of leaving a gap above it
-            .visualEffect { content, proxy in
-                let y = proxy.frame(in: .scrollView(axis: .vertical)).minY
-                return content.scaleEffect(y > 0 ? 1 + y / height : 1, anchor: .bottom)
-            }
             // a paper mist under the status bar, and the bottom fading into the page
             .overlay(alignment: .top) {
                 LinearGradient(colors: [Palette.paper.opacity(0.9), Palette.paper.opacity(0)], startPoint: .top, endPoint: .bottom)
@@ -132,6 +127,13 @@ private struct HomeCover: View {
                 LinearGradient(stops: [.init(color: Palette.paper.opacity(0), location: 0), .init(color: Palette.paper.opacity(0.85), location: 0.6), .init(color: Palette.paper, location: 1)], startPoint: .top, endPoint: .bottom)
                     .frame(height: 170)
                     .allowsHitTesting(false)
+            }
+            // pulled down, the photograph grows instead of leaving a gap above it, and its mist
+            // and fade grow with it: scaled before them, the mist stayed where the photograph's
+            // top had been and cut a white band across it
+            .visualEffect { content, proxy in
+                let y = proxy.frame(in: .scrollView(axis: .vertical)).minY
+                return content.scaleEffect(y > 0 ? 1 + y / height : 1, anchor: .bottom)
             }
 
             if shots.indices.contains(current) {

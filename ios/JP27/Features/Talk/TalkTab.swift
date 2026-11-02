@@ -80,7 +80,7 @@ struct TalkTab: View {
                         Label {
                             Text("Cẩm nang").font(.body.weight(.semibold))
                         } icon: {
-                            GlyphTile(symbol: "book.closed.fill", tint: Palette.ai, size: 28)
+                            GlyphTile(symbol: "book.closed.fill", tint: Iro.konjo, size: 28)
                         }
                         Spacer()
                         Text("Vé, hành lý, onsen").font(.subheadline).foregroundStyle(.secondary)

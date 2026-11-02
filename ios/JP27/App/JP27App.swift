@@ -57,6 +57,7 @@ struct RootView: View {
     @Environment(AppModel.self) private var model
     @AppStorage(Appearance.key) private var appearance: Appearance = .system
     @Namespace private var zoom
+    @State private var scroll = TabBarScroll()
 
     var body: some View {
         @Bindable var model = model
@@ -80,7 +81,9 @@ struct RootView: View {
                 SpendTab()
             }
         }
-        .tabBarMinimizeBehavior(.onScrollDown)
+        // folds on a scroll down, opens again on any scroll up (iOS 27 waits for the top: `TabBarScroll`)
+        .tabBarMinimizeBehavior(scroll.up ? .never : .onScrollDown)
+        .environment(scroll)
         .modifier(NowAccessorySlot(live: model.live.ride != nil || model.next != nil))
         .progressiveEdges()
         .presentsSheets()

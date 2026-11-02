@@ -231,12 +231,12 @@ struct ModeDot: View {
 extension View {
     /// The paper every scrolling screen sits on, with the soft edge under its bars.
     func screen() -> some View {
-        progressiveEdges().background(Palette.paper)
+        progressiveEdges().tabBarFollowsScroll().background(Palette.paper)
     }
 
     /// A grouped list on the same paper; its rows keep the system's card colour.
     func paperList() -> some View {
-        scrollContentBackground(.hidden).progressiveEdges().background(Palette.paper)
+        scrollContentBackground(.hidden).progressiveEdges().tabBarFollowsScroll().background(Palette.paper)
     }
 }
 

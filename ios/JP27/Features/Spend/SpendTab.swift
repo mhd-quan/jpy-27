@@ -494,7 +494,10 @@ private struct SpendPurses: View {
 
 // MARK: - Budget and shopping
 
+/// Two buttons in one list row: a `NavigationLink` there would make the whole row one link (a tap on
+/// either tile opened whichever the list picked), so each tile is a button that pushes its own page.
 private struct SpendShortcuts: View {
+    @Environment(AppModel.self) private var model
     let budget: Int
     let owned: Int
     let items: Int
@@ -507,7 +510,9 @@ private struct SpendShortcuts: View {
     }
 
     private func tile(_ route: Route, symbol: String, tint: Color, title: String, detail: String) -> some View {
-        NavigationLink(value: route) {
+        Button {
+            model.spendPath.append(route)
+        } label: {
             HStack(spacing: 12) {
                 GlyphTile(symbol: symbol, tint: tint, size: 34)
                 VStack(alignment: .leading, spacing: 1) {

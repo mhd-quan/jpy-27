@@ -159,3 +159,52 @@ private struct SheetLayer: ViewModifier {
         )
     }
 }
+
+// MARK: - Tab bar on scroll
+
+/// iOS 26 brought a minimized tab bar back on any scroll up; iOS 27 only does so at the very top
+/// of the page. Each page's scroll view says which way it last went, and while that is up the tab
+/// bar is told not to minimize (so it opens on the first flick up, as on iOS 26); the next scroll
+/// down hands it back to `.onScrollDown`, which folds it again.
+@Observable final class TabBarScroll {
+    var up = false
+}
+
+extension View {
+    /// Reports this scroll view's direction to the tab bar. `screen()` and `paperList()` add it.
+    func tabBarFollowsScroll() -> some View {
+        modifier(TabBarFollowsScroll())
+    }
+}
+
+private struct TabBarFollowsScroll: ViewModifier {
+    @Environment(TabBarScroll.self) private var bar: TabBarScroll?
+    /// where the scroll last turned, kept out of SwiftUI's sight: it moves every frame
+    @State private var track = Track()
+
+    final class Track {
+        var turn: CGFloat = 0
+        var up = false
+    }
+
+    /// points to travel before a turn counts, so a finger resting on the glass does not flicker it
+    private static let slack: CGFloat = 24
+
+    func body(content: Content) -> some View {
+        content.onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y + $0.contentInsets.top } action: { _, y in
+            let t = track
+            if t.up {
+                if y < t.turn { t.turn = y } else if y > t.turn + Self.slack { turn(up: false, at: y) }
+            } else {
+                if y > t.turn { t.turn = y } else if y < t.turn - Self.slack { turn(up: true, at: y) }
+            }
+        }
+    }
+
+    private func turn(up: Bool, at y: CGFloat) {
+        track.up = up
+        track.turn = y
+        if let bar, bar.up != up { bar.up = up }
+    }
+}
+

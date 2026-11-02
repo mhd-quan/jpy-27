@@ -223,22 +223,44 @@ enum TalkSymbols {
         }
     }
 
-    /// Situations take the colour of what they are about: food persimmon, getting around indigo,
-    /// the hotel wisteria, out and about peach, anything urgent red.
+    /// Situations take the colour of what they are about, in Japan's traditional dye colours
+    /// (日本の伝統色), each deep enough for a white glyph in light and dark: vermilion of torii and
+    /// lacquer for food, indigo of noren and work cloth for getting around, Edo purple for the inn,
+    /// pine green for temples and streets, tea gold for shopping, crimson for anything urgent.
     static func tint(_ id: String) -> Color {
         switch id {
         case "greet", "table", "order", "shokken", "ask-food", "diet", "izakaya", "cafe", "pay", "reserve", "takeout":
-            Place.Kind.food.tint
+            Iro.shu
         case "ticket", "platform", "bus", "lost", "locker", "taxi", "ferry":
-            Palette.ai
+            Iro.ai
         case "checkin", "forward", "ryokan", "onsen", "room-problem", "checkout":
-            Place.Kind.stay.tint
+            Iro.edoMurasaki
         case "health", "pharmacy", "emergency":
-            Palette.sun
+            Iro.kurenai
+        case "shop", "souvenir":
+            Iro.kincha
         default:
-            Place.Kind.shop.tint
+            Iro.tokiwa
         }
     }
+}
+
+/// 日本の伝統色, the phrasebook's colours.
+enum Iro {
+    /// 朱 shu: torii, lacquer
+    static let shu = Color(hex: "#D3501C")
+    /// 藍 ai: indigo dye
+    static let ai = Color(hex: "#165E83")
+    /// 江戸紫 Edo murasaki
+    static let edoMurasaki = Color(hex: "#745399")
+    /// 常磐 tokiwa: evergreen pine
+    static let tokiwa = Color(hex: "#1E7B4F")
+    /// 金茶 kincha: tea gold
+    static let kincha = Color(hex: "#B26E1E")
+    /// 紅 kurenai: crimson
+    static let kurenai = Color(hex: "#C1123A")
+    /// 紺青 konjō: Prussian blue, Hokusai's wave
+    static let konjo = Color(hex: "#1F3A6E")
 }
 
 // MARK: - Offline translation
