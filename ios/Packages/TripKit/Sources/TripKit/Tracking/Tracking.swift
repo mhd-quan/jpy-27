@@ -32,6 +32,13 @@ public struct FencePlanner: Sendable {
     public let store: TripStore
     public var limit = 20
 
+    /// Metres. Apple promises no better than about 100–200 m for a circle in a city, and a 60–90 m
+    /// circle between Tokyo's towers either never fires or fires once you have walked past the door:
+    /// a little early ("Owariya is round the corner, order the tempura soba") beats too late.
+    public static let placeRadius = 150.0
+    /// a station's entrances spread over a block or more
+    public static let stationRadius = 220.0
+
     public init(store: TripStore) {
         self.store = store
     }
@@ -47,20 +54,20 @@ public struct FencePlanner: Sendable {
         }
         let itinerary = Itinerary(store: store)
         for (i, s) in today.stops where i >= cursor {
-            if let p = store.place(s.place), p.kind == .food { add(p, .food, today, i, radius: 70) }
+            if let p = store.place(s.place), p.kind == .food { add(p, .food, today, i, radius: Self.placeRadius) }
         }
         for a in today.along {
-            if let p = store.place(a.place), p.snack != nil || p.menu != nil { add(p, .snack, today, nil, radius: 60) }
+            if let p = store.place(a.place), p.snack != nil || p.menu != nil { add(p, .snack, today, nil, radius: Self.placeRadius) }
         }
         var i = cursor
         while let dep = itinerary.nextDeparture(today, cursor: i) {
-            if let p = store.place(dep.move.leg.from) { add(p, .station, today, dep.index, radius: 180) }
+            if let p = store.place(dep.move.leg.from) { add(p, .station, today, dep.index, radius: Self.stationRadius) }
             i = dep.index + 1
         }
-        if let stay = store.place(today.stay) { add(stay, .stay, today, nil, radius: 90) }
+        if let stay = store.place(today.stay) { add(stay, .stay, today, nil, radius: Self.placeRadius) }
         if let tomorrow {
             for (i, s) in tomorrow.stops {
-                if let p = store.place(s.place), p.kind == .food { add(p, .food, tomorrow, i, radius: 70) }
+                if let p = store.place(s.place), p.kind == .food { add(p, .food, tomorrow, i, radius: Self.placeRadius) }
             }
         }
         return out
@@ -79,6 +86,27 @@ public struct VisitRecord: Sendable, Hashable, Codable {
         self.arrival = arrival
         self.departure = departure
         self.coordinate = coordinate
+    }
+}
+
+extension VisitRecord {
+    /// iOS reports one stay twice: when you arrive (no departure yet), then when you leave (both
+    /// times). Records with the same arrival (within two minutes) and place (within 100 m) are one
+    /// stay; the one that knows the departure wins.
+    public static func merged(_ visits: [VisitRecord]) -> [VisitRecord] {
+        var out: [VisitRecord] = []
+        for v in visits.sorted(by: { $0.arrival < $1.arrival }) {
+            if let k = out.firstIndex(where: { $0.isSameStay(as: v) }) {
+                if out[k].departure == nil, v.departure != nil { out[k] = v }
+            } else {
+                out.append(v)
+            }
+        }
+        return out
+    }
+
+    public func isSameStay(as other: VisitRecord) -> Bool {
+        abs(arrival.timeIntervalSince(other.arrival)) <= 120 && Geo.km(coordinate, other.coordinate) <= 0.1
     }
 }
 
@@ -114,7 +142,7 @@ public struct Journal: Sendable {
 
     public init(store: TripStore, day: Day, visits: [VisitRecord], marked: [Int: Date], now: Date) {
         let midnight = TripTime.midnight(day.date) ?? now
-        let dayVisits = visits.filter { $0.arrival >= midnight.addingTimeInterval(4 * 3600) && $0.arrival < midnight.addingTimeInterval(28 * 3600) }
+        let dayVisits = VisitRecord.merged(visits).filter { $0.arrival >= midnight.addingTimeInterval(4 * 3600) && $0.arrival < midnight.addingTimeInterval(28 * 3600) }
             .sorted { $0.arrival < $1.arrival }
         var used = Set<Int>()
         var entries: [Entry] = []
@@ -183,10 +211,16 @@ public struct PaceModel: Codable, Sendable, Hashable {
         fold(planned / actual, weight: actual)
     }
 
+    /// Minutes of walking the model itself is worth before anything is measured: without it the
+    /// first walk decides everything, and one slow leg (a crowd, a photo stop) would stretch every
+    /// walk left in the trip.
+    static let prior = 45.0
+
     private mutating func fold(_ sample: Double, weight: Double) {
         let s = min(Self.bounds.upperBound, max(Self.bounds.lowerBound, sample))
-        // the last two hours of walking count most; older walks fade
-        let keep = min(minutes, 120)
+        // the last two hours of walking count most; older walks fade; the model never counts for
+        // less than `prior`
+        let keep = max(Self.prior, min(minutes, 120))
         factor = (factor * keep + s * weight) / (keep + weight)
         minutes += weight
     }

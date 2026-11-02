@@ -111,6 +111,16 @@ public final class TripStore: Sendable {
         return pts
     }
 
+    /// A temple or a shrine, where the phrases for tickets, goshuin and photos apply: by its
+    /// category, else by how its Japanese name ends (化野念仏寺, 富士山本宮浅間大社). Not by the
+    /// romanised name: "ji" is in Uji, Tōshijima and Hanamikoji too.
+    public static func isSacred(_ place: Place) -> Bool {
+        if place.category == "temple" || place.category == "shrine" { return true }
+        guard let ja = place.ja else { return false }
+        let name = ja.split(whereSeparator: { "（(・ ".contains($0) }).first.map(String.init) ?? ja
+        return ["寺", "神社", "神宮", "大社", "天満宮"].contains { name.hasSuffix($0) }
+    }
+
     /// Scenarios that fit a place: its kind first, then extras the site attached by id.
     public func scenarios(for place: Place) -> [Scenario] {
         let extra: [String: [String]] = ["mizunoto": ["ryokan", "onsen"], "wargo-gion": ["kimono"], "st-toba": ["locker"], "kix": ["checkout"]]
@@ -121,7 +131,7 @@ public final class TripStore: Sendable {
             tags = (place.name + (place.ja ?? "")).range(of: "Bến|Marine|港", options: .regularExpression) != nil ? ["ferry"] : ["ticket", "platform"]
         case .stay: tags = ["checkin", "checkout", "forward"]
         case .shop: tags = ["shop", "souvenir", "pay"]
-        case .sight: tags = place.category == "temple" || place.name.contains("Jing") || place.name.contains("ji") ? ["temple"] : ["directions"]
+        case .sight: tags = Self.isSacred(place) ? ["temple"] : ["directions"]
         }
         tags += extra[place.id] ?? []
         var seen = Set<String>()

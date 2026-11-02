@@ -55,7 +55,9 @@ extension PlanEngine {
         }
 
         var best: (set: [Int], spare: Double)?
-        for size in 1 ... min(3, candidates.count) {
+        // `stride`, not `1 ... n`: with nothing left to drop (you are already at the departure,
+        // or every stop before it is fixed) the closed range would be 1...0 and trap
+        for size in stride(from: 1, through: min(3, candidates.count), by: 1) {
             for set in Self.combinations(candidates, size) {
                 let s = spare(dropping: set)
                 guard s >= 0 else { continue }

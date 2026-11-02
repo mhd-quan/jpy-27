@@ -84,11 +84,36 @@ public struct Itinerary: Sendable {
         return out
     }
 
-    /// First item still ahead: right after the last one marked done, otherwise by the plan's clock.
-    public func cursor(_ day: Day, done: Set<Int>, now: Double) -> Int {
-        if let last = done.max() { return min(last + 1, day.items.count) }
+    /// First item still ahead: right after the last one marked done, otherwise by the plan's clock,
+    /// unless where you stand says otherwise. The clock alone puts you at the station at 16:05
+    /// while you may still be inside Sensō-ji; standing at a stop, you are at that stop, whether
+    /// the clock has moved past it (late) or not reached it yet (early). Only stops up to the next
+    /// departure that will not wait count, so being near a later stop never skips a train.
+    public func cursor(_ day: Day, done: Set<Int>, now: Double, position: Coordinate? = nil, skips: Set<Int> = []) -> Int {
+        let floor = done.max().map { min($0 + 1, day.items.count) } ?? 0
         let slots = engine.simulate(day)
-        return slots.first { $0.end > now }?.index ?? day.items.count
+        let clock = done.isEmpty ? (slots.first { $0.end > now }?.index ?? day.items.count) : floor
+        guard let position, clock < day.items.count else { return clock }
+        let ceiling = (clock ..< day.items.count).first { engine.isHard(day.items[$0]) } ?? (day.items.count - 1)
+        guard floor <= ceiling else { return clock }
+        let ends = Dictionary(slots.map { ($0.index, $0.end) }, uniquingKeysWith: { a, _ in a })
+        var best: (index: Int, ratio: Double)?
+        for i in floor ... ceiling where !done.contains(i) && !skips.contains(i) {
+            guard case .stop(let s) = day.items[i], let p = store.place(s.place), p.kind != .station else { continue }
+            // a stop the plan left more than two hours ago is not where the day stands, even when
+            // the evening walk passes it again
+            if let end = ends[i], end < now - 120 { continue }
+            let radius = Self.atRadius(p)
+            let ratio = Geo.km(p.coordinate, position) / radius
+            // nearest relative to the place's size; on a tie, the later stop
+            if ratio <= 1, best.map({ ratio <= $0.ratio }) ?? true { best = (i, ratio) }
+        }
+        return best?.index ?? clock
+    }
+
+    /// How close counts as being at a place, km: temple grounds and parks are wide, a counter is not.
+    public static func atRadius(_ p: Place) -> Double {
+        p.kind == .sight ? 0.25 : 0.12
     }
 
     /// The next waypoint at or after the cursor.
@@ -126,12 +151,13 @@ public struct Itinerary: Sendable {
         destination(day, index).map { PlanEngine.directWalk(position, $0.coordinate, pace: pace) }
     }
 
-    /// Live projection of the rest of the day, and a replan when a fixed time is at risk.
-    public func project(_ day: Day, done: Set<Int>, now: Double, position: Coordinate?, pace: Double = 1, skips: Set<Int> = []) -> (slots: [PlanEngine.Slot], replan: Replan?) {
-        let from = cursor(day, done: done, now: now)
-        guard from < day.items.count else { return ([], nil) }
+    /// Live projection of the rest of the day from where you are, and a replan when a fixed time
+    /// is at risk.
+    public func project(_ day: Day, done: Set<Int>, now: Double, position: Coordinate?, pace: Double = 1, skips: Set<Int> = []) -> (cursor: Int, slots: [PlanEngine.Slot], replan: Replan?) {
+        let from = cursor(day, done: done, now: now, position: position, skips: skips)
+        guard from < day.items.count else { return (from, [], nil) }
         let reach = position.flatMap { toReach(day, from, from: $0, pace: pace) }
         let o = PlanEngine.Options.live(from: from, now: now, toReach: reach, skips: skips, pace: pace)
-        return (engine.simulate(day, o), engine.replan(day, o))
+        return (from, engine.simulate(day, o), engine.replan(day, o))
     }
 }

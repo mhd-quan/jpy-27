@@ -22,6 +22,47 @@ import Testing
         #expect(r.drop.contains(17), "drops Umezono, got \(r.drop)")
     }
 
+    @Test func atTheDepartureWithNothingLeftToDrop() throws {
+        // 16:05, nothing marked, a kilometre from Asakusa: the clock has the day at the Ginza Line
+        // itself, with no stop before it left to drop. This trapped on `1 ... 0`.
+        let o = PlanEngine.Options.live(from: 19, now: 16 * 60 + 5, toReach: 16)
+        let r = try #require(PlanEngine(store: store).replan(day2, o))
+        #expect(r.target == 19)
+        #expect(r.drop.isEmpty)
+        #expect(!r.works)
+    }
+
+    @Test func standingAtAStopHoldsTheDayThere() throws {
+        let it = Itinerary(store: store)
+        let sensoji = try #require(store.place("sensoji"))
+        let now = Double(16 * 60 + 5)
+        // by the clock alone the day is at the station; you are still in Sensō-ji
+        #expect(it.cursor(day2, done: [], now: now) >= 18)
+        #expect(it.cursor(day2, done: [], now: now, position: sensoji.coordinate) == 14)
+        let p = it.project(day2, done: [], now: now, position: sensoji.coordinate)
+        #expect(p.cursor == 14)
+        // from there the 16:15 is at risk, and the advice is about it
+        let r = try #require(p.replan, "replan: \(String(describing: p.replan))")
+        #expect(r.target == 19, "\(r)")
+    }
+
+    @Test func aMorningStopPassedAtNightDoesNotRewindTheDay() throws {
+        let it = Itinerary(store: store)
+        let kayaba = try #require(store.place("kayaba"))
+        let clock = it.cursor(day2, done: [], now: 20 * 60)
+        #expect(it.cursor(day2, done: [], now: 20 * 60, position: kayaba.coordinate) == clock)
+    }
+
+    @Test func farFromEveryStopTheClockDecides() {
+        let it = Itinerary(store: store)
+        // about a kilometre north of Asakusa station, near none of the day's stops
+        let away = Coordinate(35.7205, 139.7975)
+        let now = Double(16 * 60 + 5)
+        #expect(it.cursor(day2, done: [], now: now, position: away) == it.cursor(day2, done: [], now: now))
+        // and the replan from there does not trap either
+        _ = it.project(day2, done: [], now: now, position: away)
+    }
+
     @Test func mergedWalkIsShorterThanTheDetour() {
         let engine = PlanEngine(store: store)
         let keep = engine.simulate(day2, .live(from: 16, now: 900))
@@ -99,6 +140,30 @@ import Testing
         #expect(names.contains("天せいろ"))
         #expect(hits.first { $0.candidate.item.ja == "天ぷらそば" }?.printedYen == 2000)
         #expect(!names.contains { $0.contains("ビール") } || hits.count >= 2)
+    }
+
+    @Test func sameDishInOtherCharactersMatchesByReading() {
+        // a stand-in for the system's dictionary, which Linux does not have
+        let words = ["天麩羅": "tenpura", "天ぷら": "tenpura", "蕎麦": "soba", "そば": "soba",
+                     "牛丼": "gyuudon", "弁当": "bentou", "持ち帰り": "mochikaeri"]
+        let reading = Reading { s in
+            words.sorted { $0.key.count > $1.key.count }.reduce(s) { $0.replacingOccurrences(of: $1.key, with: $1.value) }
+        }
+        #expect(JapaneseText.similarity("天ぷら蕎麦", "天ぷらそば") < 0.55)
+        #expect(JapaneseText.similarity("天ぷら蕎麦", "天ぷらそば", reading: reading) == 1)
+        #expect(JapaneseText.similarity("天麩羅そば", "天ぷらそば", reading: reading) == 1)
+        // the bowl's name inside a takeaway box's line is not the bowl
+        #expect(JapaneseText.similarity("持ち帰り 牛丼弁当", "牛丼") < 0.55)
+        #expect(JapaneseText.similarity("持ち帰り 牛丼弁当", "牛丼", reading: reading) < 0.55)
+        // a dish named inside a longer line still is the dish
+        #expect(JapaneseText.similarity("名物 天ぷらそば", "天ぷらそば") >= 0.55)
+
+        let soba = MenuMatcher.Candidate(placeID: "x", item: MenuItem(ja: "天ぷらそば", romaji: nil, vi: "Soba tempura", yen: 2000, yenNote: nil, pick: .signature, note: nil))
+        let beef = MenuMatcher.Candidate(placeID: "x", item: MenuItem(ja: "牛丼", romaji: nil, vi: "Cơm bò", yen: 500, yenNote: nil, pick: .popular, note: nil))
+        let hits = MenuMatcher(candidates: [soba, beef], reading: reading)
+            .match(lines: ["天麩羅そば ２，０００円", "持ち帰り 牛丼弁当 650円"])
+        #expect(hits.map(\.candidate.item.ja) == ["天ぷらそば"])
+        #expect(hits.first?.printedYen == 2000)
     }
 
     @Test func heardLinesFindReplies() throws {
@@ -204,6 +269,48 @@ import Testing
         #expect(k.status == .visited(arrival: visits[0].arrival, departure: visits[0].departure, late: 12))
         #expect(j.entries.first { $0.place.id == "umezono" }?.status == .skipped)
         #expect(j.visited == 2)
+    }
+
+    @Test func oneStayReportedTwiceIsOneVisit() throws {
+        let day = store.day("2")!
+        let sensoji = try #require(store.place("sensoji"))
+        let arrive = try #require(TripTime.date(day.date, "13:50"))
+        let leave = try #require(TripTime.date(day.date, "14:40"))
+        // iOS: once on arrival (no departure yet), once on leaving (both times), a few metres apart
+        let visits = [
+            VisitRecord(arrival: arrive, departure: nil, coordinate: sensoji.coordinate),
+            VisitRecord(arrival: arrive.addingTimeInterval(30), departure: leave, coordinate: Coordinate(sensoji.coordinate.lat + 0.0002, sensoji.coordinate.lng)),
+        ]
+        #expect(VisitRecord.merged(visits).count == 1)
+        #expect(VisitRecord.merged(visits).first?.departure == leave)
+        let j = Journal(store: store, day: day, visits: visits, marked: [:], now: TripTime.date(day.date, "22:00")!)
+        let e = try #require(j.entries.first { $0.place.id == "sensoji" })
+        if case .visited(_, let departure, _) = e.status { #expect(departure == leave) } else { Issue.record("not visited: \(e.status)") }
+        #expect(j.extras.isEmpty)
+    }
+
+    @Test func fencesAreWideEnoughForACity() {
+        let days = store.days()
+        let f = FencePlanner(store: store).fences(today: days[1], cursor: 0, tomorrow: days[2])
+        #expect(!f.isEmpty)
+        #expect(f.allSatisfy { $0.radius >= 150 })
+    }
+
+    @Test func oneSlowLegDoesNotDecideThePace() {
+        var pace = PaceModel()
+        // a 15-minute walk that took 22 (a crowd, a photo): the model still counts for more
+        pace.add(planned: 15, actual: 22)
+        #expect(pace.factor > 0.85)
+        #expect(pace.factor < 1)
+    }
+
+    @Test func templePhrasesOnlyAtTemplesAndShrines() throws {
+        for id in ["uji-bridge", "toshijima-wagu", "toshijima-toshi", "hanamikoji", "ishibe-koji", "hozenji", "fs-shimoyoshida-station", "kashikojima"] {
+            #expect(!TripStore.isSacred(try #require(store.place(id))), "\(id)")
+        }
+        for id in ["sensoji", "meiji-jingu", "nezu-shrine", "adashino", "kiyomizudera", "fs-fujisan-hongu-sengen-taisha"] {
+            #expect(TripStore.isSacred(try #require(store.place(id))), "\(id)")
+        }
     }
 
     @Test func paceLearnsSlowWalkers() {
