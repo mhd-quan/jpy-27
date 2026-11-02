@@ -177,28 +177,40 @@ private struct SheetLayer: ViewModifier {
 
 /// iOS 26 brought a minimized tab bar back on any scroll up; iOS 27 only does so at the very top
 /// of the page (`.atScrollEdge` restoration, which only the navigation bar lets an app change).
-/// The bar stays `.onScrollDown` throughout, so folding it is the system's own, scroll-driven
-/// morph; each page's scroll view reports when it turns upward, and the bar is then asked to open.
+/// So each page's scroll view reports when it turns upward (`tabBarFollowsScroll()`) and the bar is
+/// asked to open; folding stays the system's own, scroll-driven morph (`.onScrollDown`).
 ///
-/// Asking goes straight to UIKit: the bar is set to `.never`, which shows it whole, and handed back
-/// to `.onScrollDown` a moment later. UIKit applies that change in a single frame whatever
-/// animation is around it (a recording at 60 fps shows the fold over some eight frames and the
-/// open in one, with a spring around the change, and with the bar's layer slowed), and no API
-/// plays the fold backwards or starts the system's own expand. So the expand is drawn here: the
-/// bar opens at once, and before that frame is shown its content is shrunk back onto the folded
-/// capsule it came from (`sublayerTransform`, measured from what is on screen before and after),
-/// then springs out to the whole bar: leading edge first, the way the fold went in. The transform
-/// is on the bar's sublayers, not the bar, since UIKit sets the bar's frame and a frame set under
-/// a transform is undefined. Where the capsule cannot be told from the open bar, the bar just opens.
+/// Asking goes straight to UIKit: the bar is set to `.never`, which shows it whole, and handed
+/// back to `.onScrollDown` once the page is at rest. A change of behaviour applies in a single frame
+/// whatever animation is around it, both ways: set to `.never` the bar pops open, and set back to
+/// `.onScrollDown` while the page moves down it snaps shut (a recording showed the bar folding in
+/// one frame that way, when it was handed back on a timer). Handing back only when the page is
+/// still, or a finger has just landed on it, leaves every fold to the system's morph.
+///
+/// No API plays the fold backwards or starts the system's own expand (a tap on the capsule), so the
+/// expand is drawn here the way the system draws it: the bar opens at once, and before that frame
+/// is shown the glass is drawn shrunk back onto the capsule and stretches out to the whole bar, the
+/// selected tab slides from the capsule to its place, and the other tabs materialize where they
+/// sit, each as the glass reaches it. Every piece moves on its own layer, on top of what UIKit set
+/// there (additive animations), so nothing UIKit lays out is touched, and the animations ask
+/// ProMotion for its full rate. Where the pieces cannot be told apart, the whole platter stretches
+/// instead and the other tabs fade in over it; where the capsule cannot be told from the open bar,
+/// the bar just opens.
 @Observable final class TabBarScroll {
     @ObservationIgnored private weak var tabs: UITabBarController?
-    /// hands the bar back to `.onScrollDown` once the expand has settled
-    @ObservationIgnored private var handBack: Task<Void, Never>?
     /// the haptics of the bar's tabs, made once the bar is found
     @ObservationIgnored private var feel: TabBarFeel?
+    /// whether the tab on show lets the bar fold: the map does not, its panel is the page
+    @ObservationIgnored private(set) var folds = true
+    /// opened by `open()`, and waiting for the page to come to rest to fold again
+    @ObservationIgnored private var held = false
 
-    /// The expand's spring: about twice as long as the fold, so it reads as a movement.
+    /// The glass and the sliding tab: about twice as long as the fold, so it reads as a movement.
     private static let spring = (duration: 0.5, bounce: CGFloat(0.08))
+    /// how long each other tab takes to appear, and how much later the farthest one starts
+    private static let fade = (duration: 0.22, spread: 0.14)
+    /// the expand runs at the display's own rate (with `CADisableMinimumFrameDurationOnPhone`)
+    private static let rate = CAFrameRateRange(minimum: 80, maximum: 120, preferred: 120)
 
     /// Finds the bar once the window holds it, and gives its tabs their haptics. False while the
     /// window has not laid the `TabView` out yet.
@@ -210,84 +222,190 @@ private struct SheetLayer: ViewModifier {
         return true
     }
 
-    /// Opens the bar if it is folded; an open bar is left as it is.
-    func open() {
-        attach()
-        guard let tabs, let window = tabs.view.window else { return }
-        handBack?.cancel()
-        let bar = tabs.tabBar
-        let before = Self.platter(of: bar, in: window)
-        UIView.performWithoutAnimation {
-            tabs.tabBarMinimizeBehavior = .never
-            tabs.view.layoutIfNeeded()
-            bar.layoutIfNeeded()
-        }
-        // grown only from a capsule: a bar that was open already is left alone
-        if let from = before?.frame, from.width < window.bounds.width / 2 {
-            Self.grow(bar, from: from, in: window, tries: 3)
-        }
-        handBack = Task { [weak tabs] in
-            try? await Task.sleep(for: .seconds(Self.spring.duration + 0.05))
-            guard !Task.isCancelled else { return }
-            tabs?.tabBarMinimizeBehavior = .onScrollDown
+    /// The tab on show changed. One that keeps the bar whole opens it, with the same expand; one
+    /// that lets it fold hands it back at once, since a page just shown is not moving.
+    func setFolds(_ folds: Bool) {
+        self.folds = folds
+        guard attach(), let tabs else { return }
+        if folds {
+            held = false
+            tabs.tabBarMinimizeBehavior = .onScrollDown
+        } else {
+            open()
         }
     }
 
-    /// Draws the platter shrunk back onto `from`, the capsule it was folded into (in window
-    /// coordinates), and springs it out to the open bar: leading edges and middles meet. UIKit has
-    /// usually laid the open bar out by now, in this same frame, so nothing of it is seen unshrunk;
-    /// if it has not, the next turns of the run loop look again.
-    private static func grow(_ bar: UIView, from: CGRect, in window: UIWindow, tries: Int) {
-        guard let open = platter(of: bar, in: window), open.frame.width > from.width * 1.5 else {
+    /// Opens the bar if it is folded; an open bar is left as it is. It stays open (`.never`) until
+    /// `settle()`.
+    func open() {
+        guard attach(), let tabs, let window = tabs.view.window else { return }
+        let before = Self.platter(of: tabs.tabBar, in: window)?.frame
+        held = folds
+        UIView.performWithoutAnimation {
+            tabs.tabBarMinimizeBehavior = .never
+            tabs.view.layoutIfNeeded()
+        }
+        // grown only from a capsule: a bar that was open already is left alone
+        if let from = before, from.width < window.bounds.width / 2 {
+            Self.grow(tabs, from: from, in: window, tries: 3)
+        }
+    }
+
+    /// The page is still, or a finger has just landed on it: the bar may fold again, with the
+    /// next scroll down.
+    func settle() {
+        guard held, folds, let tabs else { return }
+        held = false
+        tabs.tabBarMinimizeBehavior = .onScrollDown
+    }
+
+    /// Draws the open bar coming out of `from`, the capsule it was folded into (in window
+    /// coordinates). UIKit has usually laid the open bar out by now, in this same frame, so nothing
+    /// of it is seen whole before it shrinks; if it has not, the next turns of the run loop look again.
+    private static func grow(_ tabs: UITabBarController, from: CGRect, in window: UIWindow, tries: Int) {
+        guard let open = platter(of: tabs.tabBar, in: window), open.frame.width > from.width * 1.5 else {
             if tries > 1 {
-                DispatchQueue.main.async { [weak bar, weak window] in
-                    guard let bar, let window else { return }
-                    Self.grow(bar, from: from, in: window, tries: tries - 1)
+                DispatchQueue.main.async { [weak tabs, weak window] in
+                    guard let tabs, let window else { return }
+                    Self.grow(tabs, from: from, in: window, tries: tries - 1)
                 }
             } else {
                 log.debug("tab bar did not open from \(String(describing: from), privacy: .public)")
             }
             return
         }
-        // the transform goes on the innermost layer that holds the whole platter and no more, and
-        // on top of what UIKit has set there (additive), so the bar's own layout is left untouched
-        let (to, holder) = (open.frame, open.view)
-        let layer = holder.layer
-        let anchor = holder.convert(CGPoint(x: holder.bounds.minX + holder.bounds.width * layer.anchorPoint.x,
-                                            y: holder.bounds.minY + holder.bounds.height * layer.anchorPoint.y),
-                                    to: window)
+        let to = open.frame
+        // the selected tab's place on the open bar, which UIKit shares evenly among the tabs
+        let count = max(1, tabs.tabs.count, tabs.tabBar.items?.count ?? 0)
+        let index = (0..<count).contains(tabs.selectedIndex) ? tabs.selectedIndex : 0
+        let width = to.width / CGFloat(count)
+        let slot = CGRect(x: to.minX + CGFloat(index) * width, y: to.minY, width: width, height: to.height)
+        let slide = CGVector(dx: from.midX - slot.midX, dy: from.midY - slot.midY)
+
+        if open.mixed {
+            stretch(open.holder, from: from, to: to, in: window)
+        } else {
+            for glass in open.glass { stretch(glass, from: from, to: to, in: window) }
+        }
+        for piece in open.tabs {
+            let center = piece.convert(CGPoint(x: piece.bounds.midX, y: piece.bounds.midY), to: window)
+            if slot.contains(center) {
+                // the selected tab: its icon was in the capsule; its name and the lens behind it
+                // were not, and appear on the way (one that holds the icon only slides)
+                if !open.mixed { slideIn(piece, by: slide) }
+                if !holdsIcon(piece) { materialize(piece, after: 0.05, pops: false) }
+            } else {
+                let reach = min(max((center.x - from.maxX) / max(1, to.maxX - from.maxX), 0), 1)
+                materialize(piece, after: fade.spread * reach, pops: !open.mixed)
+            }
+        }
+        log.debug("tab bar grows \(String(describing: from), privacy: .public) → \(String(describing: to), privacy: .public): \(open.glass.count) glass, \(open.tabs.count) tabs, mixed \(open.mixed)")
+    }
+
+    private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "tab-bar")
+
+    /// Draws `view` shrunk the way the open platter `to` maps onto the capsule `from` (leading
+    /// edges and middles meet), and springs it back to where UIKit put it.
+    private static func stretch(_ view: UIView, from: CGRect, to: CGRect, in window: UIWindow) {
+        let layer = view.layer
+        let frame = view.convert(view.bounds, to: window)
         let sx = from.width / to.width, sy = from.height / to.height
+        let start = CGRect(x: from.minX + (frame.minX - to.minX) * sx, y: from.midY + (frame.minY - to.midY) * sy,
+                           width: frame.width * sx, height: frame.height * sy)
+        let anchor = view.convert(CGPoint(x: view.bounds.minX + view.bounds.width * layer.anchorPoint.x,
+                                          y: view.bounds.minY + view.bounds.height * layer.anchorPoint.y),
+                                  to: window)
         let shrunk = CGAffineTransform(a: sx, b: 0, c: 0, d: sy,
-                                       tx: from.minX - anchor.x - sx * (to.minX - anchor.x),
-                                       ty: from.midY - anchor.y - sy * (to.midY - anchor.y))
+                                       tx: start.minX - anchor.x - sx * (frame.minX - anchor.x),
+                                       ty: start.midY - anchor.y - sy * (frame.midY - anchor.y))
+        layer.add(springBack(from: shrunk), forKey: "jp27.expand")
+    }
+
+    /// Draws `view` moved back by `offset` (onto the capsule) and springs it to its place.
+    private static func slideIn(_ view: UIView, by offset: CGVector) {
+        view.layer.add(springBack(from: CGAffineTransform(translationX: offset.dx, y: offset.dy)), forKey: "jp27.slide")
+    }
+
+    /// Fades `view` in where it sits, starting `delay` from now; with `pops`, it also grows a
+    /// little into place, the way a tab materializes on the system's own expand.
+    private static func materialize(_ view: UIView, after delay: Double, pops: Bool) {
+        let layer = view.layer
+        let begin = layer.convertTime(CACurrentMediaTime(), from: nil) + delay
+        let appear = CABasicAnimation(keyPath: "opacity")
+        appear.fromValue = 0
+        appear.toValue = layer.opacity
+        appear.beginTime = begin
+        appear.duration = fade.duration
+        appear.timingFunction = CAMediaTimingFunction(name: .easeOut)
+        appear.fillMode = .backwards
+        appear.preferredFrameRateRange = rate
+        layer.add(appear, forKey: "jp27.fade")
+        guard pops else { return }
+        let pop = CASpringAnimation(perceptualDuration: 0.3, bounce: 0)
+        pop.keyPath = "transform"
+        pop.isAdditive = true
+        pop.fromValue = NSValue(caTransform3D: CATransform3DMakeScale(0.9, 0.9, 1))
+        pop.toValue = NSValue(caTransform3D: CATransform3DIdentity)
+        pop.beginTime = begin
+        pop.duration = pop.settlingDuration
+        pop.fillMode = .backwards
+        pop.preferredFrameRateRange = rate
+        layer.add(pop, forKey: "jp27.pop")
+    }
+
+    /// The expand's spring on `transform`, from `shrunk` to where UIKit put the layer, added on top
+    /// of UIKit's own transform rather than set in its place.
+    private static func springBack(from shrunk: CGAffineTransform) -> CASpringAnimation {
         let animation = CASpringAnimation(perceptualDuration: spring.duration, bounce: spring.bounce)
         animation.keyPath = "transform"
         animation.isAdditive = true
         animation.fromValue = NSValue(caTransform3D: CATransform3DMakeAffineTransform(shrunk))
         animation.toValue = NSValue(caTransform3D: CATransform3DIdentity)
         animation.duration = animation.settlingDuration
-        layer.add(animation, forKey: "jp27.expand")
-        log.debug("tab bar grows \(String(describing: from), privacy: .public) → \(String(describing: to), privacy: .public) on \(String(describing: type(of: holder)), privacy: .public)")
+        animation.preferredFrameRateRange = rate
+        return animation
     }
 
-    private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "tab-bar")
+    private static func holdsIcon(_ view: UIView) -> Bool {
+        if let icon = view as? UIImageView, icon.image != nil { return true }
+        return view.subviews.contains { !$0.isHidden && $0.alpha > 0.01 && holdsIcon($0) }
+    }
 
-    /// What of the bar's platter is drawn on screen, in window coordinates, and the innermost view
-    /// holding all of it: a folded bar is its capsule, an open one the whole bar. The platter is
-    /// made of the visible pieces that hold a tab's icon (its glass, the selection lens, the icons
-    /// themselves), so the accessory, where UIKit draws it inside the bar, is left out; hidden,
-    /// transparent and clipped-away parts are left out too. Nil when none is drawn.
-    static func platter(of bar: UIView, in window: UIWindow) -> (frame: CGRect, view: UIView)? {
+    /// The bar's platter as drawn on screen.
+    struct Platter {
+        /// what of it is drawn, in window coordinates: a folded bar is its capsule, an open one the
+        /// whole bar
+        let frame: CGRect
+        /// the innermost view holding all of it
+        let holder: UIView
+        /// the glass: pieces spanning the platter that hold no tab (outermost only)
+        let glass: [UIView]
+        /// the tabs' icons and names and what moves with them (the selection lens), outermost only
+        let tabs: [UIView]
+        /// the glass and the tabs cannot be told apart: a piece spanning the platter holds tabs
+        let mixed: Bool
+    }
+
+    /// The platter is made of the visible pieces that hold a tab's icon (its glass, the selection
+    /// lens, the icons themselves), so the accessory, where UIKit draws it inside the bar, is left
+    /// out; hidden, transparent and clipped-away parts are left out too. Nil when none is drawn.
+    static func platter(of bar: UIView, in window: UIWindow) -> Platter? {
         var pieces: [(view: UIView, frame: CGRect)] = []
+        var marks: [(view: UIView, frame: CGRect)] = []
         var icons: [CGPoint] = []
         func visit(_ view: UIView, clip: CGRect, hosted: Bool) {
             guard !view.isHidden, view.alpha > 0.01, view.layer.opacity > 0.01 else { return }
             let frame = view.convert(view.bounds, to: window).intersection(clip)
             guard !frame.isNull, frame.width > 1, frame.height > 1 else { return }
-            // SwiftUI content (the accessory's) is not a tab's icon, whatever draws it
+            // SwiftUI content (the accessory's) is not a tab, whatever draws it
             let hosted = hosted || String(describing: type(of: view)).contains("Hosting")
-            if !hosted, let icon = view as? UIImageView, icon.image != nil {
-                icons.append(CGPoint(x: frame.midX, y: frame.midY))
+            if !hosted {
+                if let icon = view as? UIImageView, icon.image != nil {
+                    icons.append(CGPoint(x: frame.midX, y: frame.midY))
+                    marks.append((view, frame))
+                } else if view is UILabel {
+                    marks.append((view, frame))
+                }
             }
             let shown = view.subviews.filter { !$0.isHidden && $0.alpha > 0.01 }
             // a view draws when it is a leaf, or has a fill, contents or layers of its own (glass)
@@ -307,7 +425,26 @@ private struct SheetLayer: ViewModifier {
         while holder !== bar, !held.allSatisfy({ $0.view.isDescendant(of: holder) }), let up = holder.superview {
             holder = up
         }
-        return (frame, holder)
+
+        // the glass spans the platter; the smaller pieces (the lens) move with the tabs
+        let onPlatter = marks.filter { frame.intersects($0.frame) }.map(\.view)
+        let area = frame.width * frame.height
+        var glass: [UIView] = [], moving = onPlatter, mixed = false
+        for piece in held where !onPlatter.contains(where: { $0 === piece.view }) {
+            guard piece.frame.width * piece.frame.height >= area * 0.6 else {
+                moving.append(piece.view)
+                continue
+            }
+            if onPlatter.contains(where: { $0.isDescendant(of: piece.view) }) { mixed = true } else { glass.append(piece.view) }
+        }
+        func outermost(_ views: [UIView]) -> [UIView] {
+            views.filter { v in !views.contains { $0 !== v && v.isDescendant(of: $0) } }
+        }
+        glass = outermost(glass)
+        let tabs = outermost(moving)
+        // a lens inside the glass would be stretched with it and then moved again
+        if tabs.contains(where: { tab in glass.contains { tab.isDescendant(of: $0) } }) { mixed = true }
+        return Platter(frame: frame, holder: holder, glass: glass, tabs: tabs, mixed: mixed || glass.isEmpty)
     }
 
     /// The controller behind the root `TabView`: a child of the window's hosting controller, never
@@ -459,14 +596,18 @@ private struct TabBarFollowsScroll: ViewModifier {
                 if y > t.turn { t.turn = y } else if y < t.turn - Self.slack { turn(up: true, at: y) }
             }
         }
+        // still, or a finger just landed: the bar can fold again without folding on the spot
+        .onScrollPhaseChange { _, phase in
+            if phase == .idle || phase == .tracking { bar?.settle() }
+        }
     }
 
-    /// A turn down needs nothing: the bar is still `.onScrollDown` and folds by itself.
+    /// A turn down needs nothing: the bar folds by itself once it is handed back.
     private func turn(up: Bool, at y: CGFloat) {
         track.up = up
         track.turn = y
         // on the next turn of the run loop, outside SwiftUI's update, where UIKit lays the bar out
-        if up, let bar { Task { bar.open() } }
+        if up, let bar, bar.folds { Task { bar.open() } }
     }
 }
 

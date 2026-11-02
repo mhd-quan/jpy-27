@@ -39,7 +39,10 @@ packages:
     path: Packages/TripKit
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
-    from: 6.17.0
+    # 7.0 stops re-uploading every fill layer's vertices on every frame (maplibre-native#4765),
+    # work done on the main thread that grows with the polygons on screen: most at street level,
+    # where the buildings are
+    from: 7.0.0
 
 targets:
   JP27:
@@ -79,6 +82,9 @@ targets:
         CFBundleDevelopmentRegion: vi
         UILaunchScreen: {}
         UIApplicationSupportsIndirectInputEvents: true
+        # ProMotion: without it an iPhone app's own animations (SwiftUI, Core Animation, the map's
+        # display link) are held to 60 Hz while the system's scrolling runs at 120
+        CADisableMinimumFrameDurationOnPhone: true
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         ITSAppUsesNonExemptEncryption: false
         NSSupportsLiveActivities: true

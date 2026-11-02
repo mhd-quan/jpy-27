@@ -81,8 +81,9 @@ struct RootView: View {
             }
         }
         // folds on a scroll down; iOS 27 opens it again only at the top, so each page asks for it
-        // on the first scroll up (`TabBarScroll`)
-        .tabBarMinimizeBehavior(.onScrollDown)
+        // on the first scroll up (`TabBarScroll`). Not on the map: its panel is the page, and
+        // scrolling the day in it folded the bar under a panel that stays where it is.
+        .tabBarMinimizeBehavior(model.tab == .map ? .never : .onScrollDown)
         .environment(scroll)
         // the bar is UIKit's: its tabs get their haptics once the window has laid it out
         .task {
@@ -91,7 +92,9 @@ struct RootView: View {
                 tries += 1
                 try? await Task.sleep(for: .milliseconds(250))
             }
+            scroll.setFolds(model.tab != .map)
         }
+        .onChange(of: model.tab) { _, tab in scroll.setFolds(tab != .map) }
         .modifier(NowAccessorySlot(live: model.live.ride != nil || model.next != nil))
         .progressiveEdges()
         .presentsSheets()
