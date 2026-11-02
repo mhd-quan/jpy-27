@@ -143,6 +143,18 @@ private struct HomeCover: View {
                         Text("\(shot.place.name) · Ngày \(shot.day.n)")
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.secondary)
+                        // the licences ask for the photographer's name; it links to the file page
+                        if let credit = shot.photo.credit {
+                            if let page = shot.photo.page.flatMap(URL.init(string:)) {
+                                Link(credit, destination: page)
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                            } else {
+                                Text(credit)
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
                     }
                     .lineLimit(1)
                     .id(current)
@@ -175,12 +187,12 @@ private struct HomeCoverPhoto: View {
         Color.clear
             .overlay {
                 PlacePhoto(photo: photo, maxPixel: 2400)
-                    // just enough over-scan for a light parallax (6% each side); the photograph on
-                    // show drifts a little closer, so the frame is never blown up past its pixels
-                    .scaleEffect(current && !reduceMotion ? 1.16 : 1.12)
+                    // the covers are cut to the screen's own pixels (1290 × 1560): just enough
+                    // over-scan for a light parallax (4% each side), and a slow drift a little closer
+                    .scaleEffect(current && !reduceMotion ? 1.12 : 1.08)
                     .animation(current ? .easeInOut(duration: 10) : .smooth(duration: 0.5), value: current)
                     .visualEffect { content, proxy in
-                        content.offset(x: -proxy.frame(in: .scrollView(axis: .horizontal)).minX * 0.06)
+                        content.offset(x: -proxy.frame(in: .scrollView(axis: .horizontal)).minX * 0.04)
                     }
             }
             .clipped()
@@ -861,6 +873,41 @@ struct HomeMeal {
     let day: Day
 }
 
+/// The trip's cover photographs, chosen and cut by hand for the cover (Resources/Cover, listed in
+/// cover.json): one per day, 1290 × 1560, sharp at the full width of the screen where the 800 px
+/// Commons set of the site is not. Each carries its credit and Commons page.
+enum HomeCovers {
+    struct Pick {
+        let place: String
+        let photo: Photo
+    }
+
+    private struct Entry: Decodable {
+        let day: String
+        let place: String
+        let file: String
+        let caption: String?
+        let credit: String?
+        let page: String?
+    }
+
+    /// by day key
+    static let byDay: [String: Pick] = {
+        guard let url = Bundle.main.url(forResource: "cover", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let entries = try? JSONDecoder().decode([Entry].self, from: data) else { return [:] }
+        var out: [String: Pick] = [:]
+        for e in entries {
+            // Photo has no public initialiser: build it the way the trip data does, from JSON
+            let fields = ["kind": "cover", "src": e.file, "caption": e.caption, "credit": e.credit, "page": e.page].compactMapValues { $0 }
+            guard let json = try? JSONSerialization.data(withJSONObject: fields),
+                  let photo = try? JSONDecoder().decode(Photo.self, from: json) else { continue }
+            out[e.day] = Pick(place: e.place, photo: photo)
+        }
+        return out
+    }()
+}
+
 /// What the home page shows, picked from the data.
 enum HomePicks {
     /// The photograph each day is best known by, where the bundled set has it.
@@ -869,10 +916,15 @@ enum HomePicks {
         "kiyomizudera", "bamboo-grove", "fushimi-inari", "hozenji",
     ]
 
-    /// One bundled photograph per day (they work offline), the favourite if the day has it.
+    /// One photograph per day, all in the app (they work offline): the day's cover, else its
+    /// favourite or first sight from the bundled Commons set.
     static func cover(_ model: AppModel) -> [HomeShot] {
         var out: [HomeShot] = []
         for day in model.days {
+            if let pick = HomeCovers.byDay[day.key], let place = model.store.place(pick.place) {
+                out.append(HomeShot(place: place, photo: pick.photo, day: day))
+                continue
+            }
             let places = day.stops.compactMap { model.store.place($0.stop.place) }
                 .filter { $0.kind != .station && $0.hero?.isBundled == true }
             let pick = places.first { favourites.contains($0.id) } ?? places.first { $0.kind == .sight }
@@ -881,8 +933,9 @@ enum HomePicks {
         return out
     }
 
-    /// A day's card photograph: a favourite, else a bundled sight, else anything it has.
+    /// A day's card photograph: its cover, a favourite, else a bundled sight, else anything it has.
     static func photo(for day: Day, store: TripStore) -> Photo? {
+        if let pick = HomeCovers.byDay[day.key] { return pick.photo }
         let places = day.stops.compactMap { store.place($0.stop.place) }.filter { $0.kind != .station && $0.hero != nil }
         let bundled = places.filter { $0.hero?.isBundled == true }
         return (bundled.first { favourites.contains($0.id) } ?? bundled.first { $0.kind == .sight } ?? bundled.first ?? places.first)?.hero
