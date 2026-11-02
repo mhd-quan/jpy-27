@@ -143,12 +143,23 @@ struct Wordmark: View {
     var body: some View {
         HStack(spacing: size * 0.45) {
             HinomaruMark(size: size * 1.3)
-            Text("JP27")
-                .font(.system(size: size, weight: .black).width(.expanded))
-                .tracking(0.4)
+            WordmarkText(text: "JP27", size: size)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("JP27")
+    }
+}
+
+/// A word set the way the wordmark is: black, expanded, tracked a little. Page names that stand
+/// in for the wordmark (the Fuji map's) use it.
+struct WordmarkText: View {
+    let text: String
+    var size: CGFloat = 15
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: size, weight: .black).width(.expanded))
+            .tracking(0.4)
     }
 }
 

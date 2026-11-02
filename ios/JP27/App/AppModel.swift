@@ -39,6 +39,8 @@ enum AppSheet: Identifiable, Hashable {
     case menuScan(String?)
     case listen
     case fujiFinder
+    /// a Fuji viewpoint as a card, like a place; `fromMap` when the 3D map is already under it
+    case fujiSpot(String, fromMap: Bool)
     case journal(String)
     case settings
 
@@ -51,6 +53,7 @@ enum AppSheet: Identifiable, Hashable {
         case .menuScan(let id): "scan-\(id ?? "")"
         case .listen: "listen"
         case .fujiFinder: "fuji"
+        case .fujiSpot(let id, _): "fujispot-\(id)"
         case .journal(let d): "journal-\(d)"
         case .settings: "settings"
         }

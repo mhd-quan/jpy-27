@@ -180,6 +180,13 @@ struct SheetHost: View {
         case .fujiFinder:
             FujiFinderView()
                 .presentationDetents([.large])
+        case .fujiSpot(let id, let fromMap):
+            // the viewpoint's page puts its close button after its own actions
+            NavigationStack {
+                FujiSpotPage(id: id, fromMap: fromMap)
+                    .navigationDestination(for: Route.self) { RouteHost(route: $0) }
+                    .navigationDestination(for: FujiPage.self) { FujiPageHost(page: $0) }
+            }
         case .journal(let key):
             NavigationStack {
                 JournalView(dayKey: key)

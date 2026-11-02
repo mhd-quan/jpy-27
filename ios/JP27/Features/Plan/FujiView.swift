@@ -4,20 +4,19 @@ import TripKit
 
 // Fuji, in the order a traveller asks: where can I see it from (the 3D map and the viewpoints of
 // each day), will it be out (clouds now, the odds in October), and the Kawaguchiko option. A
-// viewpoint opens its own page: the line of sight on the terrain, what shows of the mountain,
-// the horizon, when to go, the clouds there.
+// viewpoint opens as a card, as a place does: its photographs dissolving into their colour, what
+// shows of the mountain, the horizon, the line of sight on the terrain, when to go, the clouds.
 
 struct FujiView: View {
     @Environment(AppModel.self) private var model
     @State private var area: FujiArea = .all
-    @State private var exploring = false
 
     private var fuji: FujiGuide { model.guide.fuji }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                FujiHero(area: area, spots: fuji.spots, summit: fuji.summit.coordinate) { exploring = true }
+                FujiHero(area: area, spots: fuji.spots, summit: fuji.summit.coordinate)
                 VStack(alignment: .leading, spacing: Metrics.stack) {
                     VStack(alignment: .leading, spacing: 10) {
                         FujiAreaChips(area: $area)
@@ -48,14 +47,23 @@ struct FujiView: View {
         }
         .screen()
         .detailPage(title: "Fuji", heroHeight: FujiHero.height)
-        .navigationDestination(isPresented: $exploring) {
-            FujiExplorer(area: area, spots: fuji.spots, summit: fuji.summit.coordinate)
-        }
-        .navigationDestination(for: FujiPage.self) { page in
-            switch page {
-            case .spot(let id): FujiSpotPage(id: id)
-            case .kawaguchiko: FujiKawaguchikoPage()
-            }
+        // the map is pushed as a value, like every page in the stack: a page pushed by a flag
+        // (navigationDestination(isPresented:)) cannot push values of its own on top
+        .navigationDestination(for: FujiPage.self) { FujiPageHost(page: $0) }
+    }
+}
+
+/// The pages inside the Fuji page and inside a viewpoint's card.
+struct FujiPageHost: View {
+    @Environment(AppModel.self) private var model
+    let page: FujiPage
+
+    var body: some View {
+        switch page {
+        case .map(let area, let focus):
+            FujiExplorer(area: area, focus: focus, spots: model.guide.fuji.spots, summit: model.guide.fuji.summit.coordinate)
+        case .kawaguchiko:
+            FujiKawaguchikoPage()
         }
     }
 }
@@ -72,14 +80,12 @@ private struct FujiHero: View {
     let area: FujiArea
     let spots: [FujiGuide.Spot]
     let summit: Coordinate
-    let explore: () -> Void
     @State private var position: MapCameraPosition
 
-    init(area: FujiArea, spots: [FujiGuide.Spot], summit: Coordinate, explore: @escaping () -> Void) {
+    init(area: FujiArea, spots: [FujiGuide.Spot], summit: Coordinate) {
         self.area = area
         self.spots = spots
         self.summit = summit
-        self.explore = explore
         _position = State(initialValue: .camera(FujiCamera.area(area, spots: spots.filter { area.contains($0) }, summit: summit)))
     }
 
@@ -99,10 +105,11 @@ private struct FujiHero: View {
             .allowsHitTesting(false)
             // a tap on the picture opens the map, as the button does
             .overlay {
-                Color.clear
-                    .contentShape(.rect)
-                    .onTapGesture(perform: explore)
-                    .accessibilityHidden(true)
+                NavigationLink(value: FujiPage.map(area, focus: nil)) {
+                    Color.clear.contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .accessibilityHidden(true)
             }
         } foot: {
             VStack(alignment: .leading, spacing: 12) {
@@ -110,7 +117,7 @@ private struct FujiHero: View {
                     .font(.subheadline.weight(.semibold))
                     .opacity(0.9)
                     .monospacedDigit()
-                FujiHeroActions(source: "fuji", explore: explore)
+                FujiHeroActions(source: "fuji", map: .map(area, focus: nil))
             }
         }
         .onChange(of: area) {
@@ -128,16 +135,16 @@ private struct FujiHero: View {
     }
 }
 
-/// The two actions at a hero's foot, in one glass group: open the map, find Fuji with the camera.
+/// The two actions at the hero's foot, in one glass group: open the map, find Fuji with the camera.
 private struct FujiHeroActions: View {
     @Environment(AppModel.self) private var model
     let source: String
-    let explore: () -> Void
+    let map: FujiPage
 
     var body: some View {
         GlassEffectContainer(spacing: 10) {
             HStack(spacing: 10) {
-                Button(action: explore) {
+                NavigationLink(value: map) {
                     Label("Bản đồ 3D", systemImage: "view.3d")
                 }
                 .buttonStyle(.glass)
@@ -230,7 +237,9 @@ private struct FujiSpotRow: View {
     var compact = false
 
     var body: some View {
-        NavigationLink(value: FujiPage.spot(spot.id)) {
+        Button {
+            model.present(.fujiSpot(spot.id, fromMap: false), from: "fuji.row.\(spot.id)")
+        } label: {
             HStack(spacing: 12) {
                 FujiBearingGlyph(spot: spot, size: compact ? 30 : 36)
                 VStack(alignment: .leading, spacing: 2) {
@@ -254,6 +263,7 @@ private struct FujiSpotRow: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .sheetSource("fuji.row.\(spot.id)")
         .accessibilityElement(children: .combine)
     }
 }
@@ -284,30 +294,77 @@ private struct FujiKawaguchikoLink: View {
     }
 }
 
-// MARK: - A viewpoint's page
+// MARK: - A viewpoint's card
 
-/// One viewpoint: the line of sight on the terrain, what shows of the mountain and how big, the
-/// numbers, the horizon, the research notes, its photographs, the clouds there.
+/// One viewpoint, as a card like a place's: its photographs fill the top and dissolve into their
+/// own colour, which the card is then laid on (a viewpoint with none shows its line of sight on the
+/// terrain, on Fuji's dusk blue); the name and the actions where they dissolve; then what shows of
+/// the mountain and how big, the numbers, the horizon, the line of sight, the research notes, the
+/// clouds there.
 struct FujiSpotPage: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.colorScheme) private var system
     let id: String
-    @State private var exploring = false
+    /// opened over the 3D map, which the map button then goes back to
+    var fromMap = false
+    @State private var page = 0
+    /// photo index → the colour of its foot
+    @State private var tones: [Int: AmbientTone] = [:]
+    @State private var heroHeight: CGFloat = 480
 
     var body: some View {
         if let spot = model.guide.fuji.spots.first(where: { $0.id == id }) {
             content(spot)
         } else {
             ContentUnavailableView("Không có chỗ ngắm này", systemImage: "mountain.2")
+                .toolbar { CloseButton() }
         }
+    }
+
+    /// the views of the mountain first, then the rest of the place's photographs
+    private func photos(_ spot: FujiGuide.Spot) -> [Photo] {
+        let all = model.store.place(spot.id)?.images ?? []
+        let isView: (Photo) -> Bool = { $0.kind == "view" || $0.kind == "exterior" }
+        return all.filter(isView) + all.filter { !isView($0) }
+    }
+
+    /// The first photograph decides light or dark for the whole card; the others only move the hue.
+    private func canvas(_ photos: [Photo]) -> AmbientCanvas? {
+        guard !photos.isEmpty else { return .dusk }
+        guard let first = tones[0] else { return nil }
+        return (tones[page] ?? first).canvas(light: first.prefersLight, dim: system == .dark)
     }
 
     private func content(_ spot: FujiGuide.Spot) -> some View {
         let research = model.fujiResearch(spot.id)
         let name = model.fujiName(spot)
         let place = model.store.place(spot.id)
+        let photos = self.photos(spot)
+        let canvas = self.canvas(photos)
         return ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                FujiSpotHero(spot: spot, name: name, ja: FujiWords.ja(spot, store: model.store, research: research)) { exploring = true }
+            VStack(spacing: 0) {
+                Group {
+                    if photos.isEmpty {
+                        FujiSightMap(spot: spot, inset: EdgeInsets(top: 96, leading: 24, bottom: 220, trailing: 24))
+                            .mask {
+                                LinearGradient(stops: [
+                                    .init(color: .black, location: 0),
+                                    .init(color: .black, location: 0.55),
+                                    .init(color: .black.opacity(0.7), location: 0.72),
+                                    .init(color: .black.opacity(0.25), location: 0.88),
+                                    .init(color: .clear, location: 1),
+                                ], startPoint: .top, endPoint: .bottom)
+                            }
+                    } else {
+                        AmbientHero(photos: photos, page: $page)
+                    }
+                }
+                .containerRelativeFrame(.vertical) { length, _ in (length * 0.56).rounded() }
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                .overlay(alignment: .bottom) {
+                    FujiSpotHeadline(spot: spot, name: name, ja: FujiWords.ja(spot, store: model.store, research: research),
+                                     count: photos.count, page: page, fill: (canvas ?? .dusk).color, fromMap: fromMap)
+                }
                 VStack(alignment: .leading, spacing: Metrics.stack) {
                     FujiSpotVerdict(spot: spot)
                     FujiSpotNumbers(spot: spot)
@@ -315,7 +372,7 @@ struct FujiSpotPage: View {
                         VStack(alignment: .leading, spacing: 10) {
                             SectionTitle("Đường chân trời")
                             Card {
-                                PlanPanorama(pano: pano)
+                                FujiHorizon(pano: pano)
                                     .frame(height: 110)
                                     .accessibilityLabel("Đường chân trời nhìn từ \(name) về phía Fuji")
                                 Text("Tính từ dữ liệu độ cao, nhìn về phía Fuji trong khoảng ±22°; trục đứng phóng đại để dễ thấy hình núi.")
@@ -324,8 +381,16 @@ struct FujiSpotPage: View {
                             }
                         }
                     }
+                    // with photographs up top, the line of sight on the terrain gets its own place
+                    if !photos.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            SectionTitle("Tia ngắm")
+                            FujiSightMap(spot: spot, inset: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                                .frame(height: 220)
+                                .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
+                        }
+                    }
                     FujiSpotNotes(research: research)
-                    if let place { FujiSpotPhotos(place: place) }
                     VStack(alignment: .leading, spacing: 10) {
                         SectionTitle("Mây ở đây")
                         CloudForecast(title: name, key: spot.id, coordinate: FujiCamera.point(spot))
@@ -339,69 +404,145 @@ struct FujiSpotPage: View {
                         .buttonStyle(.bordered)
                         .controlSize(.large)
                     }
+                    AmbientCredit(photos: photos, page: page)
                 }
                 .padding(.horizontal, Metrics.gutter)
-                .padding(.top, 18)
+                .padding(.top, 14)
             }
             .padding(.bottom, 32)
         }
-        .screen()
-        .detailPage(title: name, heroHeight: FujiSpotHero.height)
-        .navigationDestination(isPresented: $exploring) {
-            FujiExplorer(area: FujiArea.of(spot), focus: spot.id, spots: model.guide.fuji.spots, summit: model.guide.fuji.summit.coordinate)
+        .ambientPage(canvas, title: name, heroHeight: heroHeight)
+        .toolbar { CloseButton() }
+        .task(id: spot.id) {
+            guard let first = photos.first else { return }
+            // the first one now, for the card to settle on; the rest in one go after
+            if let tone = await PhotoCache.shared.tone(first) { tones[0] = tone }
+            var rest: [Int: AmbientTone] = [:]
+            for i in photos.indices.dropFirst() {
+                if let tone = await PhotoCache.shared.tone(photos[i]) { rest[i] = tone }
+            }
+            tones.merge(rest) { a, _ in a }
         }
     }
 }
 
-/// The viewpoint's line of sight on the terrain, seen from behind it, or its own photograph (else
-/// the plot) without a network; the name, what it is in the plan and the two actions at its foot.
-private struct FujiSpotHero: View {
-    static let height: CGFloat = 440
+/// Centred where the picture dissolves, as on a place's card: page dots, the name, the Japanese
+/// name, what it is; then the 3D map, finding the mountain with the camera (the one filled
+/// capsule), and walking there.
+private struct FujiSpotHeadline: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.closeSheet) private var closeSheet
     let spot: FujiGuide.Spot
     let name: String
     let ja: String?
-    let explore: () -> Void
+    let count: Int
+    let page: Int
+    /// the card's colour, for the type on the filled capsule
+    let fill: Color
+    let fromMap: Bool
+
+    var body: some View {
+        VStack(spacing: 5) {
+            if count > 1 {
+                AmbientDots(count: count, current: page)
+                    .padding(.bottom, 6)
+            }
+            Text(name)
+                .font(.title2.weight(.bold))
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+            if let ja {
+                Text(ja)
+                    .font(.mincho(20, bold: false, relativeTo: .title3))
+                    .environment(\.locale, Locale(identifier: "ja_JP"))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            Text(facts)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+                .lineLimit(2)
+            actions
+                .padding(.top, 12)
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, Metrics.gutter)
+        .padding(.bottom, 10)
+    }
+
+    /// "Thấy đỉnh · 36 km tới đỉnh · nhìn về Đông Bắc · Rẽ thêm · ngày 5"
+    private var facts: String {
+        var parts = [spot.visible ? "Thấy đỉnh" : "Bị núi che", "\(Fmt.km(spot.km)) tới đỉnh", "nhìn về \(Geo.compass(spot.bearing))"]
+        if let role = FujiWords.role(spot) { parts.append(role) }
+        if let day = FujiArea.of(spot).day { parts.append(day) }
+        return parts.joined(separator: " · ")
+    }
+
+    private var actions: some View {
+        HStack(spacing: 16) {
+            if fromMap {
+                // the map is right under this card, already flown to the viewpoint
+                Button { closeSheet?.close() } label: { AmbientDisc(symbol: "view.3d") }
+                    .buttonStyle(.pressable)
+                    .accessibilityLabel("Về bản đồ 3D")
+            } else {
+                NavigationLink(value: FujiPage.map(FujiArea.of(spot), focus: spot.id)) { AmbientDisc(symbol: "view.3d") }
+                    .buttonStyle(.pressable)
+                    .accessibilityLabel("Bản đồ 3D")
+            }
+            Button {
+                model.present(.fujiFinder, from: "fujispot.\(spot.id).finder")
+            } label: {
+                Label("Tìm Fuji", systemImage: "camera.viewfinder")
+                    .font(.headline)
+                    .foregroundStyle(fill)
+                    .frame(width: 168, height: 50)
+                    .background(Color.primary, in: .capsule)
+                    .contentShape(.capsule)
+            }
+            .buttonStyle(.pressable)
+            .sheetSource("fujispot.\(spot.id).finder")
+            if model.store.place(spot.id) != nil {
+                Button { model.walk(to: spot.id) } label: { AmbientDisc(symbol: "figure.walk") }
+                    .buttonStyle(.pressable)
+                    .accessibilityLabel("Đi bộ tới đây")
+            } else {
+                // keeps the capsule in the middle
+                Color.clear.frame(width: 50, height: 50).accessibilityHidden(true)
+            }
+        }
+        .labelStyle(.titleAndIcon)
+    }
+}
+
+/// The viewpoint's line of sight on the 3D terrain, seen from behind it; without a network, the
+/// plot round the summit. A picture: it does not move under a finger.
+private struct FujiSightMap: View {
+    @Environment(AppModel.self) private var model
+    let spot: FujiGuide.Spot
+    /// room the plot leaves round itself (the card's headline sits over the bottom of the hero)
+    let inset: EdgeInsets
     @State private var position: MapCameraPosition
 
-    init(spot: FujiGuide.Spot, name: String, ja: String?, explore: @escaping () -> Void) {
+    init(spot: FujiGuide.Spot, inset: EdgeInsets) {
         self.spot = spot
-        self.name = name
-        self.ja = ja
-        self.explore = explore
+        self.inset = inset
         _position = State(initialValue: .camera(FujiCamera.spot(spot, summit: FujiSight.summit)))
     }
 
     var body: some View {
-        DetailHero(title: name, subtitle: ja, height: Self.height) {
-            ZStack {
-                if model.network.online {
-                    FujiTerrainMap(spots: [spot], position: $position, selection: .constant(spot.id))
-                } else if let photo = offlinePhoto {
-                    PlacePhoto(photo: photo)
-                } else {
-                    FujiCompassPlot.backdrop
-                    FujiCompassPlot(spots: [spot], selection: .constant(spot.id))
-                        .padding(.top, 96)
-                        .padding(.bottom, 180)
-                }
-            }
-            .allowsHitTesting(false)
-        } foot: {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 6) {
-                    Tag(text: spot.visible ? "Thấy đỉnh" : "Bị núi che", symbol: spot.visible ? "eye" : "eye.slash", tint: .white)
-                    if let role = FujiWords.role(spot) { Tag(text: role, tint: .white) }
-                    if let day = FujiArea.of(spot).day { Tag(text: day.prefix(1).uppercased() + day.dropFirst(), tint: .white) }
-                }
-                FujiHeroActions(source: "fuji.spot.\(spot.id)", explore: explore)
+        ZStack {
+            if model.network.online {
+                FujiTerrainMap(spots: [spot], position: $position, selection: .constant(spot.id))
+            } else {
+                FujiCompassPlot.backdrop
+                FujiCompassPlot(spots: [spot], selection: .constant(spot.id))
+                    .padding(inset)
             }
         }
-    }
-
-    /// a bundled view of the place, for when the map cannot load
-    private var offlinePhoto: Photo? {
-        model.store.place(spot.id)?.images.first { $0.isBundled && ($0.kind == "view" || $0.kind == "exterior") }
+        .allowsHitTesting(false)
     }
 }
 
@@ -498,42 +639,6 @@ private struct FujiSpotNotes: View {
     }
 }
 
-/// The place's views and front, a few, scrolling sideways, each with its credit.
-private struct FujiSpotPhotos: View {
-    let place: Place
-
-    var body: some View {
-        let photos = Array(place.images.filter { $0.kind == "view" || $0.kind == "exterior" }.prefix(4))
-        if !photos.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
-                SectionTitle("Ảnh")
-                ScrollView(.horizontal) {
-                    HStack(alignment: .top, spacing: 12) {
-                        ForEach(photos, id: \.src) { photo in
-                            VStack(alignment: .leading, spacing: 4) {
-                                PlacePhoto(photo: photo)
-                                    .frame(width: 250, height: 170)
-                                    .clipShape(.rect(cornerRadius: 18, style: .continuous))
-                                if let caption = photo.caption {
-                                    Text(caption).font(.caption).lineLimit(2)
-                                }
-                                if let credit = photo.credit {
-                                    Text(credit).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
-                                }
-                            }
-                            .frame(width: 250, alignment: .leading)
-                            .accessibilityElement(children: .combine)
-                        }
-                    }
-                }
-                .scrollIndicators(.hidden)
-                .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
-                .padding(.horizontal, -Metrics.gutter)
-            }
-        }
-    }
-}
-
 // MARK: - Kawaguchiko
 
 private struct FujiKawaguchikoPage: View {
@@ -579,9 +684,11 @@ private struct PlanFujiClimate: View {
     }
 }
 
-/// The horizon around Fuji's bearing from a viewpoint, height exaggerated four times.
-private struct PlanPanorama: View {
+/// The horizon around Fuji's bearing from a viewpoint, height exaggerated four times. `compact`
+/// (a card over the map) leaves out the name over the summit's mark.
+struct FujiHorizon: View {
     let pano: FujiGuide.Panorama
+    var compact = false
 
     var body: some View {
         Canvas { ctx, size in
@@ -606,7 +713,9 @@ private struct PlanPanorama: View {
             mark.move(to: CGPoint(x: sx, y: 0))
             mark.addLine(to: CGPoint(x: sx, y: size.height))
             ctx.stroke(mark, with: .color(.secondary), style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
-            ctx.draw(Text("Fuji").font(.caption2.weight(.semibold)).foregroundStyle(.secondary), at: CGPoint(x: sx, y: 8), anchor: .bottom)
+            if !compact {
+                ctx.draw(Text("Fuji").font(.caption2.weight(.semibold)).foregroundStyle(.secondary), at: CGPoint(x: sx, y: 8), anchor: .bottom)
+            }
         }
         .clipShape(.rect(cornerRadius: 12, style: .continuous))
     }

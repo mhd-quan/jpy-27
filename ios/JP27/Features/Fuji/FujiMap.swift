@@ -377,6 +377,7 @@ struct FujiCompassPlot: View {
 struct FujiExplorer: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.closeSheet) private var closeSheet
     @Namespace private var mapScope
     @State private var area: FujiArea
     @State private var selection: String?
@@ -401,15 +402,10 @@ struct FujiExplorer: View {
             if model.network.online {
                 FujiTerrainMap(spots: spots, position: $position, selection: $selection, interactive: true, scope: mapScope)
                     .ignoresSafeArea()
-                // a shade under the bar, for its white title and buttons over bright terrain
-                LinearGradient(colors: [.black.opacity(0.35), .clear], startPoint: .top, endPoint: .bottom)
-                    .frame(height: 150)
-                    .frame(maxHeight: .infinity, alignment: .top)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
+                FujiBarEdge()
             } else {
                 FujiCompassPlot.backdrop.ignoresSafeArea()
-                // inside the safe area: centred between the chips and the cards
+                // inside the safe area: centred between the bar and the days along the bottom
                 FujiCompassPlot(spots: spots, selection: $selection, selectable: true)
             }
         }
@@ -434,27 +430,43 @@ struct FujiExplorer: View {
         }
         .mapScope(mapScope)
         .safeAreaInset(edge: .top, spacing: 0) {
-            VStack(spacing: 6) {
-                FujiAreaChips(area: $area, onMap: true)
-                if !model.network.online {
-                    Label("Không có mạng: các điểm xếp theo hướng và khoảng cách tới đỉnh", systemImage: "wifi.slash")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.85))
-                        .padding(.horizontal, Metrics.gutter)
-                }
+            if !model.network.online {
+                Label("Không có mạng: các điểm xếp theo hướng và khoảng cách tới đỉnh", systemImage: "wifi.slash")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Metrics.gutter)
+                    .padding(.vertical, 6)
             }
-            // over satellite terrain or the night-blue plot: light type on dark glass
-            .environment(\.colorScheme, .dark)
         }
+        // everything the hand reaches for sits at the bottom, over the tab bar: the days, then the
+        // viewpoints of the one chosen; the top keeps only the bar and the map's own controls
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            FujiSpotCarousel(spots: spots, selection: $selection)
+            VStack(spacing: 0) {
+                FujiAreaChips(area: $area, onMap: true)
+                    // over satellite terrain or the night-blue plot: light type on dark glass
+                    .environment(\.colorScheme, .dark)
+                FujiSpotCarousel(spots: spots, selection: $selection)
+            }
         }
         .navigationTitle("Bản đồ Fuji")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
+            // the name set as the JP27 wordmark is
+            ToolbarItem(placement: .principal) {
+                WordmarkText(text: "Fuji")
+                    .foregroundStyle(.white)
+                    .accessibilityLabel("Bản đồ Fuji")
+                    .accessibilityAddTraits(.isHeader)
+            }
             SheetToolbarButton(title: "Tìm Fuji bằng camera", symbol: "camera.viewfinder", source: "fuji.explorer.finder") {
                 model.present(.fujiFinder, from: "fuji.explorer.finder")
+            }
+            // opened from a viewpoint's card, the map is inside that sheet: close comes last
+            if closeSheet != nil {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                CloseButton()
             }
         }
         // a viewpoint chosen flies the camera behind it; letting go (a tap on open ground) leaves
@@ -496,6 +508,9 @@ struct FujiAreaChips: View {
             .padding(.vertical, 4)
         }
         .scrollIndicators(.hidden)
+        // a strip floating over the map draws no edge effect of its own (built with the iOS 27 SDK
+        // it would be the hard, ruled one)
+        .scrollEdgeEffectHidden(onMap, for: .all)
         .contentMargins(.horizontal, onMap ? 12 : Metrics.gutter, for: .scrollContent)
         .sensoryFeedback(.selection, trigger: area)
     }
@@ -562,13 +577,15 @@ private struct FujiSpotCarousel: View {
         .scrollTargetBehavior(.viewAligned)
         .scrollPosition(id: $selection, anchor: .leading)
         .scrollIndicators(.hidden)
+        .scrollEdgeEffectHidden(true, for: .all)
         .contentMargins(.horizontal, 16, for: .scrollContent)
-        .padding(.vertical, 10)
+        .padding(.top, 4)
+        .padding(.bottom, 10)
     }
 }
 
-/// A viewpoint over the map: its name, what shows of the mountain, how far and which way, and the
-/// way into its page.
+/// A viewpoint over the map: its name, how far and which way, what shows of the mountain and the
+/// horizon it shows above. Tapping the card flies the camera behind it; Chi tiết opens its card.
 private struct FujiSpotCard: View {
     @Environment(AppModel.self) private var model
     let spot: FujiGuide.Spot
@@ -576,32 +593,52 @@ private struct FujiSpotCard: View {
     let choose: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 10) {
-                FujiBearingGlyph(spot: spot, size: 34)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(model.fujiName(spot))
-                        .font(.headline)
+        VStack(alignment: .leading, spacing: 10) {
+            // the face of the card chooses it; the button below is the only other control, so the
+            // two never compete for a tap
+            Button(action: choose) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 10) {
+                        FujiBearingGlyph(spot: spot, size: 34)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(model.fujiName(spot))
+                                .font(.headline)
+                                .lineLimit(1)
+                            Text("\(Fmt.km(spot.km)) tới đỉnh · nhìn về \(Geo.compass(spot.bearing))")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .monospacedDigit()
+                                .lineLimit(1)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    Text(FujiWords.shown(spot))
+                        .font(.subheadline)
                         .lineLimit(1)
-                    Text("\(Fmt.km(spot.km)) tới đỉnh · nhìn về \(Geo.compass(spot.bearing))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .monospacedDigit()
-                        .lineLimit(1)
+                    if let pano = model.guide.fuji.panoramas[spot.id] {
+                        FujiHorizon(pano: pano, compact: true)
+                            .frame(height: 46)
+                            .accessibilityHidden(true)
+                    }
                 }
-                Spacer(minLength: 0)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(.rect)
             }
-            Text(FujiWords.shown(spot))
-                .font(.subheadline)
-                .lineLimit(2, reservesSpace: true)
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .combine)
+            .accessibilityHint("Bay tới chỗ ngắm này trên bản đồ")
             HStack {
                 if let role = FujiWords.role(spot) { Tag(text: role) }
                 Spacer(minLength: 0)
-                NavigationLink(value: FujiPage.spot(spot.id)) {
+                Button {
+                    choose()
+                    model.present(.fujiSpot(spot.id, fromMap: true), from: "fuji.card.\(spot.id)")
+                } label: {
                     Text("Chi tiết").font(.subheadline.weight(.semibold))
                 }
                 .buttonStyle(.bordered)
                 .buttonBorderShape(.capsule)
+                .sheetSource("fuji.card.\(spot.id)")
             }
         }
         .padding(14)
@@ -611,10 +648,31 @@ private struct FujiSpotCard: View {
                 .strokeBorder(selected ? Palette.sun : .clear, lineWidth: 2)
         }
         .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
-        .contentShape(.rect(cornerRadius: 22, style: .continuous))
-        .onTapGesture(perform: choose)
-        .accessibilityElement(children: .contain)
-        .accessibilityAction(named: "Xem trên bản đồ", choose)
+    }
+}
+
+/// The soft edge under the bar over the map: the terrain blurs and darkens into the bar, from
+/// frosted at the top to nothing, instead of stopping at a ruled strip; the bar's white title and
+/// buttons read over bright ground.
+private struct FujiBarEdge: View {
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .mask {
+                    LinearGradient(stops: [
+                        .init(color: .black, location: 0),
+                        .init(color: .black.opacity(0.7), location: 0.4),
+                        .init(color: .clear, location: 1),
+                    ], startPoint: .top, endPoint: .bottom)
+                }
+            LinearGradient(colors: [.black.opacity(0.36), .clear], startPoint: .top, endPoint: .bottom)
+        }
+        .frame(height: 160)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
@@ -635,9 +693,11 @@ struct FujiBearingGlyph: View {
     }
 }
 
-/// The pages inside the Fuji page.
+/// The pages inside the Fuji page and a viewpoint's card. (A viewpoint itself opens as a card,
+/// `AppSheet.fujiSpot`, as a place does.)
 enum FujiPage: Hashable {
-    case spot(String)
+    /// the 3D map: a day framed, or flown to one viewpoint
+    case map(FujiArea, focus: String?)
     case kawaguchiko
 }
 
