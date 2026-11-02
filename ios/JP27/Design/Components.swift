@@ -124,6 +124,46 @@ extension EnvironmentValues {
     }
 }
 
+private nonisolated struct PageFillKey: EnvironmentKey {
+    static var defaultValue: Color? { nil }
+}
+
+extension EnvironmentValues {
+    /// The solid colour an ambient page is laid on, for a picture that dissolves into it.
+    nonisolated var pageFill: Color? {
+        get { self[PageFillKey.self] }
+        set { self[PageFillKey.self] = newValue }
+    }
+}
+
+extension View {
+    /// Fades a picture out toward its bottom, into the page under it. `stops` are how much of the
+    /// picture shows (1 to 0) at each point. On an ambient page the fade is drawn over the picture
+    /// in the page's own colour, the same pixels a mask would leave over that colour, without the
+    /// offscreen pass a mask costs on every frame it moves (the zoom, a scroll, a swipe).
+    func dissolve(_ stops: [(shown: Double, at: CGFloat)]) -> some View {
+        modifier(Dissolve(stops: stops))
+    }
+}
+
+private struct Dissolve: ViewModifier {
+    @Environment(\.pageFill) private var fill
+    let stops: [(shown: Double, at: CGFloat)]
+
+    func body(content: Content) -> some View {
+        if let fill {
+            content.overlay {
+                LinearGradient(stops: stops.map { .init(color: fill.opacity(1 - $0.shown), location: $0.at) }, startPoint: .top, endPoint: .bottom)
+                    .allowsHitTesting(false)
+            }
+        } else {
+            content.mask {
+                LinearGradient(stops: stops.map { .init(color: .black.opacity($0.shown), location: $0.at) }, startPoint: .top, endPoint: .bottom)
+            }
+        }
+    }
+}
+
 /// Section title inside a scroll view: no restating, just the name of what follows. An eyebrow
 /// (a word in red above, often the Japanese) marks the sections of the home page.
 struct SectionTitle: View {
@@ -496,16 +536,7 @@ struct AmbientHero: View {
         .tabViewStyle(.page(indexDisplayMode: .never))
         // only a swipe turns the page
         .sensoryFeedback(.page, trigger: page)
-        .mask {
-            LinearGradient(stops: [
-                .init(color: .black, location: 0),
-                .init(color: .black, location: 0.6),
-                .init(color: .black.opacity(0.8), location: 0.74),
-                .init(color: .black.opacity(0.4), location: 0.87),
-                .init(color: .black.opacity(0.12), location: 0.95),
-                .init(color: .clear, location: 1),
-            ], startPoint: .top, endPoint: .bottom)
-        }
+        .dissolve([(1, 0), (1, 0.6), (0.8, 0.74), (0.4, 0.87), (0.12, 0.95), (0, 1)])
         .overlay(alignment: .top) {
             LinearGradient(colors: [.black.opacity(0.24), .clear], startPoint: .top, endPoint: .bottom)
                 .frame(height: 100)
@@ -520,6 +551,11 @@ struct AmbientPhoto: View {
     @Environment(\.accessibilityReduceTransparency) private var plain
     let photo: Photo
     @State private var veil: UIImage?
+
+    init(photo: Photo) {
+        self.photo = photo
+        _veil = State(initialValue: PhotoCache.cachedVeil(photo))
+    }
 
     var body: some View {
         Color.clear
@@ -544,8 +580,16 @@ struct AmbientPhoto: View {
                     }
             }
             .clipped()
+            // flattened into one texture, drawn again only when a photo or the veil arrives: the
+            // zoom, the page swipe and the scroll then move a finished picture instead of masking
+            // the sharp photo over its veil on every frame (the photos are sRGB, which this keeps)
+            .drawingGroup()
             .task(id: photo.src) {
                 guard !plain else { return }
+                if let hit = PhotoCache.cachedVeil(photo) {
+                    if veil !== hit { veil = hit }
+                    return
+                }
                 let loaded = await PhotoCache.shared.veil(photo)
                 withAnimation(.easeOut(duration: 0.25)) { veil = loaded }
             }
@@ -631,6 +675,7 @@ private struct AmbientPageStyle: ViewModifier {
             .progressiveEdges()
             .tabBarFollowsScroll()
             .background { (canvas?.color ?? Palette.paper).ignoresSafeArea() }
+            .environment(\.pageFill, canvas?.color ?? Palette.paper)
             .environment(\.cardSurface, canvas?.surface)
             .tint(canvas == nil ? nil : Color.primary)
             .environment(\.colorScheme, canvas?.scheme ?? system)

@@ -57,22 +57,13 @@ struct ListenView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
-                    if listener.sentences.isEmpty, listener.partial.isEmpty, listener.state != .listening {
-                        ContentUnavailableView("Chạm micro rồi đưa máy về phía người nói", systemImage: "waveform")
-                            .padding(.top, 60)
-                    }
+                    ListenHint(listener: listener)
                     ForEach(listener.sentences) { s in
                         ListenBubble(sentence: s, vi: translator.translation(s.id.uuidString), failed: translator.failed.contains(s.id.uuidString), show: { shown = $0 })
                             .id(s.id)
                             .onAppear { translator.enqueue(id: s.id.uuidString, text: s.ja) }
                     }
-                    if !listener.partial.isEmpty {
-                        Text(listener.partial)
-                            .font(.title3)
-                            .foregroundStyle(.secondary)
-                            .environment(\.locale, Locale(identifier: "ja_JP"))
-                            .id("partial")
-                    }
+                    ListenPartial(listener: listener, proxy: proxy)
                 }
                 .padding(.horizontal, Metrics.gutter)
                 .padding(.vertical, 12)
@@ -81,9 +72,6 @@ struct ListenView: View {
                 if let last = listener.sentences.last?.id {
                     withAnimation { proxy.scrollTo(last, anchor: .bottom) }
                 }
-            }
-            .onChange(of: listener.partial) {
-                proxy.scrollTo("partial", anchor: .bottom)
             }
         }
     }
@@ -173,5 +161,38 @@ private struct ListenBubble: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
         .background(Palette.card, in: .rect(cornerRadius: 20, style: .continuous))
+    }
+}
+
+// The words still being heard change several times a second. Each piece that reads them is its
+// own view, so they redraw that line and not the whole screen (bar, transcript, button).
+
+/// What to do, until something is heard.
+private struct ListenHint: View {
+    let listener: TalkListener
+
+    var body: some View {
+        if listener.sentences.isEmpty, listener.partial.isEmpty, listener.state != .listening {
+            ContentUnavailableView("Chạm micro rồi đưa máy về phía người nói", systemImage: "waveform")
+                .padding(.top, 60)
+        }
+    }
+}
+
+/// The sentence still being said, kept in view as it grows.
+private struct ListenPartial: View {
+    let listener: TalkListener
+    let proxy: ScrollViewProxy
+
+    var body: some View {
+        if !listener.partial.isEmpty {
+            Text(listener.partial)
+                .font(.title3)
+                .foregroundStyle(.secondary)
+                .environment(\.locale, Locale(identifier: "ja_JP"))
+                .id("partial")
+                .onAppear { proxy.scrollTo("partial", anchor: .bottom) }
+                .onChange(of: listener.partial) { proxy.scrollTo("partial", anchor: .bottom) }
+        }
     }
 }

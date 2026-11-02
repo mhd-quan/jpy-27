@@ -39,7 +39,7 @@ struct FujiFinderView: View {
                     FujiARView(sight: sight, onScreen: $onScreen)
                         .ignoresSafeArea()
                 } else {
-                    FujiCompass(sight: sight, heading: model.location.heading)
+                    FujiHeading { FujiCompass(sight: sight, heading: $0) }
                 }
             } else {
                 FujiWaiting()
@@ -47,7 +47,7 @@ struct FujiFinderView: View {
         }
         .overlay {
             if let sight, arSupported, !onScreen {
-                FujiTurnHint(sight: sight, heading: model.location.heading)
+                FujiHeading { FujiTurnHint(sight: sight, heading: $0) }
                     .transition(.scale(scale: 0.85).combined(with: .opacity))
             }
         }
@@ -76,6 +76,8 @@ struct FujiFinderView: View {
                     .padding(.bottom, 24)
             }
         }
+        .onAppear { model.location.watchHeading(true) }
+        .onDisappear { model.location.watchHeading(false) }
         .task {
             model.location.resume(for: model)
             let hours = await model.forecasts.hours("summit", at: FujiSight.summit, online: model.network.online)
@@ -87,6 +89,15 @@ struct FujiFinderView: View {
 }
 
 // MARK: - Overlays
+
+/// Reads the heading itself, so a turn of the phone redraws the compass or the hint, not the
+/// camera view and everything over it.
+private struct FujiHeading<Content: View>: View {
+    @Environment(AppModel.self) private var model
+    @ViewBuilder let content: (Double?) -> Content
+
+    var body: some View { content(model.location.heading) }
+}
 
 /// Distance, direction, height above the horizon, summit cloud, and the terrain verdict when known.
 private struct FujiInfo: View {

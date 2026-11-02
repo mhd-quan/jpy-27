@@ -90,7 +90,9 @@ private struct PlanDayContent: View {
     }
 
     private var canvas: AmbientCanvas? {
-        tone.map { $0.canvas(light: $0.prefersLight, dim: system == .dark) }
+        // read before (or at launch): the page opens on its colour instead of fading into it
+        (tone ?? HomePicks.photo(for: day, store: model.store).flatMap { PhotoCache.knownTone($0) })
+            .map { $0.canvas(light: $0.prefersLight, dim: system == .dark) }
     }
 }
 

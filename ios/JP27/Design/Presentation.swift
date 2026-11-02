@@ -24,8 +24,13 @@ private nonisolated struct CloseSheetKey: EnvironmentKey {
 
 /// Closes the sheet a view is in (and anything stacked on it), from its root or from a page
 /// pushed inside it, where `dismiss` would only go back.
-struct SheetCloser {
+nonisolated struct SheetCloser: Equatable {
+    /// the stack level it closes down to: the same level closes the same way, so a new closure on
+    /// each update of the stack is not a change that redraws every view reading it
+    let level: Int
     let close: @MainActor () -> Void
+
+    static func == (a: SheetCloser, b: SheetCloser) -> Bool { a.level == b.level }
 }
 
 extension EnvironmentValues {
@@ -153,7 +158,7 @@ private struct SheetLayer: ViewModifier {
                 .progressiveEdges()
                 .environment(model)
                 .environment(\.zoomSpace, space)
-                .environment(\.closeSheet, SheetCloser { [model, level] in
+                .environment(\.closeSheet, SheetCloser(level: level) { [model, level] in
                     if model.sheets.count > level { model.sheets.removeSubrange(level...) }
                 })
                 .zoomed(from: top.source, in: space)

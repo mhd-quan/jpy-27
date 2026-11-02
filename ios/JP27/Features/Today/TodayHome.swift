@@ -83,10 +83,15 @@ private struct HomeCover: View {
         .onAppear {
             withAnimation(.smooth(duration: 0.7).delay(0.1)) { risen = true }
         }
-        // a new photograph every few seconds while the cover is in view; a swipe restarts the wait
+        // a new photograph every few seconds while the cover is in view; a swipe restarts the wait.
+        // Under a sheet or behind another tab it waits: nothing turns while you look at something
+        // else, and no page turn lands in the middle of a sheet's zoom. (Read here, not in the
+        // body, so opening a sheet does not re-run the cover.)
         .task(id: "\(page ?? 0)-\(visible)") {
             guard visible, !reduceMotion, shots.count > 1 else { return }
-            try? await Task.sleep(for: .seconds(6))
+            repeat {
+                try? await Task.sleep(for: .seconds(6))
+            } while !Task.isCancelled && !(model.sheets.isEmpty && model.tab == .today)
             guard !Task.isCancelled else { return }
             withAnimation(.smooth(duration: 0.9)) { page = ((page ?? 0) + 1) % shots.count }
         }
@@ -407,10 +412,10 @@ private struct HomeDays: View {
                         }
                         .buttonStyle(.pressable)
                         .sheetSource("home.day.\(day.key)")
+                        // off centre a card shrinks a little and the paper shows through it
+                        // (that part is drawn inside the card, see HomeDayCard)
                         .scrollTransition(.interactive, axis: .horizontal) { content, phase in
-                            content
-                                .scaleEffect(phase.isIdentity ? 1 : 0.93)
-                                .opacity(phase.isIdentity ? 1 : 0.8)
+                            content.scaleEffect(phase.isIdentity ? 1 : 0.93)
                         }
                         .id(day.key)
                     }
@@ -482,6 +487,16 @@ private struct HomeDayCard: View {
                 .background(Palette.paper.opacity(0.9), in: .rect(cornerRadius: 14, style: .continuous))
                 .padding(12)
                 .padding(.top, 4)
+        }
+        // off centre, a fifth of the paper over the card: the same pixels as the opaque card at
+        // 80 %, as one plain layer instead of a whole card made translucent, which is an offscreen
+        // pass per card on every frame the row moves
+        .overlay {
+            Palette.paper
+                .allowsHitTesting(false)
+                .scrollTransition(.interactive, axis: .horizontal) { content, phase in
+                    content.opacity(phase.isIdentity ? 0 : 0.2)
+                }
         }
         .clipShape(.rect(cornerRadius: 28, style: .continuous))
         .contentShape(.rect(cornerRadius: 28, style: .continuous))

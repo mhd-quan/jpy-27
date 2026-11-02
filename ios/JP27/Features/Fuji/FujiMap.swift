@@ -264,8 +264,9 @@ struct FujiSummitPin: View {
             .foregroundStyle(Color(white: 0.1))
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(.white, in: .capsule)
-            .shadow(color: .black.opacity(0.35), radius: 3, y: 1)
+            // cast by the capsule alone (it holds the label): the same shadow, drawn with the
+            // capsule instead of found offscreen on each frame the map moves the pin
+            .background { Capsule().fill(.white).shadow(color: .black.opacity(0.35), radius: 3, y: 1) }
             .accessibilityLabel("Đỉnh Fuji, \(Fmt.grouped(height)) mét")
     }
 }
@@ -280,9 +281,11 @@ struct FujiSpotPin: View {
         let d: CGFloat = selected ? 22 : major ? 14 : 9
         Circle()
             .fill(visible ? Palette.fuji : Color(white: 0.55))
+            // cast by the disc, which the ring sits inside: the same shadow, drawn with the disc
+            // instead of found offscreen for every pin on each frame the map moves
+            .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
             .frame(width: d, height: d)
             .overlay { Circle().strokeBorder(.white, lineWidth: selected ? 3 : 2) }
-            .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
             .animation(.snappy, value: selected)
             .accessibilityHidden(true)
     }
@@ -667,14 +670,20 @@ private struct FujiSpotCard: View {
             }
         }
         .padding(14)
-        .background(Palette.card, in: .rect(cornerRadius: 22, style: .continuous))
+        // the shadow is cast by the card's fill alone: the card is opaque and holds everything,
+        // so it is the same shadow, without its every layer drawn offscreen to find its outline on
+        // each frame the map under it moves
+        .background {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Palette.card)
+                .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
+        }
         .overlay {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .strokeBorder(selected ? Palette.sun : .clear, lineWidth: 2)
         }
         // the viewpoint's page grows out of the whole card, not its button, and goes back into it
         .sheetSource("fuji.card.\(spot.id)", cornerRadius: 22)
-        .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
     }
 }
 

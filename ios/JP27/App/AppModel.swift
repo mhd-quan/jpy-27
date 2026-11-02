@@ -215,8 +215,31 @@ enum AppSheet: Identifiable, Hashable {
             await HeroExporter.exportIfNeeded(store: store)
             await OfflineMaps.checkPinnedTiles()
         }
+        // the colour of the photograph each page opens on, read once in the background (and kept),
+        // so no page re-colours itself while it zooms open
+        let covers = ambientCovers()
+        Task(priority: .utility) {
+            try? await Task.sleep(for: .seconds(2))
+            await PhotoCache.shared.warmTones(covers)
+        }
         offline.configure(store: store)
         ledgerSync.activate(context: context)
+    }
+
+    /// The photograph each ambient page opens on: places, Fuji viewpoints, a hotel's neighbourhood,
+    /// the walks' highlights, days.
+    private func ambientCovers() -> [Photo] {
+        var out = store.places.values.compactMap(\.hero)
+        for spot in guide.fuji.spots {
+            let place = store.place(spot.id)?.images ?? []
+            if let first = spot.images.first ?? place.first(where: { $0.kind == "view" || $0.kind == "exterior" }) { out.append(first) }
+        }
+        for stay in guide.stays {
+            if let first = stay.around?.photos.first { out.append(first) }
+            out += stay.around?.walks.flatMap { $0.highlights.compactMap(\.images.first) } ?? []
+        }
+        out += days.compactMap { HomePicks.photo(for: $0, store: store) }
+        return out
     }
 
     func deactivate() {

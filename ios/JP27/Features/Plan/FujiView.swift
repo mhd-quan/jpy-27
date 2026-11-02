@@ -113,10 +113,7 @@ private struct FujiHero: View {
             }
         } foot: {
             VStack(alignment: .leading, spacing: 12) {
-                Text(facts(shown))
-                    .font(.subheadline.weight(.semibold))
-                    .opacity(0.9)
-                    .monospacedDigit()
+                FujiHeroFacts(seen: shown.filter(\.visible).count)
                 FujiHeroActions(source: "fuji", map: .map(area, focus: nil))
             }
         }
@@ -126,9 +123,23 @@ private struct FujiHero: View {
         }
     }
 
-    /// "3.776 m · 9 chỗ thấy đỉnh · cách bạn 120 km"
-    private func facts(_ shown: [FujiGuide.Spot]) -> String {
-        var parts = ["\(Fmt.grouped(Int(model.guide.fuji.summit.h))) m", "\(shown.filter(\.visible).count) chỗ thấy đỉnh"]
+}
+
+/// "3.776 m · 9 chỗ thấy đỉnh · cách bạn 120 km". Its own view: it reads where you are, and a step
+/// should redraw this line, not the 3D map above it.
+private struct FujiHeroFacts: View {
+    @Environment(AppModel.self) private var model
+    let seen: Int
+
+    var body: some View {
+        Text(facts)
+            .font(.subheadline.weight(.semibold))
+            .opacity(0.9)
+            .monospacedDigit()
+    }
+
+    private var facts: String {
+        var parts = ["\(Fmt.grouped(Int(model.guide.fuji.summit.h))) m", "\(seen) chỗ thấy đỉnh"]
         if let p = model.position { parts.append("cách bạn \(Fmt.km(FujiSight.from(p).km))") }
         if !model.network.online { parts.append("không có mạng") }
         return parts.joined(separator: " · ")
@@ -337,8 +348,7 @@ struct FujiSpotPage: View {
     /// The first photograph decides light or dark for the whole card; the others only move the hue.
     private func canvas(_ photos: [Photo]) -> AmbientCanvas? {
         guard !photos.isEmpty else { return .dusk }
-        guard let first = tones[0] else { return nil }
-        return (tones[page] ?? first).canvas(light: first.prefersLight, dim: system == .dark)
+        return AmbientTone.canvas(tones, photos: photos, page: page, dim: system == .dark)
     }
 
     private func content(_ spot: FujiGuide.Spot) -> some View {
@@ -352,15 +362,7 @@ struct FujiSpotPage: View {
                 Group {
                     if photos.isEmpty {
                         FujiSightMap(spot: spot, inset: EdgeInsets(top: 96, leading: 24, bottom: 220, trailing: 24))
-                            .mask {
-                                LinearGradient(stops: [
-                                    .init(color: .black, location: 0),
-                                    .init(color: .black, location: 0.55),
-                                    .init(color: .black.opacity(0.7), location: 0.72),
-                                    .init(color: .black.opacity(0.25), location: 0.88),
-                                    .init(color: .clear, location: 1),
-                                ], startPoint: .top, endPoint: .bottom)
-                            }
+                            .dissolve([(1, 0), (1, 0.55), (0.7, 0.72), (0.25, 0.88), (0, 1)])
                     } else {
                         AmbientHero(photos: photos, page: $page)
                     }

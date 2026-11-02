@@ -185,8 +185,7 @@ private struct PlanAmbientPage: View {
 
     /// The first photograph decides light or dark for the whole page; the others only move the hue.
     private var canvas: AmbientCanvas? {
-        guard let first = tones[0] else { return nil }
-        return (tones[page] ?? first).canvas(light: first.prefersLight, dim: system == .dark)
+        AmbientTone.canvas(tones, photos: place.images, page: page, dim: system == .dark)
     }
 
     var body: some View {
@@ -231,6 +230,7 @@ private struct PlanAmbientPage: View {
         }
         .progressiveEdges()
         .background { fill.ignoresSafeArea() }
+        .environment(\.pageFill, fill)
         // cards turn into tints of the page, controls into its type colour
         .environment(\.cardSurface, canvas.map { $0.light ? Color.white.opacity(0.4) : Color.white.opacity(0.09) })
         .tint(canvas == nil ? nil : Color.primary)

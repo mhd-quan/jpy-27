@@ -15,6 +15,17 @@ import Testing
         #expect(guide.stays.count == 5)
     }
 
+    @Test func bookingTimesParseOnce() throws {
+        let guide = try #require(Bundle_.store.guide)
+        let timed = guide.bookings.filter { $0.at != nil }
+        #expect(!timed.isEmpty)
+        for b in timed { #expect(b.date == ISO8601DateFormatter().date(from: b.at!)) }
+        #expect(guide.bookings.filter { $0.at == nil }.allSatisfy { $0.date == nil })
+        // 10:00 in Japan is 01:00 UTC
+        let first = try #require(timed.first?.date)
+        #expect(Calendar(identifier: .gregorian).dateComponents(in: TimeZone(identifier: "UTC")!, from: first).hour == 1)
+    }
+
     @Test func scheduleDecodes() throws {
         let slim = try TripStore(tripJSON: Bundle_.data("Shared/schedule.json"))
         #expect(slim.trip.days.count == 12)

@@ -365,10 +365,19 @@ public struct Booking: Codable, Sendable, Hashable {
     public let title: String
     public let text: String
     public let rule: String
+    /// `at`, read once when the guide is decoded: the home and the bookings list filter and sort
+    /// by it each time they update, and a formatter per read was most of that work
+    public let date: Date?
 
-    public var date: Date? {
-        guard let at else { return nil }
-        return ISO8601DateFormatter().date(from: at)
+    private enum CodingKeys: String, CodingKey { case at, title, text, rule }
+
+    public init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        at = try c.decodeIfPresent(String.self, forKey: .at)
+        title = try c.decode(String.self, forKey: .title)
+        text = try c.decode(String.self, forKey: .text)
+        rule = try c.decode(String.self, forKey: .rule)
+        date = at.flatMap { ISO8601DateFormatter().date(from: $0) }
     }
 }
 

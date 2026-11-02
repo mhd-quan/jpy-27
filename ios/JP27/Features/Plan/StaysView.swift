@@ -106,8 +106,7 @@ private struct PlanStayContent: View {
 
     /// The first photograph decides light or dark for the whole page; the others only move the hue.
     private var canvas: AmbientCanvas? {
-        guard let first = tones[0] else { return nil }
-        return (tones[page] ?? first).canvas(light: first.prefersLight, dim: system == .dark)
+        AmbientTone.canvas(tones, photos: photos, page: page, dim: system == .dark)
     }
 
     var body: some View {
@@ -482,8 +481,7 @@ private struct PlanHighlightContent: View {
     private var highlight: StayAround.Walk.Highlight { walk.highlights[index] }
 
     private var canvas: AmbientCanvas? {
-        guard let first = tones[0] else { return nil }
-        return (tones[page] ?? first).canvas(light: first.prefersLight, dim: system == .dark)
+        AmbientTone.canvas(tones, photos: highlight.images, page: page, dim: system == .dark)
     }
 
     var body: some View {

@@ -177,7 +177,7 @@ private struct JournalEntryRow: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .task(id: "\(entry.index)-\(model.photos.allowed)") { loadPhotos() }
+        .task(id: "\(entry.index)-\(model.photos.allowed)") { await loadPhotos() }
     }
 
     private var arrivalText: String {
@@ -203,14 +203,16 @@ private struct JournalEntryRow: View {
         }
     }
 
-    private func loadPhotos() {
+    private func loadPhotos() async {
         guard model.photos.allowed, case .visited(let arrival, let departure, _) = entry.status else {
             assets = []
             return
         }
         let from = arrival.addingTimeInterval(-10 * 60)
         let to = departure.map { $0.addingTimeInterval(10 * 60) } ?? arrival.addingTimeInterval(60 * 60)
-        assets = model.photos.photos(from: from, to: to, near: entry.place.coordinate, limit: 3)
+        let found = await model.photos.photos(from: from, to: to, near: entry.place.coordinate, limit: 3)
+        guard !Task.isCancelled else { return }
+        assets = found
     }
 }
 

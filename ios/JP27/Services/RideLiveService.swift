@@ -52,9 +52,12 @@ import TripKit
         guard let p = model.position, let s = tracker.status(at: p) else { return }
         // a position far off the track says nothing about this ride (still on the platform, or a wrong train)
         guard s.offTrackKm < 1.5 else { return }
-        status = s
+        if status != s { status = s }
         let left = tracker.minutesLeft(km: s.km, speedKmh: model.location.speedKmh)
-        arrival = left.map { model.now.addingTimeInterval($0 * 60) }
+        // shown as hours and minutes: kept to the minute, so it changes once a minute at most
+        // instead of with every fix (the accessory over the tab bar redraws when it does)
+        let eta = left.map { Date(timeIntervalSinceReferenceDate: (model.now.addingTimeInterval($0 * 60).timeIntervalSinceReferenceDate / 60).rounded(.down) * 60) }
+        if arrival != eta { arrival = eta }
         let state = makeState(s, model: model)
         if model.wakeAlarmIsOn(ride), !s.arrived, let prompt = tracker.minutesToAlightPrompt(km: s.km, speedKmh: model.location.speedKmh) {
             // ring as the train leaves the stop before yours

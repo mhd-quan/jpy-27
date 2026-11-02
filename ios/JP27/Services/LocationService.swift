@@ -13,13 +13,19 @@ import TripKit
     /// CoreLocation started that early misbehaves: CLMonitor asserted in its init on every relaunch.
     @ObservationIgnored private var manager: CLLocationManager?
 
+    /// Where you are, for what the screens show. It moves once you have moved 8 m: GPS wanders a
+    /// few metres a second while you stand still, and every view that shows a distance would redraw
+    /// with it. Each fix still goes to `onUpdate`, and the map draws its own dot.
     private(set) var position: Coordinate?
+    /// whole metres, for the same reason
     private(set) var altitude: Double?
-    private(set) var horizontalAccuracy: Double?
+    /// read, not drawn: no view redraws when they change
+    @ObservationIgnored private(set) var horizontalAccuracy: Double?
     /// km/h over ground, when moving
-    private(set) var speedKmh: Double?
-    /// true heading, degrees
+    @ObservationIgnored private(set) var speedKmh: Double?
+    /// true heading, degrees; streamed only while a compass is on screen (`watchHeading`)
     private(set) var heading: Double?
+    @ObservationIgnored private var compasses = 0
     private(set) var authorization: CLAuthorizationStatus = .notDetermined
 
     var onUpdate: ((Coordinate) -> Void)?
@@ -75,7 +81,18 @@ import TripKit
         if authorization == .notDetermined { requestWhenInUse() }
         guard isAllowed else { return }
         startLive(background: model.activeRide != nil)
-        manager?.startUpdatingHeading()
+        if compasses > 0 { manager?.startUpdatingHeading() }
+    }
+
+    /// A compass came on screen or left it. The heading is streamed only while one is: it changes
+    /// with every turn of the hand, and nothing else draws it.
+    func watchHeading(_ on: Bool) {
+        compasses = max(0, compasses + (on ? 1 : -1))
+        if compasses > 0, isAllowed {
+            manager?.startUpdatingHeading()
+        } else if compasses == 0 {
+            manager?.stopUpdatingHeading()
+        }
     }
 
     /// Stream positions; with `background`, keep streaming after the screen locks (a ride, a race to a train).
@@ -109,11 +126,16 @@ import TripKit
     private func accept(_ loc: CLLocation) {
         guard loc.horizontalAccuracy >= 0, loc.horizontalAccuracy < 200 else { return }
         let p = Coordinate(loc.coordinate.latitude, loc.coordinate.longitude)
-        position = p
-        altitude = loc.verticalAccuracy >= 0 ? loc.altitude : altitude
+        publish(p)
+        if loc.verticalAccuracy >= 0, altitude != loc.altitude.rounded() { altitude = loc.altitude.rounded() }
         horizontalAccuracy = loc.horizontalAccuracy
         speedKmh = loc.speed >= 0 ? loc.speed * 3.6 : nil
         onUpdate?(p)
+    }
+
+    private func publish(_ p: Coordinate) {
+        if let shown = position, Geo.km(shown, p) < 0.008 { return }
+        position = p
     }
 
     /// One sample per ~80 m or five minutes for the journal's heatmap.
@@ -247,7 +269,7 @@ extension LocationService: CLLocationManagerDelegate {
         guard let last = locations.last else { return }
         let c = Coordinate(last.coordinate.latitude, last.coordinate.longitude)
         Task { @MainActor in
-            self.position = c
+            self.publish(c)
             self.onUpdate?(c)
             self.moved(to: c)
         }
@@ -255,7 +277,7 @@ extension LocationService: CLLocationManagerDelegate {
 
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         let h = newHeading.trueHeading >= 0 ? newHeading.trueHeading : newHeading.magneticHeading
-        Task { @MainActor in self.heading = h }
+        Task { @MainActor in if self.heading != h { self.heading = h } }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {}

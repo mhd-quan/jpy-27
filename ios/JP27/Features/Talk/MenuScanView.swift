@@ -13,7 +13,10 @@ struct MenuScanView: View {
 
     @State private var scanner = TalkScannerBox()
     @State private var translator = TalkTranslator()
+    /// the scan as shown: a copy at the screen's own size
     @State private var photo: UIImage?
+    /// the scanned photo's pixel size, which the lines' rects are in
+    @State private var photoPixels = CGSize(width: 1, height: 1)
     @State private var lines: [TalkMenuLine] = []
     @State private var scanID = UUID()
     @State private var reading = false
@@ -102,15 +105,17 @@ struct MenuScanView: View {
     private func process(_ image: UIImage) async {
         reading = true
         defer { reading = false }
-        let upright = TalkMenuOCR.upright(image)
+        let upright = await TalkMenuOCR.upright(image)
         let read = await TalkMenuOCR.read(upright)
+        let shown = await TalkMenuOCR.fit(upright, maxPixel: 1290)
         let matcher = MenuMatcher(store: model.store, placeID: placeID)
         let matches = matcher.match(lines: read.map(\.text))
         var out = read.enumerated().map { i, l in TalkMenuLine(id: i, text: l.text, rect: l.rect, match: nil) }
         for m in matches where out.indices.contains(m.line) { out[m.line].match = m }
         scanID = UUID()
         lines = out
-        photo = upright
+        photoPixels = CGSize(width: upright.size.width * upright.scale, height: upright.size.height * upright.scale)
+        photo = shown
         if out.isEmpty { blank += 1 } else { found += 1 }
         for l in out where l.match == nil && TalkMenuOCR.isJapanese(l.text) {
             translator.enqueue(id: key(l), text: l.text)
@@ -131,7 +136,7 @@ struct MenuScanView: View {
         let translated = lines.filter { $0.match == nil && translator.translation(key($0)) != nil }
         return ScrollView {
             VStack(alignment: .leading, spacing: Metrics.stack) {
-                TalkMenuPhoto(image: image, lines: lines, translation: { translator.translation(key($0)) })
+                TalkMenuPhoto(image: image, pixels: photoPixels, lines: lines, translation: { translator.translation(key($0)) })
                     .clipShape(.rect(cornerRadius: 20, style: .continuous))
                 TalkTranslationPackRow(translator: translator)
                 if !matched.isEmpty {
@@ -216,11 +221,13 @@ struct TalkMenuLine: Identifiable {
 /// The frozen photo with labels laid over each line: matched dishes in orange, the rest translated.
 private struct TalkMenuPhoto: View {
     let image: UIImage
+    /// the size of the photo the lines were read from (the one shown is smaller)
+    let pixels: CGSize
     let lines: [TalkMenuLine]
     let translation: (TalkMenuLine) -> String?
 
     var body: some View {
-        let pixel = CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
+        let pixel = pixels
         Image(uiImage: image)
             .resizable()
             .scaledToFit()
@@ -279,13 +286,27 @@ enum TalkMenuOCR {
         let rect: CGRect
     }
 
-    /// Redraw so pixels match the displayed orientation; Vision then reads it as `.up`.
-    static func upright(_ image: UIImage) -> UIImage {
+    /// Redraw so pixels match the displayed orientation; Vision then reads it as `.up`. A 12 MP
+    /// photo, so on a background thread.
+    @concurrent nonisolated static func upright(_ image: UIImage) async -> UIImage {
         guard image.imageOrientation != .up else { return image }
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = image.scale
         return UIGraphicsImageRenderer(size: image.size, format: format).image { _ in
             image.draw(in: CGRect(origin: .zero, size: image.size))
+        }
+    }
+
+    /// A copy no wider than the screen's pixels, for showing: the full photo is ~48 MB to decode
+    /// and upload to the GPU, only to be scaled down to this on every frame of a scroll.
+    @concurrent nonisolated static func fit(_ image: UIImage, maxPixel: CGFloat) async -> UIImage {
+        let width = image.size.width * image.scale
+        guard width > maxPixel else { return image }
+        let size = CGSize(width: maxPixel, height: (image.size.height * image.scale * maxPixel / width).rounded())
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        return UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
         }
     }
 
