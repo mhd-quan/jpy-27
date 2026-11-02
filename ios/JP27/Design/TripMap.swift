@@ -32,7 +32,7 @@ nonisolated struct MapPin: Hashable, Sendable {
 }
 
 /// A camera move asked of the map; a new id moves it again even to the same place.
-nonisolated struct MapCamera: Equatable, Sendable {
+nonisolated struct TripMapCamera: Equatable, Sendable {
     enum Move: Equatable, Sendable {
         /// fit these points in the clear part of the map
         case fit([Coordinate])
@@ -66,7 +66,7 @@ struct TripMap: UIViewRepresentable {
     /// the parts of the map covered by the app's own chrome (a panel, a strip of days); the map
     /// centres and fits within what is left. nil leaves the map's inset alone.
     var chrome: UIEdgeInsets?
-    var camera: MapCamera?
+    var camera: TripMapCamera?
     var onSelect: ((String) -> Void)?
     /// the person panned or zoomed the map themselves
     var onUserMove: (() -> Void)?
@@ -205,7 +205,7 @@ struct TripMap: UIViewRepresentable {
             if let id = hit.first?.attribute(forKey: "id") as? String { onSelect(id) }
         }
 
-        func move(_ map: MLNMapView, _ move: MapCamera.Move, animated: Bool = true) {
+        func move(_ map: MLNMapView, _ move: TripMapCamera.Move, animated: Bool = true) {
             switch move {
             case .fit(let pts):
                 fit(map, pts, animated: animated)

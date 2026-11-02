@@ -18,7 +18,7 @@ struct MapTab: View {
     @State private var active: Int?
     /// a place tapped off the plan: shown with the way to it from the stop being read
     @State private var side: String?
-    @State private var camera: MapCamera?
+    @State private var camera: TripMapCamera?
     @State private var cameraSeq = 0
     @State private var jump: MapJump?
     /// when the person last moved the map (leave it where they put it for a few seconds), kept
@@ -199,9 +199,9 @@ struct MapTab: View {
         }
     }
 
-    private func move(_ m: MapCamera.Move) {
+    private func move(_ m: TripMapCamera.Move) {
         cameraSeq += 1
-        camera = MapCamera(id: cameraSeq, move: m)
+        camera = TripMapCamera(id: cameraSeq, move: m)
     }
 
     // MARK: Side trips
