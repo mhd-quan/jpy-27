@@ -168,6 +168,12 @@ private struct SheetLayer: ViewModifier {
 /// down hands it back to `.onScrollDown`, which folds it again.
 @Observable final class TabBarScroll {
     var up = false
+
+    /// The glass bar's own morph, which folding it on a scroll down already runs with. Opening it
+    /// is a change of state rather than a scroll the system follows, so without a transaction the
+    /// bar would jump open; inside one, SwiftUI hands the change to UIKit animated, and the glass
+    /// grows back with the same spring it shrank with.
+    static let morph = Animation.spring(duration: 0.45, bounce: 0.22)
 }
 
 extension View {
@@ -204,7 +210,9 @@ private struct TabBarFollowsScroll: ViewModifier {
     private func turn(up: Bool, at y: CGFloat) {
         track.up = up
         track.turn = y
-        if let bar, bar.up != up { bar.up = up }
+        if let bar, bar.up != up {
+            withAnimation(TabBarScroll.morph) { bar.up = up }
+        }
     }
 }
 
