@@ -1,6 +1,7 @@
 import AVFoundation
 import Foundation
 import Observation
+import os
 import Photos
 import SwiftUI
 import TripKit
@@ -214,11 +215,12 @@ struct AssetImage: View {
                 options.isNetworkAccessAllowed = true
                 let size = CGSize(width: side * 2, height: side * 2)
                 image = await withCheckedContinuation { cont in
-                    var resumed = false
-                    PHImageManager.default().requestImage(for: asset, targetSize: size, contentMode: .aspectFill, options: options) { img, info in
+                    // Photos may answer on a queue of its own (an iCloud download especially), so the
+                    // handler is nonisolated and the once-only flag is a lock, not a captured var
+                    let resumed = OSAllocatedUnfairLock(initialState: false)
+                    PHImageManager.default().requestImage(for: asset, targetSize: size, contentMode: .aspectFill, options: options) { @Sendable img, info in
                         let degraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
-                        guard !degraded, !resumed else { return }
-                        resumed = true
+                        guard !degraded, resumed.withLock({ done in defer { done = true }; return !done }) else { return }
                         cont.resume(returning: img)
                     }
                 }

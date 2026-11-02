@@ -31,7 +31,6 @@ settings:
     # Xcode 26 defaults for app code: everything on the main actor unless it says otherwise
     SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
     SWIFT_APPROACHABLE_CONCURRENCY: YES
-    TARGETED_DEVICE_FAMILY: "1"
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
 
@@ -64,6 +63,9 @@ targets:
     settings:
       groups: [signing]
       base:
+        # iPhone only. Set per target: XcodeGen's iOS preset puts "1,2" on each target, which beats a
+        # project-level value, and an iPad build must support every orientation.
+        TARGETED_DEVICE_FAMILY: "1"
         PRODUCT_BUNDLE_IDENTIFIER: $(JP27_APP_ID)
         PROVISIONING_PROFILE_SPECIFIER: $(JP27_APP_PROFILE)
         CODE_SIGN_ENTITLEMENTS: $(JP27_APP_ENTITLEMENTS)
@@ -110,6 +112,7 @@ targets:
     settings:
       groups: [signing]
       base:
+        TARGETED_DEVICE_FAMILY: "1"
         PRODUCT_BUNDLE_IDENTIFIER: $(JP27_WIDGET_ID)
         PROVISIONING_PROFILE_SPECIFIER: $(JP27_WIDGET_PROFILE)
         CODE_SIGN_ENTITLEMENTS: $(JP27_WIDGET_ENTITLEMENTS)

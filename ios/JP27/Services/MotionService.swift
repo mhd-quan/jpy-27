@@ -30,7 +30,10 @@ import Observation
             }
         }
         guard CMPedometer.isPaceAvailable() else { return }
-        pedometer.startUpdates(from: Date()) { [weak self] data, _ in
+        // CoreMotion calls this on its own queue. Written inside a main-actor method, the block
+        // would be main-actor isolated and Swift 6's runtime check would trap on entry: it is
+        // @Sendable (nonisolated) and hops to the main actor itself.
+        pedometer.startUpdates(from: Date()) { @Sendable [weak self] data, _ in
             guard let data, let pace = data.currentPace?.doubleValue, pace > 0 else { return }
             let kmh = 3.6 / pace
             Task { @MainActor in self?.sample(kmh: kmh) }
@@ -61,7 +64,7 @@ import Observation
     func walked(from: Date, to: Date) async -> (steps: Int, km: Double)? {
         guard CMPedometer.isStepCountingAvailable() else { return nil }
         return await withCheckedContinuation { cont in
-            pedometer.queryPedometerData(from: from, to: to) { data, _ in
+            pedometer.queryPedometerData(from: from, to: to) { @Sendable data, _ in
                 let result = data.map { (Int(truncating: $0.numberOfSteps), ($0.distance?.doubleValue ?? 0) / 1000) }
                 cont.resume(returning: result)
             }
@@ -75,7 +78,8 @@ import Observation
     private let monitor = NWPathMonitor()
 
     init() {
-        monitor.pathUpdateHandler = { [weak self] path in
+        // runs on the monitor's queue, at start and on every change: nonisolated, see MotionService
+        monitor.pathUpdateHandler = { @Sendable [weak self] path in
             let ok = path.status == .satisfied
             Task { @MainActor in self?.online = ok }
         }
