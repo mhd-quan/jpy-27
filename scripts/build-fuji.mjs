@@ -149,7 +149,8 @@ const outSpots = spots.map((sp) => {
   return { id: sp.id, name: sp.nameVi ?? sp.nameEn ?? null, ja: sp.nameJa ?? null, lat: sp.lat, lng: sp.lng, day: sp.day ?? null, role: sp.role ?? null, ...sl };
 });
 
-const PANORAMAS = ['onshi-hakone-park', 'lake-ashi-cruise-deck', 'owakudani', 'satta-pass', 'oishi-park', 'fs-chureito-pagoda'];
+// every viewpoint: the app draws the horizon on each one's card (the web page shows the six it lists)
+const PANORAMAS = spots.map((x) => x.id);
 const panoramas = {};
 for (const id of PANORAMAS) {
   const sp = spots.find((x) => x.id === id);
