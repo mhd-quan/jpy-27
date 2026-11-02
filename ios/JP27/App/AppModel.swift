@@ -64,6 +64,8 @@ enum AppSheet: Identifiable, Hashable {
     let store: TripStore
     let itinerary: Itinerary
     let container: ModelContainer
+    /// shown once at launch when the records could not be opened as usual (`Records.problem`)
+    var storeAlert = false
     var context: ModelContext { container.mainContext }
 
     let location = LocationService()
@@ -155,6 +157,7 @@ enum AppSheet: Identifiable, Hashable {
         }
         itinerary = Itinerary(store: store)
         container = Records.container()
+        storeAlert = Records.problem != nil
         if let data = Shared.defaults.data(forKey: "paceModel"), let p = try? JSONDecoder().decode(PaceModel.self, from: data) {
             pace = p
         } else {
@@ -165,6 +168,8 @@ enum AppSheet: Identifiable, Hashable {
         location.onUpdate = { [weak self] in self?.positionChanged($0) }
         location.onVisit = { [weak self] in self?.visited($0) }
         location.onFence = { [weak self] fence, entered in self?.fenceEvent(fence, entered: entered) }
+        location.onAuthorizationChange = { [weak self] in self?.rescheduleAll() }
+        location.onMoved = { [weak self] in self?.rescheduleAll() }
         motion.onPace = { [weak self] kmh, minutes in self?.learnPace(kmh: kmh, minutes: minutes) }
         notifications.onAction = { [weak self] in self?.notificationAction($0) }
     }
@@ -236,9 +241,9 @@ enum AppSheet: Identifiable, Hashable {
             return
         }
         let done = Set(marks[day.key]?.keys.map { $0 } ?? [])
+        // the cursor comes with the projection: by the marks, the clock, and where you stand
         let result = itinerary.project(day, done: done, now: minutes, position: position, pace: pace.factor, skips: skips[day.key] ?? [])
-        let c = itinerary.cursor(day, done: done, now: minutes)
-        if c != cursor { cursor = c }
+        if result.cursor != cursor { cursor = result.cursor }
         if result.slots != projection { projection = result.slots }
         if result.replan != replan { replan = result.replan }
         let n = itinerary.next(day, cursor: cursor)
@@ -248,12 +253,15 @@ enum AppSheet: Identifiable, Hashable {
         publishSnapshot(force: false)
     }
 
-    /// Start following a fixed departure on its own: at its time, near its station, app in use.
+    /// Start following a fixed departure on its own, from twenty minutes before it: near its
+    /// station or already moving like a train. iOS lets an app start a Live Activity only while it
+    /// is on screen, so the window is wide (any glance at the app on the way to the platform), and
+    /// the station's geofence sends a notification whose "Theo dõi chuyến" opens the app to do it.
     private func autoStartRide(_ day: Day, minutes: Double) {
         guard live.ride == nil, live.isAvailable, UIApplication.shared.applicationState == .active,
               let dep = itinerary.nextDeparture(day, cursor: cursor),
               let planned = TripTime.minutes(dep.move.at).map(Double.init),
-              (planned - 5 ... planned + 10).contains(minutes),
+              (planned - 20 ... planned + 10).contains(minutes),
               let ride = store.ride(startingWith: dep.move.leg.id, on: day)
         else { return }
         let nearStation = position.flatMap { p in store.place(dep.move.leg.from).map { Geo.km($0.coordinate, p) < 0.4 } } ?? false
@@ -273,6 +281,27 @@ enum AppSheet: Identifiable, Hashable {
         let reminders = ReminderPlanner(store: store).upcoming(days: days, now: now, pace: pace.factor)
         Task { await notifications.schedule(reminders, clockOffset: clockOffset) }
         location.updateFences(model: self)
+        planWakeAlarms()
+    }
+
+    /// Alarms from the timetable for today's long rides (25 minutes or more: time to doze), four
+    /// minutes before the planned arrival. Without them, the only alarm came from a followed ride
+    /// with GPS near the line, so a ride never opened in the app woke no one. Not on the
+    /// rehearsal clock, whose times are not real ones.
+    private func planWakeAlarms() {
+        guard clockOffset == 0, alarms.authorized, let day = today else { return }
+        var plan: [(rideID: String, station: String, at: Date)] = []
+        for ride in store.rides(on: day) {
+            guard let minutes = TripTime.statedMinutes(ride.min), minutes >= 25,
+                  let arrive = RideTracker(ride: ride, store: store).plannedArrival,
+                  let at = TripTime.date(day.date, minutes: arrive - 4)
+            else { continue }
+            // already ridden: its legs are done
+            let legs = day.items.indices.filter { i in day.items[i].move.map { ride.legs.contains($0.leg.id) } ?? false }
+            if !legs.isEmpty, legs.allSatisfy({ isDone(day, $0) }) { continue }
+            plan.append((ride.id, ride.toName, at))
+        }
+        Task { await alarms.planWake(plan) }
     }
 
     // MARK: - Minutes
@@ -315,17 +344,37 @@ enum AppSheet: Identifiable, Hashable {
         let when = at ?? now
         context.insert(Checkmark(day: day.key, index: index, at: when, source: source))
         marks[day.key, default: [:]][index] = when
-        // a stop reached on foot teaches the pace: the walk before it, planned against actual
+        // a stop reached on foot teaches the pace: the walk before it, planned against actual,
+        // timed from when the walk began, never from the arrival at the place before (that would
+        // count the visit there as walking)
         if index > 0, case .move(let m) = day.items[index - 1], store.mode(of: m.leg) == .walk,
-           let w = m.leg.walk, let left = previousMark(day, before: index - 1) {
+           let w = m.leg.walk, let left = walkStart(day, walk: index - 1, until: when) {
             pace.add(planned: Double(w.min), actual: when.timeIntervalSince(left) / 60)
             savePace()
         }
         try? context.save()
     }
 
-    private func previousMark(_ day: Day, before index: Int) -> Date? {
-        (marks[day.key] ?? [:]).filter { $0.key < index }.max { $0.key < $1.key }?.value
+    /// When the walk at item `walk` began, if anything recorded it: the end of the ride that
+    /// brought you to its start (you step off and walk), or the departure iOS reported from the
+    /// stop before it. Unknown otherwise, and then nothing is learnt from the walk.
+    private func walkStart(_ day: Day, walk: Int, until: Date) -> Date? {
+        guard walk > 0 else { return nil }
+        switch day.items[walk - 1] {
+        case .move(let m) where store.mode(of: m.leg) != .walk:
+            return marks[day.key]?[walk - 1]
+        case .stop(let s):
+            guard let place = store.place(s.place) else { return nil }
+            let since = until.addingTimeInterval(-3 * 3600)
+            let visits = (try? context.fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival >= since }))) ?? []
+            return visits
+                .filter { Geo.km(Coordinate($0.lat, $0.lng), place.coordinate) <= Itinerary.atRadius(place) }
+                .compactMap(\.departure)
+                .filter { $0 <= until }
+                .max()
+        default:
+            return nil
+        }
     }
 
     func toggleSkip(_ day: Day, _ index: Int) {
@@ -389,10 +438,21 @@ enum AppSheet: Identifiable, Hashable {
         refresh(reschedule: false)
     }
 
+    /// iOS reports a stay twice: on arrival (no departure yet), then on leaving (both times).
+    /// The second report completes the first record instead of adding another, and either one
+    /// marks the stop done, so a stay reported only once, already with its departure, still counts.
     private func visited(_ v: VisitRecord) {
         let match = matchPlan(v.coordinate)
-        context.insert(Visit(arrival: v.arrival, departure: v.departure, coordinate: v.coordinate, placeID: match.flatMap { day, i in day.items[i].stop?.place }))
-        if let (day, i) = match, v.departure == nil { markDone(day, i, at: v.arrival, source: "visit") }
+        let placeID = match.flatMap { day, i in day.items[i].stop?.place }
+        let from = v.arrival.addingTimeInterval(-120), to = v.arrival.addingTimeInterval(120)
+        let near = (try? context.fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival >= from && $0.arrival <= to }))) ?? []
+        if let same = near.first(where: { VisitRecord(arrival: $0.arrival, departure: $0.departure, coordinate: Coordinate($0.lat, $0.lng)).isSameStay(as: v) }) {
+            if same.departure == nil { same.departure = v.departure }
+            if same.placeID == nil { same.placeID = placeID }
+        } else {
+            context.insert(Visit(arrival: v.arrival, departure: v.departure, coordinate: v.coordinate, placeID: placeID))
+        }
+        if let (day, i) = match { markDone(day, i, at: v.arrival, source: "visit") }
         try? context.save()
         refresh(reschedule: false)
     }
@@ -410,7 +470,10 @@ enum AppSheet: Identifiable, Hashable {
         guard entered, let place = store.place(fence.placeID) else { return }
         switch fence.kind {
         case .food, .snack:
-            Task { await notifications.arrived(at: place, store: store, people: people) }
+            // a planned stop not yet done can be marked from the notification
+            var planned: Int?
+            if let i = fence.index, let d = store.day(fence.day), !isDone(d, i) { planned = i }
+            Task { await notifications.arrived(at: place, store: store, people: people, day: planned == nil ? nil : fence.day, index: planned) }
         case .station:
             if let day = store.day(fence.day), let i = fence.index, case .move(let m) = day.items[i],
                let ride = store.ride(startingWith: m.leg.id, on: day) {

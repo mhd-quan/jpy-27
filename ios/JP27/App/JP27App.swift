@@ -89,6 +89,13 @@ struct RootView: View {
         .onChange(of: appearance, initial: true) { old, new in
             new.apply(animated: old != new)
         }
+        // never lose records quietly: say so the moment the app opens
+        .alert("Sổ ghi chép", isPresented: $model.storeAlert) {
+            Button("Để sau", role: .cancel) {}
+            Button("Xem trong Cài đặt") { model.present(.settings, from: nil) }
+        } message: {
+            Text(Records.problem ?? "")
+        }
     }
 }
 

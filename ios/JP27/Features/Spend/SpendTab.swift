@@ -1,6 +1,7 @@
 import SwiftData
 import SwiftUI
 import TripKit
+import UniformTypeIdentifiers
 
 /// Chi tiêu at a glance. The budget is one dial: each category an arc as long as its share of the
 /// plan; before the trip the dial is the plan itself, on the trip the arcs fill as money goes.
@@ -15,6 +16,8 @@ struct SpendTab: View {
     @Query private var topups: [Topup]
     @Query private var purchases: [Purchase]
     @State private var topup: PayMethod?
+    @State private var importing = false
+    @State private var merged: String?
 
     var body: some View {
         @Bindable var model = model
@@ -63,9 +66,34 @@ struct SpendTab: View {
             .navigationTitle("Chi tiêu")
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        ShareLink(item: SpendLedgerFile(expenses: expenses, store: model.store), preview: SharePreview("Sổ chi JP27")) {
+                            Label("Xuất sổ chi (CSV)", systemImage: "square.and.arrow.up")
+                        }
+                        Button("Gộp sổ từ máy kia", systemImage: "arrow.triangle.merge") { importing = true }
+                    } label: {
+                        Label("Sổ chi", systemImage: "ellipsis")
+                    }
+                }
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
                 SheetToolbarButton(title: "Ghi chi", symbol: "plus", source: "spend.add") {
                     model.present(.expense(placeID: nil, yen: nil), from: "spend.add")
                 }
+            }
+            // the other phone's ledger, sent as its CSV: rows this phone lacks are added, counted in
+            // the budget but not in this phone's purses
+            .fileImporter(isPresented: $importing, allowedContentTypes: [.commaSeparatedText, .plainText]) { result in
+                guard case .success(let url) = result else { return }
+                do {
+                    let n = try SpendLedgerFile.merge(url, into: context)
+                    merged = n == 0 ? "Không có khoản nào mới: sổ này đã có đủ." : "Đã gộp \(n) khoản từ máy kia."
+                } catch {
+                    merged = "Không đọc được file: \(error.localizedDescription)"
+                }
+            }
+            .alert(merged ?? "", isPresented: Binding(get: { merged != nil }, set: { if !$0 { merged = nil } })) {
+                Button("OK", role: .cancel) {}
             }
             .sheet(item: $topup) { method in
                 SpendTopupSheet(method: method)
@@ -526,6 +554,9 @@ private struct SpendLedgerRow: View {
                         .accessibilityLabel(expense.payMethod.label)
                     if named != nil, !expense.note.isEmpty {
                         Text(expense.note).lineLimit(1)
+                    }
+                    if expense.device != nil {
+                        Text("· máy kia")
                     }
                 }
                 .font(.caption)

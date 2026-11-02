@@ -18,6 +18,22 @@ struct SettingsView: View {
                 AppearanceSection()
                 PermissionsSection()
                 TripSection()
+                if let problem = Records.problem {
+                    Section {
+                        Label {
+                            Text(problem).font(.subheadline)
+                        } icon: {
+                            SettingsIcon(symbol: "exclamationmark.triangle.fill", tint: .red)
+                        }
+                        if let file = Records.unreadable {
+                            ShareLink(item: file) {
+                                Label("Gửi file sổ cũ để cứu dữ liệu", systemImage: "square.and.arrow.up")
+                            }
+                        }
+                    } header: {
+                        Text("Sổ ghi chép")
+                    }
+                }
                 Section {
                     NavigationLink {
                         SettingsPage(title: "Dùng khi mất sóng") { OfflineSection() }

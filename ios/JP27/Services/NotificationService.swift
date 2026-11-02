@@ -21,7 +21,8 @@ import UserNotifications
     enum Category {
         static let departure = "departure"
         static let food = "food"
-        static let arrival = "arrival"
+        /// a food stop of the plan: "Đã tới" marks it done from the lock screen, app closed
+        static let plannedFood = "food.planned"
         static let plain = "plain"
     }
 
@@ -43,8 +44,10 @@ import UserNotifications
                 UNNotificationAction(identifier: ActionID.menu, title: "Món nên gọi", options: [.foreground], icon: UNNotificationActionIcon(systemImageName: "fork.knife")),
                 UNNotificationAction(identifier: ActionID.spend, title: "Ghi chi", options: [.foreground], icon: UNNotificationActionIcon(systemImageName: "yensign")),
             ], intentIdentifiers: []),
-            UNNotificationCategory(identifier: Category.arrival, actions: [
+            UNNotificationCategory(identifier: Category.plannedFood, actions: [
                 UNNotificationAction(identifier: ActionID.arrived, title: "Đã tới", options: [], icon: UNNotificationActionIcon(systemImageName: "checkmark")),
+                UNNotificationAction(identifier: ActionID.menu, title: "Món nên gọi", options: [.foreground], icon: UNNotificationActionIcon(systemImageName: "fork.knife")),
+                UNNotificationAction(identifier: ActionID.spend, title: "Ghi chi", options: [.foreground], icon: UNNotificationActionIcon(systemImageName: "yensign")),
             ], intentIdentifiers: []),
         ])
         Task { await refreshStatus() }
@@ -113,7 +116,9 @@ import UserNotifications
     // MARK: Location-triggered
 
     /// Near a restaurant or a snack stop: what to order, how to pay, what it will cost.
-    func arrived(at place: Place, store: TripStore, people: Int) async {
+    /// Near a food place: what to order and how to pay. For a stop of the plan (`day`, `index`),
+    /// "Đã tới" marks it done without opening the app, for when iOS is slow to report the visit.
+    func arrived(at place: Place, store: TripStore, people: Int, day: String? = nil, index: Int? = nil) async {
         let content = UNMutableNotificationContent()
         content.title = place.name
         var lines: [String] = []
@@ -129,12 +134,17 @@ import UserNotifications
         }
         if let est = Spend.estimate(stop: nil, place: place, people: people) { lines.append("Dự kiến \(est.label)") }
         content.body = lines.joined(separator: " · ")
-        content.categoryIdentifier = Category.food
+        content.categoryIdentifier = day != nil && index != nil ? Category.plannedFood : Category.food
         content.interruptionLevel = .active
         content.relevanceScore = 0.8
         content.sound = .default
         content.threadIdentifier = "nearby"
-        content.userInfo = ["link": DeepLink.menu(place.id).url.absoluteString, "place": place.id]
+        var info: [String: Any] = ["link": DeepLink.menu(place.id).url.absoluteString, "place": place.id]
+        if let day, let index {
+            info["day"] = day
+            info["index"] = index
+        }
+        content.userInfo = info
         try? await center.add(UNNotificationRequest(identifier: "near.\(place.id)", content: content, trigger: nil))
     }
 
@@ -162,11 +172,15 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         let link = (info["link"] as? String).flatMap(URL.init(string:))
         let ride = info["ride"] as? String
         let place = info["place"] as? String
+        let day = info["day"] as? String
+        let index = info["index"] as? Int
         let action = response.actionIdentifier
         await MainActor.run {
             switch action {
             case ActionID.startRide:
                 if let ride { self.onAction?(.startRide(ride)) }
+            case ActionID.arrived:
+                if let day, let index { self.onAction?(.markArrived(day: day, index: index)) }
             case ActionID.spend:
                 self.onAction?(.open(.spend(place: place)))
             case ActionID.menu:

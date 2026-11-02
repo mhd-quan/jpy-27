@@ -1,15 +1,17 @@
 import SwiftData
 import SwiftUI
 import TripKit
+import UniformTypeIdentifiers
 
-/// Cash and Suica on hand: what went in (ATM, top-ups) minus what was paid that way.
+/// Cash and Suica on hand: what went in (ATM, top-ups) minus what was paid that way. Only what was
+/// paid from this phone's purses: expenses merged from the other phone count in the budget, not here.
 struct SpendWallet {
     let cash: Int
     let ic: Int
 
     init(expenses: [Expense], topups: [Topup]) {
         func inflow(_ m: PayMethod) -> Int { topups.filter { $0.method == m.rawValue }.reduce(0) { $0 + $1.yen } }
-        func outflow(_ m: PayMethod) -> Int { expenses.filter { $0.method == m.rawValue }.reduce(0) { $0 + $1.yen } }
+        func outflow(_ m: PayMethod) -> Int { expenses.filter { $0.device == nil && $0.method == m.rawValue }.reduce(0) { $0 + $1.yen } }
         cash = inflow(.cash) - outflow(.cash)
         ic = inflow(.ic) - outflow(.ic)
     }
@@ -233,5 +235,121 @@ private struct SpendKeyStyle: ButtonStyle {
                 in: .rect(cornerRadius: 16, style: .continuous)
             )
             .animation(configuration.isPressed ? nil : .easeOut(duration: 0.25), value: configuration.isPressed)
+    }
+}
+
+// MARK: - The ledger as a file
+
+/// The ledger as CSV: to keep (Numbers, Excel, a backup off the phone) and to merge the two
+/// phones' ledgers. Each phone logs for the party, but the phones do not sync (no iCloud on a
+/// personal signing team), so one sends its file (AirDrop, Messages) and the other merges it:
+/// rows are keyed by the expense's id, so merging twice, or merging back, never counts one twice.
+nonisolated struct SpendLedgerFile: Transferable, Sendable {
+    let csv: String
+
+    static var transferRepresentation: some TransferRepresentation {
+        // a byte-order mark, so spreadsheet apps read the Vietnamese right
+        DataRepresentation(exportedContentType: .commaSeparatedText) { file in Data(("\u{FEFF}" + file.csv).utf8) }
+            .suggestedFileName("JP27-so-chi.csv")
+    }
+
+    static let header = ["id", "luc", "ngay", "gio", "yen", "khoan", "ten_khoan", "tra", "place_id", "cho", "ghi_chu", "may"]
+
+    /// This install, so a file merged back is recognised as this phone's own rows.
+    @MainActor static var installID: String {
+        if let id = Shared.defaults.string(forKey: "installID") { return id }
+        let id = UUID().uuidString
+        Shared.defaults.set(id, forKey: "installID")
+        return id
+    }
+
+    @MainActor init(expenses: [Expense], store: TripStore) {
+        let iso = ISO8601DateFormatter()
+        let me = Self.installID
+        var rows = [Self.header]
+        for e in expenses.sorted(by: { $0.at < $1.at }) {
+            rows.append([
+                e.id.uuidString, iso.string(from: e.at), e.day ?? "", TripTime.clock(e.at), String(e.yen),
+                e.category, e.spendCategory.label, e.method, e.placeID ?? "",
+                store.place(e.placeID)?.name ?? e.placeName ?? "", e.note, e.device ?? me,
+            ])
+        }
+        csv = rows.map { $0.map(Self.field).joined(separator: ",") }.joined(separator: "\r\n") + "\r\n"
+    }
+
+    private static func field(_ s: String) -> String {
+        s.contains(where: { ",\"\n\r".contains($0) }) ? "\"" + s.replacingOccurrences(of: "\"", with: "\"\"") + "\"" : s
+    }
+
+    /// Adds the rows of a ledger file that this phone does not have yet; returns how many.
+    @MainActor static func merge(_ url: URL, into context: ModelContext) throws -> Int {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        var text = try String(contentsOf: url, encoding: .utf8)
+        if text.hasPrefix("\u{FEFF}") { text.removeFirst() }
+        let rows = parse(text)
+        guard let head = rows.first else { return 0 }
+        let col = Dictionary(head.enumerated().map { ($1, $0) }, uniquingKeysWith: { a, _ in a })
+        func value(_ row: [String], _ name: String) -> String? {
+            guard let i = col[name], row.indices.contains(i) else { return nil }
+            let v = row[i].trimmingCharacters(in: .whitespaces)
+            return v.isEmpty ? nil : v
+        }
+        let iso = ISO8601DateFormatter()
+        let me = installID
+        var added = 0
+        for row in rows.dropFirst() {
+            guard let idText = value(row, "id"), let id = UUID(uuidString: idText),
+                  let at = value(row, "luc").flatMap(iso.date(from:)),
+                  let yen = value(row, "yen").flatMap(Int.init), yen > 0
+            else { continue }
+            guard ((try? context.fetchCount(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }))) ?? 0) == 0 else { continue }
+            let place = value(row, "place_id")
+            let e = Expense(
+                yen: yen,
+                category: value(row, "khoan").flatMap(SpendCategory.init(rawValue:)) ?? .extra,
+                method: value(row, "tra").flatMap(PayMethod.init(rawValue:)) ?? .cash,
+                placeID: place,
+                placeName: place == nil ? value(row, "cho") : nil,
+                day: value(row, "ngay"),
+                note: value(row, "ghi_chu") ?? "",
+                at: at)
+            e.id = id
+            let device = value(row, "may")
+            e.device = device == me ? nil : (device ?? "other")
+            context.insert(e)
+            added += 1
+        }
+        try context.save()
+        return added
+    }
+
+    /// RFC 4180: quoted fields may hold commas, quotes (doubled) and line breaks.
+    private static func parse(_ text: String) -> [[String]] {
+        var rows: [[String]] = [], row: [String] = [], field = ""
+        var quoted = false
+        var chars = Array(text)[...]
+        while let c = chars.popFirst() {
+            if quoted {
+                if c == "\"" {
+                    if chars.first == "\"" { field.append("\""); chars.removeFirst() } else { quoted = false }
+                } else {
+                    field.append(c)
+                }
+            } else if c == "\"" {
+                quoted = true
+            } else if c == "," {
+                row.append(field); field = ""
+            } else if c == "\n" || c == "\r" || c == "\r\n" {
+                // "\r\n" is one Character in Swift
+                row.append(field); field = ""
+                if !(row.count == 1 && row[0].isEmpty) { rows.append(row) }
+                row = []
+            } else {
+                field.append(c)
+            }
+        }
+        if !field.isEmpty || !row.isEmpty { row.append(field); rows.append(row) }
+        return rows
     }
 }

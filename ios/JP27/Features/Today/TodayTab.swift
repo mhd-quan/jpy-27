@@ -1,6 +1,7 @@
 import SwiftData
 import SwiftUI
 import TripKit
+import UIKit
 
 /// The tab opened most. Before the trip it is the trip's cover (TodayHome.swift); during it, what
 /// is next, whether you are late, and the rest of today; after it, the journal.
@@ -112,6 +113,10 @@ private struct TodayDuring: View {
             if let plan = model.replan {
                 TodayLateBanner(day: day, plan: plan)
                     .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
+            if !model.location.isAlways {
+                TodayAlwaysCard()
             }
 
             if let next = model.next {
@@ -571,5 +576,44 @@ private struct TodayAfter: View {
             }
         }
         .padding(.top, 8)
+    }
+}
+
+/// Marking stops by itself, the station alerts and the evening journal need location "Always";
+/// without it the day only follows the plan's clock. Said on the day screen, where it matters,
+/// with the one tap that fixes it: iOS's upgrade prompt the first time, Settings after that.
+private struct TodayAlwaysCard: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.openURL) private var openURL
+    @AppStorage("location.askedAlways") private var asked = false
+
+    var body: some View {
+        Card {
+            HStack(alignment: .top, spacing: 12) {
+                GlyphTile(symbol: "location.fill", tint: .blue, size: 34)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Bật vị trí “Luôn luôn”").font(.headline)
+                    Text("Để app tự đánh dấu chỗ đã tới, báo món khi tới quán và báo ga, kể cả khi khoá máy. Lúc này app chỉ đoán bạn ở đâu theo giờ trong lịch.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Button(asked ? "Mở Cài đặt" : "Bật") { enable() }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                }
+            }
+        }
+    }
+
+    private func enable() {
+        switch model.location.authorization {
+        case .notDetermined:
+            model.location.requestWhenInUse()
+        case .authorizedWhenInUse where !asked:
+            // iOS shows this upgrade once; after that only Settings can change it
+            asked = true
+            model.location.requestAlways()
+        default:
+            if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+        }
     }
 }

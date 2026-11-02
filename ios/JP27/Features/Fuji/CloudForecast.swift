@@ -45,7 +45,7 @@ struct CloudForecast: View {
             } else {
                 let best = cols.max { $0.chance < $1.chance }
                 if let best, best.chance >= 0.35 {
-                    Text("Rõ nhất lúc \(TripTime.clock(best.date)) · \(Int((best.chance * 100).rounded()))%")
+                    Text("Rõ nhất lúc \(TripTime.clock(best.date)) · \(clearWords(best.chance))")
                         .font(.subheadline.weight(.semibold))
                         .monospacedDigit()
                 } else {
@@ -131,6 +131,13 @@ private struct CloudColumn: View {
         .padding(.vertical, 6)
         .background(isBest ? AnyShapeStyle(Color.accentColor.opacity(0.14)) : AnyShapeStyle(.clear), in: .rect(cornerRadius: 10, style: .continuous))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(TripTime.calendar.component(.hour, from: date)) giờ, khả năng thấy đỉnh \(Int((chance * 100).rounded())) phần trăm, mây \(Int((cloud * 100).rounded())) phần trăm")
+        .accessibilityLabel("\(TripTime.calendar.component(.hour, from: date)) giờ, \(clearWords(chance)), mây \(Int((cloud * 100).rounded())) phần trăm")
     }
+}
+
+/// The clear-view index in words. It multiplies the forecast's clear sky at the summit, clear sky
+/// where you stand and visibility over 40 km: a ranking of the hours, not a probability, so it is
+/// never shown as a percentage. The cloud figure under each bar is the forecast's own.
+private func clearWords(_ index: Double) -> String {
+    index >= 0.6 ? "nhiều khả năng thấy" : index >= 0.35 ? "có thể thấy" : "khó thấy"
 }

@@ -181,9 +181,11 @@ struct MenuScanView: View {
                     Tag(text: p.name, symbol: "fork.knife")
                 }
                 Spacer(minLength: 0)
-                // stacks on the scanner, so the scan is still there after logging
+                // stacks on the scanner, so the scan is still there after logging; one serving's
+                // price (a bowl of ramen is one bowl, whoever is at the table): two servings are
+                // typed in the editor
                 Button {
-                    model.present(.expense(placeID: m.candidate.placeID, yen: price.map { $0 * model.people }), from: "scan.\(scanID).\(m.line)")
+                    model.present(.expense(placeID: m.candidate.placeID, yen: price), from: "scan.\(scanID).\(m.line)")
                 } label: {
                     Label("Ghi món này", systemImage: "yensign")
                 }
