@@ -37,7 +37,7 @@ private struct PlanDayContent: View {
                 PlanDayFuji(day: day)
                 if planHasStarted(day, now: model.now) {
                     NavigationLink(value: Route.journal(day.key)) {
-                        Label("Nhật ký ngày \(day.n)", systemImage: "book.closed")
+                        Label("Nhật ký ngày \(day.n)", systemImage: "book.pages")
                             .font(.body.weight(.semibold))
                             .frame(maxWidth: .infinity, minHeight: 44)
                     }
@@ -116,12 +116,15 @@ private struct PlanDayTimeline: View {
     let day: Day
 
     var body: some View {
-        Card(padding: 14) {
+        // no dividers: the rail runs from the first item to the last
+        VStack(alignment: .leading, spacing: 0) {
             ForEach(day.items.indices, id: \.self) { i in
-                if i > 0 { Divider().padding(.leading, 54) }
                 row(i)
             }
         }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(Palette.card, in: .rect(cornerRadius: Metrics.card, style: .continuous))
     }
 
     @ViewBuilder

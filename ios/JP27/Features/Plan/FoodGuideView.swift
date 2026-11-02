@@ -22,6 +22,7 @@ struct FoodGuideView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .paperList()
         .navigationTitle("Ăn uống")
     }
 }

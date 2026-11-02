@@ -35,6 +35,7 @@ struct NowAccessory: View {
             case .before(let days, let first):
                 HStack(spacing: 8) {
                     Image(systemName: "airplane.departure")
+                        .foregroundStyle(Palette.sun)
                     Text("Còn \(days) ngày").fontWeight(.semibold).monospacedDigit()
                     if !inline {
                         Text("· \(first.title)").foregroundStyle(.secondary)

@@ -60,19 +60,22 @@ struct RootView: View {
     var body: some View {
         @Bindable var model = model
         TabView(selection: $model.tab) {
-            Tab("Hôm nay", systemImage: "sun.max", value: AppTab.today) {
+            // the torii is the trip's front door (an asset; SF Symbols has no torii);
+            // the rest are system glyphs chosen for what each tab is for: a route from one point
+            // to another for the plan, あ in a speech bubble for the phrasebook, a wallet for money
+            Tab("Hôm nay", image: "torii", value: AppTab.today) {
                 TodayTab()
             }
             Tab("Bản đồ", systemImage: "map", value: AppTab.map) {
                 MapTab()
             }
-            Tab("Lịch trình", systemImage: "calendar", value: AppTab.plan) {
+            Tab("Lịch trình", systemImage: "point.bottomleft.forward.to.point.topright.scurvepath", value: AppTab.plan) {
                 PlanTab()
             }
-            Tab("Sổ tay", systemImage: "character.bubble", value: AppTab.talk) {
+            Tab("Sổ tay", systemImage: "character.bubble.ja", value: AppTab.talk) {
                 TalkTab()
             }
-            Tab("Chi tiêu", systemImage: "yensign.circle", value: AppTab.spend) {
+            Tab("Chi tiêu", systemImage: "wallet.bifold", value: AppTab.spend) {
                 SpendTab()
             }
         }

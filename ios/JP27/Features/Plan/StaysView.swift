@@ -62,7 +62,7 @@ private struct PlanStayCard: View {
             }
             .padding(16)
         }
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Palette.card)
         .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
         .accessibilityElement(children: .combine)
     }

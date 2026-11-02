@@ -187,39 +187,56 @@ struct TalkPhraseRow: View {
 enum TalkSymbols {
     static func scenario(_ id: String) -> String {
         switch id {
-        case "greet": "hand.wave"
-        case "table": "person.2"
-        case "order": "list.bullet.rectangle"
-        case "shokken": "ticket"
-        case "ask-food": "questionmark.bubble"
-        case "diet": "leaf"
-        case "izakaya": "wineglass"
-        case "cafe": "cup.and.saucer"
-        case "pay": "creditcard"
+        case "greet": "hand.wave.fill"
+        case "table": "person.2.fill"
+        case "order": "menucard.fill"
+        case "shokken": "rectangle.and.hand.point.up.left.fill"
+        case "ask-food": "questionmark.bubble.fill"
+        case "diet": "leaf.fill"
+        case "izakaya": "mug.fill"
+        case "cafe": "cup.and.saucer.fill"
+        case "pay": "yensign.circle.fill"
         case "reserve": "calendar.badge.clock"
-        case "takeout": "takeoutbag.and.cup.and.straw"
+        case "takeout": "takeoutbag.and.cup.and.straw.fill"
         case "ticket": "ticket.fill"
-        case "platform": "tram"
-        case "bus": "bus"
-        case "lost": "questionmark.circle"
-        case "locker": "lock"
-        case "taxi": "car"
-        case "checkin": "key"
-        case "forward": "shippingbox"
-        case "ryokan": "bed.double"
-        case "onsen": "drop"
-        case "room-problem": "wrench.and.screwdriver"
+        case "platform": "tram.fill"
+        case "bus": "bus.fill"
+        case "lost": "questionmark.circle.fill"
+        case "locker": "lock.fill"
+        case "taxi": "car.fill"
+        case "checkin": "key.fill"
+        case "forward": "shippingbox.fill"
+        case "ryokan": "bed.double.fill"
+        case "onsen": "bathtub.fill"
+        case "room-problem": "wrench.and.screwdriver.fill"
         case "checkout": "door.left.hand.open"
-        case "temple": "building.columns"
-        case "directions": "signpost.right"
-        case "shop": "bag"
-        case "souvenir": "gift"
-        case "kimono": "tshirt"
-        case "ferry": "ferry"
-        case "health": "cross.case"
-        case "pharmacy": "pills"
-        case "emergency": "exclamationmark.triangle"
-        default: "text.bubble"
+        case "temple": "building.columns.fill"
+        case "directions": "signpost.right.fill"
+        case "shop": "bag.fill"
+        case "souvenir": "gift.fill"
+        case "kimono": "tshirt.fill"
+        case "ferry": "ferry.fill"
+        case "health": "cross.case.fill"
+        case "pharmacy": "pills.fill"
+        case "emergency": "exclamationmark.triangle.fill"
+        default: "text.bubble.fill"
+        }
+    }
+
+    /// Situations take the colour of what they are about: food persimmon, getting around indigo,
+    /// the hotel wisteria, out and about peach, anything urgent red.
+    static func tint(_ id: String) -> Color {
+        switch id {
+        case "greet", "table", "order", "shokken", "ask-food", "diet", "izakaya", "cafe", "pay", "reserve", "takeout":
+            Place.Kind.food.tint
+        case "ticket", "platform", "bus", "lost", "locker", "taxi", "ferry":
+            Palette.ai
+        case "checkin", "forward", "ryokan", "onsen", "room-problem", "checkout":
+            Place.Kind.stay.tint
+        case "health", "pharmacy", "emergency":
+            Palette.sun
+        default:
+            Place.Kind.shop.tint
         }
     }
 }

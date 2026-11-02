@@ -141,7 +141,7 @@ nonisolated enum WidgetPlan {
         current: WidgetStop(index: 12, kind: "stop", title: "Owariya Honten", subtitle: "Soba tempura ở Owariya", placeID: "owariya", color: nil, symbol: "fork.knife",
                             setOff: Date().addingTimeInterval(14 * 60), begin: Date().addingTimeInterval(26 * 60), setOffLabel: "12:32", beginLabel: "12:45"),
         after: [
-            WidgetStop(index: 14, kind: "stop", title: "Sensō-ji", subtitle: nil, placeID: "sensoji", color: nil, symbol: "camera.fill",
+            WidgetStop(index: 14, kind: "stop", title: "Sensō-ji", subtitle: nil, placeID: "sensoji", color: nil, symbol: "binoculars.fill",
                        setOff: Date().addingTimeInterval(80 * 60), begin: Date().addingTimeInterval(86 * 60), setOffLabel: "13:38", beginLabel: "13:45"),
             WidgetStop(index: 19, kind: "departure", title: "Ginza Line", subtitle: "từ Asakusa", placeID: "st-asakusa", color: "#F39700", symbol: "tram.fill.tunnel",
                        setOff: Date().addingTimeInterval(190 * 60), begin: Date().addingTimeInterval(196 * 60), setOffLabel: "16:08", beginLabel: "16:15"),

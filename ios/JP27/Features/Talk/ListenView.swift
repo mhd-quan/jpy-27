@@ -167,6 +167,6 @@ private struct ListenBubble: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20, style: .continuous))
+        .background(Palette.card, in: .rect(cornerRadius: 20, style: .continuous))
     }
 }

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <!-- kasagi: the top beam, ends turned up -->
+  <path d="M1.6 4.4 Q14 7.4 26.4 4.4 L25.7 7.7 Q14 10.1 2.3 7.7 Z" fill="#000"/>
+  <!-- gakuzuka: the post between the beams -->
+  <rect x="13" y="8.6" width="2" height="4" fill="#000"/>
+  <!-- nuki: the tie beam, running past the pillars -->
+  <rect x="4.4" y="12" width="19.2" height="2.2" rx="0.4" fill="#000"/>
+  <!-- hashira: the two pillars, splayed a little -->
+  <path d="M7.7 8.6 L10.1 8.6 L9.6 25.6 L6.8 25.6 Z" fill="#000"/>
+  <path d="M17.9 8.6 L20.3 8.6 L21.2 25.6 L18.4 25.6 Z" fill="#000"/>
+</svg>

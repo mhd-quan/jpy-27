@@ -37,7 +37,7 @@ struct TalkTab: View {
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                         ForEach(group.list) { s in
                             NavigationLink(value: Route.scenario(s.id)) { TalkScenarioTile(scenario: s) }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.pressable)
                         }
                     }
                 }
@@ -65,7 +65,7 @@ struct TalkTab: View {
                                     Text(st.romaji).font(.caption).foregroundStyle(.secondary)
                                 }
                                 .frame(maxWidth: .infinity, minHeight: 72)
-                                .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 18, style: .continuous))
+                                .background(Palette.card, in: .rect(cornerRadius: 18, style: .continuous))
                             }
                             .buttonStyle(.plain)
                             .sheetSource(item.source)
@@ -77,8 +77,11 @@ struct TalkTab: View {
             NavigationLink(value: Route.handbook) {
                 Card {
                     HStack {
-                        Label("Cẩm nang", systemImage: "book.closed")
-                            .font(.body.weight(.semibold))
+                        Label {
+                            Text("Cẩm nang").font(.body.weight(.semibold))
+                        } icon: {
+                            GlyphTile(symbol: "book.closed.fill", tint: Palette.ai, size: 28)
+                        }
                         Spacer()
                         Text("Vé, hành lý, onsen").font(.subheadline).foregroundStyle(.secondary)
                         Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
@@ -95,7 +98,7 @@ struct TalkTab: View {
     private var actions: some View {
         GlassEffectContainer(spacing: 12) {
             HStack(spacing: 12) {
-                TalkActionTile(title: "Nghe", symbol: "ear") { model.present(.listen, from: "talk.listen") }
+                TalkActionTile(title: "Nghe", symbol: "translate") { model.present(.listen, from: "talk.listen") }
                     .sheetSource("talk.listen")
                 TalkActionTile(title: "Quét menu", symbol: "text.viewfinder") { model.present(.menuScan(TalkNearby.foodPlace(model)), from: "talk.scan") }
                     .sheetSource("talk.scan")
@@ -143,9 +146,7 @@ private struct TalkScenarioTile: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Image(systemName: TalkSymbols.scenario(scenario.id))
-                .font(.title3)
-                .foregroundStyle(Color.accentColor)
+            GlyphTile(symbol: TalkSymbols.scenario(scenario.id), tint: TalkSymbols.tint(scenario.id), size: 34)
             Text(scenario.vi)
                 .font(.subheadline.weight(.semibold))
                 .multilineTextAlignment(.leading)
@@ -157,7 +158,7 @@ private struct TalkScenarioTile: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20, style: .continuous))
+        .background(Palette.card, in: .rect(cornerRadius: 20, style: .continuous))
         .contentShape(.rect)
         .accessibilityElement(children: .combine)
     }

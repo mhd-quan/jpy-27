@@ -1,9 +1,10 @@
 import SwiftUI
 import TripKit
 
-// The app's building blocks. Content sits on grouped backgrounds in rounded cards; Liquid Glass is
-// kept for controls — the tab bar, toolbars, map controls, action buttons — through the system's
-// glass button styles, so glass never sits on glass. How sheets come and go is in Presentation.swift.
+// The app's building blocks. Content sits on warm paper in white cards; Liquid Glass is kept for
+// controls — the tab bar, toolbars, map controls, action buttons — through the system's glass
+// button styles, so glass never sits on glass. Colours and marks are in Theme.swift, how sheets
+// come and go in Presentation.swift.
 
 enum Metrics {
     /// screen edge inset; Pro Max gets a touch more room
@@ -22,27 +23,40 @@ struct Card<Content: View>: View {
         VStack(alignment: .leading, spacing: 12) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(padding)
-            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: Metrics.card, style: .continuous))
+            .background(Palette.card, in: .rect(cornerRadius: Metrics.card, style: .continuous))
     }
 }
 
-/// Section title inside a scroll view: no restating, just the name of what follows.
+/// Section title inside a scroll view: no restating, just the name of what follows. An eyebrow
+/// (a word in red above, often the Japanese) marks the sections of the home page.
 struct SectionTitle: View {
     let title: String
     var trailing: String? = nil
+    var eyebrow: String? = nil
 
-    init(_ title: String, trailing: String? = nil) {
+    init(_ title: String, trailing: String? = nil, eyebrow: String? = nil) {
         self.title = title
         self.trailing = trailing
+        self.eyebrow = eyebrow
     }
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(title).font(.title3.weight(.semibold))
-            Spacer()
-            if let trailing { Text(trailing).font(.subheadline).foregroundStyle(.secondary).monospacedDigit() }
+        VStack(alignment: .leading, spacing: 2) {
+            if let eyebrow {
+                Text(eyebrow)
+                    .font(.caption.weight(.bold))
+                    .tracking(1.2)
+                    .foregroundStyle(Palette.sun)
+                    .textCase(.uppercase)
+            }
+            HStack(alignment: .firstTextBaseline) {
+                Text(title).font(.title3.weight(.bold))
+                Spacer()
+                if let trailing { Text(trailing).font(.subheadline).foregroundStyle(.secondary).monospacedDigit() }
+            }
         }
         .padding(.top, 8)
+        .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
     }
 }
@@ -91,7 +105,7 @@ struct YenText: View {
     }
 }
 
-/// A round check, for a stop visited or an item bought.
+/// A round check, for a stop visited or an item bought; it lands in red like a hanko stamp.
 struct CheckButton: View {
     let isOn: Bool
     var tint: Color = .accentColor
@@ -104,6 +118,7 @@ struct CheckButton: View {
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(isOn ? tint : .secondary)
                 .contentTransition(.symbolEffect(.replace))
+                .symbolEffect(.bounce, value: isOn)
                 .frame(width: 44, height: 44)
                 .contentShape(.rect)
         }
@@ -137,13 +152,14 @@ struct Tag: View {
 /// A thin bar for spent against planned.
 struct Meter: View {
     let value: Double
-    var tint: Color = .accentColor
+    /// indigo while within plan; over plan it turns red, the one colour that means "now"
+    var tint: Color = Palette.ai
 
     var body: some View {
         GeometryReader { g in
             ZStack(alignment: .leading) {
                 Capsule().fill(.fill.tertiary)
-                Capsule().fill(value > 1 ? Color.red : tint)
+                Capsule().fill(value > 1 ? Palette.sun : tint)
                     .frame(width: max(4, g.size.width * min(1, value)))
             }
         }
@@ -199,9 +215,14 @@ struct ModeDot: View {
 }
 
 extension View {
-    /// The grouped background every scrolling screen sits on.
+    /// The paper every scrolling screen sits on.
     func screen() -> some View {
-        background(Color(.systemGroupedBackground))
+        background(Palette.paper)
+    }
+
+    /// A grouped list on the same paper; its rows keep the system's card colour.
+    func paperList() -> some View {
+        scrollContentBackground(.hidden).background(Palette.paper)
     }
 }
 

@@ -53,7 +53,7 @@ ios/
     App/                      AppModel, tab bar, điều hướng, deep link jp27://
     Data/                     SwiftData: đánh dấu, bỏ điểm, chi tiêu, nạp tiền, đồ đã mua, nơi đã ghé, vết đi
     Services/                 vị trí, thông báo, AlarmKit, Live Activity, CoreMotion, WeatherKit, bản đồ offline, ảnh
-    Design/                   thẻ, dòng timeline, dòng địa điểm, bản đồ MapLibre
+    Design/                   bảng màu và dấu (Theme), thẻ, timeline đường ray, dòng địa điểm, bản đồ MapLibre
     Features/                 Today, Map, Plan, Talk, Spend, Journal, Fuji, Settings
   JP27Widgets/                widget điểm tiếp theo, Live Activity khi đi tàu
 ```
@@ -64,13 +64,37 @@ ios/
 
 | Tab | Dùng khi | Gồm nội dung site |
 | --- | --- | --- |
-| **Hôm nay** | mở điện thoại là thấy việc kế tiếp | điểm tiếp theo kèm ảnh, giờ rời đi, đang trễ bao nhiêu và nên bỏ gì; phần còn lại của ngày; trước chuyến: đếm ngày, lịch đặt chỗ |
+| **Hôm nay** | mở điện thoại là thấy việc kế tiếp | điểm tiếp theo kèm ảnh, giờ rời đi, đang trễ bao nhiêu và nên bỏ gì; phần còn lại của ngày; trước chuyến: trang bìa (xem dưới) |
 | **Bản đồ** | đang đi bộ | bản đồ ngày, chấm vị trí, khoảng cách tới điểm kế, chỗ rẽ gần đây |
 | **Lịch trình** | xem trước, xem lại | 12 ngày theo nơi ngủ, ngày thay thế Kawaguchiko; Ăn uống, Chỗ ở, Trên tàu, Fuji, Đặt chỗ, Mua sắm, Ngân sách |
 | **Sổ tay** | ở quầy, ở quán | 32 tình huống, câu riêng của chuyến, tên ga, nghe và dịch, quét menu, cẩm nang (vé, hành lý, hoàn thuế, onsen) |
 | **Chi tiêu** | sau mỗi lần trả tiền | sổ chi theo ngày, ví tiền mặt và Suica, ngân sách so với thực chi, giỏ mua sắm |
 
 Thanh phụ dưới tab bar (bottom accessory) luôn cho biết chuyện đang diễn ra: chuyến tàu đang đi (ga kế, Fuji bên nào) hoặc đếm ngược tới lúc phải rời đi.
+
+Glyph của tab: cổng torii cho Hôm nay (asset vẽ riêng, SF Symbols không có), `map`, một lộ trình nối hai điểm cho Lịch trình, あ trong bóng thoại cho Sổ tay (giống nút "Nói" của web), `wallet.bifold` cho Chi tiêu. Phương tiện: mũi Shinkansen cho Shinkansen, thuyền buồm cho tàu hải tặc hồ Ashi, đường hầm cho metro. Nút hệ thống (cài đặt, đóng, xoá) giữ glyph chuẩn của Apple.
+
+## Bảng màu và trang bìa
+
+Hinomaru: giấy trắng ấm (`Paper`, thẻ `Card`) và một màu đỏ cờ (`AccentColor`, #BC002D, sáng hơn khi tối nền). Đỏ chỉ dùng cho thứ cần thấy ngay: đếm ngược, giờ rời đi, trễ, điểm đã ghé (đóng như con dấu hanko). Sọc thứ hai là chàm (`Ai`); vàng (`Kin`) cho món đặc trưng, matcha cho đã đặt và tiến độ, hồng anh đào (`Sakura`) làm nền cho đỏ. Màu loại địa điểm lấy từ thuốc nhuộm truyền thống (hồng hồng cho ăn, chàm cho tham quan, tử đằng cho chỗ ở, đào cho mua sắm); mọi thứ di chuyển giữ màu của hãng tàu. Chữ Nhật làm hoạ tiết dùng Hiragino Mincho, con số dùng SF Rounded. Tất cả nằm trong `Design/Theme.swift` và các colorset.
+
+Trước chuyến, tab Hôm nay là trang bìa (`Features/Today/TodayHome.swift`):
+- **Ảnh bìa.** Mỗi ngày một ảnh Commons có sẵn trong app (chạy cả khi mất sóng). Ảnh tràn dưới thanh trạng thái, tự chuyển sau vài giây, trượt có parallax, kéo xuống thì ảnh giãn ra, chạm ảnh thì mở địa điểm.
+- **Đếm ngày.** Số ngày còn lại nằm trên đĩa mặt trời đỏ; đĩa nhô lên khi mở trang, có một vòng toả ra như mặt trời mọc.
+- **Hành trình.** Năm thành phố là các ga trên một tuyến metro, mỗi đoạn dài theo số đêm, tên thành phố viết bằng kanji. Chạm một ga thì băng thẻ ngày cuộn tới ngày đầu của thành phố đó; ngược lại, cuộn băng thẻ thì ga tương ứng sáng lên.
+- **Từng ngày.** Mỗi ngày một thẻ ảnh, có số ngày, kanji thành phố và một RouteSpark (đường đi thật của ngày, đúng màu từng tuyến). Chạm thẻ thì thẻ phóng to thành trang ngày (zoom transition).
+- **Đặt chỗ.** Mỗi lượt đặt chỗ là một tấm vé có cuống ghi ngày mở bán và nhãn đếm ngược.
+- **Những bữa đáng nhớ.** Ảnh quán theo thứ tự ngày, kèm món đặc trưng.
+- **Một câu mỗi ngày.** Câu đổi theo ngày; chạm câu để hiện toàn màn hình, có nút phát âm.
+- **Trước khi đi.** Checklist đánh dấu được, lưu trên máy.
+- **Cả chuyến bằng con số.** Các con số đếm lên khi cuộn tới.
+- **Fuji lúc hoàng hôn.** Thẻ dẫn tới cẩm nang Fuji và camera Tìm Fuji.
+- **Chạy thử một ngày.**
+
+Trong chuyến:
+- **Đầu trang.** Kanji thành phố và một dải vạch, mỗi vạch là một điểm dừng: điểm đã ghé tô đỏ, điểm kế tiếp nhấp nháy.
+- **Thẻ điểm tiếp theo.** Ảnh lớn, tên đặt trên ảnh, giờ rời đi to màu đỏ.
+- **Timeline đường ray.** Dùng chung cho trang ngày. Theo cách web vẽ: mỗi chặng là một vạch dày đúng màu tuyến (đứt quãng trên nước và cáp treo, chấm chấm khi đi bộ); mỗi điểm dừng là một nút đánh số theo màu loại; ga là vòng rỗng.
 
 ## Liquid Glass
 
@@ -80,7 +104,7 @@ Theo [Adopting Liquid Glass](https://developer.apple.com/documentation/technolog
 - **Nổi và co lại.** Tab bar thu nhỏ khi cuộn xuống, thanh phụ đổi bố cục khi nằm gọn trong tab bar (`tabViewBottomAccessoryPlacement`). Nút "+" của Chi tiêu và nút micro của Nghe là `safeAreaBar`, không phải overlay: nội dung cuộn xuống dưới chúng và mờ dần ở đó.
 - **Biến hình.** Nút "Theo dõi chuyến" thành "Đang theo dõi" tại chỗ (`glassEffectID`); trên camera Fuji, viên mây và viên địa hình mọc ra từ viên khoảng cách khi có dữ liệu; chip chọn ngày trên bản đồ là nút kính nên menu ngày mọc ra từ nó.
 - **Trình bày theo ngữ cảnh.** Mọi sheet mọc ra từ đúng nút hay dòng đã mở nó và thu về đó khi đóng (`matchedTransitionSource` + `navigationTransition(.zoom)`, `Design/Presentation.swift`); thẻ câu nói toàn màn hình mọc ra từ dòng câu. Sheet mở từ sheet thì chồng lên (ghi món từ màn quét menu, quét menu từ thẻ quán), đóng là về chỗ cũ.
-- **Toolbar.** Nghe và Cài đặt là hai nhóm kính riêng (`ToolbarSpacer(.fixed)`); nút ẩn đi thì ẩn cả item (`.hidden`) để thanh biến hình chứ không để lại ô trống.
+- **Toolbar.** Nghe và Cài đặt là hai nhóm kính riêng (`ToolbarSpacer(.fixed)`); nút ẩn đi thì bỏ hẳn item (iOS không có `ToolbarContent.hidden`) để thanh biến hình chứ không để lại ô trống. Trên trang bìa, thanh không có tiêu đề; khi ảnh bìa cuộn khỏi màn hình, dấu Hinomaru và chữ JP27 hiện vào giữa thanh.
 - **Ảnh đầu trang.** Ảnh của trang địa điểm kéo dài, soi gương và làm mờ, lên dưới thanh trên cùng (`backgroundExtensionEffect`).
 - **Mép cuộn mềm.** iOS 27 đổi mặc định của mép trên từ `.soft` (mờ dần) sang `.hard` (một dải mờ có vạch kẻ). App đặt lại `.soft` cho mọi mép, ở gốc tab bar và ở từng sheet (`progressiveEdges()`). Lệnh này chỉ được biên dịch bằng Xcode 27 (Swift 6.4): app build bằng SDK iOS 26 mà chạy trên iOS 27 chỉ được mép mềm dưới thanh trạng thái, trông tệ hơn dải mặc định. Trên iOS 26, `.soft` vốn là mặc định.
 

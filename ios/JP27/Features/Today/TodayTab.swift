@@ -2,168 +2,101 @@ import SwiftData
 import SwiftUI
 import TripKit
 
-/// The tab opened most: what is next, whether you are late, and the rest of today.
+/// The tab opened most. Before the trip it is the trip's cover (TodayHome.swift); during it, what
+/// is next, whether you are late, and the rest of today; after it, the journal.
 struct TodayTab: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.zoomSpace) private var zoomSpace
+    /// the home's cover has scrolled away: the wordmark takes its place in the bar
+    @State private var coverGone = false
+
+    private var isBefore: Bool {
+        if case .before = model.phase { return true }
+        return false
+    }
 
     var body: some View {
         @Bindable var model = model
         NavigationStack(path: $model.todayPath) {
+            content
+                .screen()
+                .navigationTitle(title)
+                .navigationBarTitleDisplayMode(isBefore ? .inline : .large)
+                .toolbar {
+                    if isBefore {
+                        ToolbarItem(placement: .principal) {
+                            Wordmark()
+                                .opacity(coverGone ? 1 : 0)
+                                .animation(.smooth, value: coverGone)
+                        }
+                    }
+                    // listening is a tool, settings are not: two glass groups, not one
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            model.present(.listen, from: "today.listen")
+                        } label: {
+                            Label("Nghe và dịch", systemImage: "translate")
+                        }
+                        .sheetSource("today.listen")
+                    }
+                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            model.present(.settings, from: "today.settings")
+                        } label: {
+                            Label("Cài đặt", systemImage: "gearshape")
+                        }
+                        .sheetSource("today.settings")
+                    }
+                }
+                // a day card on the home grows into its day
+                .navigationDestination(for: Route.self) { route in
+                    RouteHost(route: route)
+                        .zoomed(from: homeSource(route), in: zoomSpace)
+                }
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch model.phase {
+        case .before(let days, let first):
+            // the cover runs under the status bar and the glass buttons
             ScrollView {
-                VStack(alignment: .leading, spacing: Metrics.stack) {
-                    switch model.phase {
-                    case .before(let days, let first):
-                        TodayBefore(days: days, first: first)
-                    case .during(let day):
-                        TodayDuring(day: day)
-                    case .after:
-                        TodayAfter()
-                    }
-                }
-                .padding(.horizontal, Metrics.gutter)
-                .padding(.bottom, 32)
+                TodayHome(days: days, first: first)
             }
-            .screen()
-            .navigationTitle(title)
-            .toolbar {
-                // listening is a tool, settings are not: two glass groups, not one
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        model.present(.listen, from: "today.listen")
-                    } label: {
-                        Label("Nghe", systemImage: "ear")
-                    }
-                    .sheetSource("today.listen")
-                }
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        model.present(.settings, from: "today.settings")
-                    } label: {
-                        Label("Cài đặt", systemImage: "gearshape")
-                    }
-                    .sheetSource("today.settings")
-                }
+            .ignoresSafeArea(edges: .top)
+            .onScrollGeometryChange(for: Bool.self) { geo in
+                geo.contentOffset.y > 440
+            } action: { _, gone in
+                coverGone = gone
             }
-            .navigationDestination(for: Route.self) { RouteHost(route: $0) }
+        case .during(let day):
+            ScrollView {
+                TodayDuring(day: day)
+                    .padding(.horizontal, Metrics.gutter)
+                    .padding(.bottom, 32)
+            }
+        case .after:
+            ScrollView {
+                TodayAfter()
+                    .padding(.horizontal, Metrics.gutter)
+                    .padding(.bottom, 32)
+            }
         }
     }
 
     private var title: String {
         switch model.phase {
+        case .before: "Hôm nay"
         case .during(let day): "\(day.dow), \(Fmt.shortDate(day.date))"
-        default: model.store.trip.meta.title
-        }
-    }
-}
-
-// MARK: - Before the trip
-
-private struct TodayBefore: View {
-    @Environment(AppModel.self) private var model
-    let days: Int
-    let first: Day
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.stack) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(days)")
-                    .font(.system(size: 96, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
-                Text("ngày nữa · \(Fmt.shortDate(first.date)) \(first.title)")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-            }
-            .accessibilityElement(children: .combine)
-            .padding(.top, 8)
-
-            TodayBookings()
-
-            Card {
-                DisclosureGroup {
-                    VStack(alignment: .leading, spacing: 12) {
-                        ForEach(model.guide.checks, id: \.self) { c in
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(c.when).font(.subheadline.weight(.semibold))
-                                Text(c.text).font(.subheadline).foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                    .padding(.top, 8)
-                } label: {
-                    Label("Trước khi đi", systemImage: "checklist").font(.headline)
-                }
-            }
-
-            Button {
-                model.present(.settings, from: "today.rehearse")
-            } label: {
-                Card {
-                    HStack {
-                        Label("Chạy thử một ngày", systemImage: "clock.arrow.2.circlepath")
-                            .font(.headline)
-                        Spacer()
-                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-            .sheetSource("today.rehearse")
-        }
-    }
-}
-
-/// The next booking windows: exact openings with a live countdown, then the ones set by a rule.
-private struct TodayBookings: View {
-    @Environment(AppModel.self) private var model
-
-    private var upcoming: [Booking] {
-        let timed = model.guide.bookings.filter { ($0.date ?? .distantPast) > model.now }.sorted { ($0.date ?? .distantFuture) < ($1.date ?? .distantFuture) }
-        let ruled = model.guide.bookings.filter { $0.at == nil }
-        return Array((timed + ruled).prefix(3))
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
-                SectionTitle("Đặt chỗ")
-                NavigationLink(value: Route.bookings) {
-                    Text("Tất cả").font(.subheadline)
-                }
-            }
-            Card {
-                ForEach(Array(upcoming.enumerated()), id: \.element) { i, b in
-                    if i > 0 { Divider() }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(b.title).font(.headline)
-                        if let date = b.date {
-                            HStack(spacing: 6) {
-                                Image(systemName: "alarm")
-                                Text(when(date))
-                            }
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(.tint)
-                            .monospacedDigit()
-                        } else {
-                            Text(b.rule).font(.subheadline).foregroundStyle(.secondary)
-                        }
-                    }
-                    .accessibilityElement(children: .combine)
-                }
-            }
+        case .after: model.store.trip.meta.title
         }
     }
 
-    /// "20/9 · 10:00 giờ Nhật · còn 323 ngày", or a minute countdown on the day.
-    private func when(_ date: Date) -> String {
-        let jst = "\(Fmt.shortDate(TripTime.isoDate(of: date))) · \(TripTime.clock(date)) giờ Nhật"
-        let seconds = date.timeIntervalSince(model.now)
-        if seconds < 86400 {
-            let m = max(0, Int((seconds / 60).rounded(.up)))
-            return m < 90 ? "\(jst) · còn \(m) phút" : "\(jst) · còn \(m / 60) giờ"
-        }
-        return "\(jst) · còn \(Int(seconds / 86400)) ngày"
+    private func homeSource(_ route: Route) -> String? {
+        guard isBefore, case .day(let key) = route else { return nil }
+        return "home.day.\(key)"
     }
 }
 
@@ -180,9 +113,7 @@ private struct TodayDuring: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.stack) {
-            Text("Ngày \(day.n) · \(day.title)")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+            TodayDayHeader(day: day)
 
             if let plan = model.replan {
                 TodayLateBanner(day: day, plan: plan)
@@ -193,27 +124,30 @@ private struct TodayDuring: View {
                 TodayNextCard(day: day, next: next)
             } else {
                 Card {
-                    Label("Hết lịch hôm nay", systemImage: "moon.stars")
+                    Label("Hết lịch hôm nay", systemImage: "moon.stars.fill")
                         .font(.headline)
+                        .symbolRenderingMode(.multicolor)
                 }
             }
 
             if model.minutes(on: day) >= 19 * 60 {
                 NavigationLink(value: Route.journal(day.key)) {
-                    Card {
-                        HStack {
-                            Label("Nhật ký hôm nay", systemImage: "book.pages")
-                                .font(.headline)
-                            Spacer()
-                            Text("\(model.doneCount(day)) điểm")
+                    HStack(spacing: 14) {
+                        GlyphTile(symbol: "book.pages.fill", tint: Palette.ai, size: 36)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Nhật ký hôm nay").font(.headline)
+                            Text("\(model.doneCount(day)) điểm đã ghé")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                                 .monospacedDigit()
-                            Image(systemName: "chevron.right").foregroundStyle(.tertiary)
                         }
+                        Spacer()
+                        Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
                     }
+                    .padding(16)
+                    .background(Palette.card, in: .rect(cornerRadius: 22, style: .continuous))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
             }
 
             if let spot = fujiSpot {
@@ -225,6 +159,63 @@ private struct TodayDuring: View {
             TodayTimeline(day: day)
         }
         .animation(.smooth, value: model.replan == nil)
+    }
+}
+
+/// The day's city in kanji, its title, and a strip of segments, one per stop, stamped red as
+/// they are visited; the next one breathes. Tapping it opens the whole day.
+private struct TodayDayHeader: View {
+    @Environment(AppModel.self) private var model
+    let day: Day
+
+    var body: some View {
+        let chapter = model.store.chapter(of: day)
+        let stops = day.stops.filter { model.store.place($0.stop.place)?.kind != .station }.map { $0.index }
+        let next = model.next?.index
+        NavigationLink(value: Route.day(day.key)) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .center, spacing: 14) {
+                    Text(chapter?.kanji ?? day.dowKanji)
+                        .font(.mincho(38))
+                        .foregroundStyle(chapter?.tint ?? Palette.sun)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Ngày \(day.n) · \(chapter?.name ?? "")")
+                            .font(.caption.weight(.bold))
+                            .tracking(1)
+                            .textCase(.uppercase)
+                            .foregroundStyle(Palette.sun)
+                        Text(day.title)
+                            .font(.title3.weight(.bold))
+                            .multilineTextAlignment(.leading)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                }
+                HStack(spacing: 4) {
+                    ForEach(stops, id: \.self) { i in
+                        let done = model.isDone(day, i)
+                        Capsule()
+                            .fill(done ? AnyShapeStyle(Palette.sun) : AnyShapeStyle(.fill.tertiary))
+                            .overlay {
+                                if i == next, !done {
+                                    Capsule().stroke(Palette.sun, lineWidth: 1.5)
+                                        .phaseAnimator([0.35, 1.0]) { content, o in content.opacity(o) } animation: { _ in .easeInOut(duration: 1.1) }
+                                }
+                            }
+                            .frame(height: 5)
+                    }
+                }
+                .animation(.smooth, value: model.doneCount(day))
+                .accessibilityElement()
+                .accessibilityLabel("Đã ghé \(model.doneCount(day)) trên \(stops.count) điểm")
+            }
+            .foregroundStyle(.primary)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.pressable)
+        .padding(.top, 4)
     }
 }
 
@@ -243,9 +234,9 @@ private struct TodayLateBanner: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Trễ \(plan.lateBy) phút cho \(target)", systemImage: "exclamationmark.triangle.fill")
+            Label("Trễ \(plan.lateBy) phút cho \(target)", systemImage: "clock.badge.exclamationmark")
                 .font(.headline)
-                .foregroundStyle(.red)
+                .foregroundStyle(Palette.sun)
                 .monospacedDigit()
                 .contentTransition(.numericText())
                 .animation(.smooth, value: plan.lateBy)
@@ -259,15 +250,15 @@ private struct TodayLateBanner: View {
                     Text("Bỏ \(model.dropNames(plan, day))")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.red)
+                .buttonStyle(.glassProminent)
+                .tint(Palette.sun)
                 .controlSize(.large)
                 .sensoryFeedback(.impact(weight: .medium), trigger: plan)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Color.red.opacity(0.12), in: .rect(cornerRadius: Metrics.card, style: .continuous))
+        .background(Palette.sakura, in: .rect(cornerRadius: Metrics.card, style: .continuous))
         .accessibilityElement(children: .contain)
     }
 }
@@ -315,41 +306,59 @@ private struct TodayNextCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            PlacePhoto(photo: photoPlace?.hero)
-                .frame(height: 260)
-                .overlay {
-                    if photoPlace?.hero == nil, let kind = place?.kind {
-                        Image(systemName: kind.symbol)
-                            .font(.system(size: 48))
-                            .foregroundStyle(.secondary)
+            ZStack(alignment: .bottomLeading) {
+                PlacePhoto(photo: photoPlace?.hero)
+                    .overlay {
+                        if photoPlace?.hero == nil, let kind = place?.kind {
+                            Image(systemName: kind.symbol)
+                                .font(.system(size: 48))
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                }
-                .overlay(alignment: .topLeading) {
+                LinearGradient(stops: [.init(color: .black.opacity(0), location: 0.4), .init(color: .black.opacity(0.72), location: 1)], startPoint: .top, endPoint: .bottom)
+                    .allowsHitTesting(false)
+                VStack(alignment: .leading, spacing: 3) {
                     Text(label)
-                        .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .glassEffect(.regular, in: .capsule)
-                        .padding(12)
-                }
-
-            VStack(alignment: .leading, spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
+                        .font(.caption.weight(.bold))
+                        .tracking(1)
+                        .textCase(.uppercase)
+                        .opacity(0.85)
                     Text(title)
                         .font(.title2.weight(.bold))
                         .lineLimit(2)
                     if next.kind != .departure, place?.name != next.title {
-                        Text(next.title).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                        Text(next.title).font(.subheadline).opacity(0.85).lineLimit(2)
                     }
                 }
-
-                HStack(spacing: 6) {
-                    Image(systemName: "clock")
-                    Text("Rời đi lúc \(TripTime.clock(next.setOff))")
-                    Text("·")
-                    Countdown(target: model.date(day, minutes: next.setOff), now: model.now)
+                .foregroundStyle(.white)
+                .padding(16)
+            }
+            .frame(height: 300)
+            .clipped()
+            .overlay(alignment: .topTrailing) {
+                if let kind = place?.kind {
+                    Image(systemName: next.kind == .departure ? "tram.fill" : kind.symbol)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 34, height: 34)
+                        .background((next.kind == .departure ? Palette.ai : kind.tint).gradient, in: .circle)
+                        .padding(12)
+                        .accessibilityHidden(true)
                 }
-                .font(.subheadline.weight(.medium))
+            }
+
+            VStack(alignment: .leading, spacing: 12) {
+                // when to leave, large and red: the one thing to read at a glance
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Countdown(target: model.date(day, minutes: next.setOff), now: model.now)
+                        .font(.figure(30))
+                        .foregroundStyle(Palette.sun)
+                        .contentTransition(.numericText())
+                        .animation(.smooth, value: model.now)
+                    Text("rời đi lúc \(TripTime.clock(next.setOff))")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
                 .monospacedDigit()
 
                 if let way = wayThere {
@@ -363,7 +372,7 @@ private struct TodayNextCard: View {
             }
             .padding(16)
         }
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Palette.card)
         .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
         .contentShape(.rect)
         .sheetSource("today.next")
@@ -428,7 +437,7 @@ private struct TodayNextActions: View {
                         Button {
                             withAnimation(.bouncy) { model.live.start(ride, model: model) }
                         } label: {
-                            Label("Theo dõi chuyến", systemImage: "tram.fill")
+                            Label("Theo dõi chuyến", systemImage: "train.side.front.car")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.glass)
@@ -438,7 +447,7 @@ private struct TodayNextActions: View {
                     Button {
                         model.present(.atPlace(id), from: "today.order")
                     } label: {
-                        Label("Gọi món", systemImage: "fork.knife")
+                        Label("Gọi món", systemImage: "menucard.fill")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glass)
@@ -477,25 +486,27 @@ private struct TodayTimeline: View {
         let past = Array(0 ..< cursor)
         let ahead = Array(cursor ..< day.items.count)
         VStack(alignment: .leading, spacing: 10) {
-            SectionTitle("Còn lại hôm nay")
-            Card {
+            SectionTitle("Còn lại hôm nay", eyebrow: "予定 · Lịch")
+            VStack(alignment: .leading, spacing: 0) {
                 if !past.isEmpty {
                     DisclosureGroup(isExpanded: $showPast) {
                         rows(past)
-                            .padding(.top, 8)
                     } label: {
                         Text("Đã qua · \(past.count)")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
                     }
-                    if !ahead.isEmpty { Divider() }
+                    .padding(.vertical, 8)
                 }
                 rows(ahead)
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(Palette.card, in: .rect(cornerRadius: Metrics.card, style: .continuous))
             NavigationLink(value: Route.day(day.key)) {
-                Label("Cả ngày \(day.n)", systemImage: "calendar")
-                    .font(.subheadline.weight(.medium))
+                Label("Cả ngày \(day.n)", systemImage: "list.bullet.below.rectangle")
+                    .font(.subheadline.weight(.semibold))
             }
             .padding(.leading, 4)
         }
@@ -503,7 +514,7 @@ private struct TodayTimeline: View {
 
     @ViewBuilder
     private func rows(_ indices: [Int]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
             ForEach(indices, id: \.self) { i in
                 ItemRow(day: day, index: i)
                     .sheetSource(source(i))

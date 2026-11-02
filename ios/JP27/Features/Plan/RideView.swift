@@ -212,7 +212,7 @@ private struct PlanStationRow: View {
         HStack(alignment: .center, spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(station.stop ? AnyShapeStyle(color) : AnyShapeStyle(Color(.secondarySystemGroupedBackground)))
+                    .fill(station.stop ? AnyShapeStyle(color) : AnyShapeStyle(Palette.card))
                     .overlay(Circle().stroke(color, lineWidth: 2.5))
                     .frame(width: station.stop ? 14 : 10, height: station.stop ? 14 : 10)
                 if isNext {
@@ -371,6 +371,7 @@ struct TrainsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .paperList()
         .navigationTitle("Trên tàu")
     }
 }

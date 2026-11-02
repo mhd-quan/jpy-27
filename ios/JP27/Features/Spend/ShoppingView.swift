@@ -44,6 +44,7 @@ struct ShoppingView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .paperList()
         .navigationTitle("Mua sắm")
         .navigationBarTitleDisplayMode(.large)
         .sheet(item: $buying) { item in

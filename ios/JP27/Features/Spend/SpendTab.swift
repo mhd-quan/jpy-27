@@ -25,6 +25,7 @@ struct SpendTab: View {
                 ledger
             }
             .listStyle(.insetGrouped)
+            .paperList()
             .navigationTitle("Chi tiêu")
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
             // a bar, not an overlay: the ledger ends above the button and fades out under it

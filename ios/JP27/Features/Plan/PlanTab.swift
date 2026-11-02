@@ -21,6 +21,7 @@ struct PlanTab: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .paperList()
             .navigationTitle("Lịch trình")
             .searchable(text: $query, prompt: "Quán, điểm tham quan, món")
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
@@ -45,15 +46,21 @@ private struct PlanChapterSection: View {
                 }
             }
         } header: {
-            HStack(spacing: 10) {
-                Capsule()
-                    .fill(Color(hex: chapter.color))
-                    .frame(width: 4, height: 28)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(chapter.name).font(.headline).foregroundStyle(.primary)
+            // the city in kanji in its line colour, as on a station sign
+            HStack(alignment: .center, spacing: 12) {
+                Text(chapter.kanji)
+                    .font(.mincho(30))
+                    .foregroundStyle(chapter.tint)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(chapter.name).font(.title3.weight(.bold)).foregroundStyle(.primary)
                     Text("\(chapter.nights) đêm · \(chapter.short)").font(.caption).foregroundStyle(.secondary)
                 }
+                Spacer()
+                Capsule()
+                    .fill(chapter.tint)
+                    .frame(width: 28, height: 5)
             }
+            .padding(.top, 8)
             .textCase(nil)
             .padding(.leading, -8)
             .accessibilityElement(children: .combine)
@@ -66,7 +73,7 @@ private struct PlanChapterSection: View {
     }
 }
 
-/// Day number in a circle, date, title, route; a ring of stops visited once the day has begun.
+/// The day's photograph and number, date, title, route; a ring of stops visited once the day has begun.
 private struct PlanDayRow: View {
     @Environment(AppModel.self) private var model
     let day: Day
@@ -81,15 +88,33 @@ private struct PlanDayRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
-            Text("\(day.n)")
-                .font(.headline)
-                .monospacedDigit()
-                .foregroundStyle(isToday ? Color.white : .primary)
-                .frame(width: 36, height: 36)
-                .background(isToday ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.fill.tertiary), in: .circle)
+        let tint = model.store.chapter(of: day)?.tint ?? Palette.sun
+        HStack(spacing: 14) {
+            // the day's photograph with its number on the chapter's colour; today ringed in red
+            PlacePhoto(photo: HomePicks.photo(for: day, store: model.store), maxPixel: 200)
+                .frame(width: 58, height: 58)
+                .clipShape(.rect(cornerRadius: 14, style: .continuous))
+                .overlay {
+                    if isToday {
+                        RoundedRectangle(cornerRadius: 17, style: .continuous)
+                            .strokeBorder(Palette.sun, lineWidth: 2.5)
+                            .padding(-4)
+                    }
+                }
+                .overlay(alignment: .bottomLeading) {
+                    Text("\(day.n)")
+                        .font(.system(size: 12, weight: .heavy, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .frame(minWidth: 22, minHeight: 22)
+                        .background(isToday ? Palette.sun : tint, in: .circle)
+                        .overlay(Circle().strokeBorder(Color(.secondarySystemGroupedBackground), lineWidth: 2))
+                        .offset(x: -7, y: 7)
+                }
+                .padding(.vertical, 4)
+                .padding(.leading, 4)
             VStack(alignment: .leading, spacing: 2) {
-                Text(planDateLabel(day)).font(.caption).foregroundStyle(isToday ? Color.accentColor : .secondary)
+                Text("\(day.dowKanji) · \(planDateLabel(day))").font(.caption).foregroundStyle(isToday ? Palette.sun : .secondary)
                 Text(day.title)
                     .font(.body.weight(.semibold))
                     .strikethrough(replaced)
@@ -167,25 +192,36 @@ private struct PlanGuidesSection: View {
     private struct Guide: Identifiable {
         var id: String { title }
         let title: String
+        let detail: String
         let symbol: String
+        let tint: Color
         let route: Route
     }
 
-    private let links: [Guide] = [
-        Guide(title: "Ăn uống", symbol: "fork.knife", route: .food),
-        Guide(title: "Chỗ ở", symbol: "bed.double.fill", route: .stays),
-        Guide(title: "Trên tàu", symbol: "tram.fill", route: .trains),
-        Guide(title: "Fuji", symbol: "mountain.2.fill", route: .fuji),
-        Guide(title: "Đặt chỗ", symbol: "calendar.badge.clock", route: .bookings),
-        Guide(title: "Mua sắm", symbol: "bag.fill", route: .shopping),
-        Guide(title: "Ngân sách", symbol: "yensign.circle.fill", route: .budget),
-    ]
+    private var links: [Guide] {
+        [
+            Guide(title: "Ăn uống", detail: "Quán, món nên gọi", symbol: "fork.knife", tint: Place.Kind.food.tint, route: .food),
+            Guide(title: "Chỗ ở", detail: "Năm khách sạn, quanh đó", symbol: "bed.double.fill", tint: Place.Kind.stay.tint, route: .stays),
+            Guide(title: "Trên tàu", detail: "Ngồi bên nào, ga nào xuống", symbol: "train.side.front.car", tint: Palette.ai, route: .trains),
+            Guide(title: "Fuji", detail: "Ngắm ở đâu, lúc nào", symbol: "mountain.2.fill", tint: Palette.fuji, route: .fuji),
+            Guide(title: "Đặt chỗ", detail: "Khi nào mở bán", symbol: "ticket.fill", tint: Palette.sun, route: .bookings),
+            Guide(title: "Mua sắm", detail: "Theo ngày, theo cửa hàng", symbol: "bag.fill", tint: Place.Kind.shop.tint, route: .shopping),
+            Guide(title: "Ngân sách", detail: "Dự tính và tỉ giá", symbol: "chart.pie.fill", tint: Palette.matcha, route: .budget),
+        ]
+    }
 
     var body: some View {
         Section("Cẩm nang") {
             ForEach(links) { link in
                 NavigationLink(value: link.route) {
-                    Label(link.title, systemImage: link.symbol)
+                    HStack(spacing: 14) {
+                        GlyphTile(symbol: link.symbol, tint: link.tint)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(link.title).font(.body.weight(.semibold))
+                            Text(link.detail).font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                    .accessibilityElement(children: .combine)
                 }
             }
         }

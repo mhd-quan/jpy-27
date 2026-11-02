@@ -1,0 +1,345 @@
+import SwiftUI
+import TripKit
+
+// The app's taste. White paper and the flag's red, the way the Hinomaru is drawn: red is the one
+// loud colour and it marks what matters now (the countdown, the next departure, lateness, a stop
+// stamped as visited). Indigo is the second stripe, gold marks the best of something, and the
+// operators' own line colours carry everything that moves. Japanese set as ornament is Mincho;
+// figures are SF Rounded with tabular digits.
+
+enum Palette {
+    /// 紅 — the flag's red (AccentColor), brighter on black
+    static let sun = Color.accentColor
+    /// 和紙 — warm paper behind every screen
+    static let paper = Color("Paper")
+    /// the surface cards sit on the paper with
+    static let card = Color("Card")
+    /// 藍 — indigo, the second stripe: transit, information
+    static let ai = Color("Ai")
+    /// 金 — signature dishes, ratings, the best of something
+    static let kin = Color("Kin")
+    /// 抹茶 — booked, on time, saved
+    static let matcha = Color("Matcha")
+    /// 桜 — the soft tint behind red
+    static let sakura = Color("Sakura")
+    /// Fuji's violet, from the web's window-side strips
+    static let fuji = Color(hex: "#6B4FD8")
+}
+
+// MARK: - Colour and words for the data
+
+extension Place.Kind {
+    /// Kind colours from traditional dyes: persimmon food, indigo sights, wisteria stays, peach shops.
+    var tint: Color {
+        switch self {
+        case .food: Color(hex: "#E07A2F")
+        case .sight: Palette.ai
+        case .stay: Color(hex: "#7A5BB5")
+        case .shop: Color(hex: "#C94F7C")
+        case .station: Color(.systemGray)
+        }
+    }
+}
+
+extension Chapter {
+    /// The city in kanji, set large in Mincho on the chapter line and the day cards.
+    var kanji: String {
+        ["tokyo": "東京", "hakone": "箱根", "ise": "伊勢", "kyoto": "京都", "osaka": "大阪"][id] ?? name
+    }
+
+    var tint: Color { Color(hex: color) }
+}
+
+extension Day {
+    /// 月火水木金土日 from the Vietnamese weekday, as on a Japanese calendar.
+    var dowKanji: String {
+        ["Thứ Hai": "月", "Thứ Ba": "火", "Thứ Tư": "水", "Thứ Năm": "木", "Thứ Sáu": "金", "Thứ Bảy": "土", "Chủ Nhật": "日"][dow] ?? ""
+    }
+}
+
+extension Font {
+    /// Hiragino Mincho, for Japanese set as a headline or an ornament.
+    static func mincho(_ size: CGFloat, bold: Bool = true, relativeTo style: Font.TextStyle = .title) -> Font {
+        .custom(bold ? "HiraMinProN-W6" : "HiraMinProN-W3", size: size, relativeTo: style)
+    }
+
+    /// Big figures: countdowns, day numbers, totals.
+    static func figure(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
+        .system(size: size, weight: weight, design: .rounded)
+    }
+}
+
+// MARK: - Marks
+
+/// The Hinomaru drawn as the web's logo: a white square, an ink edge, the red disc.
+struct HinomaruMark: View {
+    var size: CGFloat = 22
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: size * 0.2, style: .continuous)
+        ZStack {
+            shape.fill(Color.white)
+            shape.strokeBorder(Color.black.opacity(0.82), lineWidth: max(1, size * 0.07))
+            Circle()
+                .fill(Palette.sun)
+                .frame(width: size * 0.52, height: size * 0.52)
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
+    }
+}
+
+/// "JP27" set wide and black, as the web's wordmark.
+struct Wordmark: View {
+    var size: CGFloat = 15
+
+    var body: some View {
+        HStack(spacing: size * 0.45) {
+            HinomaruMark(size: size * 1.3)
+            Text("JP27")
+                .font(.system(size: size, weight: .black).width(.expanded))
+                .tracking(0.4)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("JP27")
+    }
+}
+
+/// Two stripes, red over indigo, the way a livery runs along a train's side.
+struct Livery: View {
+    var width: CGFloat? = nil
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Capsule().fill(Palette.sun).frame(height: 3)
+            Capsule().fill(Palette.ai).frame(height: 1.5)
+        }
+        .frame(width: width)
+        .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Press
+
+/// Cards that answer a press by settling a little, the way the system's own cards do.
+struct PressableStyle: ButtonStyle {
+    var scale: CGFloat = 0.97
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? scale : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.72), value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == PressableStyle {
+    static var pressable: PressableStyle { PressableStyle() }
+}
+
+// MARK: - Route spark
+
+/// The day's real path, every leg in its line's colour, drawn small (the web's RouteSpark):
+/// solid for rail and road, dashed over water and air, dotted on foot; open circle at the start,
+/// filled at the end.
+struct RouteSpark: View {
+    struct Leg {
+        let points: [CGPoint]
+        let color: Color
+        let mode: Mode
+    }
+
+    let legs: [Leg]
+    /// extent of the points, in the same units
+    let size: CGSize
+    let weight: CGFloat
+
+    init(day: Day, store: TripStore, weight: CGFloat = 2.4) {
+        self.weight = weight
+        var raw: [([Coordinate], Color, Mode)] = []
+        for item in day.items {
+            guard case .move(let m) = item else { continue }
+            let points = store.path(m.leg.id)
+            guard points.count > 1 else { continue }
+            let line = store.line(m.leg.line)
+            raw.append((points, Color(hex: line?.color ?? "#8E8E93"), line?.mode ?? .walk))
+        }
+        let all = raw.flatMap { $0.0 }
+        let minLat = all.map(\.lat).min() ?? 0, maxLat = all.map(\.lat).max() ?? 0
+        let minLng = all.map(\.lng).min() ?? 0, maxLng = all.map(\.lng).max() ?? 0
+        let k = cos((minLat + maxLat) / 2 * .pi / 180)
+        legs = raw.map { pts, color, mode in
+            Leg(points: pts.map { CGPoint(x: ($0.lng - minLng) * k, y: maxLat - $0.lat) }, color: color, mode: mode)
+        }
+        size = CGSize(width: (maxLng - minLng) * k, height: maxLat - minLat)
+    }
+
+    var body: some View {
+        ZStack {
+            ForEach(Array(legs.enumerated()), id: \.offset) { _, leg in
+                SparkShape(points: leg.points, extent: size)
+                    .stroke(leg.mode == .walk ? Color.secondary : leg.color, style: style(leg.mode))
+            }
+            if let first = legs.first?.points.first {
+                SparkDot(point: first, extent: size, radius: weight * 1.4)
+                    .stroke(Color.primary, lineWidth: weight * 0.8)
+            }
+            if let last = legs.last?.points.last {
+                SparkDot(point: last, extent: size, radius: weight * 1.4)
+                    .fill(Color.primary)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func style(_ mode: Mode) -> StrokeStyle {
+        switch mode {
+        case .walk: StrokeStyle(lineWidth: weight * 0.6, lineCap: .round, lineJoin: .round, dash: [0.1, weight * 1.3])
+        case .ferry, .cruise, .ropeway: StrokeStyle(lineWidth: weight, lineCap: .butt, lineJoin: .round, dash: [weight * 1.3, weight])
+        default: StrokeStyle(lineWidth: weight, lineCap: .round, lineJoin: .round)
+        }
+    }
+}
+
+/// Fits `extent` into the rect, keeping its shape, with room for the stroke.
+private nonisolated func sparkMap(_ extent: CGSize, in rect: CGRect) -> (CGPoint) -> CGPoint {
+    let inset: CGFloat = 4
+    let w = max(extent.width, 1e-6), h = max(extent.height, 1e-6)
+    let s = min((rect.width - 2 * inset) / w, (rect.height - 2 * inset) / h)
+    let ox = rect.midX - w * s / 2, oy = rect.midY - h * s / 2
+    return { CGPoint(x: ox + $0.x * s, y: oy + $0.y * s) }
+}
+
+private nonisolated struct SparkShape: Shape {
+    let points: [CGPoint]
+    let extent: CGSize
+
+    func path(in rect: CGRect) -> Path {
+        let map = sparkMap(extent, in: rect)
+        var p = Path()
+        p.addLines(points.map(map))
+        return p
+    }
+}
+
+private nonisolated struct SparkDot: Shape {
+    let point: CGPoint
+    let extent: CGSize
+    let radius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let c = sparkMap(extent, in: rect)(point)
+        return Path(ellipseIn: CGRect(x: c.x - radius, y: c.y - radius, width: radius * 2, height: radius * 2))
+    }
+}
+
+// MARK: - Shapes
+
+/// A vertical line through the middle of its frame: the timeline's rail.
+nonisolated struct RailLine: Shape {
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        return p
+    }
+}
+
+extension Mode {
+    /// The web's line grammar: solid on rails and roads, dashed over water and air, dotted on foot.
+    func rail(_ width: CGFloat) -> StrokeStyle {
+        switch self {
+        case .walk: StrokeStyle(lineWidth: width, lineCap: .round, dash: [0.1, width * 2])
+        case .ferry, .cruise, .ropeway: StrokeStyle(lineWidth: width, lineCap: .butt, dash: [width * 1.6, width * 1.1])
+        default: StrokeStyle(lineWidth: width, lineCap: .butt)
+        }
+    }
+}
+
+/// A ticket: rounded card with a notch top and bottom where the stub tears off.
+nonisolated struct TicketShape: Shape {
+    /// distance of the perforation from the leading edge
+    var stub: CGFloat
+    var radius: CGFloat = 22
+    var notch: CGFloat = 9
+
+    func path(in rect: CGRect) -> Path {
+        let body = CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
+        let holes = CGMutablePath()
+        let x = rect.minX + stub
+        holes.addEllipse(in: CGRect(x: x - notch, y: rect.minY - notch, width: notch * 2, height: notch * 2))
+        holes.addEllipse(in: CGRect(x: x - notch, y: rect.maxY - notch, width: notch * 2, height: notch * 2))
+        return Path(body.subtracting(holes))
+    }
+}
+
+/// Mount Fuji's profile: concave slopes, a flat crater top with its notch.
+nonisolated struct FujiShape: Shape {
+    func path(in r: CGRect) -> Path {
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: r.minX + x * r.width, y: r.minY + y * r.height) }
+        var p = Path()
+        p.move(to: pt(0, 1))
+        p.addQuadCurve(to: pt(0.405, 0.12), control: pt(0.30, 0.80))
+        p.addLine(to: pt(0.455, 0.08))
+        p.addLine(to: pt(0.49, 0.11))
+        p.addLine(to: pt(0.52, 0.085))
+        p.addLine(to: pt(0.595, 0.12))
+        p.addQuadCurve(to: pt(1, 1), control: pt(0.70, 0.80))
+        p.closeSubpath()
+        return p
+    }
+}
+
+/// The snow line: everything above a ragged edge a third of the way down.
+nonisolated struct SnowLine: Shape {
+    func path(in r: CGRect) -> Path {
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: r.minX + x * r.width, y: r.minY + y * r.height) }
+        var p = Path()
+        p.move(to: pt(0, 0))
+        p.addLine(to: pt(1, 0))
+        p.addLine(to: pt(1, 0.36))
+        let teeth: [(CGFloat, CGFloat)] = [(0.66, 0.36), (0.62, 0.46), (0.58, 0.37), (0.54, 0.5), (0.5, 0.38), (0.46, 0.47), (0.42, 0.36), (0.38, 0.44), (0.34, 0.35)]
+        for (x, y) in teeth { p.addLine(to: pt(x, y)) }
+        p.addLine(to: pt(0, 0.35))
+        p.closeSubpath()
+        return p
+    }
+}
+
+/// Fuji at dusk: violet sky, the mountain in indigo, the snow cap catching the light.
+struct FujiScene: View {
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            LinearGradient(colors: [Color(hex: "#3B2F7A"), Palette.fuji, Color(hex: "#F2A8B5")], startPoint: .top, endPoint: .bottom)
+            Circle()
+                .fill(Palette.sun)
+                .frame(width: 58, height: 58)
+                .offset(x: 92, y: -118)
+                .blur(radius: 0.5)
+            FujiShape()
+                .fill(LinearGradient(colors: [Color(hex: "#2A3F73"), Color(hex: "#18264A")], startPoint: .top, endPoint: .bottom))
+                .overlay {
+                    FujiShape().fill(Color.white.opacity(0.95)).mask { SnowLine() }
+                }
+                .frame(height: 150)
+                .padding(.horizontal, -30)
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// A glyph in white on a tinted rounded square, as Settings draws its rows: used where a list of
+/// unlike things needs telling apart at a glance (guides, phrase situations).
+struct GlyphTile: View {
+    let symbol: String
+    var tint: Color = Palette.sun
+    var size: CGFloat = 30
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: size * 0.48, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: size, height: size)
+            .background(tint.gradient, in: .rect(cornerRadius: size * 0.28, style: .continuous))
+            .accessibilityHidden(true)
+    }
+}

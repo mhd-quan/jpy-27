@@ -255,12 +255,13 @@ struct TripMap: UIViewRepresentable {
             switch kind {
             case .stop: return (UIColor(named: "AccentColor") ?? .systemRed, edge, 9, 2)
             case .done: return (.systemGray, edge, 8, 2)
-            case .stay: return (UIColor(Color(hex: "#8A5CD0")), edge, 8, 2)
+            // the palette's colours (Theme.swift): wisteria stays, persimmon food, Fuji violet, indigo
+            case .stay: return (UIColor(Color(hex: "#7A5BB5")), edge, 8, 2)
             case .station: return (edge, .systemGray, 4.5, 2)
-            case .along: return (edge, .systemOrange, 5, 2.5)
-            case .snack: return (.systemOrange, edge, 5.5, 1.5)
-            case .fuji: return (.systemIndigo, edge, 6, 2)
-            case .highlight: return (.systemBlue, edge, 5.5, 1.5)
+            case .along: return (edge, UIColor(Color(hex: "#E07A2F")), 5, 2.5)
+            case .snack: return (UIColor(Color(hex: "#E07A2F")), edge, 5.5, 1.5)
+            case .fuji: return (UIColor(Color(hex: "#6B4FD8")), edge, 6, 2)
+            case .highlight: return (UIColor(named: "Ai") ?? .systemBlue, edge, 5.5, 1.5)
             }
         }
     }

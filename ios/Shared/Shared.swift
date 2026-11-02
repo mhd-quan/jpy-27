@@ -131,7 +131,8 @@ extension Color {
 }
 
 extension Mode {
-    /// SF Symbol for a way of moving.
+    /// SF Symbol for a way of moving: the bullet nose for the Shinkansen, a sailing ship for the
+    /// Ashi pirate ship, a tunnel for the metro.
     nonisolated var symbol: String {
         switch self {
         case .walk: "figure.walk"
@@ -139,7 +140,8 @@ extension Mode {
         case .subway: "tram.fill.tunnel"
         case .shinkansen: "train.side.front.car"
         case .bus, .shuttle: "bus.fill"
-        case .ferry, .cruise: "ferry.fill"
+        case .ferry: "ferry.fill"
+        case .cruise: "sailboat.fill"
         case .ropeway: "cablecar.fill"
         case .cable: "cablecar"
         }
@@ -151,7 +153,7 @@ extension Place.Kind {
         switch self {
         case .stay: "bed.double.fill"
         case .food: "fork.knife"
-        case .sight: "camera.fill"
+        case .sight: "binoculars.fill"
         case .shop: "bag.fill"
         case .station: "tram.fill"
         }

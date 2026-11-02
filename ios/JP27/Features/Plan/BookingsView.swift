@@ -26,6 +26,7 @@ struct BookingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .paperList()
         .navigationTitle("Đặt chỗ")
     }
 }
