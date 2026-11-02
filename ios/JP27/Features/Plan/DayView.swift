@@ -20,35 +20,48 @@ private struct PlanDayContent: View {
     let day: Day
 
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: Metrics.stack) {
-                PlanDayHeader(day: day)
-                PlanDayTimeline(day: day)
-                if !day.along.isEmpty { PlanDayAlong(day: day) }
-                if !day.trims.isEmpty {
-                    VStack(alignment: .leading, spacing: 10) {
-                        SectionTitle("Nếu mệt hoặc trễ")
-                        Card { PlanBullets(lines: day.trims) }
+        let photo = HomePicks.photo(for: day, store: model.store)
+        let label = day.isAlternative ? "Kawaguchiko" : "Ngày \(day.n)"
+        let page = ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                if let photo { PlanDayHero(day: day, photo: photo) }
+                LazyVStack(alignment: .leading, spacing: Metrics.stack) {
+                    PlanDayHeader(day: day, titled: photo == nil)
+                    PlanDayTimeline(day: day)
+                    if !day.along.isEmpty { PlanDayAlong(day: day) }
+                    if !day.trims.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            SectionTitle("Nếu mệt hoặc trễ")
+                            Card { PlanBullets(lines: day.trims) }
+                        }
+                    }
+                    if let alt = day.alt { PlanDayAlternative(alt: alt) }
+                    if !day.slots.isEmpty { PlanDayShopping(day: day) }
+                    PlanDayRides(day: day)
+                    PlanDayFuji(day: day)
+                    if planHasStarted(day, now: model.now) {
+                        NavigationLink(value: Route.journal(day.key)) {
+                            Label("Nhật ký ngày \(day.n)", systemImage: "book.pages")
+                                .font(.body.weight(.semibold))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        .buttonStyle(.bordered)
                     }
                 }
-                if let alt = day.alt { PlanDayAlternative(alt: alt) }
-                if !day.slots.isEmpty { PlanDayShopping(day: day) }
-                PlanDayRides(day: day)
-                PlanDayFuji(day: day)
-                if planHasStarted(day, now: model.now) {
-                    NavigationLink(value: Route.journal(day.key)) {
-                        Label("Nhật ký ngày \(day.n)", systemImage: "book.pages")
-                            .font(.body.weight(.semibold))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .buttonStyle(.bordered)
-                }
+                .padding(.horizontal, Metrics.gutter)
+                .padding(.top, photo == nil ? 0 : Metrics.stack)
+                .padding(.bottom, 32)
             }
-            .padding(.horizontal, Metrics.gutter)
-            .padding(.bottom, 32)
         }
         .screen()
-        .navigationTitle(day.isAlternative ? "Kawaguchiko" : "Ngày \(day.n)")
+
+        Group {
+            if photo != nil {
+                page.detailPage(title: label)
+            } else {
+                page.navigationTitle(label)
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -59,6 +72,25 @@ private struct PlanDayContent: View {
                     Label("Bản đồ", systemImage: "map")
                 }
             }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            CloseButton()
+        }
+    }
+}
+
+/// The day's photograph to the top of the page; its title, city and date on the blur.
+private struct PlanDayHero: View {
+    @Environment(AppModel.self) private var model
+    let day: Day
+    let photo: Photo
+
+    var body: some View {
+        DetailHero(title: day.title, subtitle: model.store.chapter(of: day)?.kanji) {
+            PlacePhoto(photo: photo, maxPixel: 1800)
+        } foot: {
+            Text(planDateLabel(day))
+                .font(.subheadline.weight(.medium))
+                .opacity(0.9)
         }
     }
 }
@@ -68,14 +100,18 @@ private struct PlanDayContent: View {
 private struct PlanDayHeader: View {
     @Environment(AppModel.self) private var model
     let day: Day
+    /// the date and title, when there is no photograph above to carry them
+    var titled = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(planDateLabel(day)).font(.subheadline).foregroundStyle(.secondary)
-                Text(day.title).font(.title2.weight(.bold))
+            if titled {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(planDateLabel(day)).font(.subheadline).foregroundStyle(.secondary)
+                    Text(day.title).font(.title2.weight(.bold))
+                }
+                .accessibilityElement(children: .combine)
             }
-            .accessibilityElement(children: .combine)
             TripMap(content: .day(day, model: model), showsUser: false, interactive: false,
                     insets: UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 28), frameID: day.key)
                 .frame(height: 240)
@@ -105,7 +141,7 @@ private struct PlanDayHeader: View {
             }
             .lineLimit(2)
         }
-        .padding(.top, 8)
+        .padding(.top, titled ? 8 : 0)
     }
 }
 

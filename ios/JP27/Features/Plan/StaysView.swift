@@ -91,39 +91,63 @@ private struct PlanStayContent: View {
 
     var body: some View {
         let place = model.store.place(stay.id)
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: Metrics.stack) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("\(stay.nights) · \(stay.dates)").font(.subheadline).foregroundStyle(.secondary)
-                    Text("\(Fmt.yen(stay.target)) · \(stay.range)").font(.title3.weight(.semibold)).monospacedDigit()
-                }
-                .padding(.top, 8)
-                Card {
-                    PlanParagraph(title: "Phòng", text: stay.room)
-                    Divider()
-                    PlanParagraph(title: "Điểm tốt", text: stay.good)
-                    Divider()
-                    PlanParagraph(title: "Cần biết", text: stay.know)
-                    Divider()
-                    PlanParagraph(title: "Đổi phương án khi", text: stay.switchAt)
-                }
-                if place != nil {
-                    NavigationLink(value: Route.place(stay.id)) {
-                        Label("Ảnh, địa chỉ, giờ nhận phòng", systemImage: "info.circle")
-                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        let photo = place?.hero
+        let title = place?.name ?? "Chỗ ở"
+        let page = ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                if let photo {
+                    DetailHero(title: title, subtitle: place?.ja) {
+                        PlacePhoto(photo: photo, maxPixel: 1800)
+                    } foot: {
+                        Text("\(stay.nights) · \(stay.dates)")
+                            .font(.subheadline.weight(.medium))
+                            .opacity(0.9)
                     }
-                    .buttonStyle(.bordered)
                 }
-                if let around = stay.around {
-                    PlanNeighbourhood(stay: stay, around: around)
+                LazyVStack(alignment: .leading, spacing: Metrics.stack) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        if photo == nil {
+                            Text("\(stay.nights) · \(stay.dates)").font(.subheadline).foregroundStyle(.secondary)
+                        }
+                        Text("\(Fmt.yen(stay.target)) · \(stay.range)").font(.title3.weight(.semibold)).monospacedDigit()
+                    }
+                    .padding(.top, photo == nil ? 8 : Metrics.stack)
+                    Card {
+                        PlanParagraph(title: "Phòng", text: stay.room)
+                        Divider()
+                        PlanParagraph(title: "Điểm tốt", text: stay.good)
+                        Divider()
+                        PlanParagraph(title: "Cần biết", text: stay.know)
+                        Divider()
+                        PlanParagraph(title: "Đổi phương án khi", text: stay.switchAt)
+                    }
+                    if place != nil {
+                        NavigationLink(value: Route.place(stay.id)) {
+                            Label("Ảnh, địa chỉ, giờ nhận phòng", systemImage: "info.circle")
+                                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    if let around = stay.around {
+                        PlanNeighbourhood(stay: stay, around: around)
+                    }
                 }
+                .padding(.horizontal, Metrics.gutter)
+                .padding(.bottom, 32)
             }
-            .padding(.horizontal, Metrics.gutter)
-            .padding(.bottom, 32)
         }
         .screen()
-        .navigationTitle(place?.name ?? "Chỗ ở")
-        .navigationBarTitleDisplayMode(.inline)
+
+        Group {
+            if photo != nil {
+                page.detailPage(title: title)
+            } else {
+                page
+                    .navigationTitle(title)
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+        }
+        .toolbar { CloseButton() }
     }
 }
 

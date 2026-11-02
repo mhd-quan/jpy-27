@@ -232,3 +232,129 @@ extension TripPhase {
         return false
     }
 }
+
+// MARK: - Detail pages
+
+/// The top of a detail page: a photograph filling the page up to its top edge, under the bar and
+/// its buttons, with the page's name set on a soft blur at the photograph's foot. There is no bar
+/// strip while it is in view; `detailPage` brings the name into the bar once it has scrolled away.
+struct DetailHero<Background: View, Foot: View>: View {
+    let title: String
+    var subtitle: String?
+    var height: CGFloat = 440
+    @ViewBuilder var background: Background
+    /// under the name: tags, page dots, a credit
+    @ViewBuilder var foot: Foot
+
+    var body: some View {
+        Color.clear
+            .frame(height: height)
+            .overlay { background }
+            .clipped()
+            // a little shade under the bar so its glass buttons and the status bar read on a
+            // bright sky
+            .overlay(alignment: .top) {
+                LinearGradient(colors: [.black.opacity(0.28), .clear], startPoint: .top, endPoint: .bottom)
+                    .frame(height: 110)
+                    .allowsHitTesting(false)
+            }
+            .overlay(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(title)
+                        .font(.largeTitle.weight(.bold))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.75)
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(.mincho(22))
+                            .environment(\.locale, Locale(identifier: "ja_JP"))
+                            .opacity(0.9)
+                    }
+                    foot
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, Metrics.gutter)
+                .padding(.top, 56)
+                .padding(.bottom, 18)
+                .background { HeroBlur() }
+                .environment(\.colorScheme, .dark)
+                .accessibilityElement(children: .contain)
+            }
+    }
+}
+
+/// A blur that rises from nothing into a frosted foot, with a shade for white type: the soft,
+/// progressive edge, not a band with a hard top.
+struct HeroBlur: View {
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .mask {
+                    LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black.opacity(0.7), location: 0.45), .init(color: .black, location: 1)], startPoint: .top, endPoint: .bottom)
+                }
+            LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black.opacity(0.42), location: 1)], startPoint: .top, endPoint: .bottom)
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+extension View {
+    /// A scroll view whose first child is a `DetailHero`: it runs under the bar, the bar shows no
+    /// edge and no title over the photograph, and the name comes into the bar (with the system's
+    /// soft edge) once the photograph has scrolled away.
+    func detailPage(title: String, heroHeight: CGFloat = 440) -> some View {
+        modifier(DetailPage(title: title, heroHeight: heroHeight))
+    }
+}
+
+private struct DetailPage: ViewModifier {
+    let title: String
+    let heroHeight: CGFloat
+    @State private var past = false
+
+    func body(content: Content) -> some View {
+        content
+            .ignoresSafeArea(edges: .top)
+            .scrollEdgeEffectHidden(!past, for: .top)
+            .onScrollGeometryChange(for: Bool.self) { geo in
+                geo.contentOffset.y + geo.contentInsets.top > heroHeight - 130
+            } action: { _, now in
+                withAnimation(.smooth(duration: 0.25)) { past = now }
+            }
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(title)
+                        .font(.headline)
+                        .lineLimit(1)
+                        .opacity(past ? 1 : 0)
+                        .accessibilityHidden(!past)
+                }
+            }
+            // light status bar and bar glyphs over the photograph
+            .toolbarColorScheme(past ? nil : .dark, for: .navigationBar)
+    }
+}
+
+/// Small page dots for a hero's photographs.
+struct HeroDots: View {
+    let count: Int
+    let current: Int
+
+    var body: some View {
+        if count > 1 {
+            HStack(spacing: 5) {
+                ForEach(0..<count, id: \.self) { i in
+                    Capsule()
+                        .fill(.white.opacity(i == current ? 1 : 0.4))
+                        .frame(width: i == current ? 16 : 6, height: 6)
+                }
+            }
+            .animation(.smooth(duration: 0.3), value: current)
+            .accessibilityHidden(true)
+        }
+    }
+}

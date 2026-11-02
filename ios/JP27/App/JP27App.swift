@@ -55,6 +55,7 @@ final class JP27AppDelegate: NSObject, UIApplicationDelegate {
 /// Five tabs for what is opened again and again on the road; everything else is one level deeper.
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @AppStorage(Appearance.key) private var appearance: Appearance = .system
     @Namespace private var zoom
 
     var body: some View {
@@ -84,6 +85,10 @@ struct RootView: View {
         .progressiveEdges()
         .presentsSheets()
         .environment(\.zoomSpace, zoom)
+        // the first pass sets the window before anything is seen; later ones come from Settings
+        .onChange(of: appearance, initial: true) { old, new in
+            new.apply(animated: old != new)
+        }
     }
 }
 
@@ -135,10 +140,10 @@ struct SheetHost: View {
     var body: some View {
         switch sheet {
         case .place(let id):
+            // the place page puts its close button after its own actions
             NavigationStack {
                 PlaceView(id: id)
                     .navigationDestination(for: Route.self) { RouteHost(route: $0) }
-                    .toolbar { CloseButton() }
             }
         case .ride(let id):
             NavigationStack {
@@ -175,13 +180,4 @@ struct SheetHost: View {
     }
 }
 
-/// The standard close button of a sheet's toolbar.
-struct CloseButton: ToolbarContent {
-    @Environment(\.dismiss) private var dismiss
 
-    var body: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button(role: .close) { dismiss() }
-        }
-    }
-}

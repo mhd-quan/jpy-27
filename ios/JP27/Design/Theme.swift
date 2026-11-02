@@ -1,5 +1,6 @@
 import SwiftUI
 import TripKit
+import UIKit
 
 // The app's taste. White paper and the flag's red, the way the Hinomaru is drawn: red is the one
 // loud colour and it marks what matters now (the countdown, the next departure, lateness, a stop
@@ -24,6 +25,52 @@ enum Palette {
     static let sakura = Color("Sakura")
     /// Fuji's violet, from the web's window-side strips
     static let fuji = Color(hex: "#6B4FD8")
+}
+
+// MARK: - Appearance
+
+/// Light, dark, or whatever the phone is set to (the default). Every colour is an asset with a dark
+/// variant and the map swaps to its dark style, so "automatic" is the system's own switch.
+/// Applied to the windows rather than with `preferredColorScheme`: going back to automatic from a
+/// forced scheme takes effect at once, and sheets, alerts and the map follow without being told.
+nonisolated enum Appearance: String, CaseIterable, Identifiable, Sendable {
+    case system, light, dark
+
+    static let key = "appearance"
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .system: "Tự động"
+        case .light: "Sáng"
+        case .dark: "Tối"
+        }
+    }
+
+    private var style: UIUserInterfaceStyle {
+        switch self {
+        case .system: .unspecified
+        case .light: .light
+        case .dark: .dark
+        }
+    }
+
+    /// Sets every window's style; a change made from Settings cross-fades instead of snapping.
+    @MainActor func apply(animated: Bool) {
+        let windows = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+        for window in windows where window.overrideUserInterfaceStyle != style {
+            if animated && !UIAccessibility.isReduceMotionEnabled {
+                UIView.transition(with: window, duration: 0.35, options: [.transitionCrossDissolve, .allowUserInteraction]) {
+                    window.overrideUserInterfaceStyle = style
+                }
+            } else {
+                window.overrideUserInterfaceStyle = style
+            }
+        }
+    }
 }
 
 // MARK: - Colour and words for the data

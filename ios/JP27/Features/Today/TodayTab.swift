@@ -31,22 +31,13 @@ struct TodayTab: View {
                         }
                     }
                     // listening is a tool, settings are not: two glass groups, not one
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            model.present(.listen, from: "today.listen")
-                        } label: {
-                            Label("Nghe và dịch", systemImage: "translate")
-                        }
-                        .sheetSource("today.listen")
+                    // the morph source is the bar item itself (its glass), not the button inside
+                    SheetToolbarButton(title: "Nghe và dịch", symbol: "translate", source: "today.listen") {
+                        model.present(.listen, from: "today.listen")
                     }
                     ToolbarSpacer(.fixed, placement: .topBarTrailing)
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            model.present(.settings, from: "today.settings")
-                        } label: {
-                            Label("Cài đặt", systemImage: "gearshape")
-                        }
-                        .sheetSource("today.settings")
+                    SheetToolbarButton(title: "Cài đặt", symbol: "gearshape", source: "today.settings") {
+                        model.present(.settings, from: "today.settings")
                     }
                 }
                 // a day card on the home grows into its day
@@ -202,9 +193,9 @@ private struct TodayDayHeader: View {
                         Capsule()
                             .fill(done ? AnyShapeStyle(Palette.sun) : AnyShapeStyle(.fill.tertiary))
                             .overlay {
+                                // a still outline: an endless pulse would redraw the page every frame
                                 if i == next, !done {
                                     Capsule().stroke(Palette.sun, lineWidth: 1.5)
-                                        .phaseAnimator([0.35, 1.0]) { content, o in content.opacity(o) } animation: { _ in .easeInOut(duration: 1.1) }
                                 }
                             }
                             .frame(height: 5)

@@ -15,9 +15,13 @@ struct AtPlaceView: View {
     var body: some View {
         Group {
             if let place = model.store.place(id) {
-                content(place)
-                    .navigationTitle(place.name)
-                    .navigationBarTitleDisplayMode(.inline)
+                if place.hero != nil {
+                    content(place).detailPage(title: place.name, heroHeight: 360)
+                } else {
+                    content(place)
+                        .navigationTitle(place.name)
+                        .navigationBarTitleDisplayMode(.inline)
+                }
             } else {
                 ContentUnavailableView("Không có địa điểm này", systemImage: "mappin.slash")
             }
@@ -31,13 +35,22 @@ struct AtPlaceView: View {
         let wallet = SpendWallet(expenses: expenses, topups: topups)
         return ScrollView {
             VStack(alignment: .leading, spacing: Metrics.stack) {
-                header(place)
-                order(place)
-                say(place)
-                money(place, estimate: estimate, wallet: wallet)
-                actions(place, estimate: estimate)
+                if let photo = place.hero {
+                    DetailHero(title: place.name, height: 360) {
+                        PlacePhoto(photo: photo, maxPixel: 1800)
+                    } foot: {
+                        EmptyView()
+                    }
+                }
+                VStack(alignment: .leading, spacing: Metrics.stack) {
+                    header(place)
+                    order(place)
+                    say(place)
+                    money(place, estimate: estimate, wallet: wallet)
+                    actions(place, estimate: estimate)
+                }
+                .padding(.horizontal, Metrics.gutter)
             }
-            .padding(.horizontal, Metrics.gutter)
             .padding(.bottom, 32)
         }
         .screen()
@@ -45,10 +58,8 @@ struct AtPlaceView: View {
 
     private func header(_ place: Place) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            if place.hero != nil {
-                PlacePhoto(photo: place.hero, maxPixel: 1200)
-                    .frame(height: 200)
-                    .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
+            if place.hero == nil {
+                Text(place.name).font(.title.weight(.bold))
             }
             if let ja = place.ja {
                 let item = TalkShowItem(id: "name-\(place.id)", ja: ja, romaji: place.name)

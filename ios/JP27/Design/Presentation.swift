@@ -16,11 +16,68 @@ private nonisolated struct ZoomSpaceKey: EnvironmentKey {
     static var defaultValue: Namespace.ID? { nil }
 }
 
+private nonisolated struct CloseSheetKey: EnvironmentKey {
+    static var defaultValue: SheetCloser? { nil }
+}
+
+/// Closes the sheet a view is in (and anything stacked on it), from its root or from a page
+/// pushed inside it, where `dismiss` would only go back.
+struct SheetCloser {
+    let close: @MainActor () -> Void
+}
+
 extension EnvironmentValues {
     /// The app-wide namespace that sheets and full-screen cards zoom out of.
     nonisolated var zoomSpace: Namespace.ID? {
         get { self[ZoomSpaceKey.self] }
         set { self[ZoomSpaceKey.self] = newValue }
+    }
+
+    /// Set inside a sheet; nil on a tab's own pages.
+    nonisolated var closeSheet: SheetCloser? {
+        get { self[CloseSheetKey.self] }
+        set { self[CloseSheetKey.self] = newValue }
+    }
+}
+
+/// A toolbar button a sheet grows out of. The transition source is the toolbar item itself, so
+/// the whole glass button morphs into the sheet and the sheet shrinks back into it, as the
+/// system's own toolbar buttons do; a source set on the button inside the item morphs only the
+/// glyph and looks stiff.
+struct SheetToolbarButton: ToolbarContent {
+    @Environment(\.zoomSpace) private var space
+    let title: String
+    let symbol: String
+    let source: String
+    var placement: ToolbarItemPlacement = .topBarTrailing
+    let action: () -> Void
+
+    var body: some ToolbarContent {
+        if let space {
+            item.matchedTransitionSource(id: source, in: space)
+        } else {
+            item
+        }
+    }
+
+    private var item: some ToolbarContent {
+        ToolbarItem(placement: placement) {
+            Button(title, systemImage: symbol, action: action)
+        }
+    }
+}
+
+/// The close button of a sheet, always the last item on the trailing side (put it last in the
+/// toolbar, after a fixed spacer if the page has its own actions). Absent outside a sheet.
+struct CloseButton: ToolbarContent {
+    @Environment(\.closeSheet) private var closeSheet
+
+    var body: some ToolbarContent {
+        if let closeSheet {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(role: .close) { closeSheet.close() }
+            }
+        }
     }
 }
 
@@ -83,6 +140,9 @@ private struct SheetLayer: ViewModifier {
                 .progressiveEdges()
                 .environment(model)
                 .environment(\.zoomSpace, space)
+                .environment(\.closeSheet, SheetCloser { [model, level] in
+                    if model.sheets.count > level { model.sheets.removeSubrange(level...) }
+                })
                 .zoomed(from: top.source, in: space)
         }
     }

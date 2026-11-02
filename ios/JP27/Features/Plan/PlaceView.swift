@@ -21,11 +21,16 @@ private struct PlanPlaceContent: View {
     let place: Place
 
     var body: some View {
-        ScrollView {
+        let hero = !place.images.isEmpty
+        let page = ScrollView {
             VStack(alignment: .leading, spacing: Metrics.stack) {
-                if !place.images.isEmpty { PlanPlacePhotos(photos: place.images) }
+                if hero { PlanPlaceHero(place: place) }
                 VStack(alignment: .leading, spacing: Metrics.stack) {
-                    PlanPlaceTitle(place: place)
+                    if hero {
+                        PlanPlaceBadges(place: place)
+                    } else {
+                        PlanPlaceTitle(place: place)
+                    }
                     PlanPlaceActions(place: place)
                     PlanPlaceFacts(place: place)
                     if let menu = place.menu { PlanPlaceMenuSection(place: place, menu: menu) }
@@ -48,17 +53,23 @@ private struct PlanPlaceContent: View {
             .padding(.bottom, 32)
         }
         .screen()
-        .navigationTitle(place.name)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    model.present(.expense(placeID: place.id, yen: nil), from: "place.\(place.id).expense")
-                } label: {
-                    Label("Ghi chi", systemImage: "yensign")
-                }
-                .sheetSource("place.\(place.id).expense")
+
+        Group {
+            if hero {
+                page.detailPage(title: place.name)
+            } else {
+                page
+                    .navigationTitle(place.name)
+                    .navigationBarTitleDisplayMode(.inline)
             }
+        }
+        // the page's own action, then close, always last at the trailing edge
+        .toolbar {
+            SheetToolbarButton(title: "Ghi chi", symbol: "yensign", source: "place.\(place.id).expense") {
+                model.present(.expense(placeID: place.id, yen: nil), from: "place.\(place.id).expense")
+            }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            CloseButton()
         }
     }
 
@@ -77,41 +88,87 @@ private struct PlanPlaceContent: View {
 
 // MARK: - Photos
 
-private struct PlanPlacePhotos: View {
-    let photos: [Photo]
+/// The place's photographs filling the top of the page, its name and what it is on the soft blur
+/// at their foot, the photographer under them.
+private struct PlanPlaceHero: View {
+    let place: Place
     @State private var page = 0
     @Environment(\.openURL) private var openURL
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        let photos = place.images
+        DetailHero(title: place.name, subtitle: place.ja) {
             TabView(selection: $page) {
-                ForEach(Array(photos.enumerated()), id: \.offset) { i, photo in
-                    PlacePhoto(photo: photo)
+                ForEach(photos.indices, id: \.self) { i in
+                    PlacePhoto(photo: photos[i], maxPixel: 1800)
                         .tag(i)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: photos.count > 1 ? .automatic : .never))
-            .frame(height: 300)
-            // the photo carries on, mirrored and blurred, under the bar above it
-            .backgroundExtensionEffect()
-            if photos.indices.contains(page) {
-                let p = photos[page]
-                VStack(alignment: .leading, spacing: 2) {
-                    if let caption = p.caption { Text(caption).font(.footnote) }
-                    if let credit = p.credit {
-                        Button {
-                            if let page = p.page, let url = URL(string: page) { openURL(url) }
-                        } label: {
-                            Text(["© \(credit)", p.license].compactMap { $0 }.joined(separator: " · "))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.leading)
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(p.page == nil)
-                    }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+        } foot: {
+            HStack(alignment: .center, spacing: 8) {
+                Text(placeFacts(place))
+                    .font(.subheadline.weight(.medium))
+                    .lineLimit(1)
+                    .opacity(0.9)
+                Spacer(minLength: 8)
+                HeroDots(count: photos.count, current: page)
+            }
+            if photos.indices.contains(page), let credit = photos[page].credit {
+                Button {
+                    if let link = photos[page].page, let url = URL(string: link) { openURL(url) }
+                } label: {
+                    Text(["© \(credit)", photos[page].license].compactMap { $0 }.joined(separator: " · "))
+                        .font(.caption2)
+                        .lineLimit(1)
+                        .opacity(0.6)
                 }
-                .padding(.horizontal, Metrics.gutter)
+                .buttonStyle(.plain)
+                .disabled(photos[page].page == nil)
+                .accessibilityLabel("Ảnh: \(credit)")
+            }
+        }
+    }
+}
+
+/// "Quán ăn · Tokyo · ★ Tabelog 3,63 (942)"
+private func placeFacts(_ place: Place) -> String {
+    var parts = [placeKindLabel(place), placeAreaLabel(place)]
+    if let rating = place.rating ?? place.snack?.tabelog?.rating {
+        let count = (place.ratingCount ?? place.snack?.tabelog?.count).map { " (\(Fmt.grouped($0)))" } ?? ""
+        parts.append("★ " + (place.kind == .food ? "Tabelog " : "") + Fmt.decimal(rating, digits: 2) + count)
+    }
+    return parts.joined(separator: " · ")
+}
+
+private func placeKindLabel(_ place: Place) -> String {
+    switch place.kind {
+    case .stay: "Chỗ ở"
+    case .food: place.snack != nil ? "Ăn vặt" : "Quán ăn"
+    case .sight: "Tham quan"
+    case .shop: "Cửa hàng"
+    case .station: "Ga"
+    }
+}
+
+private func placeAreaLabel(_ place: Place) -> String {
+    let names = ["tokyo": "Tokyo", "hakone": "Hakone", "tokaido": "Tōkaidō", "ise": "Ise", "toba": "Toba", "shima": "Shima",
+                 "kyoto": "Kyoto", "nara": "Nara", "osaka": "Osaka", "kawaguchiko": "Kawaguchiko"]
+    return names[place.area] ?? place.area.capitalized
+}
+
+/// Under a hero, only what the foot does not say: booked, an award.
+private struct PlanPlaceBadges: View {
+    @Environment(AppModel.self) private var model
+    let place: Place
+
+    var body: some View {
+        let reserved = model.store.reserved.contains(place.id)
+        let award = place.snack?.tabelog?.award
+        if reserved || award != nil {
+            HStack(spacing: 6) {
+                if reserved { Tag(text: "Đã đặt", symbol: "checkmark.seal.fill", tint: Palette.matcha) }
+                if let award { Tag(text: award, symbol: "rosette", tint: Place.Kind.food.tint) }
             }
         }
     }
@@ -133,8 +190,8 @@ private struct PlanPlaceTitle: View {
                     .textSelection(.enabled)
             }
             HStack(spacing: 6) {
-                Tag(text: kindLabel, symbol: place.kind.symbol)
-                Tag(text: areaLabel)
+                Tag(text: placeKindLabel(place), symbol: place.kind.symbol)
+                Tag(text: placeAreaLabel(place))
                 if model.store.reserved.contains(place.id) { Tag(text: "Đã đặt", symbol: "checkmark.seal.fill", tint: .green) }
             }
             if place.rating != nil || place.snack?.tabelog?.rating != nil || place.snack?.tabelog?.award != nil {
@@ -152,22 +209,6 @@ private struct PlanPlaceTitle: View {
 
     private var ratingCount: Int? {
         place.ratingCount ?? place.snack?.tabelog?.count
-    }
-
-    private var kindLabel: String {
-        switch place.kind {
-        case .stay: "Chỗ ở"
-        case .food: place.snack != nil ? "Ăn vặt" : "Quán ăn"
-        case .sight: "Tham quan"
-        case .shop: "Cửa hàng"
-        case .station: "Ga"
-        }
-    }
-
-    private var areaLabel: String {
-        let names = ["tokyo": "Tokyo", "hakone": "Hakone", "tokaido": "Tōkaidō", "ise": "Ise", "toba": "Toba", "shima": "Shima",
-                     "kyoto": "Kyoto", "nara": "Nara", "osaka": "Osaka", "kawaguchiko": "Kawaguchiko"]
-        return names[place.area] ?? place.area.capitalized
     }
 }
 

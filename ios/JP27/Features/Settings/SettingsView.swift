@@ -5,24 +5,270 @@ import TripKit
 import UIKit
 import WeatherKit
 
-/// Permissions, offline data, the alternative days, the rehearsal clock and sources.
+/// Laid out like the system's Settings: who the app is for at the top, then what is changed most
+/// (how it looks, what it may use), then the trip's own switches, each a row with its current value
+/// that opens a page, so the first screen reads as a summary instead of a wall of controls.
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
         NavigationStack {
             Form {
+                SettingsHeader()
+                AppearanceSection()
                 PermissionsSection()
-                OfflineSection()
-                AlternativesSection()
-                RehearsalSection()
-                PaceSection()
-                SourcesSection()
+                TripSection()
+                Section {
+                    NavigationLink {
+                        SettingsPage(title: "Dùng khi mất sóng") { OfflineSection() }
+                    } label: {
+                        SettingsLabel(title: "Dùng khi mất sóng", symbol: "arrow.down.circle.fill", tint: .blue, value: offlineValue)
+                    }
+                    NavigationLink {
+                        SettingsPage(title: "Nguồn") { SourcesSection() }
+                    } label: {
+                        SettingsLabel(title: "Nguồn và ghi công", symbol: "books.vertical.fill", tint: .brown)
+                    }
+                } footer: {
+                    Text("Dữ liệu nghiên cứu ngày \(model.store.trip.meta.researched).")
+                }
             }
             .progressiveEdges()
             .navigationTitle("Cài đặt")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { CloseButton() }
+            .onAppear {
+                if model.offline.areas.isEmpty { model.offline.configure(store: model.store) }
+            }
+        }
+    }
+
+    /// "4/10 vùng · 182 MB", or "Chưa tải"
+    private var offlineValue: String {
+        let offline = model.offline
+        guard offline.totalBytes > 0 else { return "Chưa tải" }
+        let size = ByteCountFormatter.string(fromByteCount: Int64(offline.totalBytes), countStyle: .file)
+        return "\(offline.complete.count)/\(offline.areas.count) vùng · \(size)"
+    }
+}
+
+// MARK: - Building blocks
+
+/// The coloured tile in front of a settings row, as in the system's Settings.
+private struct SettingsIcon: View {
+    let symbol: String
+    let tint: Color
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 30, height: 30)
+            .background(tint.gradient, in: .rect(cornerRadius: 8, style: .continuous))
+            .accessibilityHidden(true)
+    }
+}
+
+/// A row that opens a page: tile, title, and the current value on the trailing side.
+private struct SettingsLabel: View {
+    let title: String
+    let symbol: String
+    let tint: Color
+    var value: String?
+
+    var body: some View {
+        LabeledContent {
+            if let value {
+                Text(value).monospacedDigit().lineLimit(1)
+            }
+        } label: {
+            Label {
+                Text(title)
+            } icon: {
+                SettingsIcon(symbol: symbol, tint: tint)
+            }
+        }
+    }
+}
+
+/// A page one level down: its own form, and the close button still at the far right.
+private struct SettingsPage<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        Form { content }
+            .progressiveEdges()
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { CloseButton() }
+    }
+}
+
+// MARK: - Header
+
+/// The trip itself, the way the system's Settings opens on your account: the mark, the dates,
+/// the cities in order.
+private struct SettingsHeader: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        let trip = model.store.trip
+        let meta = trip.meta
+        Section {
+            HStack(spacing: 14) {
+                HinomaruMark(size: 56)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(meta.title)
+                        .font(.system(size: 24, weight: .black).width(.expanded))
+                    Text("\(Fmt.shortDate(meta.start)) – \(Fmt.shortDate(meta.end)) · \(meta.nights) đêm · \(meta.people) người")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                    Text(trip.chapters.map(\.kanji).joined(separator: " → "))
+                        .font(.mincho(14, bold: false, relativeTo: .footnote))
+                        .foregroundStyle(.secondary)
+                        .environment(\.locale, Locale(identifier: "ja"))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+            }
+            .padding(.vertical, 6)
+            .accessibilityElement(children: .combine)
+        }
+    }
+}
+
+// MARK: - Appearance
+
+/// Automatic, light or dark, picked from three small screens, as in Display & Brightness.
+private struct AppearanceSection: View {
+    @AppStorage(Appearance.key) private var appearance: Appearance = .system
+
+    var body: some View {
+        Section {
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(Appearance.allCases) { a in
+                    Button {
+                        appearance = a
+                    } label: {
+                        AppearanceChoice(appearance: a, on: appearance == a)
+                    }
+                    // a row holding several buttons: without a plain style the whole row is one tap
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.vertical, 10)
+            .sensoryFeedback(.selection, trigger: appearance)
+        } header: {
+            Text("Giao diện")
+        } footer: {
+            Text("Tự động đổi sáng, tối theo iPhone, cả bản đồ.")
+        }
+    }
+}
+
+private struct AppearanceChoice: View {
+    let appearance: Appearance
+    let on: Bool
+
+    var body: some View {
+        VStack(spacing: 10) {
+            thumb
+                .frame(width: 60, height: 100)
+                .shadow(color: .black.opacity(0.14), radius: 4, y: 2)
+            Text(appearance.label)
+                .font(.subheadline)
+            Image(systemName: on ? "checkmark.circle.fill" : "circle")
+                .font(.title3)
+                .foregroundStyle(on ? AnyShapeStyle(Palette.sun) : AnyShapeStyle(.tertiary))
+                .contentTransition(.symbolEffect(.replace))
+        }
+        .contentShape(.rect)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(appearance.label)
+        .accessibilityAddTraits(on ? [.isButton, .isSelected] : .isButton)
+    }
+
+    @ViewBuilder private var thumb: some View {
+        switch appearance {
+        case .light:
+            AppearanceThumb().environment(\.colorScheme, .light)
+        case .dark:
+            AppearanceThumb().environment(\.colorScheme, .dark)
+        case .system:
+            ZStack {
+                AppearanceThumb().environment(\.colorScheme, .light)
+                AppearanceThumb().environment(\.colorScheme, .dark)
+                    .mask(LowerRightHalf())
+            }
+        }
+    }
+}
+
+/// A screen of the app in miniature: paper, the red disc, a title, two cards.
+private struct AppearanceThumb: View {
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 11, style: .continuous)
+        shape
+            .fill(Palette.paper)
+            .overlay(alignment: .topLeading) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Circle().fill(Palette.sun).frame(width: 12, height: 12)
+                    Capsule().fill(.primary.opacity(0.8)).frame(width: 32, height: 4)
+                    Capsule().fill(.secondary.opacity(0.6)).frame(width: 22, height: 3)
+                    RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Palette.card).frame(height: 24)
+                    RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Palette.card).frame(height: 16)
+                }
+                .padding(8)
+            }
+            .clipShape(shape)
+            .overlay { shape.strokeBorder(.separator, lineWidth: 0.5) }
+    }
+}
+
+private nonisolated struct LowerRightHalf: Shape {
+    func path(in r: CGRect) -> Path {
+        Path { p in
+            p.move(to: CGPoint(x: r.maxX, y: r.minY))
+            p.addLine(to: CGPoint(x: r.maxX, y: r.maxY))
+            p.addLine(to: CGPoint(x: r.minX, y: r.maxY))
+            p.closeSubpath()
+        }
+    }
+}
+
+// MARK: - Trip
+
+/// The trip's own switches, each summarised by its value and opened on a page.
+private struct TripSection: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        let alts = model.store.trip.altDays
+        Section("Chuyến đi") {
+            if !alts.isEmpty {
+                let on = alts.filter { model.alternatives.contains($0.key) }.count
+                NavigationLink {
+                    SettingsPage(title: "Ngày thay thế") { AlternativesSection() }
+                } label: {
+                    SettingsLabel(title: "Ngày thay thế", symbol: "arrow.triangle.swap", tint: .orange,
+                                  value: on == 0 ? "Theo lịch gốc" : "\(on) ngày đổi")
+                }
+            }
+            NavigationLink {
+                SettingsPage(title: "Đi bộ") { PaceSection() }
+            } label: {
+                SettingsLabel(title: "Tốc độ đi bộ", symbol: "figure.walk", tint: .green,
+                              value: "\(Fmt.decimal(3.9 * model.pace.factor, digits: 1)) km/h")
+            }
+            NavigationLink {
+                SettingsPage(title: "Chạy thử") { RehearsalSection() }
+            } label: {
+                SettingsLabel(title: "Chạy thử", symbol: "clock.arrow.circlepath", tint: .purple,
+                              value: model.clockOffset == 0 ? "Tắt" : "Đang chạy")
+            }
         }
     }
 }
@@ -39,15 +285,15 @@ private struct PermissionsSection: View {
         Section("Quyền") {
             location
             PermissionRow(
-                title: "Thông báo", detail: "Nhắc giờ tàu, xe, đặt bàn",
+                title: "Thông báo", detail: "Nhắc giờ tàu, xe, đặt bàn", symbol: "bell.badge.fill", tint: .red,
                 state: model.notifications.authorized ? .on : .off,
                 action: { Task { await model.notifications.requestAuthorization(); await model.notifications.refreshStatus(); if !model.notifications.authorized { openSettings() } } })
             PermissionRow(
-                title: "Báo thức", detail: "Đánh thức trước ga cần xuống",
+                title: "Báo thức", detail: "Đánh thức trước ga cần xuống", symbol: "alarm.fill", tint: .orange,
                 state: alarmsState,
                 action: { Task { if !(await model.alarms.requestAuthorization()) { openSettings() }; tick += 1 } })
             PermissionRow(
-                title: "Ảnh", detail: "Gắn ảnh vào nhật ký mỗi tối",
+                title: "Ảnh", detail: "Gắn ảnh vào nhật ký mỗi tối", symbol: "photo.on.rectangle.angled", tint: .indigo,
                 state: photosState,
                 action: {
                     if model.photos.status == .notDetermined {
@@ -57,7 +303,7 @@ private struct PermissionsSection: View {
                     }
                 })
             PermissionRow(
-                title: "Live Activities", detail: "Ga kế, lúc xuống, Fuji bên nào",
+                title: "Live Activities", detail: "Ga kế, lúc xuống, Fuji bên nào", symbol: "dot.radiowaves.left.and.right", tint: .teal,
                 state: liveState,
                 action: openSettings)
         }
@@ -73,7 +319,7 @@ private struct PermissionsSection: View {
         default: .off
         }
         return PermissionRow(
-            title: "Vị trí luôn bật", detail: "Món nên gọi khi tới quán, ga trên tàu, nhật ký",
+            title: "Vị trí luôn bật", detail: "Món nên gọi khi tới quán, ga trên tàu, nhật ký", symbol: "location.fill", tint: .blue,
             state: state,
             action: {
                 switch status {
@@ -116,11 +362,14 @@ private struct PermissionRow: View {
 
     let title: String
     let detail: String
+    let symbol: String
+    let tint: Color
     let state: State
     let action: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
+            SettingsIcon(symbol: symbol, tint: tint)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                 Text(detail).font(.footnote).foregroundStyle(.secondary)
