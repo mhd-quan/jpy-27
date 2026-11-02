@@ -1,6 +1,10 @@
 import Observation
 import SwiftUI
-import Translation
+// TranslationSession and its Request are not Sendable, yet its methods are @concurrent, so in
+// Swift 6 mode a session handed to a main-actor closure by `.translationTask` cannot be used at all
+// (Apple's own sample fails the same way). TalkTranslator.run uses its session one awaited call at
+// a time and nothing else holds it, so the module's missing annotations are accepted here.
+@preconcurrency import Translation
 import TripKit
 import UIKit
 
@@ -264,7 +268,8 @@ enum TalkSymbols {
         status = await LanguageAvailability().status(from: Self.source, to: Self.target)
     }
 
-    /// Runs inside `.translationTask`, on the main actor.
+    /// Runs inside `.translationTask`, on the main actor. The session is only touched here, one
+    /// awaited call after another, never from two places at once.
     func run(_ session: TranslationSession) async {
         if wantsDownload {
             wantsDownload = false
