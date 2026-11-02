@@ -2,9 +2,11 @@ import BackgroundTasks
 import SwiftData
 import SwiftUI
 import TripKit
+import UIKit
 
 @main
 struct JP27App: App {
+    @UIApplicationDelegateAdaptor(JP27AppDelegate.self) private var appDelegate
     @State private var model = AppModel.shared
     @Environment(\.scenePhase) private var scenePhase
 
@@ -37,6 +39,16 @@ struct JP27App: App {
         let request = BGAppRefreshTaskRequest(identifier: refreshID)
         request.earliestBeginDate = Date().addingTimeInterval(45 * 60)
         try? BGTaskScheduler.shared.submit(request)
+    }
+}
+
+/// Launch work that has to wait for UIKit. The App struct (and with it AppModel) is built before
+/// UIApplicationMain registers the app with the system; CoreLocation started that early is undefined
+/// behaviour per Apple DTS, and in practice CLMonitor's init asserted on every relaunch.
+final class JP27AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        AppModel.shared.location.start()
+        return true
     }
 }
 

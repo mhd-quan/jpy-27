@@ -8,7 +8,10 @@ import TripKit
 /// - on a ride or racing a departure: the same stream kept alive under the lock screen;
 /// - otherwise: only visits (CLVisit) and up to 20 geofences (CLMonitor), which wake the app.
 @Observable final class LocationService: NSObject {
-    private let manager = CLLocationManager()
+    /// Made in `start()`, from application(_:didFinishLaunchingWithOptions:). AppModel is built with
+    /// the App struct, before UIApplicationMain has registered the app with the system, and
+    /// CoreLocation started that early misbehaves: CLMonitor asserted in its init on every relaunch.
+    @ObservationIgnored private var manager: CLLocationManager?
 
     private(set) var position: Coordinate?
     private(set) var altitude: Double?
@@ -17,7 +20,7 @@ import TripKit
     private(set) var speedKmh: Double?
     /// true heading, degrees
     private(set) var heading: Double?
-    private(set) var authorization: CLAuthorizationStatus
+    private(set) var authorization: CLAuthorizationStatus = .notDetermined
 
     var onUpdate: ((Coordinate) -> Void)?
     var onVisit: ((VisitRecord) -> Void)?
@@ -27,32 +30,38 @@ import TripKit
     private var backgroundSession: CLBackgroundActivitySession?
     private var monitor: CLMonitor?
     private var monitorTask: Task<Void, Never>?
+    /// the circles asked for last, applied once the monitor exists
+    private var wantedFences: [Fence] = []
     private var lastTrace: (at: Date, at2: Coordinate)?
 
     var isAlways: Bool { authorization == .authorizedAlways }
     var isAllowed: Bool { authorization == .authorizedAlways || authorization == .authorizedWhenInUse }
 
-    override init() {
-        authorization = manager.authorizationStatus
-        super.init()
-        manager.delegate = self
-        manager.headingFilter = 3
-        if manager.authorizationStatus == .authorizedAlways {
-            manager.startMonitoringVisits()
-            manager.startMonitoringSignificantLocationChanges()
+    /// Once, at launch (foreground or a background relaunch for a visit or a fence): the manager
+    /// and its delegate must exist then for the event that woke the app to be delivered.
+    func start() {
+        guard manager == nil else { return }
+        let m = CLLocationManager()
+        manager = m
+        m.delegate = self
+        m.headingFilter = 3
+        authorization = m.authorizationStatus
+        if authorization == .authorizedAlways {
+            m.startMonitoringVisits()
+            m.startMonitoringSignificantLocationChanges()
+            startFences()
         }
-        monitorTask = Task { [weak self] in await self?.watchFences() }
     }
 
     // MARK: Permission
 
     func requestWhenInUse() {
-        manager.requestWhenInUseAuthorization()
+        manager?.requestWhenInUseAuthorization()
     }
 
     /// Asked for only when a feature needs it (geofences, journal, rides under the lock screen).
     func requestAlways() {
-        manager.requestAlwaysAuthorization()
+        manager?.requestAlwaysAuthorization()
     }
 
     // MARK: Live positions
@@ -61,7 +70,7 @@ import TripKit
         if authorization == .notDetermined { requestWhenInUse() }
         guard isAllowed else { return }
         startLive(background: model.activeRide != nil)
-        manager.startUpdatingHeading()
+        manager?.startUpdatingHeading()
     }
 
     /// Stream positions; with `background`, keep streaming after the screen locks (a ride, a race to a train).
@@ -89,7 +98,7 @@ import TripKit
         liveTask = nil
         backgroundSession?.invalidate()
         backgroundSession = nil
-        manager.stopUpdatingHeading()
+        manager?.stopUpdatingHeading()
     }
 
     private func accept(_ loc: CLLocation) {
@@ -125,7 +134,16 @@ import TripKit
         // remember what each circle means, for a relaunch straight into a fence event
         let info = Dictionary(uniqueKeysWithValues: wanted.map { ($0.id, "\($0.kind.rawValue)|\($0.placeID)|\($0.day)|\($0.index.map(String.init) ?? "")|\($0.center.lat)|\($0.center.lng)|\($0.radius)") })
         Shared.defaults.set(info, forKey: Self.fenceKey)
+        wantedFences = wanted
+        if !wanted.isEmpty { startFences() }
         Task { await apply(wanted) }
+    }
+
+    /// The monitor is made only with Always (no fence is added without it), after launch, and once:
+    /// a second CLMonitor with the same name in one process is an error too.
+    private func startFences() {
+        guard monitorTask == nil, isAlways, manager != nil else { return }
+        monitorTask = Task { [weak self] in await self?.watchFences() }
     }
 
     private func apply(_ wanted: [Fence]) async {
@@ -144,6 +162,8 @@ import TripKit
     private func watchFences() async {
         let m = await CLMonitor("jp27.fences")
         monitor = m
+        // circles asked for while the monitor was being made
+        await apply(wantedFences)
         do {
             for try await event in await m.events {
                 guard let fence = Self.fence(event.identifier) else { continue }
@@ -170,8 +190,9 @@ extension LocationService: CLLocationManagerDelegate {
         Task { @MainActor in
             self.authorization = status
             if status == .authorizedAlways {
-                self.manager.startMonitoringVisits()
-                self.manager.startMonitoringSignificantLocationChanges()
+                self.manager?.startMonitoringVisits()
+                self.manager?.startMonitoringSignificantLocationChanges()
+                self.startFences()
                 AppModel.shared.rescheduleAll()
             }
         }
