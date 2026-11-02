@@ -52,6 +52,12 @@ public struct Line: Codable, Sendable {
     /// "#RRGGBB"
     public let color: String
     public let mode: Mode
+    /// minutes between daytime departures, for lines that run often (src/data/lines.ts)
+    public let every: Int?
+
+    /// Missing one only means waiting for the next: a planned time on it is a suggestion, not a
+    /// departure the day is held to. Reserved seats and sparse lines are not.
+    public var isFrequent: Bool { (every ?? .max) <= 15 }
 }
 
 public struct Chapter: Codable, Sendable, Identifiable {

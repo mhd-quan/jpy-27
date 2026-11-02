@@ -23,7 +23,9 @@ public struct PlanEngine: Sendable {
         public var skips: Set<Int>
         /// walking pace relative to the model (1 = about 3.9 km/h on the flat)
         public var pace: Double
-        /// wait at timed stops that hold nothing (the plan check does; a live projection does not)
+        /// wait for the planned time where nothing holds you to it: a timed stop without a booking,
+        /// a timed departure on a line that runs every few minutes (the plan check does; a live
+        /// projection does not, and takes the next train with half the interval as the wait)
         public var waitAtSoftStops: Bool
 
         public init(from: Int = 0, clock: Double? = nil, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1, waitAtSoftStops: Bool = true) {
@@ -70,11 +72,20 @@ public struct PlanEngine: Sendable {
         let to: String
     }
 
+    /// A departure or a booking that will not wait: a timed ride on a reserved or sparse line, a
+    /// timed stop that is booked. A metro or city line with a time in the plan is not one: the
+    /// next train is a few minutes behind it.
     public func isHard(_ item: DayItem) -> Bool {
         switch item {
-        case .move(let m): m.at != nil && store.mode(of: m.leg) != .walk
+        case .move(let m): m.at != nil && store.mode(of: m.leg) != .walk && store.line(m.leg.line)?.isFrequent != true
         case .stop(let s): s.at != nil && s.place.map(store.reserved.contains) == true
         }
+    }
+
+    /// The wait for a ride that runs often, as a live projection counts it: half the interval.
+    func frequentWait(_ leg: Leg) -> Double? {
+        guard let line = store.line(leg.line), line.isFrequent, let every = line.every else { return nil }
+        return Double(every) / 2
     }
 
     public func simulate(_ day: Day, _ o: Options = Options()) -> [Slot] {
@@ -102,7 +113,12 @@ public struct PlanEngine: Sendable {
                     if let m = merged[i] { dur = m }
                 } else {
                     dur = Double(TripTime.statedMinutes(leg.min) ?? 10)
-                    if m.at == nil { dur += Double(store.trip.rules.wait[mode.rawValue] ?? 5) }
+                    if !o.waitAtSoftStops, let wait = frequentWait(leg) {
+                        // live: whichever train comes next, not the one the plan named
+                        dur += wait
+                    } else if m.at == nil {
+                        dur += Double(store.trip.rules.wait[mode.rawValue] ?? 5)
+                    }
                 }
                 if i == o.from, let reach = o.toReach {
                     if mode == .walk {
@@ -115,7 +131,7 @@ public struct PlanEngine: Sendable {
                 let at = TripTime.minutes(m.at).map(Double.init)
                 let started = clock != nil
                 let ready = clock ?? at ?? 0
-                if let at { clock = max(clock ?? 0, at) }
+                if let at, hard || o.waitAtSoftStops || clock == nil { clock = max(clock ?? 0, at) }
                 let begin = clock ?? 0
                 clock = begin + dur
                 slots.append(Slot(index: i, ready: ready, begin: begin, end: clock!, planned: TripTime.minutes(m.at), skipped: false, hard: hard, started: started))

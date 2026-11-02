@@ -20,6 +20,12 @@ export interface Line {
   color: string;
   mode: Mode;
   net?: [string, string][];
+  /**
+   * Minutes between departures in the daytime, for lines that run often enough that missing one
+   * only means waiting for the next (metro, city lines, gondolas). Absent for reserved seats and
+   * sparse lines: their departures are fixed points the day is planned around.
+   */
+  every?: number;
 }
 
 const JRE = '東日本旅客鉄道';
@@ -44,30 +50,35 @@ export const LINES = {
     name: 'Keikyu',
     color: '#E5322D',
     mode: 'train',
+    every: 10,
     net: [['京浜急行電鉄', '空港線'], ['京浜急行電鉄', '本線']],
   },
   keihinTohoku: {
     name: 'JR Keihin-Tōhoku',
     color: '#00A0DE',
     mode: 'train',
+    every: 4,
     net: [[JRE, '東海道線'], [JRE, '東北線']],
   },
   yamanote: {
     name: 'JR Yamanote',
     color: '#80BC33',
     mode: 'train',
+    every: 4,
     net: [[JRE, '山手線'], [JRE, '東北線'], [JRE, '東海道線']],
   },
   chuoSobu: {
     name: 'JR Chūō-Sōbu',
     color: '#E5AC00',
     mode: 'train',
+    every: 4,
     net: [[JRE, '総武線'], [JRE, '中央線']],
   },
   ginza: {
     name: 'Ginza Line',
     color: '#F39700',
     mode: 'subway',
+    every: 3,
     net: [['東京地下鉄', '3号線銀座線']],
   },
   romancecar: {
@@ -80,15 +91,17 @@ export const LINES = {
     name: 'Hakone Tozan',
     color: '#D23A3A',
     mode: 'train',
+    every: 15,
     net: [['箱根登山鉄道', '鉄道線']],
   },
   hakoneCable: {
     name: 'Cáp treo kéo Sōunzan',
     color: '#E9792B',
     mode: 'cable',
+    every: 15,
     net: [['箱根登山鉄道', '鋼索線']],
   },
-  hakoneRopeway: { name: 'Hakone Ropeway', color: '#8A5CD0', mode: 'ropeway' },
+  hakoneRopeway: { name: 'Hakone Ropeway', color: '#8A5CD0', mode: 'ropeway', every: 1 },
   ashiCruise: { name: 'Thuyền hồ Ashi', color: '#0E9FB0', mode: 'cruise' },
   tozanBus: { name: 'Hakone Tozan Bus (H)', color: '#2F9E62', mode: 'bus' },
   tokaido: {
@@ -105,30 +118,34 @@ export const LINES = {
   },
   kintetsu: { name: 'Kintetsu', color: '#C8323F', mode: 'train', net: kintetsuNet },
   shimakaze: { name: 'Kintetsu Shimakaze', color: '#3A6FD9', mode: 'train', net: kintetsuNet },
-  mieBus: { name: 'Mie Kotsu bus 51/55', color: '#2F9E62', mode: 'bus' },
+  mieBus: { name: 'Mie Kotsu bus 51/55', color: '#2F9E62', mode: 'bus', every: 15 },
   tobaFerry: { name: 'Phà thị chính Toba', color: '#0E9FB0', mode: 'ferry' },
   karasuma: {
     name: 'Karasuma Line',
     color: '#2E9C5A',
     mode: 'subway',
+    every: 5,
     net: [['京都市', '烏丸線']],
   },
   tozai: {
     name: 'Tōzai Line',
     color: '#E0572C',
     mode: 'subway',
+    every: 6,
     net: [['京都市', '東西線']],
   },
   keihan: {
     name: 'Keihan',
     color: '#1E8A55',
     mode: 'train',
+    every: 6,
     net: [['京阪電気鉄道', '京阪本線'], ['京阪電気鉄道', '鴨東線']],
   },
   hankyu: {
     name: 'Hankyu',
     color: '#8C1D2E',
     mode: 'train',
+    every: 10,
     net: [['阪急電鉄', '京都線'], ['阪急電鉄', '嵐山線']],
   },
   kyotoBus: { name: 'Kyoto Bus 94', color: '#2F9E62', mode: 'bus' },
@@ -136,6 +153,7 @@ export const LINES = {
     name: 'Midōsuji Line',
     color: '#E5171F',
     mode: 'subway',
+    every: 3,
     net: [['大阪市高速電気軌道', '1号線(御堂筋線)']],
   },
   // Kawaguchiko alternative day: Fuji Excursion runs JR Chūō then Fujikyu without a change
@@ -151,7 +169,7 @@ export const LINES = {
     mode: 'train',
     net: [['富士山麓電気鉄道', '大月線'], ['富士山麓電気鉄道', '河口湖線']],
   },
-  kawaguchikoBus: { name: 'Xe buýt quanh hồ Kawaguchi', color: '#2F9E62', mode: 'bus' },
+  kawaguchikoBus: { name: 'Xe buýt quanh hồ Kawaguchi', color: '#2F9E62', mode: 'bus', every: 15 },
   nankai: {
     name: 'Nankai Airport Express',
     color: '#E15A26',

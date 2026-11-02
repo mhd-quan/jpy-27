@@ -5,31 +5,49 @@ import Testing
 @Suite struct ReplanTests {
     let store = Bundle_.store
     var day2: Day { store.day("2")! }
+    var day4: Day { store.day("4")! }
+    var day10: Day { store.day("10")! }
 
     @Test func onTimeNeedsNothing() {
-        // 14:50 at Sumida as planned, Umezono still ahead: Ginza Line 16:15 is reachable
-        let o = PlanEngine.Options.live(from: 15, now: 14 * 60 + 50)
-        #expect(PlanEngine(store: store).replan(day2, o) == nil)
+        // 10:00 at Tōdai-ji as planned: Kasuga Taisha fits before the 12:30 table at AWA
+        let o = PlanEngine.Options.live(from: 8, now: 10 * 60)
+        #expect(PlanEngine(store: store).replan(day10, o) == nil)
     }
 
-    @Test func lateDropsTheOptionalSweetShop() throws {
-        // 15:40 and still at Sumida: keeping Umezono misses the 16:15 train
-        let o = PlanEngine.Options.live(from: 15, now: 15 * 60 + 40)
-        let r = try #require(PlanEngine(store: store).replan(day2, o))
-        #expect(r.target == 19)
+    @Test func lateDropsTheOptionalShrine() throws {
+        // 11:20 and still at Tōdai-ji: keeping Kasuga Taisha misses the booked lunch
+        let o = PlanEngine.Options.live(from: 8, now: 11 * 60 + 20)
+        let r = try #require(PlanEngine(store: store).replan(day10, o))
+        #expect(r.target == 11)
         #expect(r.lateBy > 0)
         #expect(r.works)
-        #expect(r.drop.contains(17), "drops Umezono, got \(r.drop)")
+        #expect(r.drop.contains(9), "drops Kasuga Taisha, got \(r.drop)")
     }
 
     @Test func atTheDepartureWithNothingLeftToDrop() throws {
-        // 16:05, nothing marked, a kilometre from Asakusa: the clock has the day at the Ginza Line
-        // itself, with no stop before it left to drop. This trapped on `1 ... 0`.
-        let o = PlanEngine.Options.live(from: 19, now: 16 * 60 + 5, toReach: 16)
-        let r = try #require(PlanEngine(store: store).replan(day2, o))
-        #expect(r.target == 19)
+        // 7:40, a quarter of an hour from Shinjuku, the Romancecar 7:37 itself next: no stop before
+        // it left to drop. A replan with no candidates trapped on `1 ... 0`.
+        let o = PlanEngine.Options.live(from: 2, now: 7 * 60 + 40, toReach: 16)
+        let r = try #require(PlanEngine(store: store).replan(day4, o))
+        #expect(r.target == 2)
         #expect(r.drop.isEmpty)
         #expect(!r.works)
+    }
+
+    @Test func aMetroWithATimeIsNotADeparture() throws {
+        let engine = PlanEngine(store: store)
+        // the Ginza Line runs every few minutes; the Romancecar is a reserved seat
+        #expect(!engine.isHard(day2.items[19]))
+        #expect(engine.isHard(day4.items[2]))
+        // late at Sumida, nothing on day 2 is worth dropping a stop for: the next train comes
+        #expect(engine.replan(day2, .live(from: 15, now: 15 * 60 + 40)) == nil)
+        // a live projection takes the next train, waiting half the interval, not the planned one
+        let slot = try #require(engine.simulate(day2, .live(from: 19, now: 16 * 60)).first { $0.index == 19 })
+        #expect(slot.begin == 16 * 60)
+        #expect(slot.end == Double(16 * 60 + 15) + 1.5)
+        // and no Time Sensitive "leave now" for it
+        let reminders = ReminderPlanner(store: store).reminders(for: day2)
+        #expect(!reminders.contains { $0.kind == .departure })
     }
 
     @Test func standingAtAStopHoldsTheDayThere() throws {
@@ -41,9 +59,8 @@ import Testing
         #expect(it.cursor(day2, done: [], now: now, position: sensoji.coordinate) == 14)
         let p = it.project(day2, done: [], now: now, position: sensoji.coordinate)
         #expect(p.cursor == 14)
-        // from there the 16:15 is at risk, and the advice is about it
-        let r = try #require(p.replan, "replan: \(String(describing: p.replan))")
-        #expect(r.target == 19, "\(r)")
+        // late by the plan, but nothing ahead will not wait: no stop to give up
+        #expect(p.replan == nil, "replan: \(String(describing: p.replan))")
     }
 
     @Test func aMorningStopPassedAtNightDoesNotRewindTheDay() throws {
@@ -73,13 +90,16 @@ import Testing
     }
 
     @Test func waypointsLeaveBeforeTheTrain() throws {
-        let points = Itinerary(store: store).waypoints(day2)
-        let ginza = try #require(points.first { $0.index == 19 })
-        #expect(ginza.kind == .departure)
-        // leave Umezono with the walk to the station and three minutes in hand, not earlier
-        let walk = try #require(day2.items[18].move?.leg.walk)
-        #expect(ginza.setOff == Double(16 * 60 + 15 - walk.min) - Itinerary.margin)
-        #expect(points.contains { $0.placeID == "owariya" })
+        let day7 = try #require(store.day("7"))
+        let points = Itinerary(store: store).waypoints(day7)
+        let shimakaze = try #require(points.first { $0.index == 13 })
+        #expect(shimakaze.kind == .departure)
+        // leave Sazanami with the walk to the station and three minutes in hand, not earlier
+        let walk = try #require(day7.items[12].move?.leg.walk)
+        #expect(shimakaze.setOff == Double(15 * 60 + 20 - walk.min) - Itinerary.margin)
+        #expect(points.contains { $0.placeID == "sazanami-toba" })
+        // the subway that evening is no departure to leave for
+        #expect(!points.contains { $0.index == 15 })
     }
 
     @Test func phaseAcrossTheTrip() {
@@ -253,7 +273,10 @@ import Testing
         }
         let f2 = FencePlanner(store: store).fences(today: days[1], cursor: 0, tomorrow: days[2])
         #expect(f2.contains { $0.placeID == "owariya" && $0.kind == .food })
-        #expect(f2.contains { $0.kind == .station })
+        // day 2's only timed ride is the Ginza Line: no station to be warned at
+        #expect(!f2.contains { $0.kind == .station })
+        let f4 = FencePlanner(store: store).fences(today: days[3], cursor: 0, tomorrow: days[4])
+        #expect(f4.contains { $0.placeID == "st-shinjuku-odakyu" && $0.kind == .station })
     }
 
     @Test func journalMarksVisitedLateAndSkipped() throws {
@@ -294,6 +317,73 @@ import Testing
         let f = FencePlanner(store: store).fences(today: days[1], cursor: 0, tomorrow: days[2])
         #expect(!f.isEmpty)
         #expect(f.allSatisfy { $0.radius >= 150 })
+    }
+
+    @Test func oneStayMarksTheStopItIsAt() throws {
+        let it = Itinerary(store: store)
+        let day6 = try #require(store.day("6"))
+        let akafuku = try #require(store.place("akafuku"))
+        let fukusuke = try #require(store.place("fukusuke"))
+        // Fukusuke (9) comes first in the plan and is 51 m away; a stay at Akafuku is Akafuku's
+        #expect(Geo.km(akafuku.coordinate, fukusuke.coordinate) < 0.15)
+        #expect(it.stop(at: akafuku.coordinate, in: day6, done: []) == 12)
+        // reported again on leaving, with Akafuku marked: still Akafuku, so nothing new is marked
+        #expect(it.stop(at: akafuku.coordinate, in: day6, done: [12]) == 12)
+        #expect(it.stop(at: fukusuke.coordinate, in: day6, done: [12]) == 9)
+        // far from every stop: none
+        #expect(it.stop(at: Coordinate(34.5, 136.5), in: day6, done: []) == nil)
+    }
+
+    @Test func aPlaceVisitedTwiceTakesItsVisitsInOrder() throws {
+        let it = Itinerary(store: store)
+        let day8 = try #require(store.day("8"))
+        let wargo = try #require(store.place("wargo-gion"))
+        #expect(it.stop(at: wargo.coordinate, in: day8, done: []) == 5)
+        #expect(it.stop(at: wargo.coordinate, in: day8, done: [5]) == 12)
+    }
+
+    @Test func theJournalGivesEachStayToOneStop() throws {
+        let day6 = try #require(store.day("6"))
+        let akafuku = try #require(store.place("akafuku"))
+        let noon = try #require(TripTime.date(day6.date, minutes: 12 * 60))
+        let stay = VisitRecord(arrival: noon, departure: noon.addingTimeInterval(1800), coordinate: akafuku.coordinate)
+        let journal = Journal(store: store, day: day6, visits: [stay], marked: [:], now: noon.addingTimeInterval(4 * 3600))
+        let visited = journal.entries.filter { if case .visited = $0.status { true } else { false } }.map(\.index)
+        #expect(visited == [12])
+    }
+
+    @Test func oneDefinitionOfBeingThere() throws {
+        let sensoji = try #require(store.place("sensoji"))
+        let owariya = try #require(store.place("owariya"))
+        #expect(Presence.radius(of: sensoji) == 0.25)
+        #expect(Presence.radius(of: owariya) == 0.15)
+        #expect(FencePlanner.radius(owariya) == 150)
+    }
+
+    @Test func wakeAlarmsOnlyOnLongTrainRides() throws {
+        let wake = WakePlanner(store: store)
+        let worth = Set((store.trip.days.flatMap { store.rides(on: $0) }).filter(wake.isWorthAnAlarm).map(\.id))
+        #expect(worth == ["r-4-romancecar-st-shinjuku-odakyu", "r-5-tokaido-st-odawara", "r-5-kintetsu-st-kintetsu-nagoya",
+                          "r-7-shimakaze-st-toba", "r-10-kintetsu-st-kintetsu-nara"], "\(worth.sorted())")
+        // the pirate ship, the Toba ferry, buses: never
+        #expect(!worth.contains { $0.contains("Cruise") || $0.contains("Ferry") || $0.contains("Bus") })
+        #expect(TripTime.statedMaxMinutes("55–80") == 80)
+        #expect(TripTime.statedMaxMinutes("1 giờ 40") == 100)
+        #expect(TripTime.statedMaxMinutes("20–25, đổi tàu") == 25)
+    }
+
+    @Test func tomorrowsEarlyTrainIsSetTheEveningBefore() throws {
+        let wake = WakePlanner(store: store)
+        let days = store.days()
+        let evening = try #require(TripTime.date(days[2].date, minutes: 21 * 60))
+        let wakes = wake.wakes(days: days, now: evening) { _, _ in false }
+        let romancecar = try #require(wakes.first { $0.rideID == "r-4-romancecar-st-shinjuku-odakyu" })
+        // 7:37 plus 105 minutes, four before
+        #expect(romancecar.at == TripTime.date(days[3].date, minutes: 7 * 60 + 37 + 105 - 4))
+        #expect(!romancecar.station.isEmpty)
+        // a ride already taken wants no alarm
+        let taken = wake.wakes(days: days, now: evening) { day, _ in day.key == "4" }
+        #expect(!taken.contains { $0.rideID == romancecar.rideID })
     }
 
     @Test func oneSlowLegDoesNotDecideThePace() {

@@ -32,12 +32,11 @@ public struct FencePlanner: Sendable {
     public let store: TripStore
     public var limit = 20
 
-    /// Metres. Apple promises no better than about 100–200 m for a circle in a city, and a 60–90 m
-    /// circle between Tokyo's towers either never fires or fires once you have walked past the door:
-    /// a little early ("Owariya is round the corner, order the tempura soba") beats too late.
-    public static let placeRadius = 150.0
-    /// a station's entrances spread over a block or more
-    public static let stationRadius = 220.0
+    /// Metres: the place's `Presence` circle. Apple promises no better than about 100–200 m for a
+    /// circle in a city, and a 60–90 m circle between Tokyo's towers either never fires or fires
+    /// once you have walked past the door: a little early ("Owariya is round the corner, order the
+    /// tempura soba") beats too late.
+    public static func radius(_ place: Place) -> Double { Presence.radius(of: place) * 1000 }
 
     public init(store: TripStore) {
         self.store = store
@@ -54,20 +53,20 @@ public struct FencePlanner: Sendable {
         }
         let itinerary = Itinerary(store: store)
         for (i, s) in today.stops where i >= cursor {
-            if let p = store.place(s.place), p.kind == .food { add(p, .food, today, i, radius: Self.placeRadius) }
+            if let p = store.place(s.place), p.kind == .food { add(p, .food, today, i, radius: Self.radius(p)) }
         }
         for a in today.along {
-            if let p = store.place(a.place), p.snack != nil || p.menu != nil { add(p, .snack, today, nil, radius: Self.placeRadius) }
+            if let p = store.place(a.place), p.snack != nil || p.menu != nil { add(p, .snack, today, nil, radius: Self.radius(p)) }
         }
         var i = cursor
         while let dep = itinerary.nextDeparture(today, cursor: i) {
-            if let p = store.place(dep.move.leg.from) { add(p, .station, today, dep.index, radius: Self.stationRadius) }
+            if let p = store.place(dep.move.leg.from) { add(p, .station, today, dep.index, radius: Self.radius(p)) }
             i = dep.index + 1
         }
-        if let stay = store.place(today.stay) { add(stay, .stay, today, nil, radius: Self.placeRadius) }
+        if let stay = store.place(today.stay) { add(stay, .stay, today, nil, radius: Self.radius(stay)) }
         if let tomorrow {
             for (i, s) in tomorrow.stops {
-                if let p = store.place(s.place), p.kind == .food { add(p, .food, tomorrow, i, radius: Self.placeRadius) }
+                if let p = store.place(s.place), p.kind == .food { add(p, .food, tomorrow, i, radius: Self.radius(p)) }
             }
         }
         return out
@@ -144,17 +143,25 @@ public struct Journal: Sendable {
         let midnight = TripTime.midnight(day.date) ?? now
         let dayVisits = VisitRecord.merged(visits).filter { $0.arrival >= midnight.addingTimeInterval(4 * 3600) && $0.arrival < midnight.addingTimeInterval(28 * 3600) }
             .sorted { $0.arrival < $1.arrival }
-        var used = Set<Int>()
         var entries: [Entry] = []
         let projected = PlanEngine(store: store).simulate(day)
-        for (i, s) in day.stops {
-            guard let p = store.place(s.place), p.kind != .station else { continue }
-            let radius = p.kind == .sight ? 0.25 : 0.15
-            let visitIndex = dayVisits.indices.first { !used.contains($0) && Geo.km(dayVisits[$0].coordinate, p.coordinate) <= radius }
+        // each stay counts for the stop nearest to it, so one stay never fills two neighbours (Maruzen
+        // and Tamai are 87 m apart); a place the day comes back to takes its stays in order
+        let stops = day.stops.compactMap { i, s -> (index: Int, stop: Stop, place: Place)? in
+            guard let p = store.place(s.place), p.kind != .station else { return nil }
+            return (i, s, p)
+        }
+        var visitAt: [Int: Int] = [:]
+        for v in dayVisits.indices {
+            guard let id = Presence.nearest(dayVisits[v].coordinate, among: stops.map { ($0.place.id, $0.place) }),
+                  let i = stops.first(where: { $0.place.id == id && visitAt[$0.index] == nil })?.index else { continue }
+            visitAt[i] = v
+        }
+        let used = Set(visitAt.values)
+        for (i, s, p) in stops {
             let arrival: Date?
             var departure: Date?
-            if let v = visitIndex {
-                used.insert(v)
+            if let v = visitAt[i] {
                 arrival = min(dayVisits[v].arrival, marked[i] ?? .distantFuture)
                 departure = dayVisits[v].departure
             } else {
@@ -176,8 +183,7 @@ public struct Journal: Sendable {
         extras = dayVisits.indices.filter { !used.contains($0) }.compactMap { k in
             let v = dayVisits[k]
             if let d = v.departure, d.timeIntervalSince(v.arrival) < 10 * 60 { return nil }
-            let near = store.trip.places.min { Geo.km($0.coordinate, v.coordinate) < Geo.km($1.coordinate, v.coordinate) }
-            return Extra(visit: v, place: near.flatMap { Geo.km($0.coordinate, v.coordinate) <= 0.2 ? $0 : nil })
+            return Extra(visit: v, place: Presence.nearest(v.coordinate, among: store.trip.places.map { ($0, $0) }))
         }
     }
 }

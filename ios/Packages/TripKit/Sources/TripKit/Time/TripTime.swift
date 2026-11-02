@@ -68,6 +68,15 @@ public enum TripTime {
         if let m = s.firstMatch(of: /\d+/) { return Int(m.0) }
         return nil
     }
+
+    /// The longest a stated time can be: 45 for "35–45", 100 for "1 giờ 40", the lower bound
+    /// when only one is given.
+    public static func statedMaxMinutes(_ s: String?) -> Int? {
+        guard let s, let low = statedMinutes(s) else { return nil }
+        if s.contains("giờ") { return low }
+        if let m = s.firstMatch(of: /^\s*\d+\s*[–-]\s*(\d+)/), let high = Int(m.1) { return max(low, high) }
+        return low
+    }
 }
 
 /// Vietnamese number and money formatting, the way the site writes it.

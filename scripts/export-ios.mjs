@@ -207,7 +207,7 @@ const rideOut = (r) => ({
   researched: r.researched,
 });
 
-const lines = Object.fromEntries(Object.entries(LINES).map(([k, l]) => [k, { name: l.name, color: l.color, mode: l.mode }]));
+const lines = Object.fromEntries(Object.entries(LINES).map(([k, l]) => [k, { name: l.name, color: l.color, mode: l.mode, every: l.every }]));
 
 const trip = clean({
   version: 1,

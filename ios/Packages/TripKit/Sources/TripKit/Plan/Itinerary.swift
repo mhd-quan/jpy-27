@@ -97,23 +97,28 @@ public struct Itinerary: Sendable {
         let ceiling = (clock ..< day.items.count).first { engine.isHard(day.items[$0]) } ?? (day.items.count - 1)
         guard floor <= ceiling else { return clock }
         let ends = Dictionary(slots.map { ($0.index, $0.end) }, uniquingKeysWith: { a, _ in a })
-        var best: (index: Int, ratio: Double)?
+        var candidates: [(Int, Place)] = []
         for i in floor ... ceiling where !done.contains(i) && !skips.contains(i) {
             guard case .stop(let s) = day.items[i], let p = store.place(s.place), p.kind != .station else { continue }
             // a stop the plan left more than two hours ago is not where the day stands, even when
             // the evening walk passes it again
             if let end = ends[i], end < now - 120 { continue }
-            let radius = Self.atRadius(p)
-            let ratio = Geo.km(p.coordinate, position) / radius
-            // nearest relative to the place's size; on a tie, the later stop
-            if ratio <= 1, best.map({ ratio <= $0.ratio }) ?? true { best = (i, ratio) }
+            candidates.append((i, p))
         }
-        return best?.index ?? clock
+        // the nearest stop you are at; latest first, so a place the day comes back to counts as the return
+        return Presence.nearest(position, among: candidates.reversed()) ?? clock
     }
 
-    /// How close counts as being at a place, km: temple grounds and parks are wide, a counter is not.
-    public static func atRadius(_ p: Place) -> Double {
-        p.kind == .sight ? 0.25 : 0.12
+    /// The stop a stay at `position` belongs to, from item `from` on: the nearest of the day's
+    /// stops whose `Presence` circle holds it, done or not, so that a second report of a stay at
+    /// a stop already marked never marks its neighbour. A place the day comes back to is its first
+    /// visit not yet done.
+    public func stop(at position: Coordinate, in day: Day, from: Int = 0, done: Set<Int>) -> Int? {
+        let candidates = day.stops
+            .filter { $0.index >= from }
+            .compactMap { i, s in store.place(s.place).map { (i, $0) } }
+            .sorted { (done.contains($0.0) ? 1 : 0, $0.0) < (done.contains($1.0) ? 1 : 0, $1.0) }
+        return Presence.nearest(position, among: candidates)
     }
 
     /// The next waypoint at or after the cursor.
