@@ -212,83 +212,92 @@ struct TripMap: UIViewRepresentable {
             map.setVisibleCoordinateBounds(bounds, edgePadding: parent.insets, animated: animated, completionHandler: nil)
         }
 
+        /// Draws the content. The sources and layers are made once per style load; after that a
+        /// change only hands the sources new shapes, which MapLibre re-tiles off the main thread,
+        /// instead of tearing the style down and rebuilding it (that stalled the map, and the
+        /// panel over it, every time the timeline moved on).
         func apply(_ content: MapContent, to map: MLNMapView) {
             guard let style = map.style, content != applied else { return }
+            if sources.isEmpty { build(style) }
+            let old = applied
             applied = content
-            for id in layers { if let l = style.layer(withIdentifier: id) { style.removeLayer(l) } }
-            for id in sources { if let s = style.source(withIdentifier: id) { style.removeSource(s) } }
-            layers = []
-            sources = []
 
-            // heat first, so routes and pins draw over it
-            if !content.heat.isEmpty {
-                let points = content.heat.map { c -> MLNPointFeature in
+            if old?.heat != content.heat, let heat = style.source(withIdentifier: "heat") as? MLNShapeSource {
+                heat.shape = MLNShapeCollectionFeature(shapes: content.heat.map { c -> MLNPointFeature in
                     let f = MLNPointFeature()
                     f.coordinate = CLLocationCoordinate2D(latitude: c.lat, longitude: c.lng)
                     return f
-                }
-                let source = MLNShapeSource(identifier: "heat", shape: MLNShapeCollectionFeature(shapes: points), options: nil)
-                style.addSource(source)
-                let layer = MLNHeatmapStyleLayer(identifier: "heat", source: source)
-                layer.heatmapRadius = NSExpression(forConstantValue: 22)
-                layer.heatmapOpacity = NSExpression(forConstantValue: 0.75)
-                layer.heatmapIntensity = NSExpression(forConstantValue: 0.8)
-                style.addLayer(layer)
-                sources.append("heat")
-                layers.append("heat")
+                })
             }
 
-            // one layer per look: a day has a handful of line colours
-            let groups = Dictionary(grouping: content.routes) { "\($0.color)|\($0.width)|\($0.dashed)|\($0.opacity)" }
-            for (key, routes) in groups.sorted(by: { $0.key < $1.key }) {
-                let id = "route-\(abs(key.hashValue))"
-                let lines = routes.compactMap { r -> MLNPolylineFeature? in
+            if old?.routes != content.routes, let routes = style.source(withIdentifier: "routes") as? MLNShapeSource {
+                routes.shape = MLNShapeCollectionFeature(shapes: content.routes.compactMap { r -> MLNPolylineFeature? in
                     var coords = r.points.map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lng) }
                     guard coords.count > 1 else { return nil }
-                    return MLNPolylineFeature(coordinates: &coords, count: UInt(coords.count))
-                }
-                guard let first = routes.first, !lines.isEmpty else { continue }
-                let source = MLNShapeSource(identifier: id, shape: MLNShapeCollectionFeature(shapes: lines), options: nil)
-                style.addSource(source)
-                // a light casing under coloured lines keeps them readable on the basemap
-                if !first.dashed {
-                    let casing = MLNLineStyleLayer(identifier: id + "-case", source: source)
-                    casing.lineColor = NSExpression(forConstantValue: dark ? UIColor.black.withAlphaComponent(0.6) : UIColor.white)
-                    casing.lineWidth = NSExpression(forConstantValue: first.width + 3)
-                    casing.lineCap = NSExpression(forConstantValue: "round")
-                    casing.lineJoin = NSExpression(forConstantValue: "round")
-                    casing.lineOpacity = NSExpression(forConstantValue: first.opacity)
-                    style.addLayer(casing)
-                    layers.append(id + "-case")
-                }
-                let line = MLNLineStyleLayer(identifier: id, source: source)
-                line.lineColor = NSExpression(forConstantValue: UIColor(Color(hex: first.color)))
-                line.lineWidth = NSExpression(forConstantValue: first.width)
-                line.lineCap = NSExpression(forConstantValue: "round")
-                line.lineJoin = NSExpression(forConstantValue: "round")
-                line.lineOpacity = NSExpression(forConstantValue: first.opacity)
-                if first.dashed { line.lineDashPattern = NSExpression(forConstantValue: [0.1, 2]) }
-                style.addLayer(line)
-                sources.append(id)
-                layers.append(id)
+                    let f = MLNPolylineFeature(coordinates: &coords, count: UInt(coords.count))
+                    f.attributes = ["id": r.id, "color": r.color, "width": r.width, "opacity": r.opacity, "dashed": r.dashed ? 1 : 0]
+                    return f
+                })
             }
 
-            // pins: one circle layer per kind, numbers on the plan's stops
-            let features = content.pins.map { p -> MLNPointFeature in
-                let f = MLNPointFeature()
-                f.coordinate = CLLocationCoordinate2D(latitude: p.coordinate.lat, longitude: p.coordinate.lng)
-                var attrs: [String: Any] = ["id": p.id, "kind": p.kind.rawValue]
-                if let n = p.number { attrs["n"] = "\(n)" }
-                if let l = p.label { attrs["label"] = l }
-                if p.titled { attrs["titled"] = 1 }
-                f.attributes = attrs
-                return f
+            if old?.pins != content.pins, let pins = style.source(withIdentifier: "pins") as? MLNShapeSource {
+                pins.shape = MLNShapeCollectionFeature(shapes: content.pins.map { p -> MLNPointFeature in
+                    let f = MLNPointFeature()
+                    f.coordinate = CLLocationCoordinate2D(latitude: p.coordinate.lat, longitude: p.coordinate.lng)
+                    var attrs: [String: Any] = ["id": p.id, "kind": p.kind.rawValue]
+                    if let n = p.number { attrs["n"] = "\(n)" }
+                    if let l = p.label { attrs["label"] = l }
+                    if p.titled { attrs["titled"] = 1 }
+                    f.attributes = attrs
+                    return f
+                })
             }
-            let pinSource = MLNShapeSource(identifier: "pins", shape: MLNShapeCollectionFeature(shapes: features), options: nil)
-            style.addSource(pinSource)
-            sources.append("pins")
+        }
+
+        /// The style's own layers for the trip: heat, then routes (a light casing under solid
+        /// lines, colour, width and opacity read from each line), then pins by kind, numbers and
+        /// side-trip names.
+        private func build(_ style: MLNStyle) {
+            let empty = MLNShapeCollectionFeature(shapes: [])
+            let heat = MLNShapeSource(identifier: "heat", shape: empty, options: nil)
+            let routes = MLNShapeSource(identifier: "routes", shape: empty, options: nil)
+            let pins = MLNShapeSource(identifier: "pins", shape: empty, options: nil)
+            for source in [heat, routes, pins] { style.addSource(source) }
+            sources = ["heat", "routes", "pins"]
+
+            let heatLayer = MLNHeatmapStyleLayer(identifier: "heat", source: heat)
+            heatLayer.heatmapRadius = NSExpression(forConstantValue: 22)
+            heatLayer.heatmapOpacity = NSExpression(forConstantValue: 0.75)
+            heatLayer.heatmapIntensity = NSExpression(forConstantValue: 0.8)
+            style.addLayer(heatLayer)
+
+            let width = NSExpression(forKeyPath: "width")
+            let opacity = NSExpression(forKeyPath: "opacity")
+            let casing = MLNLineStyleLayer(identifier: "routes-case", source: routes)
+            casing.predicate = NSPredicate(format: "dashed == 0")
+            casing.lineColor = NSExpression(forConstantValue: dark ? UIColor.black.withAlphaComponent(0.6) : UIColor.white)
+            casing.lineWidth = NSExpression(format: "width + 3")
+            casing.lineOpacity = opacity
+            let solid = MLNLineStyleLayer(identifier: "routes-solid", source: routes)
+            solid.predicate = NSPredicate(format: "dashed == 0")
+            let dashed = MLNLineStyleLayer(identifier: "routes-dashed", source: routes)
+            dashed.predicate = NSPredicate(format: "dashed == 1")
+            dashed.lineDashPattern = NSExpression(forConstantValue: [0.1, 2])
+            for line in [solid, dashed] {
+                // "#RRGGBB" in the feature, made a colour by the style engine (to-color)
+                line.lineColor = NSExpression(format: "CAST(color, 'UIColor')")
+                line.lineWidth = width
+                line.lineOpacity = opacity
+            }
+            for line in [casing, solid, dashed] {
+                line.lineCap = NSExpression(forConstantValue: "round")
+                line.lineJoin = NSExpression(forConstantValue: "round")
+                style.addLayer(line)
+            }
+
+            var ids = ["heat", "routes-case", "routes-solid", "routes-dashed"]
             for kind in [MapPin.Kind.halo, .station, .along, .highlight, .snack, .fuji, .stay, .done, .stop] {
-                let layer = MLNCircleStyleLayer(identifier: "pins-\(kind.rawValue)", source: pinSource)
+                let layer = MLNCircleStyleLayer(identifier: "pins-\(kind.rawValue)", source: pins)
                 layer.predicate = NSPredicate(format: "kind == %@", kind.rawValue)
                 let look = Self.look(kind, dark: dark)
                 layer.circleColor = NSExpression(forConstantValue: look.fill)
@@ -296,9 +305,9 @@ struct TripMap: UIViewRepresentable {
                 layer.circleStrokeColor = NSExpression(forConstantValue: look.stroke)
                 layer.circleStrokeWidth = NSExpression(forConstantValue: look.strokeWidth)
                 style.addLayer(layer)
-                layers.append(layer.identifier)
+                ids.append(layer.identifier)
             }
-            let numbers = MLNSymbolStyleLayer(identifier: "pins-numbers", source: pinSource)
+            let numbers = MLNSymbolStyleLayer(identifier: "pins-numbers", source: pins)
             numbers.predicate = NSPredicate(format: "n != nil")
             numbers.text = NSExpression(forKeyPath: "n")
             numbers.textFontNames = NSExpression(forConstantValue: ["Noto Sans Bold"])
@@ -307,10 +316,9 @@ struct TripMap: UIViewRepresentable {
             numbers.textAllowsOverlap = NSExpression(forConstantValue: true)
             numbers.textIgnoresPlacement = NSExpression(forConstantValue: true)
             style.addLayer(numbers)
-            layers.append("pins-numbers")
 
             // names beside the side trips, so the map says what can be tapped
-            let titles = MLNSymbolStyleLayer(identifier: "pins-titles", source: pinSource)
+            let titles = MLNSymbolStyleLayer(identifier: "pins-titles", source: pins)
             titles.predicate = NSPredicate(format: "titled == 1")
             titles.text = NSExpression(forKeyPath: "label")
             titles.textFontNames = NSExpression(forConstantValue: ["Noto Sans Bold"])
@@ -322,7 +330,7 @@ struct TripMap: UIViewRepresentable {
             titles.textOffset = NSExpression(forConstantValue: NSValue(cgVector: CGVector(dx: 0.9, dy: 0)))
             titles.maximumTextWidth = NSExpression(forConstantValue: 9)
             style.addLayer(titles)
-            layers.append("pins-titles")
+            layers = ids + ["pins-numbers", "pins-titles"]
         }
 
         private static func look(_ kind: MapPin.Kind, dark: Bool) -> (fill: UIColor, stroke: UIColor, radius: Double, strokeWidth: Double) {

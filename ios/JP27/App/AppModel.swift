@@ -203,29 +203,46 @@ enum AppSheet: Identifiable, Hashable {
     }
 
     /// Recompute everything that depends on the clock, the position and what was recorded.
+    ///
+    /// Runs every 20 seconds, so it only writes what changed: every write to an observed property
+    /// redraws the views that read it, whether or not the value is new. The clock moves on the
+    /// minute (nothing shows seconds).
     func refresh(reschedule: Bool) {
-        now = Shared.now
-        days = store.days(choosing: alternatives)
-        phase = itinerary.phase(at: now, days: days)
+        let t = Shared.now
+        if reschedule || Int(t.timeIntervalSince1970 / 60) != Int(now.timeIntervalSince1970 / 60) { now = t }
+        let chosen = store.days(choosing: alternatives)
+        if chosen.map(\.key) != days.map(\.key) { days = chosen }
+        let p = itinerary.phase(at: now, days: days)
+        if Self.signature(p) != Self.signature(phase) { phase = p }
         project()
         if reschedule { rescheduleAll() }
     }
 
+    private static func signature(_ p: TripPhase) -> String {
+        switch p {
+        case .before(let days, let first): "before \(days) \(first.key)"
+        case .during(let d): "during \(d.key)"
+        case .after: "after"
+        }
+    }
+
     private func project() {
         guard let day = today, let minutes = TripTime.minutes(of: now, on: day.date) else {
-            cursor = 0
-            projection = []
-            replan = nil
-            next = nil
+            if cursor != 0 { cursor = 0 }
+            if !projection.isEmpty { projection = [] }
+            if replan != nil { replan = nil }
+            if next != nil { next = nil }
             publishSnapshot(force: false)
             return
         }
         let done = Set(marks[day.key]?.keys.map { $0 } ?? [])
         let result = itinerary.project(day, done: done, now: minutes, position: position, pace: pace.factor, skips: skips[day.key] ?? [])
-        cursor = itinerary.cursor(day, done: done, now: minutes)
-        projection = result.slots
-        replan = result.replan
-        next = itinerary.next(day, cursor: cursor)
+        let c = itinerary.cursor(day, done: done, now: minutes)
+        if c != cursor { cursor = c }
+        if result.slots != projection { projection = result.slots }
+        if result.replan != replan { replan = result.replan }
+        let n = itinerary.next(day, cursor: cursor)
+        if n != next { next = n }
         autoStartRide(day, minutes: minutes)
         live.update(model: self)
         publishSnapshot(force: false)

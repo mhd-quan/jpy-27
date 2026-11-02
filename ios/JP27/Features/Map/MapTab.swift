@@ -21,26 +21,31 @@ struct MapTab: View {
     @State private var camera: MapCamera?
     @State private var cameraSeq = 0
     @State private var jump: MapJump?
-    /// the person moved the map: leave it where they put it for a few seconds
-    @State private var userMovedAt = Date.distantPast
+    /// when the person last moved the map (leave it where they put it for a few seconds), kept
+    /// out of the view's state so a pan does not redraw the tab
+    @State private var touch = MapTouch()
+    @State private var cache = MapSidesCache()
 
     private var day: Day { dayKey.flatMap { model.store.day($0) } ?? model.focusDay }
 
     var body: some View {
         let day = self.day
-        let sides = MapGuide.sides(for: day, store: model.store, pace: model.pace.factor)
+        let sides = cache.sides(for: day, store: model.store, pace: model.pace.factor)
         GeometryReader { geo in
             let safe = geo.safeAreaInsets
             let panel = stage.height(in: geo.size.height, header: header)
+            // the map's clear area is fixed at the middle height: moving the panel moves nothing
+            // in the map, so a drag or a snap costs the map no work at all
+            let clear = MapPanelStage.medium.height(in: geo.size.height, header: header)
             ZStack(alignment: .bottom) {
                 TripMap(
                     content: content(day, sides: sides),
                     insets: UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 64),
                     frameID: day.key,
-                    chrome: UIEdgeInsets(top: safe.top + MapDayStrip.height + 8, left: 0, bottom: safe.bottom + panel + 6, right: 0),
+                    chrome: UIEdgeInsets(top: safe.top + MapDayStrip.height + 8, left: 0, bottom: safe.bottom + clear + 6, right: 0),
                     camera: camera,
                     onSelect: { tapped($0, day: day, sides: sides) },
-                    onUserMove: { userMovedAt = .now }
+                    onUserMove: { [touch] in touch.movedAt = .now }
                 )
                 .ignoresSafeArea()
 
@@ -66,6 +71,7 @@ struct MapTab: View {
                         side: side,
                         bottomMargin: MapPanelStage.large.height(in: geo.size.height, header: header) - panel + 16,
                         jump: jump,
+                        stage: stage,
                         next: nextDay(after: day),
                         onRead: { read($0, day: day) },
                         onTap: { activate($0, day: day, scroll: false) },
@@ -97,6 +103,16 @@ struct MapTab: View {
             followToday()
         }
         .onChange(of: model.mapFocus) { consumeFocus() }
+        // the map does not follow the list behind a full panel; it catches up once the panel is
+        // down and has settled
+        .onChange(of: stage) { old, new in
+            guard old == .large, new != .large else { return }
+            let day = self.day
+            Task {
+                try? await Task.sleep(for: .milliseconds(380))
+                fly(day, to: active, force: false)
+            }
+        }
         .onChange(of: model.mapDay) { consumeDay() }
         .sensoryFeedback(.selection, trigger: side)
         .sensoryFeedback(.impact(weight: .medium), trigger: day.key)
@@ -152,12 +168,12 @@ struct MapTab: View {
             active = i
             side = nil
         }
-        fly(day, to: i, force: false)
+        if stage != .large { fly(day, to: i, force: false) }
     }
 
     /// A row or a stop was tapped: that is a request, so the map moves even if it was just handled.
     private func activate(_ i: Int, day: Day, scroll: Bool) {
-        userMovedAt = .distantPast
+        touch.movedAt = .distantPast
         withAnimation(.smooth(duration: 0.25)) {
             active = i
             side = nil
@@ -167,7 +183,7 @@ struct MapTab: View {
     }
 
     private func fly(_ day: Day, to i: Int?, force: Bool) {
-        guard force || Date.now.timeIntervalSince(userMovedAt) > 4 else { return }
+        guard force || Date.now.timeIntervalSince(touch.movedAt) > 4 else { return }
         guard let i, day.items.indices.contains(i) else {
             move(.fit(MapContent.day(day, model: model, along: false).outline))
             return
@@ -201,7 +217,7 @@ struct MapTab: View {
     /// The stop and the place off the plan, and the way between, in view.
     private func showSide(_ day: Day) {
         guard let id = side, let p = model.store.place(id) else { return }
-        userMovedAt = .distantPast
+        touch.movedAt = .distantPast
         if let from = anchorPlace(day), from.id != id {
             move(.fit([from.coordinate, p.coordinate]))
         } else {
@@ -228,7 +244,7 @@ struct MapTab: View {
             jump = nil
         }
         // the map frames the new day itself (its frameID is the day)
-        userMovedAt = .distantPast
+        touch.movedAt = .distantPast
     }
 
     private func nextDay(after day: Day) -> Day? {
@@ -245,7 +261,7 @@ struct MapTab: View {
             active = nil
             side = nil
         }
-        userMovedAt = .distantPast
+        touch.movedAt = .distantPast
         move(.fit(MapContent.day(day, model: model, along: false).outline))
     }
 
@@ -254,7 +270,7 @@ struct MapTab: View {
             model.location.requestWhenInUse()
             return
         }
-        userMovedAt = .now
+        touch.movedAt = .now
         move(.center(p, zoom: 15.5))
     }
 
@@ -284,6 +300,27 @@ struct MapTab: View {
             withAnimation(.snappy) { side = id }
             showSide(day)
         }
+    }
+}
+
+/// When the map was last moved by hand.
+final class MapTouch {
+    var movedAt = Date.distantPast
+}
+
+/// The side trips of the day on show, worked out once per day rather than on every redraw.
+final class MapSidesCache {
+    private var key = ""
+    private var pace = 0.0
+    private var value: [Int: [MapSide]] = [:]
+
+    func sides(for day: Day, store: TripStore, pace: Double) -> [Int: [MapSide]] {
+        if key != day.key || self.pace != pace {
+            key = day.key
+            self.pace = pace
+            value = MapGuide.sides(for: day, store: store, pace: pace)
+        }
+        return value
     }
 }
 
@@ -733,6 +770,7 @@ private struct MapTimeline: View {
     let side: String?
     let bottomMargin: CGFloat
     let jump: MapJump?
+    let stage: MapPanelStage
     let next: Day?
     let onRead: (Int?) -> Void
     let onTap: (Int) -> Void
@@ -784,6 +822,10 @@ private struct MapTimeline: View {
             }
             .onAppear {
                 if let j = jump { proxy.scrollTo(j.index, anchor: UnitPoint(x: 0.5, y: 0.12)) }
+            }
+            // the visible part changes while the panel moves; the reading waits for it to settle
+            .onChange(of: stage) {
+                frames.pausedUntil = .now.addingTimeInterval(0.5)
             }
             .sensoryFeedback(.impact(weight: .light), trigger: armed) { _, on in on }
         }

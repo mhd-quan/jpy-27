@@ -49,6 +49,8 @@ private struct HomeCover: View {
     let days: Int
     @State private var page: Int? = 0
     @State private var risen = false
+    /// the photographs are on screen: off it, nothing turns or drifts
+    @State private var visible = true
 
     static let height: CGFloat = 520
 
@@ -81,9 +83,9 @@ private struct HomeCover: View {
         .onAppear {
             withAnimation(.smooth(duration: 0.7).delay(0.1)) { risen = true }
         }
-        // a new photograph every few seconds; a swipe restarts the wait
-        .task(id: page) {
-            guard !reduceMotion, shots.count > 1 else { return }
+        // a new photograph every few seconds while the cover is in view; a swipe restarts the wait
+        .task(id: "\(page ?? 0)-\(visible)") {
+            guard visible, !reduceMotion, shots.count > 1 else { return }
             try? await Task.sleep(for: .seconds(6))
             guard !Task.isCancelled else { return }
             withAnimation(.smooth(duration: 0.9)) { page = ((page ?? 0) + 1) % shots.count }
@@ -100,7 +102,7 @@ private struct HomeCover: View {
                         Button {
                             model.present(.place(shots[i].place.id), from: "home.cover.\(i)")
                         } label: {
-                            HomeCoverPhoto(photo: shots[i].photo, current: current == i)
+                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible)
                         }
                         .buttonStyle(.plain)
                         .containerRelativeFrame(.horizontal)
@@ -114,6 +116,7 @@ private struct HomeCover: View {
             .scrollTargetBehavior(.paging)
             .scrollPosition(id: $page)
             .scrollIndicators(.hidden)
+            .onScrollVisibilityChange(threshold: 0.15) { visible = $0 }
             // pulled down, the photograph grows instead of leaving a gap above it
             .visualEffect { content, proxy in
                 let y = proxy.frame(in: .scrollView(axis: .vertical)).minY
@@ -463,7 +466,8 @@ private struct HomeDayCard: View {
             RouteSpark(day: day, store: model.store, weight: 2)
                 .frame(width: 84, height: 60)
                 .padding(6)
-                .background(.thinMaterial, in: .rect(cornerRadius: 14, style: .continuous))
+                // solid, not a material: twelve live blurs in a sliding row cost every frame
+                .background(Palette.paper.opacity(0.9), in: .rect(cornerRadius: 14, style: .continuous))
                 .padding(12)
                 .padding(.top, 4)
         }
@@ -651,7 +655,7 @@ private struct HomeMealCard: View {
                         .font(.caption.weight(.bold))
                         .padding(.horizontal, 9)
                         .padding(.vertical, 4)
-                        .background(.thinMaterial, in: .capsule)
+                        .background(Palette.paper.opacity(0.9), in: .capsule)
                         .padding(10)
                 }
             Text(meal.place.name)
