@@ -744,7 +744,7 @@ private struct MapTimeline: View {
     @State private var armed = false
     @State private var pulled = false
 
-    private static let space = "map.timeline"
+    private nonisolated static let space = "map.timeline"
 
     var body: some View {
         ScrollViewReader { proxy in
