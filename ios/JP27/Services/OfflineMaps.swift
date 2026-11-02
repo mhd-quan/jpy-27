@@ -84,12 +84,11 @@ import TripKit
         complete.remove(area.id)
     }
 
-    /// MapLibre posts pack progress on the main thread.
-    @objc nonisolated private func packProgress(_ note: Notification) {
-        MainActor.assumeIsolated {
-            guard let pack = note.object as? MLNOfflinePack, let id = Self.areaID(pack) else { return }
-            record(pack, id: id)
-        }
+    /// MapLibre posts pack progress on the main queue (MLNOfflinePack hops there before posting),
+    /// so this stays on the main actor and the notification never crosses to it.
+    @objc private func packProgress(_ note: Notification) {
+        guard let pack = note.object as? MLNOfflinePack, let id = Self.areaID(pack) else { return }
+        record(pack, id: id)
     }
 
     private func record(_ pack: MLNOfflinePack, id: String) {

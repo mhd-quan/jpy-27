@@ -30,7 +30,7 @@ struct JP27App: App {
         }
     }
 
-    static let refreshID = "tech.delphyra.jp27.refresh"
+    nonisolated static let refreshID = "tech.delphyra.jp27.refresh"
 
     /// Keep reminders rolling and the widget current while the app sleeps.
     nonisolated static func scheduleRefresh() {

@@ -278,16 +278,26 @@ enum TalkSymbols {
         let jobs = queue
         queue = []
         if !jobs.isEmpty {
-            let requests = jobs.map { TranslationSession.Request(sourceText: $0.text, clientIdentifier: $0.id) }
             do {
-                for response in try await session.translations(from: requests) {
-                    if let id = response.clientIdentifier { results[id] = response.targetText }
-                }
+                results.merge(try await TalkBatch.translate(jobs, with: session)) { _, new in new }
             } catch {
                 failed.formUnion(jobs.map { $0.id })
             }
         }
         await refreshStatus()
+    }
+}
+
+/// The batch call itself, off the main actor: the requests are made here and never belong to it,
+/// and only plain strings come back.
+private nonisolated enum TalkBatch {
+    @concurrent static func translate(_ jobs: [(id: String, text: String)], with session: TranslationSession) async throws -> [String: String] {
+        let requests = jobs.map { TranslationSession.Request(sourceText: $0.text, clientIdentifier: $0.id) }
+        var out: [String: String] = [:]
+        for response in try await session.translations(from: requests) {
+            if let id = response.clientIdentifier { out[id] = response.targetText }
+        }
+        return out
     }
 }
 

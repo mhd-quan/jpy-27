@@ -1,4 +1,7 @@
-import ActivityKit
+// Activity is not marked Sendable, yet update(_:) and end(_:dismissalPolicy:) run off the main
+// actor, so Swift 6 rejects every call from it (Apple's own Live Activity code makes the same
+// calls). ActivityKit serialises updates to an activity itself; accept its missing annotations.
+@preconcurrency import ActivityKit
 import Foundation
 import Observation
 import TripKit
