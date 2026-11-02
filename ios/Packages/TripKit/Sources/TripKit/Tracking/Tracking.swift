@@ -16,6 +16,16 @@ public struct Fence: Sendable, Hashable, Identifiable {
     public let day: String
     /// item index on that day, for planned stops and departures
     public let index: Int?
+
+    /// The app rebuilds fences from what it stored when it registered them with `CLMonitor`.
+    public init(placeID: String, kind: Kind, center: Coordinate, radius: Double, day: String, index: Int?) {
+        self.placeID = placeID
+        self.kind = kind
+        self.center = center
+        self.radius = radius
+        self.day = day
+        self.index = index
+    }
 }
 
 public struct FencePlanner: Sendable {

@@ -23,11 +23,13 @@ struct ListenView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 CloseButton()
-                // hide the item itself, so the bar morphs instead of leaving an empty slot
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Xoá", systemImage: "trash") { listener?.clear() }
+                // leave the item out (ToolbarContent.hidden is not on iOS), so the bar morphs
+                // instead of keeping an empty slot
+                if let listener, !listener.sentences.isEmpty {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Xoá", systemImage: "trash") { listener.clear() }
+                    }
                 }
-                .hidden(listener?.sentences.isEmpty ?? true)
             }
             // a bar, not an inset: the transcript scrolls under the button and fades out there
             .safeAreaBar(edge: .bottom) {
