@@ -71,7 +71,7 @@ extension View {
     /// position it is bound to, the way a wheel clicks through its rows. A scroll the code makes
     /// (a cover that turns by itself, cards that follow another control) is quiet. Goes on the
     /// scroll view; `position` is what its scroll position is bound to.
-    func pickOnSettle<Position: Equatable>(_ position: Position) -> some View {
+    func feelsPages<Position: Equatable>(_ position: Position) -> some View {
         modifier(SettlePick(position: position))
     }
 }
