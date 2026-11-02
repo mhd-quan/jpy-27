@@ -150,8 +150,8 @@ struct TripMap: UIViewRepresentable {
         var focusID = 0
         var cameraID: Int?
         private var applied: MapContent?
-        private var layers: [String] = []
-        private var sources: [String] = []
+        /// the style holds the trip's sources and layers (made once per style load)
+        private var built = false
         private let pinLayers = MapPin.Kind.allCases.filter { $0 != .halo }.map { "pins-\($0.rawValue)" } + ["pins-titles"]
 
         init(parent: TripMap, dark: Bool) {
@@ -175,8 +175,7 @@ struct TripMap: UIViewRepresentable {
             MainActor.assumeIsolated {
                 loaded = true
                 applied = nil
-                layers = []
-                sources = []
+                built = false
                 apply(parent.content, to: mapView)
                 if let camera = parent.camera {
                     cameraID = camera.id
@@ -238,11 +237,11 @@ struct TripMap: UIViewRepresentable {
         /// panel over it, every time the timeline moved on).
         func apply(_ content: MapContent, to map: MLNMapView) {
             guard let style = map.style, content != applied else { return }
-            if sources.isEmpty { build(style) }
+            if !built { build(style) }
             let old = applied
             applied = content
 
-            if old?.heat != content.heat, let heat = style.source(withIdentifier: "heat") as? MLNShapeSource {
+            if old?.heat != content.heat, let heat = heatSource(in: style, needed: !content.heat.isEmpty) {
                 heat.shape = MLNShapeCollectionFeature(shapes: content.heat.map { c -> MLNPointFeature in
                     let f = MLNPointFeature()
                     f.coordinate = CLLocationCoordinate2D(latitude: c.lat, longitude: c.lng)
@@ -274,22 +273,35 @@ struct TripMap: UIViewRepresentable {
             }
         }
 
-        /// The style's own layers for the trip: heat, then routes (a light casing under solid
-        /// lines, colour, width and opacity read from each line), then pins by kind, numbers and
-        /// side-trip names.
+        /// The heat of the walked trail (the journal's map), made the first time a map has some: a
+        /// heatmap draws into a texture of its own on every frame, so the maps without heat, the
+        /// Map tab's among them, carry no heatmap layer at all. Nil while none is needed.
+        private func heatSource(in style: MLNStyle, needed: Bool) -> MLNShapeSource? {
+            if let made = style.source(withIdentifier: "heat") as? MLNShapeSource { return made }
+            guard needed else { return nil }
+            let heat = MLNShapeSource(identifier: "heat", shape: MLNShapeCollectionFeature(shapes: []), options: nil)
+            style.addSource(heat)
+            let layer = MLNHeatmapStyleLayer(identifier: "heat", source: heat)
+            layer.heatmapRadius = NSExpression(forConstantValue: 22)
+            layer.heatmapOpacity = NSExpression(forConstantValue: 0.75)
+            layer.heatmapIntensity = NSExpression(forConstantValue: 0.8)
+            // under the routes, as the trail is under the plan
+            if let routes = style.layer(withIdentifier: "routes-case") {
+                style.insertLayer(layer, below: routes)
+            } else {
+                style.addLayer(layer)
+            }
+            return heat
+        }
+
+        /// The style's own layers for the trip: routes (a light casing under solid lines, colour,
+        /// width and opacity read from each line), then pins by kind, numbers and side-trip names.
         private func build(_ style: MLNStyle) {
             let empty = MLNShapeCollectionFeature(shapes: [])
-            let heat = MLNShapeSource(identifier: "heat", shape: empty, options: nil)
             let routes = MLNShapeSource(identifier: "routes", shape: empty, options: nil)
             let pins = MLNShapeSource(identifier: "pins", shape: empty, options: nil)
-            for source in [heat, routes, pins] { style.addSource(source) }
-            sources = ["heat", "routes", "pins"]
-
-            let heatLayer = MLNHeatmapStyleLayer(identifier: "heat", source: heat)
-            heatLayer.heatmapRadius = NSExpression(forConstantValue: 22)
-            heatLayer.heatmapOpacity = NSExpression(forConstantValue: 0.75)
-            heatLayer.heatmapIntensity = NSExpression(forConstantValue: 0.8)
-            style.addLayer(heatLayer)
+            for source in [routes, pins] { style.addSource(source) }
+            built = true
 
             let width = NSExpression(forKeyPath: "width")
             let opacity = NSExpression(forKeyPath: "opacity")
@@ -315,7 +327,6 @@ struct TripMap: UIViewRepresentable {
                 style.addLayer(line)
             }
 
-            var ids = ["heat", "routes-case", "routes-solid", "routes-dashed"]
             for kind in [MapPin.Kind.halo, .station, .along, .highlight, .snack, .fuji, .stay, .done, .stop] {
                 let layer = MLNCircleStyleLayer(identifier: "pins-\(kind.rawValue)", source: pins)
                 layer.predicate = NSPredicate(format: "kind == %@", kind.rawValue)
@@ -325,7 +336,6 @@ struct TripMap: UIViewRepresentable {
                 layer.circleStrokeColor = NSExpression(forConstantValue: look.stroke)
                 layer.circleStrokeWidth = NSExpression(forConstantValue: look.strokeWidth)
                 style.addLayer(layer)
-                ids.append(layer.identifier)
             }
             let numbers = MLNSymbolStyleLayer(identifier: "pins-numbers", source: pins)
             numbers.predicate = NSPredicate(format: "n != nil")
@@ -350,7 +360,6 @@ struct TripMap: UIViewRepresentable {
             titles.textOffset = NSExpression(forConstantValue: NSValue(cgVector: CGVector(dx: 0.9, dy: 0)))
             titles.maximumTextWidth = NSExpression(forConstantValue: 9)
             style.addLayer(titles)
-            layers = ids + ["pins-numbers", "pins-titles"]
         }
 
         private static func look(_ kind: MapPin.Kind, dark: Bool) -> (fill: UIColor, stroke: UIColor, radius: Double, strokeWidth: Double) {

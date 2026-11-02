@@ -138,5 +138,9 @@ schemes:
         JP27Widgets: all
     run:
       config: Debug
+      # MapLibre draws with Metal, in many small draw calls; the Metal API validation Xcode turns on
+      # for a run checks each one on the CPU, so a map run from Xcode moves slower than the app does
+      # on its own. Turn it back on (Edit Scheme, Run, Diagnostics) when chasing a Metal error.
+      enableGPUValidationMode: false
     test:
       config: Debug
