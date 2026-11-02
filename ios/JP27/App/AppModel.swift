@@ -77,6 +77,8 @@ enum AppSheet: Identifiable, Hashable {
     let offline = OfflineMaps()
     let photos = PhotoLibrary()
     let network = NetworkStatus()
+    /// the two phones' ledgers as one, while both are open near each other
+    let ledgerSync = LedgerSync()
 
     // navigation
     var tab: AppTab = .today
@@ -190,11 +192,13 @@ enum AppSheet: Identifiable, Hashable {
             await OfflineMaps.checkPinnedTiles()
         }
         offline.configure(store: store)
+        ledgerSync.activate(context: context)
     }
 
     func deactivate() {
         clockTask?.cancel()
         clockTask = nil
+        ledgerSync.deactivate()
         publishSnapshot(force: true)
     }
 

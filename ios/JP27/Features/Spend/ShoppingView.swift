@@ -160,7 +160,10 @@ struct ShoppingView: View {
         if purchase != nil {
             let linked: String? = id
             try? context.delete(model: Purchase.self, where: #Predicate { $0.itemID == id })
-            try? context.delete(model: Expense.self, where: #Predicate { $0.itemID == linked })
+            // through the ledger, so the other phone drops the expense too
+            for e in (try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.itemID == linked }))) ?? [] {
+                Ledger.delete(e, in: context)
+            }
             try? context.save()
         } else {
             buying = SpendBuyItem(id: id, name: name, yen: yen, qty: qty, source: source)

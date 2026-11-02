@@ -18,11 +18,24 @@ struct SpendTab: View {
     @State private var topup: PayMethod?
     @State private var importing = false
     @State private var merged: String?
+    @State private var syncing = false
+    @State private var editing: Expense?
+    /// bumped when a pair is kept apart (stored outside SwiftData), to ask again
+    @State private var keptTick = 0
 
     var body: some View {
         @Bindable var model = model
         NavigationStack(path: $model.spendPath) {
             List {
+                if let asking = model.ledgerSync.asking {
+                    Section {
+                        SpendPairCard(name: asking.name)
+                            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                }
+
                 Section {
                     SpendDial(expenses: expenses, today: todaySpent)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
@@ -36,14 +49,39 @@ struct SpendTab: View {
                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 10, trailing: 0))
                     SpendShortcuts(budget: model.guide.budget.total, owned: ownedCount, items: model.guide.basket.items.count)
                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                    if model.ledgerSync.enabled || !model.ledgerSync.paired.isEmpty {
+                        SpendSyncLine { syncing = true }
+                            .listRowInsets(EdgeInsets(top: 2, leading: 0, bottom: 4, trailing: 0))
+                    }
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
 
+                let pairs = duplicates(keptTick)
+                if !pairs.isEmpty {
+                    Section {
+                        ForEach(pairs) { pair in
+                            SpendDuplicateCard(pair: pair) { gone in
+                                if let gone { delete(gone) } else { Ledger.keepApart(pair.a.id, pair.b.id, in: context) }
+                                keptTick += 1
+                            }
+                        }
+                    } header: {
+                        Text("Có thể ghi trùng")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .textCase(nil)
+                    } footer: {
+                        Text("Hai máy cùng ghi một chỗ trong cùng buổi. Bỏ một khoản nếu đó là một lần trả.")
+                    }
+                }
+
                 ForEach(groups, id: \.date) { group in
                     Section {
                         ForEach(group.items) { e in
-                            SpendLedgerRow(expense: e)
+                            Button { editing = e } label: { SpendLedgerRow(expense: e).contentShape(.rect) }
+                                .buttonStyle(.plain)
+                                .accessibilityHint("Sửa khoản chi")
                                 .swipeActions {
                                     Button("Xoá", systemImage: "trash", role: .destructive) { delete(e) }
                                 }
@@ -68,10 +106,13 @@ struct SpendTab: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        ShareLink(item: SpendLedgerFile(expenses: expenses, store: model.store), preview: SharePreview("Sổ chi JP27")) {
-                            Label("Xuất sổ chi (CSV)", systemImage: "square.and.arrow.up")
+                        Button("Đồng bộ với máy kia", systemImage: "iphone.radiowaves.left.and.right") { syncing = true }
+                        Section("Dự phòng bằng file") {
+                            ShareLink(item: SpendLedgerFile(expenses: expenses, store: model.store), preview: SharePreview("Sổ chi JP27")) {
+                                Label("Xuất sổ chi (CSV)", systemImage: "square.and.arrow.up")
+                            }
+                            Button("Gộp file sổ chi", systemImage: "arrow.triangle.merge") { importing = true }
                         }
-                        Button("Gộp sổ từ máy kia", systemImage: "arrow.triangle.merge") { importing = true }
                     } label: {
                         Label("Sổ chi", systemImage: "ellipsis")
                     }
@@ -81,19 +122,24 @@ struct SpendTab: View {
                     model.present(.expense(placeID: nil, yen: nil), from: "spend.add")
                 }
             }
-            // the other phone's ledger, sent as its CSV: rows this phone lacks are added, counted in
-            // the budget but not in this phone's purses
+            // the other phone's ledger as its CSV, when the phones cannot meet: merged by the same
+            // rules as the sync; the other phone's rows count in the budget, not in this phone's purses
             .fileImporter(isPresented: $importing, allowedContentTypes: [.commaSeparatedText, .plainText]) { result in
                 guard case .success(let url) = result else { return }
                 do {
-                    let n = try SpendLedgerFile.merge(url, into: context)
-                    merged = n == 0 ? "Không có khoản nào mới: sổ này đã có đủ." : "Đã gộp \(n) khoản từ máy kia."
+                    merged = try SpendLedgerFile.merge(url, into: context).summary
                 } catch {
                     merged = "Không đọc được file: \(error.localizedDescription)"
                 }
             }
             .alert(merged ?? "", isPresented: Binding(get: { merged != nil }, set: { if !$0 { merged = nil } })) {
                 Button("OK", role: .cancel) {}
+            }
+            .sheet(isPresented: $syncing) {
+                LedgerSyncSheet()
+            }
+            .sheet(item: $editing) { e in
+                ExpenseEditor(placeID: nil, yen: nil, editing: e)
             }
             .sheet(item: $topup) { method in
                 SpendTopupSheet(method: method)
@@ -148,8 +194,21 @@ struct SpendTab: View {
     }
 
     private func delete(_ e: Expense) {
-        context.delete(e)
+        Ledger.delete(e, in: context)
         try? context.save()
+    }
+
+    /// Rows of the two phones that may be one expense logged twice; asked only once both phones'
+    /// rows are here. `tick` is only there to be read: kept pairs live outside SwiftData.
+    private func duplicates(_ tick: Int) -> [SpendDuplicatePair] {
+        guard expenses.contains(where: { $0.device != nil }) else { return [] }
+        let me = SpendLedgerFile.installID
+        let state = LedgerState(records: expenses.map { $0.record(me: me) }, kept: Ledger.kept)
+        let byID = Dictionary(expenses.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        return LedgerMerge.nearDuplicates(state).compactMap { p in
+            guard let a = byID[p.a], let b = byID[p.b] else { return nil }
+            return SpendDuplicatePair(a: a, b: b)
+        }
     }
 }
 

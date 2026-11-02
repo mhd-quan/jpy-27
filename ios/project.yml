@@ -97,6 +97,9 @@ targets:
         NSSpeechRecognitionUsageDescription: Chuyển lời nói tiếng Nhật thành chữ ngay trên máy để dịch.
         NSPhotoLibraryUsageDescription: Gắn ảnh bạn chụp vào nhật ký từng điểm dừng theo giờ và nơi chụp.
         NSAlarmKitUsageDescription: Báo thức trước ga cần xuống, kể cả khi điện thoại đang im lặng.
+        NSLocalNetworkUsageDescription: Tìm máy của bạn đồng hành đang mở JP27 ở gần để hai máy dùng chung một sổ chi, qua Wi‑Fi trực tiếp giữa hai máy, không cần mạng.
+        NSBonjourServices: [_jp27-sync._tcp, _jp27-sync._udp]
+        NSNearbyInteractionUsageDescription: Biết khi hai máy chạm vào nhau để đồng bộ sổ chi ngay.
         NSUserActivityTypes: [tech.delphyra.jp27.place]
 
   JP27Widgets:

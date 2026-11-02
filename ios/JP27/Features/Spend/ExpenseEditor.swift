@@ -11,6 +11,8 @@ struct ExpenseEditor: View {
     @Environment(\.dismiss) private var dismiss
     let placeID: String?
     let yen: Int?
+    /// an expense already logged, to change (on either phone: the later edit wins when they sync)
+    var editing: Expense? = nil
 
     @State private var value = 0
     @State private var category: SpendCategory = .food
@@ -56,7 +58,7 @@ struct ExpenseEditor: View {
             .animation(.snappy, value: writing)
             .background(Palette.paper)
             .progressiveEdges()
-            .navigationTitle("Ghi chi")
+            .navigationTitle(editing == nil ? "Ghi chi" : "Sửa khoản chi")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -70,7 +72,8 @@ struct ExpenseEditor: View {
             .sensoryFeedback(.success, trigger: saved)
             .onAppear(perform: setUp)
             .onChange(of: place) { _, id in
-                guard ready, let p = model.store.place(id) else { return }
+                // a new expense takes the kind and the way to pay from its place; an edit keeps its own
+                guard ready, editing == nil, let p = model.store.place(id) else { return }
                 withAnimation(.snappy) {
                     category = SpendCategory.of(p)
                     method = Self.method(for: p)
@@ -206,6 +209,17 @@ struct ExpenseEditor: View {
 
     private func setUp() {
         guard !ready else { return }
+        if let e = editing {
+            value = e.yen
+            category = e.spendCategory
+            method = e.payMethod
+            dayKey = e.day
+            place = e.placeID
+            placeName = e.placeName ?? ""
+            note = e.note
+            ready = true
+            return
+        }
         if let yen, yen > 0 { value = min(yen, 9_999_999) }
         place = placeID ?? nearestPlanned()
         let p = model.store.place(place)
@@ -236,6 +250,20 @@ struct ExpenseEditor: View {
     private func save() {
         guard value > 0 else { return }
         let name = placeName.trimmingCharacters(in: .whitespaces)
+        if let e = editing {
+            e.yen = value
+            e.category = category.rawValue
+            e.method = method.rawValue
+            e.placeID = place
+            e.placeName = place == nil && !name.isEmpty ? name : nil
+            e.day = dayKey
+            e.note = note.trimmingCharacters(in: .whitespaces)
+            e.touch()
+            try? model.context.save()
+            saved.toggle()
+            dismiss()
+            return
+        }
         model.logExpense(yen: value, category: category, method: method, placeID: place,
                          placeName: place == nil && !name.isEmpty ? name : nil, day: dayKey,
                          note: note.trimmingCharacters(in: .whitespaces))

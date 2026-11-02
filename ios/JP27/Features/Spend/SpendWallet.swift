@@ -240,10 +240,11 @@ private struct SpendKeyStyle: ButtonStyle {
 
 // MARK: - The ledger as a file
 
-/// The ledger as CSV: to keep (Numbers, Excel, a backup off the phone) and to merge the two
-/// phones' ledgers. Each phone logs for the party, but the phones do not sync (no iCloud on a
-/// personal signing team), so one sends its file (AirDrop, Messages) and the other merges it:
-/// rows are keyed by the expense's id, so merging twice, or merging back, never counts one twice.
+/// The ledger as CSV: to keep (Numbers, Excel, a backup off the phone), and to merge the other
+/// phone's when the two cannot meet (`LedgerSync` does it by itself when they can). Merging follows
+/// `LedgerMerge`: rows are keyed by the expense's id, so merging twice never counts one twice; an edit
+/// newer than this phone's copy replaces it; a meal logged on both phones is folded into one. A file
+/// carries no deletions: a row deleted on the other phone stays here until the phones meet.
 nonisolated struct SpendLedgerFile: Transferable, Sendable {
     let csv: String
 
@@ -253,7 +254,7 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
             .suggestedFileName("JP27-so-chi.csv")
     }
 
-    static let header = ["id", "luc", "ngay", "gio", "yen", "khoan", "ten_khoan", "tra", "place_id", "cho", "ghi_chu", "may"]
+    static let header = ["id", "luc", "ngay", "gio", "yen", "khoan", "ten_khoan", "tra", "place_id", "cho", "ghi_chu", "may", "sua"]
 
     /// This install, so a file merged back is recognised as this phone's own rows.
     @MainActor static var installID: String {
@@ -264,7 +265,7 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
     }
 
     @MainActor init(expenses: [Expense], store: TripStore) {
-        let iso = ISO8601DateFormatter()
+        let iso = Self.iso
         let me = Self.installID
         var rows = [Self.header]
         for e in expenses.sorted(by: { $0.at < $1.at }) {
@@ -272,6 +273,7 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
                 e.id.uuidString, iso.string(from: e.at), e.day ?? "", TripTime.clock(e.at), String(e.yen),
                 e.category, e.spendCategory.label, e.method, e.placeID ?? "",
                 store.place(e.placeID)?.name ?? e.placeName ?? "", e.note, e.device ?? me,
+                e.updatedAt.map(iso.string(from:)) ?? "",
             ])
         }
         csv = rows.map { $0.map(Self.field).joined(separator: ",") }.joined(separator: "\r\n") + "\r\n"
@@ -281,47 +283,73 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
         s.contains(where: { ",\"\n\r".contains($0) }) ? "\"" + s.replacingOccurrences(of: "\"", with: "\"\"") + "\"" : s
     }
 
-    /// Adds the rows of a ledger file that this phone does not have yet; returns how many.
-    @MainActor static func merge(_ url: URL, into context: ModelContext) throws -> Int {
+    /// What merging a file did.
+    struct Outcome {
+        var added = 0
+        var updated = 0
+        var folded = 0
+
+        var summary: String {
+            var parts: [String] = []
+            if added > 0 { parts.append("thêm \(added) khoản") }
+            if updated > 0 { parts.append("cập nhật \(updated) khoản") }
+            if folded > 0 { parts.append("gộp \(folded) khoản ghi trùng") }
+            return parts.isEmpty ? "Sổ đã có đủ các khoản trong file." : "Đã " + parts.joined(separator: ", ") + "."
+        }
+    }
+
+    /// Times to the millisecond, so an edit made a moment after another still reads as later.
+    nonisolated(unsafe) private static let iso: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    private static func date(_ s: String?) -> Date? {
+        guard let s else { return nil }
+        return iso.date(from: s) ?? ISO8601DateFormatter().date(from: s)
+    }
+
+    /// Merges a ledger file into this phone's ledger.
+    @MainActor static func merge(_ url: URL, into context: ModelContext) throws -> Outcome {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         var text = try String(contentsOf: url, encoding: .utf8)
         if text.hasPrefix("\u{FEFF}") { text.removeFirst() }
         let rows = parse(text)
-        guard let head = rows.first else { return 0 }
+        guard let head = rows.first else { return Outcome() }
         let col = Dictionary(head.enumerated().map { ($1, $0) }, uniquingKeysWith: { a, _ in a })
         func value(_ row: [String], _ name: String) -> String? {
             guard let i = col[name], row.indices.contains(i) else { return nil }
             let v = row[i].trimmingCharacters(in: .whitespaces)
             return v.isEmpty ? nil : v
         }
-        let iso = ISO8601DateFormatter()
-        let me = installID
-        var added = 0
+        var records: [LedgerRecord] = []
         for row in rows.dropFirst() {
             guard let idText = value(row, "id"), let id = UUID(uuidString: idText),
-                  let at = value(row, "luc").flatMap(iso.date(from:)),
+                  let at = date(value(row, "luc")),
                   let yen = value(row, "yen").flatMap(Int.init), yen > 0
             else { continue }
-            guard ((try? context.fetchCount(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }))) ?? 0) == 0 else { continue }
             let place = value(row, "place_id")
-            let e = Expense(
-                yen: yen,
-                category: value(row, "khoan").flatMap(SpendCategory.init(rawValue:)) ?? .extra,
-                method: value(row, "tra").flatMap(PayMethod.init(rawValue:)) ?? .cash,
+            records.append(LedgerRecord(
+                id: id, yen: yen,
+                category: value(row, "khoan").flatMap(SpendCategory.init(rawValue:))?.rawValue ?? SpendCategory.extra.rawValue,
+                method: value(row, "tra").flatMap(PayMethod.init(rawValue:))?.rawValue ?? PayMethod.cash.rawValue,
                 placeID: place,
                 placeName: place == nil ? value(row, "cho") : nil,
                 day: value(row, "ngay"),
                 note: value(row, "ghi_chu") ?? "",
-                at: at)
-            e.id = id
-            let device = value(row, "may")
-            e.device = device == me ? nil : (device ?? "other")
-            context.insert(e)
-            added += 1
+                at: at,
+                updatedAt: date(value(row, "sua")),
+                origin: value(row, "may") ?? "other"))
         }
-        try context.save()
-        return added
+        let before = Set(Ledger.state(context).records.map(\.id))
+        let (_, changes) = Ledger.merge(LedgerState(records: records), into: context)
+        var outcome = Outcome(folded: changes.folded.count)
+        for r in changes.upserts {
+            if before.contains(r.id) { outcome.updated += 1 } else { outcome.added += 1 }
+        }
+        return outcome
     }
 
     /// RFC 4180: quoted fields may hold commas, quotes (doubled) and line breaks.
