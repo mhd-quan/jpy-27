@@ -194,7 +194,7 @@ struct MenuScanView: View {
                 } label: {
                     Label("Ghi món này", systemImage: "yensign")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.pressable(.bordered))
                 .controlSize(.small)
                 .sheetSource("scan.\(scanID).\(m.line)")
             }

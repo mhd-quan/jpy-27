@@ -135,15 +135,17 @@ Một bộ từ duy nhất, đặt tên theo điều vừa xảy ra chứ không
 
 | Tên | Là | Khi nào |
 |---|---|---|
-| `pick` | `.selection` | chọn một trong vài thứ: ngày, điểm dừng, chip vùng Fuji, hạng mục chi, chỗ ngắm, mức tỉ giá |
-| `snap` | `.impact(.soft, 0.5)` | giữ hoặc kéo đủ xa để điều gì đó xảy ra: nhấn giữ loa để đọc chậm, kéo quá cuối ngày, Fuji hiện lại trong camera sau khi tìm |
+| `press` | `.impact(.soft, 0.3)` | nhẹ nhất: thẻ, ô, chip hay nút tròn mở ra một thứ (trang, sheet, thẻ phóng to, Maps, liên kết), mở rộng một phần (Đã qua, THÊM, chỗ hay được đăng), đọc to một câu, xoay ngang thẻ chữ lớn |
+| `pick` | `.selection` | chọn một trong vài thứ: ngày, điểm dừng, chip vùng Fuji, hạng mục chi, chỗ chi tiền, chỗ ngắm, mức tỉ giá; carousel vuốt tay dừng ở thẻ hay ảnh khác |
+| `snap` | `.impact(.soft, 0.5)` | giữ hoặc kéo đủ xa để điều gì đó xảy ra: nhấn giữ loa để đọc chậm, kéo quá cuối ngày, kéo danh sách xuống đủ để thu bảng, thả bảng bản đồ ở độ cao khác, Fuji hiện lại trong camera sau khi tìm |
+| `key` | `.impact(.rigid, 0.5)` | một phím của bàn số trong app làm số tiền đổi; phím không đổi gì (0 khi chưa có số, xoá khi trống, vượt trần) thì im |
 | `done` | `.success` | một việc xong: đánh dấu điểm, đã tới, đã mua, lưu khoản chi hay nạp tiền, chép địa chỉ, đọc xong menu, ghép máy, xử lý khoản trùng |
 | `warn` | `.warning` | xong nhưng có giá: bỏ điểm để kịp lịch |
 | `fail` | `.error` | bấm mà không được: micro bị từ chối, ảnh menu không đọc ra chữ nào |
 | `notch` | `.levelChange` | thanh trượt tỉ giá chạm một mức có trong bảng, không phải mỗi bước |
-| `.start` / `.stop` | của hệ thống | bắt đầu và kết thúc việc chạy liên tục: theo dõi chuyến, micro |
+| `.start` / `.stop` | của hệ thống | bắt đầu và kết thúc việc chạy liên tục: theo dõi chuyến, micro, tải bản đồ, ảnh hay gói dịch |
 
-Quy tắc: chỉ rung khi tay người dùng gây ra một thay đổi thấy được, mỗi thay đổi một lần. Thay đổi do app tự làm (điểm tự đánh dấu khi tới, chuyến tự bắt đầu ở ga, bản đồ tự đi theo danh sách hay sang ngày mới lúc nửa đêm) thì im. Bỏ chọn, bỏ dấu cũng im. Điều khiển của hệ thống (toggle, segmented picker, menu, vuốt để xoá, chuyển tab, mở trang, mở và đóng sheet, alert) giữ cảm giác của hệ thống, không thêm gì. Nút biến mất ngay lúc bấm (băng trễ giờ, thẻ ghép máy, thẻ khoản trùng) thì rung đặt ở view cha, để vẫn kịp phát.
+Quy tắc: mọi thứ app tự vẽ để tay bấm hay vuốt đều đáp lại bằng một nhịp, chọn theo ý nghĩa, mỗi thay đổi một lần: thẻ và ô mở trang, carousel dừng ở thẻ khác, phần mở rộng ra, bàn số. Thẻ, `NavigationLink` và `Link` có được `press` nhờ `PressableStyle` (`.pressable`, `.pressable(.plain)`, `.pressable(.bordered)`…, giữ nguyên dáng cũ); nút đã có rung riêng (chọn thì `pick`) dùng `.pressable(.settle, feedback: nil)` để không rung hai lần. Carousel dùng `pickOnSettle`: rung một lần khi tay thả và nó dừng ở thẻ khác, không rung trong lúc vuốt. Không rung trong lúc ngón tay còn đang kéo hay cuộn. Thay đổi do app tự làm (điểm tự đánh dấu khi tới, chuyến tự bắt đầu ở ga, ảnh bìa tự lật, thẻ ngày tự chạy theo trạm vừa bấm, bản đồ tự đi theo danh sách hay sang ngày mới lúc nửa đêm) thì im. Bỏ chọn, bỏ dấu, thu gọn lại, dựng thẻ chữ lớn về thẳng, đóng thẻ cũng im. Điều khiển của hệ thống (toggle, segmented picker, chọn ngày, menu, ShareLink, chọn ảnh, nút trên thanh, nút đóng và xác nhận của sheet, vuốt để xoá, menu nhấn giữ, chuyển tab, kéo để làm mới, alert, la bàn và nút nghiêng của bản đồ) và các dòng thường của danh sách kiểu Cài đặt giữ cảm giác của hệ thống, không thêm gì. Nút biến mất ngay lúc bấm (băng trễ giờ, thẻ ghép máy, thẻ khoản trùng, nút Tải nhường chỗ cho vòng tiến độ) thì rung đặt ở view cha, để vẫn kịp phát.
 
 ## Liquid Glass
 

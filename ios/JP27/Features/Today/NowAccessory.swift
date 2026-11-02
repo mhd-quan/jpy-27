@@ -6,6 +6,8 @@ import TripKit
 struct NowAccessory: View {
     @Environment(AppModel.self) private var model
     @Environment(\.tabViewBottomAccessoryPlacement) private var placement
+    /// the ride sheet opened, or Today brought forward; a tap that changes nothing stays quiet
+    @State private var opened = 0
 
     private var inline: Bool { placement == .inline }
 
@@ -19,6 +21,7 @@ struct NowAccessory: View {
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .sensoryFeedback(.press, trigger: opened)
         // the ride sheet grows out of the accessory, the way Music's player grows out of its own
         .sheetSource("now")
         .animation(.smooth, value: model.live.ride?.id)
@@ -57,8 +60,10 @@ struct NowAccessory: View {
 
     private func tap() {
         if let ride = model.live.ride {
+            opened += 1
             model.present(.ride(ride.id), from: "now")
-        } else {
+        } else if model.tab != .today {
+            opened += 1
             model.tab = .today
         }
     }

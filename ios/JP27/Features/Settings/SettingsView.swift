@@ -383,6 +383,9 @@ private struct PermissionRow: View {
     let tint: Color
     let state: State
     let action: () -> Void
+    /// iOS's prompt or Settings opened; on the row, as the button leaves once access is given
+    /// (spelled out: `State` here is the row's own)
+    @SwiftUI.State private var asked = 0
 
     var body: some View {
         HStack(spacing: 12) {
@@ -398,20 +401,26 @@ private struct PermissionRow: View {
                     .foregroundStyle(.green)
                     .accessibilityLabel("Đã bật")
             case .partial(let text):
-                Button(text, action: action)
+                Button(text, action: ask)
                     .buttonStyle(.bordered)
                     .controlSize(.small)
             case .ask:
-                Button("Cho phép", action: action)
+                Button("Cho phép", action: ask)
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
             case .off:
-                Button("Mở Cài đặt", action: action)
+                Button("Mở Cài đặt", action: ask)
                     .buttonStyle(.bordered)
                     .controlSize(.small)
             }
         }
+        .sensoryFeedback(.press, trigger: asked)
         .accessibilityElement(children: .combine)
+    }
+
+    private func ask() {
+        asked += 1
+        action()
     }
 }
 
@@ -425,6 +434,7 @@ private struct PermissionRow: View {
 private struct OfflineSection: View {
     @Environment(AppModel.self) private var model
     @State private var prefetch = PrefetchProgress()
+    @State private var started = 0
 
     private var remotePhotos: [Photo] {
         let places = model.store.trip.places.flatMap(\.images)
@@ -480,16 +490,21 @@ private struct OfflineSection: View {
                 }
                 Spacer()
                 if prefetch.value == nil || prefetch.done != nil {
-                    Button(prefetch.done == nil ? "Tải" : "Tải lại") { start(photos) }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
-                        .disabled(!model.network.online)
+                    Button(prefetch.done == nil ? "Tải" : "Tải lại") {
+                        started += 1
+                        start(photos)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .disabled(!model.network.online)
                 }
             }
             if let v = prefetch.value, prefetch.done == nil {
                 ProgressView(value: v)
             }
         }
+        // on the row: the button gives way to the progress bar
+        .sensoryFeedback(.start, trigger: started)
     }
 
     private func start(_ photos: [Photo]) {
@@ -512,6 +527,8 @@ private struct AreaRow: View {
     let complete: Bool
     let download: () -> Void
     let remove: () -> Void
+    /// on the row: the button gives way to the ring
+    @State private var started = 0
 
     var body: some View {
         HStack(spacing: 12) {
@@ -536,11 +553,15 @@ private struct AreaRow: View {
                 }
                 .accessibilityLabel("Tuỳ chọn \(name)")
             } else {
-                Button("Tải", action: download)
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+                Button("Tải") {
+                    started += 1
+                    download()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
         }
+        .sensoryFeedback(.start, trigger: started)
         .accessibilityElement(children: .contain)
     }
 }

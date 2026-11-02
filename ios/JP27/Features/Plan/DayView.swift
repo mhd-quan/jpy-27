@@ -54,7 +54,7 @@ private struct PlanDayContent: View {
                                 .font(.body.weight(.semibold))
                                 .frame(maxWidth: .infinity, minHeight: 44)
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.pressable(.bordered))
                     }
                 }
                 .padding(.horizontal, Metrics.gutter)
@@ -156,7 +156,7 @@ private struct PlanDayHeader: View {
                     } label: {
                         Color.clear.contentShape(.rect)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable(.plain))
                     .accessibilityLabel("Mở bản đồ ngày \(day.n)")
                 }
             if let lead = day.lead {
@@ -182,6 +182,8 @@ private struct PlanDayTimeline: View {
     @Environment(AppModel.self) private var model
     @Environment(\.cardSurface) private var surface
     let day: Day
+    /// a stop's page opened by tapping its row
+    @State private var opened = 0
 
     var body: some View {
         // no dividers: the rail runs from the first item to the last
@@ -193,6 +195,7 @@ private struct PlanDayTimeline: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
         .background(surface ?? Palette.card, in: .rect(cornerRadius: Metrics.card, style: .continuous))
+        .sensoryFeedback(.press, trigger: opened)
     }
 
     @ViewBuilder
@@ -203,7 +206,10 @@ private struct PlanDayTimeline: View {
                 .contentShape(.rect)
                 .sheetSource("day.\(day.key).\(i)")
                 .onTapGesture {
-                    if let id = s.place { model.present(.place(id), from: "day.\(day.key).\(i)") }
+                    if let id = s.place {
+                        opened += 1
+                        model.present(.place(id), from: "day.\(day.key).\(i)")
+                    }
                 }
                 .accessibilityAction(named: "Chi tiết") {
                     if let id = s.place { model.present(.place(id), from: "day.\(day.key).\(i)") }
@@ -234,7 +240,7 @@ private struct PlanDayTimeline: View {
                 NavigationLink(value: Route.ride(ride.id)) {
                     ItemRow(day: day, index: i)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable(.plain))
             } else {
                 ItemRow(day: day, index: i)
             }
@@ -256,7 +262,7 @@ private struct PlanDayAlong: View {
                     NavigationLink(value: Route.place(pair.1.id)) {
                         PlaceRow(place: pair.1, detail: detail(pair.1), trailing: reach(pair.0))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable(.plain))
                 }
             }
         }
@@ -292,7 +298,7 @@ private struct PlanDayAlternative: View {
                     NavigationLink(value: Route.place(p.id)) {
                         PlaceRow(place: p)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable(.plain))
                 }
             }
         }
@@ -325,7 +331,7 @@ private struct PlanDayShopping: View {
                         }
                         .contentShape(.rect)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable(.plain))
                 }
             }
         }
@@ -354,7 +360,7 @@ private struct PlanDayRides: View {
                         NavigationLink(value: Route.ride(ride.id)) {
                             PlanRideRow(ride: ride)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.pressable(.plain))
                     }
                 }
             }
@@ -377,7 +383,7 @@ private struct PlanDayFuji: View {
                     Label("\(spots.count) chỗ ngắm hôm nay", systemImage: "mountain.2.fill")
                         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.pressable(.bordered))
             }
         }
     }

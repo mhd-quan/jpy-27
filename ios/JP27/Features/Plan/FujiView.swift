@@ -108,7 +108,7 @@ private struct FujiHero: View {
                 NavigationLink(value: FujiPage.map(area, focus: nil)) {
                     Color.clear.contentShape(.rect)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable(.plain))
                 .accessibilityHidden(true)
             }
         } foot: {
@@ -147,13 +147,13 @@ private struct FujiHeroActions: View {
                 NavigationLink(value: map) {
                     Label("Bản đồ 3D", systemImage: "view.3d")
                 }
-                .buttonStyle(.glass)
+                .buttonStyle(.pressable(.glass))
                 Button {
                     model.present(.fujiFinder, from: "\(source).finder")
                 } label: {
                     Label("Tìm bằng camera", systemImage: "camera.viewfinder")
                 }
-                .buttonStyle(.glass)
+                .buttonStyle(.pressable(.glass))
                 .sheetSource("\(source).finder")
             }
             .font(.subheadline.weight(.semibold))
@@ -224,6 +224,8 @@ private struct FujiSpotSection: View {
                             .foregroundStyle(.primary)
                             .frame(minHeight: 32, alignment: .leading)
                     }
+                    // unfolding answers; folding away stays quiet
+                    .sensoryFeedback(.press, trigger: showsPopular) { _, shown in shown }
                 }
             }
         }
@@ -262,7 +264,7 @@ private struct FujiSpotRow: View {
             .frame(minHeight: 44)
             .contentShape(.rect)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable(.plain))
         .sheetSource("fuji.row.\(spot.id)")
         .accessibilityElement(children: .combine)
     }
@@ -405,7 +407,7 @@ struct FujiSpotPage: View {
                                 .font(.body.weight(.semibold))
                                 .frame(maxWidth: .infinity, minHeight: 44)
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.pressable(.bordered))
                         .controlSize(.large)
                     }
                     AmbientCredit(photos: photos, page: page)

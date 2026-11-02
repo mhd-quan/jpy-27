@@ -83,7 +83,8 @@ struct SpendTopupSheet: View {
                                 .background(on ? AnyShapeStyle(SpendPurseTint.of(method)) : AnyShapeStyle(Color.primary.opacity(0.06)), in: .capsule)
                                 .contentShape(.capsule)
                         }
-                        .buttonStyle(.pressable)
+                        // the amount chosen ticks `pick` below; the same amount again stays quiet
+                        .buttonStyle(.pressable(.settle, feedback: nil))
                         .accessibilityAddTraits(on ? .isSelected : [])
                     }
                 }
@@ -158,13 +159,14 @@ struct SpendAmountDisplay: View {
 }
 
 /// A number pad drawn in the sheet itself (1–9, 000, 0, delete), so a sheet that grows out of a
-/// button stays still while it grows: no system keyboard sliding in over the zoom. The keys make no
-/// haptic of their own: the system keyboard's is a setting each person chooses, which the app
-/// cannot read, and the pad should not tap where their keyboard does not. The amount is capped
-/// below ten million yen.
+/// button stays still while it grows: no system keyboard sliding in over the zoom. Each key that
+/// changes the amount taps lightly (`key`); a key that changes nothing (0 on an empty amount,
+/// delete on nothing, a digit past the cap) stays still, so the finger feels which ones counted.
+/// The amount is capped below ten million yen.
 struct SpendKeypad: View {
     @Binding var amount: Int
     var limit = 9_999_999
+    @State private var keys = 0
 
     private static let rows: [[SpendKey]] = [
         [.digit(1), .digit(2), .digit(3)],
@@ -192,6 +194,7 @@ struct SpendKeypad: View {
                 }
             }
         }
+        .sensoryFeedback(.key, trigger: keys)
     }
 
     @ViewBuilder
@@ -222,6 +225,7 @@ struct SpendKeypad: View {
         case .delete: next = amount / 10
         }
         guard next != amount, next <= limit else { return }
+        keys += 1
         withAnimation(.snappy(duration: 0.25)) { amount = next }
     }
 }

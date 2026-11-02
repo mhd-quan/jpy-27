@@ -11,6 +11,8 @@ struct AtPlaceView: View {
     @Query private var expenses: [Expense]
     @Query private var topups: [Topup]
     @State private var shown: TalkShowItem?
+    /// the scanner or a new expense opened from the buttons at the foot
+    @State private var opened = 0
 
     var body: some View {
         Group {
@@ -66,7 +68,7 @@ struct AtPlaceView: View {
                 Button { shown = item } label: {
                     Text(ja).font(.title2.weight(.semibold)).environment(\.locale, Locale(identifier: "ja_JP"))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable(.plain))
                 .sheetSource(item.source)
                 .accessibilityHint("Hiện tên quán chữ lớn")
             }
@@ -94,7 +96,7 @@ struct AtPlaceView: View {
                             Button { shown = show } label: {
                                 DishRow(item: item).contentShape(.rect)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.pressable(.plain))
                             .sheetSource(show.source)
                         }
                     } else {
@@ -109,7 +111,7 @@ struct AtPlaceView: View {
                                 }
                                 .contentShape(.rect)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.pressable(.plain))
                             .sheetSource(show.source)
                         }
                     }
@@ -176,6 +178,7 @@ struct AtPlaceView: View {
         HStack(spacing: 12) {
             if place.menu != nil || place.kind == .food {
                 Button {
+                    opened += 1
                     model.present(.menuScan(place.id), from: "at.\(place.id).scan")
                 } label: {
                     Label("Quét menu", systemImage: "text.viewfinder").frame(maxWidth: .infinity)
@@ -184,6 +187,7 @@ struct AtPlaceView: View {
                 .sheetSource("at.\(place.id).scan")
             }
             Button {
+                opened += 1
                 model.present(.expense(placeID: place.id, yen: estimate?.mid), from: "at.\(place.id).expense")
             } label: {
                 Label("Ghi chi thật", systemImage: "yensign").frame(maxWidth: .infinity)
@@ -192,5 +196,6 @@ struct AtPlaceView: View {
             .sheetSource("at.\(place.id).expense")
         }
         .controlSize(.large)
+        .sensoryFeedback(.press, trigger: opened)
     }
 }

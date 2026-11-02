@@ -67,7 +67,7 @@ struct TalkTab: View {
                                 .frame(maxWidth: .infinity, minHeight: 72)
                                 .background(Palette.card, in: .rect(cornerRadius: 18, style: .continuous))
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.pressable(.plain))
                             .sheetSource(item.source)
                             .accessibilityLabel("\(st.romaji), \(st.ja)")
                         }
@@ -88,7 +88,7 @@ struct TalkTab: View {
                     }
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable(.plain))
         }
         .padding(.horizontal, Metrics.gutter)
         .padding(.bottom, 32)
@@ -136,7 +136,7 @@ private struct TalkActionTile: View {
             }
             .frame(maxWidth: .infinity, minHeight: 96)
         }
-        .buttonStyle(.glass)
+        .buttonStyle(.pressable(.glass))
         .buttonBorderShape(.roundedRectangle(radius: 24))
     }
 }

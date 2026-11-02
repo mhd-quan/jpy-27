@@ -56,7 +56,7 @@ struct PlanLinkChips: View {
                                 .frame(minHeight: 32)
                                 .background(.fill.tertiary, in: .capsule)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.pressable(.plain))
                         }
                     }
                 }

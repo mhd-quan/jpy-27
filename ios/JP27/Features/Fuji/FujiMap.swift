@@ -613,6 +613,8 @@ private struct FujiSpotCard: View {
     let spot: FujiGuide.Spot
     let selected: Bool
     let choose: () -> Void
+    /// the card's page opened from the card already chosen; from another card the choice ticks instead
+    @State private var opened = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -653,6 +655,7 @@ private struct FujiSpotCard: View {
                 if let role = FujiWords.role(spot) { Tag(text: role) }
                 Spacer(minLength: 0)
                 Button {
+                    if selected { opened += 1 }
                     choose()
                     model.present(.fujiSpot(spot.id, fromMap: true), from: "fuji.card.\(spot.id)")
                 } label: {
@@ -660,6 +663,7 @@ private struct FujiSpotCard: View {
                 }
                 .buttonStyle(.bordered)
                 .buttonBorderShape(.capsule)
+                .sensoryFeedback(.press, trigger: opened)
             }
         }
         .padding(14)

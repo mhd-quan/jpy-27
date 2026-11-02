@@ -275,6 +275,7 @@ private struct TodayNextCard: View {
     let day: Day
     let next: Waypoint
     @Binding var arrived: Bool
+    @State private var opened = 0
 
     private var place: Place? { model.store.place(next.placeID) }
 
@@ -385,11 +386,14 @@ private struct TodayNextCard: View {
         .sheetSource("today.next")
         .onTapGesture {
             if let ride {
+                opened += 1
                 model.present(.ride(ride.id), from: "today.next")
             } else if let id = next.placeID {
+                opened += 1
                 model.present(.place(id), from: "today.next")
             }
         }
+        .sensoryFeedback(.press, trigger: opened)
         .accessibilityElement(children: .contain)
     }
 
@@ -411,6 +415,8 @@ private struct TodayNextActions: View {
     @Binding var arrived: Bool
 
     @State private var followed = 0
+    /// Maps, the ride being followed or the order sheet opened
+    @State private var opened = 0
     @Namespace private var glass
 
     var body: some View {
@@ -420,6 +426,7 @@ private struct TodayNextActions: View {
             HStack(spacing: 10) {
                 if let id = next.placeID {
                     Button {
+                        opened += 1
                         model.walk(to: id)
                     } label: {
                         Label("Đi bộ", systemImage: "figure.walk")
@@ -432,6 +439,7 @@ private struct TodayNextActions: View {
                 if let ride {
                     if model.live.ride?.id == ride.id {
                         Button {
+                            opened += 1
                             model.present(.ride(ride.id), from: "today.ride")
                         } label: {
                             Label("Đang theo dõi", systemImage: "dot.radiowaves.left.and.right")
@@ -454,6 +462,7 @@ private struct TodayNextActions: View {
                     }
                 } else if place?.kind == .food, let id = place?.id {
                     Button {
+                        opened += 1
                         model.present(.atPlace(id), from: "today.order")
                     } label: {
                         Label("Gọi món", systemImage: "menucard.fill")
@@ -482,6 +491,7 @@ private struct TodayNextActions: View {
         .controlSize(.large)
         // on the row, not the button: following swaps the button for the tracking one
         .sensoryFeedback(.start, trigger: followed)
+        .sensoryFeedback(.press, trigger: opened)
     }
 }
 
@@ -490,6 +500,7 @@ private struct TodayTimeline: View {
     @Environment(AppModel.self) private var model
     let day: Day
     @State private var showPast = false
+    @State private var opened = 0
 
     var body: some View {
         let cursor = min(model.cursor, day.items.count)
@@ -508,6 +519,8 @@ private struct TodayTimeline: View {
                             .monospacedDigit()
                     }
                     .padding(.vertical, 8)
+                    // unfolding answers; folding away stays quiet
+                    .sensoryFeedback(.press, trigger: showPast) { _, shown in shown }
                 }
                 rows(ahead)
             }
@@ -518,8 +531,10 @@ private struct TodayTimeline: View {
                 Label("Cả ngày \(day.n)", systemImage: "list.bullet.below.rectangle")
                     .font(.subheadline.weight(.semibold))
             }
+            .buttonStyle(.pressable(.borderless))
             .padding(.leading, 4)
         }
+        .sensoryFeedback(.press, trigger: opened)
     }
 
     @ViewBuilder
@@ -539,9 +554,15 @@ private struct TodayTimeline: View {
     private func open(_ i: Int) {
         switch day.items[i] {
         case .stop(let s):
-            if let id = s.place { model.present(.place(id), from: source(i)) }
+            if let id = s.place {
+                opened += 1
+                model.present(.place(id), from: source(i))
+            }
         case .move(let m):
-            if let ride = model.store.ride(containing: m.leg.id, on: day) { model.present(.ride(ride.id), from: source(i)) }
+            if let ride = model.store.ride(containing: m.leg.id, on: day) {
+                opened += 1
+                model.present(.ride(ride.id), from: source(i))
+            }
         }
     }
 }
@@ -582,7 +603,7 @@ private struct TodayAfter: View {
                         }
                         .contentShape(.rect)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable(.plain))
                 }
             }
         }
@@ -597,6 +618,7 @@ private struct TodayAlwaysCard: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openURL) private var openURL
     @AppStorage("location.askedAlways") private var asked = false
+    @State private var pressed = 0
 
     var body: some View {
         Card {
@@ -607,9 +629,13 @@ private struct TodayAlwaysCard: View {
                     Text("Để app tự đánh dấu chỗ đã tới, báo món khi tới quán và báo ga, kể cả khi khoá máy. Lúc này app chỉ đoán bạn ở đâu theo giờ trong lịch.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Button(asked ? "Mở Cài đặt" : "Bật") { enable() }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
+                    Button(asked ? "Mở Cài đặt" : "Bật") {
+                        pressed += 1
+                        enable()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                    .sensoryFeedback(.press, trigger: pressed)
                 }
             }
         }

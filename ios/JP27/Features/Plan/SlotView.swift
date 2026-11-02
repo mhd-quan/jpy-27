@@ -51,7 +51,7 @@ private struct PlanSlotContent: View {
                                         PlaceRow(place: pair.element, detail: storeDetail(pair.element))
                                     }
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.pressable(.plain))
                             }
                         }
                     }

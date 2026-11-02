@@ -160,7 +160,7 @@ private struct ListenBubble: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .contentShape(.rect)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.pressable(.plain))
                             .sheetSource(item.source)
                             TalkSpeakButton(ja: reply.ja)
                         }

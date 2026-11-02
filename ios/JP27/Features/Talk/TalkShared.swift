@@ -58,6 +58,8 @@ struct TalkShowCard: View {
     let item: TalkShowItem
     @Environment(\.dismiss) private var dismiss
     @State private var sideways = false
+    /// read aloud, or turned sideways for the person across; standing it back up and closing stay quiet
+    @State private var pressed = 0
 
     var body: some View {
         GeometryReader { geo in
@@ -111,11 +113,17 @@ struct TalkShowCard: View {
                 }
                 .accessibilityLabel("Đóng")
                 Spacer()
-                Button { sideways.toggle() } label: {
+                Button {
+                    if !sideways { pressed += 1 }
+                    sideways.toggle()
+                } label: {
                     Image(systemName: "rotate.right").font(.title3.weight(.semibold)).frame(width: 48, height: 48)
                 }
                 .accessibilityLabel(sideways ? "Dựng thẳng" : "Xoay ngang")
-                Button { Speaker.shared.say(item.ja) } label: {
+                Button {
+                    pressed += 1
+                    Speaker.shared.say(item.ja)
+                } label: {
                     Image(systemName: "speaker.wave.2.fill").font(.title3.weight(.semibold)).frame(width: 48, height: 48)
                 }
                 .accessibilityLabel("Phát âm")
@@ -125,6 +133,7 @@ struct TalkShowCard: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 12)
+        .sensoryFeedback(.press, trigger: pressed)
     }
 }
 
@@ -132,8 +141,9 @@ struct TalkShowCard: View {
 struct TalkSpeakButton: View {
     let ja: String
     var size: CGFloat = 44
-    // a long press is felt the moment it takes, as the system's own are; a plain tap just speaks
+    // a long press is felt the moment it takes, as the system's own are; a plain tap answers lightly
     @State private var slowed = 0
+    @State private var spoken = 0
 
     var body: some View {
         let active = Speaker.shared.speaking == ja
@@ -147,13 +157,17 @@ struct TalkSpeakButton: View {
                 slowed += 1
                 Speaker.shared.say(ja, slow: true)
             }
-            .onTapGesture { Speaker.shared.say(ja) }
+            .onTapGesture {
+                spoken += 1
+                Speaker.shared.say(ja)
+            }
             .accessibilityElement()
             .accessibilityLabel("Phát âm")
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { Speaker.shared.say(ja) }
             .accessibilityAction(named: "Đọc chậm") { Speaker.shared.say(ja, slow: true) }
             .sensoryFeedback(.snap, trigger: slowed)
+            .sensoryFeedback(.press, trigger: spoken)
     }
 }
 
@@ -181,7 +195,7 @@ struct TalkPhraseRow: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(.rect)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable(.plain))
             .sheetSource(item.source)
             .accessibilityHint("Hiện chữ lớn cho nhân viên")
             TalkSpeakButton(ja: item.ja)
@@ -358,6 +372,7 @@ extension View {
 /// "Tải gói Nhật–Việt" when the pack is not on the phone yet.
 struct TalkTranslationPackRow: View {
     let translator: TalkTranslator
+    @State private var started = 0
 
     var body: some View {
         if translator.needsDownload {
@@ -366,8 +381,12 @@ struct TalkTranslationPackRow: View {
                 Text("Gói dịch Nhật–Việt chưa có trên máy, nên tải trước khi mất sóng.")
                     .font(.subheadline)
                 Spacer(minLength: 0)
-                Button("Tải") { translator.download() }
-                    .buttonStyle(.bordered)
+                Button("Tải") {
+                    started += 1
+                    translator.download()
+                }
+                .buttonStyle(.bordered)
+                .sensoryFeedback(.start, trigger: started)
             }
         } else if translator.unsupported {
             Label("Máy này chưa dịch được Nhật sang Việt.", systemImage: "exclamationmark.triangle")

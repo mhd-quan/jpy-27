@@ -359,7 +359,8 @@ private struct PlanAlightCard: View {
                             Image(systemName: "speaker.wave.2.fill")
                                 .frame(width: 44, height: 44)
                         }
-                        .buttonStyle(.bordered)
+                        // read aloud: the line answers under the finger
+                        .buttonStyle(.pressable(.bordered))
                         .clipShape(.circle)
                         .accessibilityLabel("Nghe câu thông báo")
                     }

@@ -507,7 +507,7 @@ private struct MapControls: View {
                 .frame(width: 46, height: 46)
                 .contentShape(.rect)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable(.plain))
         .accessibilityLabel(label)
     }
 }
@@ -539,6 +539,8 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
     let strip: Strip
     let content: Content
     @GestureState private var drag: CGFloat = 0
+    /// let go or tapped into another height; a drag that falls back where it was stays quiet
+    @State private var settled = 0
 
     init(stage: Binding<MapPanelStage>, containerHeight: CGFloat, headerHeight: Binding<CGFloat>,
          @ViewBuilder title: () -> Title, @ViewBuilder strip: () -> Strip, @ViewBuilder content: () -> Content) {
@@ -585,6 +587,7 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
         .padding(.horizontal, 8)
         .padding(.bottom, 6)
         .animation(.smooth(duration: 0.2), value: stage == .peek && drag > -20)
+        .sensoryFeedback(.snap, trigger: settled)
     }
 
     private var currentHeight: CGFloat {
@@ -609,11 +612,13 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
                 let target = MapPanelStage.allCases.min {
                     abs(height($0) - projected) < abs(height($1) - projected)
                 } ?? stage
+                if target != stage { settled += 1 }
                 withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) { stage = target }
             }
     }
 
     private func cycle() {
+        settled += 1
         withAnimation(.spring(response: 0.38, dampingFraction: 0.9)) {
             stage = switch stage {
             case .peek: .medium
@@ -628,6 +633,7 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
 private struct MapPanelTitle: View {
     @Environment(AppModel.self) private var model
     let day: Day
+    @State private var walked = 0
 
     /// on the day and in its part of Japan: the next place, how far
     private var nextPlace: Place? {
@@ -653,12 +659,14 @@ private struct MapPanelTitle: View {
                 .accessibilityElement(children: .combine)
                 Spacer(minLength: 8)
                 Button {
+                    walked += 1
                     model.walk(to: place.id)
                 } label: {
                     Label("Đi bộ", systemImage: "figure.walk")
                 }
                 // the panel is glass already: a solid button, not glass on glass
                 .buttonStyle(.borderedProminent)
+                .sensoryFeedback(.press, trigger: walked)
             } else {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(day.title).font(.headline).lineLimit(1)
@@ -836,6 +844,8 @@ private struct MapTimeline: View {
                 frames.pausedUntil = .now.addingTimeInterval(0.5)
             }
             .sensoryFeedback(.snap, trigger: armed) { _, on in on }
+            // pulled down far enough that letting go folds the panel away
+            .sensoryFeedback(.snap, trigger: pulled) { _, on in on }
         }
     }
 
@@ -997,6 +1007,8 @@ private struct MapSideCard: View {
     let side: MapSide?
     let from: Place?
     let close: () -> Void
+    /// Maps, the place's page or a new expense opened; closing the card stays quiet
+    @State private var opened = 0
 
     private var detail: String {
         var parts: [String] = []
@@ -1032,12 +1044,14 @@ private struct MapSideCard: View {
             }
             HStack(spacing: 8) {
                 Button {
+                    opened += 1
                     model.walk(to: place.id)
                 } label: {
                     Label("Đi bộ", systemImage: "figure.walk").frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.glassProminent)
                 Button {
+                    opened += 1
                     model.present(.place(place.id), from: "map.side.\(place.id)")
                 } label: {
                     Label("Chi tiết", systemImage: "info.circle").frame(maxWidth: .infinity)
@@ -1045,6 +1059,7 @@ private struct MapSideCard: View {
                 .buttonStyle(.glass)
                 .sheetSource("map.side.\(place.id)")
                 Button {
+                    opened += 1
                     model.present(.expense(placeID: place.id, yen: nil), from: "map.spend.\(place.id)")
                 } label: {
                     Image(systemName: "yensign")
@@ -1058,5 +1073,6 @@ private struct MapSideCard: View {
         }
         .padding(14)
         .glassEffect(.regular, in: .rect(cornerRadius: 26, style: .continuous))
+        .sensoryFeedback(.press, trigger: opened)
     }
 }

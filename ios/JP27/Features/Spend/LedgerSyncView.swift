@@ -30,7 +30,7 @@ struct SpendSyncLine: View {
             .frame(minHeight: 34)
             .contentShape(.rect)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable(.plain))
         .accessibilityHint("Mở đồng bộ với máy kia")
     }
 }

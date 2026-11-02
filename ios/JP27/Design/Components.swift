@@ -16,18 +16,27 @@ enum Metrics {
 }
 
 // Haptics, named by what happened rather than how hard it taps, so the same moment feels the same
-// on every screen. One only when the hand caused a change the eye can see, once per change: never
-// while something streams, never for a value the app set by itself. Toggles, pickers, menus, swipe
-// actions, pull to refresh, tabs, navigation and sheets keep the system's own feel and get nothing
-// added. Something that runs on until stopped (following a ride, the microphone) begins with the
-// system's .start and ends with its .stop, as they are.
+// on every screen. Everything the app draws for the hand to press or swipe answers with one, once
+// per change: never while something streams or a finger is still moving, never for a value the app
+// set by itself. The system's own controls keep their own feel and get nothing added: toggles,
+// pickers, menus, the bars' buttons, a sheet's close and confirm, swipe actions, pull to refresh,
+// tabs, alerts, and the rows of a settings-style list. Something that runs on (following a ride,
+// the microphone, a download) begins with the system's .start, and what the hand stops ends with
+// its .stop.
 extension SensoryFeedback {
+    /// The lightest touch: a card, tile, chip or round button that opens something (a page, a
+    /// sheet, a card grown large, Maps, a link), a section unfolded, a line read aloud. Folding it
+    /// away again is quiet.
+    nonisolated static var press: SensoryFeedback { .impact(flexibility: .soft, intensity: 0.3) }
     /// One of a few chosen, and the choice shows at once: a day, a stop, a chip, a category, a
-    /// viewpoint. Letting a choice go again is quiet.
+    /// viewpoint, a carousel come to rest on another card. Letting a choice go again is quiet.
     nonisolated static var pick: SensoryFeedback { .selection }
     /// Held or pulled far enough for something to happen: a long press that reads slowly, a pull
-    /// past the end of the day, the Fuji marker come into view.
+    /// past the end of the day, the map's panel let go at another height, the Fuji marker come
+    /// into view.
     nonisolated static var snap: SensoryFeedback { .impact(flexibility: .soft, intensity: 0.5) }
+    /// One key of the app's own number pad that changed the amount.
+    nonisolated static var key: SensoryFeedback { .impact(flexibility: .rigid, intensity: 0.5) }
     /// A thing done: a stop marked, a purchase, expense or top-up saved, an address copied, a menu
     /// read. Undoing it is quiet.
     nonisolated static var done: SensoryFeedback { .success }
@@ -41,6 +50,40 @@ extension SensoryFeedback {
     nonisolated static var less: SensoryFeedback { .decrease }
     /// A slider meeting a value that means something, never every step on the way to it.
     nonisolated static var notch: SensoryFeedback { .levelChange }
+}
+
+extension View {
+    /// `pick` when a carousel the hand swiped comes to rest on another card or page: once, however
+    /// many it passed, as a picker's wheel settles on a row. A scroll the code makes (a page that
+    /// turns by itself, cards that follow another control) and a swipe that springs back are quiet.
+    /// Goes on the scroll view; `position` is what its scroll position is bound to.
+    func pickOnSettle<Position: Equatable>(_ position: Position) -> some View {
+        modifier(SettlePick(position: position))
+    }
+}
+
+private struct SettlePick<Position: Equatable>: ViewModifier {
+    let position: Position
+    /// where the hand took the carousel from; nil while it is not being swiped
+    @State private var from: Position?
+    @State private var settled = 0
+
+    func body(content: Content) -> some View {
+        content
+            .onScrollPhaseChange { _, phase in
+                switch phase {
+                case .interacting:
+                    if from == nil { from = position }
+                case .idle:
+                    if let from, from != position { settled += 1 }
+                    from = nil
+                default:
+                    // tracking and decelerating belong to the swipe; animating is the code's own
+                    break
+                }
+            }
+            .sensoryFeedback(.pick, trigger: settled)
+    }
 }
 
 /// A content card on the grouped background.
@@ -153,16 +196,20 @@ struct CheckButton: View {
     let isOn: Bool
     var tint: Color = .accentColor
     /// A check that marks the moment it is tapped. One whose tap first asks something (an item
-    /// bought asks its price) passes false and leaves the haptic to the save.
+    /// bought asks its price) passes false: the tap opens the question with `press`, and `done`
+    /// is left to the save.
     var marksOnTap = true
     let action: () -> Void
     // the haptic follows the hand, not isOn: a stop also turns on by itself when you arrive, and
     // from buttons that give their own; taking a mark off stays quiet
     @State private var marked = 0
+    @State private var asked = 0
 
     var body: some View {
         Button {
-            if marksOnTap, !isOn { marked += 1 }
+            if !isOn {
+                if marksOnTap { marked += 1 } else { asked += 1 }
+            }
             action()
         } label: {
             Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
@@ -176,6 +223,7 @@ struct CheckButton: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.done, trigger: marked)
+        .sensoryFeedback(.press, trigger: asked)
         .accessibilityLabel(isOn ? "Đã xong" : "Chưa xong")
         .accessibilityAddTraits(isOn ? [.isSelected, .isButton] : .isButton)
     }
@@ -435,6 +483,8 @@ struct AmbientHero: View {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
+        // only a swipe turns the page
+        .sensoryFeedback(.pick, trigger: page)
         .mask {
             LinearGradient(stops: [
                 .init(color: .black, location: 0),
@@ -527,7 +577,7 @@ struct AmbientCredit: View {
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable(.plain))
             .disabled(photo.page == nil)
             .accessibilityLabel("Ảnh: \(credit)")
         }

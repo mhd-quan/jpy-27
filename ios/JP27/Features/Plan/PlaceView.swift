@@ -65,7 +65,7 @@ private struct PlanPlaceContent: View {
                                 .font(.body.weight(.semibold))
                                 .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.pressable(.bordered))
                     }
                     PlanPlaceUses(place: place)
                     PlanLinkChips(links: sources)
@@ -109,6 +109,7 @@ private struct PlanPlaceHero: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .sensoryFeedback(.pick, trigger: page)
         } foot: {
             HStack(alignment: .center, spacing: 8) {
                 Text(placeFacts(place))
@@ -127,7 +128,7 @@ private struct PlanPlaceHero: View {
                         .lineLimit(1)
                         .opacity(0.6)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable(.plain))
                 .disabled(photos[page].page == nil)
                 .accessibilityLabel("Ảnh: \(credit)")
             }
@@ -212,7 +213,7 @@ private struct PlanAmbientPage: View {
                                 .font(.body.weight(.semibold))
                                 .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.pressable(.bordered))
                     }
                     if let menu = place.menu { PlanPlaceMenuSection(place: place, menu: menu) }
                     if let store = place.store { PlanPlaceStore(store: store) }
@@ -395,6 +396,8 @@ private struct PlanAmbientNote: View {
                 guard long else { return }
                 withAnimation(.smooth(duration: 0.3)) { open.toggle() }
             }
+            // opening the rest answers; folding it back stays quiet
+            .sensoryFeedback(.press, trigger: open) { _, now in now }
             .accessibilityAddTraits(long ? .isButton : [])
             .accessibilityHint(hint)
     }
@@ -503,7 +506,7 @@ private struct PlanPlaceActions: View {
                 }
                 talk
             }
-            .buttonStyle(.glass)
+            .buttonStyle(.pressable(.glass))
             .controlSize(.large)
             .labelStyle(.titleAndIcon)
             .font(.subheadline.weight(.semibold))
@@ -616,7 +619,7 @@ private struct PlanPlaceMenuSection: View {
                 Label("Quét thực đơn", systemImage: "text.viewfinder")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.pressable(.bordered))
             .controlSize(.large)
             .sheetSource("place.\(place.id).scan")
         }
@@ -823,7 +826,7 @@ private struct PlanPlaceUses: View {
                             }
                             .contentShape(.rect)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.pressable(.plain))
                     }
                 }
             }

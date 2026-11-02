@@ -174,14 +174,19 @@ private struct FujiTurnHint: View {
 
 private struct FujiWaiting: View {
     @Environment(AppModel.self) private var model
+    @State private var asked = 0
 
     var body: some View {
         VStack(spacing: 16) {
             ProgressView()
             Text("Đang tìm vị trí…").font(.headline)
             if !model.location.isAllowed {
-                Button("Bật vị trí") { model.location.requestWhenInUse() }
-                    .buttonStyle(.borderedProminent)
+                Button("Bật vị trí") {
+                    asked += 1
+                    model.location.requestWhenInUse()
+                }
+                .buttonStyle(.borderedProminent)
+                .sensoryFeedback(.press, trigger: asked)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

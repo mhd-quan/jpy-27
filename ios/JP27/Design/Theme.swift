@@ -179,19 +179,74 @@ struct Livery: View {
 
 // MARK: - Press
 
-/// Cards that answer a press by settling a little, the way the system's own cards do.
-struct PressableStyle: ButtonStyle {
-    var scale: CGFloat = 0.97
+/// Cards, tiles and chips that open something: they settle a little under the finger, the way the
+/// system's own cards do, and play `press` as they fire. The haptic follows the button's trigger,
+/// so a touch that a scroll takes back stays quiet. NavigationLinks and Links have no action of
+/// their own to count in, so they get it from here too, in the look they already had.
+struct PressableStyle: PrimitiveButtonStyle {
+    enum Look {
+        /// settles a little under the finger
+        case settle
+        /// the plain style: drawn as it is, dimmed while held
+        case plain
+        /// text in the tint colour, as a link
+        case borderless
+        case bordered
+        case glass
+    }
+
+    var look: Look = .settle
+    /// nil for a button whose action plays a haptic of its own (a choice that ticks `pick`)
+    var feedback: SensoryFeedback? = .press
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? scale : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.72), value: configuration.isPressed)
+        PressableButton(configuration: configuration, look: look, feedback: feedback)
     }
 }
 
-extension ButtonStyle where Self == PressableStyle {
+extension PrimitiveButtonStyle where Self == PressableStyle {
     static var pressable: PressableStyle { PressableStyle() }
+
+    /// `press` in another look: `.pressable(.plain)` for a card that keeps the plain style,
+    /// `.pressable(.bordered)` for a NavigationLink drawn as a bordered button.
+    static func pressable(_ look: PressableStyle.Look, feedback: SensoryFeedback? = .press) -> PressableStyle {
+        PressableStyle(look: look, feedback: feedback)
+    }
+}
+
+/// The button a PressableStyle draws: the same label, role and action, counted as it fires.
+private struct PressableButton: View {
+    let configuration: PrimitiveButtonStyleConfiguration
+    let look: PressableStyle.Look
+    let feedback: SensoryFeedback?
+    @State private var presses = 0
+
+    var body: some View {
+        let button = Button(role: configuration.role) {
+            presses += 1
+            configuration.trigger()
+        } label: {
+            configuration.label
+        }
+        Group {
+            switch look {
+            case .settle: button.buttonStyle(SettleStyle())
+            case .plain: button.buttonStyle(.plain)
+            case .borderless: button.buttonStyle(.borderless)
+            case .bordered: button.buttonStyle(.bordered)
+            case .glass: button.buttonStyle(.glass)
+            }
+        }
+        .sensoryFeedback(trigger: presses) { [feedback] _, _ in feedback }
+    }
+}
+
+private struct SettleStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.72), value: configuration.isPressed)
+    }
 }
 
 // MARK: - Route spark

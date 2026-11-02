@@ -135,7 +135,7 @@ private struct JournalPhotoAccess: View {
                 Button("Cho phép") {
                     Task { await model.photos.request() }
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.pressable(.bordered))
             }
         }
     }

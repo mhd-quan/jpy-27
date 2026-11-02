@@ -104,7 +104,7 @@ private struct HomeCover: View {
                         } label: {
                             HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.pressable(.plain))
                         .containerRelativeFrame(.horizontal)
                         .sheetSource("home.cover.\(i)")
                         .accessibilityLabel(shots[i].place.name)
@@ -115,6 +115,8 @@ private struct HomeCover: View {
             }
             .scrollTargetBehavior(.paging)
             .scrollPosition(id: $page)
+            // a swipe ticks as it lands; the page turning by itself does not
+            .pickOnSettle(page)
             .scrollIndicators(.hidden)
             .onScrollVisibilityChange(threshold: 0.15) { visible = $0 }
             // a paper mist under the status bar, and the bottom fading into the page
@@ -152,6 +154,7 @@ private struct HomeCover: View {
                         if let credit = shot.photo.credit {
                             if let page = shot.photo.page.flatMap(URL.init(string:)) {
                                 Link(credit, destination: page)
+                                    .buttonStyle(.pressable(.borderless))
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
                             } else {
@@ -269,7 +272,8 @@ private struct HomeSun: View {
                 }
             }
         }
-        .buttonStyle(.pressable)
+        // the unit turning is a choice: `pick`, not the card's press
+        .buttonStyle(.pressable(.settle, feedback: nil))
         .sensoryFeedback(.pick, trigger: taps)
         .scaleEffect(risen ? 1 : 0.85)
         .opacity(risen ? 1 : 0)
@@ -291,6 +295,8 @@ private struct HomeChapters: View {
     @Environment(AppModel.self) private var model
     @Binding var focus: String?
     @State private var drawn = false
+    /// stations tapped; the cards swiped tick from the cards
+    @State private var taps = 0
 
     private var current: Chapter? {
         let day = model.days.first { $0.key == focus } ?? model.days.first
@@ -309,7 +315,9 @@ private struct HomeChapters: View {
                     ForEach(Array(chapters.enumerated()), id: \.element.id) { i, c in
                         let on = current?.id == c.id
                         Button {
-                            withAnimation(.smooth) { focus = model.days.first { c.days.contains($0.n) }?.key }
+                            let first = model.days.first { c.days.contains($0.n) }?.key
+                            if first != (focus ?? model.days.first?.key) { taps += 1 }
+                            withAnimation(.smooth) { focus = first }
                         } label: {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(c.kanji)
@@ -340,7 +348,7 @@ private struct HomeChapters: View {
                 .animation(.smooth, value: current?.id)
             }
             .frame(height: 50)
-            .sensoryFeedback(.pick, trigger: current?.id)
+            .sensoryFeedback(.pick, trigger: taps)
 
             if let c = current {
                 NavigationLink(value: Route.stay(c.stay)) {
@@ -411,6 +419,8 @@ private struct HomeDays: View {
             }
             .scrollTargetBehavior(.viewAligned)
             .scrollPosition(id: $focus, anchor: .leading)
+            // a station tapped moves the cards quietly: the station has ticked
+            .pickOnSettle(focus)
             .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
             .scrollIndicators(.hidden)
     }
@@ -484,6 +494,7 @@ private struct HomeDayCard: View {
 
 private struct HomeTickets: View {
     @Environment(AppModel.self) private var model
+    @State private var at: Booking?
 
     /// Exact openings still ahead, soonest first, then the ones set by a rule.
     private var bookings: [Booking] {
@@ -502,6 +513,7 @@ private struct HomeTickets: View {
                     NavigationLink(value: Route.bookings) {
                         Text("Tất cả").font(.subheadline.weight(.semibold))
                     }
+                    .buttonStyle(.pressable(.borderless))
                 }
                 .padding(.horizontal, Metrics.gutter)
                 ScrollView(.horizontal) {
@@ -516,6 +528,8 @@ private struct HomeTickets: View {
                     .scrollTargetLayout()
                 }
                 .scrollTargetBehavior(.viewAligned)
+                .scrollPosition(id: $at)
+                .pickOnSettle(at)
                 .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
                 .scrollIndicators(.hidden)
             }
@@ -610,6 +624,7 @@ private struct HomeTicket: View {
 
 private struct HomeMeals: View {
     @Environment(AppModel.self) private var model
+    @State private var at: String?
 
     var body: some View {
         let meals = HomePicks.meals(model)
@@ -632,6 +647,8 @@ private struct HomeMeals: View {
                     .scrollTargetLayout()
                 }
                 .scrollTargetBehavior(.viewAligned)
+                .scrollPosition(id: $at)
+                .pickOnSettle(at)
                 .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
                 .scrollIndicators(.hidden)
             }
@@ -726,7 +743,7 @@ private struct HomePhrase: View {
                         .multilineTextAlignment(.leading)
                         .contentShape(.rect)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable(.plain))
                     .sheetSource(item.source)
                     .id(i)
                     .transition(.blurReplace)
@@ -838,7 +855,7 @@ private struct HomeFuji: View {
                 Label("Tìm Fuji", systemImage: "location.north.line.fill")
                     .font(.subheadline.weight(.semibold))
             }
-            .buttonStyle(.glass)
+            .buttonStyle(.pressable(.glass))
             .sheetSource("home.fuji.finder")
             .padding(14)
         }

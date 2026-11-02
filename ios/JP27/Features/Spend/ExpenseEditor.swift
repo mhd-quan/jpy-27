@@ -25,6 +25,8 @@ struct ExpenseEditor: View {
     @State private var saved = false
     /// kinds tapped; the kind also changes by itself, set up from the place and on picking a place
     @State private var chosen = 0
+    /// places chosen in the list under "Ở đâu"; the place set up on opening stays quiet
+    @State private var placePicks = 0
     @FocusState private var writing: Bool
 
     private var day: Day? { dayKey.flatMap { key in model.days.first { $0.key == key } ?? model.store.day(key) } }
@@ -72,6 +74,8 @@ struct ExpenseEditor: View {
                 }
             }
             .sensoryFeedback(.done, trigger: saved)
+            // here, not in the list: the list closes as the place is chosen
+            .sensoryFeedback(.pick, trigger: placePicks)
             .onAppear(perform: setUp)
             .onChange(of: place) { _, id in
                 // a new expense takes the kind and the way to pay from its place; an edit keeps its own
@@ -129,7 +133,8 @@ struct ExpenseEditor: View {
                             .frame(maxWidth: .infinity)
                             .contentShape(.rect)
                     }
-                    .buttonStyle(.pressable)
+                    // the kind chosen ticks `pick` below, not the press
+                    .buttonStyle(.pressable(.settle, feedback: nil))
                     .accessibilityLabel(c.label)
                     .accessibilityAddTraits(on ? .isSelected : [])
                 }
@@ -147,7 +152,7 @@ struct ExpenseEditor: View {
     private var details: some View {
         VStack(spacing: 0) {
             NavigationLink {
-                ExpensePlacePicker(day: day, place: $place, placeName: $placeName)
+                ExpensePlacePicker(day: day, place: $place, placeName: $placeName, picks: $placePicks)
             } label: {
                 row(symbol: "mappin.and.ellipse", title: "Ở đâu") {
                     HStack(spacing: 6) {
@@ -160,7 +165,7 @@ struct ExpenseEditor: View {
                     }
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable(.plain))
             Divider().padding(.leading, 48)
             row(symbol: "calendar", title: "Tính vào") {
                 Picker("Tính vào", selection: $dayKey) {
@@ -283,6 +288,8 @@ private struct ExpensePlacePicker: View {
     let day: Day?
     @Binding var place: String?
     @Binding var placeName: String
+    /// counts a place or a typed name chosen in place of the one before; "Không gắn chỗ" is a letting go and stays quiet
+    @Binding var picks: Int
     @State private var query = ""
     @State private var draft = ""
 
@@ -363,6 +370,7 @@ private struct ExpensePlacePicker: View {
     private func choice(_ p: Place?, title: String? = nil, symbol: String? = nil, tint: Color? = nil, detail: String? = nil) -> some View {
         let on = p.map { $0.id == place } ?? (place == nil && placeName.isEmpty)
         return Button {
+            if let p, p.id != place { picks += 1 }
             place = p?.id
             placeName = ""
             dismiss()
@@ -393,6 +401,7 @@ private struct ExpensePlacePicker: View {
     private func useDraft() {
         let name = draft.trimmingCharacters(in: .whitespaces)
         guard !name.isEmpty else { return }
+        if place != nil || name != placeName { picks += 1 }
         place = nil
         placeName = name
         dismiss()

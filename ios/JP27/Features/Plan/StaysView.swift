@@ -12,7 +12,7 @@ struct StaysView: View {
                     NavigationLink(value: Route.stay(stay.id)) {
                         PlanStayCard(stay: stay)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable(.plain))
                 }
                 if !model.guide.hunt.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
@@ -145,7 +145,7 @@ private struct PlanStayContent: View {
                             Label("Ảnh, địa chỉ, giờ nhận phòng", systemImage: "info.circle")
                                 .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.pressable(.bordered))
                     }
                     if let around = stay.around {
                         PlanNeighbourhood(stay: stay, around: around)
@@ -330,7 +330,7 @@ private struct PlanWalkCard: View {
                 NavigationLink(value: planHighlightRoute(stay: stay, walk: walk, index: k, store: model.store)) {
                     PlanHighlightRow(highlight: h)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable(.plain))
             }
         }
     }
@@ -527,7 +527,7 @@ private struct PlanHighlightContent: View {
                                     NavigationLink(value: planHighlightRoute(stay: stay.id, walk: walk, index: k, store: model.store)) {
                                         PlanHighlightRow(highlight: other)
                                     }
-                                    .buttonStyle(.plain)
+                                    .buttonStyle(.pressable(.plain))
                                 }
                             }
                         }
