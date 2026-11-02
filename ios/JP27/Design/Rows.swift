@@ -13,6 +13,8 @@ struct ItemRow: View {
     let day: Day
     let index: Int
     var showsCheck = true
+    /// under a stop's text, inside the row so the rail runs past it (the map's side trips)
+    var below: AnyView?
 
     private var item: DayItem { day.items[index] }
 
@@ -143,6 +145,9 @@ struct ItemRow: View {
                 let tags = tagList(s, place: place, reserved: reserved)
                 if !tags.isEmpty {
                     HStack(spacing: 6) { ForEach(tags, id: \.text) { $0 } }
+                }
+                if let below {
+                    below.padding(.top, 4)
                 }
             }
             Spacer(minLength: 0)

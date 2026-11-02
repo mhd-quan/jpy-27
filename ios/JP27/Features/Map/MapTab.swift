@@ -1,98 +1,252 @@
 import SwiftUI
 import TripKit
 
-/// The day on the map with you on it: the next place and how far, and what is worth a detour nearby.
+/// The day on the map, read like the web's day page: the panel holds the day's timeline, and the
+/// map follows whatever the timeline is on. A move fits its leg and dims the rest; a stop is
+/// flown to, with the places one could turn off for around it (from the data) named on the map
+/// and listed under it. Tapping one of those draws the way there, for as long as that stop is the
+/// one being read. Past the end of a day, a further pull goes on to the next.
 ///
 /// The panel is drawn in the tab, not presented as a sheet: a sheet would cover the tab bar and
 /// block the app's own sheets (place, ride, expense) from presenting while the map is open.
 struct MapTab: View {
     @Environment(AppModel.self) private var model
     @State private var dayKey: String?
-    @State private var selected: String?
-    @State private var focus: Coordinate?
-    @State private var focusID = 0
-    @State private var reframe = 0
-    @State private var stage: MapPanelStage = .peek
+    @State private var stage: MapPanelStage = .medium
+    @State private var header: CGFloat = 132
+    /// the item of the day the timeline is on (a stop or a move), by index
+    @State private var active: Int?
+    /// a place tapped off the plan: shown with the way to it from the stop being read
+    @State private var side: String?
+    @State private var camera: MapCamera?
+    @State private var cameraSeq = 0
+    @State private var jump: MapJump?
+    /// the person moved the map: leave it where they put it for a few seconds
+    @State private var userMovedAt = Date.distantPast
 
     private var day: Day { dayKey.flatMap { model.store.day($0) } ?? model.focusDay }
 
-    private var content: MapContent {
-        var c = MapContent.day(day, model: model)
-        if let id = selected, let a = day.along.first(where: { $0.place == id }), let line = MapContent.detour(a) {
-            c.routes.append(line)
-        }
-        return c
-    }
-
     var body: some View {
+        let day = self.day
+        let sides = MapGuide.sides(for: day, store: model.store, pace: model.pace.factor)
         GeometryReader { geo in
+            let safe = geo.safeAreaInsets
+            let panel = stage.height(in: geo.size.height, header: header)
             ZStack(alignment: .bottom) {
                 TripMap(
-                    content: content,
-                    insets: UIEdgeInsets(top: 120, left: 36, bottom: MapPanelStage.medium.height(in: geo.size.height) + 24, right: 72),
-                    frameID: "\(day.key)-\(reframe)",
-                    focus: focus,
-                    focusID: focusID,
-                    onSelect: select
+                    content: content(day, sides: sides),
+                    insets: UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 64),
+                    frameID: day.key,
+                    chrome: UIEdgeInsets(top: safe.top + MapDayStrip.height + 8, left: 0, bottom: safe.bottom + panel + 6, right: 0),
+                    camera: camera,
+                    onSelect: { tapped($0, day: day, sides: sides) },
+                    onUserMove: { userMovedAt = .now }
                 )
                 .ignoresSafeArea()
 
-                MapPanel(stage: $stage, containerHeight: geo.size.height) {
-                    MapPanelHeader(day: day)
+                if let id = side, let place = model.store.place(id), stage != .large {
+                    MapSideCard(place: place, side: anchor(day).flatMap { a in sides[a]?.first { $0.id == id } }, from: anchorPlace(day)) {
+                        withAnimation(.snappy) { side = nil }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, panel + 14)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .id(id)
+                }
+
+                MapPanel(stage: $stage, containerHeight: geo.size.height, headerHeight: $header) {
+                    MapPanelTitle(day: day)
+                } strip: {
+                    MapStopStrip(day: day, active: active) { i in activate(i, day: day, scroll: true) }
                 } content: {
-                    MapPanelList(day: day, selected: $selected, onPick: pick)
+                    MapTimeline(
+                        day: day,
+                        sides: sides,
+                        active: active,
+                        side: side,
+                        bottomMargin: MapPanelStage.large.height(in: geo.size.height, header: header) - panel + 16,
+                        jump: jump,
+                        next: nextDay(after: day),
+                        onRead: { read($0, day: day) },
+                        onTap: { activate($0, day: day, scroll: false) },
+                        onSide: { pickSide($0, day: day, sides: sides) },
+                        onPullDown: { withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) { stage = .peek } },
+                        onNextDay: { if let n = nextDay(after: day) { choose(n.key) } }
+                    )
+                    .id(day.key)
                 }
             }
             .overlay(alignment: .top) {
-                MapDayChip(day: day) { key in
-                    dayKey = key
-                    selected = nil
-                    reframe += 1
-                }
-                .padding(.top, 8)
-                .padding(.horizontal, 72)
+                MapDayStrip(current: day.key, choose: choose)
+                    .padding(.top, 4)
             }
             .overlay(alignment: .topTrailing) {
                 MapControls(
                     locate: locate,
                     fuji: { model.present(.fujiFinder, from: "map.fuji") },
-                    frameDay: {
-                        selected = nil
-                        reframe += 1
-                    }
+                    frameDay: { frameDay(day) }
                 )
-                .padding(.top, 64)
+                .padding(.top, MapDayStrip.height + 16)
                 .padding(.trailing, 12)
+                .opacity(stage == .large ? 0 : 1)
             }
         }
         .onAppear {
             consumeDay()
             consumeFocus()
+            followToday()
         }
         .onChange(of: model.mapFocus) { consumeFocus() }
         .onChange(of: model.mapDay) { consumeDay() }
-        .sensoryFeedback(.selection, trigger: selected)
+        .sensoryFeedback(.selection, trigger: side)
+        .sensoryFeedback(.impact(weight: .medium), trigger: day.key)
     }
 
-    private func select(_ id: String) {
-        guard let p = model.store.place(id) else { return }
-        withAnimation(.snappy) {
-            selected = id
-            focus = p.coordinate
-            focusID += 1
-            if stage == .peek { stage = .medium }
+    // MARK: What the map draws
+
+    private func content(_ day: Day, sides: [Int: [MapSide]]) -> MapContent {
+        var c = MapContent.day(day, model: model, along: false)
+        if let i = active, day.items.indices.contains(i), case .move(let m) = day.items[i] {
+            c.routes = c.routes.map { r in
+                MapRoute(id: r.id, points: r.points, color: r.color, width: r.id == m.leg.id ? r.width + 1.5 : r.width, dashed: r.dashed, opacity: r.id == m.leg.id ? 1 : 0.28)
+            }
+        }
+        let from = anchorPlace(day)
+        if let a = anchor(day), let place = from {
+            c.pins.insert(MapPin(id: "halo-\(place.id)", coordinate: place.coordinate, kind: .halo), at: 0)
+            for s in sides[a] ?? [] {
+                c.pins.append(MapPin(id: s.id, coordinate: s.place.coordinate, kind: s.isFood ? .snack : .along, label: s.place.name, titled: true))
+            }
+        }
+        if let id = side, let p = model.store.place(id) {
+            c.pins.insert(MapPin(id: "halo-\(id)", coordinate: p.coordinate, kind: .halo), at: 0)
+            if !c.pins.contains(where: { $0.id == id }) {
+                c.pins.append(MapPin(id: id, coordinate: p.coordinate, kind: p.kind == .food ? .snack : .along, label: p.name, titled: true))
+            }
+            if let from, from.id != id {
+                let s = anchor(day).flatMap { a in sides[a]?.first { $0.id == id } }
+                c.routes.append(MapGuide.way(from: from, to: p, along: s?.along))
+            }
+        }
+        return c
+    }
+
+    /// The stop whose surroundings are shown: the stop being read, or the one a move leads to.
+    private func anchor(_ day: Day) -> Int? {
+        guard let i = active, day.items.indices.contains(i) else { return nil }
+        if case .stop = day.items[i] { return i }
+        return day.stops.first { $0.index > i }?.index
+    }
+
+    private func anchorPlace(_ day: Day) -> Place? {
+        anchor(day).flatMap { model.store.place(day.items[$0].stop?.place) }
+    }
+
+    // MARK: Following the timeline
+
+    /// The reading line moved onto another item: show it, and drop the way to a place off the
+    /// plan that belonged to the stop before.
+    private func read(_ i: Int?, day: Day) {
+        guard i != active else { return }
+        withAnimation(.smooth(duration: 0.25)) {
+            active = i
+            side = nil
+        }
+        fly(day, to: i, force: false)
+    }
+
+    /// A row or a stop was tapped: that is a request, so the map moves even if it was just handled.
+    private func activate(_ i: Int, day: Day, scroll: Bool) {
+        userMovedAt = .distantPast
+        withAnimation(.smooth(duration: 0.25)) {
+            active = i
+            side = nil
+            if scroll { jump = MapJump(seq: (jump?.seq ?? 0) + 1, index: i) }
+        }
+        fly(day, to: i, force: true)
+    }
+
+    private func fly(_ day: Day, to i: Int?, force: Bool) {
+        guard force || Date.now.timeIntervalSince(userMovedAt) > 4 else { return }
+        guard let i, day.items.indices.contains(i) else {
+            move(.fit(MapContent.day(day, model: model, along: false).outline))
+            return
+        }
+        switch day.items[i] {
+        case .move(let m):
+            var pts = model.store.path(m.leg.id)
+            if pts.count < 2 { pts = [m.leg.from, m.leg.to].compactMap { model.store.place($0)?.coordinate } }
+            move(.fit(pts))
+        case .stop(let s):
+            guard let p = model.store.place(s.place) else { return }
+            move(.center(p.coordinate, zoom: 15.5))
         }
     }
 
-    private func pick(_ id: String) {
-        guard let p = model.store.place(id) else { return }
+    private func move(_ m: MapCamera.Move) {
+        cameraSeq += 1
+        camera = MapCamera(id: cameraSeq, move: m)
+    }
+
+    // MARK: Side trips
+
+    private func pickSide(_ id: String, day: Day, sides: [Int: [MapSide]]) {
         withAnimation(.snappy) {
-            selected = id
-            focus = p.coordinate
-            focusID += 1
-            // keep the map in view once a row is chosen
+            side = side == id ? nil : id
             if stage == .large { stage = .medium }
         }
+        showSide(day)
+    }
+
+    /// The stop and the place off the plan, and the way between, in view.
+    private func showSide(_ day: Day) {
+        guard let id = side, let p = model.store.place(id) else { return }
+        userMovedAt = .distantPast
+        if let from = anchorPlace(day), from.id != id {
+            move(.fit([from.coordinate, p.coordinate]))
+        } else {
+            move(.center(p.coordinate, zoom: 16))
+        }
+    }
+
+    private func tapped(_ id: String, day: Day, sides: [Int: [MapSide]]) {
+        if let i = day.stops.first(where: { $0.stop.place == id })?.index {
+            activate(i, day: day, scroll: true)
+            return
+        }
+        pickSide(id, day: day, sides: sides)
+    }
+
+    // MARK: Days
+
+    private func choose(_ key: String) {
+        guard key != day.key else { return }
+        withAnimation(.smooth(duration: 0.3)) {
+            dayKey = key
+            active = nil
+            side = nil
+            jump = nil
+        }
+        // the map frames the new day itself (its frameID is the day)
+        userMovedAt = .distantPast
+    }
+
+    private func nextDay(after day: Day) -> Day? {
+        if let i = model.days.firstIndex(where: { $0.key == day.key }) {
+            return model.days.indices.contains(i + 1) ? model.days[i + 1] : nil
+        }
+        // an alternative day goes on to the day after the one it replaces
+        let n = day.replaces ?? day.n
+        return model.days.first { $0.n > n }
+    }
+
+    private func frameDay(_ day: Day) {
+        withAnimation(.snappy) {
+            active = nil
+            side = nil
+        }
+        userMovedAt = .distantPast
+        move(.fit(MapContent.day(day, model: model, along: false).outline))
     }
 
     private func locate() {
@@ -100,71 +254,185 @@ struct MapTab: View {
             model.location.requestWhenInUse()
             return
         }
-        focus = p
-        focusID += 1
+        userMovedAt = .now
+        move(.center(p, zoom: 15.5))
+    }
+
+    /// On the day itself, open on the next stop.
+    private func followToday() {
+        guard dayKey == nil || dayKey == model.today?.key, let today = model.today, let next = model.next,
+              today.items.indices.contains(next.index) else { return }
+        dayKey = today.key
+        activate(next.index, day: today, scroll: true)
     }
 
     /// A day page asked for its map.
     private func consumeDay() {
         guard let key = model.mapDay else { return }
         model.mapDay = nil
-        dayKey = key
-        selected = nil
-        reframe += 1
+        if key != day.key { choose(key) }
     }
 
+    /// A place page asked to be shown on the map: its stop if the day has it, else the place alone.
     private func consumeFocus() {
         guard let id = model.mapFocus else { return }
         model.mapFocus = nil
-        select(id)
+        let day = self.day
+        if let i = day.stops.first(where: { $0.stop.place == id })?.index {
+            activate(i, day: day, scroll: true)
+        } else if model.store.place(id) != nil {
+            withAnimation(.snappy) { side = id }
+            showSide(day)
+        }
     }
 }
 
-// MARK: - Chrome
+/// Scroll the timeline to an item; a new seq scrolls again to the same one.
+struct MapJump: Equatable {
+    let seq: Int
+    let index: Int
+}
 
-/// The day shown, as a glass button the list of days morphs out of.
-private struct MapDayChip: View {
+// MARK: - Side trips from the data
+
+/// A place off the plan beside a stop of the day.
+struct MapSide: Identifiable {
+    var id: String { place.id }
+    let place: Place
+    /// straight line from the stop
+    let km: Double
+    /// on foot from the stop, or research's own detour time
+    let minutes: Int
+    let along: Along?
+
+    var isFood: Bool { place.kind == .food || place.snack != nil }
+}
+
+enum MapGuide {
+    /// The places one could turn off for, given to the stop of the day each is nearest: the day's
+    /// researched side trips, the snack stops research put beside a plan place, and any place in
+    /// the data no day has planned, a short walk from a stop. Nearest first, a handful per stop.
+    static func sides(for day: Day, store: TripStore, pace: Double) -> [Int: [MapSide]] {
+        let anchors: [(index: Int, place: Place)] = day.stops.compactMap { i, s in store.place(s.place).map { (i, $0) } }
+        guard !anchors.isEmpty else { return [:] }
+        let planned = Set(anchors.map { $0.place.id })
+        var alongs: [String: Along] = [:]
+        for a in day.along where alongs[a.place] == nil { alongs[a.place] = a }
+
+        var seen = planned
+        var pool: [Place] = []
+        for a in day.along {
+            if let p = store.place(a.place), seen.insert(p.id).inserted { pool.append(p) }
+        }
+        for p in store.trip.places where p.kind != .station && p.kind != .stay && !seen.contains(p.id) {
+            let tied = p.near.map(planned.contains) ?? false
+            guard tied || (p.uses.isEmpty && p.role != "alt") else { continue }
+            seen.insert(p.id)
+            pool.append(p)
+        }
+
+        var out: [Int: [MapSide]] = [:]
+        for p in pool {
+            let anchor = p.near.flatMap { near in anchors.first { $0.place.id == near } }
+                ?? anchors.min { Geo.km($0.place.coordinate, p.coordinate) < Geo.km($1.place.coordinate, p.coordinate) }
+            guard let anchor else { continue }
+            let km = Geo.km(anchor.place.coordinate, p.coordinate)
+            let along = alongs[p.id]
+            // researched side trips may sit a little further out; anything else, a short walk
+            guard km <= (along != nil || p.near != nil ? 2.5 : 0.8) else { continue }
+            let walk = Int(PlanEngine.directWalk(anchor.place.coordinate, p.coordinate, pace: pace).rounded())
+            out[anchor.index, default: []].append(MapSide(place: p, km: km, minutes: along?.detour?.min ?? p.detourMin ?? max(1, walk), along: along))
+        }
+        for (k, list) in out {
+            out[k] = Array(list.sorted { $0.km < $1.km }.prefix(6))
+        }
+        return out
+    }
+
+    /// The way from a stop to a place off the plan: research's own detour line when it has one,
+    /// else a straight dashed line.
+    static func way(from: Place, to: Place, along: Along?) -> MapRoute {
+        var pts = along?.detour?.p.map { Polyline.decode($0) } ?? []
+        if pts.count < 2 { pts = [from.coordinate, to.coordinate] }
+        return MapRoute(id: "side-\(to.id)", points: pts, color: "#E07A2F", width: 4, dashed: true)
+    }
+}
+
+// MARK: - Days, as a strip to slide
+
+/// The trip's days as a strip of glass pills over the map, the chosen one red and named.
+/// Slides sideways; a tap chooses; the chosen day stays centred.
+private struct MapDayStrip: View {
     @Environment(AppModel.self) private var model
-    let day: Day
+    let current: String
     let choose: (String) -> Void
+
+    static let height: CGFloat = 44
 
     var body: some View {
         let alternatives = model.store.trip.altDays.filter { alt in !model.days.contains { $0.key == alt.key } }
-        Menu {
-            Section {
-                ForEach(model.days) { d in
-                    Button {
-                        choose(d.key)
-                    } label: {
-                        if d.key == day.key {
-                            Label("Ngày \(d.n) · \(d.title)", systemImage: "checkmark")
-                        } else {
-                            Text("Ngày \(d.n) · \(d.title)")
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal) {
+                GlassEffectContainer(spacing: 2) {
+                    HStack(spacing: 8) {
+                        ForEach(model.days) { d in
+                            pill(d, alternative: false)
+                        }
+                        ForEach(alternatives) { d in
+                            pill(d, alternative: true)
                         }
                     }
+                    .padding(.vertical, 4)
                 }
             }
-            if !alternatives.isEmpty {
-                Section("Phương án") {
-                    ForEach(alternatives) { a in
-                        Button("Thay ngày \(a.replaces ?? a.n) · \(a.title)") { choose(a.key) }
+            .scrollIndicators(.hidden)
+            .contentMargins(.horizontal, 12, for: .scrollContent)
+            .frame(height: Self.height)
+            .onAppear { proxy.scrollTo(current, anchor: .center) }
+            .onChange(of: current) { _, key in
+                withAnimation(.smooth) { proxy.scrollTo(key, anchor: .center) }
+            }
+        }
+    }
+
+    private func pill(_ d: Day, alternative: Bool) -> some View {
+        let on = d.key == current
+        return Button {
+            choose(d.key)
+        } label: {
+            HStack(spacing: 6) {
+                if alternative {
+                    Image(systemName: "arrow.triangle.branch")
+                        .font(.caption.weight(.bold))
+                    Text(d.title).lineLimit(1)
+                } else {
+                    Text("\(d.n)")
+                        .fontWeight(.heavy)
+                        .fontDesign(.rounded)
+                        .monospacedDigit()
+                    if on {
+                        Text(d.title)
+                            .fontWeight(.semibold)
+                            .lineLimit(1)
+                            .frame(maxWidth: 190, alignment: .leading)
+                    } else {
+                        Text(Fmt.shortDate(d.date))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
                     }
                 }
             }
-        } label: {
-            HStack(spacing: 6) {
-                Text("Ngày \(day.n)").fontWeight(.semibold).monospacedDigit()
-                Text(day.title).foregroundStyle(.secondary).lineLimit(1)
-                Image(systemName: "chevron.down").font(.caption.weight(.bold)).foregroundStyle(.secondary)
-            }
             .font(.subheadline)
+            .foregroundStyle(on ? Color.white : Color.primary)
+            .padding(.horizontal, 14)
+            .frame(height: 36)
+            .contentShape(.capsule)
         }
-        // a glass button, not a label with glass painted on: the menu grows out of it and back
-        .buttonStyle(.glass)
-        .buttonBorderShape(.capsule)
-        .controlSize(.large)
-        .accessibilityLabel("Ngày \(day.n), \(day.title)")
-        .accessibilityHint("Chọn ngày khác")
+        .buttonStyle(.plain)
+        .glassEffect(on ? .regular.tint(Palette.sun).interactive() : .regular.interactive(), in: .capsule)
+        .id(d.key)
+        .accessibilityLabel(alternative ? "Phương án: \(d.title)" : "Ngày \(d.n), \(d.title)")
+        .accessibilityAddTraits(on ? .isSelected : [])
     }
 }
 
@@ -192,7 +460,7 @@ private struct MapControls: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 17, weight: .medium))
-                .frame(width: 48, height: 48)
+                .frame(width: 46, height: 46)
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)
@@ -202,63 +470,83 @@ private struct MapControls: View {
 
 // MARK: - Panel
 
-private enum MapPanelStage: CaseIterable {
+enum MapPanelStage: CaseIterable {
     case peek, medium, large
 
-    func height(in container: CGFloat) -> CGFloat {
+    /// peek is the header alone: the day and its stops in a row
+    func height(in container: CGFloat, header: CGFloat) -> CGFloat {
         switch self {
-        case .peek: 132
-        case .medium: max(260, container * 0.45)
-        case .large: max(320, container - 72)
+        case .peek: header + 4
+        case .medium: max(header + 200, container * 0.5)
+        case .large: max(header + 240, container - MapDayStrip.height - 16)
         }
     }
 }
 
-/// A floating panel that snaps to three heights. The header drags it; the list scrolls inside it.
-/// Release velocity is projected forward so a flick lands where it is going.
-private struct MapPanel<Header: View, Content: View>: View {
+/// A floating glass panel that snaps to three heights. Its content is laid out once at the
+/// tallest height and the panel clips it, so a drag only moves an edge: nothing inside is laid
+/// out again under the finger. Release velocity is projected so a flick lands where it heads.
+/// The grabber and title drag it; the strip under them scrolls sideways on its own.
+private struct MapPanel<Title: View, Strip: View, Content: View>: View {
     @Binding var stage: MapPanelStage
     let containerHeight: CGFloat
-    @ViewBuilder var header: Header
-    @ViewBuilder var content: Content
+    @Binding var headerHeight: CGFloat
+    let title: Title
+    let strip: Strip
+    let content: Content
     @GestureState private var drag: CGFloat = 0
 
-    private var lowest: CGFloat { MapPanelStage.peek.height(in: containerHeight) }
-    private var highest: CGFloat { MapPanelStage.large.height(in: containerHeight) }
+    init(stage: Binding<MapPanelStage>, containerHeight: CGFloat, headerHeight: Binding<CGFloat>,
+         @ViewBuilder title: () -> Title, @ViewBuilder strip: () -> Strip, @ViewBuilder content: () -> Content) {
+        _stage = stage
+        self.containerHeight = containerHeight
+        _headerHeight = headerHeight
+        self.title = title()
+        self.strip = strip()
+        self.content = content()
+    }
+
+    private func height(_ s: MapPanelStage) -> CGFloat { s.height(in: containerHeight, header: headerHeight) }
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 0) {
-                Capsule()
-                    .fill(.secondary.opacity(0.45))
-                    .frame(width: 36, height: 5)
-                    .padding(.top, 8)
-                    .padding(.bottom, 8)
-                header
-                    .padding(.horizontal, 18)
-                    .padding(.bottom, 10)
+            VStack(spacing: 10) {
+                VStack(spacing: 6) {
+                    Capsule()
+                        .fill(.secondary.opacity(0.45))
+                        .frame(width: 36, height: 5)
+                        .padding(.top, 8)
+                    title
+                        .padding(.horizontal, 18)
+                }
+                .frame(maxWidth: .infinity)
+                .contentShape(.rect)
+                .onTapGesture(perform: cycle)
+                .gesture(dragGesture)
+                strip
             }
-            .contentShape(.rect)
-            .gesture(dragGesture)
-            .onTapGesture { cycle() }
+            .padding(.bottom, 10)
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headerHeight = $0 }
             .accessibilityElement(children: .contain)
             .accessibilityAction(named: stage == .large ? "Thu gọn" : "Mở rộng") { cycle() }
 
-            if stage != .peek || drag < -20 {
-                content
-                    .transition(.opacity)
-            }
+            content
+                .frame(height: max(0, height(.large) - headerHeight), alignment: .top)
+                .opacity(stage == .peek && drag > -20 ? 0 : 1)
         }
         .frame(height: currentHeight, alignment: .top)
         .frame(maxWidth: .infinity)
-        .clipShape(.rect(cornerRadius: 32, style: .continuous))
-        .glassEffect(.regular, in: .rect(cornerRadius: 32, style: .continuous))
+        .clipShape(.rect(cornerRadius: 30, style: .continuous))
+        .glassEffect(.regular, in: .rect(cornerRadius: 30, style: .continuous))
         .padding(.horizontal, 8)
         .padding(.bottom, 6)
+        .animation(.smooth(duration: 0.2), value: stage == .peek && drag > -20)
     }
 
     private var currentHeight: CGFloat {
-        let raw = stage.height(in: containerHeight) - drag
+        let lowest = height(.peek)
+        let highest = height(.large)
+        let raw = height(stage) - drag
         // soft limits: resist more the further past them
         if raw > highest { return highest + rubber(raw - highest) }
         if raw < lowest { return lowest - rubber(lowest - raw) }
@@ -270,19 +558,19 @@ private struct MapPanel<Header: View, Content: View>: View {
     }
 
     private var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 6)
+        DragGesture(minimumDistance: 4)
             .updating($drag) { value, state, _ in state = value.translation.height }
             .onEnded { value in
-                let projected = stage.height(in: containerHeight) - value.predictedEndTranslation.height
+                let projected = height(stage) - value.predictedEndTranslation.height
                 let target = MapPanelStage.allCases.min {
-                    abs($0.height(in: containerHeight) - projected) < abs($1.height(in: containerHeight) - projected)
+                    abs(height($0) - projected) < abs(height($1) - projected)
                 } ?? stage
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) { stage = target }
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) { stage = target }
             }
     }
 
     private func cycle() {
-        withAnimation(.spring(response: 0.35, dampingFraction: 1)) {
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.9)) {
             stage = switch stage {
             case .peek: .medium
             case .medium: .large
@@ -292,21 +580,26 @@ private struct MapPanel<Header: View, Content: View>: View {
     }
 }
 
-/// "Tiếp theo: Owariya · 850 m · 12 phút", or the day when there is no position.
-private struct MapPanelHeader: View {
+/// The day in a line, or on the day itself the next place and the way to it.
+private struct MapPanelTitle: View {
     @Environment(AppModel.self) private var model
     let day: Day
 
+    /// on the day and in its part of Japan: the next place, how far
     private var nextPlace: Place? {
-        guard model.today?.key == day.key, let next = model.next else { return nil }
-        return model.store.place(next.placeID)
+        guard model.today?.key == day.key, let next = model.next, let p = model.store.place(next.placeID),
+              let here = model.position, Geo.km(here, p.coordinate) < 30 else { return nil }
+        return p
+    }
+
+    private var stopCount: Int {
+        day.stops.filter { model.store.place($0.stop.place).map { $0.kind != .station } ?? false }.count
     }
 
     var body: some View {
         HStack(spacing: 12) {
             if let place = nextPlace, let here = model.position {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Tiếp theo").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 1) {
                     Text(place.name).font(.headline).lineLimit(1)
                     Text("\(Fmt.km(Geo.km(here, place.coordinate))) · \(Fmt.duration(PlanEngine.directWalk(here, place.coordinate, pace: model.pace.factor)))")
                         .font(.subheadline)
@@ -323,9 +616,12 @@ private struct MapPanelHeader: View {
                 // the panel is glass already: a solid button, not glass on glass
                 .buttonStyle(.borderedProminent)
             } else {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Ngày \(day.n) · \(day.title)").font(.headline).lineLimit(1)
-                    Text(day.route).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(day.title).font(.headline).lineLimit(1)
+                    Text("\(day.dow), \(Fmt.shortDate(day.date)) · \(model.doneCount(day))/\(stopCount) điểm")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
                 }
                 Spacer(minLength: 0)
             }
@@ -333,139 +629,384 @@ private struct MapPanelHeader: View {
     }
 }
 
-/// Around you, nearest first; the day's stops when there is no position yet.
-private struct MapPanelList: View {
+private struct MapStop: Identifiable {
+    let index: Int
+    let place: Place
+    var id: Int { index }
+}
+
+/// The day's stops in a row: done ones ticked, the next one ringed, the one the map is on lit.
+/// Tapping a stop goes to it. This is what the panel shows when it is down.
+private struct MapStopStrip: View {
     @Environment(AppModel.self) private var model
     let day: Day
-    @Binding var selected: String?
-    let onPick: (String) -> Void
+    let active: Int?
+    let pick: (Int) -> Void
 
-    private var nearby: [NearbyItem] {
-        guard let here = model.position else { return [] }
-        return Nearby.around(here, day: day, store: model.store, done: Set(model.marked(day).keys), pace: model.pace.factor)
-    }
-
-    private var stops: [Place] {
-        var seen = Set<String>()
-        return day.stops.compactMap { _, s in
-            guard let p = model.store.place(s.place), p.kind != .station, seen.insert(p.id).inserted else { return nil }
-            return p
+    private var stops: [MapStop] {
+        day.stops.compactMap { i, s in
+            guard let p = model.store.place(s.place), p.kind != .station else { return nil }
+            return MapStop(index: i, place: p)
         }
     }
+
+    var body: some View {
+        let stops = self.stops
+        let live = model.today?.key == day.key
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal) {
+                HStack(spacing: 6) {
+                    ForEach(stops) { stop in
+                        if stop.index != stops.first?.index {
+                            Capsule().fill(.secondary.opacity(0.3)).frame(width: 8, height: 2)
+                        }
+                        chip(stop, live: live)
+                            .id(stop.index)
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+            .scrollIndicators(.hidden)
+            .contentMargins(.horizontal, 14, for: .scrollContent)
+            .onChange(of: active) { _, i in
+                guard let i else { return }
+                let target = stops.last { $0.index <= i }?.index ?? stops.first?.index
+                withAnimation(.smooth) { proxy.scrollTo(target, anchor: .center) }
+            }
+        }
+    }
+
+    private func chip(_ stop: MapStop, live: Bool) -> some View {
+        let index = stop.index
+        let place = stop.place
+        let done = model.isDone(day, index)
+        let next = live && model.next?.index == index
+        let lit = active.map { a in a == index || (day.items[a].move != nil && day.stops.first { $0.index > a }?.index == index) } ?? false
+        return Button {
+            pick(index)
+        } label: {
+            HStack(spacing: 6) {
+                Group {
+                    if done {
+                        Image(systemName: "checkmark").font(.system(size: 9, weight: .heavy))
+                    } else {
+                        Text("\(day.items[index].stop?.n ?? 0)")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                    }
+                }
+                .foregroundStyle(.white)
+                .frame(width: 20, height: 20)
+                .background(done ? Palette.sun : place.kind.tint, in: .circle)
+                .overlay {
+                    if next {
+                        Circle().strokeBorder(Palette.sun, lineWidth: 2).padding(-3)
+                    }
+                }
+                Text(place.name)
+                    .font(.caption.weight(lit ? .semibold : .regular))
+                    .lineLimit(1)
+                    .frame(maxWidth: 120, alignment: .leading)
+                    .foregroundStyle(done && !lit ? Color.secondary : Color.primary)
+            }
+            .padding(.leading, 4)
+            .padding(.trailing, 10)
+            .frame(height: 30)
+            .background(lit ? AnyShapeStyle(Palette.sun.opacity(0.14)) : AnyShapeStyle(.clear), in: .capsule)
+            .contentShape(.capsule)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(place.name)
+        .accessibilityValue(done ? "Đã ghé" : next ? "Tiếp theo" : "")
+    }
+}
+
+// MARK: - The timeline that drives the map
+
+/// The day's items with the rail, as in Lịch trình, each stop with its side trips under it. A line
+/// across the list (a third of the way down; it slides to the ends at the ends, so the first and
+/// last items can be reached) decides which item the map shows.
+private struct MapTimeline: View {
+    let day: Day
+    let sides: [Int: [MapSide]]
+    let active: Int?
+    let side: String?
+    let bottomMargin: CGFloat
+    let jump: MapJump?
+    let next: Day?
+    let onRead: (Int?) -> Void
+    let onTap: (Int) -> Void
+    let onSide: (String) -> Void
+    let onPullDown: () -> Void
+    let onNextDay: () -> Void
+
+    @State private var frames = RowFrames()
+    @State private var armed = false
+    @State private var pulled = false
+
+    private static let space = "map.timeline"
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 4) {
-                    if let id = selected, let p = model.store.place(id), !nearby.contains(where: { $0.place.id == id }) {
-                        MapPlaceRow(place: p, detail: p.dish ?? p.ja, isSelected: true, onPick: onPick)
-                            .id(id)
-                        Divider().padding(.vertical, 4)
-                    }
-                    if model.position != nil {
-                        Text("Gần đây")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 4)
-                        ForEach(nearby) { n in
-                            MapPlaceRow(place: n.place, detail: detail(n), isSelected: selected == n.place.id, planned: n.planIndex != nil, onPick: onPick)
-                                .id(n.place.id)
-                        }
-                    } else {
-                        if !model.location.isAllowed {
-                            Button {
-                                model.location.requestWhenInUse()
-                            } label: {
-                                Label("Bật vị trí để thấy khoảng cách", systemImage: "location")
-                                    .frame(maxWidth: .infinity, minHeight: 44)
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(day.items.indices, id: \.self) { i in
+                        ItemRow(day: day, index: i, below: chips(i))
+                            .padding(.horizontal, 10)
+                            .background {
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .fill(Palette.sun.opacity(active == i ? 0.09 : 0))
+                                    .padding(.horizontal, 6)
                             }
-                            .buttonStyle(.bordered)
-                            .padding(.bottom, 8)
-                        }
-                        ForEach(stops) { p in
-                            MapPlaceRow(place: p, detail: p.dish ?? p.ja, isSelected: selected == p.id, planned: true, onPick: onPick)
-                                .id(p.id)
-                        }
+                            .contentShape(.rect)
+                            .onTapGesture { onTap(i) }
+                            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.space)) } action: { frames.rows[i] = $0 }
+                            .id(i)
+                    }
+                    if let next {
+                        footer(next)
                     }
                 }
-                .padding(.horizontal, 14)
-                .padding(.bottom, 16)
+                .padding(.bottom, 8)
+                .coordinateSpace(.named(Self.space))
             }
             .scrollIndicators(.hidden)
-            .onChange(of: selected) { _, id in
-                guard let id else { return }
-                withAnimation(.snappy) { proxy.scrollTo(id, anchor: .top) }
+            .contentMargins(.bottom, bottomMargin, for: .scrollContent)
+            .onScrollGeometryChange(for: MapReading.self) { MapReading($0) } action: { _, r in reading(r) }
+            .onScrollPhaseChange { old, new in
+                guard old == .interacting, new != .interacting else { return }
+                released()
             }
+            .onChange(of: jump) { _, j in
+                guard let j else { return }
+                frames.pausedUntil = .now.addingTimeInterval(0.7)
+                withAnimation(.smooth(duration: 0.45)) { proxy.scrollTo(j.index, anchor: UnitPoint(x: 0.5, y: 0.12)) }
+            }
+            .onAppear {
+                if let j = jump { proxy.scrollTo(j.index, anchor: UnitPoint(x: 0.5, y: 0.12)) }
+            }
+            .sensoryFeedback(.impact(weight: .light), trigger: armed) { _, on in on }
         }
     }
 
-    /// "850 m · 12 phút · rẽ 6 phút"
-    private func detail(_ n: NearbyItem) -> String {
-        var parts = [Fmt.km(n.km), Fmt.duration(n.minutes)]
-        if let d = n.along?.detour, d.min > 0 {
-            parts.append(d.mode == "car" ? "xe \(d.min) phút" : "rẽ \(d.min) phút")
+    private func chips(_ i: Int) -> AnyView? {
+        guard let list = sides[i], !list.isEmpty else { return nil }
+        return AnyView(MapSideChips(sides: list, selected: active == i || isAnchor(i) ? side : nil, pick: onSide))
+    }
+
+    private func isAnchor(_ i: Int) -> Bool {
+        guard let a = active, day.items.indices.contains(a), day.items[a].move != nil else { return false }
+        return day.stops.first { $0.index > a }?.index == i
+    }
+
+    /// The end of the day; pulled past, it goes on to the next.
+    private func footer(_ next: Day) -> some View {
+        Button(action: onNextDay) {
+            HStack(spacing: 12) {
+                Image(systemName: "arrow.down")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(armed ? .white : Palette.sun)
+                    .frame(width: 32, height: 32)
+                    .background(armed ? AnyShapeStyle(Palette.sun) : AnyShapeStyle(Palette.sun.opacity(0.12)), in: .circle)
+                    .rotationEffect(.degrees(armed ? 180 : 0))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Ngày \(next.n)").font(.subheadline.weight(.semibold))
+                    Text(next.title).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
+            .contentShape(.rect)
         }
-        return parts.joined(separator: " · ")
+        .buttonStyle(.plain)
+        .animation(.snappy, value: armed)
+        .accessibilityLabel("Sang ngày \(next.n), \(next.title)")
+    }
+
+    private func reading(_ r: MapReading) {
+        let isArmed = next != nil && r.over > 64
+        if isArmed != armed { armed = isArmed }
+        let isPulled = r.top > 72
+        if isPulled != pulled { pulled = isPulled }
+        guard Date.now >= frames.pausedUntil else { return }
+        // at rest at the top the map shows the whole day; the first scroll starts reading
+        let i = r.atTop ? nil : frames.item(at: r.line, count: day.items.count)
+        guard i != frames.last else { return }
+        frames.last = i
+        onRead(i)
+    }
+
+    private func released() {
+        if armed {
+            armed = false
+            onNextDay()
+        } else if pulled {
+            pulled = false
+            onPullDown()
+        }
     }
 }
 
-private struct MapPlaceRow: View {
-    @Environment(AppModel.self) private var model
-    let place: Place
-    let detail: String?
-    let isSelected: Bool
-    var planned = false
-    let onPick: (String) -> Void
+/// Where the rows are in the list's content (they move only when the layout does), kept out of
+/// the view's state so scrolling does not redraw anything by itself.
+private final class RowFrames {
+    var rows: [Int: CGRect] = [:]
+    var last: Int?
+    var pausedUntil = Date.distantPast
+
+    /// the last row starting above the line
+    func item(at line: CGFloat, count: Int) -> Int? {
+        var found: Int?
+        for i in 0..<count {
+            guard let f = rows[i] else { continue }
+            if f.minY <= line { found = i } else { break }
+        }
+        return found
+    }
+}
+
+/// The reading line in content coordinates, and how far the list is pulled past either end.
+nonisolated struct MapReading: Equatable {
+    var line: CGFloat
+    /// past the end of the content
+    var over: CGFloat
+    /// past the top
+    var top: CGFloat
+    /// not scrolled at all
+    var atTop: Bool
+
+    init(_ g: ScrollGeometry) {
+        let visible = max(1, g.containerSize.height - g.contentInsets.top - g.contentInsets.bottom)
+        let offset = g.contentOffset.y + g.contentInsets.top
+        let end = max(0, g.contentSize.height - visible)
+        let share: CGFloat = 0.3
+        // a third of the way down; near the top it rises to the top, near the end it sinks to
+        // the bottom, so every item can come under it
+        var y = offset + min(max(offset, 0), visible * share) + max(0, visible * (1 - share) - (end - offset))
+        y = min(max(y, 0), g.contentSize.height)
+        line = y
+        over = offset - end
+        top = -offset
+        atTop = offset <= 2
+    }
+}
+
+// MARK: - Side trips
+
+/// A stop's side trips as small pills under it: what it is, its name, minutes off the way.
+private struct MapSideChips: View {
+    let sides: [MapSide]
+    let selected: String?
+    let pick: (String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Button {
-                onPick(place.id)
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: place.snack != nil ? "takeoutbag.and.cup.and.straw.fill" : place.kind.symbol)
-                        .font(.subheadline)
-                        .foregroundStyle(planned ? Color.accentColor : .orange)
-                        .frame(width: 36, height: 36)
-                        .background(.fill.tertiary, in: .circle)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(place.name).font(.body.weight(.semibold)).lineLimit(1)
-                        if let detail {
-                            Text(detail).font(.subheadline).foregroundStyle(.secondary).lineLimit(1).monospacedDigit()
+        ScrollView(.horizontal) {
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.turn.down.right")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+                ForEach(sides) { s in
+                    let on = selected == s.id
+                    Button {
+                        pick(s.id)
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: s.place.snack != nil ? "takeoutbag.and.cup.and.straw.fill" : s.place.kind.symbol)
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(on ? Color.white : s.place.kind.tint)
+                            Text(s.place.name)
+                                .font(.caption.weight(.semibold))
+                                .lineLimit(1)
+                            Text("\(s.minutes)′")
+                                .font(.caption)
+                                .monospacedDigit()
+                                .foregroundStyle(on ? Color.white.opacity(0.85) : Color.secondary)
                         }
+                        .foregroundStyle(on ? Color.white : Color.primary)
+                        .padding(.horizontal, 9)
+                        .frame(height: 28)
+                        .background(on ? AnyShapeStyle(Place.Kind.food.tint) : AnyShapeStyle(.fill.tertiary), in: .capsule)
+                        .contentShape(.capsule)
                     }
-                    Spacer(minLength: 0)
-                    if planned {
-                        Tag(text: "Trong lịch", tint: .accentColor)
-                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(s.place.name), rẽ \(s.minutes) phút")
                 }
-                .frame(minHeight: 48)
-                .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
-
-            if isSelected {
-                HStack(spacing: 10) {
-                    Button {
-                        model.walk(to: place.id)
-                    } label: {
-                        Label("Đi bộ", systemImage: "figure.walk").frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    Button {
-                        model.present(.place(place.id), from: "map.\(place.id)")
-                    } label: {
-                        Label("Chi tiết", systemImage: "info.circle").frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .sheetSource("map.\(place.id)")
-                }
-                .padding(.leading, 48)
-                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .padding(.vertical, 4)
-        .padding(.horizontal, 4)
-        .background(isSelected ? AnyShapeStyle(.fill.quaternary) : AnyShapeStyle(.clear), in: .rect(cornerRadius: 16, style: .continuous))
+        .scrollIndicators(.hidden)
+        .scrollClipDisabled()
+    }
+}
+
+/// The place off the plan that was tapped, over the panel: how far off the way, and what to do.
+private struct MapSideCard: View {
+    @Environment(AppModel.self) private var model
+    let place: Place
+    let side: MapSide?
+    let from: Place?
+    let close: () -> Void
+
+    private var detail: String {
+        var parts: [String] = []
+        if let side, let from {
+            parts.append("\(side.minutes) phút từ \(from.name)")
+        } else if let here = model.position, Geo.km(here, place.coordinate) < 30 {
+            parts.append(Fmt.km(Geo.km(here, place.coordinate)))
+        }
+        if let d = place.dish ?? place.snack.map({ _ in place.ja ?? "" }), !d.isEmpty { parts.append(d) }
+        return parts.joined(separator: " · ")
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
+                GlyphTile(symbol: place.snack != nil ? "takeoutbag.and.cup.and.straw.fill" : place.kind.symbol, tint: place.kind.tint, size: 36)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(place.name).font(.headline).lineLimit(1)
+                    if !detail.isEmpty {
+                        Text(detail).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
+                    }
+                }
+                Spacer(minLength: 0)
+                Button(action: close) {
+                    Image(systemName: "xmark")
+                        .font(.footnote.weight(.bold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 30, height: 30)
+                        .background(.fill.tertiary, in: .circle)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Đóng")
+            }
+            HStack(spacing: 8) {
+                Button {
+                    model.walk(to: place.id)
+                } label: {
+                    Label("Đi bộ", systemImage: "figure.walk").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.glassProminent)
+                Button {
+                    model.present(.place(place.id), from: "map.side.\(place.id)")
+                } label: {
+                    Label("Chi tiết", systemImage: "info.circle").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.glass)
+                .sheetSource("map.side.\(place.id)")
+                Button {
+                    model.present(.expense(placeID: place.id, yen: nil), from: "map.spend.\(place.id)")
+                } label: {
+                    Image(systemName: "yensign")
+                        .frame(width: 22)
+                }
+                .buttonStyle(.glass)
+                .sheetSource("map.spend.\(place.id)")
+                .accessibilityLabel("Ghi khoản chi ở đây")
+            }
+            .controlSize(.large)
+        }
+        .padding(14)
+        .glassEffect(.regular, in: .rect(cornerRadius: 26, style: .continuous))
     }
 }

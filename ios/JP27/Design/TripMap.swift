@@ -18,7 +18,8 @@ nonisolated struct MapRoute: Hashable, Sendable {
 
 nonisolated struct MapPin: Hashable, Sendable {
     enum Kind: String, Sendable, CaseIterable {
-        case stop, done, stay, station, along, snack, fuji, highlight
+        /// halo: a soft disc under the place being looked at; never tappable
+        case stop, done, stay, station, along, snack, fuji, highlight, halo
     }
 
     let id: String
@@ -26,6 +27,21 @@ nonisolated struct MapPin: Hashable, Sendable {
     let kind: Kind
     var label: String?
     var number: Int?
+    /// draw the label beside the pin (side trips one can tap)
+    var titled = false
+}
+
+/// A camera move asked of the map; a new id moves it again even to the same place.
+nonisolated struct MapCamera: Equatable, Sendable {
+    enum Move: Equatable, Sendable {
+        /// fit these points in the clear part of the map
+        case fit([Coordinate])
+        /// centre on a point at this zoom (or the current one, if closer)
+        case center(Coordinate, zoom: Double)
+    }
+
+    let id: Int
+    let move: Move
 }
 
 nonisolated struct MapContent: Equatable, Sendable {
@@ -47,7 +63,13 @@ struct TripMap: UIViewRepresentable {
     /// centre on this when it changes, or when focusID changes (to recentre on the same point)
     var focus: Coordinate?
     var focusID = 0
+    /// the parts of the map covered by the app's own chrome (a panel, a strip of days); the map
+    /// centres and fits within what is left. nil leaves the map's inset alone.
+    var chrome: UIEdgeInsets?
+    var camera: MapCamera?
     var onSelect: ((String) -> Void)?
+    /// the person panned or zoomed the map themselves
+    var onUserMove: (() -> Void)?
 
     @Environment(\.colorScheme) private var scheme
 
@@ -67,6 +89,8 @@ struct TripMap: UIViewRepresentable {
         map.logoViewPosition = .bottomLeft
         map.attributionButtonPosition = .bottomLeft
         map.maximumZoomLevel = 18
+        // the map's clear area is set from `chrome`, not guessed from the safe area
+        map.automaticallyAdjustsContentInset = false
         let tap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.tapped(_:)))
         tap.delegate = context.coordinator
         map.addGestureRecognizer(tap)
@@ -77,7 +101,10 @@ struct TripMap: UIViewRepresentable {
         let c = context.coordinator
         c.parent = self
         map.showsUserLocation = showsUser
-        map.contentInset = .zero
+        let inset = chrome ?? .zero
+        if map.contentInset != inset {
+            map.setContentInset(inset, animated: c.loaded, completionHandler: nil)
+        }
         let dark = scheme == .dark
         if c.dark != dark {
             c.dark = dark
@@ -96,6 +123,10 @@ struct TripMap: UIViewRepresentable {
             c.focusID = focusID
             map.setCenter(CLLocationCoordinate2D(latitude: focus.lat, longitude: focus.lng), zoomLevel: max(map.zoomLevel, 15), animated: true)
         }
+        if let camera, camera.id != c.cameraID {
+            c.cameraID = camera.id
+            c.move(map, camera.move)
+        }
     }
 
     final class Coordinator: NSObject, MLNMapViewDelegate, UIGestureRecognizerDelegate {
@@ -105,10 +136,11 @@ struct TripMap: UIViewRepresentable {
         var frameID: String
         var focus: Coordinate?
         var focusID = 0
+        var cameraID: Int?
         private var applied: MapContent?
         private var layers: [String] = []
         private var sources: [String] = []
-        private let pinLayers = MapPin.Kind.allCases.map { "pins-\($0.rawValue)" }
+        private let pinLayers = MapPin.Kind.allCases.filter { $0 != .halo }.map { "pins-\($0.rawValue)" } + ["pins-titles"]
 
         init(parent: TripMap, dark: Bool) {
             self.parent = parent
@@ -116,6 +148,7 @@ struct TripMap: UIViewRepresentable {
             frameID = parent.frameID
             focus = parent.focus
             focusID = parent.focusID
+            cameraID = parent.camera?.id
         }
 
         nonisolated func mapView(_ mapView: MLNMapView, didFinishLoading style: MLNStyle) {
@@ -125,8 +158,19 @@ struct TripMap: UIViewRepresentable {
                 layers = []
                 sources = []
                 apply(parent.content, to: mapView)
-                frame(mapView, animated: false)
+                if let camera = parent.camera {
+                    cameraID = camera.id
+                    move(mapView, camera.move, animated: false)
+                } else {
+                    frame(mapView, animated: false)
+                }
             }
+        }
+
+        nonisolated func mapView(_ mapView: MLNMapView, regionWillChangeWith reason: MLNCameraChangeReason, animated: Bool) {
+            let touched = !reason.intersection([.gesturePan, .gesturePinch, .gestureRotate, .gestureZoomIn, .gestureZoomOut, .gestureOneFingerZoom, .gestureTilt]).isEmpty
+            guard touched else { return }
+            MainActor.assumeIsolated { parent.onUserMove?() }
         }
 
         nonisolated func gestureRecognizer(_ g: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
@@ -141,15 +185,30 @@ struct TripMap: UIViewRepresentable {
             if let id = hit.first?.attribute(forKey: "id") as? String { onSelect(id) }
         }
 
+        func move(_ map: MLNMapView, _ move: MapCamera.Move, animated: Bool = true) {
+            switch move {
+            case .fit(let pts):
+                fit(map, pts, animated: animated)
+            case .center(let c, let zoom):
+                map.setCenter(CLLocationCoordinate2D(latitude: c.lat, longitude: c.lng), zoomLevel: zoom, direction: map.direction, animated: animated, completionHandler: nil)
+            }
+        }
+
         func frame(_ map: MLNMapView, animated: Bool) {
-            let pts = parent.content.outline
+            fit(map, parent.content.outline, animated: animated)
+        }
+
+        private func fit(_ map: MLNMapView, _ pts: [Coordinate], animated: Bool) {
             guard let b = Geo.bounds(pts) else { return }
             if pts.count == 1 || (b.ne.lat - b.sw.lat < 0.002 && b.ne.lng - b.sw.lng < 0.002) {
-                map.setCenter(CLLocationCoordinate2D(latitude: b.sw.lat, longitude: b.sw.lng), zoomLevel: 15.5, animated: animated)
+                map.setCenter(CLLocationCoordinate2D(latitude: (b.sw.lat + b.ne.lat) / 2, longitude: (b.sw.lng + b.ne.lng) / 2), zoomLevel: 15.5, animated: animated)
                 return
             }
-            let bounds = MLNCoordinateBounds(sw: CLLocationCoordinate2D(latitude: b.sw.lat, longitude: b.sw.lng),
-                                             ne: CLLocationCoordinate2D(latitude: b.ne.lat, longitude: b.ne.lng))
+            // a short walk is not blown up to street level: at least ~600 m across
+            let mid = (lat: (b.sw.lat + b.ne.lat) / 2, lng: (b.sw.lng + b.ne.lng) / 2)
+            let half = (lat: max((b.ne.lat - b.sw.lat) / 2, 0.0028), lng: max((b.ne.lng - b.sw.lng) / 2, 0.0034))
+            let bounds = MLNCoordinateBounds(sw: CLLocationCoordinate2D(latitude: mid.lat - half.lat, longitude: mid.lng - half.lng),
+                                             ne: CLLocationCoordinate2D(latitude: mid.lat + half.lat, longitude: mid.lng + half.lng))
             map.setVisibleCoordinateBounds(bounds, edgePadding: parent.insets, animated: animated, completionHandler: nil)
         }
 
@@ -221,13 +280,14 @@ struct TripMap: UIViewRepresentable {
                 var attrs: [String: Any] = ["id": p.id, "kind": p.kind.rawValue]
                 if let n = p.number { attrs["n"] = "\(n)" }
                 if let l = p.label { attrs["label"] = l }
+                if p.titled { attrs["titled"] = 1 }
                 f.attributes = attrs
                 return f
             }
             let pinSource = MLNShapeSource(identifier: "pins", shape: MLNShapeCollectionFeature(shapes: features), options: nil)
             style.addSource(pinSource)
             sources.append("pins")
-            for kind in [MapPin.Kind.station, .along, .highlight, .snack, .fuji, .stay, .done, .stop] {
+            for kind in [MapPin.Kind.halo, .station, .along, .highlight, .snack, .fuji, .stay, .done, .stop] {
                 let layer = MLNCircleStyleLayer(identifier: "pins-\(kind.rawValue)", source: pinSource)
                 layer.predicate = NSPredicate(format: "kind == %@", kind.rawValue)
                 let look = Self.look(kind, dark: dark)
@@ -248,6 +308,21 @@ struct TripMap: UIViewRepresentable {
             numbers.textIgnoresPlacement = NSExpression(forConstantValue: true)
             style.addLayer(numbers)
             layers.append("pins-numbers")
+
+            // names beside the side trips, so the map says what can be tapped
+            let titles = MLNSymbolStyleLayer(identifier: "pins-titles", source: pinSource)
+            titles.predicate = NSPredicate(format: "titled == 1")
+            titles.text = NSExpression(forKeyPath: "label")
+            titles.textFontNames = NSExpression(forConstantValue: ["Noto Sans Bold"])
+            titles.textFontSize = NSExpression(forConstantValue: 11.5)
+            titles.textColor = NSExpression(forConstantValue: dark ? UIColor.white : UIColor(white: 0.12, alpha: 1))
+            titles.textHaloColor = NSExpression(forConstantValue: dark ? UIColor.black.withAlphaComponent(0.85) : UIColor.white)
+            titles.textHaloWidth = NSExpression(forConstantValue: 1.6)
+            titles.textAnchor = NSExpression(forConstantValue: "left")
+            titles.textOffset = NSExpression(forConstantValue: NSValue(cgVector: CGVector(dx: 0.9, dy: 0)))
+            titles.maximumTextWidth = NSExpression(forConstantValue: 9)
+            style.addLayer(titles)
+            layers.append("pins-titles")
         }
 
         private static func look(_ kind: MapPin.Kind, dark: Bool) -> (fill: UIColor, stroke: UIColor, radius: Double, strokeWidth: Double) {
@@ -262,6 +337,7 @@ struct TripMap: UIViewRepresentable {
             case .snack: return (UIColor(Color(hex: "#E07A2F")), edge, 5.5, 1.5)
             case .fuji: return (UIColor(Color(hex: "#6B4FD8")), edge, 6, 2)
             case .highlight: return (UIColor(named: "Ai") ?? .systemBlue, edge, 5.5, 1.5)
+            case .halo: return ((UIColor(named: "AccentColor") ?? .systemRed).withAlphaComponent(0.22), .clear, 18, 0)
             }
         }
     }
