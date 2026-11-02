@@ -809,19 +809,25 @@ private struct HomeFuji: View {
         let days = Array(Set(spots.compactMap(\.day))).sorted()
         NavigationLink(value: Route.fuji) {
             ZStack(alignment: .bottomLeading) {
+                // Fuji above Suruga Bay from Satta Pass, on the Tōkaidō of day 5
                 FujiScene()
-                LinearGradient(colors: [.clear, .black.opacity(0.45)], startPoint: .center, endPoint: .bottom)
+                LinearGradient(colors: [.clear, .black.opacity(0.55)], startPoint: .center, endPoint: .bottom)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("富士山")
                         .font(.mincho(32))
                     Text("\(visible) chỗ thấy Fuji · ngày \(days.joined(separator: ", "))")
                         .font(.subheadline.weight(.semibold))
                         .opacity(0.9)
+                    Text("Đèo Satta · \(FujiPhotograph.credit) / Wikimedia Commons")
+                        .font(.caption2)
+                        .opacity(0.7)
+                        .lineLimit(1)
+                        .padding(.top, 4)
                 }
                 .foregroundStyle(.white)
                 .padding(20)
             }
-            .frame(height: 230)
+            .frame(height: 260)
             .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
         }
         .buttonStyle(.pressable)

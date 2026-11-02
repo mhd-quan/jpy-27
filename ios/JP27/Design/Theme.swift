@@ -319,58 +319,29 @@ nonisolated struct TicketShape: Shape {
     }
 }
 
-/// Mount Fuji's profile: concave slopes, a flat crater top with its notch.
-nonisolated struct FujiShape: Shape {
-    func path(in r: CGRect) -> Path {
-        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: r.minX + x * r.width, y: r.minY + y * r.height) }
-        var p = Path()
-        p.move(to: pt(0, 1))
-        p.addQuadCurve(to: pt(0.405, 0.12), control: pt(0.30, 0.80))
-        p.addLine(to: pt(0.455, 0.08))
-        p.addLine(to: pt(0.49, 0.11))
-        p.addLine(to: pt(0.52, 0.085))
-        p.addLine(to: pt(0.595, 0.12))
-        p.addQuadCurve(to: pt(1, 1), control: pt(0.70, 0.80))
-        p.closeSubpath()
-        return p
-    }
-}
-
-/// The snow line: everything above a ragged edge a third of the way down.
-nonisolated struct SnowLine: Shape {
-    func path(in r: CGRect) -> Path {
-        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: r.minX + x * r.width, y: r.minY + y * r.height) }
-        var p = Path()
-        p.move(to: pt(0, 0))
-        p.addLine(to: pt(1, 0))
-        p.addLine(to: pt(1, 0.36))
-        let teeth: [(CGFloat, CGFloat)] = [(0.66, 0.36), (0.62, 0.46), (0.58, 0.37), (0.54, 0.5), (0.5, 0.38), (0.46, 0.47), (0.42, 0.36), (0.38, 0.44), (0.34, 0.35)]
-        for (x, y) in teeth { p.addLine(to: pt(x, y)) }
-        p.addLine(to: pt(0, 0.35))
-        p.closeSubpath()
-        return p
-    }
-}
-
-/// Fuji at dusk: violet sky, the mountain in indigo, the snow cap catching the light.
+/// Fuji above Suruga Bay from Satta Pass (`FujiPhotograph`), pinned to its top edge so the summit
+/// stays in a frame wider than the photograph; a clear-sky blue holds its place while it loads.
 struct FujiScene: View {
+    @State private var image: UIImage?
+
     var body: some View {
-        ZStack(alignment: .bottom) {
-            LinearGradient(colors: [Color(hex: "#3B2F7A"), Palette.fuji, Color(hex: "#F2A8B5")], startPoint: .top, endPoint: .bottom)
-            Circle()
-                .fill(Palette.sun)
-                .frame(width: 58, height: 58)
-                .offset(x: 92, y: -118)
-                .blur(radius: 0.5)
-            FujiShape()
-                .fill(LinearGradient(colors: [Color(hex: "#2A3F73"), Color(hex: "#18264A")], startPoint: .top, endPoint: .bottom))
-                .overlay {
-                    FujiShape().fill(Color.white.opacity(0.95)).mask { SnowLine() }
+        Rectangle()
+            .fill(Color(hex: "#5B86B8"))
+            .overlay(alignment: .top) {
+                if let image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .transition(.opacity)
                 }
-                .frame(height: 150)
-                .padding(.horizontal, -30)
-        }
-        .accessibilityHidden(true)
+            }
+            .clipped()
+            .task {
+                guard image == nil, let photo = FujiPhotograph.photo else { return }
+                let loaded = await PhotoCache.shared.image(photo, maxPixel: 1600)
+                withAnimation(.easeOut(duration: 0.2)) { image = loaded }
+            }
+            .accessibilityHidden(true)
     }
 }
 
