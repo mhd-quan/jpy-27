@@ -186,26 +186,71 @@ private struct SheetLayer: ViewModifier {
 /// spring, the glass capsule widening back into the bar with the tabs sliding out of it, and the
 /// behaviour stays `.never` until that spring has settled, so the expand is not cut short. Only the
 /// tab bar's own views are laid out inside the spring: the page under it, mid-scroll, is not.
+///
+/// No API plays the system's fold backwards or starts its own expand, so the expand borrows the
+/// fold's spring instead: while the page scrolls down, the bar's layers are read for the spring
+/// UIKit folds them with, and the expand runs on that same spring, the fold in reverse. Until a
+/// fold has been seen (or if UIKit folds without a spring) it uses a soft spring of its own.
 @Observable final class TabBarScroll {
     @ObservationIgnored private weak var tabs: UITabBarController?
     /// hands the bar back to `.onScrollDown` once the expand has settled
     @ObservationIgnored private var handBack: Task<Void, Never>?
+    /// the fold's spring, as `UIView.animate(springDuration:bounce:)` takes it
+    @ObservationIgnored private var fold: (duration: TimeInterval, bounce: CGFloat)?
+    /// layer reads left before giving up on finding the fold's spring
+    @ObservationIgnored private var looks = 600
+    @ObservationIgnored private var opening = false
+
+    /// Used until the fold has been read: slower and calmer than a snap, as the fold looks.
+    private static let ownSpring = (duration: 0.62, bounce: CGFloat(0.1))
 
     /// Opens the bar if it is folded; an open bar is left as it is.
     func open() {
         guard let tabs = tabs ?? Self.find() else { return }
         self.tabs = tabs
         handBack?.cancel()
-        UIView.animate(springDuration: 0.5, bounce: 0.18, initialSpringVelocity: 0, delay: 0,
+        let spring = fold ?? Self.ownSpring
+        opening = true
+        UIView.animate(springDuration: spring.duration, bounce: spring.bounce, initialSpringVelocity: 0, delay: 0,
                        options: [.allowUserInteraction, .beginFromCurrentState]) {
             tabs.tabBarMinimizeBehavior = .never
             tabs.tabBar.layoutIfNeeded()
         }
-        handBack = Task { [weak tabs] in
-            try? await Task.sleep(for: .milliseconds(550))
+        handBack = Task { [weak self, weak tabs] in
+            try? await Task.sleep(for: .seconds(spring.duration + 0.05))
             guard !Task.isCancelled else { return }
             tabs?.tabBarMinimizeBehavior = .onScrollDown
+            self?.opening = false
         }
+    }
+
+    /// Called as the page scrolls down, until the fold's spring is known: looks for it on the
+    /// bar's layers while the fold is under way. The expand's own spring is never read as one.
+    func readFold() {
+        guard fold == nil, looks > 0, !opening, let tabs = tabs ?? Self.find() else { return }
+        self.tabs = tabs
+        looks -= 1
+        guard let s = Self.longestSpring(in: tabs.tabBar.layer) else { return }
+        // a spring's perceptual duration and bounce, from its physics
+        let duration = 2 * .pi * (s.mass / s.stiffness).squareRoot()
+        let ratio = s.damping / (2 * (s.stiffness * s.mass).squareRoot())
+        // a quick one belongs to a glyph, not to the bar's change of shape
+        guard duration >= 0.3, duration <= 1.2 else { return }
+        fold = (duration: TimeInterval(duration), bounce: min(max(1 - ratio, 0), 0.4))
+    }
+
+    /// The slowest spring running on any layer of the bar, the one that carries its shape.
+    private static func longestSpring(in root: CALayer) -> CASpringAnimation? {
+        var best: CASpringAnimation?
+        var stack = [root]
+        while let layer = stack.popLast() {
+            for key in layer.animationKeys() ?? [] {
+                guard let s = layer.animation(forKey: key) as? CASpringAnimation, s.stiffness > 0, s.mass > 0 else { continue }
+                if s.mass / s.stiffness > (best.map { $0.mass / $0.stiffness } ?? 0) { best = s }
+            }
+            stack += layer.sublayers ?? []
+        }
+        return best
     }
 
     /// The controller behind the root `TabView`: a child of the window's hosting controller, never
@@ -254,6 +299,8 @@ private struct TabBarFollowsScroll: ViewModifier {
             return min(max(g.contentOffset.y, top), bottom) - top
         } action: { _, y in
             let t = track
+            // while the page moves down the bar may be folding: read the spring it folds with
+            if y > t.turn, let bar { bar.readFold() }
             if t.up {
                 if y < t.turn { t.turn = y } else if y > t.turn + Self.slack { turn(up: false, at: y) }
             } else {
