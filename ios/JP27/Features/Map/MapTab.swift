@@ -796,7 +796,6 @@ private struct MapTimeline: View {
 
     @State private var frames = RowFrames()
     @State private var armed = false
-    @State private var pulled = false
 
     private nonisolated static let space = "map.timeline"
 
@@ -828,6 +827,7 @@ private struct MapTimeline: View {
             .contentMargins(.bottom, bottomMargin, for: .scrollContent)
             .onScrollGeometryChange(for: MapReading.self) { MapReading($0) } action: { _, r in reading(r) }
             .onScrollPhaseChange { old, new in
+                frames.touching = new == .tracking || new == .interacting
                 guard old == .interacting, new != .interacting else { return }
                 released()
             }
@@ -843,9 +843,8 @@ private struct MapTimeline: View {
             .onChange(of: stage) {
                 frames.pausedUntil = .now.addingTimeInterval(0.5)
             }
-            .sensoryFeedback(.snap, trigger: armed) { _, on in on }
-            // pulled down far enough that letting go folds the panel away
-            .sensoryFeedback(.snap, trigger: pulled) { _, on in on }
+            // felt only under the finger: a fling that bounces past the end arms it too
+            .sensoryFeedback(.snap, trigger: armed) { [frames] _, on in on && frames.touching }
         }
     }
 
@@ -885,10 +884,15 @@ private struct MapTimeline: View {
     }
 
     private func reading(_ r: MapReading) {
-        let isArmed = next != nil && r.over > 64
+        // each with some way back before it lets go, so a finger resting near the line does not
+        // flip it, and the haptic with it, frame after frame
+        let isArmed = next != nil && r.over > (armed ? 48 : 64)
         if isArmed != armed { armed = isArmed }
-        let isPulled = r.top > 72
-        if isPulled != pulled { pulled = isPulled }
+        // pulled down far enough that letting go folds the panel away; kept out of the view's state,
+        // since a state read in the body would redraw the whole list each time it flips
+        let isPulled = r.top > (frames.pulled ? 56 : 72)
+        if isPulled, !frames.pulled, frames.touching { Haptic.snap() }
+        frames.pulled = isPulled
         guard Date.now >= frames.pausedUntil else { return }
         // at rest at the top the map shows the whole day; the first scroll starts reading
         let i = r.atTop ? nil : frames.item(at: r.line, count: day.items.count)
@@ -901,8 +905,8 @@ private struct MapTimeline: View {
         if armed {
             armed = false
             onNextDay(true)
-        } else if pulled {
-            pulled = false
+        } else if frames.pulled {
+            frames.pulled = false
             onPullDown()
         }
     }
@@ -914,6 +918,10 @@ private final class RowFrames {
     var rows: [Int: CGRect] = [:]
     var last: Int?
     var pausedUntil = Date.distantPast
+    /// a finger on the list
+    var touching = false
+    /// pulled past the top far enough to fold the panel on letting go
+    var pulled = false
 
     /// the last row starting above the line
     func item(at line: CGFloat, count: Int) -> Int? {

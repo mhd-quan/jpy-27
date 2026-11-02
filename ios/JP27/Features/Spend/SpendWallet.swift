@@ -84,7 +84,7 @@ struct SpendTopupSheet: View {
                                 .contentShape(.capsule)
                         }
                         // the amount chosen ticks `pick` below; the same amount again stays quiet
-                        .buttonStyle(.pressable(.settle, feedback: nil))
+                        .buttonStyle(.pressable(.settle, felt: false))
                         .accessibilityAddTraits(on ? .isSelected : [])
                     }
                 }

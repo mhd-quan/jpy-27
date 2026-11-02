@@ -116,7 +116,7 @@ private struct HomeCover: View {
             .scrollTargetBehavior(.paging)
             .scrollPosition(id: $page)
             // a swipe ticks as it lands; the page turning by itself does not
-            .pickOnSettle(page)
+            .feelsPages(page)
             .scrollIndicators(.hidden)
             .onScrollVisibilityChange(threshold: 0.15) { visible = $0 }
             // a paper mist under the status bar, and the bottom fading into the page
@@ -273,7 +273,7 @@ private struct HomeSun: View {
             }
         }
         // the unit turning is a choice: `pick`, not the card's press
-        .buttonStyle(.pressable(.settle, feedback: nil))
+        .buttonStyle(.pressable(.settle, felt: false))
         .sensoryFeedback(.pick, trigger: taps)
         .scaleEffect(risen ? 1 : 0.85)
         .opacity(risen ? 1 : 0)
@@ -420,7 +420,7 @@ private struct HomeDays: View {
             .scrollTargetBehavior(.viewAligned)
             .scrollPosition(id: $focus, anchor: .leading)
             // a station tapped moves the cards quietly: the station has ticked
-            .pickOnSettle(focus)
+            .feelsPages(focus)
             .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
             .scrollIndicators(.hidden)
     }
@@ -529,7 +529,7 @@ private struct HomeTickets: View {
                 }
                 .scrollTargetBehavior(.viewAligned)
                 .scrollPosition(id: $at)
-                .pickOnSettle(at)
+                .feelsPages(at)
                 .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
                 .scrollIndicators(.hidden)
             }
@@ -648,7 +648,7 @@ private struct HomeMeals: View {
                 }
                 .scrollTargetBehavior(.viewAligned)
                 .scrollPosition(id: $at)
-                .pickOnSettle(at)
+                .feelsPages(at)
                 .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
                 .scrollIndicators(.hidden)
             }

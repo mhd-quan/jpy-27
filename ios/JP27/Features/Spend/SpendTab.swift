@@ -516,7 +516,7 @@ private struct SpendDial: View {
                     .contentShape(.capsule)
                 }
                 // the dial ticks `pick` for the line chosen; letting it go stays quiet
-                .buttonStyle(.pressable(.settle, feedback: nil))
+                .buttonStyle(.pressable(.settle, felt: false))
                 .accessibilityLabel("\(a.label), \(chipFigure(a, planning: planning))")
                 .accessibilityAddTraits(on ? .isSelected : [])
             }

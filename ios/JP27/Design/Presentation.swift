@@ -191,6 +191,10 @@ private struct SheetLayer: ViewModifier {
 /// fold's spring instead: while the page scrolls down, the bar's layers are read for the spring
 /// UIKit folds them with, and the expand runs on that same spring, the fold in reverse. Until a
 /// fold has been seen (or if UIKit folds without a spring) it uses a soft spring of its own.
+///
+/// A spring passed in reaches only what UIKit animates inside it; the parts it runs on timings of
+/// its own kept the expand as quick as ever on an iPhone, whatever the spring. So while the bar opens, its layer runs slower as a whole (`pace`), every
+/// animation under it alike, and goes back to its own time once the expand has settled.
 @Observable final class TabBarScroll {
     @ObservationIgnored private weak var tabs: UITabBarController?
     /// hands the bar back to `.onScrollDown` once the expand has settled
@@ -200,9 +204,13 @@ private struct SheetLayer: ViewModifier {
     /// layer reads left before giving up on finding the fold's spring
     @ObservationIgnored private var looks = 600
     @ObservationIgnored private var opening = false
+    /// the page has moved down since the bar last opened, so the bar has likely folded
+    @ObservationIgnored private var folded = false
 
-    /// Used until the fold has been read: slower and calmer than a snap, as the fold looks.
-    private static let ownSpring = (duration: 0.62, bounce: CGFloat(0.1))
+    /// Used until the fold has been read: calm, with little overshoot.
+    private static let ownSpring = (duration: 0.5, bounce: CGFloat(0.1))
+    /// how fast the bar's layer runs while it opens: 0.6 plays the expand at 60% speed
+    private static let pace: Float = 0.6
 
     /// Opens the bar if it is folded; an open bar is left as it is.
     func open() {
@@ -210,24 +218,59 @@ private struct SheetLayer: ViewModifier {
         self.tabs = tabs
         handBack?.cancel()
         let spring = fold ?? Self.ownSpring
+        // an open bar has nothing to slow, and taps on its tabs keep their own pace
+        let slowed = folded
+        folded = false
         opening = true
+        let layer = tabs.tabBar.layer
+        if slowed { Self.retime(layer, speed: Self.pace) }
         UIView.animate(springDuration: spring.duration, bounce: spring.bounce, initialSpringVelocity: 0, delay: 0,
                        options: [.allowUserInteraction, .beginFromCurrentState]) {
             tabs.tabBarMinimizeBehavior = .never
             tabs.tabBar.layoutIfNeeded()
         }
+        // the layer may still be slowed by an expand this one cut short
+        let settle = spring.duration / Double(layer.speed) + 0.1
         handBack = Task { [weak self, weak tabs] in
-            try? await Task.sleep(for: .seconds(spring.duration + 0.05))
+            try? await Task.sleep(for: .seconds(settle))
             guard !Task.isCancelled else { return }
             tabs?.tabBarMinimizeBehavior = .onScrollDown
+            if let layer = tabs?.tabBar.layer { Self.ownTime(layer) }
             self?.opening = false
         }
     }
 
-    /// Called as the page scrolls down, until the fold's spring is known: looks for it on the
-    /// bar's layers while the fold is under way. The expand's own spring is never read as one.
-    func readFold() {
-        guard fold == nil, looks > 0, !opening, let tabs = tabs ?? Self.find() else { return }
+    /// Runs `layer` and everything under it at `speed` from now on, without a jump: what is in
+    /// flight carries on from where it is, only slower.
+    private static func retime(_ layer: CALayer, speed: Float) {
+        guard layer.speed != speed else { return }
+        let now = CACurrentMediaTime()
+        let local = layer.convertTime(now, from: nil)
+        layer.speed = speed
+        layer.beginTime = layer.superlayer?.convertTime(now, from: nil) ?? now
+        layer.timeOffset = local
+    }
+
+    /// Back to the window's own time, once the expand has settled and nothing runs slowed: an
+    /// animation UIKit adds later is timed against the window's clock.
+    private static func ownTime(_ layer: CALayer) {
+        layer.speed = 1
+        layer.timeOffset = 0
+        layer.beginTime = 0
+    }
+
+    /// The page moved down: the bar folds by itself (or already has), and while it does, the
+    /// spring it folds with can be read. Ignored while the bar is opening.
+    func movedDown() {
+        guard !opening else { return }
+        folded = true
+        readFold()
+    }
+
+    /// Looks for the fold's spring on the bar's layers while the fold is under way, until it is
+    /// known. The expand's own spring is never read as one.
+    private func readFold() {
+        guard fold == nil, looks > 0, let tabs = tabs ?? Self.find() else { return }
         self.tabs = tabs
         looks -= 1
         guard let s = Self.longestSpring(in: tabs.tabBar.layer) else { return }
@@ -300,7 +343,7 @@ private struct TabBarFollowsScroll: ViewModifier {
         } action: { _, y in
             let t = track
             // while the page moves down the bar may be folding: read the spring it folds with
-            if y > t.turn, let bar { bar.readFold() }
+            if y > t.turn, let bar { bar.movedDown() }
             if t.up {
                 if y < t.turn { t.turn = y } else if y > t.turn + Self.slack { turn(up: false, at: y) }
             } else {

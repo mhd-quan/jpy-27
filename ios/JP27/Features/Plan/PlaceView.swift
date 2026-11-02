@@ -109,7 +109,7 @@ private struct PlanPlaceHero: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .sensoryFeedback(.pick, trigger: page)
+            .sensoryFeedback(.page, trigger: page)
         } foot: {
             HStack(alignment: .center, spacing: 8) {
                 Text(placeFacts(place))

@@ -196,11 +196,11 @@ struct PressableStyle: PrimitiveButtonStyle {
     }
 
     var look: Look = .settle
-    /// nil for a button whose action plays a haptic of its own (a choice that ticks `pick`)
-    var feedback: SensoryFeedback? = .press
+    /// false for a button whose action plays a haptic of its own (a choice that ticks `pick`)
+    var felt = true
 
     func makeBody(configuration: Configuration) -> some View {
-        PressableButton(configuration: configuration, look: look, feedback: feedback)
+        PressableButton(configuration: configuration, look: look, felt: felt)
     }
 }
 
@@ -209,21 +209,22 @@ extension PrimitiveButtonStyle where Self == PressableStyle {
 
     /// `press` in another look: `.pressable(.plain)` for a card that keeps the plain style,
     /// `.pressable(.bordered)` for a NavigationLink drawn as a bordered button.
-    static func pressable(_ look: PressableStyle.Look, feedback: SensoryFeedback? = .press) -> PressableStyle {
-        PressableStyle(look: look, feedback: feedback)
+    static func pressable(_ look: PressableStyle.Look, felt: Bool = true) -> PressableStyle {
+        PressableStyle(look: look, felt: felt)
     }
 }
 
-/// The button a PressableStyle draws: the same label, role and action, counted as it fires.
+/// The button a PressableStyle draws: the same label, role and action, felt as it fires. The
+/// haptic plays at once rather than through `sensoryFeedback`: many of these close their sheet or
+/// open a page over themselves as they fire, and a view on its way out gets no next update.
 private struct PressableButton: View {
     let configuration: PrimitiveButtonStyleConfiguration
     let look: PressableStyle.Look
-    let feedback: SensoryFeedback?
-    @State private var presses = 0
+    let felt: Bool
 
     var body: some View {
         let button = Button(role: configuration.role) {
-            presses += 1
+            if felt { Haptic.press() }
             configuration.trigger()
         } label: {
             configuration.label
@@ -237,7 +238,6 @@ private struct PressableButton: View {
             case .glass: button.buttonStyle(.glass)
             }
         }
-        .sensoryFeedback(trigger: presses) { [feedback] _, _ in feedback }
     }
 }
 

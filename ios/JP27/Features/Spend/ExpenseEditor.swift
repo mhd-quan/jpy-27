@@ -134,7 +134,7 @@ struct ExpenseEditor: View {
                             .contentShape(.rect)
                     }
                     // the kind chosen ticks `pick` below, not the press
-                    .buttonStyle(.pressable(.settle, feedback: nil))
+                    .buttonStyle(.pressable(.settle, felt: false))
                     .accessibilityLabel(c.label)
                     .accessibilityAddTraits(on ? .isSelected : [])
                 }
