@@ -5,29 +5,29 @@ import TripKit
 
 /// The trip's cover and what to do about it until the plane: photographs of where it goes, the
 /// days left as the flag's red sun on white, the five cities as a metro line that steers the day
-/// cards, booking windows as tickets, meals to look forward to, a phrase a day, the checklist,
-/// the trip in numbers, Fuji, and a rehearsal. Every card opens what it shows.
+/// cards, booking windows as tickets, meals, a phrase, the checklist, Fuji and a rehearsal. Every
+/// card opens what it shows; section titles only where the content cannot name itself.
 struct TodayHome: View {
     @Environment(AppModel.self) private var model
     let days: Int
-    let first: Day
     /// the day card the carousel rests on; the metro line follows it and moves it
     @State private var focus: String?
     @State private var shown: TalkShowItem?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 40) {
-            HomeCover(days: days, first: first)
-            HomeChapters(focus: $focus)
-                .padding(.horizontal, Metrics.gutter)
-            HomeDays(focus: $focus)
+        VStack(alignment: .leading, spacing: 36) {
+            HomeCover(days: days)
+            // the metro line is the day cards' index, so the two sit together without a title
+            VStack(alignment: .leading, spacing: 18) {
+                HomeChapters(focus: $focus)
+                    .padding(.horizontal, Metrics.gutter)
+                HomeDays(focus: $focus)
+            }
             HomeTickets()
             HomeMeals()
             HomePhrase(shown: $shown)
                 .padding(.horizontal, Metrics.gutter)
             HomeChecklist()
-                .padding(.horizontal, Metrics.gutter)
-            HomeFacts()
                 .padding(.horizontal, Metrics.gutter)
             HomeFuji()
                 .padding(.horizontal, Metrics.gutter)
@@ -41,13 +41,12 @@ struct TodayHome: View {
 
 // MARK: - Cover
 
-/// Photographs of the trip, one per day, edge to edge under the status bar and fading into the
-/// paper; then the countdown as the Hinomaru's disc, rising when the page opens.
+/// Photographs of the trip, edge to edge under the status bar and fading into the paper; then the
+/// countdown as the Hinomaru's disc beside the trip's two ends and its dates.
 private struct HomeCover: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let days: Int
-    let first: Day
     @State private var page: Int? = 0
     @State private var risen = false
 
@@ -55,33 +54,32 @@ private struct HomeCover: View {
 
     var body: some View {
         let shots = HomePicks.cover(model)
+        let trip = model.store.trip
         VStack(alignment: .leading, spacing: 20) {
             photos(shots)
             HStack(alignment: .center, spacing: 18) {
                 HomeSun(days: days, risen: risen)
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(HomePicks.dates(model.store.trip.meta))
-                        .font(.caption.weight(.bold))
-                        .tracking(1)
-                        .textCase(.uppercase)
-                        .foregroundStyle(Palette.sun)
-                    Text(HomePicks.headline(model.store.trip))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(trip.chapters.first?.name ?? "") → \(trip.chapters.last?.name ?? "")")
                         .font(.title2.weight(.bold))
                         .tracking(-0.4)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text("\(first.dow), \(Fmt.shortDate(first.date)) · \(first.route)")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(HomePicks.dates(trip.meta))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .lineLimit(2)
+                    Text("\(trip.days.count) ngày · \(trip.meta.nights) đêm")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
                 .opacity(risen ? 1 : 0)
-                .offset(y: risen ? 0 : 14)
+                .offset(y: risen ? 0 : 10)
             }
             .padding(.horizontal, Metrics.gutter)
             .accessibilityElement(children: .combine)
         }
         .onAppear {
-            withAnimation(.spring(response: 0.9, dampingFraction: 0.72).delay(0.15)) { risen = true }
+            withAnimation(.smooth(duration: 0.7).delay(0.1)) { risen = true }
         }
         // a new photograph every few seconds; a swipe restarts the wait
         .task(id: page) {
@@ -146,6 +144,7 @@ private struct HomeCover: View {
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
+                    .lineLimit(1)
                     .id(current)
                     .transition(.blurReplace)
                     Spacer()
@@ -175,12 +174,13 @@ private struct HomeCoverPhoto: View {
     var body: some View {
         Color.clear
             .overlay {
-                PlacePhoto(photo: photo, maxPixel: 1800)
-                    // over-scanned for the parallax; the photograph on show drifts slowly closer
-                    .scaleEffect(current && !reduceMotion ? 1.3 : 1.2)
-                    .animation(current ? .easeInOut(duration: 8) : .smooth(duration: 0.5), value: current)
+                PlacePhoto(photo: photo, maxPixel: 2400)
+                    // just enough over-scan for a light parallax (6% each side); the photograph on
+                    // show drifts a little closer, so the frame is never blown up past its pixels
+                    .scaleEffect(current && !reduceMotion ? 1.16 : 1.12)
+                    .animation(current ? .easeInOut(duration: 10) : .smooth(duration: 0.5), value: current)
                     .visualEffect { content, proxy in
-                        content.offset(x: -proxy.frame(in: .scrollView(axis: .horizontal)).minX * 0.1)
+                        content.offset(x: -proxy.frame(in: .scrollView(axis: .horizontal)).minX * 0.06)
                     }
             }
             .clipped()
@@ -188,50 +188,82 @@ private struct HomeCoverPhoto: View {
     }
 }
 
-/// The days left, white on the red disc; a ring breathes out of it like the sun rising.
+/// The days left, white on the flat red disc of the flag. Still until touched: a tap sends one ring
+/// out of it and counts the wait in another unit (days, weeks, hours).
 private struct HomeSun: View {
     let days: Int
     let risen: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var unit = 0
+    @State private var taps = 0
+
+    static let size: CGFloat = 112
+
+    private var reading: (value: Int, label: String) {
+        switch unit {
+        case 1: (days / 7, "tuần")
+        case 2: (days * 24, "giờ")
+        default: (days, "ngày")
+        }
+    }
 
     var body: some View {
-        ZStack {
-            if !reduceMotion {
-                Circle()
-                    .stroke(Palette.sun.opacity(0.55), lineWidth: 1.5)
-                    .phaseAnimator([false, true]) { content, out in
-                        content
-                            .scaleEffect(out ? 1.35 : 1)
-                            .opacity(out ? 0 : 0.9)
-                    } animation: { out in
-                        out ? .easeOut(duration: 2.8) : .linear(duration: 0.01)
-                    }
+        let reading = self.reading
+        Button {
+            taps += 1
+            withAnimation(.snappy) { unit = (unit + 1) % 3 }
+        } label: {
+            ZStack {
+                Circle().fill(Palette.sun)
+                VStack(spacing: -3) {
+                    Text("\(reading.value)")
+                        .font(.figure(reading.value >= 1000 ? 30 : reading.value >= 100 ? 40 : 46, weight: .heavy))
+                        .monospacedDigit()
+                        .contentTransition(.numericText(value: Double(reading.value)))
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
+                    Text(reading.label)
+                        .font(.caption2.weight(.heavy))
+                        .tracking(1.5)
+                        .textCase(.uppercase)
+                        .contentTransition(.opacity)
+                }
+                .foregroundStyle(.white)
+                .padding(10)
             }
-            Circle()
-                .fill(Palette.sun.gradient)
-                .shadow(color: Palette.sun.opacity(0.35), radius: 16, y: 8)
-            VStack(spacing: -4) {
-                Text("\(days)")
-                    .font(.figure(days >= 100 ? 44 : 52, weight: .heavy))
-                    .monospacedDigit()
-                    .contentTransition(.numericText(value: Double(days)))
-                    .minimumScaleFactor(0.6)
-                    .lineLimit(1)
-                Text("ngày")
-                    .font(.caption.weight(.heavy))
-                    .tracking(1.5)
-                    .textCase(.uppercase)
+            .frame(width: Self.size, height: Self.size)
+            .background {
+                // one ring per touch, out of the disc and gone
+                if !reduceMotion {
+                    Circle()
+                        .stroke(Palette.sun, lineWidth: 1.5)
+                        .keyframeAnimator(initialValue: SunRing(), trigger: taps) { ring, v in
+                            ring.scaleEffect(v.scale).opacity(v.opacity)
+                        } keyframes: { _ in
+                            KeyframeTrack(\.scale) {
+                                LinearKeyframe(1, duration: 0.01)
+                                CubicKeyframe(1.32, duration: 0.7)
+                            }
+                            KeyframeTrack(\.opacity) {
+                                LinearKeyframe(0.7, duration: 0.01)
+                                CubicKeyframe(0, duration: 0.7)
+                            }
+                        }
+                }
             }
-            .foregroundStyle(.white)
-            .padding(12)
         }
-        .frame(width: 124, height: 124)
-        .scaleEffect(risen ? 1 : 0.5)
-        .offset(y: risen ? 0 : 50)
+        .buttonStyle(.pressable)
+        .sensoryFeedback(.impact(weight: .light), trigger: taps)
+        .scaleEffect(risen ? 1 : 0.85)
         .opacity(risen ? 1 : 0)
-        .accessibilityElement(children: .ignore)
         .accessibilityLabel("Còn \(days) ngày")
+        .accessibilityHint("Đổi đơn vị")
     }
+}
+
+nonisolated private struct SunRing {
+    var scale: CGFloat = 1
+    var opacity: Double = 0
 }
 
 // MARK: - Chapters as a metro line
@@ -252,8 +284,7 @@ private struct HomeChapters: View {
         let chapters = model.store.trip.chapters
         let total = chapters.reduce(0) { $0 + $1.nights + 1 }
         let current = self.current
-        VStack(alignment: .leading, spacing: 16) {
-            SectionTitle(HomePicks.chaptersTitle(model.store.trip), eyebrow: "旅程 · Hành trình")
+        VStack(alignment: .leading, spacing: 14) {
             GeometryReader { g in
                 let gap: CGFloat = 4
                 let width = g.size.width - gap * CGFloat(max(0, chapters.count - 1))
@@ -343,10 +374,7 @@ private struct HomeDays: View {
     @Binding var focus: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            SectionTitle("Từng ngày", trailing: "\(model.days.count) ngày", eyebrow: "日程 · Lịch")
-                .padding(.horizontal, Metrics.gutter)
-            ScrollView(.horizontal) {
+        ScrollView(.horizontal) {
                 LazyHStack(spacing: 14) {
                     ForEach(model.days) { day in
                         NavigationLink(value: Route.day(day.key)) {
@@ -368,7 +396,6 @@ private struct HomeDays: View {
             .scrollPosition(id: $focus, anchor: .leading)
             .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
             .scrollIndicators(.hidden)
-        }
     }
 }
 
@@ -382,7 +409,7 @@ private struct HomeDayCard: View {
         let photo = HomePicks.photo(for: day, store: model.store)
         ZStack(alignment: .bottomLeading) {
             if let photo {
-                PlacePhoto(photo: photo, maxPixel: 900)
+                PlacePhoto(photo: photo, maxPixel: 1200)
             } else {
                 // no photograph for this day: its city in kanji on the chapter's colour
                 LinearGradient(colors: [tint, tint.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -411,10 +438,6 @@ private struct HomeDayCard: View {
                     .font(.title3.weight(.bold))
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                Text(day.route)
-                    .font(.subheadline)
-                    .opacity(0.85)
-                    .lineLimit(1)
             }
             .foregroundStyle(.white)
             .padding(18)
@@ -457,7 +480,7 @@ private struct HomeTickets: View {
         if !bookings.isEmpty {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .lastTextBaseline) {
-                    SectionTitle("Đặt chỗ", eyebrow: "予約 · Mở bán")
+                    SectionTitle("Đặt chỗ")
                     NavigationLink(value: Route.bookings) {
                         Text("Tất cả").font(.subheadline.weight(.semibold))
                     }
@@ -495,13 +518,16 @@ private struct HomeTicket: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(booking.title)
                     .font(.headline)
-                    .lineLimit(2, reservesSpace: true)
-                    .multilineTextAlignment(.leading)
-                Text(booking.rule)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
+                // a dated window has its date on the stub; only a rule needs saying
+                if booking.date == nil {
+                    Text(booking.rule)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                        .multilineTextAlignment(.leading)
+                }
                 Spacer(minLength: 0)
                 if let date = booking.date {
                     Label(countdown(date), systemImage: "alarm.fill")
@@ -511,16 +537,12 @@ private struct HomeTicket: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
                         .background(Palette.sun, in: .capsule)
-                } else {
-                    Text("Theo lịch mở")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(Palette.ai)
                 }
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(width: 304, height: 152)
+        .frame(width: 290, height: 136)
         .foregroundStyle(.primary)
         .background(Palette.card, in: TicketShape(stub: stub))
         .overlay(alignment: .leading) {
@@ -575,7 +597,7 @@ private struct HomeMeals: View {
         let meals = HomePicks.meals(model)
         if !meals.isEmpty {
             VStack(alignment: .leading, spacing: 14) {
-                SectionTitle("Những bữa đáng nhớ", eyebrow: "ご馳走 · Ăn gì")
+                SectionTitle("Quán ăn")
                     .padding(.horizontal, Metrics.gutter)
                 ScrollView(.horizontal) {
                     LazyHStack(alignment: .top, spacing: 14) {
@@ -610,7 +632,7 @@ private struct HomeMealCard: View {
                         Image(systemName: "fork.knife").font(.largeTitle).foregroundStyle(.secondary)
                     }
                 }
-                .frame(width: 244, height: 183)
+                .frame(width: 232, height: 174)
                 .clipShape(.rect(cornerRadius: 20, style: .continuous))
                 .overlay(alignment: .topLeading) {
                     Text("Ngày \(meal.day.n)")
@@ -628,22 +650,8 @@ private struct HomeMealCard: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(2, reservesSpace: true)
                 .multilineTextAlignment(.leading)
-            if let item = meal.signature {
-                HStack(spacing: 6) {
-                    Image(systemName: "star.fill")
-                        .font(.caption2)
-                        .foregroundStyle(Palette.kin)
-                    Text(item.ja)
-                        .font(.footnote.weight(.semibold))
-                        .environment(\.locale, Locale(identifier: "ja_JP"))
-                        .lineLimit(1)
-                    if let yen = item.yen {
-                        YenText(yen: yen).font(.footnote).foregroundStyle(.secondary)
-                    }
-                }
-            }
         }
-        .frame(width: 244, alignment: .leading)
+        .frame(width: 232, alignment: .leading)
         .foregroundStyle(.primary)
         .accessibilityElement(children: .combine)
     }
@@ -651,7 +659,8 @@ private struct HomeMealCard: View {
 
 // MARK: - A phrase a day
 
-/// One of the trip's own sentences each day, to have it by heart before landing.
+/// One of the trip's own sentences, a different one each day; tapped, it fills the screen for the
+/// person across the counter.
 private struct HomePhrase: View {
     @Environment(AppModel.self) private var model
     @Binding var shown: TalkShowItem?
@@ -665,7 +674,6 @@ private struct HomePhrase: View {
             let p = list[i]
             let item = TalkShowItem(id: "home-phrase-\(i)", ja: p.ja, romaji: p.romaji, vi: p.vi)
             VStack(alignment: .leading, spacing: 14) {
-                SectionTitle("Một câu mỗi ngày", eyebrow: "今日の一言 · Tiếng Nhật")
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         Tag(text: p.use, tint: Palette.sun)
@@ -673,9 +681,11 @@ private struct HomePhrase: View {
                         Button {
                             withAnimation(.snappy) { turn += 1 }
                         } label: {
-                            Label("Câu khác", systemImage: "shuffle")
+                            Image(systemName: "shuffle")
                                 .font(.subheadline.weight(.semibold))
+                                .frame(width: 32, height: 32)
                         }
+                        .accessibilityLabel("Câu khác")
                         .buttonStyle(.borderless)
                         .sensoryFeedback(.selection, trigger: turn)
                     }
@@ -702,13 +712,8 @@ private struct HomePhrase: View {
                     .sheetSource(item.source)
                     .id(i)
                     .transition(.blurReplace)
-                    HStack(spacing: 4) {
-                        TalkSpeakButton(ja: p.ja, size: 36)
-                        Text("Chạm câu để giơ cho người đối diện; giữ loa để nghe chậm")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.leading, -8)
+                    TalkSpeakButton(ja: p.ja, size: 36)
+                        .padding(.leading, -8)
                 }
                 .padding(18)
                 .background(alignment: .topTrailing) {
@@ -741,7 +746,7 @@ private struct HomeChecklist: View {
         let count = checks.filter { done.contains($0.when) }.count
         if !checks.isEmpty {
             VStack(alignment: .leading, spacing: 14) {
-                SectionTitle("Trước khi đi", trailing: "\(count)/\(checks.count)", eyebrow: "準備 · Chuẩn bị")
+                SectionTitle("Trước khi đi", trailing: "\(count)/\(checks.count)")
                 Card {
                     Meter(value: Double(count) / Double(checks.count), tint: Palette.matcha)
                         .animation(.smooth, value: count)
@@ -772,57 +777,6 @@ private struct HomeChecklist: View {
         var set = done
         if set.contains(key) { set.remove(key) } else { set.insert(key) }
         withAnimation(.snappy) { doneRaw = set.sorted().joined(separator: "\n") }
-    }
-}
-
-// MARK: - The trip in numbers
-
-private struct HomeFacts: View {
-    @Environment(AppModel.self) private var model
-    @State private var counted = false
-
-    var body: some View {
-        let f = HomePicks.facts(model)
-        VStack(alignment: .leading, spacing: 14) {
-            SectionTitle("Cả chuyến, bằng con số", eyebrow: "数字 · Con số")
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                fact(f.rail, unit: "km", label: "trên tàu", symbol: "train.side.front.car", tint: Palette.ai)
-                fact(f.walk, unit: "km", label: "đi bộ", symbol: "figure.walk", tint: Palette.matcha)
-                fact(f.rides, unit: "chuyến", label: "tàu, xe buýt, thuyền, cáp treo", symbol: "point.bottomleft.forward.to.point.topright.scurvepath", tint: Place.Kind.food.tint)
-                fact(f.budget / 1000, unit: "nghìn ¥", label: "dự tính · khoảng \(Fmt.vndMillions(f.budget, rate: model.rate))", symbol: "yensign", tint: Palette.sun)
-            }
-        }
-        // the figures count up the first time they come into view
-        .onScrollVisibilityChange(threshold: 0.3) { visible in
-            if visible, !counted { withAnimation(.smooth(duration: 1.4)) { counted = true } }
-        }
-    }
-
-    private func fact(_ value: Int, unit: String, label: String, symbol: String, tint: Color) -> some View {
-        let shown = counted ? value : 0
-        return VStack(alignment: .leading, spacing: 8) {
-            Image(systemName: symbol)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(tint)
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text("\(shown)")
-                    .font(.figure(34))
-                    .monospacedDigit()
-                    .contentTransition(.numericText(value: Double(shown)))
-                Text(unit)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-            }
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2, reservesSpace: true)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(Palette.card, in: .rect(cornerRadius: 22, style: .continuous))
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(value) \(unit) \(label)")
     }
 }
 
@@ -879,13 +833,7 @@ private struct HomeRehearse: View {
         } label: {
             HStack(spacing: 14) {
                 GlyphTile(symbol: "play.fill", tint: Palette.ai, size: 38)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Chạy thử một ngày").font(.headline)
-                    Text("Dời đồng hồ của app vào một ngày trong chuyến để xem nó chạy")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.leading)
-                }
+                Text("Chạy thử một ngày trong chuyến").font(.headline)
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.semibold))
@@ -911,7 +859,6 @@ struct HomeShot {
 struct HomeMeal {
     let place: Place
     let day: Day
-    let signature: MenuItem?
 }
 
 /// What the home page shows, picked from the data.
@@ -941,7 +888,7 @@ enum HomePicks {
         return (bundled.first { favourites.contains($0.id) } ?? bundled.first { $0.kind == .sight } ?? bundled.first ?? places.first)?.hero
     }
 
-    /// Planned meals with a photograph and a menu, in the order they come, signature dish first.
+    /// Planned meals with a photograph and a menu, in the order they come.
     static func meals(_ model: AppModel) -> [HomeMeal] {
         var seen = Set<String>()
         var out: [HomeMeal] = []
@@ -949,22 +896,10 @@ enum HomePicks {
             for (_, stop) in day.stops {
                 guard let p = model.store.place(stop.place), p.kind == .food, p.hero != nil, p.menu != nil,
                       seen.insert(p.id).inserted else { continue }
-                out.append(HomeMeal(place: p, day: day, signature: p.menu?.items.first { $0.pick == .signature }))
+                out.append(HomeMeal(place: p, day: day))
             }
         }
         return Array(out.prefix(12))
-    }
-
-    static func facts(_ model: AppModel) -> (rail: Int, walk: Int, rides: Int, budget: Int) {
-        let rail = model.days.reduce(0.0) { $0 + ($1.km?.rail ?? 0) }
-        let walk = model.days.reduce(0.0) { $0 + ($1.km?.walk ?? 0) }
-        let rides = model.days.reduce(0) { n, day in
-            n + day.items.filter { item in
-                guard case .move(let m) = item else { return false }
-                return model.store.mode(of: m.leg) != .walk
-            }.count
-        }
-        return (Int(rail.rounded()), Int(walk.rounded()), rides, model.guide.budget.total)
     }
 
     /// "18 – 29 tháng 10, 2027"
@@ -974,27 +909,5 @@ enum HomePicks {
         guard a.count == 3, b.count == 3 else { return "" }
         if a[1] == b[1] { return "\(a[2]) – \(b[2]) tháng \(a[1]), \(a[0])" }
         return "\(a[2])/\(a[1]) – \(b[2])/\(b[1]), \(b[0])"
-    }
-
-    /// "Mười hai ngày, Tokyo đến Osaka." as the web's hero has it.
-    static func headline(_ trip: Trip) -> String {
-        let from = trip.chapters.first?.name ?? ""
-        let to = trip.chapters.last?.name ?? ""
-        return "\(capitalised(words(trip.days.count))) ngày,\n\(from) đến \(to)."
-    }
-
-    /// "Năm nơi ngủ, mười một đêm"
-    static func chaptersTitle(_ trip: Trip) -> String {
-        "\(capitalised(words(trip.chapters.count))) nơi ngủ, \(words(trip.meta.nights)) đêm"
-    }
-
-    static func words(_ n: Int) -> String {
-        let w = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín", "mười",
-                 "mười một", "mười hai", "mười ba", "mười bốn", "mười lăm"]
-        return w.indices.contains(n) ? w[n] : "\(n)"
-    }
-
-    private static func capitalised(_ s: String) -> String {
-        s.prefix(1).uppercased() + s.dropFirst()
     }
 }

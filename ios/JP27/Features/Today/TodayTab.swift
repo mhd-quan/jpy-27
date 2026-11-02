@@ -60,12 +60,15 @@ struct TodayTab: View {
     @ViewBuilder
     private var content: some View {
         switch model.phase {
-        case .before(let days, let first):
+        case .before(let days, _):
             // the cover runs under the status bar and the glass buttons
             ScrollView {
-                TodayHome(days: days, first: first)
+                TodayHome(days: days)
             }
             .ignoresSafeArea(edges: .top)
+            // the cover brings its own paper mist under the status bar; the system's edge comes
+            // back once the cover has scrolled away
+            .scrollEdgeEffectHidden(!coverGone, for: .top)
             .onScrollGeometryChange(for: Bool.self) { geo in
                 geo.contentOffset.y > 440
             } action: { _, gone in
@@ -486,7 +489,7 @@ private struct TodayTimeline: View {
         let past = Array(0 ..< cursor)
         let ahead = Array(cursor ..< day.items.count)
         VStack(alignment: .leading, spacing: 10) {
-            SectionTitle("Còn lại hôm nay", eyebrow: "予定 · Lịch")
+            SectionTitle("Còn lại hôm nay")
             VStack(alignment: .leading, spacing: 0) {
                 if !past.isEmpty {
                     DisclosureGroup(isExpanded: $showPast) {

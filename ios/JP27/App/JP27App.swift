@@ -80,12 +80,25 @@ struct RootView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
-        .tabViewBottomAccessory {
-            NowAccessory()
-        }
+        .modifier(NowAccessorySlot(live: model.live.ride != nil || model.next != nil))
         .progressiveEdges()
         .presentsSheets()
         .environment(\.zoomSpace, zoom)
+    }
+}
+
+/// The line above the tab bar, shown only while something is happening: a ride being followed or
+/// the next stop of a trip day. Before the trip it would only repeat the countdown the home already
+/// shows, so the space goes back to content. Hiding it needs iOS 26.1; on 26.0 it stays.
+private struct NowAccessorySlot: ViewModifier {
+    let live: Bool
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.1, *) {
+            content.tabViewBottomAccessory(isEnabled: live) { NowAccessory() }
+        } else {
+            content.tabViewBottomAccessory { NowAccessory() }
+        }
     }
 }
 
