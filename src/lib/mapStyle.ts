@@ -307,7 +307,17 @@ export function baseStyle(theme: Theme): StyleSpecification {
     version: 8,
     glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     sources: {
-      omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: '© OpenFreeMap © OpenStreetMap' },
+      // pinned to one release: an offline pack keeps tiles by URL, and the bare /planet TileJSON
+      // names a new versioned URL with each weekly release, so a pack downloaded before one no
+      // longer matched once the app had been online. The server answers any version path with
+      // current data, so a pinned path keeps working online too.
+      omt: {
+        type: 'vector',
+        tiles: ['https://tiles.openfreemap.org/planet/20261025_080012_pt/{z}/{x}/{y}.pbf'],
+        minzoom: 0,
+        maxzoom: 14,
+        attribution: '© OpenFreeMap © OpenStreetMap',
+      },
       dem: {
         type: 'raster-dem',
         tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
