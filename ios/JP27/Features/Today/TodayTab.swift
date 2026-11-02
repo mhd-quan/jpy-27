@@ -99,6 +99,10 @@ struct TodayTab: View {
 private struct TodayDuring: View {
     @Environment(AppModel.self) private var model
     let day: Day
+    // haptics kept here rather than on their buttons, which leave in the moment they are pressed:
+    // the late banner once its stops are dropped, the next card once its last stop is marked
+    @State private var dropped = 0
+    @State private var arrived = false
 
     private var fujiSpot: FujiGuide.Spot? {
         let spots = model.guide.fuji.spots.filter { $0.day == day.key }
@@ -110,7 +114,7 @@ private struct TodayDuring: View {
             TodayDayHeader(day: day)
 
             if let plan = model.replan {
-                TodayLateBanner(day: day, plan: plan)
+                TodayLateBanner(day: day, plan: plan, dropped: $dropped)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
 
@@ -119,7 +123,7 @@ private struct TodayDuring: View {
             }
 
             if let next = model.next {
-                TodayNextCard(day: day, next: next)
+                TodayNextCard(day: day, next: next, arrived: $arrived)
             } else {
                 Card {
                     Label("Hết lịch hôm nay", systemImage: "moon.stars.fill")
@@ -157,6 +161,8 @@ private struct TodayDuring: View {
             TodayTimeline(day: day)
         }
         .animation(.smooth, value: model.replan == nil)
+        .sensoryFeedback(.warn, trigger: dropped)
+        .sensoryFeedback(.done, trigger: arrived)
     }
 }
 
@@ -222,6 +228,8 @@ private struct TodayLateBanner: View {
     @Environment(AppModel.self) private var model
     let day: Day
     let plan: Replan
+    /// counts the drops made here; the late time keeps changing under the button, so it cannot be the trigger
+    @Binding var dropped: Int
 
     private var target: String {
         switch day.items[plan.target] {
@@ -243,6 +251,7 @@ private struct TodayLateBanner: View {
             }
             if plan.works {
                 Button {
+                    dropped += 1
                     withAnimation(.snappy) { model.apply(plan) }
                 } label: {
                     Text("Bỏ \(model.dropNames(plan, day))")
@@ -251,7 +260,6 @@ private struct TodayLateBanner: View {
                 .buttonStyle(.glassProminent)
                 .tint(Palette.sun)
                 .controlSize(.large)
-                .sensoryFeedback(.impact(weight: .medium), trigger: plan)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -266,6 +274,7 @@ private struct TodayNextCard: View {
     @Environment(AppModel.self) private var model
     let day: Day
     let next: Waypoint
+    @Binding var arrived: Bool
 
     private var place: Place? { model.store.place(next.placeID) }
 
@@ -366,7 +375,7 @@ private struct TodayNextCard: View {
                         .monospacedDigit()
                 }
 
-                TodayNextActions(day: day, next: next, place: place, ride: ride)
+                TodayNextActions(day: day, next: next, place: place, ride: ride, arrived: $arrived)
             }
             .padding(16)
         }
@@ -399,8 +408,9 @@ private struct TodayNextActions: View {
     let next: Waypoint
     let place: Place?
     let ride: Ride?
+    @Binding var arrived: Bool
 
-    @State private var arrived = false
+    @State private var followed = 0
     @Namespace private var glass
 
     var body: some View {
@@ -433,6 +443,7 @@ private struct TodayNextActions: View {
                         .sheetSource("today.ride")
                     } else {
                         Button {
+                            followed += 1
                             withAnimation(.bouncy) { model.live.start(ride, model: model) }
                         } label: {
                             Label("Theo dõi chuyến", systemImage: "train.side.front.car")
@@ -465,11 +476,12 @@ private struct TodayNextActions: View {
                     .buttonBorderShape(.circle)
                     .glassEffectID("arrived", in: glass)
                     .accessibilityLabel("Đã tới")
-                    .sensoryFeedback(.success, trigger: arrived)
                 }
             }
         }
         .controlSize(.large)
+        // on the row, not the button: following swaps the button for the tracking one
+        .sensoryFeedback(.start, trigger: followed)
     }
 }
 

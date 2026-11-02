@@ -52,6 +52,8 @@ struct SpendTopupSheet: View {
     @Environment(\.dismiss) private var dismiss
     let method: PayMethod
     @State private var yen = 0
+    @State private var picked = 0
+    @State private var saved = false
 
     private var quick: [Int] { method == .cash ? [10_000, 20_000, 30_000] : [2_000, 3_000, 5_000] }
 
@@ -69,6 +71,7 @@ struct SpendTopupSheet: View {
                     ForEach(quick, id: \.self) { v in
                         let on = yen == v
                         Button {
+                            if yen != v { picked += 1 }
                             withAnimation(.snappy) { yen = v }
                         } label: {
                             Text(Fmt.yen(v))
@@ -84,6 +87,7 @@ struct SpendTopupSheet: View {
                         .accessibilityAddTraits(on ? .isSelected : [])
                     }
                 }
+                .sensoryFeedback(.pick, trigger: picked)
                 SpendKeypad(amount: $yen)
             }
             .padding(.horizontal, Metrics.gutter)
@@ -97,12 +101,16 @@ struct SpendTopupSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
-                        if yen > 0 { model.topUp(yen: yen, method: method) }
+                        if yen > 0 {
+                            model.topUp(yen: yen, method: method)
+                            saved.toggle()
+                        }
                         dismiss()
                     }
                     .disabled(yen <= 0)
                 }
             }
+            .sensoryFeedback(.done, trigger: saved)
         }
         .presentationDetents([.height(540)])
     }
@@ -150,12 +158,13 @@ struct SpendAmountDisplay: View {
 }
 
 /// A number pad drawn in the sheet itself (1–9, 000, 0, delete), so a sheet that grows out of a
-/// button stays still while it grows: no system keyboard sliding in over the zoom. Every key taps
-/// lightly; the amount is capped below ten million yen.
+/// button stays still while it grows: no system keyboard sliding in over the zoom. The keys make no
+/// haptic of their own: the system keyboard's is a setting each person chooses, which the app
+/// cannot read, and the pad should not tap where their keyboard does not. The amount is capped
+/// below ten million yen.
 struct SpendKeypad: View {
     @Binding var amount: Int
     var limit = 9_999_999
-    @State private var taps = 0
 
     private static let rows: [[SpendKey]] = [
         [.digit(1), .digit(2), .digit(3)],
@@ -183,7 +192,6 @@ struct SpendKeypad: View {
                 }
             }
         }
-        .sensoryFeedback(.impact(weight: .light, intensity: 0.7), trigger: taps)
     }
 
     @ViewBuilder
@@ -214,7 +222,6 @@ struct SpendKeypad: View {
         case .delete: next = amount / 10
         }
         guard next != amount, next <= limit else { return }
-        taps += 1
         withAnimation(.snappy(duration: 0.25)) { amount = next }
     }
 }

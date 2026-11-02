@@ -390,7 +390,8 @@ private struct SpendDial: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .sensoryFeedback(.selection, trigger: selected)
+        // choosing a part ticks; letting it go again does not
+        .sensoryFeedback(.pick, trigger: selected) { _, new in new != nil }
         .onAppear {
             guard !drawn else { return }
             if reduceMotion { drawn = true } else { withAnimation(.smooth(duration: 1.1).delay(0.1)) { drawn = true } }

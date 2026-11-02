@@ -561,7 +561,7 @@ private struct PlanPlaceFacts: View {
                             .multilineTextAlignment(.leading)
                     }
                     .buttonStyle(.plain)
-                    .sensoryFeedback(.success, trigger: copied)
+                    .sensoryFeedback(.done, trigger: copied)
                 }
             }
         }

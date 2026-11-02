@@ -23,6 +23,8 @@ struct ExpenseEditor: View {
     @State private var note = ""
     @State private var ready = false
     @State private var saved = false
+    /// kinds tapped; the kind also changes by itself, set up from the place and on picking a place
+    @State private var chosen = 0
     @FocusState private var writing: Bool
 
     private var day: Day? { dayKey.flatMap { key in model.days.first { $0.key == key } ?? model.store.day(key) } }
@@ -69,7 +71,7 @@ struct ExpenseEditor: View {
                         .disabled(value <= 0)
                 }
             }
-            .sensoryFeedback(.success, trigger: saved)
+            .sensoryFeedback(.done, trigger: saved)
             .onAppear(perform: setUp)
             .onChange(of: place) { _, id in
                 // a new expense takes the kind and the way to pay from its place; an edit keeps its own
@@ -111,6 +113,7 @@ struct ExpenseEditor: View {
                     let on = c == category
                     let tint = SpendSymbols.color(c, budget: budget)
                     Button {
+                        if c != category { chosen += 1 }
                         withAnimation(.snappy) { category = c }
                     } label: {
                         Image(systemName: SpendSymbols.category(c))
@@ -137,7 +140,7 @@ struct ExpenseEditor: View {
                 .contentTransition(.interpolate)
                 .accessibilityHidden(true)
         }
-        .sensoryFeedback(.selection, trigger: category)
+        .sensoryFeedback(.pick, trigger: chosen)
     }
 
     /// Where, which day it counts toward, and a note, as one card.

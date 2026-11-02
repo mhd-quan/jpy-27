@@ -270,7 +270,7 @@ private struct HomeSun: View {
             }
         }
         .buttonStyle(.pressable)
-        .sensoryFeedback(.impact(weight: .light), trigger: taps)
+        .sensoryFeedback(.pick, trigger: taps)
         .scaleEffect(risen ? 1 : 0.85)
         .opacity(risen ? 1 : 0)
         .accessibilityLabel("Còn \(days) ngày")
@@ -340,7 +340,7 @@ private struct HomeChapters: View {
                 .animation(.smooth, value: current?.id)
             }
             .frame(height: 50)
-            .sensoryFeedback(.selection, trigger: current?.id)
+            .sensoryFeedback(.pick, trigger: current?.id)
 
             if let c = current {
                 NavigationLink(value: Route.stay(c.stay)) {
@@ -705,7 +705,7 @@ private struct HomePhrase: View {
                         }
                         .accessibilityLabel("Câu khác")
                         .buttonStyle(.borderless)
-                        .sensoryFeedback(.selection, trigger: turn)
+                        .sensoryFeedback(.pick, trigger: turn)
                     }
                     Button {
                         shown = item

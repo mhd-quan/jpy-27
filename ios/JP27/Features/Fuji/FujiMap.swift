@@ -493,6 +493,8 @@ struct FujiExplorer: View {
             selection = nil
             fly(to: nil)
         }
+        // one tick per viewpoint chosen, by its pin or its card alike; letting go stays quiet
+        .sensoryFeedback(.pick, trigger: selection) { _, new in new != nil }
     }
 
     private func fly(to spot: FujiGuide.Spot?) {
@@ -529,7 +531,7 @@ struct FujiAreaChips: View {
         // it would be the hard, ruled one)
         .scrollEdgeEffectHidden(onMap, for: .all)
         .contentMargins(.horizontal, onMap ? 12 : Metrics.gutter, for: .scrollContent)
-        .sensoryFeedback(.selection, trigger: area)
+        .sensoryFeedback(.pick, trigger: area)
     }
 
     private var row: some View {

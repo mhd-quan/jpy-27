@@ -51,7 +51,7 @@ struct ShoppingView: View {
             SpendBuySheet(item: item) { bought += 1 }
                 .zoomed(from: item.source, in: space)
         }
-        .sensoryFeedback(.success, trigger: bought)
+        .sensoryFeedback(.done, trigger: bought)
     }
 
     // MARK: Basket
@@ -75,7 +75,7 @@ struct ShoppingView: View {
 
     private func basketRow(_ item: Basket.Item, purchase: Purchase?) -> some View {
         HStack(alignment: .top, spacing: 8) {
-            CheckButton(isOn: purchase != nil) { toggle(id: item.id, name: item.name, yen: item.total, qty: item.qty, purchase: purchase, source: "buy.basket.\(item.id)") }
+            CheckButton(isOn: purchase != nil, marksOnTap: false) { toggle(id: item.id, name: item.name, yen: item.total, qty: item.qty, purchase: purchase, source: "buy.basket.\(item.id)") }
                 .sheetSource("buy.basket.\(item.id)")
                 .padding(.top, -8)
                 .padding(.leading, -8)
@@ -128,7 +128,7 @@ struct ShoppingView: View {
     private func catalogRow(_ item: Shopping.CatalogItem, purchase: Purchase?) -> some View {
         let chains = Dictionary(guide.shopping.chains.map { ($0.id, $0.name) }, uniquingKeysWith: { a, _ in a })
         return HStack(alignment: .top, spacing: 8) {
-            CheckButton(isOn: purchase != nil) { toggle(id: item.id, name: item.name, yen: item.yen ?? 0, qty: 1, purchase: purchase, source: "buy.catalog.\(item.id)") }
+            CheckButton(isOn: purchase != nil, marksOnTap: false) { toggle(id: item.id, name: item.name, yen: item.yen ?? 0, qty: 1, purchase: purchase, source: "buy.catalog.\(item.id)") }
                 .sheetSource("buy.catalog.\(item.id)")
                 .padding(.top, -8)
                 .padding(.leading, -8)

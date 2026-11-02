@@ -19,6 +19,10 @@ struct RideView: View {
 private struct PlanRideContent: View {
     @Environment(AppModel.self) private var model
     let ride: Ride
+    // counted here around the live card, whose start and end buttons are gone once pressed; a ride
+    // that starts or ends by itself (at the station, on arrival) stays quiet
+    @State private var followed = 0
+    @State private var ended = 0
 
     private var isLive: Bool { model.live.ride?.id == ride.id }
 
@@ -26,7 +30,9 @@ private struct PlanRideContent: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Metrics.stack) {
                 PlanRideHeader(ride: ride)
-                PlanRideLive(ride: ride)
+                PlanRideLive(ride: ride, followed: $followed, ended: $ended)
+                    .sensoryFeedback(.start, trigger: followed)
+                    .sensoryFeedback(.stop, trigger: ended)
                 PlanRideSeat(ride: ride)
                 VStack(alignment: .leading, spacing: 10) {
                     SectionTitle("Các ga", trailing: ride.hidden > 0 ? "bỏ qua \(ride.hidden) ga tàu chạy suốt" : nil)
@@ -118,6 +124,8 @@ private struct PlanRideSeat: View {
 private struct PlanRideLive: View {
     @Environment(AppModel.self) private var model
     let ride: Ride
+    @Binding var followed: Int
+    @Binding var ended: Int
 
     var body: some View {
         if model.live.ride?.id == ride.id {
@@ -148,6 +156,7 @@ private struct PlanRideLive: View {
                 }
                 alarmToggle
                 Button(role: .destructive) {
+                    ended += 1
                     Task { await model.live.end(model: model, immediately: true) }
                 } label: {
                     Text("Kết thúc").frame(maxWidth: .infinity)
@@ -158,6 +167,7 @@ private struct PlanRideLive: View {
         } else {
             VStack(spacing: 12) {
                 Button {
+                    followed += 1
                     withAnimation(.smooth) { model.live.start(ride, model: model) }
                 } label: {
                     Label("Theo dõi chuyến", systemImage: "dot.radiowaves.left.and.right")

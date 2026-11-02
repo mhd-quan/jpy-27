@@ -25,6 +25,9 @@ struct MapTab: View {
     /// out of the view's state so a pan does not redraw the tab
     @State private var touch = MapTouch()
     @State private var cache = MapSidesCache()
+    /// choices made by hand (a stop, a place off the plan, a day); the map also changes them by
+    /// itself as the list scrolls, at midnight and when another page sends it somewhere, quietly
+    @State private var picks = 0
 
     private var day: Day { dayKey.flatMap { model.store.day($0) } ?? model.focusDay }
 
@@ -62,7 +65,7 @@ struct MapTab: View {
                 MapPanel(stage: $stage, containerHeight: geo.size.height, headerHeight: $header) {
                     MapPanelTitle(day: day)
                 } strip: {
-                    MapStopStrip(day: day, active: active) { i in activate(i, day: day, scroll: true) }
+                    MapStopStrip(day: day, active: active) { i in activate(i, day: day, scroll: true, byHand: true) }
                 } content: {
                     MapTimeline(
                         day: day,
@@ -74,16 +77,17 @@ struct MapTab: View {
                         stage: stage,
                         next: nextDay(after: day),
                         onRead: { read($0, day: day) },
-                        onTap: { activate($0, day: day, scroll: false) },
+                        onTap: { activate($0, day: day, scroll: false, byHand: true) },
                         onSide: { pickSide($0, day: day, sides: sides) },
                         onPullDown: { withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) { stage = .peek } },
-                        onNextDay: { if let n = nextDay(after: day) { choose(n.key) } }
+                        // pulled past the end, the pull already ticked as it armed
+                        onNextDay: { pulled in if let n = nextDay(after: day) { choose(n.key, byHand: !pulled) } }
                     )
                     .id(day.key)
                 }
             }
             .overlay(alignment: .top) {
-                MapDayStrip(current: day.key, choose: choose)
+                MapDayStrip(current: day.key, choose: { choose($0, byHand: true) })
                     .padding(.top, 4)
             }
             .overlay(alignment: .topTrailing) {
@@ -114,8 +118,7 @@ struct MapTab: View {
             }
         }
         .onChange(of: model.mapDay) { consumeDay() }
-        .sensoryFeedback(.selection, trigger: side)
-        .sensoryFeedback(.impact(weight: .medium), trigger: day.key)
+        .sensoryFeedback(.pick, trigger: picks)
     }
 
     // MARK: What the map draws
@@ -172,7 +175,8 @@ struct MapTab: View {
     }
 
     /// A row or a stop was tapped: that is a request, so the map moves even if it was just handled.
-    private func activate(_ i: Int, day: Day, scroll: Bool) {
+    private func activate(_ i: Int, day: Day, scroll: Bool, byHand: Bool = false) {
+        if byHand, i != active { picks += 1 }
         touch.movedAt = .distantPast
         withAnimation(.smooth(duration: 0.25)) {
             active = i
@@ -207,6 +211,8 @@ struct MapTab: View {
     // MARK: Side trips
 
     private func pickSide(_ id: String, day: Day, sides: [Int: [MapSide]]) {
+        // choosing one ticks; tapping the chosen one again to let it go does not
+        if side != id { picks += 1 }
         withAnimation(.snappy) {
             side = side == id ? nil : id
             if stage == .large { stage = .medium }
@@ -227,7 +233,7 @@ struct MapTab: View {
 
     private func tapped(_ id: String, day: Day, sides: [Int: [MapSide]]) {
         if let i = day.stops.first(where: { $0.stop.place == id })?.index {
-            activate(i, day: day, scroll: true)
+            activate(i, day: day, scroll: true, byHand: true)
             return
         }
         pickSide(id, day: day, sides: sides)
@@ -235,8 +241,9 @@ struct MapTab: View {
 
     // MARK: Days
 
-    private func choose(_ key: String) {
+    private func choose(_ key: String, byHand: Bool = false) {
         guard key != day.key else { return }
+        if byHand { picks += 1 }
         withAnimation(.smooth(duration: 0.3)) {
             dayKey = key
             active = nil
@@ -776,7 +783,8 @@ private struct MapTimeline: View {
     let onTap: (Int) -> Void
     let onSide: (String) -> Void
     let onPullDown: () -> Void
-    let onNextDay: () -> Void
+    /// true when the list was pulled past its end, false when the footer was tapped
+    let onNextDay: (_ pulled: Bool) -> Void
 
     @State private var frames = RowFrames()
     @State private var armed = false
@@ -827,7 +835,7 @@ private struct MapTimeline: View {
             .onChange(of: stage) {
                 frames.pausedUntil = .now.addingTimeInterval(0.5)
             }
-            .sensoryFeedback(.impact(weight: .light), trigger: armed) { _, on in on }
+            .sensoryFeedback(.snap, trigger: armed) { _, on in on }
         }
     }
 
@@ -843,7 +851,7 @@ private struct MapTimeline: View {
 
     /// The end of the day; pulled past, it goes on to the next.
     private func footer(_ next: Day) -> some View {
-        Button(action: onNextDay) {
+        Button { onNextDay(false) } label: {
             HStack(spacing: 12) {
                 Image(systemName: "arrow.down")
                     .font(.subheadline.weight(.bold))
@@ -882,7 +890,7 @@ private struct MapTimeline: View {
     private func released() {
         if armed {
             armed = false
-            onNextDay()
+            onNextDay(true)
         } else if pulled {
             pulled = false
             onPullDown()

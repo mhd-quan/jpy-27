@@ -18,6 +18,9 @@ struct MenuScanView: View {
     @State private var scanID = UUID()
     @State private var reading = false
     @State private var pick: PhotosPickerItem?
+    /// photos read, felt as they land rather than at the shutter: lines found, or nothing at all
+    @State private var found = 0
+    @State private var blank = 0
 
     private var place: Place? { model.store.place(placeID) }
 
@@ -53,6 +56,8 @@ struct MenuScanView: View {
             }
         }
         .talkTranslation(translator)
+        .sensoryFeedback(.done, trigger: found)
+        .sensoryFeedback(.fail, trigger: blank)
         .onChange(of: pick) {
             guard let item = pick else { return }
             Task {
@@ -81,7 +86,6 @@ struct MenuScanView: View {
                 .buttonStyle(.glassProminent)
                 .buttonBorderShape(.circle)
                 .disabled(reading)
-                .sensoryFeedback(.impact, trigger: reading) { _, new in new }
                 .accessibilityLabel("Chụp thực đơn")
                 .padding(.bottom, 28)
             }
@@ -107,6 +111,7 @@ struct MenuScanView: View {
         scanID = UUID()
         lines = out
         photo = upright
+        if out.isEmpty { blank += 1 } else { found += 1 }
         for l in out where l.match == nil && TalkMenuOCR.isJapanese(l.text) {
             translator.enqueue(id: key(l), text: l.text)
         }

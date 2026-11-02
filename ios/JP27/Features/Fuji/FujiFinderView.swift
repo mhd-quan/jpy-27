@@ -12,6 +12,10 @@ struct FujiFinderView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var onScreen = false
     @State private var cloud: Double?
+    /// when the marker last left the screen, and the times it was found: at the edge of the screen
+    /// it flickers in and out, so only a find after a couple of seconds' search is felt
+    @State private var lost = Date.distantPast
+    @State private var found = 0
 
     private let arSupported = ARWorldTrackingConfiguration.isSupported
 
@@ -48,6 +52,10 @@ struct FujiFinderView: View {
             }
         }
         .animation(.smooth, value: onScreen)
+        .onChange(of: onScreen) { _, visible in
+            if !visible { lost = .now } else if Date.now.timeIntervalSince(lost) > 2 { found += 1 }
+        }
+        .sensoryFeedback(.snap, trigger: found)
         .overlay(alignment: .topTrailing) {
             Button {
                 dismiss()

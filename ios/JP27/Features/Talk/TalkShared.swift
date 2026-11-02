@@ -132,6 +132,8 @@ struct TalkShowCard: View {
 struct TalkSpeakButton: View {
     let ja: String
     var size: CGFloat = 44
+    // a long press is felt the moment it takes, as the system's own are; a plain tap just speaks
+    @State private var slowed = 0
 
     var body: some View {
         let active = Speaker.shared.speaking == ja
@@ -141,13 +143,17 @@ struct TalkSpeakButton: View {
             .foregroundStyle(Color.accentColor)
             .frame(width: size, height: size)
             .contentShape(.rect)
-            .onLongPressGesture(minimumDuration: 0.4) { Speaker.shared.say(ja, slow: true) }
+            .onLongPressGesture(minimumDuration: 0.4) {
+                slowed += 1
+                Speaker.shared.say(ja, slow: true)
+            }
             .onTapGesture { Speaker.shared.say(ja) }
             .accessibilityElement()
             .accessibilityLabel("Phát âm")
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { Speaker.shared.say(ja) }
             .accessibilityAction(named: "Đọc chậm") { Speaker.shared.say(ja, slow: true) }
+            .sensoryFeedback(.snap, trigger: slowed)
     }
 }
 

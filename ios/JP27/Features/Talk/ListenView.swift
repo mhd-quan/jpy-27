@@ -111,6 +111,11 @@ struct ListenView: View {
         .disabled(listener.state == .preparing)
         .sensoryFeedback(.start, trigger: on) { _, new in new }
         .sensoryFeedback(.stop, trigger: on) { old, _ in old }
+        // the mic asked for and refused, or it would not start; only a tap gets it this far
+        .sensoryFeedback(.fail, trigger: listener.state) { _, new in
+            if case .unavailable = new { return true }
+            return false
+        }
         .accessibilityLabel(on ? "Dừng nghe" : "Bắt đầu nghe")
         .frame(maxWidth: .infinity)
         .padding(.bottom, 12)

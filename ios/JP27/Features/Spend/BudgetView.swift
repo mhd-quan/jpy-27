@@ -10,6 +10,11 @@ struct BudgetView: View {
     @Query private var expenses: [Expense]
     @State private var rate: Double = 0
     @State private var saving: Set<String> = []
+    // the slider ticks only where it meets one of the rates below, and only under the finger; a
+    // rate tapped in that list is a choice like any other
+    @State private var sliding = false
+    @State private var notches = 0
+    @State private var chosen = 0
 
     private var budget: Budget { model.guide.budget }
     private var total: Int { budget.total - budget.savings.filter { saving.contains($0.id) }.reduce(0) { $0 + $1.yen } }
@@ -62,8 +67,13 @@ struct BudgetView: View {
                 Text("160").font(.caption).monospacedDigit()
             } maximumValueLabel: {
                 Text("200").font(.caption).monospacedDigit()
+            } onEditingChanged: { sliding = $0 }
+            .onChange(of: Int(rate)) { old, new in
+                guard sliding else { return }
+                let marks = budget.scenarios.map { Int($0.rate) }
+                if marks.contains(where: { $0 != old && (min(old, new) ... max(old, new)).contains($0) }) { notches += 1 }
             }
-            .sensoryFeedback(.selection, trigger: Int(rate))
+            .sensoryFeedback(.notch, trigger: notches)
             if !budget.savings.isEmpty {
                 Divider()
                 ForEach(budget.savings) { s in
@@ -185,7 +195,10 @@ struct BudgetView: View {
             Card {
                 ForEach(Array(budget.scenarios.enumerated()), id: \.offset) { i, s in
                     if i > 0 { Divider() }
-                    Button { withAnimation(.snappy) { rate = s.rate } } label: {
+                    Button {
+                        if Int(s.rate) != Int(rate) { chosen += 1 }
+                        withAnimation(.snappy) { rate = s.rate }
+                    } label: {
                         HStack(alignment: .top, spacing: 12) {
                             Text("\(Int(s.rate))")
                                 .font(.headline)
@@ -202,6 +215,7 @@ struct BudgetView: View {
                 }
             }
         }
+        .sensoryFeedback(.pick, trigger: chosen)
     }
 }
 

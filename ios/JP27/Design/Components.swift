@@ -15,6 +15,34 @@ enum Metrics {
     static let stack: CGFloat = 24
 }
 
+// Haptics, named by what happened rather than how hard it taps, so the same moment feels the same
+// on every screen. One only when the hand caused a change the eye can see, once per change: never
+// while something streams, never for a value the app set by itself. Toggles, pickers, menus, swipe
+// actions, pull to refresh, tabs, navigation and sheets keep the system's own feel and get nothing
+// added. Something that runs on until stopped (following a ride, the microphone) begins with the
+// system's .start and ends with its .stop, as they are.
+extension SensoryFeedback {
+    /// One of a few chosen, and the choice shows at once: a day, a stop, a chip, a category, a
+    /// viewpoint. Letting a choice go again is quiet.
+    nonisolated static var pick: SensoryFeedback { .selection }
+    /// Held or pulled far enough for something to happen: a long press that reads slowly, a pull
+    /// past the end of the day, the Fuji marker come into view.
+    nonisolated static var snap: SensoryFeedback { .impact(flexibility: .soft, intensity: 0.5) }
+    /// A thing done: a stop marked, a purchase, expense or top-up saved, an address copied, a menu
+    /// read. Undoing it is quiet.
+    nonisolated static var done: SensoryFeedback { .success }
+    /// Done, at a cost worth feeling: stops dropped from today's plan.
+    nonisolated static var warn: SensoryFeedback { .warning }
+    /// Asked for and it did not happen: the microphone refused, a menu photo with nothing to read.
+    nonisolated static var fail: SensoryFeedback { .error }
+    /// A count stepped up or down by one, as a stepper moves. Nothing steps a count yet; a stepper
+    /// that does uses these.
+    nonisolated static var more: SensoryFeedback { .increase }
+    nonisolated static var less: SensoryFeedback { .decrease }
+    /// A slider meeting a value that means something, never every step on the way to it.
+    nonisolated static var notch: SensoryFeedback { .levelChange }
+}
+
 /// A content card on the grouped background.
 struct Card<Content: View>: View {
     @Environment(\.cardSurface) private var surface
@@ -124,10 +152,19 @@ struct YenText: View {
 struct CheckButton: View {
     let isOn: Bool
     var tint: Color = .accentColor
+    /// A check that marks the moment it is tapped. One whose tap first asks something (an item
+    /// bought asks its price) passes false and leaves the haptic to the save.
+    var marksOnTap = true
     let action: () -> Void
+    // the haptic follows the hand, not isOn: a stop also turns on by itself when you arrive, and
+    // from buttons that give their own; taking a mark off stays quiet
+    @State private var marked = 0
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            if marksOnTap, !isOn { marked += 1 }
+            action()
+        } label: {
             Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
                 .font(.title2)
                 .symbolRenderingMode(.hierarchical)
@@ -138,7 +175,7 @@ struct CheckButton: View {
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .sensoryFeedback(.success, trigger: isOn) { _, new in new }
+        .sensoryFeedback(.done, trigger: marked)
         .accessibilityLabel(isOn ? "Đã xong" : "Chưa xong")
         .accessibilityAddTraits(isOn ? [.isSelected, .isButton] : .isButton)
     }
