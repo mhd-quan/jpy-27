@@ -67,12 +67,12 @@ ios/
 | Tab | Dùng khi | Gồm nội dung site |
 | --- | --- | --- |
 | **Hôm nay** | mở điện thoại là thấy việc kế tiếp | điểm tiếp theo kèm ảnh, giờ rời đi, đang trễ bao nhiêu và nên bỏ gì; phần còn lại của ngày; trước chuyến: trang bìa (xem dưới) |
-| **Bản đồ** | đang đi bộ | bản đồ ngày, chấm vị trí, khoảng cách tới điểm kế, chỗ rẽ gần đây |
+| **Bản đồ** | đang đi bộ, hoặc xem trước một ngày | dải ngày trượt ngang; lịch ngày trong bảng kéo, bản đồ chạy theo khi cuộn; chỗ rẽ sau mỗi điểm dừng |
 | **Lịch trình** | xem trước, xem lại | 12 ngày theo nơi ngủ, ngày thay thế Kawaguchiko; Ăn uống, Chỗ ở, Trên tàu, Fuji, Đặt chỗ, Mua sắm, Ngân sách |
 | **Sổ tay** | ở quầy, ở quán | 32 tình huống, câu riêng của chuyến, tên ga, nghe và dịch, quét menu, cẩm nang (vé, hành lý, hoàn thuế, onsen) |
 | **Chi tiêu** | sau mỗi lần trả tiền | sổ chi theo ngày, ví tiền mặt và Suica, ngân sách so với thực chi, giỏ mua sắm |
 
-Thanh phụ dưới tab bar (bottom accessory) luôn cho biết chuyện đang diễn ra: chuyến tàu đang đi (ga kế, Fuji bên nào) hoặc đếm ngược tới lúc phải rời đi.
+Thanh phụ dưới tab bar (bottom accessory) chỉ hiện khi có chuyện đang diễn ra: chuyến tàu đang đi (ga kế, Fuji bên nào) hoặc đếm ngược tới lúc phải rời đi. Trước chuyến nó không hiện, vì chỉ lặp lại số ngày trang bìa đã có. Ẩn thanh phụ cần iOS 26.1 (`tabViewBottomAccessory(isEnabled:)`); trên 26.0 nó luôn hiện.
 
 Glyph của tab: cổng torii cho Hôm nay (asset vẽ riêng, SF Symbols không có), `map`, một lộ trình nối hai điểm cho Lịch trình, あ trong bóng thoại cho Sổ tay (giống nút "Nói" của web), `wallet.bifold` cho Chi tiêu. Phương tiện: mũi Shinkansen cho Shinkansen, thuyền buồm cho tàu hải tặc hồ Ashi, đường hầm cho metro. Nút hệ thống (cài đặt, đóng, xoá) giữ glyph chuẩn của Apple.
 
@@ -82,18 +82,35 @@ Hinomaru: giấy trắng ấm (`Paper`, thẻ `Card`) và một màu đỏ cờ 
 
 Trước chuyến, tab Hôm nay là trang bìa (`Features/Today/TodayHome.swift`):
 - **Ảnh bìa.** Mỗi ngày một ảnh Commons có sẵn trong app (chạy cả khi mất sóng). Ảnh tràn dưới thanh trạng thái, tự chuyển sau vài giây, trượt có parallax, kéo xuống thì ảnh giãn ra, chạm ảnh thì mở địa điểm.
-- **Đếm ngày.** Số ngày còn lại nằm trên đĩa mặt trời đỏ; đĩa nhô lên khi mở trang, có một vòng toả ra như mặt trời mọc.
-- **Hành trình.** Năm thành phố là các ga trên một tuyến metro, mỗi đoạn dài theo số đêm, tên thành phố viết bằng kanji. Chạm một ga thì băng thẻ ngày cuộn tới ngày đầu của thành phố đó; ngược lại, cuộn băng thẻ thì ga tương ứng sáng lên.
-- **Từng ngày.** Mỗi ngày một thẻ ảnh, có số ngày, kanji thành phố và một RouteSpark (đường đi thật của ngày, đúng màu từng tuyến). Chạm thẻ thì thẻ phóng to thành trang ngày (zoom transition).
-- **Đặt chỗ.** Mỗi lượt đặt chỗ là một tấm vé có cuống ghi ngày mở bán và nhãn đếm ngược.
-- **Những bữa đáng nhớ.** Ảnh quán theo thứ tự ngày, kèm món đặc trưng.
-- **Một câu mỗi ngày.** Câu đổi theo ngày; chạm câu để hiện toàn màn hình, có nút phát âm.
+- **Đếm ngày.** Số ngày còn lại trên đĩa đỏ phẳng như lá cờ, cạnh "Tokyo → Osaka", ngày đi–về và số đêm. Đĩa đứng yên; chạm vào thì toả một vòng, rung nhẹ và đổi đơn vị (ngày, tuần, giờ).
+- **Hành trình và từng ngày.** Năm thành phố là các ga trên một tuyến metro, mỗi đoạn dài theo số đêm, tên viết bằng kanji; ngay dưới là băng thẻ ngày (ảnh, số ngày, kanji, RouteSpark là đường đi thật của ngày). Tuyến metro là mục lục của băng thẻ nên không cần tiêu đề: chạm một ga thì băng thẻ cuộn tới ngày đầu của thành phố đó, cuộn băng thẻ thì ga tương ứng sáng lên. Chạm thẻ thì thẻ phóng to thành trang ngày.
+- **Đặt chỗ.** Mỗi lượt đặt chỗ là một tấm vé: ngày mở bán trên cuống, đếm ngược trên thân; vé theo quy tắc thì ghi quy tắc.
+- **Quán ăn.** Ảnh quán theo thứ tự ngày, kèm món.
+- **Một câu tiếng Nhật.** Đổi theo ngày, có nút đổi câu và nút phát âm; chạm câu để hiện toàn màn hình.
 - **Trước khi đi.** Checklist đánh dấu được, lưu trên máy.
-- **Cả chuyến bằng con số.** Các con số đếm lên khi cuộn tới.
-- **Fuji lúc hoàng hôn.** Thẻ dẫn tới cẩm nang Fuji và camera Tìm Fuji.
-- **Chạy thử một ngày.**
+- **Fuji.** Thẻ dẫn tới cẩm nang Fuji và camera Tìm Fuji.
+- **Chạy thử một ngày trong chuyến.**
 
-Trong chuyến:
+Tiêu đề mục chỉ đặt ở chỗ nội dung không tự nói được nó là gì; không có dòng phụ đề trang trí.
+
+## Tab Bản đồ
+
+Giống trang ngày của web (`daySync`), nhưng nằm trong tab Bản đồ (`Features/Map/MapTab.swift`):
+- **Dải ngày.** Các ngày là những viên glass trượt ngang ở đầu bản đồ; ngày đang chọn màu đỏ và hiện tên. Ngày thay thế (Kawaguchiko) nằm cuối dải.
+- **Bảng kéo.** Ba nấc. Nấc thấp nhất vẫn hiện tiến độ ngày: các điểm dừng xếp thành hàng, điểm đã ghé có dấu tích, điểm kế tiếp có vòng đỏ, điểm bản đồ đang xem được tô sáng; chạm một điểm thì bản đồ bay tới đó. Nội dung bảng được dựng một lần ở chiều cao lớn nhất, kéo chỉ đổi mép cắt nên không phải dựng lại. Kéo xuống quá đầu danh sách thì bảng hạ xuống nấc thấp nhất.
+- **Bản đồ theo lịch.** Bảng giữa và bảng lớn chứa timeline của ngày (dùng chung đường ray với Lịch trình). Một đường đọc nằm ở một phần ba chiều cao danh sách; mục nào chạm đường đó thì bản đồ hiện mục ấy: chặng di chuyển thì vừa khung chặng và làm mờ các chặng khác, điểm dừng thì bay tới ở zoom 15,5. Khi bạn tự kéo hay zoom bản đồ, nó đứng yên 4 giây rồi mới bay tiếp. Đang ở đầu danh sách thì bản đồ hiện cả ngày.
+- **Chỗ rẽ.** Ngay sau mỗi điểm dừng có một hàng viên nhỏ: các chỗ có thể rẽ, kèm số phút. Lấy từ dữ liệu: chỗ rẽ nghiên cứu cho ngày (`along`), quán ăn vặt gắn với điểm dừng (`near`), và các chỗ trong dữ liệu chưa ngày nào xếp lịch, cách điểm dừng một quãng đi bộ ngắn. Mỗi chỗ thuộc về điểm dừng gần nó nhất. Trên bản đồ chỉ có tên các chỗ rẽ của điểm đang đọc (hoặc của điểm mà chặng đang đọc dẫn tới). Chạm một chỗ (trên bản đồ hay ở hàng viên) thì vẽ đường tạm từ điểm dừng tới đó (đường rẽ đã nghiên cứu nếu có, không thì nét đứt thẳng) và hiện thẻ Đi bộ / Chi tiết / Ghi chi. Cuộn sang điểm khác thì đường tạm biến mất và các chỗ rẽ đổi theo điểm mới.
+- **Sang ngày sau.** Cuối danh sách là thẻ ngày kế tiếp; kéo quá cuối (có rung nhẹ khi đủ xa) rồi thả, hoặc chạm thẻ, thì chuyển sang ngày sau.
+- **Trong chuyến.** Mở đúng ngày hôm nay, ở điểm kế tiếp. Dòng đầu bảng là điểm kế tiếp, khoảng cách và nút Đi bộ, chỉ hiện khi bạn ở gần (trong vòng 30 km), nên ở nhà sẽ không thấy khoảng cách vô nghĩa.
+
+## Ghi chi
+
+Ghi chi không còn gắn cứng vào điểm trong lịch (`Features/Spend/ExpenseEditor.swift`):
+- **Ngày.** Chọn được ngày mà khoản chi được tính vào (ví dụ ghi bù hoá đơn tối qua). Mặc định là hôm nay; trước chuyến thì là ngày có địa điểm đó. Sổ chi xếp khoản chi theo ngày này.
+- **Ở đâu.** Chọn theo ngày đã chọn: quanh bạn (các chỗ trong dữ liệu cách bạn dưới 300 m), các điểm trong lịch của ngày, các chỗ rẽ của ngày (giống tab Bản đồ). Có ô tìm trong mọi chỗ đã lưu; chỗ không có trong dữ liệu thì gõ tên vào (lưu ở `Expense.placeName`).
+
+## Hôm nay, trong chuyến
+
 - **Đầu trang.** Kanji thành phố và một dải vạch, mỗi vạch là một điểm dừng: điểm đã ghé tô đỏ, điểm kế tiếp nhấp nháy.
 - **Thẻ điểm tiếp theo.** Ảnh lớn, tên đặt trên ảnh, giờ rời đi to màu đỏ.
 - **Timeline đường ray.** Dùng chung cho trang ngày. Theo cách web vẽ: mỗi chặng là một vạch dày đúng màu tuyến (đứt quãng trên nước và cáp treo, chấm chấm khi đi bộ); mỗi điểm dừng là một nút đánh số theo màu loại; ga là vòng rỗng.

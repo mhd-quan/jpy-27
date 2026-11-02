@@ -45,6 +45,9 @@ import TripKit
     /// PayMethod raw value
     var method: String
     var placeID: String?
+    /// a place the data does not have, named by hand
+    var placeName: String?
+    /// the trip day it counts toward (it may be logged later)
     var day: String?
     var note: String
     var at: Date
@@ -53,12 +56,13 @@ import TripKit
     /// a basket or catalogue item this pays for
     var itemID: String?
 
-    init(yen: Int, category: SpendCategory, method: PayMethod, placeID: String? = nil, day: String? = nil, note: String = "", at: Date, coordinate: Coordinate? = nil, itemID: String? = nil) {
+    init(yen: Int, category: SpendCategory, method: PayMethod, placeID: String? = nil, placeName: String? = nil, day: String? = nil, note: String = "", at: Date, coordinate: Coordinate? = nil, itemID: String? = nil) {
         id = UUID()
         self.yen = yen
         self.category = category.rawValue
         self.method = method.rawValue
         self.placeID = placeID
+        self.placeName = placeName
         self.day = day
         self.note = note
         self.at = at

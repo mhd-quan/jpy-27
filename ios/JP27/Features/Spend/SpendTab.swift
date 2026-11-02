@@ -130,7 +130,9 @@ struct SpendTab: View {
     }
 
     private var groups: [SpendDayGroup] {
-        let byDate = Dictionary(grouping: expenses) { TripTime.isoDate(of: $0.at) }
+        // under the day it was counted toward, else the day it was logged
+        let dates = Dictionary(model.days.map { ($0.key, $0.date) }, uniquingKeysWith: { a, _ in a })
+        let byDate = Dictionary(grouping: expenses) { e in e.day.flatMap { dates[$0] } ?? TripTime.isoDate(of: e.at) }
         return byDate.keys.sorted(by: >).map { SpendDayGroup(date: $0, items: byDate[$0] ?? []) }
     }
 
@@ -227,13 +229,13 @@ private struct SpendLedgerRow: View {
                 .frame(width: 34, height: 34)
                 .background(SpendSymbols.color(category, budget: model.guide.budget), in: .circle)
             VStack(alignment: .leading, spacing: 2) {
-                Text(place?.name ?? (expense.note.isEmpty ? category.label : expense.note))
+                Text(place?.name ?? expense.placeName ?? (expense.note.isEmpty ? category.label : expense.note))
                     .font(.body)
                     .lineLimit(1)
                 HStack(spacing: 6) {
                     Text(TripTime.clock(expense.at)).monospacedDigit()
                     Image(systemName: SpendSymbols.method(expense.payMethod))
-                    if place != nil, !expense.note.isEmpty { Text(expense.note).lineLimit(1) }
+                    if place != nil || expense.placeName != nil, !expense.note.isEmpty { Text(expense.note).lineLimit(1) }
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)

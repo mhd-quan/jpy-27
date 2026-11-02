@@ -346,7 +346,13 @@ enum AppSheet: Identifiable, Hashable {
 
     @discardableResult
     func logExpense(yen: Int, category: SpendCategory, method: PayMethod, placeID: String?, note: String = "", itemID: String? = nil) -> Expense {
-        let e = Expense(yen: yen, category: category, method: method, placeID: placeID, day: today?.key, note: note, at: now, coordinate: position, itemID: itemID)
+        logExpense(yen: yen, category: category, method: method, placeID: placeID, placeName: nil, day: today?.key, note: note, itemID: itemID)
+    }
+
+    /// An expense counted toward a chosen day, at a place from the data or one named by hand.
+    @discardableResult
+    func logExpense(yen: Int, category: SpendCategory, method: PayMethod, placeID: String?, placeName: String?, day: String?, note: String = "", itemID: String? = nil) -> Expense {
+        let e = Expense(yen: yen, category: category, method: method, placeID: placeID, placeName: placeName, day: day, note: note, at: now, coordinate: position, itemID: itemID)
         context.insert(e)
         try? context.save()
         return e
