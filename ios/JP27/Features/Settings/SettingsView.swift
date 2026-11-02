@@ -177,7 +177,7 @@ private struct AppearanceSection: View {
                 }
             }
             .padding(.vertical, 10)
-            .sensoryFeedback(.selection, trigger: appearance)
+            .sensoryFeedback(.pick, trigger: appearance)
         } header: {
             Text("Giao diện")
         } footer: {

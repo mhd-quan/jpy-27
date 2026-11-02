@@ -115,7 +115,7 @@ Tab Chi tiêu (`Features/Spend/SpendTab.swift`) đọc từ trên xuống như m
 - **Sổ chi.** Theo ngày, đầu mỗi ngày có tổng của ngày; vuốt để xoá.
 - **Ghi chi.** Nút "+" trên thanh, sheet mọc ra từ viên kính của nút.
 
-Mọi sheet nhập tiền (ghi chi, rút tiền, nạp Suica, "Đã mua") dùng bàn phím số vẽ ngay trong sheet (`SpendKeypad`, có phím 000 và rung nhẹ mỗi lần bấm), không bật bàn phím hệ thống. Bàn phím hệ thống trồi lên đúng lúc sheet đang phóng ra từ nút là thứ làm hiệu ứng bị khựng; giờ sheet phóng ra một mạch và đứng yên ở độ cao cuối.
+Mọi sheet nhập tiền (ghi chi, rút tiền, nạp Suica, "Đã mua") dùng bàn phím số vẽ ngay trong sheet (`SpendKeypad`, có phím 000; phím không rung, vì rung khi gõ là cài đặt riêng của mỗi người cho bàn phím hệ thống, app không đọc được), không bật bàn phím hệ thống. Bàn phím hệ thống trồi lên đúng lúc sheet đang phóng ra từ nút là thứ làm hiệu ứng bị khựng; giờ sheet phóng ra một mạch và đứng yên ở độ cao cuối.
 
 ## Ghi chi
 
@@ -128,6 +128,22 @@ Màn ghi chi (`Features/Spend/ExpenseEditor.swift`): số tiền lớn ở trên
 - **Đầu trang.** Kanji thành phố và một dải vạch, mỗi vạch là một điểm dừng: điểm đã ghé tô đỏ, điểm kế tiếp nhấp nháy.
 - **Thẻ điểm tiếp theo.** Ảnh lớn, tên đặt trên ảnh, giờ rời đi to màu đỏ.
 - **Timeline đường ray.** Dùng chung cho trang ngày. Theo cách web vẽ: mỗi chặng là một vạch dày đúng màu tuyến (đứt quãng trên nước và cáp treo, chấm chấm khi đi bộ); mỗi điểm dừng là một nút đánh số theo màu loại; ga là vòng rỗng.
+
+## Rung (haptic)
+
+Một bộ từ duy nhất, đặt tên theo điều vừa xảy ra chứ không theo độ mạnh (`extension SensoryFeedback` trong `Design/Components.swift`), để cùng một loại khoảnh khắc thì rung như nhau ở mọi trang:
+
+| Tên | Là | Khi nào |
+|---|---|---|
+| `pick` | `.selection` | chọn một trong vài thứ: ngày, điểm dừng, chip vùng Fuji, hạng mục chi, chỗ ngắm, mức tỉ giá |
+| `snap` | `.impact(.soft, 0.5)` | giữ hoặc kéo đủ xa để điều gì đó xảy ra: nhấn giữ loa để đọc chậm, kéo quá cuối ngày, Fuji hiện lại trong camera sau khi tìm |
+| `done` | `.success` | một việc xong: đánh dấu điểm, đã tới, đã mua, lưu khoản chi hay nạp tiền, chép địa chỉ, đọc xong menu, ghép máy, xử lý khoản trùng |
+| `warn` | `.warning` | xong nhưng có giá: bỏ điểm để kịp lịch |
+| `fail` | `.error` | bấm mà không được: micro bị từ chối, ảnh menu không đọc ra chữ nào |
+| `notch` | `.levelChange` | thanh trượt tỉ giá chạm một mức có trong bảng, không phải mỗi bước |
+| `.start` / `.stop` | của hệ thống | bắt đầu và kết thúc việc chạy liên tục: theo dõi chuyến, micro |
+
+Quy tắc: chỉ rung khi tay người dùng gây ra một thay đổi thấy được, mỗi thay đổi một lần. Thay đổi do app tự làm (điểm tự đánh dấu khi tới, chuyến tự bắt đầu ở ga, bản đồ tự đi theo danh sách hay sang ngày mới lúc nửa đêm) thì im. Bỏ chọn, bỏ dấu cũng im. Điều khiển của hệ thống (toggle, segmented picker, menu, vuốt để xoá, chuyển tab, mở trang, mở và đóng sheet, alert) giữ cảm giác của hệ thống, không thêm gì. Nút biến mất ngay lúc bấm (băng trễ giờ, thẻ ghép máy, thẻ khoản trùng) thì rung đặt ở view cha, để vẫn kịp phát.
 
 ## Liquid Glass
 
@@ -171,7 +187,7 @@ Các điểm là một chuyến đi chơi chứ không phải chỗ ghé qua (m�
 - **Chỗ lưu cố định.** Sổ (SwiftData) nằm ở `Application Support/Trip.store` trong container của app, không còn trong App Group (tên App Group đổi theo cách ký, ký khác là mất sổ). Bản cũ trong App Group được chép sang một lần.
 - **Không bao giờ âm thầm ghi vào bộ nhớ.** Nếu sổ không mở được, file cũ được để nguyên; từ đó app ghi vào một sổ phụ trên đĩa, báo ngay khi mở app và trong Cài đặt (kèm nút gửi file sổ cũ để cứu dữ liệu). Khi sổ chính mở lại được, sổ phụ được gộp vào rồi đổi tên cất đi, không xoá. Khi đổi model chỉ thêm thuộc tính optional hoặc có giá trị mặc định, trừ khi kèm `SchemaMigrationPlan`.
 - **Hai máy, một sổ chi.** App không thể tự gửi hay tự nhận AirDrop (lúc nào cũng phải qua bảng chia sẻ và máy kia bấm nhận), nên hai máy nói chuyện thẳng với nhau: MultipeerConnectivity (cùng loại Wi‑Fi trực tiếp AirDrop dùng, không cần mạng) đồng bộ mỗi khi cả hai máy mở app ở gần nhau, và với máy có chip UWB, chạm đầu hai máy vào nhau (NearbyInteraction) thì đồng bộ ngay, kèm rung nhẹ (`Services/LedgerSync.swift`).
-  - **Bật lần đầu.** Ở mỗi máy: Chi tiêu → ··· → Đồng bộ với máy kia → bật "Tự đồng bộ khi ở gần", đặt tên máy nếu muốn. Lúc này iOS mới hỏi quyền Mạng cục bộ (và Tương tác lân cận khi máy kia kết nối). Ghép lần đầu: mở trang Đồng bộ trên cả hai máy cạnh nhau; mỗi máy hỏi "Ghép với <tên>?" kèm một mã 6 số, chỉ bấm "Dùng chung" khi hai máy hiện cùng một mã. Từ đó trở đi tự động; dưới hai ô Ngân sách và Mua sắm có một dòng "Đã đồng bộ với Lan lúc 21:04".
+  - **Bật lần đầu.** Ở mỗi máy: Chi tiêu → ··· → Đồng bộ với máy kia → bật "Tự đồng bộ khi ở gần", đặt tên máy nếu muốn. Lúc này iOS mới hỏi quyền Mạng cục bộ (và Tương tác lân cận khi máy kia kết nối). Ghép lần đầu: mở trang Đồng bộ trên cả hai máy cạnh nhau; mỗi máy hỏi "Ghép với <tên>?" kèm một mã 6 số, chỉ bấm "Dùng chung" khi hai máy hiện cùng một mã (hoặc chạm đầu hai máy vào nhau, với máy có UWB). Từ đó trở đi tự động; dưới hai ô Ngân sách và Mua sắm có một dòng "Đã đồng bộ với Lan lúc 21:04".
   - **Chỉ máy đã ghép mới đọc được sổ.** Mỗi máy có một khoá Curve25519 riêng, cất trong Keychain (không theo bản sao lưu sang máy khác). Lúc gặp nhau, hai máy trao khoá công khai và một số ngẫu nhiên, rồi tính ra cùng một khoá bí mật (ECDH + HKDF); mã 6 số rút từ khoá đó, nên nếu có máy thứ ba chen vào giữa thì hai mã khác nhau. Máy đã ghép nhớ khoá công khai của máy kia, không nhớ tên hay mã cài đặt. Mọi tin sau lời chào được đánh số và ký HMAC‑SHA256 bằng khoá bí mật; tin sai chữ ký, tin cũ phát lại, tin từ máy chưa ghép bị bỏ. Ngoài lúc trang Đồng bộ đang mở, app chỉ nhận lời mời kết nối từ máy đã ghép; thông tin phát ra quanh máy chỉ còn một số ngẫu nhiên đổi mỗi lần mở app. Bản ghi hay lệnh xoá đề ngày quá 24 giờ sau giờ của máy nhận bị bỏ (một lệnh xoá đề năm 2099 không còn thắng mọi bản sửa). Máy đã ghép bằng bản cũ phải ghép lại một lần, và cả hai máy cần cùng bản này.
   - **Gộp hai chiều** (`LedgerMerge` trong TripKit, có test): mỗi khoản giữ bản sửa sau cùng (`updatedAt`), khoản xoá để lại "bia mộ" thắng mọi bản cũ hơn, hai máy ra cùng một sổ dù máy nào gộp trước. Khoản chi giờ sửa được (chạm vào dòng).
   - **Không bao giờ tự gộp.** Hai người mua hai bát ¥1.200 ở cùng máy bán vé là hai khoản thật, nên app không tự xoá khoản nào. Hai khoản từ hai máy cùng chỗ, khoản, số tiền, ngày, cách nhau dưới 3 giờ thì hỏi "Cùng một khoản?"; khoản gần giống (cùng chỗ khác số tiền, hoặc không có chỗ mà cùng khoản và số tiền trong 30 phút) cũng hỏi. Mỗi dòng ghi máy nào ghi, lúc mấy giờ, trả bằng gì. Nút "Giữ khoản này" nổi bật ở khoản trả bằng tiền mặt hoặc Suica khi khoản kia không phải, vì ví của máy đó chỉ trừ khoản do chính nó ghi; "Hai khoản riêng" thì không bị hỏi lại. Khoản do bản cũ đã tự gộp vẫn khôi phục được ("Không phải trùng").

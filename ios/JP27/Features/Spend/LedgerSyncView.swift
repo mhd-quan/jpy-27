@@ -39,6 +39,9 @@ struct SpendSyncLine: View {
 struct SpendPairCard: View {
     @Environment(AppModel.self) private var model
     let name: String
+    /// told when "Dùng chung" is pressed, so the haptic can play where the card is shown: the card
+    /// itself goes away as the yes lands
+    var accepted: () -> Void = {}
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -60,7 +63,10 @@ struct SpendPairCard: View {
             HStack(spacing: 10) {
                 Button("Để sau") { model.ledgerSync.decline() }
                     .buttonStyle(.bordered)
-                Button("Dùng chung") { model.ledgerSync.accept() }
+                Button("Dùng chung") {
+                    model.ledgerSync.accept()
+                    accepted()
+                }
                     .buttonStyle(.borderedProminent)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -184,6 +190,9 @@ struct LedgerSyncSheet: View {
     @Environment(\.modelContext) private var context
     @State private var name = ""
     @State private var folded: [LedgerTombstone] = []
+    // felt from the list: the rows pressed leave with the press
+    @State private var paired = 0
+    @State private var restored = 0
 
     var body: some View {
         let sync = model.ledgerSync
@@ -232,7 +241,10 @@ struct LedgerSyncSheet: View {
                                 HStack(spacing: 10) {
                                     Button("Để sau") { sync.decline() }
                                         .buttonStyle(.bordered)
-                                    Button("Dùng chung") { sync.accept() }
+                                    Button("Dùng chung") {
+                                        sync.accept()
+                                        paired += 1
+                                    }
                                         .buttonStyle(.borderedProminent)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .trailing)
@@ -275,6 +287,7 @@ struct LedgerSyncSheet: View {
                                     Button("Không phải trùng") {
                                         Ledger.restore(t, in: context)
                                         folded = Ledger.folded(context)
+                                        restored += 1
                                     }
                                     .buttonStyle(.bordered)
                                     .controlSize(.small)
@@ -294,6 +307,8 @@ struct LedgerSyncSheet: View {
                 }
             }
             .paperList()
+            .sensoryFeedback(.done, trigger: paired)
+            .sensoryFeedback(.done, trigger: restored)
             .navigationTitle("Đồng bộ")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -22,6 +22,8 @@ struct SpendTab: View {
     @State private var editing: Expense?
     /// bumped when a pair is kept apart (stored outside SwiftData), to ask again
     @State private var keptTick = 0
+    /// phones paired from the card here; the card leaves as the yes lands, so it is felt from the list
+    @State private var paired = 0
 
     var body: some View {
         @Bindable var model = model
@@ -29,7 +31,7 @@ struct SpendTab: View {
             List {
                 if let asking = model.ledgerSync.asking {
                     Section {
-                        SpendPairCard(name: asking.name)
+                        SpendPairCard(name: asking.name) { paired += 1 }
                             .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                     }
                     .listRowBackground(Color.clear)
@@ -102,6 +104,9 @@ struct SpendTab: View {
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
             .paperList()
+            // a duplicate settled either way, and a phone paired by its button (a touch is felt by the sync)
+            .sensoryFeedback(.done, trigger: keptTick)
+            .sensoryFeedback(.done, trigger: paired)
             .navigationTitle("Chi tiêu")
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
             .toolbar {
