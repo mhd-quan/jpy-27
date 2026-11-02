@@ -47,17 +47,11 @@ extension View {
     }
 
     /// The progressive blur under bars: content fades and blurs into the bar instead of stopping at
-    /// a hard edge. iOS 27 made the top edge `.hard` by default, a blurred strip with a rule under it.
-    /// It is asked for only by the Xcode 27 compiler (Swift 6.4): an app built with the iOS 26 SDK
-    /// gets `.soft` over the status bar alone on iOS 27, which reads worse than the system's strip.
-    /// On iOS 26, `.soft` is already the default.
-    @ViewBuilder
+    /// a hard edge. Built with the iOS 27 SDK the automatic style resolves to `.hard` (a blurred strip
+    /// with a rule under it), and there is no app-wide setting: the style has to be set on each
+    /// scroll view, which `screen()` and `paperList()` do. On iOS 26, `.soft` is already the default.
     func progressiveEdges() -> some View {
-        #if compiler(>=6.4)
         scrollEdgeEffectStyle(.soft, for: .all)
-        #else
-        self
-        #endif
     }
 }
 

@@ -19,6 +19,7 @@ struct SettingsView: View {
                 PaceSection()
                 SourcesSection()
             }
+            .progressiveEdges()
             .navigationTitle("Cài đặt")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { CloseButton() }

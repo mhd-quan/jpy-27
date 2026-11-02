@@ -66,13 +66,22 @@ struct PlanLinkChips: View {
     }
 
     init(links: [(title: String, url: String)]) {
-        self.links = links
+        self.links = links.filter { !Self.isEncyclopedia($0.url) }
     }
 
     /// Sources named by their site, duplicates dropped.
     init(sources: [String]) {
         var seen = Set<String>()
-        links = sources.compactMap { s in seen.insert(s).inserted ? (planSourceLabel(s), s) : nil }
+        links = sources.compactMap { s in
+            seen.insert(s).inserted && !Self.isEncyclopedia(s) ? (planSourceLabel(s), s) : nil
+        }
+    }
+
+    /// Wikipedia and its siblings were where the research started, not somewhere to read or check
+    /// on the day: only sources that are kept current (Tabelog, Instagram, official sites) show.
+    private static func isEncyclopedia(_ url: String) -> Bool {
+        let host = URL(string: url)?.host()?.lowercased() ?? ""
+        return ["wikipedia.", "wikimedia.", "wikivoyage.", "wikidata."].contains { host.contains($0) }
     }
 }
 

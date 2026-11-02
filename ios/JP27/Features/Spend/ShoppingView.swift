@@ -210,6 +210,7 @@ private struct SpendBuySheet: View {
                     Text(item.qty > 1 ? "\(item.name) × \(item.qty)" : item.name)
                 }
             }
+            .progressiveEdges()
             .navigationTitle("Đã mua")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
