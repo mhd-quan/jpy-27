@@ -26,8 +26,10 @@ struct JP27App: App {
             }
         }
         .backgroundTask(.appRefresh(Self.refreshID)) {
-            await model.refreshInBackground()
+            // the next one first: if the time runs out below, the chain is not lost
             Self.scheduleRefresh()
+            // returns only once reminders, fences and alarms are set
+            await model.refreshInBackground()
         }
     }
 

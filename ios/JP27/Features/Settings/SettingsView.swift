@@ -74,7 +74,7 @@ struct SettingsView: View {
 // MARK: - Diagnostics
 
 /// What the map really draws, measured on the phone: for a jerky map, numbers instead of guesses.
-/// And what the alarms last ran into.
+/// And what the alarms last ran into, and how often reminders, geofences and alarms were set again.
 private struct DiagnosticsSection: View {
     @Environment(AppModel.self) private var model
     @AppStorage(MapPacer.readingsKey) private var readings = false
@@ -118,6 +118,16 @@ private struct DiagnosticsSection: View {
                     }
                 } icon: {
                     SettingsIcon(symbol: "exclamationmark.triangle.fill", tint: .red)
+                }
+            }
+            // since launch, as of when this page opened: one per return to the app before the trip
+            LabeledContent {
+                Text("\(model.reschedules) lần").monospacedDigit()
+            } label: {
+                Label {
+                    Text("Đặt lại nhắc giờ, geofence, báo thức")
+                } icon: {
+                    SettingsIcon(symbol: "arrow.triangle.2.circlepath", tint: .gray)
                 }
             }
             #if DEBUG

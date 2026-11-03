@@ -139,6 +139,8 @@ enum AppSheet: Identifiable, Hashable {
     private(set) var skips: [String: Set<Int>] = [:]
 
     private var clockTask: Task<Void, Never>?
+    /// runs `reschedule`, one run at a time, requests close together served by one run
+    @ObservationIgnored private lazy var rescheduler = Coalescer { [weak self] in await self?.reschedule() }
     private var lastProjected: Coordinate?
     /// the next activation comes back from the background (or is the first): restart what
     /// `deactivate` stopped. A moment inactive (Control Center, a notification pulled down) stops nothing.
@@ -205,9 +207,13 @@ enum AppSheet: Identifiable, Hashable {
             guard let self else { return }
             // granted from the prompt: the app only went inactive under it, so start what it allows now
             location.follow(self)
-            rescheduleAll()
+            requestReschedule()
         }
-        location.onMoved = { [weak self] in self?.rescheduleAll() }
+        location.onMoved = { [weak self] in
+            guard let self else { return }
+            requestReschedule()
+            if inBackground { finishRescheduleInBackground() }
+        }
         motion.onPace = { [weak self] kmh, minutes in self?.learnPace(kmh: kmh, minutes: minutes) }
         notifications.onAction = { [weak self] in self?.notificationAction($0) }
     }
@@ -230,7 +236,9 @@ enum AppSheet: Identifiable, Hashable {
         startClock()
         location.resume(for: self)
         motion.start()
-        refresh(reschedule: true)
+        // a moment later, so what the return sets off just after it (the permission's answer, a
+        // move reported as the app opens) joins the same run
+        refresh(reschedule: true, after: .milliseconds(150))
         Task {
             // reminders are the point of the app on the road: ask once, at first launch
             await notifications.refreshStatus()
@@ -289,6 +297,9 @@ enum AppSheet: Identifiable, Hashable {
         downloads.leaving()
         ledgerSync.deactivate()
         publishSnapshot(force: true)
+        // a tick made just before leaving is still waiting out its 300 ms: finished now, under a
+        // background task, not left for the next return
+        if !rescheduler.isIdle { finishRescheduleInBackground() }
     }
 
     private func startClock() {
@@ -306,7 +317,11 @@ enum AppSheet: Identifiable, Hashable {
     /// Runs every 20 seconds, so it only writes what changed: every write to an observed property
     /// redraws the views that read it, whether or not the value is new. The clock moves on the
     /// minute (nothing shows seconds).
-    func refresh(reschedule: Bool) {
+    ///
+    /// With `reschedule`, reminders, geofences and alarms are made to match too, `delay` from now
+    /// (`requestReschedule`): a tap waits out its own animation, the return to the app what follows
+    /// it. Without, only the watched circles follow a cursor that moved.
+    func refresh(reschedule: Bool, after delay: Duration = .zero) {
         let t = Shared.now
         if reschedule || Int(t.timeIntervalSince1970 / 60) != Int(now.timeIntervalSince1970 / 60) { now = t }
         let chosen = store.days(choosing: alternatives)
@@ -319,7 +334,8 @@ enum AppSheet: Identifiable, Hashable {
         }
         let moved = project()
         if reschedule {
-            rescheduleAll()
+            // the circles too, with the rest of the job
+            requestReschedule(after: delay)
         } else if moved {
             // the watched circles follow the cursor
             location.updateFences(model: self)
@@ -384,17 +400,42 @@ enum AppSheet: Identifiable, Hashable {
             if let m = item.move, ride.legs.contains(m.leg.id) { markDone(day, i, source: "ride") }
         }
         refresh(reschedule: true)
+        // under the lock screen the ride's background positions end with it
+        if inBackground { finishRescheduleInBackground() }
     }
 
-    /// Reminders, geofences and alarms, made to match the plan, the clock and what is done. Run when
-    /// any of them changes: a mark, a skip, a day swapped, the rehearsal clock, a return to the app.
-    func rescheduleAll() {
+    /// Reminders, geofences and alarms made to match within `delay` (`reschedule`), in one run with
+    /// every other request close to it (`Coalescer`). Asked for when any of them may change: a mark,
+    /// a skip, a day swapped, the rehearsal clock, the permission, a move, a return to the app.
+    func requestReschedule(after delay: Duration = .zero) {
+        rescheduler.request(after: delay)
+    }
+
+    /// Reminders, geofences and alarms, made to match the plan, the clock and what is done; returns
+    /// once all three are set. Only `rescheduler` runs it, so two runs never overlap: a change made
+    /// while one runs is picked up by the run after it.
+    private func reschedule() async {
         // a departure or reservation already done, dropped, or behind something done has no reminder
         let reminders = ReminderPlanner(store: store).upcoming(days: days, now: now) { day, i in self.isSettled(day, i) }
-        Task { await notifications.schedule(reminders, clockOffset: clockOffset) }
+        await notifications.schedule(reminders, clockOffset: clockOffset)
         location.updateFences(model: self)
-        Task { await planWakeAlarms() }
+        await planWakeAlarms()
     }
+
+    /// The app is not on screen: woken in the background, or on its way there.
+    private var inBackground: Bool { UIApplication.shared.applicationState != .active }
+
+    /// What was asked for runs now (`Coalescer.flush`), under a background task, so iOS does not
+    /// suspend the app before reminders, fences and alarms are set. For what wakes the app in the
+    /// background (a significant move, a visit or a "Đã tới" that marked a stop, a ride arriving
+    /// under the lock screen) and for leaving it.
+    private func finishRescheduleInBackground() {
+        BackgroundWork.run(name: "Đặt lại nhắc giờ, geofence, báo thức") { [weak self] in await self?.rescheduler.flush() }
+    }
+
+    /// How many times reminders, geofences and alarms were set again since launch, for Settings ›
+    /// Chẩn đoán; read when shown, not observed.
+    var reschedules: Int { rescheduler.runs }
 
     /// Alarms from the timetable for the long train rides of today and tomorrow (`WakePlanner`:
     /// 25 minutes or more on a train, never a boat, a bus or the metro), four minutes before the
@@ -413,11 +454,12 @@ enum AppSheet: Identifiable, Hashable {
         alarms.isOn(ride.id, default: WakePlanner(store: store).isWorthAnAlarm(ride))
     }
 
-    /// Off cancels what is set; on sets the timetable's alarm again, or the GPS one at the next
-    /// position of a followed ride.
+    /// Off cancels what is set, at once; on sets the timetable's alarm again with the next run of
+    /// the reschedule (after the switch's animation, like any tap, and never beside another run's
+    /// alarms), or the GPS one at the next position of a followed ride.
     func setWakeAlarm(_ on: Bool, for ride: Ride) {
         alarms.setOn(on, rideID: ride.id)
-        if on { Task { await planWakeAlarms() } }
+        if on { requestReschedule(after: .milliseconds(300)) }
     }
 
     // MARK: - Minutes
@@ -456,8 +498,9 @@ enum AppSheet: Identifiable, Hashable {
             markDone(day, index, source: "hand")
         }
         try? context.save()
-        // a reminder, a fence or an alarm may belong to what was just marked
-        refresh(reschedule: true)
+        // the screen moves on at once; a reminder, a fence or an alarm may belong to what was just
+        // marked, and is set after the tick's animation, not on its frame
+        refresh(reschedule: true, after: .milliseconds(300))
     }
 
     /// Marks item `index` done; false when it already was, or the day has no such item (a fence or
@@ -512,7 +555,7 @@ enum AppSheet: Identifiable, Hashable {
             skips[key, default: []].insert(index)
         }
         try? context.save()
-        refresh(reschedule: true)
+        refresh(reschedule: true, after: .milliseconds(300))
     }
 
     /// Take the replanner's advice: drop its stops.
@@ -523,7 +566,7 @@ enum AppSheet: Identifiable, Hashable {
             skips[day.key, default: []].insert(i)
         }
         try? context.save()
-        refresh(reschedule: true)
+        refresh(reschedule: true, after: .milliseconds(300))
     }
 
     /// A rehearsal starts or ends: from now on everything reads and writes the rehearsal's records,
@@ -640,6 +683,7 @@ enum AppSheet: Identifiable, Hashable {
         }
         try? context.save()
         refresh(reschedule: marked)
+        if marked, inBackground { finishRescheduleInBackground() }
     }
 
     /// Today's stop a stay belongs to: the nearest one whose `Presence` circle holds it, done or
@@ -650,6 +694,8 @@ enum AppSheet: Identifiable, Hashable {
         return itinerary.stop(at: p, in: day, from: max(0, cursor - 2), done: done).map { (day, $0) }
     }
 
+    /// A circle entered, usually with the app woken in the background for it: the notification is
+    /// posted under a background task, so iOS does not suspend the app before it is.
     private func fenceEvent(_ fence: Fence, entered: Bool) {
         guard entered, let place = store.place(fence.placeID) else { return }
         switch fence.kind {
@@ -657,12 +703,15 @@ enum AppSheet: Identifiable, Hashable {
             // a planned stop not yet done can be marked from the notification
             var planned: Int?
             if let i = fence.index, let d = store.day(fence.day), d.items.indices.contains(i), !isDone(d, i) { planned = i }
-            Task { await notifications.arrived(at: place, store: store, people: people, day: planned == nil ? nil : fence.day, index: planned) }
+            let day = planned == nil ? nil : fence.day
+            BackgroundWork.run(name: "Báo khi tới quán") {
+                await self.notifications.arrived(at: place, store: self.store, people: self.people, day: day, index: planned)
+            }
         case .station:
             // the circle's index was saved before a relaunch: an update may have changed the day since
             if let day = store.day(fence.day), let i = fence.index, day.items.indices.contains(i), case .move(let m) = day.items[i],
                let ride = store.ride(startingWith: m.leg.id, on: day) {
-                Task { await notifications.atStation(place, ride: ride, departure: m.at) }
+                BackgroundWork.run(name: "Báo khi tới ga") { await self.notifications.atStation(place, ride: ride, departure: m.at) }
             }
         case .stay:
             break
@@ -797,14 +846,46 @@ enum AppSheet: Identifiable, Hashable {
                 live.start(ride, model: self)
             }
         case .markArrived(let day, let index):
+            // "Đã tới" on the lock screen wakes the app in the background
             let marked = store.day(day).map { markDone($0, index, source: "fence") } ?? false
             refresh(reschedule: marked)
+            if marked, inBackground { finishRescheduleInBackground() }
         }
     }
 
-    /// Background refresh: keep reminders and the widget current.
+    /// Background refresh: returns once reminders, geofences and alarms are set and the widget is
+    /// current. iOS's time running out cancels the task: what is left of it is skipped then.
     func refreshInBackground() async {
-        refresh(reschedule: true)
+        refresh(reschedule: false)
+        guard !Task.isCancelled else { return }
+        await rescheduler.flush()
+        guard !Task.isCancelled else { return }
         publishSnapshot(force: true)
+    }
+}
+
+/// Work iOS lets finish while the app is in the background (about half a minute): a background task
+/// is held from the call until `body` is done, or until iOS says the time is up, whichever comes
+/// first. `body` goes on after that until the app is suspended.
+enum BackgroundWork {
+    static func run(name: String, _ body: @escaping @MainActor () async -> Void) {
+        let held = Held()
+        // called on the main thread when the time is up
+        held.id = UIApplication.shared.beginBackgroundTask(withName: name) { held.end() }
+        Task {
+            await body()
+            held.end()
+        }
+    }
+
+    /// The background task, ended once: by the work being done or by the time running out.
+    private final class Held {
+        var id: UIBackgroundTaskIdentifier = .invalid
+
+        func end() {
+            guard id != .invalid else { return }
+            UIApplication.shared.endBackgroundTask(id)
+            id = .invalid
+        }
     }
 }

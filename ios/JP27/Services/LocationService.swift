@@ -35,7 +35,9 @@ import TripKit
     var onFence: ((Fence, Bool) -> Void)?
     /// the permission changed: re-plan what depends on it (fences only exist with Always)
     var onAuthorizationChange: (() -> Void)?
-    /// a significant move in the background: worth re-planning reminders and fences
+    /// a significant move while the app is in the background, only: worth re-planning reminders and
+    /// fences. Never the position `requestLocation` finds on opening the app, whose return to the app
+    /// has re-planned already
     var onMoved: (() -> Void)?
 
     private var liveTask: Task<Void, Never>?
@@ -302,14 +304,16 @@ extension LocationService: CLLocationManagerDelegate {
         Task { @MainActor in self.onVisit?(record) }
     }
 
+    /// Significant changes, and the one position `requestLocation` asks for on opening the app.
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // significant changes while in the background: refresh reminders and fences
         guard let last = locations.last else { return }
         let c = Coordinate(last.coordinate.latitude, last.coordinate.longitude)
         Task { @MainActor in
             self.publish(c)
             self.onUpdate?(c)
-            self.moved(to: c)
+            // in the background only: refresh reminders and fences. On screen, the return to the app
+            // has just done that, and this is usually `requestLocation`'s answer to it
+            if !self.foreground { self.moved(to: c) }
         }
     }
 
