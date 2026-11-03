@@ -681,10 +681,25 @@ enum AppSheet: Identifiable, Hashable {
     /// launch, or when the records switch).
     private func loadRecords(persisting: Bool = true) {
         let converted = recordsConverted
+        let again: @MainActor () -> Void = { [weak self] in self?.loadRecords() }
+        let fetchedChecks: [Checkmark]?, fetchedSkips: [Skip]?
+        if persisting {
+            fetchedChecks = fetch(FetchDescriptor<Checkmark>(), for: "Dấu đã đi và điểm bỏ", retry: again)
+            fetchedSkips = fetch(FetchDescriptor<Skip>(), for: "Dấu đã đi và điểm bỏ", retry: again)
+        } else {
+            // after a failed write: what can be read is shown, and the alert stays that write's
+            fetchedChecks = try? context.fetch(FetchDescriptor<Checkmark>())
+            fetchedSkips = try? context.fetch(FetchDescriptor<Skip>())
+        }
+        // Writes only after every record was read: a table that could not be read looks empty, and a
+        // load that went on would mark the real records converted with its old names never converted,
+        // hiding them for good (`markRecordsConverted`). Such a load shows what it read, writes
+        // nothing, and the alert says the records could not be read; the next load that writes tries.
+        let writing = persisting && fetchedChecks != nil && fetchedSkips != nil
+        let checks = fetchedChecks ?? [], dropped = fetchedSkips ?? []
         var changed = false
         var marks: [String: [Int: Date]] = [:]
         var held: [String: [Int: Checkmark]] = [:]
-        let checks = (try? context.fetch(FetchDescriptor<Checkmark>())) ?? []
         var checkRows: [RecordIndexes.Record] = []
         for c in checks {
             let read = store.day(c.day).map { $0.read(c.index, identity: c.identity, renames: renames($0), converted: converted) }
@@ -694,20 +709,19 @@ enum AppSheet: Identifiable, Hashable {
             }
             if let other = held[c.day]?[i] {
                 // two records came to one item: one is kept, with the earlier time
-                guard persisting else { continue }
+                guard writing else { continue }
                 if c.at < other.at { other.at = c.at }
                 context.delete(c)
                 changed = true
                 checkRows.append(RecordIndexes.Record(day: c.day, index: c.index, target: nil, deleted: true))
                 continue
             }
-            if persisting, c.identity != read.identity { c.identity = read.identity; changed = true }
+            if writing, c.identity != read.identity { c.identity = read.identity; changed = true }
             held[c.day, default: [:]][i] = c
             marks[c.day, default: [:]][i] = c.at
             checkRows.append(RecordIndexes.Record(day: c.day, index: c.index, target: i))
         }
         var skips: [String: Set<Int>] = [:]
-        let dropped = (try? context.fetch(FetchDescriptor<Skip>())) ?? []
         var skipRows: [RecordIndexes.Record] = []
         for k in dropped {
             let read = store.day(k.day).map { $0.read(k.index, identity: k.identity, renames: renames($0), converted: converted) }
@@ -716,26 +730,25 @@ enum AppSheet: Identifiable, Hashable {
                 continue
             }
             if skips[k.day]?.contains(i) == true {
-                guard persisting else { continue }
+                guard writing else { continue }
                 context.delete(k)
                 changed = true
                 skipRows.append(RecordIndexes.Record(day: k.day, index: k.index, target: nil, deleted: true))
                 continue
             }
-            if persisting, k.identity != read.identity { k.identity = read.identity; changed = true }
+            if writing, k.identity != read.identity { k.identity = read.identity; changed = true }
             skips[k.day, default: []].insert(i)
             skipRows.append(RecordIndexes.Record(day: k.day, index: k.index, target: i))
         }
         self.marks = marks
         self.skips = skips
-        guard persisting else { return }
+        guard writing else { return }
         let checkMoves = RecordIndexes.moves(checkRows), skipMoves = RecordIndexes.moves(skipRows)
         guard changed || !checkMoves.isEmpty || !skipMoves.isEmpty else {
-            // nothing to convert, or nothing left to: every record found is named by its id
+            // every record read, nothing to convert or nothing left to: each found is named by its id
             markRecordsConverted()
             return
         }
-        let again: @MainActor () -> Void = { [weak self] in self?.loadRecords() }
         for (n, index) in checkMoves.aside { checks[n].index = index }
         for (n, index) in skipMoves.aside { dropped[n].index = index }
         guard persist("Dấu đã đi và điểm bỏ", retry: again) else { return }
@@ -759,7 +772,9 @@ enum AppSheet: Identifiable, Hashable {
         onRealRecords && Shared.defaults.integer(forKey: Shared.Key.recordIDs) == 2
     }
 
-    /// After a load of the real records that wrote their ids, or found nothing to write.
+    /// After a load of the real records that read every mark and skip and then wrote their ids, or
+    /// found nothing to write; never after a read that failed (an unread table looks empty) nor
+    /// before the write is on disk. Once set, an old name is never converted again (`Day.read`).
     private func markRecordsConverted() {
         guard onRealRecords, !recordsConverted else { return }
         Shared.defaults.set(2, forKey: Shared.Key.recordIDs)
@@ -1095,10 +1110,10 @@ enum AppSheet: Identifiable, Hashable {
                 live.start(ride, model: self)
             }
         case .markArrived(let ref):
-            // "Đã tới" on the lock screen wakes the app in the background. The visit by its id, through
-            // the renames an update shipped, as a record follows them; one the plan no longer has marks
-            // nothing, and its day is shown instead, as for a notification from before ids
-            guard let day = store.day(ref.day), let i = day.index(of: day.renamed(ref.id, renames: renames(day))) else {
+            // "Đã tới" on the lock screen wakes the app in the background. The visit as a record finds
+            // it (`ItemRef.locate`); one the plan no longer has marks nothing, and its day is shown
+            // instead, as for a notification from before ids
+            guard let (day, i) = ref.locate(in: store) else {
                 navigate(.day(ref.day))
                 return
             }

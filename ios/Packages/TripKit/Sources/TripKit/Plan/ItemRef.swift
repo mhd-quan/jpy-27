@@ -21,6 +21,16 @@ public struct ItemRef: Codable, Hashable, Sendable {
         return ItemRef(day: day, id: id)
     }
 
+    /// Where the visit is on `store`'s plan now, its day and its item's index: by its id, through the
+    /// renames an update shipped for that day (`Trip.idRenames`), as a record finds its item. nil when
+    /// the plan no longer has it: then nothing is marked, and the app opens its day instead.
+    public func locate(in store: TripStore) -> (day: Day, index: Int)? {
+        guard let day = store.day(day),
+              let index = day.index(of: day.renamed(id, renames: store.trip.idRenames[day.key] ?? [:]))
+        else { return nil }
+        return (day, index)
+    }
+
     /// The day a "Đã tới" notification is for, whether or not it names the visit: one posted before
     /// items had ids opens its day instead of marking anything.
     public static func arrivedDay(from info: [AnyHashable: Any]) -> String? {

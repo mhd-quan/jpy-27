@@ -305,48 +305,65 @@ Chữ mong đợi:
 
 **Quy tắc phát hành (bắt buộc).** Bản này đổi một lần các dấu đã đi và điểm bỏ cũ sang ID, theo lịch của chính
 bản này. Phép đổi chỉ đúng khi lịch là lịch mà các dấu đó được ghi theo. Vì vậy bản phát hành mang thay đổi này
-**không được** đồng thời thêm hay bỏ mục ở một ngày có nơi lặp lại (ngày 1: RESOL Akihabara; ngày 8: wargo Gion),
-và không được sửa `via`/`path` của một đoạn đi bộ. Những sửa đó để bản sau.
+**không được** đồng thời:
+- thêm hay bỏ mục ở một ngày có nơi lặp lại (ngày 1: RESOL Akihabara; ngày 8: wargo Gion);
+- đổi `line`, `from`, `to`, `via` hay `path` của một chặng: đổi cái nào cũng đổi `leg.id`
+  (`<line>.<from>.<to>.<hash via, path>`), tức tên cũ `move:…` mà dấu cũ của chặng đó mang, dù ID của mục
+  (`m:<from>><to>`) có khi giữ nguyên.
+Những sửa đó để bản sau.
 
-**Bản cũ** trong các bước dưới là bản build từ commit **de66fb4** (hay cũ hơn), Release. Không dùng 88adbea: bản
-đó đã ghi ID cho dấu mới nên không thử được phép đổi. Cài **đè** bản mới lên, không xoá app. Dùng giờ thật,
-không chạy thử, trừ khi bước ghi khác: sổ chạy thử bị xoá khi dừng.
+**Máy thử, xoá app trước.** Làm trên một máy thử, không phải máy dùng cho chuyến: xoá app JP27 trước khi cài bản
+cũ. Lý do: cờ "sổ thật đã đổi" (`records.ids`) nằm trong App Group, cài đè (kể cả cài bản cũ đè bản mới) không xoá
+nó. Máy nào đã chạy một bản từ ab6aaff trở đi mà không xoá app sẽ giấu những dấu bản cũ ghi sau đó (đúng như thiết
+kế), và bước kiểm báo hỏng dù code đúng. Xoá app cũng xoá sổ ghi chép và sổ chi trên máy đó.
 
-1. **Dấu cũ ở đúng mục sau khi cập nhật** (bước chính).
-   - Bản cũ: Kế hoạch › Ngày 8 › nhấn giữ 09:30 "Thuê kimono ở wargo Gion" › Đã tới. Ngày 1 › nhấn giữ 12:00 "Gửi
-     hành lý" › Đã tới. Ngày 8 › nhấn giữ 10:30 "Yasaka Jinja…" › Bỏ điểm này.
-   - Cài bản mới đè lên, mở app.
-   - **Đạt** khi ngày 8: 09:30 đã đánh dấu, 14:30 "Trả kimono" chưa; Yasaka vẫn bị bỏ. Ngày 1: 12:00 đã đánh dấu,
-     15:00 "Nhận phòng" chưa.
-   - Vuốt tắt hẳn app, mở lại. **Đạt** khi vẫn đúng như trên (phép đổi đã ghi xuống máy).
-   - Nhấn giữ 09:30 › Bỏ đánh dấu; tắt hẳn app, mở lại. **Đạt** khi 09:30 chưa đánh dấu, 14:30 vẫn chưa, ngày 1
-     không đổi. Bỏ dấu 12:00 ngày 1 và giữ lại Yasaka để dọn.
-2. **Cập nhật khi đang chạy thử.**
-   - Bản cũ, giờ thật: ngày 8 › 09:30 › Đã tới. Rồi Cài đặt › Chuyến đi › Chạy thử: bắt đầu một lần chạy thử.
-   - Cài bản mới đè lên, mở app (chạy thử vẫn chạy). **Đạt** khi ngày 8: 09:30 đã đánh dấu, 14:30 chưa.
-   - Kết thúc chạy thử. **Đạt** khi sổ thật: 09:30 đã đánh dấu, 14:30 chưa. Tắt hẳn app, mở lại: vẫn vậy. (Sổ thật
-     chỉ được tính là đã đổi khi chính nó được đổi, không phải khi sổ chạy thử được đổi.)
-   - Bỏ dấu 09:30 để dọn.
-3. **"Đã tới" gửi từ bản cũ** (bước chính, cần mô phỏng vị trí).
-   - Bản cũ, quyền vị trí Luôn luôn, chạy thử vào ngày 8 trước 12:30. Xcode › Debug › Simulate Location với một
-     GPX ở Yorozuya (ngày 8, 12:30), hay đứng ở một quán của lịch. Thông báo "Yorozuya" có nút "Đã tới" hiện ra:
-     **không** bấm.
-   - Cài bản mới đè lên. Từ Trung tâm thông báo, nhấn giữ thông báo cũ › Đã tới.
-   - **Đạt** khi không có gì được đánh dấu (ngày 8 của chạy thử: Yorozuya chưa đánh dấu). "Đã tới" chạy nền nên app
-     không tự mở: lần mở app kế tiếp, tab Kế hoạch đang ở trang ngày 8. Kết thúc chạy thử.
-4. **Thử thay, bản Debug** (chỉ thay bước 3 khi không mô phỏng được vị trí; bước 3 vẫn là bước chính).
-   Cài đặt › Chẩn đoán có hai nút. Mỗi nút gửi ngay một thông báo cho quán đầu tiên chưa đánh dấu của ngày app đang
-   hiện (ngày 1 khi chưa tới chuyến: Tsumugi).
+**Một chu kỳ cũ → mới.** Làm A rồi B liền một mạch, đúng một lần cài bản cũ và một lần cài đè bản mới. Muốn làm
+lại thì xoá app và bắt đầu lại từ A.
+- **Bản cũ**: build từ commit **de66fb4**, Release. Không dùng 88adbea: bản đó đã ghi ID cho dấu mới nên không thử
+  được phép đổi.
+- **Bản mới**: build của task này, Debug (bước B4 cần "Giả lỗi lưu"; các bước khác như Release).
+- Mô phỏng vị trí: chạy app từ Xcode, Debug › Simulate Location với một GPX ở quán cần tới. Không mô phỏng được
+  thì bỏ A3, B2, B3 và làm C2 thay.
+
+**A. Trên bản cũ** (xoá app, cài de66fb4, mở; cho phép thông báo và vị trí Luôn luôn).
+1. Giờ thật, Kế hoạch:
+   - Ngày 8 › nhấn giữ 09:30 "Thuê kimono ở wargo Gion" › Đã tới.
+   - Ngày 1 › nhấn giữ 12:00 "Gửi hành lý" › Đã tới.
+   - Ngày 8 › nhấn giữ 10:30 "Yasaka Jinja…" › Bỏ điểm này.
+2. Cài đặt › Chuyến đi › Chạy thử: chọn ngày 8, 11:00 › "Chạy thử từ thời điểm này". Sổ chạy thử chép từ sổ thật.
+3. Mô phỏng vị trí ở Gion Yorozuya (ngày 8, 12:30). Thông báo "Gion Yorozuya" có nút "Đã tới" hiện ra: **không**
+   bấm. Đưa vị trí ra xa mọi quán.
+
+**B. Cài bản mới đè lên** (không xoá app), mở app. Chạy thử vẫn chạy.
+1. **Đạt** khi ngày 8 (sổ chạy thử): 09:30 đã đánh dấu, 14:30 "Trả kimono" chưa; Yasaka vẫn bị bỏ.
+2. **"Đã tới" từ bản cũ.** Trung tâm thông báo › nhấn giữ thông báo Gion Yorozuya › Đã tới.
+   - **Đạt** khi 12:30 Yorozuya chưa đánh dấu.
+   - "Đã tới" chạy nền nên app không tự mở: lần mở app kế tiếp, tab Kế hoạch đang ở trang ngày 8.
+3. **Geofence sau khi cập nhật.** App đã mở một lần sau khi cài. Khoá máy, mô phỏng vị trí ở Yamamoto Menzō (ngày
+   8, 16:00).
+   - **Đạt** khi thông báo "Yamamoto Menzō" có "Đã tới", và bấm nó đánh dấu 16:00 ở trang ngày 8.
+4. **Cờ chỉ ghi sau khi đã lưu** (bản mới Debug). Cài đặt › Chẩn đoán › Giả lỗi lưu › Lần lưu tới. Ngay sau đó
+   Cài đặt › Chuyến đi › Chạy thử › "Về giờ thật" (lần lưu kế tiếp là lần đổi sổ thật).
+   - **Đạt** khi alert "Chưa lưu được" ghi "Dấu đã đi và điểm bỏ: Giả lỗi lưu (Chẩn đoán)". Bấm **Để sau**, không
+     bấm Thử lại. Ngày 8 vẫn hiện 09:30 đã đánh dấu.
+   - Tắt hẳn app, mở lại ("Giả lỗi lưu" đã tự về Tắt). **Đạt** khi 09:30 vẫn đã đánh dấu, 14:30 chưa.
+   - Không làm bước này thì chỉ bấm "Về giờ thật".
+5. **Sổ thật sau khi đổi** (chạy thử đã kết thúc).
+   - **Đạt** khi ngày 8: 09:30 đã đánh dấu, 14:30 chưa, Yasaka bị bỏ, 12:30 và 16:00 chưa (dấu 16:00 ở sổ chạy thử,
+     đã xoá). Ngày 1: 12:00 đã đánh dấu, 15:00 "Nhận phòng" chưa.
+   - Tắt hẳn app, mở lại. **Đạt** khi vẫn như trên.
+6. **Bỏ dấu tới được máy.** Nhấn giữ 09:30 › Bỏ đánh dấu; tắt hẳn app, mở lại.
+   - **Đạt** khi 09:30 chưa đánh dấu, 14:30 vẫn chưa, ngày 1 không đổi.
+
+**C. Sau chu kỳ** (bản mới, không cần bản cũ).
+1. **Widget theo đúng mục.** Chạy thử vào một ngày của chuyến; thêm widget "Điểm tiếp theo" (cỡ vừa). Trong app đánh
+   dấu mục kế tiếp. **Đạt** khi trong vài giây widget chuyển sang mục sau đó. Ngay sau một lần cập nhật từ bản trước
+   task này, widget có thể chưa hiện trễ giờ hay gợi ý (tối đa 30 phút, tới khi mở app): nó dùng lịch của chính nó
+   cho tới khi app gửi bản tóm tắt mới.
+2. **Thử thay, bản Debug** (chỉ thay B2/B3 khi không mô phỏng được vị trí; B2 vẫn là bước chính). Cài đặt › Chẩn
+   đoán có hai nút. Mỗi nút gửi ngay một thông báo cho quán đầu tiên chưa đánh dấu của ngày app đang hiện (ngày 1
+   khi chưa tới chuyến: Tsumugi).
    - "Thông báo Đã tới thử, kiểu cũ": nhấn giữ banner › Đã tới, rồi đóng Cài đặt. **Đạt** khi không có gì được đánh
      dấu và tab Kế hoạch đang ở trang ngày đó.
    - "Thông báo Đã tới thử": nhấn giữ banner › Đã tới, rồi đóng Cài đặt. **Đạt** khi quán đó được đánh dấu ở trang
      ngày. Bỏ dấu để dọn.
-5. **Widget theo đúng mục.** Chạy thử vào một ngày của chuyến; thêm widget "Điểm tiếp theo" (cỡ vừa).
-   - Trong app đánh dấu mục kế tiếp. **Đạt** khi trong vài giây widget chuyển sang mục sau đó.
-   - Ngay sau khi cập nhật từ bản cũ, widget có thể chưa hiện trễ giờ hay gợi ý (tối đa 30 phút, tới khi mở app):
-     nó dùng lịch của chính nó cho tới khi app gửi bản tóm tắt mới. Mở app một lần: widget hiện như trước.
-6. **Geofence sau khi cập nhật** (khi mô phỏng được vị trí). Bản cũ, quyền Luôn luôn, chạy thử vào một ngày có
-   quán, vị trí xa mọi quán. Cài bản mới đè lên, mở app một lần, khoá máy. Mô phỏng vị trí vào một quán của ngày đó
-   chưa đánh dấu (không phải quán đã vào trong 20 phút qua: lần vào lại trong 20 phút không báo).
-   - **Đạt** khi thông báo có "Đã tới" hiện ra, và bấm nó đánh dấu đúng quán đó (trang ngày của chạy thử). Kết
-     thúc chạy thử.

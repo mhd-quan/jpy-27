@@ -348,6 +348,34 @@ import Testing
         #expect(ItemRef.arrivedDay(from: ["link": "jp27://menu/menzo"]) == nil)
     }
 
+    /// "Đã tới" marks the visit it names, found on the plan as a record finds it: by its id, through
+    /// the renames an update shipped. A visit the plan no longer has is found nowhere (the app then
+    /// opens its day and marks nothing).
+    @Test func anArrivedVisitIsFoundThroughTheRenames() throws {
+        let d8 = try #require(store.day("8"))
+        let ret = try #require(d8.index(of: "s:wargo-gion:return"))
+        // the id the day has
+        let hit = try #require(ItemRef(day: "8", id: "s:wargo-gion:return").locate(in: store))
+        #expect(hit.day.key == "8" && hit.index == ret)
+        // gone, or on a day the plan does not have
+        #expect(ItemRef(day: "8", id: "s:gone").locate(in: store) == nil)
+        #expect(ItemRef(day: "99", id: "s:wargo-gion:return").locate(in: store) == nil)
+        // an update gave the rental another id and shipped the rename
+        let renamed = try TripStore.patched { trip in
+            trip.editItem(day: "8", at: 5) { $0["id"] = "s:wargo-gion:hire" }
+            trip["idRenames"] = ["8": ["s:wargo-gion:rent": "s:wargo-gion:hire"]]
+        }
+        let found = try #require(ItemRef(day: "8", id: "s:wargo-gion:rent").locate(in: renamed))
+        #expect(found.day.key == "8" && found.index == 5)
+        #expect(found.day.items[5].id == "s:wargo-gion:hire")
+        // the same edit without the rename: found nowhere, never on another visit
+        let unrenamed = try TripStore.patched { trip in trip.editItem(day: "8", at: 5) { $0["id"] = "s:wargo-gion:hire" } }
+        #expect(ItemRef(day: "8", id: "s:wargo-gion:rent").locate(in: unrenamed) == nil)
+        // the renames are the day's own: day 7's map does not reach day 8
+        let elsewhere = try TripStore.patched { trip in trip["idRenames"] = ["7": ["s:gone": "s:wargo-gion:return"]] }
+        #expect(ItemRef(day: "8", id: "s:gone").locate(in: elsewhere) == nil)
+    }
+
     @Test func theArrivedPayloadRoundTrips() throws {
         let ref = ItemRef(day: "8", id: "s:wargo-gion:return")
         #expect(ref.userInfo == ["day": "8", "item": "s:wargo-gion:return"])
@@ -441,7 +469,8 @@ import Testing
         let byID = Dictionary(uniqueKeysWithValues: fences.map { ($0.id, $0) })
         let back = try JSONDecoder().decode([String: Fence].self, from: JSONEncoder().encode(byID))
         #expect(back == byID)
-        // written without the item (a snack, the hotel), or with the index an earlier build kept
+        // written without the item (a snack, the hotel), or with a key this build does not read (an
+        // index, say; no build wrote fences as JSON before this one: they were a string per circle)
         let bare = #"{"placeID":"owariya","kind":"food","center":{"lat":35.71,"lng":139.79},"radius":150,"day":"2"}"#
         let indexed = #"{"placeID":"owariya","kind":"food","center":{"lat":35.71,"lng":139.79},"radius":150,"day":"2","index":12}"#
         for json in [bare, indexed] {
