@@ -248,8 +248,8 @@ private struct TodayLateBanner: View {
             }
             if plan.works {
                 Button {
-                    dropped += 1
-                    withAnimation(.snappy) { model.apply(plan) }
+                    // felt only once it is saved; the alert in front says when it is not
+                    if withAnimation(.snappy, { model.apply(plan) }) { dropped += 1 }
                 } label: {
                     Text("Bỏ \(model.dropNames(plan, day))")
                         .frame(maxWidth: .infinity)
@@ -472,8 +472,8 @@ private struct TodayNextActions: View {
 
                 if next.kind != .departure {
                     Button {
-                        arrived.toggle()
-                        withAnimation(.snappy) { model.toggleDone(day, next.index) }
+                        // felt only once it is saved; the alert in front says when it is not
+                        if withAnimation(.snappy, { model.toggleDone(day, next.index) }) { arrived.toggle() }
                     } label: {
                         Label("Đã tới", systemImage: "checkmark")
                             .labelStyle(.iconOnly)

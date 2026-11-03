@@ -25,6 +25,10 @@ jobs:
       # would agree with each other
       - name: Plan is feasible
         run: node scripts/check-plan.mjs && node --test 'scripts/*.test.mjs'
+      # a save on the user's path says when it fails: no `try?` on a save in the app, but for the
+      # two best-effort copies marked as such
+      - name: Saves are not silent
+        run: node scripts/lint-saves.mjs
       - run: npm run ios:data
       - run: node scripts/check-plan.mjs > ios/Packages/TripKit/Tests/TripKitTests/Fixtures/check-plan.txt
       - name: Exported data is current

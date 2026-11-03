@@ -73,6 +73,9 @@ import UIKit
     /// rows of the paired phone's last ledger that this phone left out (`LedgerMerge.screened`):
     /// replaced by each ledger received, not kept across launches
     private(set) var rejected = 0
+    /// why the paired phone's last ledger could not be written here (`Ledger.merge` failed, nothing of
+    /// it kept); cleared by the next one that is, not kept across launches
+    private(set) var saveFailure: String?
     /// both phones need UWB for the touch; this one has it
     var supportsTouch: Bool { NISession.deviceCapabilities.supportsPreciseDistanceMeasurement }
 
@@ -395,7 +398,17 @@ import UIKit
             let now = Date()
             let (clean, left) = LedgerMerge.screened(remote, now: now)
             rejected = left.count
-            let (merged, _) = Ledger.merge(clean, into: context)
+            let merged: LedgerState
+            do {
+                merged = try Ledger.merge(clean, into: context).merged
+            } catch {
+                // not written, so not synced: nothing stamped, nothing sent back, the records as
+                // they were; `status` says why
+                saveFailure = error.localizedDescription
+                // Task 1.5: nack
+                return
+            }
+            saveFailure = nil
             cached = nil
             stamp(p.name)
             // what it lacked and would believe goes back; a row one phone refuses stays where it is
@@ -507,6 +520,7 @@ import UIKit
         guard enabled else { return "Đồng bộ với máy kia đang tắt" }
         if paused { return "Đồng bộ tạm dừng trong lúc chạy thử" }
         if let nearby {
+            if let saveFailure { return "\(nearby.name) ở gần · chưa lưu được sổ chi: \(saveFailure)" }
             if let lastSync, lastSync.name == nearby.name { return "\(nearby.name) ở gần · đã đồng bộ \(Self.when(lastSync.at))" }
             return "\(nearby.name) ở gần · đang đồng bộ"
         }

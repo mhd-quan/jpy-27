@@ -187,6 +187,13 @@ enum Records {
     /// the file the user can send for a rescue when the main store would not open
     private(set) static var unreadable: URL?
 
+    #if DEBUG
+    /// Settings › Chẩn đoán › "Giả lỗi lưu": while on, every `commit` fails, before anything is
+    /// written, as a full disk would. The two best-effort copies (the side store folded in, the
+    /// rehearsal's copy) do not commit and are left alone. Off at every launch.
+    static var failSaves = false
+    #endif
+
     private static var folder: URL { URL.applicationSupportDirectory }
     static var mainURL: URL { folder.appending(path: "Trip.store") }
     private static var sideURL: URL { folder.appending(path: "Trip-side.store") }
@@ -245,7 +252,7 @@ enum Records {
         else { return }
         let to = ModelContext(main)
         copyRecords(from: ModelContext(side), to: to, history: true)
-        guard (try? to.save()) != nil else { return }
+        guard (try? to.save()) != nil else { return } // save: best-effort, the side store stays and is folded in at the next launch
         let stamp = Int(Date().timeIntervalSince1970)
         for suffix in ["", "-shm", "-wal"] {
             let at = URL(fileURLWithPath: sideURL.path + suffix)
@@ -277,7 +284,7 @@ enum Records {
         if !existed || container.configurations.first?.isStoredInMemoryOnly == true {
             let to = ModelContext(container)
             copyRecords(from: real.mainContext, to: to, history: false)
-            try? to.save()
+            try? to.save() // save: best-effort, a rehearsal without the copy starts from empty records, never the real ones
         }
         return container
     }
@@ -321,6 +328,49 @@ enum Records {
     }
 }
 
+// MARK: - Saving
+
+/// A write to the records that did not reach the disk.
+nonisolated struct SaveFailure: LocalizedError {
+    let underlying: any Error
+
+    var errorDescription: String? { underlying.localizedDescription }
+}
+
+#if DEBUG
+/// What `Records.failSaves` makes every save fail with.
+private nonisolated struct PretendFailure: LocalizedError {
+    var errorDescription: String? { "Giả lỗi lưu (Chẩn đoán)" }
+}
+#endif
+
+/// A write that failed, as the user is told (`AppModel.persist`): what was not saved, and why.
+struct SaveIssue: Identifiable, Equatable {
+    let id = UUID()
+    let what: String
+    let error: String
+}
+
+extension ModelContext {
+    /// Writes what is waiting. A write that fails is taken back whole (`rollback`) before this
+    /// throws, so what the screens read matches the disk: no view shows an expense, a mark or a
+    /// merged ledger that was never written, and nothing half-written waits for the next save.
+    @MainActor func commit() throws(SaveFailure) {
+        #if DEBUG
+        if Records.failSaves {
+            rollback()
+            throw SaveFailure(underlying: PretendFailure())
+        }
+        #endif
+        do {
+            try save()
+        } catch {
+            rollback()
+            throw SaveFailure(underlying: error)
+        }
+    }
+}
+
 extension Expense {
     /// The same expense, for another store: same id, so it is never counted twice.
     func copy() -> Expense {
@@ -350,9 +400,10 @@ extension Expense {
         return LedgerState(records: rows.map { $0.record(me: me) }, tombstones: tombs.map(\.value), kept: kept)
     }
 
-    /// Writes what the merge changed; returns it.
+    /// Writes what the merge changed; returns it. A write that fails is taken back, and none of it
+    /// is kept (`ModelContext.commit`), the pairs kept apart included.
     @discardableResult
-    static func apply(_ c: LedgerChanges, to context: ModelContext) -> LedgerChanges {
+    static func apply(_ c: LedgerChanges, to context: ModelContext) throws(SaveFailure) -> LedgerChanges {
         guard !c.isEmpty else { return c }
         let me = SpendLedgerFile.installID
         for r in c.upserts {
@@ -379,20 +430,23 @@ extension Expense {
                 context.insert(ExpenseTombstone(t))
             }
         }
+        try context.commit()
+        // kept beside the records, so only once they are written
         if let k = c.kept { kept = k }
-        try? context.save()
         return c
     }
 
-    /// Merges a ledger from elsewhere (the other phone, a file) into this one.
+    /// Merges a ledger from elsewhere (the other phone, a file) into this one; throws, with nothing
+    /// of it kept, when it could not be written.
     @discardableResult
-    static func merge(_ remote: LedgerState, into context: ModelContext) -> (merged: LedgerState, changes: LedgerChanges) {
+    static func merge(_ remote: LedgerState, into context: ModelContext) throws(SaveFailure) -> (merged: LedgerState, changes: LedgerChanges) {
         let local = state(context)
         let merged = LedgerMerge.merge(local, remote)
-        return (merged, apply(LedgerMerge.changes(from: local, to: merged), to: context))
+        return (merged, try apply(LedgerMerge.changes(from: local, to: merged), to: context))
     }
 
-    /// Deletes an expense and leaves the deletion for the other phone.
+    /// Deletes an expense and leaves the deletion for the other phone. Not written yet: the caller
+    /// saves it (`AppModel.persist`) with whatever else goes in the same write.
     static func delete(_ e: Expense, in context: ModelContext) {
         // after the row's own last write, whatever the clocks did
         let at = max(Date(), e.version.addingTimeInterval(0.001))
@@ -405,11 +459,12 @@ extension Expense {
         context.delete(e)
     }
 
-    /// Two rows said to be separate expenses: not asked again, on either phone.
-    static func keepApart(_ a: UUID, _ b: UUID, in context: ModelContext) {
+    /// Two rows said to be separate expenses: not asked again, on either phone. Kept only once what
+    /// waits in the records is written; when that fails, the pair is asked about again.
+    static func keepApart(_ a: UUID, _ b: UUID, in context: ModelContext) throws(SaveFailure) {
+        try context.commit()
         kept = Array(Set(kept + [LedgerMerge.pairKey(a, b)])).sorted()
-        // the pair travels with the ledger; saving tells the sync something changed
-        try? context.save()
+        // the pair travels with the ledger, outside the records: the sync is told
         LedgerSync.shared?.ledgerChanged()
     }
 
@@ -420,11 +475,12 @@ extension Expense {
         return tombs.map(\.value).filter { $0.record != nil && !alive.contains($0.id) }.sorted { $0.at > $1.at }
     }
 
-    /// Brings back a row wrongly taken for a copy, and keeps the pair apart.
-    static func restore(_ t: LedgerTombstone, in context: ModelContext) {
+    /// Brings back a row wrongly taken for a copy, and keeps the pair apart; throws, with nothing
+    /// brought back, when it could not be written.
+    static func restore(_ t: LedgerTombstone, in context: ModelContext) throws(SaveFailure) {
         let local = state(context)
         guard let back = LedgerMerge.restore(t, in: local, now: Date()) else { return }
-        apply(LedgerMerge.changes(from: local, to: back), to: context)
+        try apply(LedgerMerge.changes(from: local, to: back), to: context)
     }
 }
 

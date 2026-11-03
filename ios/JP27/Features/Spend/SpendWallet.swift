@@ -63,6 +63,9 @@ struct SpendTopupSheet: View {
     @State private var yen = 0
     @State private var picked = 0
     @State private var saved = false
+    /// a top-up that could not be saved: the sheet stays, with the amount, and says why
+    @State private var issue: SaveIssue?
+    @State private var failed = false
 
     private var quick: [Int] { method == .cash ? [10_000, 20_000, 30_000] : [2_000, 3_000, 5_000] }
 
@@ -110,19 +113,30 @@ struct SpendTopupSheet: View {
                     Button("Huỷ", role: .cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(role: .confirm) {
-                        if yen > 0 {
-                            model.topUp(yen: yen, method: method)
-                            saved.toggle()
-                        }
-                        dismiss()
-                    }
-                    .disabled(yen <= 0)
+                    Button(role: .confirm) { save() }
+                        .disabled(yen <= 0)
                 }
             }
             .sensoryFeedback(.done, trigger: saved)
+            .sensoryFeedback(.fail, trigger: failed)
+            .saveIssueAlert($issue) { _ in save() }
         }
         .presentationDetents([.height(540)])
+    }
+
+    private func save() {
+        guard yen > 0 else {
+            dismiss()
+            return
+        }
+        guard model.topUp(yen: yen, method: method) else {
+            // said here, over the sheet, not behind it
+            issue = model.takeSaveIssue()
+            failed.toggle()
+            return
+        }
+        saved.toggle()
+        dismiss()
     }
 }
 
@@ -307,14 +321,15 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
     }
 
     /// Merges a ledger file into this phone's ledger: read and checked off the main actor, then
-    /// held to what the other phone is held to (`LedgerMerge.screened`) and merged.
+    /// held to what the other phone is held to (`LedgerMerge.screened`) and merged. Throws
+    /// `SaveFailure`, with nothing of the file kept, when the merge could not be written.
     @MainActor static func merge(_ url: URL, into context: ModelContext) async throws -> Outcome {
         let file = try await read(url)
         // a file is trusted no more than the other phone: rows the keypad could not have typed, and
         // rows dated far ahead, are left out
         let (clean, screenedOut) = LedgerMerge.screened(LedgerState(records: file.records), now: Date())
         let before = Set(Ledger.state(context).records.map(\.id))
-        let (_, changes) = Ledger.merge(clean, into: context)
+        let (_, changes) = try Ledger.merge(clean, into: context)
         var outcome = Outcome(skipped: file.rejected.count + screenedOut.count, lines: file.rejected.map(\.line))
         for r in changes.upserts {
             if before.contains(r.id) { outcome.updated += 1 } else { outcome.added += 1 }

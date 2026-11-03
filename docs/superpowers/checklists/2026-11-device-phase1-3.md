@@ -120,3 +120,92 @@ vào sổ riêng của nó.
 5. **Hai máy** (khi kiểm Task 1.5): máy A có một khoản không hợp lệ cũ (bước 3) → đồng bộ với máy B → máy B không
    nhận khoản đó, sổ B không crash; `LedgerSync.rejected` trên B = 1 (Task 1.5 hiện ra; trước đó chỉ xem được bằng
    debugger).
+
+## Task 1.4 — Lưu bền: lỗi ghi tới UI, không còn lưu im lặng
+
+Bản **Debug**: công tắc "Giả lỗi lưu" và nút "Thử ghi trùng chỉ số" ở Cài đặt › Chẩn đoán chỉ có trong Debug.
+Dùng giờ thật, không chạy thử, trừ khi bước ghi khác.
+
+Khi "Giả lỗi lưu" bật:
+- Mọi lần lưu báo lỗi "Giả lỗi lưu (Chẩn đoán)" cho tới khi tắt. Mở lại app thì công tắc tắt.
+- Lỗi xảy ra trước khi ghi gì, nên trên máy không có gì đổi.
+- Hai bản chép dự phòng không bị ảnh hưởng: gộp sổ phụ, và chép sang sổ chạy thử.
+
+Tắt công tắc sau mỗi bước.
+
+**Đạt chung** cho mọi bước có lỗi lưu:
+- Alert "Chưa lưu được" hiện ở chỗ đang nhìn, tức trên sheet đang mở nếu có, không phải sau sheet.
+- Nội dung alert là "<việc>: Giả lỗi lưu (Chẩn đoán)".
+- Máy rung lỗi (`fail`), không rung `done`.
+- Thứ vừa chạm trở về như trước.
+
+1. **Sửa một khoản chi.**
+   - Bật "Giả lỗi lưu". Chi tiêu › chạm một khoản trong sổ › đổi số tiền › Lưu.
+   - **Đạt** khi alert "Khoản chi: …" hiện **trên** editor, editor không đóng, và số vừa gõ còn nguyên.
+   - "Thử lại" → alert hiện lại (vẫn lỗi). "Để sau" → alert đóng, editor vẫn mở.
+   - "Huỷ" → khoản trong sổ vẫn số cũ, không hiện số chưa từng được ghi.
+   - Làm lại với nút "+" (Ghi chi). Sau "Huỷ", sổ không có khoản mới.
+   - Tắt công tắc, sửa lại rồi Lưu → editor đóng, rung `done`, sổ có số mới.
+2. **Rút tiền và Đã mua.**
+   - Công tắc bật. Chạm ví tiền mặt › chọn ¥10.000 › Lưu.
+     - **Đạt** khi alert "Rút tiền: …" hiện trên sheet và sheet ở lại. Sau "Huỷ", ví không đổi.
+   - Chi tiêu › Mua sắm › chạm dấu tròn một món › Lưu.
+     - **Đạt** khi alert "Khoản chi: …" hiện trên sheet.
+     - Sau "Huỷ", món không được đánh dấu, và sổ không có khoản ¥ nào cho món đó: món và khoản đi cùng một lần ghi.
+3. **Đánh dấu điểm.**
+   - Công tắc bật. Lịch trình › một ngày › chạm dấu tròn của một điểm.
+     - **Đạt** khi alert "Đánh dấu điểm: …" hiện, có "Thử lại" và "Để sau".
+     - Dấu tròn trở lại rỗng, máy rung `fail`, không rung `done`.
+     - "Thử lại" → alert hiện lại.
+   - Tắt công tắc, chạm lại → dấu ở lại, rung `done`.
+   - Bỏ một dấu khi công tắc bật → alert "Bỏ đánh dấu: …", dấu còn nguyên.
+   - Nhấn giữ một điểm › "Bỏ điểm này" → alert "Bỏ điểm: …", điểm không mờ đi.
+4. **Alert trên sheet, không phải sau nó.**
+   - Công tắc bật. Bản đồ › chạm một địa điểm có trong lịch để mở thẻ địa điểm (sheet).
+   - Chạm biểu tượng lịch → trang ngày mở trong sheet. Chạm dấu tròn một điểm.
+   - **Đạt** khi alert hiện trên sheet đó, ngay lúc chạm.
+   - **Không đạt** nếu không có alert nào, hoặc alert chỉ hiện sau khi đóng sheet. Khi đó ghi lại, vì nghĩa là
+     `Presentation.swift` không đưa được alert lên sheet trên cùng.
+5. **Hôm nay, trong lúc chạy thử.**
+   - Bật chạy thử ở một ngày đi, rồi bật công tắc.
+   - Chạm nút dấu tích "Đã tới" của thẻ điểm kế → alert, không rung `done`, thẻ không đổi.
+   - Nếu có băng trễ giờ, chạm "Bỏ …" → alert "Bỏ điểm theo gợi ý: …", không rung `warn`, băng còn đó.
+6. **Gộp file khi lưu lỗi.**
+   - Công tắc bật. Gộp `docs/superpowers/fixtures/overflow.csv` (xem Task 1.3).
+   - **Đạt** khi alert hiện "Chưa lưu được khoản nào trong file: Giả lỗi lưu (Chẩn đoán)", không bao giờ "Đã thêm 1 khoản".
+   - Sổ không đổi.
+7. **Xoá và khoản trùng.** Công tắc bật, rồi:
+   - Vuốt xoá một khoản → alert "Xoá khoản chi: …", khoản còn trong sổ.
+   - Nếu có thẻ "Có thể ghi trùng", chạm một trong hai nút → alert "Xoá khoản chi: …" hoặc "Giữ cả hai khoản: …".
+     Thẻ còn đó, không rung `done`.
+   - Mua sắm › bỏ dấu một món đã mua → alert "Bỏ đã mua: …". Món còn dấu, khoản của nó còn trong sổ.
+   - Đồng bộ › "Không phải trùng" (chỉ khi có mục "Đã gộp vì ghi trùng") → alert "Khoản bị gộp nhầm: …" trên sheet Đồng bộ.
+8. **Hai máy** (kiểm cùng Task 1.5).
+   - Ghép A và B, đồng bộ một lần. Bật công tắc trên **B**. Sửa một khoản trên A.
+   - **Đạt** khi dòng đồng bộ trên B (dưới hai ví) ghi "<tên A> ở gần · chưa lưu được sổ chi: Giả lỗi lưu (Chẩn đoán)".
+     - Không có "đã đồng bộ" với giờ mới. Sheet Đồng bộ trên B ghi cùng dòng đó.
+     - Sổ B không có thay đổi của A.
+   - Tắt công tắc trên B. Sửa thêm một khoản trên A → B ghi "đã đồng bộ lúc <giờ mới>" và có cả hai thay đổi.
+   - Trước Task 1.5, chỉ tắt công tắc thì không đủ để A gửi lại. Task 1.5 thêm ack/nack và gửi lại.
+9. **SwiftData khi một lần ghi chạm `#Unique`.**
+   - Vì sao cần: chưa biết SwiftData xử lý thế nào; bước này cho biết hai pha sắp lại index của 1.4 có cần không, và
+     Task 2.1 cần gì khi bỏ unique theo index.
+   - Bản Debug, công tắc **tắt**. Cài đặt › Chẩn đoán › "Thử ghi trùng chỉ số". Chép nguyên văn hai dòng hiện ra:
+     "A↔B đổi chỗ: …" và "A chồng lên B: …".
+   - Đọc kết quả:
+     - "lỗi, không lưu (…)": SwiftData từ chối. Trước 1.4, lần sửa index đó bị nuốt và lặp lại mỗi lần mở app.
+     - "lưu được, còn 2 dòng A@1 B@0" (đổi chỗ): đổi chỗ trong một lần ghi được.
+     - "lưu được, còn 1 dòng …": SwiftData **gộp** hai dấu làm một, tức mất dấu im lặng. Hai pha là bắt buộc.
+   - Nút tự dọn hai dòng thử (ngày "debug.unique", không thuộc lịch nào). Dòng "dọn không được" thì ghi lại.
+10. **Dấu đi theo điểm sau khi lịch đổi** (cần build lại).
+    - Bản Debug cài trên máy. Đánh dấu 3 điểm liền nhau ở cuối một ngày.
+    - Trong `src/data/days.ts`, thêm một điểm vào đầu ngày đó, chạy `npm run ios:data`, rồi build và cài đè (dữ liệu giữ nguyên).
+    - **Đạt** khi ba dấu vẫn ở đúng ba điểm cũ, nay mỗi điểm lùi xuống một dòng.
+      - Không có alert "Chưa lưu được" khi mở.
+      - Mở lại app lần nữa, dấu vẫn đúng.
+    - Bỏ điểm vừa thêm, build lại để trả lịch về như cũ.
+11. **Chỗ chưa che (ghi nhận, không phải lỗi).**
+    - Lỗi lưu xảy ra ở nền, ví dụ một lần ghé (visit) hay "Đã tới" trên màn hình khoá đánh dấu điểm.
+    - Nếu lúc đó đang mở một sheet riêng của Chi tiêu ("Sửa khoản chi", "Rút tiền", "Nạp Suica", "Đồng bộ"), alert chỉ
+      hiện sau khi đóng sheet đó.
+    - Nếu gặp mà alert không bao giờ hiện, ghi lại.

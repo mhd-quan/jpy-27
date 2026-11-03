@@ -250,18 +250,24 @@ struct CheckButton: View {
     /// bought asks its price) passes false: the tap opens the question with `press`, and `done`
     /// is left to the save.
     var marksOnTap = true
-    let action: () -> Void
+    /// what the tap does; false when it could not be saved (`AppModel.persist`): then it fails, and
+    /// a mark is not felt as done
+    let action: () -> Bool
     // the haptic follows the hand, not isOn: a stop also turns on by itself when you arrive, and
     // from buttons that give their own; taking a mark off stays quiet
     @State private var marked = 0
     @State private var asked = 0
+    @State private var failed = 0
 
     var body: some View {
         Button {
-            if !isOn {
-                if marksOnTap { marked += 1 } else { asked += 1 }
+            let marking = !isOn
+            if marking, !marksOnTap { asked += 1 }
+            if action() {
+                if marking, marksOnTap { marked += 1 }
+            } else {
+                failed += 1
             }
-            action()
         } label: {
             Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
                 .font(.title2)
@@ -275,6 +281,7 @@ struct CheckButton: View {
         .buttonStyle(.plain)
         .sensoryFeedback(.done, trigger: marked)
         .sensoryFeedback(.press, trigger: asked)
+        .sensoryFeedback(.fail, trigger: failed)
         .accessibilityLabel(isOn ? "Đã xong" : "Chưa xong")
         .accessibilityAddTraits(isOn ? [.isSelected, .isButton] : .isButton)
     }

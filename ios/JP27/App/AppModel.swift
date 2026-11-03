@@ -78,6 +78,13 @@ enum AppSheet: Identifiable, Hashable {
     @ObservationIgnored private var retired: ModelContainer?
     /// shown once at launch when the records could not be opened as usual (`Records.problem`)
     var storeAlert = false
+    /// a write to the records that failed, for the alert in front (`persist`); the sheets that save
+    /// take theirs and show it themselves (`takeSaveIssue`)
+    var saveIssue: SaveIssue?
+    /// "Thử lại" for `saveIssue`: the action again, asking for what it wanted (done, dropped, deleted)
+    /// rather than flipping anything, and reading what is on disk now. Dropped when another issue
+    /// takes its place, and when the plan or the records change under it (`forgetRetry`).
+    private var retry: (issue: UUID, run: @MainActor () -> Void)?
     var context: ModelContext { container.mainContext }
     /// a rehearsal is running: the clock is shifted and the records are the rehearsal's
     var rehearsing: Bool { clockOffset != 0 }
@@ -114,6 +121,7 @@ enum AppSheet: Identifiable, Hashable {
     var alternatives: Set<String> = Shared.alternatives {
         didSet {
             Shared.alternatives = alternatives
+            forgetRetry()
             refresh(reschedule: true)
         }
     }
@@ -393,11 +401,13 @@ enum AppSheet: Identifiable, Hashable {
         if nearStation || motion.riding { live.start(ride, model: self) }
     }
 
-    /// A ride reached its end: its legs are done.
+    /// A ride reached its end: its legs are done. A mark that cannot be saved stops the rest; "Thử
+    /// lại" marks the whole ride again.
     func rideArrived(_ ride: Ride) {
         guard let day = store.day(ride.day) else { return }
         for (i, item) in day.items.enumerated() {
-            if let m = item.move, ride.legs.contains(m.leg.id) { markDone(day, i, source: "ride") }
+            if let m = item.move, ride.legs.contains(m.leg.id), !isDone(day, i),
+               !markDone(day, i, source: "ride", retry: { [weak self] in self?.rideArrived(ride) }) { break }
         }
         refresh(reschedule: true)
         // under the lock screen the ride's background positions end with it
@@ -489,27 +499,50 @@ enum AppSheet: Identifiable, Hashable {
     func doneCount(_ day: Day) -> Int { marks[day.key]?.count ?? 0 }
     func marked(_ day: Day) -> [Int: Date] { marks[day.key] ?? [:] }
 
-    func toggleDone(_ day: Day, _ index: Int) {
-        if isDone(day, index) {
+    /// Marks item `index` done, or takes the mark off. False when the change could not be saved: the
+    /// marks are read again from the disk and the alert says so.
+    @discardableResult
+    func toggleDone(_ day: Day, _ index: Int) -> Bool {
+        setDone(!isDone(day, index), day, index)
+    }
+
+    /// Item `index` done or not, by hand; true when it is so on disk now.
+    private func setDone(_ done: Bool, _ day: Day, _ index: Int) -> Bool {
+        guard done != isDone(day, index) else { return true }
+        if done {
+            guard markDone(day, index, source: "hand") else { return false }
+        } else {
             let key = day.key
             try? context.delete(model: Checkmark.self, where: #Predicate<Checkmark> { $0.day == key && $0.index == index })
+            guard persist("Bỏ đánh dấu", retry: { [weak self] in _ = self?.setDone(false, day, index) }) else {
+                loadRecords()
+                return false
+            }
             marks[day.key]?[index] = nil
-        } else {
-            markDone(day, index, source: "hand")
         }
-        try? context.save()
         // the screen moves on at once; a reminder, a fence or an alarm may belong to what was just
         // marked, and is set after the tick's animation, not on its frame
         refresh(reschedule: true, after: .milliseconds(300))
+        return true
     }
 
-    /// Marks item `index` done; false when it already was, or the day has no such item (a fence or
-    /// a notification from before an update that changed the plan).
+    /// Marks item `index` done; false when it already was, the day has no such item (a fence or a
+    /// notification from before an update that changed the plan), or the mark could not be saved
+    /// (then the marks are read again from the disk, and the alert's "Thử lại" runs `retry`, by
+    /// default this mark again).
     @discardableResult
-    func markDone(_ day: Day, _ index: Int, at: Date? = nil, source: String) -> Bool {
+    func markDone(_ day: Day, _ index: Int, at: Date? = nil, source: String, retry: (@MainActor () -> Void)? = nil) -> Bool {
         guard day.items.indices.contains(index), !isDone(day, index) else { return false }
         let when = at ?? now
         context.insert(Checkmark(day: day.key, index: index, at: when, source: source, identity: day.identity(of: index)))
+        let again: @MainActor () -> Void = retry ?? { [weak self] in
+            guard let self, markDone(day, index, at: when, source: source) else { return }
+            refresh(reschedule: true, after: .milliseconds(300))
+        }
+        guard persist("Đánh dấu điểm", retry: again) else {
+            loadRecords()
+            return false
+        }
         marks[day.key, default: [:]][index] = when
         // a stop reached on foot teaches the pace: the walk before it, planned against actual,
         // timed from when the walk began, never from the arrival at the place before (that would
@@ -519,7 +552,6 @@ enum AppSheet: Identifiable, Hashable {
             pace.add(planned: Double(w.min), actual: when.timeIntervalSince(left) / 60)
             savePace()
         }
-        try? context.save()
         return true
     }
 
@@ -545,34 +577,62 @@ enum AppSheet: Identifiable, Hashable {
         }
     }
 
-    func toggleSkip(_ day: Day, _ index: Int) {
-        let key = day.key
-        if isSkipped(day, index) {
-            try? context.delete(model: Skip.self, where: #Predicate<Skip> { $0.day == key && $0.index == index })
-            skips[key]?.remove(index)
-        } else {
-            context.insert(Skip(day: key, index: index, at: now, identity: day.identity(of: index)))
-            skips[key, default: []].insert(index)
-        }
-        try? context.save()
-        refresh(reschedule: true, after: .milliseconds(300))
+    /// Drops item `index`, or keeps it again. False when the change could not be saved: the skips are
+    /// read again from the disk and the alert says so.
+    @discardableResult
+    func toggleSkip(_ day: Day, _ index: Int) -> Bool {
+        setSkipped(!isSkipped(day, index), day, index)
     }
 
-    /// Take the replanner's advice: drop its stops.
-    func apply(_ plan: Replan) {
-        guard let day = today else { return }
-        for i in plan.drop where !isSkipped(day, i) {
-            context.insert(Skip(day: day.key, index: i, at: now, identity: day.identity(of: i)))
-            skips[day.key, default: []].insert(i)
+    /// Item `index` dropped or not; true when it is so on disk now.
+    private func setSkipped(_ skipped: Bool, _ day: Day, _ index: Int) -> Bool {
+        guard skipped != isSkipped(day, index) else { return true }
+        let key = day.key
+        if skipped {
+            context.insert(Skip(day: key, index: index, at: now, identity: day.identity(of: index)))
+        } else {
+            try? context.delete(model: Skip.self, where: #Predicate<Skip> { $0.day == key && $0.index == index })
         }
-        try? context.save()
+        guard persist(skipped ? "Bỏ điểm" : "Giữ lại điểm", retry: { [weak self] in _ = self?.setSkipped(skipped, day, index) }) else {
+            loadRecords()
+            return false
+        }
+        if skipped { skips[key, default: []].insert(index) } else { skips[key]?.remove(index) }
         refresh(reschedule: true, after: .milliseconds(300))
+        return true
+    }
+
+    /// Take the replanner's advice: drop its stops. False when that could not be saved (the skips
+    /// are read again from the disk, and the alert says so).
+    @discardableResult
+    func apply(_ plan: Replan) -> Bool {
+        guard let day = today else { return false }
+        let drop = plan.drop.filter { !isSkipped(day, $0) }
+        for i in drop {
+            context.insert(Skip(day: day.key, index: i, at: now, identity: day.identity(of: i)))
+        }
+        // again only on the same day: the advice is about its items
+        let again: @MainActor () -> Void = { [weak self] in
+            guard let self, today?.key == day.key else { return }
+            _ = apply(plan)
+        }
+        guard persist("Bỏ điểm theo gợi ý", retry: again) else {
+            loadRecords()
+            return false
+        }
+        for i in drop { skips[day.key, default: []].insert(i) }
+        // the day is not the one an earlier failed write was about any more
+        forgetRetry()
+        refresh(reschedule: true, after: .milliseconds(300))
+        return true
     }
 
     /// A rehearsal starts or ends: from now on everything reads and writes the rehearsal's records,
     /// or the real ones again, and the rehearsal's are thrown away. The sync with the other phone
     /// waits while a rehearsal runs, so nothing practised reaches it.
     private func switchRecords() {
+        // "Thử lại" would write to the records just left
+        forgetRetry()
         if rehearsing {
             retired = nil
             container = Records.rehearsal(copying: records, fresh: true)
@@ -590,63 +650,220 @@ enum AppSheet: Identifiable, Hashable {
     /// plan since (an item added before it, one taken out): a record follows its item by identity
     /// (`Day.resolve`), its stored index is corrected, and a record whose item is gone is left out.
     /// Records from before identities were kept are named after the item at their index.
+    ///
+    /// The indexes are corrected in two writes (`RecordIndexes`): a record is unique by day and index,
+    /// and moving 3 → 4 while another still sits on 4 would clash halfway through one write. First
+    /// the duplicates go, every record is named, and every record changing index steps aside below
+    /// 0; then each goes to its item's index. A write that fails leaves what is on screen right (it
+    /// comes from the items, not the stored indexes), and the next load tries again.
     private func loadRecords() {
         var changed = false
         var marks: [String: [Int: Date]] = [:]
         var held: [String: [Int: Checkmark]] = [:]
-        for c in (try? context.fetch(FetchDescriptor<Checkmark>())) ?? [] {
-            guard let day = store.day(c.day), let i = day.resolve(c.index, identity: c.identity) else { continue }
+        let checks = (try? context.fetch(FetchDescriptor<Checkmark>())) ?? []
+        var checkRows: [RecordIndexes.Record] = []
+        for c in checks {
+            guard let day = store.day(c.day), let i = day.resolve(c.index, identity: c.identity) else {
+                checkRows.append(RecordIndexes.Record(day: c.day, index: c.index, target: nil))
+                continue
+            }
             if let other = held[c.day]?[i] {
                 // two records came to one item: one is kept, with the earlier time
                 if c.at < other.at { other.at = c.at }
                 context.delete(c)
                 changed = true
+                checkRows.append(RecordIndexes.Record(day: c.day, index: c.index, target: nil, deleted: true))
                 continue
             }
-            if c.index != i { c.index = i; changed = true }
             if c.identity == nil { c.identity = day.identity(of: i); changed = true }
             held[c.day, default: [:]][i] = c
             marks[c.day, default: [:]][i] = c.at
+            checkRows.append(RecordIndexes.Record(day: c.day, index: c.index, target: i))
         }
         var skips: [String: Set<Int>] = [:]
-        var dropped: [String: Set<Int>] = [:]
-        for k in (try? context.fetch(FetchDescriptor<Skip>())) ?? [] {
-            guard let day = store.day(k.day), let i = day.resolve(k.index, identity: k.identity) else { continue }
-            if dropped[k.day]?.contains(i) == true {
-                context.delete(k)
-                changed = true
+        let dropped = (try? context.fetch(FetchDescriptor<Skip>())) ?? []
+        var skipRows: [RecordIndexes.Record] = []
+        for k in dropped {
+            guard let day = store.day(k.day), let i = day.resolve(k.index, identity: k.identity) else {
+                skipRows.append(RecordIndexes.Record(day: k.day, index: k.index, target: nil))
                 continue
             }
-            if k.index != i { k.index = i; changed = true }
+            if skips[k.day]?.contains(i) == true {
+                context.delete(k)
+                changed = true
+                skipRows.append(RecordIndexes.Record(day: k.day, index: k.index, target: nil, deleted: true))
+                continue
+            }
             if k.identity == nil { k.identity = day.identity(of: i); changed = true }
-            dropped[k.day, default: []].insert(i)
             skips[k.day, default: []].insert(i)
+            skipRows.append(RecordIndexes.Record(day: k.day, index: k.index, target: i))
         }
-        if changed { try? context.save() }
         self.marks = marks
         self.skips = skips
+        let checkMoves = RecordIndexes.moves(checkRows), skipMoves = RecordIndexes.moves(skipRows)
+        guard changed || !checkMoves.isEmpty || !skipMoves.isEmpty else { return }
+        let again: @MainActor () -> Void = { [weak self] in self?.loadRecords() }
+        for (n, index) in checkMoves.aside { checks[n].index = index }
+        for (n, index) in skipMoves.aside { dropped[n].index = index }
+        guard persist("Dấu đã đi và điểm bỏ", retry: again) else { return }
+        guard !checkMoves.home.isEmpty || !skipMoves.home.isEmpty else { return }
+        for (n, index) in checkMoves.home { checks[n].index = index }
+        for (n, index) in skipMoves.home { dropped[n].index = index }
+        _ = persist("Dấu đã đi và điểm bỏ", retry: again)
     }
 
     // MARK: - Money
 
+    /// nil when it could not be saved (`saveIssue` says why; nothing of it is kept).
     @discardableResult
-    func logExpense(yen: Int, category: SpendCategory, method: PayMethod, placeID: String?, note: String = "", itemID: String? = nil) -> Expense {
+    func logExpense(yen: Int, category: SpendCategory, method: PayMethod, placeID: String?, note: String = "", itemID: String? = nil) -> Expense? {
         logExpense(yen: yen, category: category, method: method, placeID: placeID, placeName: nil, day: today?.key, note: note, itemID: itemID)
     }
 
-    /// An expense counted toward a chosen day, at a place from the data or one named by hand.
+    /// An expense counted toward a chosen day, at a place from the data or one named by hand; nil
+    /// when it could not be saved (`saveIssue` says why; nothing of it is kept, and whatever else was
+    /// waiting to go with it, like the purchase it pays for, is taken back too).
     @discardableResult
-    func logExpense(yen: Int, category: SpendCategory, method: PayMethod, placeID: String?, placeName: String?, day: String?, note: String = "", itemID: String? = nil) -> Expense {
+    func logExpense(yen: Int, category: SpendCategory, method: PayMethod, placeID: String?, placeName: String?, day: String?, note: String = "", itemID: String? = nil) -> Expense? {
         let e = Expense(yen: yen, category: category, method: method, placeID: placeID, placeName: placeName, day: day, note: note, at: now, coordinate: position, itemID: itemID)
         context.insert(e)
-        try? context.save()
-        return e
+        return persist("Khoản chi") ? e : nil
     }
 
-    func topUp(yen: Int, method: PayMethod) {
+    /// Cash withdrawn or Suica topped up; false when it could not be saved.
+    @discardableResult
+    func topUp(yen: Int, method: PayMethod) -> Bool {
         context.insert(Topup(yen: yen, method: method, at: now))
-        try? context.save()
+        return persist(method == .cash ? "Rút tiền" : "Nạp Suica")
     }
+
+    /// Deletes an expense, leaving the deletion for the other phone; false when it could not be saved.
+    @discardableResult
+    func deleteExpense(_ id: UUID) -> Bool {
+        for e in (try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }))) ?? [] {
+            Ledger.delete(e, in: context)
+        }
+        return persist("Xoá khoản chi", retry: { [weak self] in _ = self?.deleteExpense(id) })
+    }
+
+    /// An item no longer bought: the purchase and the expenses that paid for it, through the ledger so
+    /// the other phone drops them too, in one write; false when it could not be saved (all of it stays).
+    @discardableResult
+    func unbuy(_ itemID: String) -> Bool {
+        let linked: String? = itemID
+        try? context.delete(model: Purchase.self, where: #Predicate { $0.itemID == itemID })
+        for e in (try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.itemID == linked }))) ?? [] {
+            Ledger.delete(e, in: context)
+        }
+        return persist("Bỏ đã mua", retry: { [weak self] in _ = self?.unbuy(itemID) })
+    }
+
+    /// Two rows that look like one expense logged twice, said to be two (`Ledger.keepApart`); false
+    /// when that could not be saved, and the pair is asked about again.
+    @discardableResult
+    func keepApart(_ a: UUID, _ b: UUID) -> Bool {
+        do {
+            try Ledger.keepApart(a, b, in: context)
+            return true
+        } catch {
+            report("Giữ cả hai khoản", error, retry: { [weak self] in _ = self?.keepApart(a, b) })
+            return false
+        }
+    }
+
+    // MARK: - Saving
+
+    /// Writes what is waiting in the records. False when the write failed: everything waiting was
+    /// taken back (`ModelContext.commit`), so the screens show what is on disk, and `saveIssue` tells
+    /// the user `what` was not saved and why. `retry` is "Thử lại": the action again, from what is on
+    /// disk then; without one the alert only says so.
+    func persist(_ what: String, retry: (@MainActor () -> Void)? = nil) -> Bool {
+        do {
+            try context.commit()
+            return true
+        } catch {
+            report(what, error, retry: retry)
+            return false
+        }
+    }
+
+    private func report(_ what: String, _ failure: SaveFailure, retry: (@MainActor () -> Void)?) {
+        let issue = SaveIssue(what: what, error: failure.localizedDescription)
+        saveIssue = issue
+        self.retry = retry.map { (issue.id, $0) }
+    }
+
+    /// Whether `issue`, on the alert, can be tried again.
+    func canRetry(_ issue: SaveIssue) -> Bool { retry?.issue == issue.id }
+
+    /// "Thử lại" on the alert for `issue`.
+    func retrySave(_ issue: SaveIssue) {
+        guard let retry, retry.issue == issue.id else { return }
+        self.retry = nil
+        retry.run()
+    }
+
+    /// The failed write's issue, for a sheet that shows it itself (its own "Thử lại" saves again):
+    /// taken off the alert in front, in the same moment, so it is never shown twice.
+    func takeSaveIssue() -> SaveIssue? {
+        defer {
+            saveIssue = nil
+            retry = nil
+        }
+        return saveIssue
+    }
+
+    /// The plan, the day or the records changed under a failed write: its "Thử lại" could meet other
+    /// items, or other records, and is dropped (the alert keeps only its "OK").
+    private func forgetRetry() {
+        if retry != nil { retry = nil }
+    }
+
+    #if DEBUG
+    /// Settings › Chẩn đoán › "Thử ghi trùng chỉ số": what this phone's SwiftData does when one write
+    /// puts two marks of a day on one index (`#Unique` on day and index), the clash `loadRecords`
+    /// writes in two steps to avoid. Two marks on a day no plan has (0 and 1) swap indexes, then one
+    /// is moved onto the other's. Says for each whether the write failed or went through, and which
+    /// rows were left; the rows are taken away after.
+    func uniqueProbe() -> String {
+        let key = "debug.unique"
+        func rows() -> [Checkmark] {
+            ((try? context.fetch(FetchDescriptor<Checkmark>(predicate: #Predicate { $0.day == key }))) ?? []).sorted { $0.at < $1.at }
+        }
+        func clear() throws(SaveFailure) {
+            for c in rows() { context.delete(c) }
+            try context.commit()
+        }
+        func outcome(_ name: String, _ change: ([Checkmark]) -> Void) -> String {
+            do {
+                try clear()
+                context.insert(Checkmark(day: key, index: 0, at: Date(timeIntervalSince1970: 0)))
+                context.insert(Checkmark(day: key, index: 1, at: Date(timeIntervalSince1970: 1)))
+                try context.commit()
+            } catch {
+                return "\(name): không chuẩn bị được (\(error.localizedDescription))"
+            }
+            let two = rows()
+            guard two.count == 2 else { return "\(name): không chuẩn bị được (\(two.count) dòng)" }
+            change(two)
+            do {
+                try context.commit()
+            } catch {
+                return "\(name): lỗi, không lưu (\(error.localizedDescription))"
+            }
+            let left = rows().map { "\($0.at.timeIntervalSince1970 == 0 ? "A" : "B")@\($0.index)" }
+            return "\(name): lưu được, còn \(left.count) dòng \(left.joined(separator: " "))"
+        }
+        let swap = outcome("A↔B đổi chỗ") { $0[0].index = 1; $0[1].index = 0 }
+        let onto = outcome("A chồng lên B") { $0[0].index = 1 }
+        do {
+            try clear()
+        } catch {
+            return [swap, onto, "dọn không được: \(error.localizedDescription)"].joined(separator: "\n")
+        }
+        return [swap, onto].joined(separator: "\n")
+    }
+    #endif
 
     // MARK: - Position, visits, fences
 
@@ -669,19 +886,21 @@ enum AppSheet: Identifiable, Hashable {
     private func visited(_ v: VisitRecord) {
         let from = v.arrival.addingTimeInterval(-120), to = v.arrival.addingTimeInterval(120)
         let near = (try? context.fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival >= from && $0.arrival <= to }))) ?? []
-        var marked = false
+        var mark: (day: Day, index: Int, at: Date)?
         if let same = near.first(where: { VisitRecord(arrival: $0.arrival, departure: $0.departure, coordinate: Coordinate($0.lat, $0.lng)).isSameStay(as: v) }) {
             if same.departure == nil { same.departure = v.departure }
             if same.placeID == nil, let (day, i) = matchPlan(v.coordinate) {
                 same.placeID = day.items[i].stop?.place
-                marked = markDone(day, i, at: same.arrival, source: "visit")
+                mark = (day, i, same.arrival)
             }
         } else {
             let match = matchPlan(v.coordinate)
             context.insert(Visit(arrival: v.arrival, departure: v.departure, coordinate: v.coordinate, placeID: match.flatMap { day, i in day.items[i].stop?.place }))
-            if let (day, i) = match { marked = markDone(day, i, at: v.arrival, source: "visit") }
+            if let (day, i) = match { mark = (day, i, v.arrival) }
         }
-        try? context.save()
+        // the stay in a write of its own: a mark that cannot be saved does not take it back with it
+        guard persist("Chỗ đã ghé", retry: { [weak self] in self?.visited(v) }) else { return }
+        let marked = mark.map { markDone($0.day, $0.index, at: $0.at, source: "visit") } ?? false
         refresh(reschedule: marked)
         if marked, inBackground { finishRescheduleInBackground() }
     }

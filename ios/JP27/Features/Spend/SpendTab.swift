@@ -24,6 +24,8 @@ struct SpendTab: View {
     @State private var keptTick = 0
     /// phones paired from the card here; the card leaves as the yes lands, so it is felt from the list
     @State private var paired = 0
+    /// a delete or a pair kept apart that could not be saved (the alert in front says why)
+    @State private var failed = false
 
     var body: some View {
         @Bindable var model = model
@@ -64,8 +66,8 @@ struct SpendTab: View {
                     Section {
                         ForEach(pairs) { pair in
                             SpendDuplicateCard(pair: pair) { gone in
-                                if let gone { delete(gone) } else { Ledger.keepApart(pair.a.id, pair.b.id, in: context) }
-                                keptTick += 1
+                                let settled = gone.map { model.deleteExpense($0.id) } ?? model.keepApart(pair.a.id, pair.b.id)
+                                if settled { keptTick += 1 } else { failed.toggle() }
                             }
                             .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
                         }
@@ -126,6 +128,7 @@ struct SpendTab: View {
             // a duplicate settled either way, and a phone paired by its button (a touch is felt by the sync)
             .sensoryFeedback(.done, trigger: keptTick)
             .sensoryFeedback(.done, trigger: paired)
+            .sensoryFeedback(.fail, trigger: failed)
             .navigationTitle("Chi tiêu")
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
             .toolbar {
@@ -155,6 +158,9 @@ struct SpendTab: View {
                 Task {
                     do {
                         merged = try await SpendLedgerFile.merge(url, into: context).summary
+                    } catch let failure as SaveFailure {
+                        // read, but not written: nothing of the file was kept
+                        merged = "Chưa lưu được khoản nào trong file: \(failure.localizedDescription)"
                     } catch {
                         merged = "Không đọc được file: \(error.localizedDescription)"
                     }
@@ -225,8 +231,7 @@ struct SpendTab: View {
     }
 
     private func delete(_ e: Expense) {
-        Ledger.delete(e, in: context)
-        try? context.save()
+        if !model.deleteExpense(e.id) { failed.toggle() }
     }
 
     /// Rows of the two phones that may be one expense logged twice; asked only once both phones'

@@ -193,6 +193,10 @@ struct LedgerSyncSheet: View {
     // felt from the list: the rows pressed leave with the press
     @State private var paired = 0
     @State private var restored = 0
+    /// a row brought back that could not be saved: said here, over the sheet, with "Thử lại"
+    @State private var issue: SaveIssue?
+    @State private var unsaved: LedgerTombstone?
+    @State private var failed = false
 
     var body: some View {
         let sync = model.ledgerSync
@@ -284,11 +288,7 @@ struct LedgerSyncSheet: View {
                                             .monospacedDigit()
                                     }
                                     Spacer(minLength: 8)
-                                    Button("Không phải trùng") {
-                                        Ledger.restore(t, in: context)
-                                        folded = Ledger.folded(context)
-                                        restored += 1
-                                    }
+                                    Button("Không phải trùng") { restore(t) }
                                     .buttonStyle(.bordered)
                                     .controlSize(.small)
                                 }
@@ -309,6 +309,10 @@ struct LedgerSyncSheet: View {
             .paperList()
             .sensoryFeedback(.done, trigger: paired)
             .sensoryFeedback(.done, trigger: restored)
+            .sensoryFeedback(.fail, trigger: failed)
+            .saveIssueAlert($issue) { _ in
+                if let unsaved { restore(unsaved) }
+            }
             .navigationTitle("Đồng bộ")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -328,6 +332,21 @@ struct LedgerSyncSheet: View {
             .onDisappear { sync.setPairing(false) }
         }
         .presentationDetents([.large])
+    }
+
+    /// A row wrongly taken for a copy, brought back; when that cannot be saved, nothing is.
+    private func restore(_ t: LedgerTombstone) {
+        do {
+            try Ledger.restore(t, in: context)
+        } catch {
+            unsaved = t
+            issue = SaveIssue(what: "Khoản bị gộp nhầm", error: error.localizedDescription)
+            failed.toggle()
+            return
+        }
+        unsaved = nil
+        folded = Ledger.folded(context)
+        restored += 1
     }
 
     @ViewBuilder

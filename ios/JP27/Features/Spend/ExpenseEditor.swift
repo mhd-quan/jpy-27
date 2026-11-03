@@ -25,6 +25,9 @@ struct ExpenseEditor: View {
     @State private var longNote = false
     @State private var ready = false
     @State private var saved = false
+    /// a save that failed: the editor stays, with what was typed, and says why
+    @State private var issue: SaveIssue?
+    @State private var failed = false
     /// kinds tapped; the kind also changes by itself, set up from the place and on picking a place
     @State private var chosen = 0
     /// places chosen in the list under "Ở đâu"; the place set up on opening stays quiet
@@ -76,6 +79,8 @@ struct ExpenseEditor: View {
                 }
             }
             .sensoryFeedback(.done, trigger: saved)
+            .sensoryFeedback(.fail, trigger: failed)
+            .saveIssueAlert($issue) { _ in save() }
             // here, not in the list: the list closes as the place is chosen
             .sensoryFeedback(.pick, trigger: placePicks)
             .onAppear(perform: setUp)
@@ -284,16 +289,24 @@ struct ExpenseEditor: View {
             e.day = dayKey
             e.note = text
             e.touch()
-            try? model.context.save()
-            saved.toggle()
-            dismiss()
+            // a failed write takes the edit back on the row; what was typed stays here
+            if model.persist("Khoản chi") { saved.toggle(); dismiss() } else { fail() }
             return
         }
-        model.logExpense(yen: value, category: category, method: method, placeID: place,
-                         placeName: place == nil && !name.isEmpty ? name : nil, day: dayKey,
-                         note: text)
-        saved.toggle()
-        dismiss()
+        if model.logExpense(yen: value, category: category, method: method, placeID: place,
+                            placeName: place == nil && !name.isEmpty ? name : nil, day: dayKey,
+                            note: text) != nil {
+            saved.toggle()
+            dismiss()
+        } else {
+            fail()
+        }
+    }
+
+    /// Not saved: said here, over the editor, not behind it.
+    private func fail() {
+        issue = model.takeSaveIssue()
+        failed.toggle()
     }
 }
 

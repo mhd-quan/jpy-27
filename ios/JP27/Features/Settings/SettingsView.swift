@@ -83,6 +83,10 @@ private struct DiagnosticsSection: View {
     #if DEBUG
     /// what AlarmKit listed, the last time it was asked
     @State private var systemAlarms: String?
+    /// `Records.failSaves`, as the switch shows it
+    @State private var failSaves = Records.failSaves
+    /// what the last `uniqueProbe` found
+    @State private var unique: String?
     #endif
 
     var body: some View {
@@ -145,6 +149,32 @@ private struct DiagnosticsSection: View {
                     }
                 } icon: {
                     SettingsIcon(symbol: "list.bullet", tint: .gray)
+                }
+            }
+            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 1.4
+            Toggle(isOn: $failSaves) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Giả lỗi lưu")
+                        Text("Mọi lần lưu đều báo lỗi, tới khi tắt").font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "xmark.octagon", tint: .red)
+                }
+            }
+            .onChange(of: failSaves) { _, on in Records.failSaves = on }
+            Button {
+                unique = model.uniqueProbe()
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Thử ghi trùng chỉ số")
+                        if let unique {
+                            Text(unique).font(.footnote).foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "square.on.square", tint: .gray)
                 }
             }
             #endif

@@ -101,6 +101,9 @@ struct RootView: View {
         } message: {
             Text(Records.problem ?? "")
         }
+        // a write that failed, said where it can be seen: here while no sheet is up, else on the
+        // top sheet (`presentsSheets`)
+        .saveIssueAlert(level: 0)
         // offline packs made for a tile build the map no longer reads are useless without signal
         .alert("Bản đồ offline cần tải lại", isPresented: Binding(get: { model.offline.needsReload }, set: { model.offline.needsReload = $0 })) {
             Button("Để sau", role: .cancel) {}
@@ -110,6 +113,50 @@ struct RootView: View {
         }
         // read here, in a view, so the whole app follows when a rehearsal swaps the records
         .modelContainer(model.container)
+    }
+}
+
+extension View {
+    /// "Chưa lưu được": what was not saved and why. "Thử lại" does it again when `retry` is given,
+    /// "Để sau" leaves it; without `retry`, only "OK".
+    func saveIssueAlert(_ issue: Binding<SaveIssue?>, retry: ((SaveIssue) -> Void)?) -> some View {
+        let shown = issue.wrappedValue
+        // closing clears only the issue that was shown: one that "Thử lại" just raised again stays
+        let presented = Binding(
+            get: { issue.wrappedValue != nil },
+            set: { if !$0, issue.wrappedValue?.id == shown?.id { issue.wrappedValue = nil } }
+        )
+        return alert("Chưa lưu được", isPresented: presented, presenting: shown) { failed in
+            if let retry {
+                Button("Thử lại") { retry(failed) }
+                Button("Để sau", role: .cancel) {}
+            } else {
+                Button("OK", role: .cancel) {}
+            }
+        } message: { failed in
+            Text("\(failed.what): \(failed.error)")
+        }
+    }
+
+    /// The app's own alert for a failed write (`AppModel.saveIssue`), on the view in front: `level`
+    /// is how many of the app's sheets are under this view (0 for the tabs). An alert cannot come up
+    /// from under a sheet, so only the top one shows it.
+    func saveIssueAlert(level: Int) -> some View {
+        modifier(SaveIssueLayer(level: level))
+    }
+}
+
+private struct SaveIssueLayer: ViewModifier {
+    @Environment(AppModel.self) private var model
+    let level: Int
+
+    func body(content: Content) -> some View {
+        let front = Binding<SaveIssue?>(
+            get: { model.sheets.count == level ? model.saveIssue : nil },
+            set: { model.saveIssue = $0 }
+        )
+        let canRetry = model.saveIssue.map { model.canRetry($0) } ?? false
+        content.saveIssueAlert(front, retry: canRetry ? { model.retrySave($0) } : nil)
     }
 }
 
