@@ -28,6 +28,8 @@ struct MapTab: View {
     /// choices made by hand (a stop, a place off the plan, a day); the map also changes them by
     /// itself as the list scrolls, at midnight and when another page sends it somewhere, quietly
     @State private var picks = 0
+    /// a place's card opened from the map: a stop already on show, tapped again
+    @State private var opened = 0
     /// Settings › Chẩn đoán: with the frame readings on, the overlays can be drawn without glass
     @AppStorage(MapPacer.readingsKey) private var readings = false
     @AppStorage(MapPacer.glassKey) private var glass = true
@@ -68,7 +70,7 @@ struct MapTab: View {
                 MapPanel(stage: $stage, containerHeight: geo.size.height, headerHeight: $header) {
                     MapPanelTitle(day: day)
                 } strip: {
-                    MapStopStrip(day: day, active: active) { i in activate(i, day: day, scroll: true, byHand: true) }
+                    MapStopStrip(day: day, active: active) { i in select(i, day: day, scroll: true, from: "map.stop.\(i)") }
                 } content: {
                     MapTimeline(
                         day: day,
@@ -76,11 +78,14 @@ struct MapTab: View {
                         active: active,
                         side: side,
                         bottomMargin: MapPanelStage.large.height(in: geo.size.height, header: header) - panel + 16,
+                        window: max(0, panel - header),
                         jump: jump,
                         stage: stage,
                         next: nextDay(after: day),
                         onRead: { read($0, day: day) },
-                        onTap: { activate($0, day: day, scroll: false, byHand: true) },
+                        // a tapped row comes under the reading line too, so a scroll reads on from it
+                        onTap: { select($0, day: day, scroll: true, from: "map.row.\($0)") },
+                        onOpen: { _ = openCard($0, day: day, from: "map.row.\($0)") },
                         onSide: { pickSide($0, day: day, sides: sides) },
                         onPullDown: { withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) { stage = .peek } },
                         // pulled past the end, the pull already ticked as it armed
@@ -123,6 +128,7 @@ struct MapTab: View {
         }
         .onChange(of: model.mapDay) { consumeDay() }
         .sensoryFeedback(.pick, trigger: picks)
+        .sensoryFeedback(.press, trigger: opened)
     }
 
     // MARK: What the map draws
@@ -174,6 +180,21 @@ struct MapTab: View {
             side = nil
         }
         if stage != .large { fly(day, to: i, force: false) }
+    }
+
+    /// A stop, its row or its pin tapped by hand. The one already on show opens its card (the place
+    /// page, as a day's page opens it), growing out of what was tapped; any other is shown.
+    private func select(_ i: Int, day: Day, scroll: Bool, from source: String) {
+        if i == active, openCard(i, day: day, from: source) { return }
+        activate(i, day: day, scroll: scroll, byHand: true)
+    }
+
+    /// Opens the card of the stop at `i`; false when it is not a stop with a page.
+    private func openCard(_ i: Int, day: Day, from source: String) -> Bool {
+        guard day.items.indices.contains(i), let id = day.items[i].stop?.place, model.store.place(id) != nil else { return false }
+        opened += 1
+        model.present(.place(id), from: source)
+        return true
     }
 
     /// A row or a stop was tapped: that is a request, so the map moves even if it was just handled.
@@ -235,7 +256,8 @@ struct MapTab: View {
 
     private func tapped(_ id: String, day: Day, sides: [Int: [MapSide]]) {
         if let i = day.stops.first(where: { $0.stop.place == id })?.index {
-            activate(i, day: day, scroll: true, byHand: true)
+            // the card grows out of the stop's chip, which the strip keeps in view
+            select(i, day: day, scroll: true, from: "map.stop.\(i)")
             return
         }
         pickSide(id, day: day, sides: sides)
@@ -766,7 +788,8 @@ private struct MapStop: Identifiable {
 }
 
 /// The day's stops in a row: done ones ticked, the next one ringed, the one the map is on lit.
-/// Tapping a stop goes to it. This is what the panel shows when it is down.
+/// Tapping a stop goes to it; tapping the one on show opens its card, which its chevron says. This
+/// is what the panel shows when it is down.
 private struct MapStopStrip: View {
     @Environment(AppModel.self) private var model
     let day: Day
@@ -812,6 +835,8 @@ private struct MapStopStrip: View {
         let done = model.isDone(day, index)
         let next = live && model.next?.index == index
         let lit = active.map { a in a == index || (day.items[a].move != nil && day.stops.first { $0.index > a }?.index == index) } ?? false
+        // on show itself, not only lit as the end of the way being read: a tap opens it
+        let opens = active == index
         return Button {
             pick(index)
         } label: {
@@ -838,6 +863,12 @@ private struct MapStopStrip: View {
                     .lineLimit(1)
                     .frame(maxWidth: 120, alignment: .leading)
                     .foregroundStyle(done && !lit ? Color.secondary : Color.primary)
+                if opens {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.secondary)
+                        .transition(.opacity.combined(with: .scale(scale: 0.6)))
+                }
             }
             .padding(.leading, 4)
             .padding(.trailing, 10)
@@ -846,27 +877,38 @@ private struct MapStopStrip: View {
             .contentShape(.capsule)
         }
         .buttonStyle(.plain)
+        // the card grows out of the chip, from a tap on it or on the stop's pin
+        .sheetSource("map.stop.\(index)")
         .accessibilityLabel(place.name)
         .accessibilityValue(done ? "Đã ghé" : next ? "Tiếp theo" : "")
+        .accessibilityHint(opens ? "Mở thẻ địa điểm" : "")
     }
 }
 
 // MARK: - The timeline that drives the map
 
 /// The day's items with the rail, as in Lịch trình, each stop with its side trips under it. A line
-/// across the list (a third of the way down; it slides to the ends at the ends, so the first and
-/// last items can be reached) decides which item the map shows.
+/// across the middle of the part of the list the panel shows decides which item the map shows (it
+/// slides to the ends at the ends, so the first and last items can be reached). A row or a stop
+/// tapped is brought under that line, so the next scroll reads on from it.
 private struct MapTimeline: View {
     let day: Day
     let sides: [Int: [MapSide]]
     let active: Int?
     let side: String?
     let bottomMargin: CGFloat
+    /// how much of the list the panel shows at its height. The list is laid out at the panel's
+    /// full height and clipped, so the scroll view's own size, less its insets, is not what is seen
+    /// (the insets can also take the safe area the clipped part reaches into); the line once read
+    /// from them sat at most about 70 pt under the top edge at the middle height.
+    let window: CGFloat
     let jump: MapJump?
     let stage: MapPanelStage
     let next: Day?
     let onRead: (Int?) -> Void
     let onTap: (Int) -> Void
+    /// a stop's card, straight away (VoiceOver's Chi tiết)
+    let onOpen: (Int) -> Void
     let onSide: (String) -> Void
     let onPullDown: () -> Void
     /// true when the list was pulled past its end, false when the footer was tapped
@@ -874,6 +916,8 @@ private struct MapTimeline: View {
 
     @State private var frames = RowFrames()
     @State private var armed = false
+    /// set only to bring a row under the line; the list scrolls by hand as before
+    @State private var position = ScrollPosition(edge: .top)
 
     private nonisolated static let space = "map.timeline"
 
@@ -891,6 +935,13 @@ private struct MapTimeline: View {
                             }
                             .contentShape(.rect)
                             .onTapGesture { onTap(i) }
+                            // a stop on show, tapped again, opens its card out of its row
+                            .sheetSource("map.row.\(i)")
+                            .accessibilityActions {
+                                if day.items[i].stop?.place != nil {
+                                    Button("Chi tiết") { onOpen(i) }
+                                }
+                            }
                             .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.space)) } action: { frames.rows[i] = $0 }
                             .id(i)
                     }
@@ -903,7 +954,9 @@ private struct MapTimeline: View {
             }
             .scrollIndicators(.hidden)
             .contentMargins(.bottom, bottomMargin, for: .scrollContent)
-            .onScrollGeometryChange(for: MapReading.self) { MapReading($0) } action: { _, r in reading(r) }
+            .scrollPosition($position)
+            // the window comes with the margins: both change with the panel's height, in one update
+            .onScrollGeometryChange(for: MapReading.self) { [window] in MapReading($0, window: window) } action: { _, r in reading(r) }
             .onScrollPhaseChange { old, new in
                 frames.touching = new == .tracking || new == .interacting
                 guard old == .interacting, new != .interacting else { return }
@@ -912,10 +965,12 @@ private struct MapTimeline: View {
             .onChange(of: jump) { _, j in
                 guard let j else { return }
                 frames.pausedUntil = .now.addingTimeInterval(0.7)
-                withAnimation(.smooth(duration: 0.45)) { proxy.scrollTo(j.index, anchor: UnitPoint(x: 0.5, y: 0.12)) }
+                bring(j.index, proxy: proxy, animated: true)
             }
             .onAppear {
-                if let j = jump { proxy.scrollTo(j.index, anchor: UnitPoint(x: 0.5, y: 0.12)) }
+                guard let j = jump else { return }
+                // after the first layout, once the rows have been measured
+                Task { bring(j.index, proxy: proxy, animated: false) }
             }
             // the visible part changes while the panel moves; the reading waits for it to settle
             .onChange(of: stage) {
@@ -923,6 +978,25 @@ private struct MapTimeline: View {
             }
             // felt only under the finger: a fling that bounces past the end arms it too
             .sensoryFeedback(.snap, trigger: armed) { [frames] _, on in on && frames.touching }
+        }
+    }
+
+    /// Scrolls so the reading line falls inside row `i`, where the next scroll reads on from it.
+    /// Before the rows are measured, its top goes to the top.
+    private func bring(_ i: Int, proxy: ScrollViewProxy, animated: Bool) {
+        guard let row = frames.rows[i] else {
+            if animated {
+                withAnimation(.smooth(duration: 0.45)) { proxy.scrollTo(i, anchor: .top) }
+            } else {
+                proxy.scrollTo(i, anchor: .top)
+            }
+            return
+        }
+        let y = MapReading.offset(reading: row, window: window, end: frames.end, height: frames.height)
+        if animated {
+            withAnimation(.smooth(duration: 0.45)) { position.scrollTo(y: y) }
+        } else {
+            position.scrollTo(y: y)
         }
     }
 
@@ -971,6 +1045,8 @@ private struct MapTimeline: View {
         let isPulled = r.top > (frames.pulled ? 56 : 72)
         if isPulled, !frames.pulled, frames.touching { Haptic.snap() }
         frames.pulled = isPulled
+        frames.end = r.end
+        frames.height = r.height
         guard Date.now >= frames.pausedUntil else { return }
         // at rest at the top the map shows the whole day; the first scroll starts reading
         let i = r.atTop ? nil : frames.item(at: r.line, count: day.items.count)
@@ -1000,6 +1076,10 @@ private final class RowFrames {
     var touching = false
     /// pulled past the top far enough to fold the panel on letting go
     var pulled = false
+    /// how far the list scrolls and how tall its content is, as last read (unknown before the
+    /// first scroll: then nothing limits the line)
+    var end = CGFloat.greatestFiniteMagnitude
+    var height = CGFloat.greatestFiniteMagnitude
 
     /// the last row starting above the line
     func item(at line: CGFloat, count: Int) -> Int? {
@@ -1021,20 +1101,49 @@ nonisolated struct MapReading: Equatable {
     var top: CGFloat
     /// not scrolled at all
     var atTop: Bool
+    /// how far the list scrolls, and how tall its content is
+    var end: CGFloat
+    var height: CGFloat
 
-    init(_ g: ScrollGeometry) {
-        let visible = max(1, g.containerSize.height - g.contentInsets.top - g.contentInsets.bottom)
+    /// where the line sits in the window: the middle, the item the eye is on
+    static let share: CGFloat = 0.5
+
+    /// `window` is how much of the list the panel shows (`MapTimeline.window`). How far the list
+    /// scrolls still comes from the scroll view itself, whatever its insets hold.
+    init(_ g: ScrollGeometry, window: CGFloat) {
         let offset = g.contentOffset.y + g.contentInsets.top
-        let end = max(0, g.contentSize.height - visible)
-        let share: CGFloat = 0.3
-        // a third of the way down; near the top it rises to the top, near the end it sinks to
-        // the bottom, so every item can come under it
-        var y = offset + min(max(offset, 0), visible * share) + max(0, visible * (1 - share) - (end - offset))
-        y = min(max(y, 0), g.contentSize.height)
-        line = y
+        let end = max(0, g.contentSize.height + g.contentInsets.top + g.contentInsets.bottom - g.containerSize.height)
+        line = Self.line(at: offset, window: window, end: end, height: g.contentSize.height)
         over = offset - end
         top = -offset
         atTop = offset <= 2
+        self.end = end
+        height = g.contentSize.height
+    }
+
+    /// The line for a scroll offset: the middle of the window; over the first half-window of
+    /// scrolling it comes down from the top, over the last it sinks to the bottom, so every item
+    /// can come under it. It never moves back as the list scrolls on.
+    static func line(at offset: CGFloat, window: CGFloat, end: CGFloat, height: CGFloat) -> CGFloat {
+        let w = max(1, window)
+        let y = offset + min(max(offset, 0), w * share) + max(0, w * (1 - share) - (end - offset))
+        return min(max(y, 0), height)
+    }
+
+    /// The offset that puts the line inside `row`: on its middle when it is short, a little under
+    /// its top when it is taller than half the window, so its top stays in view.
+    static func offset(reading row: CGRect, window: CGFloat, end: CGFloat, height: CGFloat) -> CGFloat {
+        let w = max(1, window)
+        let target = row.minY + min(row.height / 2, max(8, w * share - 8))
+        // the line is never above the offset, so the answer is at most the target
+        var lo: CGFloat = 0
+        var hi = max(0, min(end, target))
+        guard line(at: hi, window: w, end: end, height: height) >= target else { return hi }
+        for _ in 0..<24 {
+            let mid = (lo + hi) / 2
+            if line(at: mid, window: w, end: end, height: height) >= target { hi = mid } else { lo = mid }
+        }
+        return hi.rounded()
     }
 }
 

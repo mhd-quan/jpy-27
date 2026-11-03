@@ -380,6 +380,7 @@ struct FujiCompassPlot: View {
 struct FujiExplorer: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var system
     @Environment(\.closeSheet) private var closeSheet
     @Namespace private var mapScope
     @State private var area: FujiArea
@@ -411,10 +412,16 @@ struct FujiExplorer: View {
                 ScrollView {
                     FujiTerrainMap(spots: spots, position: $position, selection: $selection, interactive: true, scope: mapScope)
                         .containerRelativeFrame([.horizontal, .vertical])
+                        // the map itself as before; only the scroll view's edges go dark
+                        .environment(\.colorScheme, system)
                 }
                 .scrollDisabled(true)
                 .scrollIndicators(.hidden)
                 .scrollEdgeEffectStyle(.soft, for: .all)
+                // The soft edge takes its tint from the scroll view's appearance, not the bar's: in
+                // light mode it laid a milky veil over the satellite ground, glaring under the status
+                // bar. Dark, it shades the ground the way the bar's white title and buttons need.
+                .environment(\.colorScheme, .dark)
                 .ignoresSafeArea()
                 FujiBarEdge()
             } else {

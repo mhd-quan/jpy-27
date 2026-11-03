@@ -467,16 +467,25 @@ private struct DetailPage: ViewModifier {
     let heroHeight: CGFloat
     let scheme: ColorScheme?
     @State private var past = false
+    /// how far the page has scrolled, as last read; kept out of the view's state
+    @State private var scrolled = DetailScroll()
 
     func body(content: Content) -> some View {
         content
             .ignoresSafeArea(edges: .top)
             .scrollEdgeEffectHidden(!past, for: .top)
-            .onScrollGeometryChange(for: Bool.self) { geo in
-                geo.contentOffset.y + geo.contentInsets.top > heroHeight - 130
-            } action: { _, now in
-                withAnimation(.smooth(duration: 0.25)) { past = now }
+            // The distance alone, in 8 pt steps up to where any photograph ends; the photograph's
+            // height is applied when it is read, below. Folded into the reading, the height was the
+            // one the closure was made with, and the reading runs again only when the page scrolls:
+            // a card that measured its photograph while it was still zooming open kept the bar's
+            // title and soft edge over the photograph once it landed, until the first scroll.
+            .onScrollGeometryChange(for: Int.self) { geo in
+                Int(min(max(geo.contentOffset.y + geo.contentInsets.top, 0), 1200) / 8)
+            } action: { _, step in
+                scrolled.y = CGFloat(step) * 8
+                settle()
             }
+            .onChange(of: heroHeight) { settle() }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -491,6 +500,17 @@ private struct DetailPage: ViewModifier {
             // light status bar and bar glyphs over the photograph
             .toolbarColorScheme(past ? scheme : .dark, for: .navigationBar)
     }
+
+    /// The bar takes the title and its edge once the photograph is nearly gone; at the top, never.
+    private func settle() {
+        let now = scrolled.y > 0 && scrolled.y > heroHeight - 130
+        guard now != past else { return }
+        withAnimation(.smooth(duration: 0.25)) { past = now }
+    }
+}
+
+private final class DetailScroll {
+    var y: CGFloat = 0
 }
 
 /// Small page dots for a hero's photographs.
