@@ -76,6 +76,7 @@ struct SettingsView: View {
 /// What the map really draws, measured on the phone: for a jerky map, numbers instead of guesses.
 private struct DiagnosticsSection: View {
     @AppStorage(MapPacer.readingsKey) private var readings = false
+    @AppStorage(MapPacer.glassKey) private var glass = true
 
     var body: some View {
         Section {
@@ -86,10 +87,21 @@ private struct DiagnosticsSection: View {
                     SettingsIcon(symbol: "speedometer", tint: .gray)
                 }
             }
+            if readings {
+                Toggle(isOn: $glass) {
+                    Label {
+                        Text("Kính trên bản đồ")
+                    } icon: {
+                        SettingsIcon(symbol: "rectangle.on.rectangle", tint: .teal)
+                    }
+                }
+            }
         } header: {
             Text("Chẩn đoán")
         } footer: {
-            Text("Hiện ở góc bản đồ: tần số đang xin, số khung vẽ được mỗi giây, thời gian main thread mỗi khung. Bản đồ giữ 120 Hz khi kịp và tự về 60 Hz đều khi không kịp.")
+            Text(readings
+                ? "Ở góc bản đồ: mỗi khung main thread mất bao lâu, chia ra CPU tự làm và thời gian ngồi chờ GPU trả khung; GPU bận đến đâu; bản đồ giữ main thread bao nhiêu phần trăm. Tắt Kính trên bản đồ (chỉ khi đang đo) để thấy phần kính tốn."
+                : "Hiện ở góc bản đồ thời gian của từng khung hình, để biết bản đồ giật vì đâu.")
         }
     }
 }

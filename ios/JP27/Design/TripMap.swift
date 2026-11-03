@@ -1,4 +1,5 @@
 import MapLibre
+import Metal
 import SwiftUI
 import TripKit
 
@@ -202,7 +203,7 @@ struct TripMap: UIViewRepresentable {
         // Each frame, on the main thread: timed, so the map asks only for a rate it keeps.
         nonisolated func mapViewWillStartRenderingFrame(_ mapView: MLNMapView) {
             let now = CACurrentMediaTime()
-            MainActor.assumeIsolated { pacer.willRender(at: now) }
+            MainActor.assumeIsolated { pacer.willRender(at: now, measuring: hud != nil) }
         }
 
         nonisolated func mapViewDidFinishRenderingFrame(_ mapView: MLNMapView, fullyRendered: Bool) {
@@ -438,19 +439,40 @@ struct TripMap: UIViewRepresentable {
 /// longer after each miss (15 s, 30 s, … 4 min). Low Power Mode or a hot phone keep it at 60.
 final class MapPacer {
     static let readingsKey = "debug.mapFrames"
+    /// Settings › Chẩn đoán, while the readings are on: the panel, the day strip and the buttons over
+    /// the map drawn without glass, to see what the glass costs the map's frames
+    static let glassKey = "debug.mapGlass"
 
     /// what the map asks for now
     private(set) var target = 60
     private var top = 60
     private var began: CFTimeInterval = 0
+    /// the main thread's own CPU time when the frame began, in ns; 0 when not measured
+    private var cpuBegan: UInt64 = 0
     private var last: CFTimeInterval = 0
     /// frame-to-frame times of the move under way
     private var gaps: [Double] = []
     private var retry: CFTimeInterval = 0
     private var wait: CFTimeInterval = 15
     /// half a second of frames, for the readings
-    private var tally = (from: 0.0, moving: 0, movingTime: 0.0, frames: 0, cpu: 0.0, worst: 0.0, late: 0)
+    private var tally = Tally()
+    private var probe: GPUProbe?
     private var reading: String?
+
+    private struct Tally {
+        var from = 0.0
+        var frames = 0
+        var moving = 0
+        var movingTime = 0.0
+        var late = 0
+        /// main-thread time inside the frames, and the worst of them
+        var wall = 0.0
+        var worst = 0.0
+        /// of the frames whose CPU time was read: that CPU time, and their main-thread time
+        var timed = 0
+        var cpu = 0.0
+        var timedWall = 0.0
+    }
 
     /// The rate for a map just made.
     func start(top: Int) -> Int {
@@ -464,14 +486,33 @@ final class MapPacer {
             && ProcessInfo.processInfo.thermalState != .serious && ProcessInfo.processInfo.thermalState != .critical
     }
 
-    func willRender(at now: CFTimeInterval) { began = now }
+    /// The frame's main-thread time runs from here to `didRender`. With the readings on, the
+    /// thread's CPU clock is read too: the difference between the two is time the main thread
+    /// spent waiting (for a drawable, so for the GPU) rather than working.
+    func willRender(at now: CFTimeInterval, measuring: Bool) {
+        began = now
+        cpuBegan = measuring ? clock_gettime_nsec_np(CLOCK_THREAD_CPUTIME_ID) : 0
+    }
 
     /// After each frame. Returns a rate to ask for when it should change.
     func didRender(at now: CFTimeInterval, measuring: Bool) -> Int? {
-        let cpu = began > 0 ? now - began : 0
+        let spent = began > 0 ? now - began : 0
         let gap = last > 0 ? now - last : .infinity
         last = now
-        if measuring { measure(now: now, cpu: cpu, gap: gap) }
+        if measuring {
+            var cpu: Double?
+            if cpuBegan > 0 {
+                let end = clock_gettime_nsec_np(CLOCK_THREAD_CPUTIME_ID)
+                if end >= cpuBegan { cpu = min(Double(end - cpuBegan) / 1e9, spent) }
+            }
+            if probe == nil { probe = GPUProbe() }
+            probe?.ping()
+            measure(now: now, spent: spent, cpu: cpu, gap: gap)
+        } else if probe != nil {
+            probe = nil
+            tally = Tally()
+        }
+        cpuBegan = 0
         // the first frame of a move (or a lone frame for a tile that arrived)
         guard gap < 0.1 else {
             gaps.removeAll(keepingCapacity: true)
@@ -502,36 +543,122 @@ final class MapPacer {
         return reading
     }
 
-    private func measure(now: CFTimeInterval, cpu: Double, gap: Double) {
-        if tally.from == 0 { tally.from = now }
+    private func measure(now: CFTimeInterval, spent: Double, cpu: Double?, gap: Double) {
+        if tally.from == 0 { tally.from = now - spent }
         tally.frames += 1
-        tally.cpu += cpu
-        tally.worst = max(tally.worst, cpu)
+        tally.wall += spent
+        tally.worst = max(tally.worst, spent)
+        if let cpu {
+            tally.timed += 1
+            tally.cpu += cpu
+            tally.timedWall += spent
+        }
         if gap < 0.1 {
             tally.moving += 1
             tally.movingTime += gap
             if gap > 1.5 / Double(target) { tally.late += 1 }
         }
-        guard now - tally.from >= 0.5 else { return }
+        let span = now - tally.from
+        guard span >= 0.5 else { return }
         let fps = tally.movingTime > 0 ? Double(tally.moving) / tally.movingTime : 0
-        let avg = tally.cpu / Double(max(1, tally.frames)) * 1000
         var lines = [
             String(format: " xin %d Hz · vẽ được %.0f khung/giây ", target, fps),
-            String(format: " main thread mỗi khung: %.1f ms tb, %.1f ms lâu nhất ", avg, tally.worst * 1000),
-            " khung trễ: \(tally.late)/\(tally.moving) ",
+            String(format: " mỗi khung %.1f ms (lâu nhất %.0f) ", tally.wall / Double(tally.frames) * 1000, tally.worst * 1000),
         ]
+        if tally.timed > 0 {
+            let n = Double(tally.timed)
+            lines.append(String(format: "   CPU %.1f ms · chờ %.1f ms ", tally.cpu / n * 1000, max(0, tally.timedWall - tally.cpu) / n * 1000))
+        }
+        if let waits = probe?.take(), !waits.isEmpty {
+            let mean = waits.reduce(0, +) / Double(waits.count)
+            lines.append(String(format: " GPU nhận việc sau %.1f ms (lâu nhất %.0f) ", mean * 1000, (waits.max() ?? 0) * 1000))
+        }
+        lines.append(String(format: " bản đồ giữ main thread %.0f%% · trễ %d/%d ", min(1, tally.wall / span) * 100, tally.late, tally.moving))
         let info = ProcessInfo.processInfo
-        var notes: [String] = []
-        if info.isLowPowerModeEnabled { notes.append("Chế độ nguồn điện thấp") }
+        var phone: [String] = []
+        if info.isLowPowerModeEnabled { phone.append("nguồn điện thấp") }
         switch info.thermalState {
-        case .fair: notes.append("máy hơi ấm")
-        case .serious: notes.append("máy nóng")
-        case .critical: notes.append("máy rất nóng")
+        case .fair: phone.append("máy hơi ấm")
+        case .serious: phone.append("máy nóng")
+        case .critical: phone.append("máy rất nóng")
         default: break
         }
-        if !notes.isEmpty { lines.append(" " + notes.joined(separator: " · ") + " ") }
+        if UIAccessibility.isReduceTransparencyEnabled { phone.append("giảm trong suốt") }
+        for notes in [phone, Self.launch] where !notes.isEmpty {
+            lines.append(" " + notes.joined(separator: " · ") + " ")
+        }
         reading = lines.joined(separator: "\n")
-        tally = (now, 0, 0, 0, 0, 0, 0)
+        tally = Tally(from: now)
+    }
+
+    /// How this copy was built and started. A Debug build, or one Xcode is attached to and records
+    /// the GPU of, runs slower than the app does on its own: readings taken so say so.
+    private static let launch = launchNotes()
+
+    private nonisolated static func launchNotes() -> [String] {
+        var notes: [String] = []
+        #if DEBUG
+        notes.append("bản Debug")
+        #endif
+        if debuggerAttached() { notes.append("gắn Xcode") }
+        if MTLCaptureManager.shared().supportsDestination(.developerTools) { notes.append("Xcode ghi GPU") }
+        if ProcessInfo.processInfo.environment["MTL_DEBUG_LAYER"] == "1" { notes.append("kiểm tra Metal") }
+        return notes
+    }
+
+    /// Whether a debugger is attached (Apple's Technical Q&A QA1361).
+    private nonisolated static func debuggerAttached() -> Bool {
+        var info = kinfo_proc()
+        var size = MemoryLayout<kinfo_proc>.stride
+        var name: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+        guard sysctl(&name, u_int(name.count), &info, &size, nil, 0) == 0 else { return false }
+        return info.kp_proc.p_flag & P_TRACED != 0
+    }
+}
+
+/// A thimble of GPU work, sent at most ten times a second while the readings are on. How long the
+/// GPU takes to start it says how busy the GPU is with everything else: the map's own frames and the
+/// glass the system recomposes over them each time the map changes. A frame that waits on the main
+/// thread while this comes back quickly is waiting on something other than a busy GPU.
+final class GPUProbe {
+    private let queue: (any MTLCommandQueue)?
+    private let scratch: (any MTLBuffer)?
+    private var out = false
+    private var sent: CFTimeInterval = 0
+    private var waits: [Double] = []
+
+    init() {
+        let device = MTLCreateSystemDefaultDevice()
+        queue = device?.makeCommandQueue()
+        scratch = device?.makeBuffer(length: 4, options: .storageModePrivate)
+    }
+
+    func ping() {
+        let now = CACurrentMediaTime()
+        guard !out, now - sent >= 0.1, let queue, let scratch,
+              let buffer = queue.makeCommandBuffer(), let blit = buffer.makeBlitCommandEncoder() else { return }
+        blit.fill(buffer: scratch, range: 0..<4, value: 0)
+        blit.endEncoding()
+        out = true
+        sent = now
+        // on a Metal thread: only the time crosses back
+        buffer.addCompletedHandler { @Sendable [weak self] done in
+            let started = done.gpuStartTime
+            guard let self else { return }
+            Task { @MainActor in self.landed(started > now ? started - now : nil) }
+        }
+        buffer.commit()
+    }
+
+    private func landed(_ wait: Double?) {
+        out = false
+        if let wait { waits.append(wait) }
+    }
+
+    /// The waits since the last call.
+    func take() -> [Double] {
+        defer { waits.removeAll(keepingCapacity: true) }
+        return waits
     }
 }
 

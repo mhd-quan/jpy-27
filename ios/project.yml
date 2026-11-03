@@ -146,10 +146,16 @@ schemes:
         JP27: all
         JP27Widgets: all
     run:
-      config: Debug
-      # MapLibre draws with Metal, in many small draw calls; the Metal API validation Xcode turns on
-      # for a run checks each one on the CPU, so a map run from Xcode moves slower than the app does
-      # on its own. Turn it back on (Edit Scheme, Run, Diagnostics) when chasing a Metal error.
+      # Run is how the app gets onto the phone, and what it installs is what the trip runs on: an
+      # optimised build. A Debug build leaves all the app's Swift (every SwiftUI view, the panel's
+      # animation, the model) unoptimised on the main thread the map shares. Edit Scheme, Run, Info,
+      # Build Configuration: Debug, when stepping through code.
+      config: Release
+      # MapLibre draws with Metal, in many small draw calls. The Metal API validation and the GPU
+      # frame capture Xcode adds to a run sit in front of every one of them, so a map run from Xcode
+      # moves slower than the app does on its own. Turn them back on (Edit Scheme, Run, Diagnostics,
+      # and Options) when chasing a Metal error.
       enableGPUValidationMode: false
+      enableGPUFrameCaptureMode: disabled
     test:
       config: Debug

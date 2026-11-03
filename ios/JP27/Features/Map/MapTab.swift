@@ -28,6 +28,9 @@ struct MapTab: View {
     /// choices made by hand (a stop, a place off the plan, a day); the map also changes them by
     /// itself as the list scrolls, at midnight and when another page sends it somewhere, quietly
     @State private var picks = 0
+    /// Settings › Chẩn đoán: with the frame readings on, the overlays can be drawn without glass
+    @AppStorage(MapPacer.readingsKey) private var readings = false
+    @AppStorage(MapPacer.glassKey) private var glass = true
 
     private var day: Day { dayKey.flatMap { model.store.day($0) } ?? model.focusDay }
 
@@ -100,6 +103,7 @@ struct MapTab: View {
                 .padding(.trailing, 12)
                 .opacity(stage == .large ? 0 : 1)
             }
+            .environment(\.mapGlass, glass || !readings)
         }
         .onAppear {
             consumeDay()
@@ -402,6 +406,44 @@ enum MapGuide {
     }
 }
 
+// MARK: - Glass over the map
+
+private nonisolated struct MapGlassKey: EnvironmentKey {
+    static var defaultValue: Bool { true }
+}
+
+extension EnvironmentValues {
+    /// Whether the panel, the day strip and the buttons over the map are glass (always, unless the
+    /// frame readings are on and Settings › Chẩn đoán › Kính trên bản đồ is off).
+    nonisolated var mapGlass: Bool {
+        get { self[MapGlassKey.self] }
+        set { self[MapGlassKey.self] = newValue }
+    }
+}
+
+private extension View {
+    /// Glass over the map. Glass shows the map under it, so the system draws it again from the map
+    /// on each of the map's frames; the plain fill (for measuring what that costs) does not.
+    func mapGlass(_ glass: Glass, plain: Color? = nil, in shape: some Shape) -> some View {
+        modifier(MapGlass(glass: glass, plain: plain, shape: shape))
+    }
+}
+
+private struct MapGlass<S: Shape>: ViewModifier {
+    @Environment(\.mapGlass) private var on
+    let glass: Glass
+    let plain: Color?
+    let shape: S
+
+    func body(content: Content) -> some View {
+        if on {
+            content.glassEffect(glass, in: shape)
+        } else {
+            content.background(plain ?? Palette.card, in: shape)
+        }
+    }
+}
+
 // MARK: - Days, as a strip to slide
 
 /// The trip's days as a strip of glass pills over the map, the chosen one red and named.
@@ -473,7 +515,7 @@ private struct MapDayStrip: View {
             .contentShape(.capsule)
         }
         .buttonStyle(.plain)
-        .glassEffect(on ? .regular.tint(Palette.sun).interactive() : .regular.interactive(), in: .capsule)
+        .mapGlass(on ? .regular.tint(Palette.sun).interactive() : .regular.interactive(), plain: on ? Palette.sun : nil, in: .capsule)
         .id(d.key)
         .accessibilityLabel(alternative ? "Phương án: \(d.title)" : "Ngày \(d.n), \(d.title)")
         .accessibilityAddTraits(on ? .isSelected : [])
@@ -496,7 +538,7 @@ private struct MapControls: View {
                 Divider().frame(width: 26)
                 button("arrow.up.left.and.arrow.down.right", "Cả ngày", frameDay)
             }
-            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 22, style: .continuous))
+            .mapGlass(.regular.interactive(), in: .rect(cornerRadius: 22, style: .continuous))
         }
     }
 
@@ -583,7 +625,7 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
         .frame(height: currentHeight, alignment: .top)
         .frame(maxWidth: .infinity)
         .clipShape(.rect(cornerRadius: 30, style: .continuous))
-        .glassEffect(.regular, in: .rect(cornerRadius: 30, style: .continuous))
+        .mapGlass(.regular, in: .rect(cornerRadius: 30, style: .continuous))
         .padding(.horizontal, 8)
         .padding(.bottom, 6)
         .animation(.smooth(duration: 0.2), value: stage == .peek && drag > -20)
@@ -1083,7 +1125,7 @@ private struct MapSideCard: View {
             .controlSize(.large)
         }
         .padding(14)
-        .glassEffect(.regular, in: .rect(cornerRadius: 26, style: .continuous))
+        .mapGlass(.regular, in: .rect(cornerRadius: 26, style: .continuous))
         .sensoryFeedback(.press, trigger: opened)
     }
 }
