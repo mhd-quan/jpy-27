@@ -31,11 +31,8 @@ struct TodayTab: View {
                                 .animation(.smooth, value: coverGone)
                         }
                     }
-                    // listening is a tool, settings are not: one at each top corner, balancing
-                    // the bar (the morph source is the bar item itself, its glass, not the button)
-                    SheetToolbarButton(title: "Nghe và dịch", symbol: "translate", source: "today.listen", placement: .topBarLeading) {
-                        model.present(.listen, from: "today.listen")
-                    }
+                    // Nghe và dịch sits at the trailing end of the row above the tab bar (NowAccessory);
+                    // the morph source is the bar item itself, its glass, not the button
                     SheetToolbarButton(title: "Cài đặt", symbol: "gearshape", source: "today.settings") {
                         model.present(.settings, from: "today.settings")
                     }

@@ -1,61 +1,76 @@
 import SwiftUI
 import TripKit
 
-/// The line above the tab bar, like Music's mini player: the ride you are on, else what is next,
-/// else the days to go.
+/// The row above the tab bar, beside it once the bar folds (the system moves it, as it does Music's
+/// player): the ride you are on or what is next, when there is one, and Nghe và dịch at the trailing
+/// end, where the thumb is, on every tab.
 struct NowAccessory: View {
     @Environment(AppModel.self) private var model
     @Environment(\.tabViewBottomAccessoryPlacement) private var placement
-    /// the ride sheet opened, or Today brought forward; a tap that changes nothing stays quiet
+    /// the ride sheet opened, Today brought forward, or Nghe opened; a tap that changes nothing stays quiet
     @State private var opened = 0
 
     private var inline: Bool { placement == .inline }
+    private var live: Bool { model.live.ride != nil || model.next != nil }
 
     var body: some View {
-        Button(action: tap) {
-            content
-                .font(.subheadline)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .contentShape(.rect)
+        HStack(spacing: 0) {
+            if live {
+                Button(action: tap) {
+                    line
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 16)
+                        .padding(.trailing, 8)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                // the ride sheet grows out of the accessory, the way Music's player grows out of its own
+                .sheetSource("now")
+                Divider().frame(height: 20)
+                listen(titled: false)
+            } else {
+                listen(titled: true)
+            }
         }
-        .buttonStyle(.plain)
+        .font(.subheadline)
+        .lineLimit(1)
         .sensoryFeedback(.press, trigger: opened)
-        // the ride sheet grows out of the accessory, the way Music's player grows out of its own
-        .sheetSource("now")
         .animation(.smooth, value: model.live.ride?.id)
+        .animation(.smooth, value: live)
     }
 
     @ViewBuilder
-    private var content: some View {
+    private var line: some View {
         if let ride = model.live.ride {
             NowRideLine(ride: ride, status: model.live.status, arrival: model.live.arrival, inline: inline)
         } else if let day = model.today, let next = model.next {
             NowNextLine(day: day, next: next, inline: inline)
-        } else {
-            switch model.phase {
-            case .before(let days, let first):
-                HStack(spacing: 8) {
-                    Image(systemName: "airplane.departure")
-                        .foregroundStyle(Palette.sun)
-                    Text("Còn \(days) ngày").fontWeight(.semibold).monospacedDigit()
-                    if !inline {
-                        Text("· \(first.title)").foregroundStyle(.secondary)
-                    }
-                }
-            case .during(let day):
-                HStack(spacing: 8) {
-                    Image(systemName: "moon.stars")
-                    Text("Ngày \(day.n) · hết lịch").fontWeight(.semibold)
-                }
-            case .after:
-                HStack(spacing: 8) {
-                    Image(systemName: "book.pages")
-                    Text("Nhật ký chuyến đi").fontWeight(.semibold)
-                }
-            }
         }
+    }
+
+    /// Nghe và dịch: the glyph alone beside a line, else the name too, the glyph still at the end.
+    private func listen(titled: Bool) -> some View {
+        Button {
+            opened += 1
+            model.present(.listen, from: "now.listen")
+        } label: {
+            HStack(spacing: 8) {
+                if titled {
+                    Text(inline ? "Dịch" : "Nghe và dịch").fontWeight(.semibold)
+                    Spacer(minLength: 4)
+                }
+                Image(systemName: "translate")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Palette.sun)
+            }
+            .padding(.leading, titled ? 16 : 12)
+            .padding(.trailing, 14)
+            .frame(maxWidth: titled ? .infinity : nil, maxHeight: .infinity)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .sheetSource("now.listen")
+        .accessibilityLabel("Nghe và dịch")
     }
 
     private func tap() {

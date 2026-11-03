@@ -15,6 +15,8 @@ nonisolated struct MapRoute: Hashable, Sendable {
     var width: Double = 4.5
     var dashed = false
     var opacity: Double = 1
+    /// stays at full strength while another route is in focus (the way to a side trip)
+    var dims = true
 }
 
 nonisolated struct MapPin: Hashable, Sendable {
@@ -49,6 +51,9 @@ nonisolated struct MapContent: Equatable, Sendable {
     var routes: [MapRoute] = []
     var pins: [MapPin] = []
     var heat: [Coordinate] = []
+    /// the route being read: drawn a little wider, the others (but those that do not dim) faded.
+    /// Changing it restyles the route layers; the routes' shapes stay as they are.
+    var focus: String?
 
     /// Everything drawn, to fit the camera to.
     var outline: [Coordinate] { routes.flatMap(\.points) + pins.map(\.coordinate) }
@@ -267,14 +272,17 @@ struct TripMap: UIViewRepresentable {
                                          options: [.demEncoding: MLNDEMEncoding.terrarium.rawValue, .tileSize: 256, .maximumZoomLevel: 12])
                 style.addSource(dem)
             }
-            // src/lib/mapStyle.ts: the site's hillshade, under the water
+            // src/lib/mapStyle.ts: the site's hillshade, under the water. MapLibre 7 lights a hillshade
+            // from one or more directions, so the shadow and highlight colours and the direction are
+            // arrays, one per light (a lone colour there is an uncaught exception: -[UIColor count]);
+            // the accent colour stays a single colour.
             let layer = MLNHillshadeStyleLayer(identifier: "relief", source: dem)
-            let shadow = NSExpression(forConstantValue: dark ? UIColor.black : UIColor(Color(hex: "#7E7A6E")))
+            let shadow = dark ? UIColor.black : UIColor(Color(hex: "#7E7A6E"))
             layer.hillshadeExaggeration = NSExpression(forConstantValue: dark ? 0.45 : 0.32)
-            layer.hillshadeShadowColor = shadow
-            layer.hillshadeAccentColor = shadow
-            layer.hillshadeHighlightColor = NSExpression(forConstantValue: dark ? UIColor(Color(hex: "#5A5A60")) : UIColor.white)
-            layer.hillshadeIlluminationDirection = NSExpression(forConstantValue: 315)
+            layer.hillshadeShadowColor = NSExpression(forConstantValue: [shadow])
+            layer.hillshadeHighlightColor = NSExpression(forConstantValue: [dark ? UIColor(Color(hex: "#5A5A60")) : UIColor.white])
+            layer.hillshadeIlluminationDirection = NSExpression(forConstantValue: [315])
+            layer.hillshadeAccentColor = NSExpression(forConstantValue: shadow)
             if let water = style.layer(withIdentifier: "water") {
                 style.insertLayer(layer, below: water)
             } else {
@@ -344,10 +352,12 @@ struct TripMap: UIViewRepresentable {
                     var coords = r.points.map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lng) }
                     guard coords.count > 1 else { return nil }
                     let f = MLNPolylineFeature(coordinates: &coords, count: UInt(coords.count))
-                    f.attributes = ["id": r.id, "color": r.color, "width": r.width, "opacity": r.opacity, "dashed": r.dashed ? 1 : 0]
+                    f.attributes = ["id": r.id, "color": r.color, "width": r.width, "opacity": r.opacity, "dashed": r.dashed ? 1 : 0, "keep": r.dims ? 0 : 1]
                     return f
                 })
             }
+
+            if old?.focus != content.focus { focus(content.focus, in: style) }
 
             if old?.pins != content.pins, let pins = style.source(withIdentifier: "pins") as? MLNShapeSource {
                 pins.shape = MLNShapeCollectionFeature(shapes: content.pins.map { p -> MLNPointFeature in
@@ -362,6 +372,32 @@ struct TripMap: UIViewRepresentable {
                 })
             }
         }
+
+        /// The route in focus, by restyling the three route layers with expressions that read each
+        /// line's id: the timeline moving from one leg to the next changes four properties, where
+        /// handing the source new shapes had MapLibre cut every route into tiles again.
+        private func focus(_ id: String?, in style: MLNStyle) {
+            guard let casing = style.layer(withIdentifier: "routes-case") as? MLNLineStyleLayer,
+                  let solid = style.layer(withIdentifier: "routes-solid") as? MLNLineStyleLayer,
+                  let dashed = style.layer(withIdentifier: "routes-dashed") as? MLNLineStyleLayer else { return }
+            let width: NSExpression, caseWidth: NSExpression, opacity: NSExpression
+            if let id {
+                width = NSExpression(format: "TERNARY(id == %@, width + 1.5, width)", id)
+                caseWidth = NSExpression(format: "TERNARY(id == %@, width + 4.5, width + 3)", id)
+                opacity = NSExpression(format: "TERNARY(id == %@ OR keep == 1, opacity, opacity * 0.28)", id)
+            } else {
+                width = Self.routeWidth
+                caseWidth = Self.caseWidth
+                opacity = Self.routeOpacity
+            }
+            casing.lineWidth = caseWidth
+            for line in [casing, solid, dashed] { line.lineOpacity = opacity }
+            for line in [solid, dashed] { line.lineWidth = width }
+        }
+
+        private static var routeWidth: NSExpression { NSExpression(forKeyPath: "width") }
+        private static var caseWidth: NSExpression { NSExpression(format: "width + 3") }
+        private static var routeOpacity: NSExpression { NSExpression(forKeyPath: "opacity") }
 
         /// The heat of the walked trail (the journal's map), made the first time a map has some: a
         /// heatmap draws into a texture of its own on every frame and the main thread waits for the
@@ -394,12 +430,12 @@ struct TripMap: UIViewRepresentable {
             for source in [routes, pins] { style.addSource(source) }
             built = true
 
-            let width = NSExpression(forKeyPath: "width")
-            let opacity = NSExpression(forKeyPath: "opacity")
+            let width = Self.routeWidth
+            let opacity = Self.routeOpacity
             let casing = MLNLineStyleLayer(identifier: "routes-case", source: routes)
             casing.predicate = NSPredicate(format: "dashed == 0")
             casing.lineColor = NSExpression(forConstantValue: dark ? UIColor.black.withAlphaComponent(0.6) : UIColor.white)
-            casing.lineWidth = NSExpression(format: "width + 3")
+            casing.lineWidth = Self.caseWidth
             casing.lineOpacity = opacity
             let solid = MLNLineStyleLayer(identifier: "routes-solid", source: routes)
             solid.predicate = NSPredicate(format: "dashed == 0")
@@ -479,7 +515,9 @@ struct TripMap: UIViewRepresentable {
 /// unevenly, 8, 17, 25, 33 ms apart, and an uneven 120 judders worse than an even 60. So frames are
 /// timed while the map moves: while 120 holds, the map keeps it; when it does not, the map asks for
 /// an even 60 and tries 120 again at the start of a later move, waiting longer after each miss
-/// (15 s, 30 s, … 4 min). Low Power Mode or a hot phone keep it at 60.
+/// (15 s, 30 s, … 4 min). Low Power Mode holds the whole screen at 60 anyway; a phone merely hot
+/// does not: the panel and the glass over the map go on at 120, and a map held at 60 under them
+/// juddered against them (a recording at "máy nóng" showed it). Only a critical phone holds it.
 final class MapPacer {
     static let readingsKey = "debug.mapFrames"
     /// Settings › Chẩn đoán, while the readings are on: the panel, the day strip and the buttons over
@@ -529,7 +567,7 @@ final class MapPacer {
 
     private var allowed: Bool {
         top > 60 && !ProcessInfo.processInfo.isLowPowerModeEnabled
-            && ProcessInfo.processInfo.thermalState != .serious && ProcessInfo.processInfo.thermalState != .critical
+            && ProcessInfo.processInfo.thermalState != .critical
     }
 
     /// The frame's main-thread time runs from here to `didRender`. With the readings on, the

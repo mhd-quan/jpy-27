@@ -130,9 +130,7 @@ struct MapTab: View {
     private func content(_ day: Day, sides: [Int: [MapSide]]) -> MapContent {
         var c = MapContent.day(day, model: model, along: false)
         if let i = active, day.items.indices.contains(i), case .move(let m) = day.items[i] {
-            c.routes = c.routes.map { r in
-                MapRoute(id: r.id, points: r.points, color: r.color, width: r.id == m.leg.id ? r.width + 1.5 : r.width, dashed: r.dashed, opacity: r.id == m.leg.id ? 1 : 0.28)
-            }
+            c.focus = m.leg.id
         }
         let from = anchorPlace(day)
         if let a = anchor(day), let place = from {
@@ -402,7 +400,7 @@ enum MapGuide {
     static func way(from: Place, to: Place, along: Along?) -> MapRoute {
         var pts = along?.detour?.p.map { Polyline.decode($0) } ?? []
         if pts.count < 2 { pts = [from.coordinate, to.coordinate] }
-        return MapRoute(id: "side-\(to.id)", points: pts, color: "#E07A2F", width: 4, dashed: true)
+        return MapRoute(id: "side-\(to.id)", points: pts, color: "#E07A2F", width: 4, dashed: true, dims: false)
     }
 }
 
@@ -571,8 +569,13 @@ enum MapPanelStage: CaseIterable {
 
 /// A floating glass panel that snaps to three heights. Its content is laid out once at the
 /// tallest height and the panel clips it, so a drag only moves an edge: nothing inside is laid
-/// out again under the finger. Release velocity is projected so a flick lands where it heads.
+/// out again under the finger. Release velocity is projected so a flick lands where it heads, and
+/// carried into the spring, so the panel goes on at the finger's speed.
 /// The grabber and title drag it; the strip under them scrolls sideways on its own.
+///
+/// As a sheet does (WWDC25, Build a SwiftUI app with the new design): glass and inset from the
+/// screen's sides while it leaves the map in view, turning opaque and meeting the sides as it rises
+/// to full height, where the map behind is no longer the subject.
 private struct MapPanel<Title: View, Strip: View, Content: View>: View {
     @Binding var stage: MapPanelStage
     let containerHeight: CGFloat
@@ -580,9 +583,17 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
     let title: Title
     let strip: Strip
     let content: Content
-    @GestureState private var drag: CGFloat = 0
+    /// how far the finger has moved the panel off its height. Put back to 0 in the same animation
+    /// that moves the panel to its new height: a gesture state is reset in a transaction of its
+    /// own, without the animation, and the panel jumped back to its old height for a frame before
+    /// it went on to the new one (seen in a screen recording of a fold).
+    @State private var drag: CGFloat = 0
+    /// a finger is on the grabber; a drag the system cancels (no onEnded) is put back from it
+    @GestureState private var dragging = false
     /// let go or tapped into another height; a drag that falls back where it was stays quiet
     @State private var settled = 0
+
+    private static var snap: Animation { .spring(response: 0.38, dampingFraction: 0.86) }
 
     init(stage: Binding<MapPanelStage>, containerHeight: CGFloat, headerHeight: Binding<CGFloat>,
          @ViewBuilder title: () -> Title, @ViewBuilder strip: () -> Strip, @ViewBuilder content: () -> Content) {
@@ -597,6 +608,8 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
     private func height(_ s: MapPanelStage) -> CGFloat { s.height(in: containerHeight, header: headerHeight) }
 
     var body: some View {
+        let shown = currentHeight
+        let solid = solidity(at: shown)
         VStack(spacing: 0) {
             VStack(spacing: 10) {
                 VStack(spacing: 6) {
@@ -622,14 +635,27 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
                 .frame(height: max(0, height(.large) - headerHeight), alignment: .top)
                 .opacity(stage == .peek && drag > -20 ? 0 : 1)
         }
-        .frame(height: currentHeight, alignment: .top)
+        .frame(height: shown, alignment: .top)
         .frame(maxWidth: .infinity)
+        .background(Palette.card.opacity(solid))
         .clipShape(.rect(cornerRadius: 30, style: .continuous))
         .mapGlass(.regular, in: .rect(cornerRadius: 30, style: .continuous))
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 8 * (1 - solid))
         .padding(.bottom, 6)
         .animation(.smooth(duration: 0.2), value: stage == .peek && drag > -20)
         .sensoryFeedback(.snap, trigger: settled)
+        .onChange(of: dragging) { _, on in
+            guard !on, drag != 0 else { return }
+            withAnimation(Self.snap) { drag = 0 }
+        }
+    }
+
+    /// 0 (glass) up to the middle height, 1 (opaque) at full height, eased in between.
+    private func solidity(at height: CGFloat) -> CGFloat {
+        let from = self.height(.medium), to = self.height(.large)
+        guard to > from else { return 0 }
+        let t = min(max((height - from) / (to - from), 0), 1)
+        return t * t * (3 - 2 * t)
     }
 
     private var currentHeight: CGFloat {
@@ -651,20 +677,27 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
     /// moved it, and the panel shakes between the two heights for as long as the drag lasts.
     private var dragGesture: some Gesture {
         DragGesture(minimumDistance: 4, coordinateSpace: .global)
-            .updating($drag) { value, state, _ in state = value.translation.height }
+            .updating($dragging) { _, state, _ in state = true }
+            .onChanged { value in drag = value.translation.height }
             .onEnded { value in
                 let projected = height(stage) - value.predictedEndTranslation.height
                 let target = MapPanelStage.allCases.min {
                     abs(height($0) - projected) < abs(height($1) - projected)
                 } ?? stage
                 if target != stage { settled += 1 }
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) { stage = target }
+                // the finger's speed, as a share of the way left per second (a spring's unit)
+                let left = height(target) - currentHeight
+                let speed = abs(left) > 1 ? -value.velocity.height / left : 0
+                withAnimation(.interpolatingSpring(duration: 0.38, bounce: 0.1, initialVelocity: min(max(speed, -12), 12))) {
+                    stage = target
+                    drag = 0
+                }
             }
     }
 
     private func cycle() {
         settled += 1
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.9)) {
+        withAnimation(Self.snap) {
             stage = switch stage {
             case .peek: .medium
             case .medium: .large

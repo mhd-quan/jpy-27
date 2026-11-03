@@ -56,7 +56,6 @@ struct RootView: View {
     @Environment(AppModel.self) private var model
     @AppStorage(Appearance.key) private var appearance: Appearance = .system
     @Namespace private var zoom
-    @State private var scroll = TabBarScroll()
 
     var body: some View {
         @Bindable var model = model
@@ -80,22 +79,14 @@ struct RootView: View {
                 SpendTab()
             }
         }
-        // folds on a scroll down; iOS 27 opens it again only at the top, so each page asks for it
-        // on the first scroll up (`TabBarScroll`). Not on the map: its panel is the page, and
-        // scrolling the day in it folded the bar under a panel that stays where it is.
+        // the system's own: folds on a scroll down, opens again as the system does. Not on the
+        // map, whose panel is the page: scrolling the day in it would fold the bar under a panel
+        // that stays where it is.
         .tabBarMinimizeBehavior(model.tab == .map ? .never : .onScrollDown)
-        .environment(scroll)
-        // the bar is UIKit's: its tabs get their haptics once the window has laid it out
-        .task {
-            var tries = 0
-            while !scroll.attach(), tries < 20 {
-                tries += 1
-                try? await Task.sleep(for: .milliseconds(250))
-            }
-            scroll.setFolds(model.tab != .map)
-        }
-        .onChange(of: model.tab) { _, tab in scroll.setFolds(tab != .map) }
-        .modifier(NowAccessorySlot(live: model.live.ride != nil || model.next != nil))
+        .sensoryFeedback(.page, trigger: model.tab)
+        // a row above the bar, beside it once folded (Music's player does the same): what is
+        // happening now, and Nghe và dịch at the trailing end
+        .tabViewBottomAccessory { NowAccessory() }
         .progressiveEdges()
         .presentsSheets()
         .environment(\.zoomSpace, zoom)
@@ -119,21 +110,6 @@ struct RootView: View {
         }
         // read here, in a view, so the whole app follows when a rehearsal swaps the records
         .modelContainer(model.container)
-    }
-}
-
-/// The line above the tab bar, shown only while something is happening: a ride being followed or
-/// the next stop of a trip day. Before the trip it would only repeat the countdown the home already
-/// shows, so the space goes back to content. Hiding it needs iOS 26.1; on 26.0 it stays.
-private struct NowAccessorySlot: ViewModifier {
-    let live: Bool
-
-    func body(content: Content) -> some View {
-        if #available(iOS 26.1, *) {
-            content.tabViewBottomAccessory(isEnabled: live) { NowAccessory() }
-        } else {
-            content.tabViewBottomAccessory { NowAccessory() }
-        }
     }
 }
 
