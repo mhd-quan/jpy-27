@@ -35,6 +35,25 @@ public enum StyleInfo {
         return name
     }
 
+    /// The style on another tile build: its basemap's tiles at `template` (where a TileJSON `url` was, it
+    /// goes), and without the `jp27:` metadata, which names the bundled build and its immutable copy on the
+    /// site, neither of which this style is. The rest is left as it was. Nil for anything without a basemap.
+    public static func pointing(style: Data, at template: String) -> Data? {
+        guard var json = try? JSONSerialization.jsonObject(with: style) as? [String: Any],
+              var sources = json["sources"] as? [String: Any],
+              var omt = sources["omt"] as? [String: Any]
+        else { return nil }
+        omt["url"] = nil
+        omt["tiles"] = [template]
+        sources["omt"] = omt
+        json["sources"] = sources
+        if var metadata = json["metadata"] as? [String: Any] {
+            for key in Array(metadata.keys) where key.hasPrefix("jp27:") { metadata[key] = nil }
+            json["metadata"] = metadata.isEmpty ? nil : metadata
+        }
+        return try? JSONSerialization.data(withJSONObject: json)
+    }
+
     private static func build(_ tiles: [String]?) -> TileBuild? {
         guard let template = tiles?.first, !template.isEmpty else { return nil }
         return TileBuild(template: template)
@@ -61,6 +80,18 @@ public enum StyleInfo {
 
     private struct Source: Decodable {
         let tiles: [String]?
+    }
+
+    /// Whether the style's basemap takes its tiles from a TileJSON (`url`), which then names the build.
+    static func readsTileJSON(style: Data) -> Bool {
+        guard let url = (try? JSONDecoder().decode(StyleURL.self, from: style))?.sources?.omt?.url else { return false }
+        return !url.isEmpty
+    }
+
+    private struct StyleURL: Decodable {
+        let sources: Sources?
+        struct Sources: Decodable { let omt: Source? }
+        struct Source: Decodable { let url: String? }
     }
 }
 
@@ -137,10 +168,21 @@ public enum AreaPhase: Sendable, Hashable {
     /// made for another build than the map reads (nil: by an older version, build unknown)
     case stale(TileBuild?)
     case failed(String)
+
+    /// Still going: asked for, its pack being made, downloading, or waiting for the network (MapLibre tries
+    /// again by itself). A download of these areas is not over.
+    public var isUnderWay: Bool {
+        switch self {
+        case .requested, .creating, .downloading, .waitingForNetwork: true
+        case .paused, .complete, .stale, .failed: false
+        }
+    }
 }
 
 public enum OfflineArea {
     static let broken = "Vùng tải đã hỏng, tải lại"
+    /// The site has no style of the app's build, or its tiles are another build's.
+    public static let otherBuild = "Bản đồ trên web khác bản trong app — cập nhật app hoặc thử lại sau"
 
     /// Where a pack is, from what MapLibre says of it.
     ///
@@ -167,6 +209,58 @@ public enum OfflineArea {
         case .active: return error == nil ? .downloading(completed: completed, expected: expected) : .waitingForNetwork
         case .invalid: return .failed(broken) // returned above, before the tag
         }
+    }
+
+    /// What a look at the packs (MapLibre's list changed, the app opened, the map moved to another build) makes
+    /// of one area.
+    ///
+    /// - `current`: where its pack for the map's build is (`phase`), nil when it has none.
+    /// - `older`: the `.stale` phase of a pack of it made for another build or by an older version, if any.
+    /// - `previous`: the phase the app holds for it.
+    /// - `requested`: the travellers asked for it and it is not complete.
+    ///
+    /// A pack for the map's build says where the area is. Without one, an area that failed keeps its failure
+    /// and one being made is left to it: neither is made again here, since a look runs on every change of the
+    /// packs (a failure is tried again by a tap, or at the next launch). An area asked for is made. An older
+    /// pack is let go only once the new one is complete: until then it is what the area has.
+    public static func settle(current: AreaPhase?, older: AreaPhase?, previous: AreaPhase?, requested: Bool) -> Settled {
+        if let current {
+            let complete = if case .complete = current { true } else { false }
+            return Settled(phase: current, make: false, dropOld: complete && older != nil)
+        }
+        switch previous {
+        case .failed?, .creating?: return Settled(phase: previous, make: false, dropOld: false)
+        case .requested?, .downloading?, .waitingForNetwork?, .paused?, .complete?, .stale?, nil: break
+        }
+        if requested { return Settled(phase: .requested, make: true, dropOld: false) }
+        return Settled(phase: older, make: false, dropOld: false)
+    }
+
+    /// The tile build a pack made from this style would hold, if it is the map's: the style's own tiles, or,
+    /// for a style on a TileJSON (the `-current` ones), the build the TileJSON names. Nil otherwise (another
+    /// build, a page that is not a style, a TileJSON missing): such a pack would hold tiles the map never asks for.
+    public static func packBuild(style: Data, tileJSON: Data?, mapBuild: TileBuild) -> TileBuild? {
+        let build: TileBuild?
+        if let own = StyleInfo.build(style: style) {
+            build = own
+        } else if StyleInfo.readsTileJSON(style: style), let tileJSON {
+            build = StyleInfo.build(tileJSON: tileJSON)
+        } else {
+            build = nil
+        }
+        return build == mapBuild ? build : nil
+    }
+}
+
+extension OfflineArea {
+    /// What a look at the packs makes of one area (`settle`).
+    public struct Settled: Sendable, Equatable {
+        /// nil: nothing asked for, no pack
+        public let phase: AreaPhase?
+        /// make its pack now
+        public let make: Bool
+        /// remove its packs of another build or an older version: the one for the map's build is complete
+        public let dropOld: Bool
     }
 }
 

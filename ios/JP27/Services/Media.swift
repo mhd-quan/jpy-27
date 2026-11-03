@@ -226,6 +226,9 @@ actor PhotoCache {
     private(set) var running = false
     /// counted from the disk: until then the page says nothing it cannot back
     private(set) var counted = false
+    /// stopped by a pause (the travellers', or the system's) and not finished since: a download that was
+    /// paused is not done (`OfflineJob.result`), until every photo is on disk after all
+    private(set) var paused = false
 
     var fraction: Double { total > 0 ? Double(saved) / Double(total) : 0 }
     var complete: Bool { counted && saved >= total }
@@ -249,6 +252,7 @@ actor PhotoCache {
             guard !running else { return }
             if saved != list.count - missing.count { saved = list.count - missing.count }
             counted = true
+            if missing.isEmpty, paused { paused = false }
             guard Shared.defaults.bool(forKey: Self.wantedKey) else { return }
             if missing.isEmpty { Shared.defaults.set(false, forKey: Self.wantedKey) } else { download() }
         }
@@ -258,6 +262,7 @@ actor PhotoCache {
         guard job == nil, !urls.isEmpty else { return }
         Shared.defaults.set(true, forKey: Self.wantedKey)
         running = true
+        paused = false
         failed = 0
         let list = urls
         job = Task {
@@ -277,6 +282,8 @@ actor PhotoCache {
                 }
             }
             if !Task.isCancelled, failed == 0 { Shared.defaults.set(false, forKey: Self.wantedKey) }
+            // the last ones arrived while it was being paused: nothing is left to go on with
+            if saved >= list.count, paused { paused = false }
             running = false
             job = nil
         }
@@ -285,7 +292,9 @@ actor PhotoCache {
     /// Stops where it is; what is on disk stays.
     func pause() {
         Shared.defaults.set(false, forKey: Self.wantedKey)
-        job?.cancel()
+        guard let job else { return }
+        paused = true
+        job.cancel()
     }
 }
 

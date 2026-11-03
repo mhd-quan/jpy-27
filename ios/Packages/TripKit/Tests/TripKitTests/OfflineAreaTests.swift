@@ -173,6 +173,157 @@ import Testing
         #expect(phase(.active, 3, 10, tag: .some(nil), previous: .complete(build)) == .stale(nil))
     }
 
+    // MARK: Under way
+
+    @Test func underWayIsAskedForBeingMadeDownloadingOrWaiting() {
+        let going: [AreaPhase] = [.requested, .creating, .downloading(completed: 1, expected: 2), .waitingForNetwork]
+        let stopped: [AreaPhase] = [.paused, .complete(build), .complete(other), .stale(nil), .stale(other), .failed("x")]
+        for p in going { #expect(p.isUnderWay, "\(p)") }
+        for p in stopped { #expect(!p.isUnderWay, "\(p)") }
+    }
+
+    // MARK: What a refresh makes of an area
+
+    @Test func aPackForTheMapsBuildSaysWhereTheAreaIs() {
+        for p: AreaPhase in [.requested, .downloading(completed: 3, expected: 10), .waitingForNetwork, .paused, .complete(build)] {
+            for previous: AreaPhase? in [nil, .failed("x"), .creating, .requested, .complete(build)] {
+                for requested in [false, true] {
+                    #expect(OfflineArea.settle(current: p, older: nil, previous: previous, requested: requested)
+                            == OfflineArea.Settled(phase: p, make: false, dropOld: false))
+                }
+            }
+        }
+    }
+
+    @Test func aFailedAreaIsNeverForgotten() {
+        // a pack that could not be made leaves the area with no pack: a refresh used to forget it, reason and all
+        for requested in [false, true] {
+            for older: AreaPhase? in [nil, .stale(other), .stale(nil)] {
+                let s = OfflineArea.settle(current: nil, older: older, previous: .failed("Không tạo được vùng tải"), requested: requested)
+                #expect(s.phase == .failed("Không tạo được vùng tải"))
+                // made again by a tap or at the next launch, never by a refresh: one runs on every change of the packs
+                #expect(!s.make)
+                #expect(!s.dropOld)
+            }
+        }
+    }
+
+    @Test func anAreaBeingMadeIsLeftAlone() {
+        // paused while it is made (not asked for any more): still made, then left inactive
+        for requested in [false, true] {
+            for older: AreaPhase? in [nil, .stale(other)] {
+                #expect(OfflineArea.settle(current: nil, older: older, previous: .creating, requested: requested)
+                        == OfflineArea.Settled(phase: .creating, make: false, dropOld: false))
+            }
+        }
+    }
+
+    @Test func anAreaAskedForWithNoPackForTheMapIsMadeAgain() {
+        // after a relaunch (a failure of the last one included), after the map moved to another build, or asked for
+        // before MapLibre had read its packs
+        let previous: [AreaPhase?] = [nil, .requested, .downloading(completed: 5, expected: 10), .complete(other), .complete(build),
+                                      .paused, .waitingForNetwork, .stale(nil)]
+        for p in previous {
+            for older: AreaPhase? in [nil, .stale(other), .stale(nil)] {
+                #expect(OfflineArea.settle(current: nil, older: older, previous: p, requested: true)
+                        == OfflineArea.Settled(phase: .requested, make: true, dropOld: false))
+            }
+        }
+    }
+
+    @Test func aPackOfAnotherBuildIsStaleUntilTheAreaIsAskedFor() {
+        for previous: AreaPhase? in [nil, .complete(build), .downloading(completed: 1, expected: 2), .paused, .requested] {
+            #expect(OfflineArea.settle(current: nil, older: .stale(other), previous: previous, requested: false)
+                    == OfflineArea.Settled(phase: .stale(other), make: false, dropOld: false))
+            #expect(OfflineArea.settle(current: nil, older: .stale(nil), previous: previous, requested: false)
+                    == OfflineArea.Settled(phase: .stale(nil), make: false, dropOld: false))
+        }
+    }
+
+    @Test func anAreaWithNothingIsNothing() {
+        for previous: AreaPhase? in [nil, .requested, .paused, .complete(build), .downloading(completed: 1, expected: 2), .stale(other)] {
+            #expect(OfflineArea.settle(current: nil, older: nil, previous: previous, requested: false)
+                    == OfflineArea.Settled(phase: nil, make: false, dropOld: false))
+        }
+    }
+
+    @Test func anOlderPackGoesOnlyOnceTheNewOneIsComplete() {
+        // while the new one downloads the old one is kept (MapLibre stores a resource once for every pack using it)
+        for p: AreaPhase in [.requested, .downloading(completed: 9, expected: 10), .waitingForNetwork, .paused] {
+            for requested in [false, true] {
+                #expect(!OfflineArea.settle(current: p, older: .stale(other), previous: nil, requested: requested).dropOld)
+            }
+        }
+        #expect(OfflineArea.settle(current: .complete(build), older: .stale(other), previous: .downloading(completed: 9, expected: 10), requested: false)
+                == OfflineArea.Settled(phase: .complete(build), make: false, dropOld: true))
+        #expect(OfflineArea.settle(current: .complete(build), older: .stale(nil), previous: nil, requested: true).dropOld)
+        #expect(!OfflineArea.settle(current: .complete(build), older: nil, previous: nil, requested: false).dropOld)
+    }
+
+    // MARK: The style a pack is made from
+
+    @Test func aPackHoldsTheBuildOfItsStyleOrOfTheTileJSONItNames() {
+        let pinned = Data(#"{"version":8,"sources":{"omt":{"type":"vector","tiles":["\#(build.template)"]}}}"#.utf8)
+        let current = Data(#"{"version":8,"sources":{"omt":{"type":"vector","url":"https://tiles.openfreemap.org/planet"}}}"#.utf8)
+        func tileJSON(_ b: TileBuild) -> Data { Data(#"{"tilejson":"3.0.0","tiles":["\#(b.template)"]}"#.utf8) }
+        #expect(OfflineArea.packBuild(style: pinned, tileJSON: nil, mapBuild: build) == build)
+        // the style's own tiles decide: a TileJSON beside them changes nothing
+        #expect(OfflineArea.packBuild(style: pinned, tileJSON: tileJSON(other), mapBuild: build) == build)
+        #expect(OfflineArea.packBuild(style: pinned, tileJSON: tileJSON(other), mapBuild: other) == nil)
+        #expect(OfflineArea.packBuild(style: pinned, tileJSON: nil, mapBuild: other) == nil)
+        #expect(OfflineArea.packBuild(style: current, tileJSON: tileJSON(build), mapBuild: build) == build)
+        #expect(OfflineArea.packBuild(style: current, tileJSON: tileJSON(other), mapBuild: build) == nil)
+        #expect(OfflineArea.packBuild(style: current, tileJSON: nil, mapBuild: build) == nil)
+        #expect(OfflineArea.packBuild(style: current, tileJSON: Data("<html>".utf8), mapBuild: build) == nil)
+        // a page that is not a style (the site's 404 page) holds nothing, whatever the TileJSON says
+        for page in [Data("<html>Not found</html>".utf8), Data(#"{"version":8,"sources":{}}"#.utf8)] {
+            #expect(OfflineArea.packBuild(style: page, tileJSON: tileJSON(build), mapBuild: build) == nil)
+            #expect(OfflineArea.packBuild(style: page, tileJSON: nil, mapBuild: build) == nil)
+        }
+    }
+
+    @Test func theShippedStylesMakePacksOfTheirBuild() throws {
+        let bundled = try Bundle_.data("../public/map/jp27-light.json")
+        let pinned = try #require(StyleInfo.build(style: bundled))
+        let name = try #require(StyleInfo.styleBuild(style: bundled))
+        let immutable = try Bundle_.data("../public/map/jp27-light@\(name).json")
+        #expect(OfflineArea.packBuild(style: immutable, tileJSON: nil, mapBuild: pinned) == pinned)
+        #expect(OfflineArea.packBuild(style: immutable, tileJSON: nil, mapBuild: other) == nil)
+        let current = try Bundle_.data("../public/map/jp27-light-current.json")
+        #expect(OfflineArea.packBuild(style: current, tileJSON: Data(#"{"tiles":["\#(other.template)"]}"#.utf8), mapBuild: other) == other)
+        #expect(OfflineArea.packBuild(style: current, tileJSON: nil, mapBuild: pinned) == nil)
+    }
+
+    @Test func theCurrentStyleIsTheBundledOneOnTheResolvedBuild() throws {
+        let bundled = try Bundle_.data("../public/map/jp27-light.json")
+        let out = try #require(StyleInfo.pointing(style: bundled, at: other.template))
+        #expect(StyleInfo.build(style: out) == other)
+        // the metadata named the bundled build and its immutable copy: this style is neither
+        #expect(StyleInfo.styleBuild(style: out) == nil)
+        let json = try #require(JSONSerialization.jsonObject(with: out) as? [String: Any])
+        let was = try #require(JSONSerialization.jsonObject(with: bundled) as? [String: Any])
+        #expect(((json["metadata"] as? [String: Any]) ?? [:]).keys.allSatisfy { !$0.hasPrefix("jp27:") })
+        let omt = try #require((json["sources"] as? [String: Any])?["omt"] as? [String: Any])
+        #expect(omt["url"] == nil)
+        #expect(omt["tiles"] as? [String] == [other.template])
+        #expect(omt["minzoom"] as? Int == 0)
+        #expect(omt["maxzoom"] as? Int == 14)
+        // the rest is the bundled style
+        #expect((json["layers"] as? [Any])?.count == (was["layers"] as? [Any])?.count)
+        #expect(json["glyphs"] as? String == was["glyphs"] as? String)
+        #expect((json["sources"] as? [String: Any])?.count == (was["sources"] as? [String: Any])?.count)
+        // a style on a TileJSON (`url`) is pointed at the build too; other metadata stays
+        let viaURL = Data(#"{"version":8,"metadata":{"jp27:build":"b-1","jp27:tiles":"t","keep":1},"sources":{"omt":{"type":"vector","url":"https://tiles.openfreemap.org/planet"}}}"#.utf8)
+        let pointed = try #require(StyleInfo.pointing(style: viaURL, at: build.template))
+        #expect(StyleInfo.build(style: pointed) == build)
+        let p = try #require(JSONSerialization.jsonObject(with: pointed) as? [String: Any])
+        #expect(((p["sources"] as? [String: Any])?["omt"] as? [String: Any])?["url"] == nil)
+        #expect((p["metadata"] as? [String: Any])?.keys.sorted() == ["keep"])
+        for junk in [Data("<html>".utf8), Data(#"{"sources":{}}"#.utf8), Data(#"{"version":8}"#.utf8), Data(#"{"sources":{"omt":1}}"#.utf8)] {
+            #expect(StyleInfo.pointing(style: junk, at: build.template) == nil)
+        }
+    }
+
     // MARK: The pack's context
 
     @Test func aTagIsReadBackFromItsContext() throws {

@@ -378,3 +378,45 @@ lấy từ `metadata["jp27:build"]` của `public/map/jp27-light.json` trong app
    như trong `public/map/` của commit phát hành). **Đạt** khi cả hai trả JSON (HTTP 200, không phải trang 404 hay
    HTML), và `metadata["jp27:build"]` trong đó đúng bằng tên file.
 2. Các file `jp27-*@*.json` cũ vẫn còn trên site (không file nào bị xoá khi deploy): app đã cài vẫn xin file của nó.
+
+## Task 3.1b — Bản đồ offline: "Xong" chỉ khi từng vùng xong, gói biết build tile nó giữ
+
+**Chuẩn bị.** Site đã deploy với file `@` của build này (Task 3.1a bước 1). Bản mới: build của task này, Debug (bước
+3 cần "Giả style khác bản"; các bước khác như Release). Dòng trên cùng của Cài đặt › Dùng khi mất sóng là dòng của
+lần tải: đang chạy thì "Bản đồ 0/1 vùng · 42%", xong thì "Xong", "Đã dừng" hoặc "Bản đồ 8/10 vùng · 2 lỗi".
+1. **Không tạo được vùng thì không "Xong".** Cài đặt iOS › Developer › Network Link Conditioner › "100% Loss", bật.
+   Trong app: Dùng khi mất sóng › một vùng chưa tải (ví dụ Nara) › Tải, rồi rời app ngay.
+   - **Đạt** khi dòng vùng ghi "Đang chuẩn bị…" rồi, trong khoảng 20 giây, "Không kết nối được máy chủ bản đồ" màu cam
+     với nút "Thử lại"; Live Activity kết thúc với dòng "Bản đồ 0/1 vùng · 1 lỗi" (không phải "Xong"), thanh không
+     đầy; mở lại Cài đặt thấy cùng dòng đó ở trên cùng.
+   - Vẫn bật "100% Loss": tắt hẳn app, mở lại. **Đạt** khi Nara được thử lại một lần ("Đang chuẩn bị…") rồi lại ghi lỗi
+     với "Thử lại", và dòng lần tải ghi "Bản đồ 0/1 vùng · 1 lỗi".
+   - Tắt "100% Loss", bấm "Thử lại". **Đạt** khi Nara tải xong ("Đã tải") và dòng lần tải ghi "Xong".
+2. **Mất mạng giữa chừng.** Xoá vùng Tokyo nếu đã có (vuốt trái › Xoá), bấm Tải; khi vòng tới khoảng 20 %, bật Chế độ
+   máy bay.
+   - **Đạt** khi dòng Tokyo ghi "Chờ có mạng · 2x %", dòng lần tải vẫn là tiến độ, không bao giờ "Xong"; Live
+     Activity (nếu đã rời app) vẫn chạy.
+   - Tắt Chế độ máy bay. **Đạt** khi Tokyo tải tiếp tới "Đã tải" và dòng lần tải ghi "Xong".
+3. **Site không có style của app** (bản Debug). Cài đặt › Chẩn đoán › Giả style khác bản: bật. Tải một vùng chưa có.
+   - **Đạt** khi dòng vùng ghi "Bản đồ trên web khác bản trong app — cập nhật app hoặc thử lại sau" với "Thử lại", và
+     dòng lần tải ghi "Bản đồ 0/1 vùng · 1 lỗi".
+   - Tắt công tắc, bấm "Thử lại". **Đạt** khi vùng tải xong.
+4. **Vùng tải bằng bản cũ.** Máy thử: xoá app JP27 trước (cờ "đã hỏi tải lại", `map.reloadAskedFor`, nằm trong App
+   Group, cài đè không xoá nó). Cài bản cũ build từ **a758481 hoặc cũ hơn** (Release), tải trọn vùng Nara. Cài bản
+   mới đè lên (không xoá app), mở.
+   - **Đạt** khi alert "Bản đồ offline cần tải lại" hiện một lần. Bấm **Để sau**. Cài đặt: "Dùng khi mất sóng" ghi
+     "Cần tải lại"; trong trang có dòng cam "Nguồn bản đồ đã đổi, nên 1 vùng…", Nara ghi "Tải từ nguồn cũ, cần tải
+     lại" với nút "Tải lại".
+   - Tắt hẳn app, mở lại. **Đạt** khi alert **không** hiện nữa.
+   - Bấm "Tải lại" ở Nara; ở khoảng 50 % bật Chế độ máy bay, mở bản đồ ở Nara, phóng to. **Đạt** khi bản đồ vẫn
+     hiện (gói cũ còn tới khi gói mới tải xong). Tắt Chế độ máy bay, chờ xong. **Đạt** khi Nara ghi "Đã tải", dòng
+     cam biến mất, và bản đồ Nara vẫn hiện khi bật lại Chế độ máy bay.
+5. **Tạm dừng là "Đã dừng".** Bấm "Tải tất cả bản đồ", rời app, dừng từ Live Activity trên màn hình khoá.
+   - **Đạt** khi mở lại app, dòng lần tải ghi "Đã dừng", các vùng đang tải ghi "Tạm dừng · N %"; bấm vòng của một
+     vùng thì nó tải tiếp từ đó.
+   - Trong app: tải ảnh (mục Ảnh › Tải), bấm vòng để dừng. **Đạt** khi dòng lần tải ghi "Đã dừng", không "Xong".
+6. **Lần tải được theo tiếp sau khi tắt app.** Bấm Tải ở một vùng chưa có; khi đang tải, tắt hẳn app; mở lại.
+   - **Đạt** khi vùng tải tiếp (không bắt đầu lại từ 0 %), dòng lần tải hiện tiến độ rồi "Xong".
+
+Không kiểm được trên máy: chế độ khi build tile được ghim đã mất trên OpenFreeMap (máy chủ trả 404) — cần
+OpenFreeMap thật sự bỏ build đó.

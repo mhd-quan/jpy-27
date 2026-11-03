@@ -88,6 +88,8 @@ private struct DiagnosticsSection: View {
     @State private var failSaves = Records.failSaves
     /// what the last `uniqueProbe` found
     @State private var unique: String?
+    /// `OfflineMaps.fakeOtherStyle`, as the switch shows it
+    @State private var fakeStyle = OfflineMaps.fakeOtherStyle
     #endif
 
     var body: some View {
@@ -184,6 +186,19 @@ private struct DiagnosticsSection: View {
             // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 2.1c
             testArrived(asBeforeIDs: false)
             testArrived(asBeforeIDs: true)
+            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 3.1b
+            Toggle(isOn: $fakeStyle) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Giả style khác bản")
+                        Text("Vùng tải mới xin một style site không có, như khi app mới hơn site").font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "map", tint: .red)
+                }
+            }
+            .onChange(of: fakeStyle) { _, on in OfflineMaps.fakeOtherStyle = on }
+            .onAppear { fakeStyle = OfflineMaps.fakeOtherStyle }
             #endif
         } header: {
             Text("Chẩn đoán")
@@ -596,9 +611,12 @@ private struct PermissionRow: View {
 
 /// Where one area is, as its row says it.
 private enum AreaStatus: Equatable {
-    case checking, idle, stale, complete
+    case checking, idle, stale, complete, preparing
     case downloading(Double), waiting(Double), paused(Double)
+    /// downloading, and MapLibre's last error, while it tries again
     case failing(Double, String)
+    /// its pack could not be made: why, and "Thử lại"
+    case failed(String)
 }
 
 /// Downloads belong to the app (`Downloads`), so this page only shows where they are: leave it,
@@ -610,6 +628,11 @@ private struct OfflineSection: View {
         let offline = model.offline
         let downloads = model.downloads
         Group {
+            if downloads.busy || downloads.ended != nil {
+                Section {
+                    JobRow(downloads: downloads)
+                }
+            }
             Section {
                 if !offline.stale.isEmpty {
                     Label("Nguồn bản đồ đã đổi, nên \(offline.stale.count) vùng đã tải không còn dùng được khi mất sóng. Tải lại khi có Wi‑Fi.", systemImage: "exclamationmark.triangle.fill")
@@ -626,7 +649,7 @@ private struct OfflineSection: View {
                             pause: { offline.pause(area.id) },
                             remove: { offline.remove(area) })
                     }
-                    if offline.areas.contains(where: { !offline.complete.contains($0.id) && !offline.wanted.contains($0.id) }) {
+                    if !offline.missing.isEmpty {
                         Button("Tải tất cả bản đồ") { downloads.downloadAllMaps() }
                     }
                 } else {
@@ -655,17 +678,44 @@ private struct OfflineSection: View {
 
     private func status(_ id: String) -> AreaStatus {
         let o = model.offline
-        if o.checking.contains(id) { return .checking }
-        if o.complete.contains(id) { return .complete }
-        if o.stale.contains(id), !o.wanted.contains(id) { return .stale }
         let p = o.progress[id] ?? 0
-        if o.wanted.contains(id) || o.running.contains(id) {
-            if !model.network.online { return .waiting(p) }
-            if let problem = o.problems[id] { return .failing(p, problem) }
-            return .downloading(p)
+        switch o.phases[id] {
+        case nil: return .idle
+        // asked for, its pack not read yet (or not asked how far it is)
+        case .requested?: return .checking
+        case .creating?: return .preparing
+        case .downloading?: return model.network.online ? .downloading(p) : .waiting(p)
+        case .waitingForNetwork?:
+            if model.network.online, let problem = o.problems[id] { return .failing(p, problem) }
+            return .waiting(p)
+        case .paused?: return .paused(p)
+        case .complete?: return .complete
+        case .stale?: return .stale
+        case .failed(let reason)?: return .failed(reason)
         }
-        if let problem = o.problems[id] { return .failing(p, problem) }
-        return o.progress[id] == nil ? .idle : .paused(p)
+    }
+}
+
+/// The download under way, as one line ("Bản đồ 3/10 vùng · Ảnh 120/180 · 42%"), and once it is over, how
+/// it ended: "Xong" only when everything is there, else what is missing ("Bản đồ 8/10 vùng · 2 lỗi"), or
+/// "Đã dừng".
+private struct JobRow: View {
+    let downloads: Downloads
+
+    var body: some View {
+        HStack(spacing: 12) {
+            if downloads.busy {
+                ProgressView()
+                Text(downloads.progressLine)
+            } else if let ended = downloads.ended {
+                Image(systemName: ended.success ? "checkmark.circle.fill" : ended.paused ? "pause.circle.fill" : "exclamationmark.triangle.fill")
+                    .foregroundStyle(ended.success ? Color.green : ended.paused ? Color.secondary : Color.orange)
+                Text(ended.subtitle)
+            }
+        }
+        .font(.footnote)
+        .monospacedDigit()
+        .contentTransition(.numericText())
     }
 }
 
@@ -712,6 +762,13 @@ private struct AreaRow: View {
         switch status {
         case .checking:
             ProgressView()
+        case .failed:
+            Button("Thử lại") {
+                started += 1
+                download()
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
         case .idle, .stale:
             Button(status == .stale ? "Tải lại" : "Tải") {
                 started += 1
@@ -721,13 +778,13 @@ private struct AreaRow: View {
             .controlSize(.small)
         case .complete:
             ProgressRing(value: 1, mode: .done)
-        case .downloading(let p), .waiting(let p), .failing(let p, _):
+        case .preparing, .downloading, .waiting, .failing:
             // as in the App Store: the ring is the stop button
             Button {
                 stopped += 1
                 pause()
             } label: {
-                ProgressRing(value: p, mode: .running)
+                ProgressRing(value: running, mode: .running)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Tạm dừng tải \(name)")
@@ -743,6 +800,14 @@ private struct AreaRow: View {
         }
     }
 
+    /// how far a running download is (its pack being made: nothing yet)
+    private var running: Double {
+        switch status {
+        case .downloading(let p), .waiting(let p), .failing(let p, _): p
+        case .checking, .idle, .stale, .complete, .preparing, .paused, .failed: 0
+        }
+    }
+
     private var size: String? {
         guard let bytes, bytes > 0 else { return nil }
         return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
@@ -754,6 +819,7 @@ private struct AreaRow: View {
         }
         switch status {
         case .checking: return "Đang kiểm tra…"
+        case .preparing: return "Đang chuẩn bị…"
         case .idle: return "Chưa tải"
         case .stale: return "Tải từ nguồn cũ, cần tải lại"
         case .complete: return ["Đã tải", size].compactMap { $0 }.joined(separator: " · ")
@@ -761,14 +827,18 @@ private struct AreaRow: View {
         case .waiting(let p): return with("Chờ có mạng", p)
         case .paused(let p): return with("Tạm dừng", p)
         case .failing(let p, let problem): return with(problem, p)
+        case .failed(let reason): return reason
         }
     }
 
     private var warning: Bool {
-        if case .failing = status { return true }
-        return status == .stale
+        switch status {
+        case .failing, .failed, .stale: true
+        case .checking, .idle, .complete, .preparing, .downloading, .waiting, .paused: false
+        }
     }
 
+    /// something to remove: a pack, or a request (one that failed is dropped with any older pack)
     private var hasData: Bool {
         switch status {
         case .idle, .checking: false

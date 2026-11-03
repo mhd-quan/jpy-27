@@ -901,7 +901,7 @@ final class MapSnapshots {
             h.text(content.focus ?? "")
             for v in [insets.top, insets.left, insets.bottom, insets.right, size.width.rounded(), size.height.rounded(), scale] { h.number(Double(v)) }
             h.number(dark ? 1 : 0)
-            h.text(OfflineMaps.tilesNow)
+            h.text(OfflineMaps.mapBuild.template)
             h.text(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "")
             return String(h.value, radix: 36)
         }
