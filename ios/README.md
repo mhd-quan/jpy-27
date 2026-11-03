@@ -144,7 +144,7 @@ Một bộ từ duy nhất, đặt tên theo điều vừa xảy ra chứ không
 | `key` | `.impact(.rigid, 0.75)` | một phím của bàn số trong app làm số tiền đổi; phím không đổi gì (0 khi chưa có số, xoá khi trống, vượt trần) thì im |
 | `done` | `.success` | một việc xong: đánh dấu điểm, đã tới, đã mua, lưu khoản chi hay nạp tiền, chép địa chỉ, đọc xong menu, ghép máy, xử lý khoản trùng |
 | `warn` | `.warning` | xong nhưng có giá: bỏ điểm để kịp lịch |
-| `fail` | `.error` | bấm mà không được: micro bị từ chối, ảnh menu không đọc ra chữ nào |
+| `fail` | `.error` | bấm mà không được: micro bị từ chối, ảnh menu không đọc ra chữ nào, một lần lưu không thành từ nút của app (dấu tròn, Lưu khoản chi, rút tiền hay nạp Suica, đã mua, xử lý khoản trùng, khôi phục khoản bị gộp; alert "Chưa lưu được" nói vì sao). `done` và `warn` chỉ rung khi việc đã lưu được |
 | `notch` | `.levelChange` | thanh trượt tỉ giá chạm một mức có trong bảng, không phải mỗi bước |
 | `.start` / `.stop` | của hệ thống | bắt đầu và kết thúc việc chạy liên tục: theo dõi chuyến, micro, tải bản đồ, ảnh hay gói dịch |
 

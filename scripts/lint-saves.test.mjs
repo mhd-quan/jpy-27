@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { silentSaves } from './lint-saves.mjs';
+import { bestEffort, silentSaves } from './lint-saves.mjs';
 
 /** lines that hide a failed save */
 const silent = [
@@ -17,6 +17,10 @@ const silent = [
   'try? context?.save()',
   'try? ctx!.save()',
   '        if changed { try? context.save() }',
+  // the task's own saves: `commit()`, and the ledger's writes, which commit inside
+  'try? context.commit()',
+  'try? Ledger.merge(x, into: c)',
+  '                merged = (try? Ledger.merge(clean, into: context))?.merged ?? clean',
 ];
 /** lines that do not, or say why they may */
 const allowed = [
@@ -80,4 +84,18 @@ test('saves that throw, and marked best-effort copies, pass', () => {
 test('the app has no silent save', () => {
   const r = lint();
   assert.equal(r.status, 0, r.stdout + r.stderr);
+});
+
+// the brief allows two: a third mark would be a silent save let through by a comment
+test('the app marks exactly its two best-effort copies', () => {
+  assert.deepEqual(bestEffort(['ios/JP27']), [
+    {
+      file: join('ios/JP27', 'Data/Records.swift'),
+      text: 'guard (try? to.save()) != nil else { return } // save: best-effort, the side store stays and is folded in at the next launch',
+    },
+    {
+      file: join('ios/JP27', 'Data/Records.swift'),
+      text: 'try? to.save() // save: best-effort, a rehearsal without the copy starts from empty records, never the real ones',
+    },
+  ]);
 });

@@ -122,6 +122,15 @@ import Testing
         #expect(applied(records, moves) == [1, 0, 1, 0, 7])
     }
 
+    /// Another day's record coming to an index is no reason to step aside: a record whose item is gone
+    /// stays where it is when only another day wants that index.
+    @Test func anotherDaysTargetMovesNothing() {
+        let records = [Record(day: "1", index: 2, target: nil), Record(day: "2", index: 5, target: 2)]
+        let moves = RecordIndexes.moves(records)
+        #expect(moves.aside[0] == nil, "day 1's row stepped aside for day 2's target")
+        #expect(applied(records, moves) == [2, 2])
+    }
+
     /// Days of up to nine records on indexes -3…11: some on their item, some moving, some whose item
     /// is gone, some deleted. Each write is applied in order, reversed and shuffled; no step may put
     /// two live records of a day on one index, and at the end every record is where it belongs.
@@ -146,6 +155,10 @@ import Testing
                 }
             }
             let moves = RecordIndexes.moves(records)
+            for (n, r) in records.enumerated() {
+                if r.target == r.index { #expect(moves.aside[n] == nil, "round \(round): a needless step aside, row \(n) is on its item") }
+                if r.deleted { #expect(moves.aside[n] == nil, "round \(round): a deleted row stepped aside, row \(n)") }
+            }
             var shuffled = SplitMix(seed: UInt64(round))
             let orders: [([Int]) -> [Int]] = [{ $0 }, { Array($0.reversed()) }, { $0.shuffled(using: &shuffled) }]
             for order in orders {

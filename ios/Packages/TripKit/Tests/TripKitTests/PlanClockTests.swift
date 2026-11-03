@@ -173,6 +173,18 @@ import Testing
         #expect(day.resolve(i, identity: nil) == i)
         #expect(day.resolve(day.items.count + 3, identity: nil) == nil)
     }
+
+    /// A record moved aside below 0 while the indexes are put right (`RecordIndexes`), and left there
+    /// by a second write that failed or because another record took its index, still finds its item.
+    @Test func aRecordSetAsideBelowZeroFindsItsItem() {
+        for day in allDays {
+            for i in day.items.indices {
+                for k in [1, 2, 9] {
+                    #expect(day.resolve(-k, identity: day.identity(of: i)) == i, "day \(day.key): item \(i) recorded at -\(k)")
+                }
+            }
+        }
+    }
 }
 
 /// A small fixed-seed generator, so the random cases are the same on every run.

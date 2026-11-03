@@ -188,10 +188,28 @@ enum Records {
     private(set) static var unreadable: URL?
 
     #if DEBUG
-    /// Settings › Chẩn đoán › "Giả lỗi lưu": while on, every `commit` fails, before anything is
-    /// written, as a full disk would. The two best-effort copies (the side store folded in, the
-    /// rehearsal's copy) do not commit and are left alone. Off at every launch.
-    static var failSaves = false
+    /// Settings › Chẩn đoán › "Giả lỗi lưu": which `commit`s fail, before anything is written, as a
+    /// full disk would. The two best-effort copies (the side store folded in, the rehearsal's copy)
+    /// do not commit and are left alone. Off at every launch.
+    static var failSaves = FailSaves.off
+
+    nonisolated enum FailSaves: CaseIterable, Identifiable, Sendable {
+        case off
+        /// the next commit fails, then this goes back to `off`: a "Thử lại" that works
+        case next
+        /// every commit fails, until switched off
+        case every
+
+        var id: Self { self }
+
+        var label: String {
+            switch self {
+            case .off: "Tắt"
+            case .next: "Lần lưu tới"
+            case .every: "Mọi lần lưu"
+            }
+        }
+    }
     #endif
 
     private static var folder: URL { URL.applicationSupportDirectory }
@@ -245,6 +263,12 @@ enum Records {
 
     /// Records written to the side store while the main one would not open, moved into it; the
     /// side store is then set aside (renamed, not deleted).
+    ///
+    /// Marks and skips go in by day and index, and `#Unique` turns an insert onto a held index into
+    /// an update. A record moved aside below 0 (`AppModel.loadRecords`: left there by a second write
+    /// that failed, or its item gone and its index wanted) could so meet the other store's record on
+    /// the same day and index, and one of the two would be lost. Accepted: it takes a main store that
+    /// would not open, then a plan update, and rows left aside in both stores, before this fold.
     private static func foldSideStore(into main: ModelContainer) {
         let fm = FileManager.default
         guard fm.fileExists(atPath: sideURL.path),
@@ -338,7 +362,7 @@ nonisolated struct SaveFailure: LocalizedError {
 }
 
 #if DEBUG
-/// What `Records.failSaves` makes every save fail with.
+/// What `Records.failSaves` makes a save fail with.
 private nonisolated struct PretendFailure: LocalizedError {
     var errorDescription: String? { "Giả lỗi lưu (Chẩn đoán)" }
 }
@@ -357,7 +381,8 @@ extension ModelContext {
     /// merged ledger that was never written, and nothing half-written waits for the next save.
     @MainActor func commit() throws(SaveFailure) {
         #if DEBUG
-        if Records.failSaves {
+        if Records.failSaves != .off {
+            if Records.failSaves == .next { Records.failSaves = .off }
             rollback()
             throw SaveFailure(underlying: PretendFailure())
         }

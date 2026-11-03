@@ -83,7 +83,8 @@ private struct DiagnosticsSection: View {
     #if DEBUG
     /// what AlarmKit listed, the last time it was asked
     @State private var systemAlarms: String?
-    /// `Records.failSaves`, as the switch shows it
+    /// `Records.failSaves`, as the picker shows it (read again on coming back: "Lần lưu tới" turns
+    /// itself off)
     @State private var failSaves = Records.failSaves
     /// what the last `uniqueProbe` found
     @State private var unique: String?
@@ -152,17 +153,20 @@ private struct DiagnosticsSection: View {
                 }
             }
             // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 1.4
-            Toggle(isOn: $failSaves) {
+            Picker(selection: $failSaves) {
+                ForEach(Records.FailSaves.allCases) { Text($0.label).tag($0) }
+            } label: {
                 Label {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Giả lỗi lưu")
-                        Text("Mọi lần lưu đều báo lỗi, tới khi tắt").font(.footnote).foregroundStyle(.secondary)
+                        Text("Lần lưu tới: một lần báo lỗi rồi thôi. Mọi lần lưu: tới khi tắt").font(.footnote).foregroundStyle(.secondary)
                     }
                 } icon: {
                     SettingsIcon(symbol: "xmark.octagon", tint: .red)
                 }
             }
-            .onChange(of: failSaves) { _, on in Records.failSaves = on }
+            .onChange(of: failSaves) { _, choice in Records.failSaves = choice }
+            .onAppear { failSaves = Records.failSaves }
             Button {
                 unique = model.uniqueProbe()
             } label: {

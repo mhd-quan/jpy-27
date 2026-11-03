@@ -123,11 +123,15 @@ vào sổ riêng của nó.
 
 ## Task 1.4 — Lưu bền: lỗi ghi tới UI, không còn lưu im lặng
 
-Bản **Debug**: công tắc "Giả lỗi lưu" và nút "Thử ghi trùng chỉ số" ở Cài đặt › Chẩn đoán chỉ có trong Debug.
+Bản **Debug**: mục chọn "Giả lỗi lưu" và nút "Thử ghi trùng chỉ số" ở Cài đặt › Chẩn đoán chỉ có trong Debug.
 Dùng giờ thật, không chạy thử, trừ khi bước ghi khác.
 
-Khi "Giả lỗi lưu" bật:
-- Mọi lần lưu báo lỗi "Giả lỗi lưu (Chẩn đoán)" cho tới khi tắt. Mở lại app thì công tắc tắt.
+"Giả lỗi lưu" có ba lựa chọn:
+- **Tắt**: lưu như thường. Mở lại app thì luôn về Tắt.
+- **Lần lưu tới**: chỉ lần lưu kế tiếp báo lỗi "Giả lỗi lưu (Chẩn đoán)", rồi tự về Tắt.
+- **Mọi lần lưu**: lần lưu nào cũng báo lỗi, cho tới khi chọn Tắt.
+
+Trong các bước dưới, "bật công tắc" là chọn **Mọi lần lưu**, "tắt công tắc" là chọn **Tắt**.
 - Lỗi xảy ra trước khi ghi gì, nên trên máy không có gì đổi.
 - Hai bản chép dự phòng không bị ảnh hưởng: gộp sổ phụ, và chép sang sổ chạy thử.
 
@@ -185,6 +189,9 @@ Tắt công tắc sau mỗi bước.
    - **Đạt** khi dòng đồng bộ trên B (dưới hai ví) ghi "<tên A> ở gần · chưa lưu được sổ chi: Giả lỗi lưu (Chẩn đoán)".
      - Không có "đã đồng bộ" với giờ mới. Sheet Đồng bộ trên B ghi cùng dòng đó.
      - Sổ B không có thay đổi của A.
+   - Đưa A ra xa (hoặc tắt hẳn app trên A, rồi mở lại app trên B).
+     - **Đạt** khi B ghi "Đã đồng bộ với <tên A> <giờ>" với giờ của lần đồng bộ **trước đó**, không phải giờ lúc lưu lỗi.
+     - Nếu đã mở lại app trên B, chọn lại Mọi lần lưu **trước** khi đưa A lại gần.
    - Tắt công tắc trên B. Sửa thêm một khoản trên A → B ghi "đã đồng bộ lúc <giờ mới>" và có cả hai thay đổi.
    - Trước Task 1.5, chỉ tắt công tắc thì không đủ để A gửi lại. Task 1.5 thêm ack/nack và gửi lại.
 9. **SwiftData khi một lần ghi chạm `#Unique`.**
@@ -208,4 +215,22 @@ Tắt công tắc sau mỗi bước.
     - Lỗi lưu xảy ra ở nền, ví dụ một lần ghé (visit) hay "Đã tới" trên màn hình khoá đánh dấu điểm.
     - Nếu lúc đó đang mở một sheet riêng của Chi tiêu ("Sửa khoản chi", "Rút tiền", "Nạp Suica", "Đồng bộ"), alert chỉ
       hiện sau khi đóng sheet đó.
+    - Cũng vậy với những thứ app không mở qua chồng sheet của nó: thẻ câu nói toàn màn hình của Nghe và dịch
+      (`fullScreenCover` trong `TalkShared.swift`), màn chọn file khi gộp sổ chi, và bảng chia sẻ (sổ chi, file cứu dữ liệu).
+      Alert có thể chỉ hiện sau khi đóng chúng.
     - Nếu gặp mà alert không bao giờ hiện, ghi lại.
+12. **Nhật ký đang mở khi một lần lưu lỗi.**
+    - Vì sao cần: lần lưu lỗi lấy lại mọi thứ chưa ghi (`rollback`), kể cả các điểm vị trí (Trace) đang chờ tự lưu, mà
+      Nhật ký đọc qua `@Query`.
+    - Đi bộ một quãng (vài phút, có vị trí) để có điểm vị trí mới chưa lưu. Hôm nay › Nhật ký, để trang mở.
+    - Bật công tắc (Mọi lần lưu). Trên trang ngày, chạm dấu tròn một điểm → alert "Đánh dấu điểm: …".
+    - Quay lại Nhật ký.
+    - **Đạt** khi app không crash và Nhật ký không có dòng hay đường đi ma (một chỗ ghé hay đoạn đường không có thật,
+      hay biến mất khi mở lại trang).
+    - Ghi lại Nhật ký hiện gì: đoạn đường vừa đi còn hay mất một khúc cuối.
+13. **"Lần lưu tới" rồi "Thử lại".**
+    - Chọn **Lần lưu tới**. Chi tiêu › "+" (Ghi chi) › gõ ¥500 › Lưu.
+    - **Đạt** khi alert "Khoản chi: Giả lỗi lưu (Chẩn đoán)" hiện trên editor, và editor còn số ¥500.
+    - "Thử lại" → lưu được: editor đóng, rung `done`.
+    - Sổ có **đúng một** khoản ¥500 mới, không phải hai.
+    - Cài đặt › Chẩn đoán › "Giả lỗi lưu" đã tự về **Tắt**.
