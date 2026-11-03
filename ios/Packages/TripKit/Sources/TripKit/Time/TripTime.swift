@@ -60,13 +60,28 @@ public enum TripTime {
 
     /// Stated minutes of a leg, read the way scripts/check-plan.mjs reads them:
     /// "1 giờ 40" → 100, "20–25, đổi…" → 20, "60–90 tính cả chờ" → 60.
+    ///
+    /// Read by hand, not with a Regex: the plan clock asks for it for every leg of a day on every
+    /// pass, and a ride being followed on every fix, and a Swift Regex costs tens of microseconds a
+    /// call where this costs well under one. It reads exactly what `/(\d+)\s*giờ\s*(\d+)?/` and then
+    /// `/\d+/` would (a digit is `Character.isNumber`, a space `isWhitespace`, as in a Regex); the
+    /// tests hold it to those patterns.
     public static func statedMinutes(_ s: String?) -> Int? {
         guard let s else { return nil }
-        if let m = s.firstMatch(of: /(\d+)\s*giờ\s*(\d+)?/), let h = Int(m.1) {
-            return h * 60 + (m.2.flatMap { Int($0) } ?? 0)
+        var first: Substring?
+        var i = s.startIndex
+        while let run = nextDigits(s, &i) {
+            if first == nil { first = run }
+            var j = i
+            skipSpaces(s, &j)
+            guard skipHour(s, &j) else { continue }
+            // the first run of digits followed by "giờ" is where the pattern matches
+            guard let h = Int(run) else { break }
+            skipSpaces(s, &j)
+            let m = j < s.endIndex && s[j].isNumber ? nextDigits(s, &j).flatMap { Int($0) } : nil
+            return h * 60 + (m ?? 0)
         }
-        if let m = s.firstMatch(of: /\d+/) { return Int(m.0) }
-        return nil
+        return first.flatMap { Int($0) }
     }
 
     /// The longest a stated time can be: 45 for "35–45", 100 for "1 giờ 40", the lower bound
@@ -74,8 +89,42 @@ public enum TripTime {
     public static func statedMaxMinutes(_ s: String?) -> Int? {
         guard let s, let low = statedMinutes(s) else { return nil }
         if s.contains("giờ") { return low }
-        if let m = s.firstMatch(of: /^\s*\d+\s*[–-]\s*(\d+)/), let high = Int(m.1) { return max(low, high) }
-        return low
+        // `^\s*\d+\s*[–-]\s*(\d+)`
+        var i = s.startIndex
+        skipSpaces(s, &i)
+        guard i < s.endIndex, s[i].isNumber, nextDigits(s, &i) != nil else { return low }
+        skipSpaces(s, &i)
+        guard i < s.endIndex, s[i] == "–" || s[i] == "-" else { return low }
+        s.formIndex(after: &i)
+        skipSpaces(s, &i)
+        guard i < s.endIndex, s[i].isNumber, let high = nextDigits(s, &i).flatMap({ Int($0) }) else { return low }
+        return max(low, high)
+    }
+
+    /// The next run of digits at or after `i`, which is left just past it.
+    private static func nextDigits(_ s: String, _ i: inout String.Index) -> Substring? {
+        while i < s.endIndex, !s[i].isNumber { s.formIndex(after: &i) }
+        guard i < s.endIndex else { return nil }
+        let start = i
+        while i < s.endIndex, s[i].isNumber { s.formIndex(after: &i) }
+        return s[start ..< i]
+    }
+
+    private static func skipSpaces(_ s: String, _ i: inout String.Index) {
+        while i < s.endIndex, s[i].isWhitespace { s.formIndex(after: &i) }
+    }
+
+    private static let hour: [Character] = ["g", "i", "ờ"]
+
+    /// "giờ" at `i`: moves past it and says so; leaves `i` alone otherwise.
+    private static func skipHour(_ s: String, _ i: inout String.Index) -> Bool {
+        var j = i
+        for c in hour {
+            guard j < s.endIndex, s[j] == c else { return false }
+            s.formIndex(after: &j)
+        }
+        i = j
+        return true
     }
 }
 

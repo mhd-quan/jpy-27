@@ -50,8 +50,13 @@ public struct Itinerary: Sendable {
         return days.first { $0.date == iso }.map(TripPhase.during) ?? .after
     }
 
-    /// The day's stops and fixed departures with the times the plan gives them.
+    /// The day's stops and fixed departures with the times the plan gives them. Worked out once
+    /// per day and kept (`TripStore.waypoints`).
     public func waypoints(_ day: Day) -> [Waypoint] {
+        store.waypoints(day) { makeWaypoints(day) }
+    }
+
+    private func makeWaypoints(_ day: Day) -> [Waypoint] {
         let slots = engine.simulate(day)
         var out: [Waypoint] = []
         var lastLeave: Double? = nil

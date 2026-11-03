@@ -361,6 +361,9 @@ public struct Stop: Codable, Sendable {
     public let n: Int?
 
     public var isOptional: Bool { optional ?? false }
+
+    /// Leaving the bags or checking in: an errand with a time, never worth dropping or warning about.
+    public var isErrand: Bool { title.hasPrefix("Gửi") || title.hasPrefix("Nhận phòng") }
 }
 
 public struct Move: Codable, Sendable {

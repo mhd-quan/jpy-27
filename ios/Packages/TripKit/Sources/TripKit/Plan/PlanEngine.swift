@@ -40,6 +40,11 @@ public struct PlanEngine: Sendable {
         public static func live(from: Int, now: Double, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1) -> Options {
             Options(from: from, clock: now, toReach: toReach, skips: skips, pace: pace, waitAtSoftStops: false)
         }
+
+        /// the plan's own clock, as `Options()` runs it: the same for a day every time
+        var isPlan: Bool {
+            from == 0 && clock == nil && toReach == nil && skips.isEmpty && pace == 1 && waitAtSoftStops
+        }
     }
 
     public struct Slot: Sendable, Hashable {
@@ -65,6 +70,7 @@ public struct PlanEngine: Sendable {
     // MARK: - The clock
 
     private struct PendingWalk {
+        let leg: String
         let pts: [Coordinate]
         let km: Double
         let min: Double
@@ -88,7 +94,14 @@ public struct PlanEngine: Sendable {
         return Double(every) / 2
     }
 
+    /// The day's slots. With the plan's own options the answer is worked out once per day and kept
+    /// (`TripStore.plan`); a live projection is worked out each time.
     public func simulate(_ day: Day, _ o: Options = Options()) -> [Slot] {
+        if o.isPlan { return store.plan(day) { run(day, o) } }
+        return run(day, o)
+    }
+
+    private func run(_ day: Day, _ o: Options) -> [Slot] {
         var slots: [Slot] = []
         var clock: Double? = o.clock
         var pending = resumedWalk(day, o)
@@ -105,7 +118,7 @@ public struct PlanEngine: Sendable {
                     let pts = store.path(leg.id)
                     let passes = leg.via.contains { v in day.items.contains { $0.stop?.place == v } }
                     if passes, !pts.isEmpty, let w = leg.walk {
-                        pending = PendingWalk(pts: pts, km: w.km, min: w.minutes(pace: o.pace), done: 0, to: leg.to)
+                        pending = PendingWalk(leg: leg.id, pts: pts, km: w.km, min: w.minutes(pace: o.pace), done: 0, to: leg.to)
                         dur = 0
                     } else {
                         dur = leg.walk?.minutes(pace: o.pace) ?? Double(TripTime.statedMinutes(leg.min) ?? 5)
@@ -139,7 +152,7 @@ public struct PlanEngine: Sendable {
             case .stop(let s):
                 if i == o.from, let reach = o.toReach { clock = (clock ?? 0) + reach }
                 if var walk = pending, let id = s.place, let p = store.place(id) {
-                    let km = Self.along(walk.pts, p.coordinate)
+                    let km = along(walk.leg, walk.pts, p)
                     let part = max(0, km - walk.done)
                     clock = (clock ?? 0) + walk.min * part / walk.km
                     walk.done = max(walk.done, km)
@@ -153,7 +166,7 @@ public struct PlanEngine: Sendable {
                     clock = max(clock ?? at, at)
                 }
                 let begin = clock ?? ready
-                clock = begin + (skipped ? 0 : Double(dwell(s)))
+                clock = begin + (skipped ? 0 : Double(dwell(day, i, s)))
                 slots.append(Slot(index: i, ready: ready, begin: begin, end: clock!, planned: TripTime.minutes(s.at), skipped: skipped, hard: hard, started: started))
             }
         }
@@ -162,13 +175,21 @@ public struct PlanEngine: Sendable {
 
     /// Minimum minutes at a stop (scripts/check-plan.mjs `dwell`).
     public func dwell(_ s: Stop) -> Int {
-        let p = store.place(s.place)
-        if let p, let d = store.trip.rules.dwell[p.id] { return d }
-        let title = s.title
-        func has(_ pattern: String) -> Bool { title.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil }
-        if has("trả phòng|Ăn sáng|Buffet") { return 40 }
-        if has("Nhận phòng") { return 15 }
-        if has("Gửi") { return 10 }
+        Self.dwell(s, place: store.place(s.place), rules: store.trip.rules)
+    }
+
+    /// The same for item `index` of a day: read from the table the store made when it loaded.
+    func dwell(_ day: Day, _ index: Int, _ s: Stop) -> Int {
+        store.dwell(day, index) ?? dwell(s)
+    }
+
+    static func dwell(_ s: Stop, place p: Place?, rules: PlanRules) -> Int {
+        if let p, let d = rules.dwell[p.id] { return d }
+        // by the title, ignoring case, as the script does (`/trả phòng|Ăn sáng|Buffet/i`…)
+        let title = s.title.lowercased()
+        if title.contains("trả phòng") || title.contains("ăn sáng") || title.contains("buffet") { return 40 }
+        if title.contains("nhận phòng") { return 15 }
+        if title.contains("gửi") { return 10 }
         guard let p else { return 10 }
         switch p.kind {
         case .food:
@@ -178,6 +199,11 @@ public struct PlanEngine: Sendable {
         case .station, .stay: return 10
         case .sight: return s.isOptional ? 20 : 30
         }
+    }
+
+    /// `along` for a place on a leg's walk: both fixed by the plan, so worked out once and kept.
+    private func along(_ leg: String, _ pts: [Coordinate], _ place: Place) -> Double {
+        store.along(leg, place.id) { Self.along(pts, place.coordinate) }
     }
 
     /// Distance along a polyline to the point nearest p, sampled the way check-plan.mjs samples it.
@@ -212,8 +238,8 @@ public struct PlanEngine: Sendable {
             let pts = store.path(m.leg.id)
             let ahead = day.items[o.from...].contains { $0.stop?.place == m.leg.to }
             guard ahead, let w = m.leg.walk, !pts.isEmpty, m.leg.via.contains(where: { v in day.items.contains { $0.stop?.place == v } }) else { return nil }
-            let done = store.place(first.place).map { Self.along(pts, $0.coordinate) } ?? 0
-            return PendingWalk(pts: pts, km: w.km, min: w.minutes(pace: o.pace), done: done, to: m.leg.to)
+            let done = store.place(first.place).map { along(m.leg.id, pts, $0) } ?? 0
+            return PendingWalk(leg: m.leg.id, pts: pts, km: w.km, min: w.minutes(pace: o.pace), done: done, to: m.leg.to)
         }
         return nil
     }
@@ -280,7 +306,7 @@ public struct PlanEngine: Sendable {
                 if Double(planned) < clock - 2 {
                     let late = Self.jsRound(clock - Double(planned))
                     out.append(Finding(kind: .late, index: slot.index, minutes: late, line: "  ! \(at) \(s.title): earliest arrival \(Self.jsClock(clock)) (\(late) min short)"))
-                } else if Double(planned) - clock < 3, s.title.range(of: "^(Gửi|Nhận phòng)", options: .regularExpression) == nil {
+                } else if Double(planned) - clock < 3, !s.isErrand {
                     let spare = Self.jsRound(Double(planned) - clock)
                     out.append(Finding(kind: .tight, index: slot.index, minutes: spare, line: "  ~ \(at) \(s.title): only \(spare) min to spare"))
                 }
