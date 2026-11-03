@@ -6,17 +6,20 @@ import TripKit
 // phone near by asks to share, the pairs that may be one expense logged twice, and the sheet that
 // turns it on and explains it.
 
-/// "Đã đồng bộ với Lan lúc 21:04", under the purses; opens the sync sheet.
+/// "Đã đồng bộ với Lan lúc 21:04", under the purses; opens the sync sheet. A write that failed, on
+/// either phone, shows the red triangle.
 struct SpendSyncLine: View {
     @Environment(AppModel.self) private var model
     let open: () -> Void
 
     var body: some View {
         let sync = model.ledgerSync
+        let problem = sync.standing.isProblem
+        let near = sync.nearby != nil
         Button(action: open) {
             HStack(spacing: 8) {
-                Image(systemName: sync.nearby != nil ? "arrow.triangle.2.circlepath" : "iphone.radiowaves.left.and.right")
-                    .foregroundStyle(sync.nearby != nil ? AnyShapeStyle(SpendPurseTint.suica) : AnyShapeStyle(.secondary))
+                Image(systemName: problem ? "exclamationmark.triangle" : near ? "arrow.triangle.2.circlepath" : "iphone.radiowaves.left.and.right")
+                    .foregroundStyle(problem ? AnyShapeStyle(Palette.sun) : near ? AnyShapeStyle(SpendPurseTint.suica) : AnyShapeStyle(.secondary))
                 Text(sync.status)
                     .lineLimit(1)
                 Spacer(minLength: 4)
@@ -235,7 +238,14 @@ struct LedgerSyncSheet: View {
 
                 if sync.enabled {
                     Section("Bây giờ") {
-                        Label(sync.status, systemImage: sync.nearby != nil ? "arrow.triangle.2.circlepath" : "antenna.radiowaves.left.and.right")
+                        Label(sync.status, systemImage: sync.standing.isProblem ? "exclamationmark.triangle"
+                            : sync.nearby != nil ? "arrow.triangle.2.circlepath" : "antenna.radiowaves.left.and.right")
+                        if sync.rejected > 0 {
+                            // the rows `LedgerMerge.screened` left out of the paired phone's last ledger
+                            Text("Không nhận \(sync.rejected) khoản trong sổ của \(sync.rejectedFrom ?? "máy kia"): số tiền, ghi chú hay ngày không hợp lệ.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
                         if let asking = sync.asking {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("\(asking.name) ở gần và muốn dùng chung sổ chi. Chỉ đồng ý khi máy kia hiện cùng mã này.")

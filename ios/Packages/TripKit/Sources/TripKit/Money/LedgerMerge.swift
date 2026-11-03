@@ -221,8 +221,9 @@ public enum LedgerMerge {
     /// So two phones may stay different on a row one of them refuses: a version past the keypad's cap
     /// or with a note too long (written before every way in was checked), or a write or deletion dated
     /// more than `clockSlack` ahead of the receiver. The phone that refuses it keeps its own version
-    /// and reports the refused row (`screened`'s `rejected`); neither sends it again, so they never
-    /// answer each other for ever.
+    /// and reports the refused row (`screened`'s `rejected`). The refused row is never a reason to
+    /// answer, and the phone that holds it sends its ledger only until the other acknowledges it,
+    /// refused row and all (`LedgerSyncSession`), so they never answer each other for ever.
     public static func reply(local: LedgerState, remote: LedgerState, now: Date) -> LedgerState? {
         let clean = screened(remote, now: now).state
         let merged = merge(local, clean)

@@ -34,6 +34,25 @@ import UIKit
 ///
 /// Third-party apps cannot send by AirDrop on their own, nor take in an AirDrop without the share
 /// sheet and an accept on the other side: hence this, and the CSV only as a fallback.
+///
+/// "Đã đồng bộ" means the other phone has written this one's ledger as it is now, and this one wrote
+/// the other's last. What to send and when, and what to answer, is decided by TripKit's
+/// `LedgerSyncSession`, one per connection; this class merges, works out digests, signs and sends:
+/// 1. A sends `.state(S_A, d_A)`, `d_A` its digest (`LedgerDigest`: a hash of the ledger as sorted
+///    JSON, the same on both phones). Only once the radio takes it does the session note it as sent;
+///    a send the radio refuses is not one, and the heartbeat sends it.
+/// 2. B screens it (`LedgerMerge.screened`) and merges it into its records. Written: B answers
+///    `.ack(d_A)`, notes that A holds `S_A` (a phone sends only what it has stored), and sends its own
+///    ledger back when A would gain something from it (`LedgerMerge.reply`) and it is not already on its
+///    way. Not written: `.nack(d_A, reason)`, nothing stamped, and this line says so.
+/// 3. A, on `.ack`, notes that B holds `S_A`; on B's ledger, does as B did in 2; on `.nack`, says why
+///    and sends again at the next heartbeat.
+/// 4. "Đã đồng bộ lúc …" is stamped (`lastSync`) only when the session says `.synced`.
+/// 5. Every 15 s the heartbeat sends this phone's ledger to each phone that is not known to hold it
+///    and has not had it within the last 15 s. A connection's first send, and a touch, send at once.
+/// A build from before acknowledgements (its greeting has no `v`) is sent each ledger once and never
+/// counted as synced: "Đã gửi cho Lan · chờ máy kia cập nhật app để xác nhận". During a rehearsal
+/// nothing is sent or acknowledged: the link is down.
 @Observable final class LedgerSync: NSObject {
     /// the one the app runs, for the records' helpers to nudge
     static weak var shared: LedgerSync?
@@ -73,9 +92,8 @@ import UIKit
     /// rows of the paired phone's last ledger that this phone left out (`LedgerMerge.screened`):
     /// replaced by each ledger received, not kept across launches
     private(set) var rejected = 0
-    /// why the paired phone's last ledger could not be written here (`Ledger.merge` failed, nothing of
-    /// it kept); cleared by the next one that is, not kept across launches
-    private(set) var saveFailure: String?
+    /// the paired phone that ledger came from
+    private(set) var rejectedFrom: String?
     /// both phones need UWB for the touch; this one has it
     var supportsTouch: Bool { NISession.deviceCapabilities.supportsPreciseDistanceMeasurement }
 
@@ -88,14 +106,16 @@ import UIKit
     @ObservationIgnored private var saves: (any NSObjectProtocol)?
     /// the sync page is on screen: phones not yet paired may connect, to be asked about
     @ObservationIgnored private var pairing = false
-    /// connected peers that have said who they are
-    @ObservationIgnored private var peers: [Int: Peer] = [:]
+    /// connected peers that have said who they are, each with its sync session (observed: `standing`
+    /// reads them)
+    private var peers: [Int: Peer] = [:]
     /// this side's random number for each connection, sent in its greeting
     @ObservationIgnored private var nonces: [Int: Data] = [:]
-    /// what was last sent to each peer, so an unchanged ledger is not sent again
-    @ObservationIgnored private var sent: [Int: LedgerState] = [:]
-    /// this phone's ledger as last read from the records; dropped when an expense is saved
-    @ObservationIgnored private var cached: LedgerState?
+    /// this phone's ledger as last read from the records, with its digest; dropped when an expense is
+    /// saved (observed: `standing` reads the digest)
+    private var cached: Snapshot?
+    /// bumped whenever `cached` is dropped, so a digest worked out across a save is not kept
+    @ObservationIgnored private var generation = 0
     @ObservationIgnored private var sessions: [Int: NISession] = [:]
     @ObservationIgnored private var closeness: [Int: Float] = [:]
     @ObservationIgnored private var lastTouch = Date.distantPast
@@ -111,6 +131,14 @@ import UIKit
         /// the number of the last message sent to it, and of the last one taken from it
         var out: UInt64 = 0
         var heard: UInt64 = 0
+        /// what this connection knows of the sync, and its decisions
+        var session: LedgerSyncSession
+    }
+
+    /// The ledger as read from the records, and the digest of exactly that value.
+    private struct Snapshot {
+        let state: LedgerState
+        let digest: LedgerDigest
     }
 
     private enum Key {
@@ -142,8 +170,7 @@ import UIKit
     func activate(context: ModelContext) {
         if self.context !== context {
             self.context = context
-            cached = nil
-            sent = [:]
+            changed()
         }
         if saves == nil {
             // only a save that touches expenses or their deletions can change the ledger; a point of
@@ -172,6 +199,7 @@ import UIKit
     func setPaused(_ on: Bool) {
         guard on != paused else { return }
         paused = on
+        for k in peers.keys { peers[k]?.session.paused = on }
         if on { end() }
     }
 
@@ -242,7 +270,8 @@ import UIKit
         nearby = p
         distance = closeness[k]
         seal(.intro(install: SpendLedgerFile.installID), to: k)
-        push(to: k, force: true)
+        // the ledger follows once its digest is worked out; nothing waits for it
+        Task { await push(to: k, force: true) }
     }
 
     private func savePaired() {
@@ -261,9 +290,11 @@ import UIKit
         guard link == nil, context != nil, enabled, !paused else { return }
         let (stream, continuation) = AsyncStream.makeStream(of: SyncLink.Event.self)
         events = continuation
-        // one queue for everything the link reports, so a peer's greeting is always handled before its ledger
+        // one queue for everything the link reports, handled one at a time and to the end (a ledger's
+        // digest is awaited), so a peer's greeting is always handled before its ledger, and its ledger
+        // before its next message
         listener = Task { [weak self] in
-            for await event in stream { self?.handle(event) }
+            for await event in stream { await self?.handle(event) }
         }
         let link = SyncLink(peer: peerID(), fingerprint: SyncIdentity.fingerprint(SyncIdentity.publicKey)) { continuation.yield($0) }
         self.link = link
@@ -272,7 +303,7 @@ import UIKit
         heartbeat = Task { [weak self] in
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(15))
-                self?.pushAll()
+                await self?.pushAll()
             }
         }
     }
@@ -291,7 +322,6 @@ import UIKit
         sessions = [:]
         peers = [:]
         nonces = [:]
-        sent = [:]
         closeness = [:]
         nearby = nil
         asking = nil
@@ -314,15 +344,15 @@ import UIKit
         return id
     }
 
-    private func handle(_ event: SyncLink.Event) {
+    private func handle(_ event: SyncLink.Event) async {
         switch event {
         case .connected(let k):
             greet(k)
         case .disconnected(let k):
+            // its sync session goes with it: what the other phone held, and what was on its way
             let gone = peers.removeValue(forKey: k)
             nonces[k] = nil
             sessions.removeValue(forKey: k)?.invalidate()
-            sent[k] = nil
             closeness[k] = nil
             if let gone, nearby?.key == gone.key, !peers.values.contains(where: { $0.key == gone.key }) {
                 nearby = nil
@@ -331,7 +361,7 @@ import UIKit
             if let gone, asking?.key == gone.key { asking = nil; askingCode = nil }
         case .received(let k, let data):
             guard let message = try? JSONDecoder().decode(SyncMessage.self, from: data) else { return }
-            receive(message, from: k)
+            await receive(message, from: k)
         }
     }
 
@@ -349,18 +379,21 @@ import UIKit
             sessions[k] = s
             token = s.discoveryToken.flatMap { try? NSKeyedArchiver.archivedData(withRootObject: $0, requiringSecureCoding: true) }
         }
-        send(.hello(name: name, key: SyncIdentity.publicKey, nonce: nonce, token: token), to: k)
+        send(.hello(name: name, key: SyncIdentity.publicKey, nonce: nonce, token: token, v: LedgerSyncSession.version), to: k)
     }
 
-    private func receive(_ message: SyncMessage, from k: Int) {
+    private func receive(_ message: SyncMessage, from k: Int) async {
         switch message {
-        case .hello(let name, let key, let nonce, let token):
+        case .hello(let name, let key, let nonce, let token, let v):
             // their greeting can come before the link tells this side it connected
             if nonces[k] == nil { greet(k) }
             guard peers[k] == nil, let mine = nonces[k], nonce.count == 32, key != SyncIdentity.publicKey,
                   let secret = SyncIdentity.secret(with: key, nonces: mine, nonce)
             else { return }
-            let peer = Peer(name: String(name.prefix(60)), key: key, secret: secret)
+            // a greeting with no version is a build before acknowledgements: it is never counted as synced
+            var session = LedgerSyncSession(peerVersion: v)
+            session.paused = paused
+            let peer = Peer(name: String(name.prefix(60)), key: key, secret: secret, session: session)
             peers[k] = peer
             if let token, let s = sessions[k],
                let t = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NIDiscoveryToken.self, from: token) {
@@ -379,11 +412,11 @@ import UIKit
             else { return }
             peer.heard = n
             peers[k] = peer
-            open(payload, from: k)
+            await open(payload, from: k)
         }
     }
 
-    private func open(_ payload: SyncPayload, from k: Int) {
+    private func open(_ payload: SyncPayload, from k: Int) async {
         guard let peer = peers[k] else { return }
         switch payload {
         case .intro(let install):
@@ -393,38 +426,64 @@ import UIKit
                 savePaired()
                 if nearby?.key == peer.key { nearby = paired[i] }
             }
-        case .state(let remote):
+        case .state(let remote, let digest):
             guard let p = partner(peer), let context, !paused else { return }
             let now = Date()
             let (clean, left) = LedgerMerge.screened(remote, now: now)
             rejected = left.count
-            let merged: LedgerState
+            rejectedFrom = p.name
+            var failure: String?
             do {
-                merged = try Ledger.merge(clean, into: context).merged
+                let changes = try Ledger.merge(clean, into: context).changes
+                // dropped here too: a merge that changed only the pairs kept apart posts no save
+                if !changes.isEmpty { changed() }
             } catch {
-                // not written, so not synced: nothing stamped, nothing sent back, the records as
-                // they were; `status` says why
-                saveFailure = error.localizedDescription
-                // Task 1.5: nack
-                return
+                // not written, so not synced: nothing stamped, the records as they were; the other
+                // phone is told why (`.nack`) and sends it again at its next heartbeat
+                let reason = error.localizedDescription
+                failure = reason
+                SyncLink.log.error("ledger from a paired phone not written: \(reason, privacy: .public)")
             }
-            saveFailure = nil
-            cached = nil
-            stamp(p.name)
-            // what it lacked and would believe goes back; a row one phone refuses stays where it is
-            // (counted in `rejected`), or the two would answer each other for ever
-            if let back = LedgerMerge.reply(local: merged, remote: remote, now: now) { seal(.state(back), to: k) }
-            sent[k] = merged
+            if let receipt = peers[k]?.session.received(digest, failure: failure) { seal(receipt, to: k) }
+            guard failure == nil else { return }
+            // this phone's ledger as now written goes back when the other would gain something from it
+            // (`LedgerMerge.reply`) and it is not already on its way; a row one phone refuses stays
+            // where it is (counted in `rejected`)
+            guard let mine = await snapshot(), !paused, let session = peers[k]?.session else { return }
+            if session.answers(remote, with: mine.state, digest: mine.digest, now: now) { sendLedger(mine, to: k) }
+            confirm(k)
+        case .ack(let digest):
+            guard partner(peer) != nil else { return }
+            peers[k]?.session.peerHas(LedgerDigest(digest))
+            // stamped against this phone's ledger as it is now: worked out here if a save dropped it,
+            // or an ack landing in that moment would never stamp
+            _ = await snapshot()
+            confirm(k)
+        case .nack(let digest, let reason):
+            guard partner(peer) != nil else { return }
+            // sent again at the next heartbeat, not from here: a write that keeps failing costs one
+            // ledger every 15 s, not a loop
+            peers[k]?.session.peerFailed(LedgerDigest(digest), reason: reason)
+            SyncLink.log.error("ledger not written on the paired phone: \(reason, privacy: .public)")
         case .touched:
             if partner(peer) != nil {
                 felt()
-                push(to: k, force: true)
+                await push(to: k, force: true)
             } else if let d = closeness[k], d < 0.3 {
                 // the touch is the yes, on this side too, when this side measured it as well
                 felt()
                 pair(peer.key)
             }
         }
+    }
+
+    /// Stamps "Đã đồng bộ" when the session with this peer says synced: it holds this phone's ledger
+    /// as it is now, and this phone wrote its last one.
+    private func confirm(_ k: Int) {
+        guard let peer = peers[k], let p = partner(peer),
+              peer.session.standing(current: cached?.digest) == .synced
+        else { return }
+        stamp(p.name)
     }
 
     private func stamp(_ peer: String) {
@@ -436,14 +495,20 @@ import UIKit
     /// Something in the ledger was saved: send it if it changed, a moment later so a burst of saves
     /// goes as one.
     func ledgerChanged() {
-        cached = nil
+        changed()
         guard link != nil else { return }
         debounce?.cancel()
         debounce = Task { [weak self] in
             try? await Task.sleep(for: .seconds(1))
             guard !Task.isCancelled else { return }
-            self?.pushAll()
+            await self?.pushAll()
         }
+    }
+
+    /// The ledger read before is out of date.
+    private func changed() {
+        cached = nil
+        generation += 1
     }
 
     /// Whether a save may have changed the ledger: it inserted, changed or deleted an expense or a
@@ -459,37 +524,66 @@ import UIKit
         return !told
     }
 
-    private func pushAll() {
-        for (k, peer) in peers where partner(peer) != nil { push(to: k) }
+    /// The heartbeat, or a burst of saves settled: each paired phone that needs it gets the ledger.
+    private func pushAll() async {
+        for (k, peer) in peers where partner(peer) != nil { await push(to: k) }
     }
 
-    private func push(to k: Int, force: Bool = false) {
-        guard let state = ledger() else { return }
-        if !force, sent[k] == state { return }
-        seal(.state(state), to: k)
-        sent[k] = state
+    /// Sends this phone's ledger to one peer when its session says so, or regardless (`force`: the
+    /// connection's first send, a touch).
+    private func push(to k: Int, force: Bool = false) async {
+        guard !paused, let mine = await snapshot(), !paused, let session = peers[k]?.session else { return }
+        guard force || session.needsSend(current: mine.digest, now: Date()) else { return }
+        sendLedger(mine, to: k)
     }
 
-    /// This phone's ledger, read from the records only when an expense changed since the last read.
-    private func ledger() -> LedgerState? {
+    /// The ledger and its digest, from one snapshot; noted as sent only once the radio took it.
+    private func sendLedger(_ mine: Snapshot, to k: Int) {
+        if seal(.state(mine.state, digest: mine.digest.value), to: k) {
+            peers[k]?.session.didSend(mine.digest, at: Date())
+        }
+    }
+
+    /// This phone's ledger and its digest, read from the records only when an expense changed since
+    /// the last read. The digest is worked out off the main actor; one finished after a save is used
+    /// for what it was taken from, not kept.
+    private func snapshot() async -> Snapshot? {
         if let cached { return cached }
         guard let context else { return nil }
         let state = Ledger.state(context)
-        cached = state
-        return state
+        let taken = generation
+        guard let digest = await Self.digest(state) else {
+            SyncLink.log.error("ledger could not be encoded for its digest")
+            return nil
+        }
+        let s = Snapshot(state: state, digest: digest)
+        if taken == generation { cached = s }
+        return s
     }
 
-    /// Signs a message for one peer, numbered so it cannot be played again.
-    private func seal(_ payload: SyncPayload, to k: Int) {
-        guard var peer = peers[k], let body = try? JSONEncoder().encode(payload) else { return }
+    /// SHA-256 of the ledger as JSON with sorted keys (its rows already in id order), in hex: the same
+    /// ledger gives the same digest on either phone. It encodes the whole ledger, so not on main.
+    @concurrent private nonisolated static func digest(_ state: LedgerState) async -> LedgerDigest? {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        guard let data = try? encoder.encode(state) else { return nil }
+        return LedgerDigest(SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined())
+    }
+
+    /// Signs a message for one peer, numbered so it cannot be played again; false when it did not go.
+    @discardableResult
+    private func seal(_ payload: SyncPayload, to k: Int) -> Bool {
+        guard var peer = peers[k], let body = try? JSONEncoder().encode(payload) else { return false }
         peer.out += 1
         peers[k] = peer
-        send(.sealed(n: peer.out, body: body, mac: SyncIdentity.mac(peer.out, body, peer.secret)), to: k)
+        return send(.sealed(n: peer.out, body: body, mac: SyncIdentity.mac(peer.out, body, peer.secret)), to: k)
     }
 
-    private func send(_ message: SyncMessage, to k: Int) {
-        guard let link, let data = try? JSONEncoder().encode(message) else { return }
-        link.send(data, to: k)
+    /// False when the radio did not take it.
+    @discardableResult
+    private func send(_ message: SyncMessage, to k: Int) -> Bool {
+        guard let link, let data = try? JSONEncoder().encode(message) else { return false }
+        return link.send(data, to: k)
     }
 
     // MARK: - The touch
@@ -503,7 +597,7 @@ import UIKit
         felt()
         seal(.touched, to: k)
         if partner(peer) != nil {
-            push(to: k, force: true)
+            Task { await push(to: k, force: true) }
         } else {
             pair(peer.key)
         }
@@ -515,18 +609,80 @@ import UIKit
 
     // MARK: - Status
 
-    /// One quiet line for the Spend tab: "Đã đồng bộ với Lan lúc 21:04".
-    var status: String {
-        guard enabled else { return "Đồng bộ với máy kia đang tắt" }
-        if paused { return "Đồng bộ tạm dừng trong lúc chạy thử" }
-        if let nearby {
-            if let saveFailure { return "\(nearby.name) ở gần · chưa lưu được sổ chi: \(saveFailure)" }
-            if let lastSync, lastSync.name == nearby.name { return "\(nearby.name) ở gần · đã đồng bộ \(Self.when(lastSync.at))" }
-            return "\(nearby.name) ở gần · đang đồng bộ"
+    /// Where the sync stands, for the line on the Spend tab and the sync page.
+    enum Status: Equatable {
+        /// syncing is turned off
+        case off
+        /// a rehearsal runs
+        case paused
+        /// no paired phone near, and none synced with yet
+        case waiting(name: String?)
+        /// a paired phone near; this phone's ledger as it is now is not known to be on it yet
+        case sending(name: String)
+        /// when a paired phone last held this phone's ledger as it was, this phone having written its last
+        case synced(name: String, at: Date)
+        /// a build before acknowledgements was sent this ledger; whether it holds it cannot be known
+        case unconfirmed(name: String)
+        /// the paired phone could not write this one's ledger (its nack), and why
+        case failed(name: String, reason: String)
+        /// this phone could not write the paired phone's ledger, and why
+        case unsaved(name: String, reason: String)
+
+        var text: String {
+            switch self {
+            case .off: "Đồng bộ với máy kia đang tắt"
+            case .paused: "Đồng bộ tạm dừng trong lúc chạy thử"
+            case .waiting(let name): "Chờ \(name ?? "máy kia") mở JP27 ở gần"
+            case .sending(let name): "\(name) ở gần · đang đồng bộ"
+            case .synced(let name, let at): "Đã đồng bộ với \(name) \(LedgerSync.when(at))"
+            case .unconfirmed(let name): "Đã gửi cho \(name) · chờ máy kia cập nhật app để xác nhận"
+            case .failed(let name, let reason): "\(name) chưa lưu được: \(reason)"
+            case .unsaved(let name, let reason): "Chưa lưu được sổ chi của \(name): \(reason)"
+            }
         }
-        if let lastSync { return "Đã đồng bộ với \(lastSync.name) \(Self.when(lastSync.at))" }
-        if let first = paired.first { return "Chờ \(first.name) mở JP27 ở gần" }
-        return "Chờ máy kia mở JP27 ở gần"
+
+        /// a write that failed, on either phone
+        var isProblem: Bool {
+            switch self {
+            case .failed, .unsaved: true
+            default: false
+            }
+        }
+    }
+
+    /// Where the sync stands. With paired phones connected, the worst of them, named
+    /// (`LedgerSyncSession.Standing.worst`), so "đã đồng bộ" only when every one is synced; away from
+    /// them, the last sync, or who to wait for.
+    var standing: Status {
+        guard enabled else { return .off }
+        if paused { return .paused }
+        let current = cached?.digest
+        let near = paired.compactMap { p in
+            peers.values.first { $0.key == p.key }.map { (name: p.name, standing: $0.session.standing(current: current)) }
+        }
+        if let worst = LedgerSyncSession.Standing.worst(near, by: { $0.standing }) {
+            let name = worst.item.name
+            switch worst.standing {
+            case .unsaved(let reason): return .unsaved(name: name, reason: reason)
+            case .failed(let reason): return .failed(name: name, reason: reason)
+            case .unconfirmed: return .unconfirmed(name: name)
+            case .sending: return .sending(name: name)
+            case .synced:
+                // stamped as it became synced
+                guard let lastSync else { return .sending(name: name) }
+                return .synced(name: lastSync.name, at: lastSync.at)
+            }
+        }
+        if let lastSync { return .synced(name: lastSync.name, at: lastSync.at) }
+        return .waiting(name: paired.first?.name)
+    }
+
+    /// One quiet line for the Spend tab: "Đã đồng bộ với Lan lúc 21:04", ending with how many rows
+    /// of the paired phone's last ledger were not taken: " · không nhận 1 khoản".
+    var status: String {
+        let s = standing
+        guard rejected > 0, s != .off, s != .paused else { return s.text }
+        return "\(s.text) · không nhận \(rejected) khoản"
     }
 
     /// "lúc 21:04", or "lúc 21:04 ngày 19/10" on another day (Japan time, as the trip reads).
@@ -666,23 +822,8 @@ extension LedgerSync: NISessionDelegate {
 
 // MARK: - Messages
 
-/// What the phones say to each other, as JSON: a greeting in the clear, then only signed messages.
-nonisolated enum SyncMessage: Codable {
-    /// who this is: a name, a public key, this connection's random number, the UWB token if any
-    case hello(name: String, key: Data, nonce: Data, token: Data?)
-    /// a `SyncPayload`, numbered and signed with the connection's key
-    case sealed(n: UInt64, body: Data, mac: Data)
-}
-
-/// What a signed message carries.
-nonisolated enum SyncPayload: Codable {
-    /// this phone's install id, which names the rows it logged; sent only to a paired phone
-    case intro(install: String)
-    /// the whole ledger
-    case state(LedgerState)
-    /// the phones touched
-    case touched
-}
+// What the phones say to each other (`SyncMessage`, `SyncPayload`) is in TripKit (`SyncWire.swift`),
+// where tests pin the shapes that this build and the one before acknowledgements both read.
 
 /// MultipeerConnectivity, kept off the main actor: its callbacks come on its own queues, and leave
 /// here only as plain values, in order, through `onEvent`. Each phone advertises and browses; of
@@ -705,6 +846,8 @@ nonisolated final class SyncLink: NSObject, @unchecked Sendable, MCSessionDelega
 
     /// `_jp27-sync._tcp` and `_udp` in NSBonjourServices
     static let service = "jp27-sync"
+    /// what went wrong with the sync, in the device log (Console, subsystem tech.delphyra.jp27)
+    static let log = Logger(subsystem: "tech.delphyra.jp27", category: "sync")
 
     private let me: MCPeerID
     /// this phone's key fingerprint, sent with its invitations
@@ -747,10 +890,18 @@ nonisolated final class SyncLink: NSObject, @unchecked Sendable, MCSessionDelega
     }
 
     /// A peer is its `MCPeerID.hash`: the same for the same peer whichever object reports it.
-    func send(_ data: Data, to key: Int) {
+    /// True once the session took it for delivery: not that the peer has it (that is its ack).
+    func send(_ data: Data, to key: Int) -> Bool {
         let to = session.connectedPeers.filter { $0.hash == key }
-        guard !to.isEmpty else { return }
-        try? session.send(data, toPeers: to, with: .reliable)
+        guard !to.isEmpty else { return false }
+        do {
+            try session.send(data, toPeers: to, with: .reliable)
+            return true
+        } catch {
+            let reason = error.localizedDescription
+            Self.log.error("send failed: \(reason, privacy: .public)")
+            return false
+        }
     }
 
     // MARK: MCSessionDelegate

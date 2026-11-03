@@ -118,8 +118,8 @@ vào sổ riêng của nó.
 4. **Bàn phím.** Ghi chi: gõ 9999999 rồi thêm một số → không đổi, không rung; "000" trên ¥10.000 → không đổi.
    Dán một ghi chú rất dài (hơn 500 ký tự) → ô ghi chú dừng ở 500 ký tự.
 5. **Hai máy** (khi kiểm Task 1.5): máy A có một khoản không hợp lệ cũ (bước 3) → đồng bộ với máy B → máy B không
-   nhận khoản đó, sổ B không crash; `LedgerSync.rejected` trên B = 1 (Task 1.5 hiện ra; trước đó chỉ xem được bằng
-   debugger).
+   nhận khoản đó, sổ B không crash; dòng đồng bộ trên B kết thúc bằng "· không nhận 1 khoản" (Task 1.5 bước 5 có
+   cách tạo một khoản như vậy mà không cần bản cũ).
 
 ## Task 1.4 — Lưu bền: lỗi ghi tới UI, không còn lưu im lặng
 
@@ -184,16 +184,16 @@ Tắt công tắc sau mỗi bước.
      Thẻ còn đó, không rung `done`.
    - Mua sắm › bỏ dấu một món đã mua → alert "Bỏ đã mua: …". Món còn dấu, khoản của nó còn trong sổ.
    - Đồng bộ › "Không phải trùng" (chỉ khi có mục "Đã gộp vì ghi trùng") → alert "Khoản bị gộp nhầm: …" trên sheet Đồng bộ.
-8. **Hai máy** (kiểm cùng Task 1.5).
+8. **Hai máy** (kiểm cùng Task 1.5, bước 1 ở đó).
    - Ghép A và B, đồng bộ một lần. Bật công tắc trên **B**. Sửa một khoản trên A.
-   - **Đạt** khi dòng đồng bộ trên B (dưới hai ví) ghi "<tên A> ở gần · chưa lưu được sổ chi: Giả lỗi lưu (Chẩn đoán)".
-     - Không có "đã đồng bộ" với giờ mới. Sheet Đồng bộ trên B ghi cùng dòng đó.
+   - **Đạt** khi dòng đồng bộ trên B (dưới hai ví) ghi "Chưa lưu được sổ chi của <tên A>: Giả lỗi lưu (Chẩn đoán)".
+     - Không có "Đã đồng bộ" với giờ mới. Sheet Đồng bộ trên B ghi cùng dòng đó.
      - Sổ B không có thay đổi của A.
    - Đưa A ra xa (hoặc tắt hẳn app trên A, rồi mở lại app trên B).
-     - **Đạt** khi B ghi "Đã đồng bộ với <tên A> <giờ>" với giờ của lần đồng bộ **trước đó**, không phải giờ lúc lưu lỗi.
+     - **Đạt** khi B ghi "Đã đồng bộ với <tên A> lúc <giờ>" với giờ của lần đồng bộ **trước đó**, không phải giờ lúc lưu lỗi.
      - Nếu đã mở lại app trên B, chọn lại Mọi lần lưu **trước** khi đưa A lại gần.
-   - Tắt công tắc trên B. Sửa thêm một khoản trên A → B ghi "đã đồng bộ lúc <giờ mới>" và có cả hai thay đổi.
-   - Trước Task 1.5, chỉ tắt công tắc thì không đủ để A gửi lại. Task 1.5 thêm ack/nack và gửi lại.
+   - Đưa A lại gần, rồi tắt công tắc trên B, không sửa gì thêm → trong khoảng 15 giây B ghi "Đã đồng bộ với <tên A> lúc
+     <giờ mới>" và sổ B có thay đổi của A: từ Task 1.5, A gửi lại tới khi B báo đã lưu.
 9. **SwiftData khi một lần ghi chạm `#Unique`.**
    - Vì sao cần: chưa biết SwiftData xử lý thế nào; bước này cho biết hai pha sắp lại index của 1.4 có cần không, và
      Task 2.1 cần gì khi bỏ unique theo index.
@@ -234,3 +234,69 @@ Tắt công tắc sau mỗi bước.
     - "Thử lại" → lưu được: editor đóng, rung `done`.
     - Sổ có **đúng một** khoản ¥500 mới, không phải hai.
     - Cài đặt › Chẩn đoán › "Giả lỗi lưu" đã tự về **Tắt**.
+
+## Task 1.5 — Đồng bộ sổ chi có xác nhận: "Đã đồng bộ" chỉ khi máy kia đã lưu
+
+Hai máy A và B cài bản này, ghép với nhau, mở JP27 ở gần nhau, đồng bộ đang bật. B (và C ở bước 6) cài bản
+**Debug** để có "Giả lỗi lưu" (Task 1.4). Không chạy thử, trừ bước 3. "Dòng đồng bộ" là dòng dưới hai ví ở tab Chi
+tiêu; sheet Đồng bộ (chạm dòng đó) › mục "Bây giờ" ghi cùng chữ.
+
+Chữ mong đợi:
+- Đã xong: "Đã đồng bộ với <tên> lúc <giờ>" (hôm khác: "… lúc <giờ> ngày <ngày>/<tháng>"). Biểu tượng hai mũi tên
+  vòng khi máy kia đang ở gần.
+- Đang gửi, máy kia chưa báo đã lưu: "<tên> ở gần · đang đồng bộ".
+- Máy kia không lưu được: "<tên máy kia> chưa lưu được: <lỗi>". Máy này không lưu được: "Chưa lưu được sổ chi của
+  <tên máy kia>: <lỗi>". Cả hai có tam giác đỏ thay cho biểu tượng thường.
+
+1. **Lỗi lưu trên B, sửa trên A.**
+   - Cả hai đang ghi "Đã đồng bộ với <tên máy kia> lúc <giờ>". Trên **B** bật "Giả lỗi lưu" › Mọi lần lưu.
+   - Trên **A** sửa số tiền một khoản › Lưu.
+   - **Đạt** khi, trong vài giây:
+     - A ghi "<tên B> chưa lưu được: Giả lỗi lưu (Chẩn đoán)", B ghi "Chưa lưu được sổ chi của <tên A>: Giả lỗi lưu
+       (Chẩn đoán)", cả hai có tam giác đỏ;
+     - không máy nào có "Đã đồng bộ" với giờ mới; sổ B chưa có số mới.
+   - Để vậy 30 giây: hai dòng giữ nguyên, app không chậm đi (A gửi lại mỗi 15 giây, không liên tục).
+   - Trên B chọn "Giả lỗi lưu" › Tắt, không sửa gì thêm.
+   - **Đạt** khi trong khoảng 15 giây cả hai ghi "Đã đồng bộ với <tên máy kia> lúc <giờ mới>", tam giác đỏ mất, sổ B có
+     số mới.
+2. **Chế độ máy bay.**
+   - Sửa khi không có mạng:
+     - Cả hai đã đồng bộ. Trên A bật Chế độ máy bay; ở Trung tâm điều khiển xem Wi‑Fi và Bluetooth **đều tắt** (iPhone
+       nhớ nếu trước đây từng bật lại Wi‑Fi trong chế độ máy bay).
+     - Chờ dòng của A thôi ghi "ở gần" (vài giây), rồi sửa một khoản trên A.
+     - Tắt Chế độ máy bay trên A, không sửa gì thêm.
+     - **Đạt** khi trong khoảng 30 giây khoản vừa sửa sang B, và cả hai ghi "Đã đồng bộ với <tên máy kia> lúc <giờ
+       mới>". Nếu sau 1 phút A vẫn chưa thấy B ở gần, đưa JP27 trên A ra nền rồi mở lại, và ghi lại.
+   - Gửi mà chưa được xác nhận:
+     - Cả hai đã đồng bộ. Trên A sửa một khoản › Lưu, rồi **ngay** (trong 1 giây) bật Chế độ máy bay trên **B**.
+     - Nhìn A cho tới khi A thôi ghi "ở gần". **Đạt** khi A ghi "Đã đồng bộ" với giờ mới **chỉ nếu** sổ B (vẫn trong
+       chế độ máy bay) đã có số mới. Sổ B chưa có thì A ghi "<tên B> ở gần · đang đồng bộ", rồi khi mất kết nối "Đã
+       đồng bộ với <tên B> lúc <giờ cũ>". Ghi lại trường hợp nào xảy ra.
+     - Tắt Chế độ máy bay trên B. **Đạt** khi trong khoảng 30 giây sổ B có số mới, và cả hai ghi "Đã đồng bộ … lúc
+       <giờ mới>".
+3. **Chạy thử.**
+   - Trên A bắt đầu chạy thử (Cài đặt › Chuyến đi › Chạy thử). **Đạt** khi A ghi "Đồng bộ tạm dừng trong lúc chạy thử";
+     B, sau vài giây, ghi "Đã đồng bộ với <tên A> lúc <giờ cũ>".
+   - Ghi một khoản trên A (vào sổ chạy thử), và sửa một khoản trên B.
+   - **Đạt** khi B không có khoản của sổ chạy thử, và sổ chạy thử trên A không có thay đổi của B.
+   - Kết thúc chạy thử. **Đạt** khi trong khoảng 30 giây cả hai ghi "Đã đồng bộ … lúc <giờ mới>": sổ thật của A có thay
+     đổi của B, B vẫn không có khoản chạy thử.
+4. **Máy còn bản cũ** (chỉ khi có sẵn một máy cài bản trước Task 1.5; làm máy B).
+   - **Đạt** khi A ghi "Đã gửi cho <tên B> · chờ máy kia cập nhật app để xác nhận", không bao giờ "Đã đồng bộ" với
+     giờ mới khi B ở gần; khoản sửa trên A sang B và ngược lại như trước; B (bản cũ) hiện như trước.
+5. **Khoản máy kia không nhận.**
+   - Trên A: Cài đặt (iPhone) › Cài đặt chung › Ngày & Giờ › tắt "Đặt tự động", đặt ngày **sau 2 ngày**. Mở JP27, ghi
+     một khoản ¥100. Khoản này mang ngày sau 2 ngày, nên B (giờ đúng) không nhận.
+   - **Đạt** khi trong khoảng 15 giây:
+     - B ghi "Đã đồng bộ với <tên A> lúc <giờ> · không nhận 1 khoản", và sheet Đồng bộ › "Bây giờ" có thêm dòng
+       "Không nhận 1 khoản trong sổ của <tên A>: số tiền, ghi chú hay ngày không hợp lệ.";
+     - A ghi "Đã đồng bộ với <tên B> lúc <giờ>" (không có tam giác đỏ): B đã lưu mọi thứ nó nhận.
+   - Để vậy 30 giây: hai dòng giữ nguyên.
+   - Trên A xoá khoản ¥100, rồi bật lại "Đặt tự động". **Đạt** khi sau lần đồng bộ kế, B thôi ghi "· không nhận 1
+     khoản".
+6. **Ba máy** (chỉ khi có máy thứ ba C, bản Debug, ghép với A).
+   - A, B, C mở JP27 ở gần nhau. Nếu B hay C hỏi ghép với nhau, bấm "Để sau". Trên **C** bật "Giả lỗi lưu" › Mọi lần
+     lưu. Sửa một khoản trên A.
+   - **Đạt** khi A ghi "<tên C> chưa lưu được: Giả lỗi lưu (Chẩn đoán)" dù B đã lưu: dòng nói về máy tệ nhất, không
+     ghi "Đã đồng bộ" khi còn một máy chưa lưu.
+   - Trên C chọn Tắt. **Đạt** khi trong khoảng 15 giây A ghi "Đã đồng bộ với … lúc <giờ mới>".
