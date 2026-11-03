@@ -425,15 +425,19 @@ OpenFreeMap thật sự bỏ build đó.
 
 **Chuẩn bị.** Bản mới: build của task này (bước 5 cần bản Debug cho "Giả lỗi lưu"; các bước khác như Release). Vị trí
 "Luôn luôn" đã cấp. Cài đặt › Chẩn đoán › "Lịch sử vị trí: chỗ ghé · điểm vết" là số hàng `Visit` · `Trace` trong sổ
-app đang đọc (sổ chạy thử khi đang chạy thử), đếm lúc mở trang Cài đặt.
-1. **Lịch sử cũ ngoài chuyến bị xoá ở lần mở đầu.** Máy đã dùng bản cũ (**a39a43d hoặc cũ hơn**) vài ngày với "Luôn
-   luôn" (bản cũ ghi chỗ ghé và vết vô thời hạn; mở Nhật ký một ngày bất kỳ cũng không thấy chúng, vì nó chỉ đọc
-   trong ngày chuyến). Cài bản mới đè lên (không xoá app), mở, vào Cài đặt.
+app đang đọc (sổ chạy thử khi đang chạy thử), đếm khi mở trang Cài đặt và đếm lại sau mỗi lần xoá.
+1. **Lịch sử cũ ngoài chuyến bị xoá ở lần mở đầu.** Máy thử dùng bản cũ (**a39a43d hoặc cũ hơn**) ít nhất 3 ngày,
+   với "Luôn luôn", mang theo khi đi lại (vài km mỗi ngày) và mở app vài lần mỗi ngày: bản cũ ghi chỗ ghé và điểm vết
+   ở mọi lần mở và mỗi lần iOS báo đổi vị trí, vô thời hạn (trang Nhật ký không hiện chúng, vì chỉ đọc trong ngày
+   chuyến, nên không thấy được trên bản cũ). Cài bản mới đè lên (không xoá app), mở, vào Cài đặt.
    - **Đạt** khi dòng Chẩn đoán ghi "0 · 0". Tắt hẳn app, mở lại: vẫn "0 · 0" (xoá một lần, không báo lỗi gì).
-2. **Không theo dõi nền trước chuyến.** Vẫn trước 17/10/2027, không chạy thử, "Luôn luôn" đã cấp. Mở app một lần rồi
-   rời app; mang máy đi lại vài giờ (vài km).
-   - **Đạt** khi Cài đặt iOS › Quyền riêng tư & Bảo mật › Dịch vụ định vị › JP27 không có mũi tên "đã dùng gần đây"
-     (tím hay xám) sau mấy giờ đó, và Chẩn đoán vẫn "0 · 0".
+   - Nếu bỏ qua 3 ngày dùng bản cũ thì bước này đạt mà không chứng minh gì: ghi lại là "không kiểm".
+2. **Không theo dõi nền trước chuyến.** Giờ thật trước 16/10/2027 18:00 giờ Nhật (lúc nền bắt đầu theo dõi), không chạy
+   thử, "Luôn luôn" đã cấp. Mở JP27 một lần (mỗi lần mở, app hỏi vị trí một lần để tính quãng đường: iOS ghi "đã dùng
+   gần đây" 24 giờ), rời app, rồi **không mở lại trong ít nhất 25 giờ**, mang máy đi lại vài km trong thời gian đó.
+   - **Đạt** khi sau 25 giờ, Cài đặt iOS › Quyền riêng tư & Bảo mật › Dịch vụ định vị › JP27 không có mũi tên tím
+     (đang dùng), không có mũi tên xám (dùng trong 24 giờ qua), và cũng không có mũi tên rỗng (geofence): ngoài ngày
+     của chuyến app không đăng ký vùng nào (lần mở trước đã gỡ vùng một bản cũ để lại). Mở app: Chẩn đoán vẫn "0 · 0".
 3. **Công tắc mặc định tắt; chạy thử ghi vào sổ riêng.** Cài đặt › Nhật ký: "Ghi nhật ký vị trí" đang tắt, chú thích
    "Chỉ trong 18–29/10/2027, chỉ trên máy này". Chạy thử từ 20/10/2027 12:00. Ở màn Hôm nay, đi bộ vài trăm mét với
    app mở.
@@ -443,23 +447,29 @@ app đang đọc (sổ chạy thử khi đang chạy thử), đếm lúc mở tr
      biến mất.
    - "Về giờ thật". **Đạt** khi Chẩn đoán về "0 · 0" (sổ chạy thử bị bỏ, sổ thật không có gì), dù công tắc vẫn bật:
      giờ thật ngoài chuyến thì không ghi.
-4. **Hỏi một lần ở Hôm nay.** Xoá app, cài lại bản mới (cờ `journal.asked` nằm trong defaults của app). Chạy thử từ
+4. **Hỏi một lần ở Hôm nay; câu trả lời lúc chạy thử chỉ cho lần chạy thử đó.** Xoá app, cài lại bản mới. Chạy thử từ
    18/10/2027 09:00, mở tab Hôm nay.
    - **Đạt** khi có thẻ "Ghi nhật ký vị trí?" với "Bật" / "Không". Bấm "Không": thẻ biến mất, có rung nhẹ. Tắt hẳn
-     app, mở lại: thẻ không hiện nữa; công tắc trong Cài đặt vẫn tắt.
-5. **Xoá lịch sử vị trí.** Trong lúc chạy thử với công tắc bật (bước 3), đi bộ để Chẩn đoán có số > 0. Cài đặt ›
+     app, mở lại (vẫn đang chạy thử): thẻ không hiện nữa; công tắc trong Cài đặt vẫn tắt.
+   - Cài đặt › Chạy thử › "Về giờ thật", rồi chạy thử lại từ 18/10/2027 09:00. **Đạt** khi thẻ "Ghi nhật ký vị trí?"
+     hiện lại (câu trả lời lúc chạy thử không giữ cho chuyến thật).
+5. **Xoá lịch sử vị trí.** Sau bước 4, công tắc đang tắt: chạy thử từ 20/10/2027 12:00 (nếu chưa), Cài đặt › Nhật ký ›
+   bật "Ghi nhật ký vị trí", rồi đi bộ vài trăm mét với app mở ở màn Hôm nay để Chẩn đoán có số > 0. Cài đặt ›
    Nhật ký › "Xoá lịch sử vị trí" › xác nhận "Xoá".
-   - **Đạt** khi dưới nút ghi "Đã xoá N mục" (N = tổng hai số trước đó), và mở lại Cài đặt thì Chẩn đoán "0 · 0".
+   - **Đạt** khi dưới nút ghi "Đã xoá N mục" (N = tổng hai số trước đó) và, trên cùng trang, dòng Chẩn đoán thành
+     "0 · 0".
    - (Debug) Đi bộ thêm cho có điểm vết, Chẩn đoán › Giả lỗi lưu: "Lần lưu tới", rồi "Xoá lịch sử vị trí" › "Xoá".
-     **Đạt** khi alert "Chưa lưu được" nói về "Xoá lịch sử vị trí", dưới nút không có số; bấm "Thử lại" thì xoá được
-     (Chẩn đoán "0 · 0" khi mở lại Cài đặt).
+     **Đạt** khi alert "Chưa lưu được" nói về "Xoá lịch sử vị trí", dưới nút không có số, Chẩn đoán vẫn là số cũ; bấm
+     "Thử lại" thì xoá được (Chẩn đoán "0 · 0").
 6. **Lời xin quyền.** Máy chưa cấp "Luôn luôn" (xoá app, cài lại): khi iOS hỏi nâng lên "Luôn luôn", lời giải thích
    nói về báo món, theo dõi ga, tự đánh dấu điểm trong ngày của chuyến, và chỉ ghi nơi đã ghé khi bật nhật ký. Cài đặt
    › Quyền › Vị trí luôn bật ghi "Nhắc khi tới quán, tới ga".
 
 Chỉ kiểm được trong chuyến (giờ thật 18–29/10/2027), công tắc nhật ký **tắt**:
-- Ngày 1, tới Resol Akihabara gửi hành lý: "Gửi hành lý" được tự đánh dấu (một lúc sau khi tới). Rời khách sạn đi
-  tiếp: "Nhận phòng" **không** được đánh dấu lúc rời đi; nó chỉ được đánh dấu khi quay lại buổi chiều. Ngày 8 cũng
-  vậy với WARGO Gion (thuê rồi trả kimono).
+- Ngày 1, tới Resol Akihabara gửi hành lý: **để app tự đánh dấu** "Gửi hành lý" (đừng bấm tay trước khi iOS báo đã
+  tới, thường vài phút sau khi tới: bấm tay trước thì lần báo tới có thể đánh dấu nhầm "Nhận phòng" — lỗi đã biết,
+  controller đã gác lại, không phải điều bước này kiểm). Rời khách sạn đi tiếp: "Nhận phòng" **không** được đánh dấu
+  lúc rời đi; nó chỉ được đánh dấu khi quay lại buổi chiều. Ngày 8 cũng vậy với WARGO Gion (thuê rồi trả kimono).
 - Tốc độ đi bộ vẫn học khi tắt nhật ký: Cài đặt › Đi bộ thay đổi sau vài quãng đi bộ từ một điểm đã tự đánh dấu.
-- Sáng 30/10, sau 06:00 giờ Nhật: mở app một lần, rồi vài giờ sau mũi tên "đã dùng gần đây" của JP27 không còn.
+- Sau chuyến: mở app lần cuối sau 30/10 06:00 giờ Nhật, rồi không mở lại ít nhất 25 giờ. **Đạt** khi JP27 không còn
+  mũi tên nào (tím, xám, rỗng) trong Dịch vụ định vị.

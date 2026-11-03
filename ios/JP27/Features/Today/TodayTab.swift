@@ -612,9 +612,18 @@ private struct TodayAfter: View {
 
 /// The location journal is off until asked for: asked once, on the first trip day the app is opened,
 /// and answered for good either way (Settings › Nhật ký changes it later, the journal page asks too).
+/// An answer given while rehearsing holds only for that rehearsal (`AppModel.journalAskedRehearsalKey`).
 private struct TodayJournalQuestion: View {
     @Environment(AppModel.self) private var model
-    @AppStorage("journal.asked") private var asked = false
+    @AppStorage(AppModel.journalAskedKey) private var askedForTrip = false
+    @AppStorage(AppModel.journalAskedRehearsalKey) private var askedInRehearsal = false
+
+    private var asked: Bool {
+        get { model.rehearsing ? askedInRehearsal : askedForTrip }
+        nonmutating set {
+            if model.rehearsing { askedInRehearsal = newValue } else { askedForTrip = newValue }
+        }
+    }
 
     var body: some View {
         if !asked, !model.journalEnabled {

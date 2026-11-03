@@ -68,6 +68,14 @@ import Testing
         let eve = TripTime.date("2027-10-17", "21:00")!
         #expect(visits(eve, journal: true))
         #expect(!visits(eve, journal: false))
+        // the journal's visits start with the window, not with the watch a day before it
+        let w = policy.window!
+        #expect(policy.wantsBackgroundWatch(at: w.lowerBound - 1, journal: true, alwaysGranted: true))
+        #expect(!visits(w.lowerBound - 1, journal: true))
+        #expect(visits(w.lowerBound, journal: true))
+        #expect(!visits(TripTime.date("2027-10-17", "12:00")!, journal: true))
+        #expect(visits(w.upperBound - 1, journal: true))
+        #expect(!visits(w.upperBound - 1, journal: false))
         // the trip days are midnight of the first to midnight after the last, Japan time
         #expect(visits(TripTime.midnight("2027-10-18")!, journal: false))
         #expect(!visits(TripTime.midnight("2027-10-18")! - 1, journal: false))

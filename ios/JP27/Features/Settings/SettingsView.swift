@@ -151,6 +151,8 @@ private struct DiagnosticsSection: View {
                 }
             }
             .onAppear { history = model.locationHistoryCount() }
+            // counted again after "Xoá lịch sử vị trí", on the same page
+            .onChange(of: model.historyDeletions) { history = model.locationHistoryCount() }
             #if DEBUG
             testAlarm(minutes: 2)
             testAlarm(minutes: 5)

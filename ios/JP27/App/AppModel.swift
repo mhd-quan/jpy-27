@@ -138,6 +138,15 @@ enum AppSheet: Identifiable, Hashable {
         }
     }
 
+    /// The Today question about the journal, once answered (`@AppStorage`, the app's own defaults).
+    /// While rehearsing the answer goes under a key of its own, removed when the rehearsal ends: a
+    /// rehearsal never answers it for the trip.
+    nonisolated static let journalAskedKey = "journal.asked"
+    nonisolated static let journalAskedRehearsalKey = "journal.asked.rehearsal"
+
+    /// Bumped each time location history is deleted, for what counts it (Settings › Chẩn đoán).
+    private(set) var historyDeletions = 0
+
     var clockOffset: TimeInterval = Shared.clockOffset {
         didSet {
             Shared.clockOffset = clockOffset
@@ -211,6 +220,7 @@ enum AppSheet: Identifiable, Hashable {
             container = real
             // a rehearsal that ended with the app closed leaves its store behind
             Records.discardRehearsal()
+            UserDefaults.standard.removeObject(forKey: Self.journalAskedRehearsalKey)
         }
         storeAlert = Records.problem != nil
         if let data = Shared.defaults.data(forKey: "paceModel"), let p = try? JSONDecoder().decode(PaceModel.self, from: data) {
@@ -674,6 +684,8 @@ enum AppSheet: Identifiable, Hashable {
             retired = container
             container = records
             Records.discardRehearsal()
+            // the rehearsal's answer to the journal question goes with it
+            UserDefaults.standard.removeObject(forKey: Self.journalAskedRehearsalKey)
         }
         loadRecords()
         ledgerSync.setPaused(rehearsing)
@@ -968,7 +980,10 @@ enum AppSheet: Identifiable, Hashable {
     private func keepInJournal(_ stay: StayMemory.Stay, at coordinate: Coordinate) {
         guard mayRecord else { return }
         let from = stay.arrival.addingTimeInterval(-120), to = stay.arrival.addingTimeInterval(120)
-        let near = (try? context.fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival >= from && $0.arrival <= to }))) ?? []
+        let again: @MainActor () -> Void = { [weak self] in self?.keepInJournal(stay, at: coordinate) }
+        // a table that could not be read is not "no stay there": that would write the stay twice. Said,
+        // and nothing written; iOS's leaving report, or "Thử lại", tries again
+        guard let near = fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival >= from && $0.arrival <= to }), for: "Chỗ đã ghé", retry: again) else { return }
         let v = VisitRecord(arrival: stay.arrival, departure: stay.departure, coordinate: coordinate)
         if let same = near.first(where: { $0.record.isSameStay(as: v) }) {
             // nothing new: no write
@@ -978,7 +993,7 @@ enum AppSheet: Identifiable, Hashable {
         } else {
             context.insert(Visit(arrival: stay.arrival, departure: stay.departure, coordinate: coordinate, placeID: stay.placeID))
         }
-        _ = persist("Chỗ đã ghé", retry: { [weak self] in self?.keepInJournal(stay, at: coordinate) })
+        _ = persist("Chỗ đã ghé", retry: again)
     }
 
     /// The stays iOS reported lately, without their coordinates (`StayMemory`), in the App Group's
@@ -1085,6 +1100,7 @@ enum AppSheet: Identifiable, Hashable {
             for v in visits { target.delete(v) }
             for t in traces { target.delete(t) }
             try target.commit()
+            historyDeletions += 1
             return visits.count + traces.count
         } catch {
             report("Xoá lịch sử vị trí", error as? SaveFailure ?? SaveFailure(underlying: error), retry: retry)

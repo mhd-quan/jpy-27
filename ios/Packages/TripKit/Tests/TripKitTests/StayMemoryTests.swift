@@ -127,4 +127,52 @@ import Testing
         #expect(!json.contains("lat") && !json.contains("lng") && !json.contains("coordinate"))
         #expect(try JSONDecoder().decode(StayMemory.self, from: Data(json.utf8)) == memory)
     }
+
+    // MARK: Edges the mutation probe found unpinned
+
+    @Test func forgottenExactlyADayAfterItEnded() {
+        let left = t0 + 600
+        var kept = StayMemory()
+        _ = kept.report(stay(t0, left), placeID: "a", now: left)
+        _ = kept.report(stay(left + 3600), placeID: "b", now: left + StayMemory.keep - 1)
+        #expect(kept.stays.map(\.placeID) == ["a", "b"])
+        var gone = StayMemory()
+        _ = gone.report(stay(t0, left), placeID: "a", now: left)
+        _ = gone.report(stay(left + 3600), placeID: "b", now: left + StayMemory.keep)
+        #expect(gone.stays.map(\.placeID) == ["b"])
+    }
+
+    @Test func aReportWithoutDepartureKeepsTheKnownOne() {
+        var memory = StayMemory()
+        _ = memory.report(stay(t0), placeID: "a", now: t0)
+        _ = memory.report(stay(t0, t0 + 600), placeID: "a", now: t0 + 600)
+        // iOS delivers the arrival again: the stay stays left
+        let again = memory.report(stay(t0), placeID: "a", now: t0 + 900)
+        #expect(!again.marks)
+        #expect(again.stay.departure == t0 + 600)
+        #expect(memory.departure(from: "a", since: t0 - 1, until: t0 + 3600) == t0 + 600)
+    }
+
+    @Test func theFirstMatchedPlaceIsKept() {
+        var memory = StayMemory()
+        #expect(memory.report(stay(t0), placeID: "a", now: t0).marks)
+        // the leaving report matches another place (the plan moved on): it neither marks nor moves the stay
+        let later = memory.report(stay(t0, t0 + 600), placeID: "b", now: t0 + 600)
+        #expect(!later.marks)
+        #expect(later.stay.placeID == "a")
+        #expect(memory.stays.map(\.placeID) == ["a"])
+        #expect(memory.departure(from: "a", since: t0 - 1, until: t0 + 3600) == t0 + 600)
+        #expect(memory.departure(from: "b", since: t0 - 1, until: t0 + 3600) == nil)
+    }
+
+    @Test func departureEdges() {
+        var memory = StayMemory()
+        _ = memory.report(stay(t0, t0 + 600), placeID: "a", now: t0 + 600)
+        // left exactly at `until`: found
+        #expect(memory.departure(from: "a", since: t0 - 3600, until: t0 + 600) == t0 + 600)
+        #expect(memory.departure(from: "a", since: t0 - 3600, until: t0 + 599) == nil)
+        // arrived exactly at `since`: found; one second before it: not
+        #expect(memory.departure(from: "a", since: t0, until: t0 + 3600) == t0 + 600)
+        #expect(memory.departure(from: "a", since: t0 + 1, until: t0 + 3600) == nil)
+    }
 }

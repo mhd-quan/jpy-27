@@ -43,10 +43,11 @@ public struct JournalPolicy: Sendable {
         return (window.lowerBound.addingTimeInterval(-Self.watchLead) ..< window.upperBound).contains(at)
     }
 
-    /// Visits (CLVisit) in the background: within the background watch, and only for the journal
-    /// or on a trip day, when a visit marks the stop it was at.
+    /// Visits (CLVisit) in the background: within the background watch, and only when a visit is of
+    /// use: inside the window with the journal on (it may be recorded), or on a trip day (it marks the
+    /// stop it was at). Never in the day before the window, when nothing may be recorded or marked.
     public func wantsVisits(at: Date, journal: Bool, alwaysGranted: Bool) -> Bool {
         guard wantsBackgroundWatch(at: at, journal: journal, alwaysGranted: alwaysGranted) else { return false }
-        return journal || tripDays?.contains(at) == true
+        return (journal && window?.contains(at) == true) || tripDays?.contains(at) == true
     }
 }
