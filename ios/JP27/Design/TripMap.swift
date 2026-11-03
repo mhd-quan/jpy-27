@@ -75,6 +75,8 @@ struct TripMap: UIViewRepresentable {
     @Environment(\.colorScheme) private var scheme
     /// Settings › Đo khung hình bản đồ: the map's own frame readings, over the map
     @AppStorage(MapPacer.readingsKey) private var readings = false
+    /// Settings › Chẩn đoán › Bóng địa hình, only while measuring
+    @AppStorage(MapPacer.reliefKey) private var relief = false
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self, dark: scheme == .dark)
@@ -130,6 +132,7 @@ struct TripMap: UIViewRepresentable {
             return
         }
         guard c.loaded else { return }
+        c.showsRelief(readings && relief, in: map)
         c.apply(content, to: map)
         if c.frameID != frameID {
             c.frameID = frameID
@@ -160,6 +163,8 @@ struct TripMap: UIViewRepresentable {
         private var built = false
         let pacer = MapPacer()
         private var hud: UILabel?
+        /// the relief the app's style leaves out, put back over this style to compare frames with it
+        private var relief = false
         private let pinLayers = MapPin.Kind.allCases.filter { $0 != .halo }.map { "pins-\($0.rawValue)" } + ["pins-titles"]
 
         init(parent: TripMap, dark: Bool) {
@@ -184,6 +189,8 @@ struct TripMap: UIViewRepresentable {
                 loaded = true
                 applied = nil
                 built = false
+                relief = false
+                showsRelief(parent.readings && parent.relief, in: mapView)
                 apply(parent.content, to: mapView)
                 if let camera = parent.camera {
                     cameraID = camera.id
@@ -212,7 +219,7 @@ struct TripMap: UIViewRepresentable {
                 if let rate = pacer.didRender(at: now, measuring: hud != nil) {
                     mapView.preferredFramesPerSecond = MLNMapViewPreferredFramesPerSecond(rawValue: rate)
                 }
-                if let hud, let reading = pacer.takeReading() { hud.text = reading }
+                if let hud, let reading = pacer.takeReading() { hud.text = relief ? reading + "\n bóng địa hình đang bật " : reading }
             }
         }
 
@@ -237,6 +244,41 @@ struct TripMap: UIViewRepresentable {
             } else if !on, let hud {
                 hud.removeFromSuperview()
                 self.hud = nil
+            }
+        }
+
+        /// The hillshade the site draws and the app's style leaves out (scripts/export-ios.mjs: MapLibre
+        /// Native renders each elevation tile it has loaded into a texture of its own on every frame, and
+        /// waits for each on the main thread), put back with the site's look while measuring, to see
+        /// with the readings what it costs: off, then on, then browse a while.
+        func showsRelief(_ on: Bool, in map: MLNMapView) {
+            guard on != relief, let style = map.style else { return }
+            relief = on
+            guard on else {
+                if let layer = style.layer(withIdentifier: "relief") { style.removeLayer(layer) }
+                return
+            }
+            let dem: MLNSource
+            if let made = style.source(withIdentifier: "relief") {
+                dem = made
+            } else {
+                dem = MLNRasterDEMSource(identifier: "relief",
+                                         tileURLTemplates: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+                                         options: [.demEncoding: MLNDEMEncoding.terrarium.rawValue, .tileSize: 256, .maximumZoomLevel: 12])
+                style.addSource(dem)
+            }
+            // src/lib/mapStyle.ts: the site's hillshade, under the water
+            let layer = MLNHillshadeStyleLayer(identifier: "relief", source: dem)
+            let shadow = NSExpression(forConstantValue: dark ? UIColor.black : UIColor(Color(hex: "#7E7A6E")))
+            layer.hillshadeExaggeration = NSExpression(forConstantValue: dark ? 0.45 : 0.32)
+            layer.hillshadeShadowColor = shadow
+            layer.hillshadeAccentColor = shadow
+            layer.hillshadeHighlightColor = NSExpression(forConstantValue: dark ? UIColor(Color(hex: "#5A5A60")) : UIColor.white)
+            layer.hillshadeIlluminationDirection = NSExpression(forConstantValue: 315)
+            if let water = style.layer(withIdentifier: "water") {
+                style.insertLayer(layer, below: water)
+            } else {
+                style.addLayer(layer)
             }
         }
 
@@ -322,8 +364,9 @@ struct TripMap: UIViewRepresentable {
         }
 
         /// The heat of the walked trail (the journal's map), made the first time a map has some: a
-        /// heatmap draws into a texture of its own on every frame, so the maps without heat, the
-        /// Map tab's among them, carry no heatmap layer at all. Nil while none is needed.
+        /// heatmap draws into a texture of its own on every frame and the main thread waits for the
+        /// GPU to finish it (as for the relief, showsRelief), so the maps without heat, the Map tab's
+        /// among them, carry no heatmap layer at all. Nil while none is needed.
         private func heatSource(in style: MLNStyle, needed: Bool) -> MLNShapeSource? {
             if let made = style.source(withIdentifier: "heat") as? MLNShapeSource { return made }
             guard needed else { return nil }
@@ -432,16 +475,19 @@ struct TripMap: UIViewRepresentable {
 
 /// Holds the map to a frame rate it keeps. MapLibre prepares each frame on the main thread, from a
 /// display link that asks for the screen's top rate (120 Hz on ProMotion). When a frame needs more
-/// than the 8 ms that leaves (street level, tiles arriving, the glass over the map sampling it
-/// again), frames land unevenly, 8, 17, 25, 33 ms apart, and an uneven 120 judders worse than an
-/// even 60. So frames are timed while the map moves: while 120 holds, the map keeps it; when it does
-/// not, the map asks for an even 60 and tries 120 again at the start of a later move, waiting
-/// longer after each miss (15 s, 30 s, … 4 min). Low Power Mode or a hot phone keep it at 60.
+/// than the 8 ms that leaves (street level, tiles arriving and being laid out), frames land
+/// unevenly, 8, 17, 25, 33 ms apart, and an uneven 120 judders worse than an even 60. So frames are
+/// timed while the map moves: while 120 holds, the map keeps it; when it does not, the map asks for
+/// an even 60 and tries 120 again at the start of a later move, waiting longer after each miss
+/// (15 s, 30 s, … 4 min). Low Power Mode or a hot phone keep it at 60.
 final class MapPacer {
     static let readingsKey = "debug.mapFrames"
     /// Settings › Chẩn đoán, while the readings are on: the panel, the day strip and the buttons over
     /// the map drawn without glass, to see what the glass costs the map's frames
     static let glassKey = "debug.mapGlass"
+    /// Settings › Chẩn đoán, while the readings are on: the hillshade the app's style leaves out, put
+    /// back over the map (TripMap.Coordinator.showsRelief)
+    static let reliefKey = "debug.mapRelief"
 
     /// what the map asks for now
     private(set) var target = 60

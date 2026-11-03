@@ -77,6 +77,7 @@ struct SettingsView: View {
 private struct DiagnosticsSection: View {
     @AppStorage(MapPacer.readingsKey) private var readings = false
     @AppStorage(MapPacer.glassKey) private var glass = true
+    @AppStorage(MapPacer.reliefKey) private var relief = false
 
     var body: some View {
         Section {
@@ -95,12 +96,19 @@ private struct DiagnosticsSection: View {
                         SettingsIcon(symbol: "rectangle.on.rectangle", tint: .teal)
                     }
                 }
+                Toggle(isOn: $relief) {
+                    Label {
+                        Text("Bóng địa hình")
+                    } icon: {
+                        SettingsIcon(symbol: "mountain.2", tint: .brown)
+                    }
+                }
             }
         } header: {
             Text("Chẩn đoán")
         } footer: {
             Text(readings
-                ? "Ở góc bản đồ: mỗi khung main thread mất bao lâu, chia ra CPU tự làm và thời gian ngồi chờ GPU trả khung; GPU bận đến đâu; bản đồ giữ main thread bao nhiêu phần trăm. Tắt Kính trên bản đồ (chỉ khi đang đo) để thấy phần kính tốn."
+                ? "Ở góc bản đồ: mỗi khung main thread mất bao lâu, chia ra CPU tự làm và thời gian ngồi chờ GPU trả khung; GPU bận đến đâu; bản đồ giữ main thread bao nhiêu phần trăm. Tắt Kính trên bản đồ để thấy phần kính tốn. Bóng địa hình bật lại lớp đổ bóng núi mà bản đồ của app đã bỏ (nó bắt main thread chờ GPU cho từng mảnh địa hình đã tải, mỗi khung): bật lên rồi lướt bản đồ một lúc để so số chờ."
                 : "Hiện ở góc bản đồ thời gian của từng khung hình, để biết bản đồ giật vì đâu.")
         }
     }

@@ -4,7 +4,8 @@
 //   ios/JP27/Resources/Trip/trip.json    days, legs and their geometry, places, rides — the plan itself
 //   ios/JP27/Resources/Trip/guide.json   phrasebook, budget, shopping, stays, Fuji, bookings, notes
 //   ios/Shared/schedule.json             a slim copy of the plan for the widget and the Live Activity
-//   public/map/jp27-{light,dark}.json    the basemap style, served by the site for MapLibre Native
+//   public/map/jp27-{light,dark}.json    the basemap style for MapLibre Native (the site's, without the
+//                                        hillshade: see nativeStyle), served by the site for offline packs
 //   public/map/jp27-{light,dark}-current.json  the same on OpenFreeMap's current tile build (its
 //                                        TileJSON), for offline packs once the pinned build is gone
 //
@@ -364,8 +365,24 @@ const schedule = clean({
 out('ios/JP27/Resources/Trip/trip.json', trip);
 out('ios/JP27/Resources/Trip/guide.json', guide);
 out('ios/Shared/schedule.json', schedule);
+// The app's basemap is the site's without the hillshade (and its elevation tiles). MapLibre Native 7
+// draws a hillshade by first rendering each elevation tile into a texture of its own, a render target
+// (RenderHillshadeLayer::update), then draws the map from those textures. The targets are dropped only
+// when the layer is removed or stops being drawable at all (markLayerRenderable), so every tile loaded
+// since the style was keeps one, and every frame renders each of them again (drawableTargetsPass) and
+// waits for the GPU to finish it before going on (OffscreenTextureResource::swap: commit, then
+// waitUntilCompleted), on the main thread. Measured on the phone: 6–12 ms of work and 37–59 ms of
+// waiting per frame, with or without the glass. Settings › Chẩn đoán puts the
+// relief back over the map, to compare.
+const nativeStyle = (style) => {
+  const { dem, ...sources } = style.sources;
+  const layers = style.layers.filter((l) => l.source !== 'dem');
+  if (layers.some((l) => l.type === 'hillshade' || l.type === 'color-relief')) throw new Error('native style: a relief layer is left');
+  return { ...style, sources, layers };
+};
+
 for (const theme of ['light', 'dark']) {
-  const style = baseStyle(theme);
+  const style = nativeStyle(baseStyle(theme));
   out(`public/map/jp27-${theme}.json`, style);
   // the app's fallback when the pinned build answers 404 (OfflineMaps.usesCurrentTiles): the same
   // style with the tile source read from the TileJSON, which always names the current build
