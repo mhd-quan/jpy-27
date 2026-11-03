@@ -34,7 +34,7 @@ struct JournalView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Metrics.stack) {
                     JournalMap(day: day, trail: traces.map(\.coordinate) + visits.map { Coordinate($0.lat, $0.lng) })
-                    JournalStats(journal: journal, walked: walked, spent: expenses.reduce(0) { $0 + $1.yen })
+                    JournalStats(journal: journal, walked: walked, spent: Yen.total(expenses.filter(\.isCountable).map(\.yen)))
                     if !model.photos.allowed {
                         JournalPhotoAccess()
                     }

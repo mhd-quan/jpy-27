@@ -572,7 +572,7 @@ private struct TodayAfter: View {
 
     var body: some View {
         let visited = model.days.reduce(0) { $0 + model.doneCount($1) }
-        let spent = expenses.reduce(0) { $0 + $1.yen }
+        let spent = Yen.total(expenses.filter(\.isCountable).map(\.yen))
         VStack(alignment: .leading, spacing: Metrics.stack) {
             Card {
                 HStack(spacing: 24) {

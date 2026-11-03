@@ -3,6 +3,13 @@ import SwiftUI
 import TripKit
 import UniformTypeIdentifiers
 
+extension Expense {
+    /// Whether it counts toward any total: an amount the keypad could have typed. A row saved before
+    /// every way in was held to that (a file, the other phone) may hold anything; such a row is
+    /// listed under "Khoản cần sửa" to be fixed or deleted, never counted, never deleted by itself.
+    var isCountable: Bool { Yen.isValidEntry(yen) }
+}
+
 /// Cash and Suica on hand: what went in (ATM, top-ups) minus what was paid that way. Only what was
 /// paid from this phone's purses: expenses merged from the other phone count in the budget, not here.
 struct SpendWallet {
@@ -10,10 +17,12 @@ struct SpendWallet {
     let ic: Int
 
     init(expenses: [Expense], topups: [Topup]) {
-        func inflow(_ m: PayMethod) -> Int { topups.filter { $0.method == m.rawValue }.reduce(0) { $0 + $1.yen } }
-        func outflow(_ m: PayMethod) -> Int { expenses.filter { $0.device == nil && $0.method == m.rawValue }.reduce(0) { $0 + $1.yen } }
-        cash = inflow(.cash) - outflow(.cash)
-        ic = inflow(.ic) - outflow(.ic)
+        func inflow(_ m: PayMethod) -> Int { Yen.total(topups.filter { $0.method == m.rawValue }.map(\.yen)) }
+        func outflow(_ m: PayMethod) -> Int {
+            Yen.total(expenses.filter { $0.isCountable && $0.device == nil && $0.method == m.rawValue }.map(\.yen))
+        }
+        cash = Yen.difference(inflow(.cash), outflow(.cash))
+        ic = Yen.difference(inflow(.ic), outflow(.ic))
     }
 }
 
@@ -162,10 +171,11 @@ struct SpendAmountDisplay: View {
 /// button stays still while it grows: no system keyboard sliding in over the zoom. Each key that
 /// changes the amount taps lightly (`key`); a key that changes nothing (0 on an empty amount,
 /// delete on nothing, a digit past the cap) stays still, so the finger feels which ones counted.
-/// The amount is capped below ten million yen.
+/// The amount is capped below ten million yen (`Yen.maxEntry`); delete always takes a digit off, so
+/// an amount above the cap can still be brought down.
 struct SpendKeypad: View {
     @Binding var amount: Int
-    var limit = 9_999_999
+    var limit = Yen.maxEntry
     @State private var keys = 0
 
     private static let rows: [[SpendKey]] = [
@@ -220,11 +230,18 @@ struct SpendKeypad: View {
     private func press(_ key: SpendKey) {
         let next: Int
         switch key {
-        case .digit(let n): next = amount * 10 + n
-        case .thousand: next = amount * 1000
+        case .digit(let n):
+            let (shifted, over) = amount.multipliedReportingOverflow(by: 10)
+            let (sum, carry) = shifted.addingReportingOverflow(n)
+            guard !over, !carry else { return }
+            next = sum
+        case .thousand:
+            let (shifted, over) = amount.multipliedReportingOverflow(by: 1000)
+            guard !over else { return }
+            next = shifted
         case .delete: next = amount / 10
         }
-        guard next != amount, next <= limit else { return }
+        guard next != amount, next <= limit || next < amount else { return }
         keys += 1
         withAnimation(.snappy(duration: 0.25)) { amount = next }
     }
@@ -274,8 +291,6 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
         .suggestedFileName("JP27-so-chi.csv")
     }
 
-    static let header = ["id", "luc", "ngay", "gio", "yen", "khoan", "ten_khoan", "tra", "place_id", "cho", "ghi_chu", "may", "sua"]
-
     /// This install, so a file merged back is recognised as this phone's own rows.
     @MainActor static var installID: String {
         if let id = Shared.defaults.string(forKey: "installID") { return id }
@@ -289,121 +304,61 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
         self.store = store
     }
 
-    /// The ledger as it is now, oldest first.
+    /// The ledger as it is now, oldest first (`LedgerCSV`).
     @MainActor func csv() -> String {
-        let iso = Self.iso
         let me = Self.installID
+        let store = self.store
         let expenses = (try? container.mainContext.fetch(FetchDescriptor<Expense>(sortBy: [SortDescriptor(\.at)]))) ?? []
-        var rows = [Self.header]
-        for e in expenses {
-            rows.append([
-                e.id.uuidString, iso.string(from: e.at), e.day ?? "", TripTime.clock(e.at), String(e.yen),
-                e.category, e.spendCategory.label, e.method, e.placeID ?? "",
-                store.place(e.placeID)?.name ?? e.placeName ?? "", e.note, e.device ?? me,
-                e.updatedAt.map(iso.string(from:)) ?? "",
-            ])
-        }
-        return rows.map { $0.map(Self.field).joined(separator: ",") }.joined(separator: "\r\n") + "\r\n"
-    }
-
-    private static func field(_ s: String) -> String {
-        s.contains(where: { ",\"\n\r".contains($0) }) ? "\"" + s.replacingOccurrences(of: "\"", with: "\"\"") + "\"" : s
+        return LedgerCSV.encode(expenses.map { $0.record(me: me) }, placeName: { store.place($0)?.name })
     }
 
     /// What merging a file did.
     struct Outcome {
         var added = 0
         var updated = 0
+        /// rows of the file not merged: not what the keypad could have typed, or dated far ahead
+        var skipped = 0
+        /// the rows not read, as a spreadsheet numbers them (rows left out for their date have none)
+        var lines: [Int] = []
 
+        /// "Đã thêm 1 khoản, bỏ qua 1 dòng không hợp lệ (dòng 2)."
         var summary: String {
             var parts: [String] = []
             if added > 0 { parts.append("thêm \(added) khoản") }
             if updated > 0 { parts.append("cập nhật \(updated) khoản") }
-            return parts.isEmpty ? "Sổ đã có đủ các khoản trong file." : "Đã " + parts.joined(separator: ", ") + "."
+            guard skipped > 0 else {
+                return parts.isEmpty ? "Sổ đã có đủ các khoản trong file." : "Đã " + parts.joined(separator: ", ") + "."
+            }
+            let shown = lines.prefix(5).map(String.init).joined(separator: ", ")
+            let more = lines.count > 5 || lines.count < skipped ? "…" : ""
+            let which = lines.isEmpty ? "" : " (dòng \(shown)\(more))"
+            let skip = "bỏ qua \(skipped) dòng không hợp lệ\(which)."
+            return parts.isEmpty ? "Không thêm khoản nào, " + skip : "Đã " + parts.joined(separator: ", ") + ", " + skip
         }
     }
 
-    /// Times to the millisecond, so an edit made a moment after another still reads as later.
-    nonisolated(unsafe) private static let iso: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return f
-    }()
-
-    private static func date(_ s: String?) -> Date? {
-        guard let s else { return nil }
-        return iso.date(from: s) ?? ISO8601DateFormatter().date(from: s)
-    }
-
-    /// Merges a ledger file into this phone's ledger.
-    @MainActor static func merge(_ url: URL, into context: ModelContext) throws -> Outcome {
-        let scoped = url.startAccessingSecurityScopedResource()
-        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-        var text = try String(contentsOf: url, encoding: .utf8)
-        if text.hasPrefix("\u{FEFF}") { text.removeFirst() }
-        let rows = parse(text)
-        guard let head = rows.first else { return Outcome() }
-        let col = Dictionary(head.enumerated().map { ($1, $0) }, uniquingKeysWith: { a, _ in a })
-        func value(_ row: [String], _ name: String) -> String? {
-            guard let i = col[name], row.indices.contains(i) else { return nil }
-            let v = row[i].trimmingCharacters(in: .whitespaces)
-            return v.isEmpty ? nil : v
-        }
-        var records: [LedgerRecord] = []
-        for row in rows.dropFirst() {
-            guard let idText = value(row, "id"), let id = UUID(uuidString: idText),
-                  let at = date(value(row, "luc")),
-                  let yen = value(row, "yen").flatMap(Int.init), yen > 0
-            else { continue }
-            let place = value(row, "place_id")
-            records.append(LedgerRecord(
-                id: id, yen: yen,
-                category: value(row, "khoan").flatMap(SpendCategory.init(rawValue:))?.rawValue ?? SpendCategory.extra.rawValue,
-                method: value(row, "tra").flatMap(PayMethod.init(rawValue:))?.rawValue ?? PayMethod.cash.rawValue,
-                placeID: place,
-                placeName: place == nil ? value(row, "cho") : nil,
-                day: value(row, "ngay"),
-                note: value(row, "ghi_chu") ?? "",
-                at: at,
-                updatedAt: date(value(row, "sua")),
-                origin: value(row, "may") ?? "other"))
-        }
+    /// Merges a ledger file into this phone's ledger: read and checked off the main actor, then
+    /// held to what the other phone is held to (`LedgerMerge.screened`) and merged.
+    @MainActor static func merge(_ url: URL, into context: ModelContext) async throws -> Outcome {
+        let file = try await read(url)
+        // a file is trusted no more than the other phone: rows the keypad could not have typed, and
+        // rows dated far ahead, are left out
+        let (clean, screenedOut) = LedgerMerge.screened(LedgerState(records: file.records), now: Date())
         let before = Set(Ledger.state(context).records.map(\.id))
-        // a file is trusted no more than the other phone: rows dated far ahead are left out
-        let (_, changes) = Ledger.merge(LedgerMerge.sanitized(LedgerState(records: records), now: Date()), into: context)
-        var outcome = Outcome()
+        let (_, changes) = Ledger.merge(clean, into: context)
+        var outcome = Outcome(skipped: file.rejected.count + screenedOut.count, lines: file.rejected.map(\.line))
         for r in changes.upserts {
             if before.contains(r.id) { outcome.updated += 1 } else { outcome.added += 1 }
         }
         return outcome
     }
 
-    /// RFC 4180: quoted fields may hold commas, quotes (doubled) and line breaks.
-    private static func parse(_ text: String) -> [[String]] {
-        var rows: [[String]] = [], row: [String] = [], field = ""
-        var quoted = false
-        var chars = Array(text)[...]
-        while let c = chars.popFirst() {
-            if quoted {
-                if c == "\"" {
-                    if chars.first == "\"" { field.append("\""); chars.removeFirst() } else { quoted = false }
-                } else {
-                    field.append(c)
-                }
-            } else if c == "\"" {
-                quoted = true
-            } else if c == "," {
-                row.append(field); field = ""
-            } else if c == "\n" || c == "\r" || c == "\r\n" {
-                // "\r\n" is one Character in Swift
-                row.append(field); field = ""
-                if !(row.count == 1 && row[0].isEmpty) { rows.append(row) }
-                row = []
-            } else {
-                field.append(c)
-            }
-        }
-        if !field.isEmpty || !row.isEmpty { row.append(field); rows.append(row) }
-        return rows
+    /// The file's rows, and the ones that could not be read. The file is held open (security scope)
+    /// for the whole read.
+    @concurrent private nonisolated static func read(_ url: URL) async throws -> (records: [LedgerRecord], rejected: [RowProblem]) {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        let text = try String(contentsOf: url, encoding: .utf8)
+        return LedgerCSV.decode(text)
     }
 }

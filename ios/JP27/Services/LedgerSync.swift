@@ -28,8 +28,9 @@ import UIKit
 /// a key only the two phones can work out, fresh for each connection, so another phone running the
 /// app can neither read the ledger nor write to it, even knowing the other's install id; nothing
 /// identifying is advertised to phones near by; invitations are taken only from phones already
-/// paired, or while the sync page is open to pair; and a ledger dated far in the future is not
-/// believed (`LedgerMerge.sanitized`).
+/// paired, or while the sync page is open to pair; and rows the keypad could not have written (an
+/// amount past its cap, a note too long, a date far in the future) are not believed
+/// (`LedgerMerge.screened`; how many is `rejected`).
 ///
 /// Third-party apps cannot send by AirDrop on their own, nor take in an AirDrop without the share
 /// sheet and an accept on the other side: hence this, and the CSV only as a fallback.
@@ -69,6 +70,9 @@ import UIKit
     /// metres to the nearby phone, when both have UWB
     private(set) var distance: Float?
     private(set) var lastSync: Stamp?
+    /// rows of the paired phone's last ledger that this phone left out (`LedgerMerge.screened`):
+    /// replaced by each ledger received, not kept across launches
+    private(set) var rejected = 0
     /// both phones need UWB for the touch; this one has it
     var supportsTouch: Bool { NISession.deviceCapabilities.supportsPreciseDistanceMeasurement }
 
@@ -388,7 +392,8 @@ import UIKit
             }
         case .state(let remote):
             guard let p = partner(peer), let context, !paused else { return }
-            let clean = LedgerMerge.sanitized(remote, now: Date())
+            let (clean, left) = LedgerMerge.screened(remote, now: Date())
+            rejected = left.count
             let (merged, _) = Ledger.merge(clean, into: context)
             cached = nil
             stamp(p.name)

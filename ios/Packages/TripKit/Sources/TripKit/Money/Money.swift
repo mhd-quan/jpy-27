@@ -123,14 +123,14 @@ public struct BudgetStatus: Sendable {
         public let category: SpendCategory
         public let planned: Int
         public let spent: Int
-        public var left: Int { planned - spent }
+        public var left: Int { Yen.difference(planned, spent) }
         public var share: Double { planned > 0 ? Double(spent) / Double(planned) : 0 }
     }
 
     public let rows: [Row]
     public let reserve: Int
-    public var planned: Int { rows.reduce(0) { $0 + $1.planned } + reserve }
-    public var spent: Int { rows.reduce(0) { $0 + $1.spent } }
+    public var planned: Int { Yen.total(rows.map(\.planned) + [reserve]) }
+    public var spent: Int { Yen.total(rows.map(\.spent)) }
 
     public init(budget: Budget, spent: [SpendCategory: Int]) {
         rows = SpendCategory.allCases.map { c in

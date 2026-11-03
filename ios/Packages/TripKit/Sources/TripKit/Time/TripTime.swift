@@ -137,7 +137,7 @@ public enum Fmt {
 
     /// "1.500"
     public static func grouped(_ n: Int) -> String {
-        let s = String(abs(n))
+        let s = String(n.magnitude)
         var out = ""
         for (i, ch) in s.enumerated() {
             if i > 0, (s.count - i) % 3 == 0 { out.append(".") }

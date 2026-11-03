@@ -70,7 +70,7 @@ struct ExpenseEditor: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) { save() }
-                        .disabled(value <= 0)
+                        .disabled(!Yen.isValidEntry(value))
                 }
             }
             .sensoryFeedback(.done, trigger: saved)
@@ -184,6 +184,9 @@ struct ExpenseEditor: View {
                     .frame(width: 24)
                 TextField("Ghi chú", text: $note)
                     .focused($writing)
+                    .onChange(of: note) { _, text in
+                        if text.count > LedgerValidation.maxText { note = String(text.prefix(LedgerValidation.maxText)) }
+                    }
                     .submitLabel(.done)
                     .onSubmit { writing = false }
             }
@@ -218,7 +221,8 @@ struct ExpenseEditor: View {
     private func setUp() {
         guard !ready else { return }
         if let e = editing {
-            value = e.yen
+            // an amount the keypad could not have typed starts again from nothing
+            value = Yen.isValidEntry(e.yen) ? e.yen : 0
             category = e.spendCategory
             method = e.payMethod
             dayKey = e.day
@@ -228,7 +232,7 @@ struct ExpenseEditor: View {
             ready = true
             return
         }
-        if let yen, yen > 0 { value = min(yen, 9_999_999) }
+        if let yen, yen > 0 { value = min(yen, Yen.maxEntry) }
         place = placeID ?? nearestPlanned()
         let p = model.store.place(place)
         // the day it counts toward: today on the trip; else the day the place is planned for
@@ -256,8 +260,10 @@ struct ExpenseEditor: View {
     }
 
     private func save() {
-        guard value > 0 else { return }
-        let name = placeName.trimmingCharacters(in: .whitespaces)
+        guard Yen.isValidEntry(value) else { return }
+        // held to what the other phone and a file are held to (`LedgerValidation`)
+        let name = String(placeName.trimmingCharacters(in: .whitespaces).prefix(LedgerValidation.maxText))
+        let text = String(note.trimmingCharacters(in: .whitespaces).prefix(LedgerValidation.maxText))
         if let e = editing {
             e.yen = value
             e.category = category.rawValue
@@ -265,7 +271,7 @@ struct ExpenseEditor: View {
             e.placeID = place
             e.placeName = place == nil && !name.isEmpty ? name : nil
             e.day = dayKey
-            e.note = note.trimmingCharacters(in: .whitespaces)
+            e.note = text
             e.touch()
             try? model.context.save()
             saved.toggle()
@@ -274,7 +280,7 @@ struct ExpenseEditor: View {
         }
         model.logExpense(yen: value, category: category, method: method, placeID: place,
                          placeName: place == nil && !name.isEmpty ? name : nil, day: dayKey,
-                         note: note.trimmingCharacters(in: .whitespaces))
+                         note: text)
         saved.toggle()
         dismiss()
     }
@@ -303,6 +309,9 @@ private struct ExpensePlacePicker: View {
                             .foregroundStyle(.secondary)
                         TextField("Chỗ khác, gõ tên", text: $draft)
                             .submitLabel(.done)
+                            .onChange(of: draft) { _, text in
+                                if text.count > LedgerValidation.maxText { draft = String(text.prefix(LedgerValidation.maxText)) }
+                            }
                             .onSubmit(useDraft)
                         if !draft.trimmingCharacters(in: .whitespaces).isEmpty {
                             Button("Dùng", action: useDraft)

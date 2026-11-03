@@ -58,7 +58,7 @@ struct ShoppingView: View {
 
     private func progress(_ owned: [String: Purchase]) -> some View {
         let total = guide.basket.total
-        let spent = guide.basket.items.reduce(0) { sum, item in sum + (owned[item.id].map { $0.yen ?? item.total } ?? 0) }
+        let spent = Yen.total(guide.basket.items.map { item in owned[item.id].map { $0.yen ?? item.total } ?? 0 })
         let planned = guide.budget.lines.first { $0.id == "shop" }?.yen ?? total
         return VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
@@ -224,7 +224,7 @@ private struct SpendBuySheet: View {
                 }
             }
             .onAppear {
-                if value == 0, item.yen > 0 { value = min(item.yen, 9_999_999) }
+                if value == 0, item.yen > 0 { value = min(item.yen, Yen.maxEntry) }
             }
         }
         .presentationDetents([.height(540)])

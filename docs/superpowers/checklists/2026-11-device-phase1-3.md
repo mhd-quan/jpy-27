@@ -95,3 +95,28 @@ iOS đã tắt app ở nền: làm lại bước đó. Bước 3 và 4 cần ch�
 7. **Di chuyển đáng kể ở nền** (significant change) không ép được trên máy: iOS tự quyết khi nào báo. Đường này
    chỉ được kiểm bằng đọc code: `LocationService.locationManager(_:didUpdateLocations:)` gọi `moved(to:)` chỉ khi
    app không ở trên màn hình → `onMoved` → `AppModel.requestReschedule` rồi `finishRescheduleInBackground`.
+
+## Task 1.3 — Tiền: một validation cho mọi đường vào, tổng không bao giờ trap
+
+File thử: `docs/superpowers/fixtures/overflow.csv` (2 dòng ngày 20/10/2026: dòng 2 là ¥9.223.372.036.854.775.807,
+dòng 3 là ¥1). Chép file sang máy (AirDrop vào Tệp, hoặc iCloud Drive). Không chạy thử (rehearsal): chạy thử ghi
+vào sổ riêng của nó.
+
+1. **Gộp file có số tiền vô lý.** Chi tiêu › menu "…" › "Gộp file sổ chi" › chọn `overflow.csv`. **Đạt** khi alert
+   hiện đúng "Đã thêm 1 khoản, bỏ qua 1 dòng không hợp lệ (dòng 2)." và tab Chi tiêu vẫn mở: vòng tròn "Đã chi"
+   cộng thêm ¥1 (sổ trống thì bằng ¥1), ngày 20/10 trong sổ có một khoản ¥1 "· máy kia". Gộp lại lần nữa → "Không
+   thêm khoản nào, bỏ qua 1 dòng không hợp lệ (dòng 2)." Tắt hẳn app (vuốt khỏi đa nhiệm), mở lại, vào Chi tiêu → không crash.
+2. **Xuất rồi gộp lại chính file của mình.** Menu "…" › "Xuất sổ chi (CSV)" › Lưu vào Tệp. Gộp file vừa lưu →
+   "Sổ đã có đủ các khoản trong file." (không "cập nhật" khoản nào: file không bao giờ mới hơn khoản trên máy).
+   Mở file trong Numbers: cột `luc` vẫn dạng `2026-10-20T03:01:00.000Z`, chữ tiếng Việt đọc đúng.
+3. **Khoản đã lưu từ trước mà không hợp lệ** (chỉ có khi máy đã gộp một file như vậy bằng bản trước 1.3; bản
+   này không lưu được dòng nào như thế, nên thường ghi "không có dữ liệu cũ, bỏ qua"). Nếu có: đầu sổ có mục
+   "Khoản cần sửa" với khoản đó, chân mục "Số tiền ngoài khoảng ¥1–¥9.999.999 nên không được cộng vào tổng nào…";
+   vòng tròn, hai ví, Ngân sách, Nhật ký ngày đó không cộng nó. Bấm "Sửa" → bàn phím bắt đầu từ ¥0, nút lưu tắt
+   cho tới khi gõ số; gõ 1200, lưu → khoản về đúng ngày trong sổ, mục "Khoản cần sửa" biến mất. Với khoản khác,
+   "Xoá" → mất khỏi sổ. App không tự xoá khoản nào.
+4. **Bàn phím.** Ghi chi: gõ 9999999 rồi thêm một số → không đổi, không rung; "000" trên ¥10.000 → không đổi.
+   Dán một ghi chú rất dài (hơn 500 ký tự) → ô ghi chú dừng ở 500 ký tự.
+5. **Hai máy** (khi kiểm Task 1.5): máy A có một khoản không hợp lệ cũ (bước 3) → đồng bộ với máy B → máy B không
+   nhận khoản đó, sổ B không crash; `LedgerSync.rejected` trên B = 1 (Task 1.5 hiện ra; trước đó chỉ xem được bằng
+   debugger).
