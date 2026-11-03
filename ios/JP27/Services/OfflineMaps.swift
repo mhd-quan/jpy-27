@@ -68,7 +68,9 @@ import UIKit
         NotificationCenter.default.post(name: tilesChanged, object: nil)
     }
 
-    private static func pinnedTiles(in style: URL) -> String? {
+    /// Reads a file and parses it: needs no actor. Left on the main actor (the module's default),
+    /// it could not be handed as a function to `flatMap` in `pinned`'s initializer, which runs on none.
+    private nonisolated static func pinnedTiles(in style: URL) -> String? {
         guard let data = try? Data(contentsOf: style),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let omt = (json["sources"] as? [String: Any])?["omt"] as? [String: Any]
@@ -171,10 +173,13 @@ import UIKit
         }
         guard watch == nil else { return }
         // `packs` is nil until MapLibre has read its database, a moment after it is first asked;
-        // it changes again whenever a pack is added or removed. MapLibre changes it on the main
-        // queue; the hop keeps this closure free of the main actor all the same.
-        watch = MLNOfflineStorage.shared.observe(\.packs, options: [.initial]) { @Sendable _, _ in
-            Task { @MainActor in AppModel.shared.offline.refresh() }
+        // it changes again whenever a pack is added or removed. The handler is @Sendable (on no
+        // actor), and KVO calls it synchronously inside MapLibre's own add and remove, which this
+        // object calls from `download`: so `refresh` runs on the next turn of the main actor, never
+        // in the middle of a download it would start again.
+        watch = MLNOfflineStorage.shared.observe(\.packs, options: [.initial]) { @Sendable [weak self] _, _ in
+            guard let self else { return }
+            Task { @MainActor in self.refresh() }
         }
     }
 
@@ -235,15 +240,25 @@ import UIKit
         let context = (try? JSONEncoder().encode(Tag(area: area.id, tiles: now))) ?? Data(area.id.utf8)
         adding.insert(area.id)
         let id = area.id
+        // Swift imports an Objective-C completion handler as @Sendable, so this closure is on no
+        // actor. MapLibre calls it on the main queue (MLNOfflineStorage.mm dispatches it there),
+        // which `assumeIsolated` states and checks, as for the other MapLibre callbacks. Only plain
+        // facts cross into the main actor: the pack (not Sendable) stays where MapLibre handed it,
+        // and the main actor reads it from `packs` like every other pack, so `record` alone decides
+        // to start it (as it does after a relaunch), and one paused or removed meanwhile waits.
         MLNOfflineStorage.shared.addPack(for: region, withContext: context) { [weak self] pack, error in
-            self?.adding.remove(id)
-            if let pack {
-                // paused or removed while it was being made: it waits
-                if self?.wanted.contains(id) == true { pack.resume() }
-            } else {
-                self?.problems[id] = "Không tạo được vùng tải" + (error.map { ": \($0.localizedDescription)" } ?? "")
-                self?.unwant(id)
-                self?.running.remove(id)
+            guard let self else { return }
+            let made = pack != nil
+            let failure = error?.localizedDescription
+            MainActor.assumeIsolated {
+                self.adding.remove(id)
+                if made {
+                    self.refresh()
+                } else {
+                    self.problems[id] = "Không tạo được vùng tải" + (failure.map { ": \($0)" } ?? "")
+                    self.unwant(id)
+                    self.running.remove(id)
+                }
             }
         }
         progress[area.id] = 0
@@ -361,7 +376,8 @@ import UIKit
         } else {
             if complete.contains(id) { complete.remove(id) }
             if state == .inactive, wanted.contains(id) {
-                // asked for and stopped by a relaunch (packs come back inactive): on again
+                // asked for and not running: a pack just made (MapLibre hands it over inactive),
+                // or one stopped by a relaunch (packs come back inactive). On.
                 pack.resume()
                 if !running.contains(id) { running.insert(id) }
             } else if active != running.contains(id) {
