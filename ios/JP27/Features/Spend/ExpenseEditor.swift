@@ -21,6 +21,8 @@ struct ExpenseEditor: View {
     @State private var place: String?
     @State private var placeName = ""
     @State private var note = ""
+    /// the note loaded was longer than `LedgerValidation.maxText`: saving keeps only its start
+    @State private var longNote = false
     @State private var ready = false
     @State private var saved = false
     /// kinds tapped; the kind also changes by itself, set up from the place and on picking a place
@@ -192,6 +194,14 @@ struct ExpenseEditor: View {
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 50)
+            if longNote {
+                Text("Ghi chú dài hơn 500 ký tự; khi lưu chỉ giữ 500 ký tự đầu.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 10)
+            }
         }
         .background(Palette.card, in: .rect(cornerRadius: 22, style: .continuous))
     }
@@ -229,6 +239,7 @@ struct ExpenseEditor: View {
             place = e.placeID
             placeName = e.placeName ?? ""
             note = e.note
+            longNote = e.note.count > LedgerValidation.maxText
             ready = true
             return
         }

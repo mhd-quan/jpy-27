@@ -178,7 +178,7 @@ struct SpendKeypad: View {
     var limit = Yen.maxEntry
     @State private var keys = 0
 
-    private static let rows: [[SpendKey]] = [
+    private static let rows: [[Yen.Key]] = [
         [.digit(1), .digit(2), .digit(3)],
         [.digit(4), .digit(5), .digit(6)],
         [.digit(7), .digit(8), .digit(9)],
@@ -208,7 +208,7 @@ struct SpendKeypad: View {
     }
 
     @ViewBuilder
-    private func label(_ key: SpendKey) -> some View {
+    private func label(_ key: Yen.Key) -> some View {
         switch key {
         case .digit(let n):
             Text("\(n)").font(.figure(28, weight: .medium))
@@ -219,7 +219,7 @@ struct SpendKeypad: View {
         }
     }
 
-    private func accessibility(_ key: SpendKey) -> String {
+    private func accessibility(_ key: Yen.Key) -> String {
         switch key {
         case .digit(let n): "\(n)"
         case .thousand: "Ba số không"
@@ -227,30 +227,11 @@ struct SpendKeypad: View {
         }
     }
 
-    private func press(_ key: SpendKey) {
-        let next: Int
-        switch key {
-        case .digit(let n):
-            let (shifted, over) = amount.multipliedReportingOverflow(by: 10)
-            let (sum, carry) = shifted.addingReportingOverflow(n)
-            guard !over, !carry else { return }
-            next = sum
-        case .thousand:
-            let (shifted, over) = amount.multipliedReportingOverflow(by: 1000)
-            guard !over else { return }
-            next = shifted
-        case .delete: next = amount / 10
-        }
-        guard next != amount, next <= limit || next < amount else { return }
+    private func press(_ key: Yen.Key) {
+        guard let next = Yen.keyed(amount, key, limit: limit) else { return }
         keys += 1
         withAnimation(.snappy(duration: 0.25)) { amount = next }
     }
-}
-
-private nonisolated enum SpendKey: Hashable {
-    case digit(Int)
-    case thousand
-    case delete
 }
 
 /// A key of the pad: a quiet tile that lights the moment it is touched and fades as it is let go.
@@ -322,19 +303,7 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
         var lines: [Int] = []
 
         /// "Đã thêm 1 khoản, bỏ qua 1 dòng không hợp lệ (dòng 2)."
-        var summary: String {
-            var parts: [String] = []
-            if added > 0 { parts.append("thêm \(added) khoản") }
-            if updated > 0 { parts.append("cập nhật \(updated) khoản") }
-            guard skipped > 0 else {
-                return parts.isEmpty ? "Sổ đã có đủ các khoản trong file." : "Đã " + parts.joined(separator: ", ") + "."
-            }
-            let shown = lines.prefix(5).map(String.init).joined(separator: ", ")
-            let more = lines.count > 5 || lines.count < skipped ? "…" : ""
-            let which = lines.isEmpty ? "" : " (dòng \(shown)\(more))"
-            let skip = "bỏ qua \(skipped) dòng không hợp lệ\(which)."
-            return parts.isEmpty ? "Không thêm khoản nào, " + skip : "Đã " + parts.joined(separator: ", ") + ", " + skip
-        }
+        var summary: String { LedgerCSV.summary(added: added, updated: updated, skipped: skipped, lines: lines) }
     }
 
     /// Merges a ledger file into this phone's ledger: read and checked off the main actor, then

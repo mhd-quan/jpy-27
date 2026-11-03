@@ -392,13 +392,15 @@ import UIKit
             }
         case .state(let remote):
             guard let p = partner(peer), let context, !paused else { return }
-            let (clean, left) = LedgerMerge.screened(remote, now: Date())
+            let now = Date()
+            let (clean, left) = LedgerMerge.screened(remote, now: now)
             rejected = left.count
             let (merged, _) = Ledger.merge(clean, into: context)
             cached = nil
             stamp(p.name)
-            // what it lacked goes back; then both hold the same
-            if merged != clean { seal(.state(merged), to: k) }
+            // what it lacked goes back; then both hold the same. Rows the other phone refuses do not
+            // count as lacking, or two phones holding one would answer each other for ever
+            if let back = LedgerMerge.reply(local: merged, remote: remote, now: now) { seal(.state(back), to: k) }
             sent[k] = merged
         case .touched:
             if partner(peer) != nil {

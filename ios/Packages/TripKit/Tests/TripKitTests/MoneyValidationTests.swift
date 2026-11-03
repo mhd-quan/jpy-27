@@ -47,13 +47,49 @@ import Testing
 
     @Test func budgetWithAnAbsurdCategoryDoesNotTrap() throws {
         let budget = try #require(Bundle_.store.guide?.budget)
+        let food = try #require(budget.lines.first { $0.id == "food" }?.yen)
         let status = BudgetStatus(budget: budget, spent: [.food: Int.max, .shop: 1])
         #expect(status.spent == Int.max)
         #expect(status.planned == budget.total)
-        #expect(status.rows.first { $0.category == .food }?.left == 172_000 - Int.max)
+        #expect(status.rows.first { $0.category == .food }?.left == food - Int.max)
         let ok = BudgetStatus(budget: budget, spent: [.food: 12_000, .shop: 3_000])
         #expect(ok.spent == 15_000)
-        #expect(ok.rows.first { $0.category == .food }?.left == 160_000)
+        #expect(ok.rows.first { $0.category == .food }?.left == food - 12_000)
+    }
+
+    @Test func cashShortfallDoesNotTrap() {
+        let plan = CashPlan(store: Bundle_.store, days: Bundle_.store.days(), from: 0, cursor: 0, horizon: 12)
+        #expect(plan.shortfall(onHand: -Int.max) == Int.max)
+        #expect(plan.shortfall(onHand: Int.max) == 0)
+        #expect(plan.shortfall(onHand: 0, margin: 5_000) == plan.certain + 5_000)
+    }
+
+    // MARK: The keypad
+
+    @Test func keypadTypesAndDeletes() {
+        #expect(Yen.keyed(0, .digit(1)) == 1)
+        #expect(Yen.keyed(12, .digit(3)) == 123)
+        #expect(Yen.keyed(5, .thousand) == 5_000)
+        #expect(Yen.keyed(123, .delete) == 12)
+        #expect(Yen.keyed(999_999, .digit(9)) == 9_999_999)
+        // keys that change nothing
+        #expect(Yen.keyed(0, .digit(0)) == nil)
+        #expect(Yen.keyed(0, .thousand) == nil)
+        #expect(Yen.keyed(0, .delete) == nil)
+    }
+
+    @Test func keypadStopsAtTheCapAndNeverTraps() {
+        #expect(Yen.keyed(9_999_999, .digit(0)) == nil)
+        #expect(Yen.keyed(9_999_999, .digit(9)) == nil)
+        #expect(Yen.keyed(10_000, .thousand) == nil)
+        #expect(Yen.keyed(9_999, .thousand) == 9_999_000)
+        #expect(Yen.keyed(Int.max, .digit(1)) == nil)
+        #expect(Yen.keyed(Int.max, .thousand) == nil)
+        #expect(Yen.keyed(Int.max / 10, .digit(9)) == nil)
+        // an amount above the cap (a row saved before the cap held) can still come down
+        #expect(Yen.keyed(12_000_000, .delete) == 1_200_000)
+        #expect(Yen.keyed(Int.max, .delete) == Int.max / 10)
+        #expect(Yen.keyed(1_234, .digit(5), limit: 9_999) == nil)
     }
 
     // MARK: One validation
@@ -85,6 +121,19 @@ import Testing
         #expect(problems == [RowProblem(line: 2, reason: .text)])
     }
 
+    /// The limit counts what a person sees as one character, not the scalars under it.
+    @Test func fiveHundredCharactersOfSeveralScalarsFit() {
+        let flags = String(repeating: "🇯🇵", count: LedgerValidation.maxText)
+        let accents = String(repeating: "e\u{301}", count: LedgerValidation.maxText)
+        #expect(flags.count == 500 && flags.unicodeScalars.count == 1_000)
+        let r = LedgerRecord(id: id(1), yen: 900, category: "food", method: "cash", placeName: accents, note: flags, at: now, origin: "b")
+        #expect(LedgerValidation.problems(r, now: now).isEmpty)
+        let (records, rejected) = LedgerCSV.decode(csv(["\(id(2)),2027-10-20T03:00:00.000Z,d3,12:00,900,food,,cash,,\(accents),\(flags),other,"]))
+        #expect(rejected.isEmpty)
+        #expect(records.first?.note == flags)
+        #expect(records.first?.placeName == accents)
+    }
+
     @Test func aDateFarAheadIsTheOldRule() {
         func row(at: Date, edited: Date? = nil) -> LedgerRecord {
             LedgerRecord(id: id(1), yen: 900, category: "food", method: "cash", at: at, updatedAt: edited, origin: "b")
@@ -98,6 +147,51 @@ import Testing
         #expect(LedgerValidation.problems(row(at: now.addingTimeInterval(slack + 1), edited: now), now: now) == [.futureDate])
         let both = LedgerRecord(id: id(2), yen: 0, category: "food", method: "cash", at: now.addingTimeInterval(2 * slack), origin: "b")
         #expect(LedgerValidation.problems(both, now: now) == [.amount, .futureDate])
+    }
+
+    /// Two phones swapping ledgers as `LedgerSync` does: A sends, the side that receives merges what it
+    /// believes and answers with `reply`, until one side has nothing to say. Returns how many ledgers
+    /// went over (cut off at 10) and the two ledgers at the end.
+    func exchange(_ a: LedgerState, _ b: LedgerState) -> (messages: Int, a: LedgerState, b: LedgerState) {
+        var sides = [a, b]
+        var message: LedgerState? = a
+        var to = 1, messages = 0
+        while let m = message, messages < 10 {
+            messages += 1
+            message = LedgerMerge.reply(local: sides[to], remote: m, now: now)
+            sides[to] = LedgerMerge.merge(sides[to], LedgerMerge.screened(m, now: now).state)
+            to = 1 - to
+        }
+        return (messages, sides[0], sides[1])
+    }
+
+    @Test func phonesStopTalkingOnceTheyAgree() {
+        func row(_ n: Int, yen: Int = 900, note: String = "", origin: String) -> LedgerRecord {
+            LedgerRecord(id: id(n), yen: yen, category: "food", method: "cash", note: note, at: now, origin: origin)
+        }
+        let overCap = row(9, yen: 12_000_000, origin: "a")
+        let longNote = row(9, note: String(repeating: "x", count: 501), origin: "a")
+        for x in [overCap, longNote] {
+            // both phones hold the row the other refuses (written and synced by the build before)
+            let both = exchange(LedgerState(records: [row(1, origin: "a"), x]), LedgerState(records: [row(1, origin: "a"), x]))
+            #expect(both.messages <= 2, "both hold \(x.yen) / \(x.note.count)")
+            // only A holds it
+            let one = exchange(LedgerState(records: [row(1, origin: "a"), x]), LedgerState(records: [row(1, origin: "a")]))
+            #expect(one.messages <= 2)
+            #expect(one.b.records.map(\.id) == [id(1)], "B never takes it")
+            // both hold it, and each has something the other lacks
+            let more = exchange(LedgerState(records: [row(1, origin: "a"), x]), LedgerState(records: [row(2, origin: "b"), x]))
+            #expect(more.messages <= 2)
+            #expect(more.a.records.map(\.id) == [id(1), id(2), id(9)])
+            #expect(more.b.records.map(\.id) == [id(1), id(2), id(9)])
+        }
+        // nothing refused, but they differ: they still sync
+        let plain = exchange(LedgerState(records: [row(1, origin: "a")]), LedgerState(records: [row(2, origin: "b")]))
+        #expect(plain.messages == 2)
+        #expect(plain.a == plain.b)
+        #expect(plain.a.records.map(\.id) == [id(1), id(2)])
+        // already the same: one ledger goes, none comes back
+        #expect(exchange(plain.a, plain.b).messages == 1)
     }
 
     @Test func sanitizedIsWhatScreeningKeeps() {
@@ -179,6 +273,23 @@ import Testing
         #expect(records.map(\.id) == [id(1)])
         #expect(records.first?.note == "two\r\nlines\nand three")
         #expect(rejected == [RowProblem(line: 5, reason: .amount("0")), RowProblem(line: 7, reason: .date)])
+    }
+
+    @Test func theImportSummarySaysWhatHappened() {
+        #expect(LedgerCSV.summary(added: 1, updated: 0, skipped: 1, lines: [2]) == "Đã thêm 1 khoản, bỏ qua 1 dòng không hợp lệ (dòng 2).")
+        #expect(LedgerCSV.summary(added: 0, updated: 0, skipped: 0, lines: []) == "Sổ đã có đủ các khoản trong file.")
+        #expect(LedgerCSV.summary(added: 2, updated: 1, skipped: 0, lines: []) == "Đã thêm 2 khoản, cập nhật 1 khoản.")
+        #expect(LedgerCSV.summary(added: 0, updated: 0, skipped: 1, lines: [2]) == "Không thêm khoản nào, bỏ qua 1 dòng không hợp lệ (dòng 2).")
+        // more than five lines: the first five, then "…"
+        #expect(LedgerCSV.summary(added: 0, updated: 3, skipped: 6, lines: [2, 4, 9, 10, 11, 12])
+            == "Đã cập nhật 3 khoản, bỏ qua 6 dòng không hợp lệ (dòng 2, 4, 9, 10, 11…).")
+        #expect(LedgerCSV.summary(added: 1, updated: 0, skipped: 5, lines: [2, 3, 4, 5, 6])
+            == "Đã thêm 1 khoản, bỏ qua 5 dòng không hợp lệ (dòng 2, 3, 4, 5, 6).")
+        // rows left out for their date have no line: the list says there are more
+        #expect(LedgerCSV.summary(added: 1, updated: 0, skipped: 3, lines: [4, 9])
+            == "Đã thêm 1 khoản, bỏ qua 3 dòng không hợp lệ (dòng 4, 9…).")
+        #expect(LedgerCSV.summary(added: 1, updated: 0, skipped: 2, lines: [])
+            == "Đã thêm 1 khoản, bỏ qua 2 dòng không hợp lệ.")
     }
 
     @Test func aByteOrderMarkIsNotPartOfTheHeader() {
@@ -278,6 +389,15 @@ import Testing
         ]
         for (given, read) in shapes {
             #expect(LedgerCSV.date(given).map(LedgerCSV.timestamp) == read, "\(given)")
+        }
+        // more than three digits: cut down to the millisecond, never rounded up past what was written
+        for (given, read) in [("2027-10-20T03:00:00.999995Z", "2027-10-20T03:00:00.999Z"),
+                              ("2027-10-20T03:00:00.1239Z", "2027-10-20T03:00:00.123Z"),
+                              ("2027-10-20T12:00:00.0009999+09:00", "2027-10-20T03:00:00.000Z")] {
+            let d = LedgerCSV.date(given)
+            #expect(d.map(LedgerCSV.timestamp) == read, "\(given)")
+            let exact = try? Date.ISO8601FormatStyle(includingFractionalSeconds: true).parse(given)
+            if let d, let exact { #expect(d <= exact, "\(given)") }
         }
         #expect(LedgerCSV.date("2027-10-20 03:00:00") == nil)
         #expect(LedgerCSV.date("") == nil)

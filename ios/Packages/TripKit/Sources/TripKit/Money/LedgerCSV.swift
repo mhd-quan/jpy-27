@@ -93,6 +93,24 @@ public nonisolated enum LedgerCSV {
         return (records, rejected)
     }
 
+    /// What merging a file did, in one sentence for the alert: "Đã thêm 1 khoản, bỏ qua 1 dòng không
+    /// hợp lệ (dòng 2)." `skipped` counts every row left out; `lines` are the ones that have a row
+    /// number (rows left out for their date, after reading, have none), the first five shown and "…"
+    /// when there are more.
+    public static func summary(added: Int, updated: Int, skipped: Int, lines: [Int]) -> String {
+        var parts: [String] = []
+        if added > 0 { parts.append("thêm \(added) khoản") }
+        if updated > 0 { parts.append("cập nhật \(updated) khoản") }
+        guard skipped > 0 else {
+            return parts.isEmpty ? "Sổ đã có đủ các khoản trong file." : "Đã " + parts.joined(separator: ", ") + "."
+        }
+        let shown = lines.prefix(5).map(String.init).joined(separator: ", ")
+        let more = lines.count > 5 || lines.count < skipped ? "…" : ""
+        let which = lines.isEmpty ? "" : " (dòng \(shown)\(more))"
+        let skip = "bỏ qua \(skipped) dòng không hợp lệ\(which)."
+        return parts.isEmpty ? "Không thêm khoản nào, " + skip : "Đã " + parts.joined(separator: ", ") + ", " + skip
+    }
+
     // MARK: - Times
 
     private static let fractional = Date.ISO8601FormatStyle(includingFractionalSeconds: true)
@@ -122,17 +140,25 @@ public nonisolated enum LedgerCSV {
     /// A time as this file writes it, or as earlier builds read it: with or without the fraction,
     /// in UTC or with an offset.
     static func date(_ s: String) -> Date? {
+        let s = toMilliseconds(s)
         guard let d = (try? fractional.parse(s)) ?? (try? whole.parse(s)) else { return nil }
         let t = d.timeIntervalSinceReferenceDate
         guard t.isFinite else { return d }
-        // the millisecond written: the nearest one when the text was ours (a hair off from parsing),
-        // else the one it falls in
-        let near = (t * 1000).rounded()
-        let ms = abs(t * 1000 - near) < 0.01 ? near : (t * 1000).rounded(.down)
+        // at most three digits now: the millisecond written is the nearest one (parsing is a hair off)
+        let ms = (t * 1000).rounded()
         var x = ms / 1000
         while (x * 1000).rounded(.down) < ms { x = x.nextUp }
         while (x.nextDown * 1000).rounded(.down) >= ms { x = x.nextDown }
         return Date(timeIntervalSinceReferenceDate: x)
+    }
+
+    /// The text with a fraction of a second longer than three digits cut to three: ".999995" is
+    /// ".999", not the next second.
+    private static func toMilliseconds(_ s: String) -> String {
+        guard let dot = s.firstIndex(of: ".") else { return s }
+        let digits = s[s.index(after: dot)...].prefix { $0.isASCII && $0.isNumber }
+        guard digits.count > 3 else { return s }
+        return String(s[...dot]) + digits.prefix(3) + s[digits.endIndex...]
     }
 
     // MARK: - Fields

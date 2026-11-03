@@ -64,6 +64,10 @@ jobs:
           xcodebuild build -project JP27.xcodeproj -scheme JP27 -configuration Debug \
             -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee "$RUNNER_TEMP/xcodebuild.log"
+      # TripKit's tests on Darwin's Foundation as well as Linux's (job swift): dates are parsed and
+      # written by the same code on both, and both must agree
+      - name: TripKit tests (macOS)
+        run: swift test --package-path ios/Packages/TripKit
       - name: Warnings
         if: always()
         run: |
