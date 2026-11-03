@@ -48,6 +48,7 @@ struct SettingsView: View {
                 } footer: {
                     Text("Dữ liệu nghiên cứu ngày \(model.store.trip.meta.researched).")
                 }
+                DiagnosticsSection()
             }
             .progressiveEdges()
             .navigationTitle("Cài đặt")
@@ -59,13 +60,37 @@ struct SettingsView: View {
         }
     }
 
-    /// "4/10 vùng · 182 MB", or "Chưa tải"
+    /// "Đang tải 42%", "4/10 vùng · 182 MB", or "Chưa tải"
     private var offlineValue: String {
         let offline = model.offline
+        if model.downloads.busy { return "Đang tải \(Int(model.downloads.fraction * 100))%" }
         if !offline.stale.isEmpty { return "Cần tải lại" }
         guard offline.totalBytes > 0 else { return "Chưa tải" }
         let size = ByteCountFormatter.string(fromByteCount: Int64(offline.totalBytes), countStyle: .file)
         return "\(offline.complete.count)/\(offline.areas.count) vùng · \(size)"
+    }
+}
+
+// MARK: - Diagnostics
+
+/// What the map really draws, measured on the phone: for a jerky map, numbers instead of guesses.
+private struct DiagnosticsSection: View {
+    @AppStorage(MapPacer.readingsKey) private var readings = false
+
+    var body: some View {
+        Section {
+            Toggle(isOn: $readings) {
+                Label {
+                    Text("Đo khung hình bản đồ")
+                } icon: {
+                    SettingsIcon(symbol: "speedometer", tint: .gray)
+                }
+            }
+        } header: {
+            Text("Chẩn đoán")
+        } footer: {
+            Text("Hiện ở góc bản đồ: tần số đang xin, số khung vẽ được mỗi giây, thời gian main thread mỗi khung. Bản đồ giữ 120 Hz khi kịp và tự về 60 Hz đều khi không kịp.")
+        }
     }
 }
 
@@ -426,132 +451,231 @@ private struct PermissionRow: View {
 
 // MARK: - Offline
 
-@Observable private final class PrefetchProgress {
-    var value: Double?
-    var done: Int?
+/// Where one area is, as its row says it.
+private enum AreaStatus: Equatable {
+    case checking, idle, stale, complete
+    case downloading(Double), waiting(Double), paused(Double)
+    case failing(Double, String)
 }
 
+/// Downloads belong to the app (`Downloads`), so this page only shows where they are: leave it,
+/// use the rest of the app, come back, and it shows the truth.
 private struct OfflineSection: View {
     @Environment(AppModel.self) private var model
-    @State private var prefetch = PrefetchProgress()
-    @State private var started = 0
-
-    private var remotePhotos: [Photo] {
-        let places = model.store.trip.places.flatMap(\.images)
-        let stays = model.guide.stays.flatMap { s -> [Photo] in
-            guard let around = s.around else { return [] }
-            return around.photos + around.walks.flatMap { $0.highlights.flatMap(\.images) }
-        }
-        var seen = Set<String>()
-        return (places + stays).filter { !$0.isBundled && seen.insert($0.src).inserted }
-    }
 
     var body: some View {
         let offline = model.offline
-        Section {
-            if !offline.stale.isEmpty {
-                Label("Nguồn bản đồ đã đổi, nên \(offline.stale.count) vùng đã tải không còn dùng được khi mất sóng. Tải lại khi có Wi‑Fi.", systemImage: "exclamationmark.triangle.fill")
-                    .font(.footnote)
-                    .foregroundStyle(.orange)
+        let downloads = model.downloads
+        Group {
+            Section {
+                if !offline.stale.isEmpty {
+                    Label("Nguồn bản đồ đã đổi, nên \(offline.stale.count) vùng đã tải không còn dùng được khi mất sóng. Tải lại khi có Wi‑Fi.", systemImage: "exclamationmark.triangle.fill")
+                        .font(.footnote)
+                        .foregroundStyle(.orange)
+                }
+                if offline.ready {
+                    ForEach(offline.areas) { area in
+                        AreaRow(
+                            name: area.name,
+                            status: status(area.id),
+                            bytes: offline.bytes[area.id],
+                            download: { downloads.download(area) },
+                            pause: { offline.pause(area.id) },
+                            remove: { offline.remove(area) })
+                    }
+                    if offline.areas.contains(where: { !offline.complete.contains($0.id) && !offline.wanted.contains($0.id) }) {
+                        Button("Tải tất cả bản đồ") { downloads.downloadAllMaps() }
+                    }
+                } else {
+                    HStack(spacing: 12) {
+                        ProgressView()
+                        Text("Đang đọc các vùng đã tải…").foregroundStyle(.secondary)
+                    }
+                }
+            } header: {
+                Text("Bản đồ")
+            } footer: {
+                if offline.totalBytes > 0 {
+                    Text("Đã tải \(ByteCountFormatter.string(fromByteCount: Int64(offline.totalBytes), countStyle: .file)). Vuốt trái một vùng để xoá.")
+                }
             }
-            ForEach(offline.areas) { area in
-                AreaRow(
-                    name: area.name,
-                    progress: offline.progress[area.id],
-                    bytes: offline.bytes[area.id],
-                    complete: offline.complete.contains(area.id),
-                    download: { offline.download(area) },
-                    remove: { offline.remove(area) })
-            }
-            if offline.areas.contains(where: { !offline.complete.contains($0.id) }) {
-                Button("Tải tất cả bản đồ") { offline.downloadAll() }
-            }
-            photosRow
-        } header: {
-            Text("Dùng khi mất sóng")
-        } footer: {
-            if offline.totalBytes > 0 {
-                Text("Bản đồ đã tải: \(ByteCountFormatter.string(fromByteCount: Int64(offline.totalBytes), countStyle: .file))")
+            Section {
+                PhotosRow(photos: downloads.photos, online: model.network.online, download: { downloads.downloadPhotos() })
+            } header: {
+                Text("Ảnh")
+            } footer: {
+                Text("Vẫn tải khi bạn chuyển sang phần khác của app. Bấm tải rồi rời app thì iOS hiện tiến độ trên màn hình khoá và Dynamic Island, tải tiếp đến khi xong; dừng được ngay từ đó.")
             }
         }
         .onAppear { offline.configure(store: model.store) }
     }
 
-    private var photosRow: some View {
-        let photos = remotePhotos
-        return VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Ảnh quán ăn và khách sạn")
-                    Text(prefetch.done.map { "\($0)/\(photos.count) ảnh đã lưu" } ?? "\(photos.count) ảnh trên mạng")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .monospacedDigit()
-                }
-                Spacer()
-                if prefetch.value == nil || prefetch.done != nil {
-                    Button(prefetch.done == nil ? "Tải" : "Tải lại") {
-                        started += 1
-                        start(photos)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .disabled(!model.network.online)
-                }
-            }
-            if let v = prefetch.value, prefetch.done == nil {
-                ProgressView(value: v)
-            }
+    private func status(_ id: String) -> AreaStatus {
+        let o = model.offline
+        if o.checking.contains(id) { return .checking }
+        if o.complete.contains(id) { return .complete }
+        if o.stale.contains(id), !o.wanted.contains(id) { return .stale }
+        let p = o.progress[id] ?? 0
+        if o.wanted.contains(id) || o.running.contains(id) {
+            if !model.network.online { return .waiting(p) }
+            if let problem = o.problems[id] { return .failing(p, problem) }
+            return .downloading(p)
         }
-        // on the row: the button gives way to the progress bar
-        .sensoryFeedback(.start, trigger: started)
-    }
-
-    private func start(_ photos: [Photo]) {
-        let state = prefetch
-        state.value = 0
-        state.done = nil
-        Task {
-            let done = await PhotoCache.shared.prefetch(photos) { p in
-                Task { @MainActor in state.value = p }
-            }
-            state.done = done
-        }
+        if let problem = o.problems[id] { return .failing(p, problem) }
+        return o.progress[id] == nil ? .idle : .paused(p)
     }
 }
 
 private struct AreaRow: View {
     let name: String
-    let progress: Double?
+    let status: AreaStatus
     let bytes: UInt64?
-    let complete: Bool
     let download: () -> Void
+    let pause: () -> Void
     let remove: () -> Void
-    /// on the row: the button gives way to the ring
+    /// on the row: a download starts, or stops
     @State private var started = 0
+    @State private var stopped = 0
 
     var body: some View {
         HStack(spacing: 12) {
-            ProgressRing(value: complete ? 1 : (progress ?? 0), active: progress != nil && !complete)
-                .frame(width: 22, height: 22)
             VStack(alignment: .leading, spacing: 2) {
                 Text(name)
-                if let bytes, bytes > 0 {
-                    Text(ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .monospacedDigit()
-                }
+                Text(detail)
+                    .font(.footnote)
+                    .foregroundStyle(warning ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
             }
-            Spacer()
-            if complete || progress != nil {
-                Menu {
-                    if !complete { Button("Tiếp tục tải", systemImage: "arrow.down.circle", action: download) }
-                    Button("Xoá", systemImage: "trash", role: .destructive, action: remove)
+            Spacer(minLength: 8)
+            trailing
+        }
+        .sensoryFeedback(.start, trigger: started)
+        .sensoryFeedback(.stop, trigger: stopped)
+        .swipeActions(edge: .trailing) {
+            if hasData {
+                Button("Xoá", systemImage: "trash", role: .destructive, action: remove)
+            }
+        }
+        .contextMenu {
+            if hasData {
+                Button("Xoá", systemImage: "trash", role: .destructive, action: remove)
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    @ViewBuilder private var trailing: some View {
+        switch status {
+        case .checking:
+            ProgressView()
+        case .idle, .stale:
+            Button(status == .stale ? "Tải lại" : "Tải") {
+                started += 1
+                download()
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+        case .complete:
+            ProgressRing(value: 1, mode: .done)
+        case .downloading(let p), .waiting(let p), .failing(let p, _):
+            // as in the App Store: the ring is the stop button
+            Button {
+                stopped += 1
+                pause()
+            } label: {
+                ProgressRing(value: p, mode: .running)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Tạm dừng tải \(name)")
+        case .paused(let p):
+            Button {
+                started += 1
+                download()
+            } label: {
+                ProgressRing(value: p, mode: .paused)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Tải tiếp \(name)")
+        }
+    }
+
+    private var size: String? {
+        guard let bytes, bytes > 0 else { return nil }
+        return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
+    }
+
+    private var detail: String {
+        func with(_ head: String, _ p: Double) -> String {
+            ([head, "\(Int(p * 100))%"] + [size].compactMap { $0 }).joined(separator: " · ")
+        }
+        switch status {
+        case .checking: return "Đang kiểm tra…"
+        case .idle: return "Chưa tải"
+        case .stale: return "Tải từ nguồn cũ, cần tải lại"
+        case .complete: return ["Đã tải", size].compactMap { $0 }.joined(separator: " · ")
+        case .downloading(let p): return with("Đang tải", p)
+        case .waiting(let p): return with("Chờ có mạng", p)
+        case .paused(let p): return with("Tạm dừng", p)
+        case .failing(let p, let problem): return with(problem, p)
+        }
+    }
+
+    private var warning: Bool {
+        if case .failing = status { return true }
+        return status == .stale
+    }
+
+    private var hasData: Bool {
+        switch status {
+        case .idle, .checking: false
+        default: true
+        }
+    }
+}
+
+/// The trip's remote photos: how many are on disk, the download under way, what failed.
+private struct PhotosRow: View {
+    let photos: OfflinePhotos
+    let online: Bool
+    let download: () -> Void
+    @State private var started = 0
+    @State private var stopped = 0
+
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Ảnh quán ăn và khách sạn")
+                Text(detail)
+                    .font(.footnote)
+                    .foregroundStyle(photos.failed > 0 && !photos.running ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            }
+            Spacer(minLength: 8)
+            if !photos.counted {
+                ProgressView()
+            } else if photos.running {
+                Button {
+                    stopped += 1
+                    photos.pause()
                 } label: {
-                    Image(systemName: "ellipsis.circle").imageScale(.large)
+                    ProgressRing(value: photos.fraction, mode: .running)
                 }
-                .accessibilityLabel("Tuỳ chọn \(name)")
+                .buttonStyle(.plain)
+                .accessibilityLabel("Tạm dừng tải ảnh")
+            } else if photos.complete {
+                ProgressRing(value: 1, mode: .done)
+            } else if photos.saved > 0 {
+                Button {
+                    started += 1
+                    download()
+                } label: {
+                    ProgressRing(value: photos.fraction, mode: .paused)
+                }
+                .buttonStyle(.plain)
+                .disabled(!online)
+                .accessibilityLabel(photos.failed > 0 ? "Thử tải lại ảnh lỗi" : "Tải tiếp ảnh")
             } else {
                 Button("Tải") {
                     started += 1
@@ -559,28 +683,53 @@ private struct AreaRow: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .disabled(!online)
             }
         }
         .sensoryFeedback(.start, trigger: started)
-        .accessibilityElement(children: .contain)
+        .sensoryFeedback(.stop, trigger: stopped)
+    }
+
+    private var detail: String {
+        guard photos.counted else { return "Đang đếm ảnh đã lưu…" }
+        if photos.running {
+            return "Đang tải · \(photos.saved)/\(photos.total) ảnh" + (photos.failed > 0 ? " · \(photos.failed) lỗi" : "")
+        }
+        if photos.complete { return "Đã lưu đủ \(photos.total) ảnh" }
+        var line = "\(photos.saved)/\(photos.total) ảnh đã lưu"
+        if photos.failed > 0 { line += " · \(photos.failed) ảnh chưa tải được" }
+        if !online { line += " · cần mạng" }
+        return line
     }
 }
 
+/// A download's ring: filling while it runs (a square in it: tap to stop), an arrow while paused
+/// (tap to go on), a tick when done. As in the App Store and Podcasts.
 private struct ProgressRing: View {
+    enum Mode { case running, paused, done }
     let value: Double
-    let active: Bool
+    let mode: Mode
 
     var body: some View {
         ZStack {
-            Circle().stroke(.fill.tertiary, lineWidth: 3)
+            Circle().stroke(.fill.tertiary, lineWidth: 2.5)
             Circle()
                 .trim(from: 0, to: max(0.001, min(1, value)))
-                .stroke(value >= 1 ? Color.green : .accentColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                .stroke(mode == .done ? Color.green : .accentColor, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-            if value >= 1 {
-                Image(systemName: "checkmark").font(.system(size: 9, weight: .bold)).foregroundStyle(.green)
+            switch mode {
+            case .running:
+                RoundedRectangle(cornerRadius: 1.5).fill(Color.accentColor).frame(width: 8, height: 8)
+            case .paused:
+                Image(systemName: "arrow.down").font(.system(size: 11, weight: .bold)).foregroundStyle(Color.accentColor)
+            case .done:
+                Image(systemName: "checkmark").font(.system(size: 10, weight: .bold)).foregroundStyle(.green)
             }
         }
+        .frame(width: 26, height: 26)
+        // a bigger target than the ring, as a button needs
+        .frame(width: 44, height: 44)
+        .contentShape(Rectangle())
         .animation(.easeOut(duration: 0.25), value: value)
         .accessibilityValue(Text("\(Int(value * 100))%"))
     }

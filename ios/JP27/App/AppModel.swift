@@ -88,7 +88,9 @@ enum AppSheet: Identifiable, Hashable {
     let live = RideLiveService()
     let motion = MotionService()
     let forecasts = ForecastService()
-    let offline = OfflineMaps()
+    /// map areas and photos kept for no signal, downloaded app-wide
+    let downloads = Downloads()
+    var offline: OfflineMaps { downloads.maps }
     let photos = PhotoLibrary()
     let network = NetworkStatus()
     /// the two phones' ledgers as one, while both are open near each other
@@ -223,7 +225,18 @@ enum AppSheet: Identifiable, Hashable {
             await PhotoCache.shared.warmTones(covers)
         }
         offline.configure(store: store)
+        downloads.photos.configure(remotePhotos())
+        downloads.back()
         ledgerSync.activate(context: context)
+    }
+
+    /// The trip's photos that are not in the bundle: restaurants, shops, a hotel's neighbourhood.
+    private func remotePhotos() -> [Photo] {
+        let stays = guide.stays.flatMap { s -> [Photo] in
+            guard let around = s.around else { return [] }
+            return around.photos + around.walks.flatMap { $0.highlights.flatMap(\.images) }
+        }
+        return store.trip.places.flatMap(\.images) + stays
     }
 
     /// The photograph each ambient page opens on: places, Fuji viewpoints, a hotel's neighbourhood,
@@ -245,6 +258,7 @@ enum AppSheet: Identifiable, Hashable {
     func deactivate() {
         clockTask?.cancel()
         clockTask = nil
+        downloads.leaving()
         ledgerSync.deactivate()
         publishSnapshot(force: true)
     }

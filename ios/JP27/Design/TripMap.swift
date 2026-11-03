@@ -72,6 +72,8 @@ struct TripMap: UIViewRepresentable {
     var onUserMove: (() -> Void)?
 
     @Environment(\.colorScheme) private var scheme
+    /// Settings › Đo khung hình bản đồ: the map's own frame readings, over the map
+    @AppStorage(MapPacer.readingsKey) private var readings = false
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self, dark: scheme == .dark)
@@ -99,6 +101,8 @@ struct TripMap: UIViewRepresentable {
         map.attributionButtonPosition = .bottomLeft
         NotificationCenter.default.addObserver(context.coordinator, selector: #selector(Coordinator.tilesChanged(_:)), name: OfflineMaps.tilesChanged, object: nil)
         context.coordinator.map = map
+        let top = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.maximumFramesPerSecond ?? 60
+        map.preferredFramesPerSecond = MLNMapViewPreferredFramesPerSecond(rawValue: context.coordinator.pacer.start(top: top))
         map.maximumZoomLevel = 18
         // the map's clear area is set from `chrome`, not guessed from the safe area
         map.automaticallyAdjustsContentInset = false
@@ -111,6 +115,7 @@ struct TripMap: UIViewRepresentable {
     func updateUIView(_ map: MLNMapView, context: Context) {
         let c = context.coordinator
         c.parent = self
+        c.showsReadings(readings, on: map)
         map.showsUserLocation = showsUser
         let inset = chrome ?? .zero
         if map.contentInset != inset {
@@ -152,6 +157,8 @@ struct TripMap: UIViewRepresentable {
         private var applied: MapContent?
         /// the style holds the trip's sources and layers (made once per style load)
         private var built = false
+        let pacer = MapPacer()
+        private var hud: UILabel?
         private let pinLayers = MapPin.Kind.allCases.filter { $0 != .halo }.map { "pins-\($0.rawValue)" } + ["pins-titles"]
 
         init(parent: TripMap, dark: Bool) {
@@ -190,6 +197,46 @@ struct TripMap: UIViewRepresentable {
             let touched = !reason.intersection([.gesturePan, .gesturePinch, .gestureRotate, .gestureZoomIn, .gestureZoomOut, .gestureOneFingerZoom, .gestureTilt]).isEmpty
             guard touched else { return }
             MainActor.assumeIsolated { parent.onUserMove?() }
+        }
+
+        // Each frame, on the main thread: timed, so the map asks only for a rate it keeps.
+        nonisolated func mapViewWillStartRenderingFrame(_ mapView: MLNMapView) {
+            let now = CACurrentMediaTime()
+            MainActor.assumeIsolated { pacer.willRender(at: now) }
+        }
+
+        nonisolated func mapViewDidFinishRenderingFrame(_ mapView: MLNMapView, fullyRendered: Bool) {
+            let now = CACurrentMediaTime()
+            MainActor.assumeIsolated {
+                if let rate = pacer.didRender(at: now, measuring: hud != nil) {
+                    mapView.preferredFramesPerSecond = MLNMapViewPreferredFramesPerSecond(rawValue: rate)
+                }
+                if let hud, let reading = pacer.takeReading() { hud.text = reading }
+            }
+        }
+
+        /// The readings over the map's top corner (a plain label: measuring adds no SwiftUI work).
+        func showsReadings(_ on: Bool, on map: MLNMapView) {
+            if on, hud == nil {
+                let label = UILabel()
+                label.font = .monospacedDigitSystemFont(ofSize: 12, weight: .semibold)
+                label.textColor = .white
+                label.backgroundColor = UIColor.black.withAlphaComponent(0.62)
+                label.numberOfLines = 0
+                label.layer.cornerRadius = 8
+                label.layer.masksToBounds = true
+                label.text = " đang chờ bản đồ chuyển động… "
+                label.translatesAutoresizingMaskIntoConstraints = false
+                map.addSubview(label)
+                NSLayoutConstraint.activate([
+                    label.leadingAnchor.constraint(equalTo: map.leadingAnchor, constant: 12),
+                    label.topAnchor.constraint(equalTo: map.safeAreaLayoutGuide.topAnchor, constant: 58),
+                ])
+                hud = label
+            } else if !on, let hud {
+                hud.removeFromSuperview()
+                self.hud = nil
+            }
         }
 
         nonisolated func gestureRecognizer(_ g: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
@@ -377,6 +424,114 @@ struct TripMap: UIViewRepresentable {
             case .halo: return ((UIColor(named: "AccentColor") ?? .systemRed).withAlphaComponent(0.22), .clear, 18, 0)
             }
         }
+    }
+}
+
+// MARK: - Frame pacing
+
+/// Holds the map to a frame rate it keeps. MapLibre prepares each frame on the main thread, from a
+/// display link that asks for the screen's top rate (120 Hz on ProMotion). When a frame needs more
+/// than the 8 ms that leaves (street level, tiles arriving, the glass over the map sampling it
+/// again), frames land unevenly, 8, 17, 25, 33 ms apart, and an uneven 120 judders worse than an
+/// even 60. So frames are timed while the map moves: while 120 holds, the map keeps it; when it does
+/// not, the map asks for an even 60 and tries 120 again at the start of a later move, waiting
+/// longer after each miss (15 s, 30 s, … 4 min). Low Power Mode or a hot phone keep it at 60.
+final class MapPacer {
+    static let readingsKey = "debug.mapFrames"
+
+    /// what the map asks for now
+    private(set) var target = 60
+    private var top = 60
+    private var began: CFTimeInterval = 0
+    private var last: CFTimeInterval = 0
+    /// frame-to-frame times of the move under way
+    private var gaps: [Double] = []
+    private var retry: CFTimeInterval = 0
+    private var wait: CFTimeInterval = 15
+    /// half a second of frames, for the readings
+    private var tally = (from: 0.0, moving: 0, movingTime: 0.0, frames: 0, cpu: 0.0, worst: 0.0, late: 0)
+    private var reading: String?
+
+    /// The rate for a map just made.
+    func start(top: Int) -> Int {
+        self.top = max(60, top)
+        target = allowed ? self.top : 60
+        return target
+    }
+
+    private var allowed: Bool {
+        top > 60 && !ProcessInfo.processInfo.isLowPowerModeEnabled
+            && ProcessInfo.processInfo.thermalState != .serious && ProcessInfo.processInfo.thermalState != .critical
+    }
+
+    func willRender(at now: CFTimeInterval) { began = now }
+
+    /// After each frame. Returns a rate to ask for when it should change.
+    func didRender(at now: CFTimeInterval, measuring: Bool) -> Int? {
+        let cpu = began > 0 ? now - began : 0
+        let gap = last > 0 ? now - last : .infinity
+        last = now
+        if measuring { measure(now: now, cpu: cpu, gap: gap) }
+        // the first frame of a move (or a lone frame for a tile that arrived)
+        guard gap < 0.1 else {
+            gaps.removeAll(keepingCapacity: true)
+            if target < top, now >= retry, allowed { target = top; return top }
+            if target > 60, !allowed { target = 60; return 60 }
+            return nil
+        }
+        gaps.append(gap)
+        guard gaps.count >= 24 else { return nil }
+        gaps.sort()
+        let median = gaps[gaps.count / 2]
+        gaps.removeAll(keepingCapacity: true)
+        guard target > 60 else { return nil }
+        // most frames should be one refresh apart (8.3 ms); past 11 ms they are not
+        if median > 1.0 / 90 || !allowed {
+            target = 60
+            retry = now + wait
+            wait = min(wait * 2, 240)
+            return 60
+        }
+        wait = 15
+        return nil
+    }
+
+    /// The latest readings, once each, about twice a second.
+    func takeReading() -> String? {
+        defer { reading = nil }
+        return reading
+    }
+
+    private func measure(now: CFTimeInterval, cpu: Double, gap: Double) {
+        if tally.from == 0 { tally.from = now }
+        tally.frames += 1
+        tally.cpu += cpu
+        tally.worst = max(tally.worst, cpu)
+        if gap < 0.1 {
+            tally.moving += 1
+            tally.movingTime += gap
+            if gap > 1.5 / Double(target) { tally.late += 1 }
+        }
+        guard now - tally.from >= 0.5 else { return }
+        let fps = tally.movingTime > 0 ? Double(tally.moving) / tally.movingTime : 0
+        let avg = tally.cpu / Double(max(1, tally.frames)) * 1000
+        var lines = [
+            String(format: " xin %d Hz · vẽ được %.0f khung/giây ", target, fps),
+            String(format: " main thread mỗi khung: %.1f ms tb, %.1f ms lâu nhất ", avg, tally.worst * 1000),
+            " khung trễ: \(tally.late)/\(tally.moving) ",
+        ]
+        let info = ProcessInfo.processInfo
+        var notes: [String] = []
+        if info.isLowPowerModeEnabled { notes.append("Chế độ nguồn điện thấp") }
+        switch info.thermalState {
+        case .fair: notes.append("máy hơi ấm")
+        case .serious: notes.append("máy nóng")
+        case .critical: notes.append("máy rất nóng")
+        default: break
+        }
+        if !notes.isEmpty { lines.append(" " + notes.joined(separator: " · ") + " ") }
+        reading = lines.joined(separator: "\n")
+        tally = (now, 0, 0, 0, 0, 0, 0)
     }
 }
 

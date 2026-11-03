@@ -91,7 +91,8 @@ actor PhotoCache {
             let disk = file(for: url)
             data = try? Data(contentsOf: disk)
             if data == nil, network, let (d, r) = try? await URLSession.shared.data(from: url), (r as? HTTPURLResponse)?.statusCode == 200 {
-                try? d.write(to: disk)
+                // whole or not at all: a half-written file would count as saved for use offline
+                try? d.write(to: disk, options: .atomic)
                 data = d
             }
         }
@@ -154,21 +155,19 @@ actor PhotoCache {
         return image
     }
 
-    /// Download every remote photo of the trip, for use without signal. Returns how many are on disk.
-    func prefetch(_ photos: [Photo], progress: @Sendable (Double) -> Void) async -> Int {
-        let remote = photos.filter { !$0.isBundled }.compactMap { URL(string: $0.src) }
-        var done = 0
-        for (i, url) in remote.enumerated() {
-            let disk = Self.file(for: url)
-            if FileManager.default.fileExists(atPath: disk.path) {
-                done += 1
-            } else if let (d, r) = try? await URLSession.shared.data(from: url), (r as? HTTPURLResponse)?.statusCode == 200 {
-                try? d.write(to: disk)
-                done += 1
-            }
-            progress(Double(i + 1) / Double(max(1, remote.count)))
-        }
-        return done
+    /// The remote photos not on disk yet.
+    @concurrent nonisolated static func missing(_ urls: [URL]) async -> [URL] {
+        urls.filter { !FileManager.default.fileExists(atPath: file(for: $0).path) }
+    }
+
+    /// One remote photo onto the disk, whole or not at all. True when it is there.
+    @concurrent nonisolated static func fetch(_ url: URL) async -> Bool {
+        let disk = file(for: url)
+        if FileManager.default.fileExists(atPath: disk.path) { return true }
+        guard let (data, response) = try? await URLSession.shared.data(from: url),
+              (response as? HTTPURLResponse)?.statusCode == 200, !data.isEmpty
+        else { return false }
+        return (try? data.write(to: disk, options: .atomic)) != nil
     }
 
     nonisolated static func downsample(_ data: Data, maxPixel: CGFloat) -> UIImage? {
@@ -181,6 +180,85 @@ actor PhotoCache {
         ]
         guard let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
         return UIImage(cgImage: cg)
+    }
+}
+
+// MARK: - Photos kept for no signal
+
+/// The trip's remote photos (restaurants, shops, a hotel's neighbourhood) kept on disk for use
+/// without signal. App-wide, so the count and the progress outlive the Settings page. Counted from
+/// what is on disk, so photos seen while browsing count too; downloaded four at a time; a photo that
+/// fails is counted and tried again on the next download. Asked for and not finished, it is picked
+/// up when the app opens again.
+@Observable final class OfflinePhotos {
+    private(set) var total = 0
+    /// on disk now
+    private(set) var saved = 0
+    /// failed in the download under way or the last one; tried again on the next
+    private(set) var failed = 0
+    private(set) var running = false
+    /// counted from the disk: until then the page says nothing it cannot back
+    private(set) var counted = false
+
+    var fraction: Double { total > 0 ? Double(saved) / Double(total) : 0 }
+    var complete: Bool { counted && saved >= total }
+
+    @ObservationIgnored private var urls: [URL] = []
+    @ObservationIgnored private var job: Task<Void, Never>?
+    private static let wantedKey = "photos.wanted"
+
+    /// The trip's photos (bundled ones are skipped), then a count of those on disk: on each return
+    /// to the app, a few hundred file lookups off the main thread.
+    func configure(_ photos: @autoclosure () -> [Photo]) {
+        if urls.isEmpty {
+            var seen = Set<String>()
+            urls = photos().filter { !$0.isBundled && seen.insert($0.src).inserted }.compactMap { URL(string: $0.src) }
+            total = urls.count
+        }
+        guard !running, !urls.isEmpty else { return }
+        let list = urls
+        Task {
+            let missing = await PhotoCache.missing(list)
+            guard !running else { return }
+            if saved != list.count - missing.count { saved = list.count - missing.count }
+            counted = true
+            guard Shared.defaults.bool(forKey: Self.wantedKey) else { return }
+            if missing.isEmpty { Shared.defaults.set(false, forKey: Self.wantedKey) } else { download() }
+        }
+    }
+
+    func download() {
+        guard job == nil, !urls.isEmpty else { return }
+        Shared.defaults.set(true, forKey: Self.wantedKey)
+        running = true
+        failed = 0
+        let list = urls
+        job = Task {
+            let missing = await PhotoCache.missing(list)
+            saved = list.count - missing.count
+            counted = true
+            await withTaskGroup(of: Bool.self) { group in
+                var queue = missing.makeIterator()
+                for _ in 0..<4 {
+                    guard let url = queue.next() else { break }
+                    group.addTask { await PhotoCache.fetch(url) }
+                }
+                for await ok in group {
+                    // a pause cancels what is under way: not a failure
+                    if ok { saved += 1 } else if !Task.isCancelled { failed += 1 }
+                    if !Task.isCancelled, let url = queue.next() { group.addTask { await PhotoCache.fetch(url) } }
+                }
+            }
+            if !Task.isCancelled, failed == 0 { Shared.defaults.set(false, forKey: Self.wantedKey) }
+            running = false
+            job = nil
+        }
+    }
+
+    /// Stops where it is; what is on disk stays.
+    func pause() {
+        Shared.defaults.set(false, forKey: Self.wantedKey)
+        job?.cancel()
     }
 }
 

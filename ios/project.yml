@@ -93,8 +93,11 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: tech.delphyra.jp27
             CFBundleURLSchemes: [jp27]
-        UIBackgroundModes: [location, fetch]
-        BGTaskSchedulerPermittedIdentifiers: [tech.delphyra.jp27.refresh]
+        # processing: for the continued task below (harmless if the system does not ask for it)
+        UIBackgroundModes: [location, fetch, processing]
+        # .downloads: the offline downloads keep going after the app is left (BGContinuedProcessingTask);
+        # the system wants it prefixed with the bundle id, which the personal team profile changes
+        BGTaskSchedulerPermittedIdentifiers: [tech.delphyra.jp27.refresh, "$(PRODUCT_BUNDLE_IDENTIFIER).downloads"]
         NSLocationWhenInUseUsageDescription: Chấm vị trí của bạn trên lịch hôm nay, tính quãng còn lại tới điểm tiếp theo và những chỗ gần đó.
         NSLocationAlwaysAndWhenInUseUsageDescription: Báo món nên gọi khi tới gần quán, theo dõi ga trên tàu kể cả khi khoá màn hình, và tự ghi nhật ký những nơi đã ghé.
         NSMotionUsageDescription: Đo tốc độ đi bộ thật để tính giờ đi bộ cho đúng với hai bạn.

@@ -113,7 +113,7 @@ struct RootView: View {
         // offline packs made for a tile build the map no longer reads are useless without signal
         .alert("Bản đồ offline cần tải lại", isPresented: Binding(get: { model.offline.needsReload }, set: { model.offline.needsReload = $0 })) {
             Button("Để sau", role: .cancel) {}
-            Button("Tải lại") { model.offline.downloadAll() }
+            Button("Tải lại") { model.downloads.downloadAllMaps() }
         } message: {
             Text("Nguồn bản đồ vừa đổi, nên các vùng đã tải không còn dùng được khi mất sóng. Nên tải lại khi có Wi‑Fi.")
         }

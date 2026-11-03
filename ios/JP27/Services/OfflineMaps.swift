@@ -1,7 +1,10 @@
+import BackgroundTasks
 import Foundation
 import MapLibre
 import Observation
+import QuartzCore
 import TripKit
+import UIKit
 
 /// The basemap and its offline packs. The style is the site's own (src/lib/mapStyle.ts, exported to
 /// public/map/), on OpenFreeMap vector tiles; packs cover each area of the trip so the map works
@@ -32,9 +35,12 @@ import TripKit
 
     /// The tiles the map reads now: the pinned build's URL template, or "current".
     static var tilesNow: String {
-        if usesCurrentTiles { return "current" }
-        return Bundle.main.url(forResource: "jp27-light", withExtension: "json", subdirectory: "map").flatMap(pinnedTiles(in:)) ?? "pinned"
+        usesCurrentTiles ? "current" : pinned
     }
+
+    /// The bundled style's tile template, read once (every pack report asks).
+    private static let pinned: String =
+        Bundle.main.url(forResource: "jp27-light", withExtension: "json", subdirectory: "map").flatMap(pinnedTiles(in:)) ?? "pinned"
 
     /// The style pins one OpenFreeMap build, so the offline packs keep matching its tile URLs.
     /// OpenFreeMap answers any build path today, but nothing promises it still will in October
@@ -98,58 +104,126 @@ import TripKit
     }
 
     private(set) var areas: [Area] = []
+    /// MapLibre has read its packs: until then nothing is known about any area, and nothing is downloaded twice
+    private(set) var ready = false
+    /// areas whose pack has not said yet how far it is (packs read from storage start unknown)
+    private(set) var checking: Set<String> = []
     private(set) var progress: [String: Double] = [:]
     private(set) var bytes: [String: UInt64] = [:]
     private(set) var complete: Set<String> = []
+    /// downloading now
+    private(set) var running: Set<String> = []
+    /// asked for and not finished, kept across launches: picked up again when the app opens
+    private(set) var wanted: Set<String> = Set(Shared.defaults.stringArray(forKey: OfflineMaps.wantedKey) ?? [])
+    /// the last error of a download under way, until it moves again (MapLibre tries again by itself)
+    private(set) var problems: [String: String] = [:]
     /// areas downloaded for another tile build than the map reads now: useless offline until downloaded again
     private(set) var stale: Set<String> = []
     /// the packs just went stale: say so once, for the travellers to download again
     var needsReload = false
 
     var totalBytes: UInt64 { bytes.values.reduce(0, +) }
+    /// asked for and not finished
+    var pending: Set<String> { wanted.subtracting(complete) }
 
+    /// How far these areas are, together (a finished one counts whole).
+    func fraction(of ids: Set<String>) -> Double {
+        guard !ids.isEmpty else { return 0 }
+        return ids.reduce(0.0) { $0 + (complete.contains($1) ? 1 : progress[$1] ?? 0) } / Double(ids.count)
+    }
+
+    private static let wantedKey = "map.wanted"
     /// What a pack was made for, kept as its context.
-    private nonisolated struct Tag: Codable {
+    private nonisolated struct Tag: Codable, Equatable {
         let area: String
         /// the tile URL template of the build, or "current"
         let tiles: String
     }
 
+    /// read once per pack: MapLibre reports progress for every tile, so nothing per report reads JSON
+    @ObservationIgnored private var tags: [ObjectIdentifier: (context: Data, tag: Tag)] = [:]
+    /// when each area last showed its progress: a few times a second is what a page can show
+    @ObservationIgnored private var shown: [String: CFTimeInterval] = [:]
+    /// packs being made, not in MapLibre's list yet
+    @ObservationIgnored private var adding: Set<String> = []
+    @ObservationIgnored private var watch: NSKeyValueObservation?
+    /// `tilesNow`, read on `refresh` (the tile build changes rarely; packs report all the time).
+    /// Empty until the packs are read, and no pack reports before that.
+    @ObservationIgnored private var tilesNow = ""
+
     override init() {
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(packProgress(_:)), name: NSNotification.Name.MLNOfflinePackProgressChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(packError(_:)), name: NSNotification.Name.MLNOfflinePackError, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(tilesMoved(_:)), name: Self.tilesChanged, object: nil)
     }
 
     /// One area per region of the plan, framed on its places with a margin.
     func configure(store: TripStore) {
-        let names = ["tokyo": "Tokyo", "hakone": "Hakone", "kawaguchiko": "Kawaguchiko", "tokaido": "Shizuoka", "ise": "Ise", "toba": "Toba, Tōshijima", "shima": "Shima", "kyoto": "Kyoto, Uji", "nara": "Nara", "osaka": "Osaka, KIX"]
-        let grouped = Dictionary(grouping: store.trip.places.filter { $0.role != "alt" || $0.area == "kawaguchiko" }, by: \.area)
-        areas = names.compactMap { id, name in
-            guard let pts = grouped[id]?.map(\.coordinate), let b = Geo.bounds(pts) else { return nil }
-            let pad = 0.012
-            return Area(id: id, name: name, sw: Coordinate(b.sw.lat - pad, b.sw.lng - pad), ne: Coordinate(b.ne.lat + pad, b.ne.lng + pad))
-        }.sorted { $0.name < $1.name }
-        refresh()
+        if areas.isEmpty {
+            let names = ["tokyo": "Tokyo", "hakone": "Hakone", "kawaguchiko": "Kawaguchiko", "tokaido": "Shizuoka", "ise": "Ise", "toba": "Toba, Tōshijima", "shima": "Shima", "kyoto": "Kyoto, Uji", "nara": "Nara", "osaka": "Osaka, KIX"]
+            let grouped = Dictionary(grouping: store.trip.places.filter { $0.role != "alt" || $0.area == "kawaguchiko" }, by: \.area)
+            areas = names.compactMap { id, name in
+                guard let pts = grouped[id]?.map(\.coordinate), let b = Geo.bounds(pts) else { return nil }
+                let pad = 0.012
+                return Area(id: id, name: name, sw: Coordinate(b.sw.lat - pad, b.sw.lng - pad), ne: Coordinate(b.ne.lat + pad, b.ne.lng + pad))
+            }.sorted { $0.name < $1.name }
+        }
+        guard watch == nil else { return }
+        // `packs` is nil until MapLibre has read its database, a moment after it is first asked;
+        // it changes again whenever a pack is added or removed. MapLibre changes it on the main
+        // queue; the hop keeps this closure free of the main actor all the same.
+        watch = MLNOfflineStorage.shared.observe(\.packs, options: [.initial]) { @Sendable _, _ in
+            Task { @MainActor in AppModel.shared.offline.refresh() }
+        }
     }
 
     func refresh() {
+        guard let packs = MLNOfflineStorage.shared.packs else { return }
+        ready = true
+        tilesNow = Self.tilesNow
         let hadStale = !stale.isEmpty
-        stale = []
-        for pack in MLNOfflineStorage.shared.packs ?? [] {
-            guard let id = Self.areaID(pack) else { continue }
-            record(pack, id: id)
+        var found = Set<String>()
+        var staleNow = Set<String>()
+        var known: [ObjectIdentifier: (context: Data, tag: Tag)] = [:]
+        for pack in packs where pack.state != .invalid {
+            guard let tag = tag(of: pack) else { continue }
+            known[ObjectIdentifier(pack)] = tags[ObjectIdentifier(pack)]
+            if tag.tiles != tilesNow { staleNow.insert(tag.area); continue }
+            found.insert(tag.area)
+            if pack.state == .unknown {
+                // a pack read from storage knows nothing of itself until asked
+                checking.insert(tag.area)
+                pack.requestProgress()
+            }
+            record(pack, tag: tag, force: true)
+        }
+        tags = known
+        staleNow.subtract(found)
+        if staleNow != stale { stale = staleNow }
+        // areas whose pack went (removed, or replaced while stale)
+        for id in Set(progress.keys).union(complete).union(running).union(checking).subtracting(found).subtracting(adding) {
+            forget(id)
         }
         if !hadStale, !stale.isEmpty { needsReload = true }
         if stale.isEmpty { needsReload = false }
+        // asked for before a relaunch and with no pack for the tiles the map reads now: made again
+        for area in areas where wanted.contains(area.id) && !found.contains(area.id) && !adding.contains(area.id) {
+            download(area)
+        }
     }
 
     /// Downloads an area for the tiles the map reads now; a pack of the area made for other tiles goes.
     func download(_ area: Area) {
-        let packs = (MLNOfflineStorage.shared.packs ?? []).filter { Self.areaID($0) == area.id }
+        want(area.id)
+        problems[area.id] = nil
+        // not read yet: picked up by `refresh` once MapLibre has its list, so no pack is made twice
+        guard let all = MLNOfflineStorage.shared.packs else { return }
+        let packs = all.filter { $0.state != .invalid && tag(of: $0)?.area == area.id }
         let now = Self.tilesNow
-        if let existing = packs.first(where: { Self.tiles(of: $0) == now }) {
+        if let existing = packs.first(where: { tag(of: $0)?.tiles == now }) {
             existing.resume()
+            running.insert(area.id)
             return
         }
         for old in packs { MLNOfflineStorage.shared.removePack(old) { _ in } }
@@ -159,33 +233,99 @@ import TripKit
         let style = Self.remoteStyle(dark: false, current: now == "current")
         let region = MLNTilePyramidOfflineRegion(styleURL: style, bounds: bounds, fromZoomLevel: 9, toZoomLevel: 16)
         let context = (try? JSONEncoder().encode(Tag(area: area.id, tiles: now))) ?? Data(area.id.utf8)
-        MLNOfflineStorage.shared.addPack(for: region, withContext: context) { pack, _ in
-            pack?.resume()
+        adding.insert(area.id)
+        let id = area.id
+        MLNOfflineStorage.shared.addPack(for: region, withContext: context) { [weak self] pack, error in
+            self?.adding.remove(id)
+            if let pack {
+                // paused or removed while it was being made: it waits
+                if self?.wanted.contains(id) == true { pack.resume() }
+            } else {
+                self?.problems[id] = "Không tạo được vùng tải" + (error.map { ": \($0.localizedDescription)" } ?? "")
+                self?.unwant(id)
+                self?.running.remove(id)
+            }
         }
         progress[area.id] = 0
         bytes[area.id] = nil
         complete.remove(area.id)
+        running.insert(area.id)
     }
 
-    func downloadAll() {
-        for a in areas where !complete.contains(a.id) { download(a) }
+    /// Every area not downloaded yet. Returns their ids.
+    @discardableResult func downloadAll() -> Set<String> {
+        let missing = areas.filter { !complete.contains($0.id) }
+        for a in missing { download(a) }
         needsReload = false
+        return Set(missing.map(\.id))
+    }
+
+    /// Stops an area where it is; "Tiếp tục" picks it up from there.
+    func pause(_ id: String) {
+        unwant(id)
+        for pack in MLNOfflineStorage.shared.packs ?? [] where pack.state == .active && tag(of: pack)?.area == id {
+            pack.suspend()
+        }
+        running.remove(id)
+    }
+
+    func pauseAll() {
+        for id in pending { pause(id) }
     }
 
     func remove(_ area: Area) {
-        for pack in MLNOfflineStorage.shared.packs ?? [] where Self.areaID(pack) == area.id {
+        unwant(area.id)
+        for pack in MLNOfflineStorage.shared.packs ?? [] where pack.state != .invalid && tag(of: pack)?.area == area.id {
             MLNOfflineStorage.shared.removePack(pack) { _ in }
         }
-        progress[area.id] = nil
-        bytes[area.id] = nil
-        complete.remove(area.id)
+        forget(area.id)
+        stale.remove(area.id)
+    }
+
+    private func want(_ id: String) {
+        guard !wanted.contains(id) else { return }
+        wanted.insert(id)
+        Shared.defaults.set(wanted.sorted(), forKey: Self.wantedKey)
+    }
+
+    private func unwant(_ id: String) {
+        guard wanted.contains(id) else { return }
+        wanted.remove(id)
+        Shared.defaults.set(wanted.sorted(), forKey: Self.wantedKey)
+    }
+
+    private func forget(_ id: String) {
+        progress[id] = nil
+        bytes[id] = nil
+        problems[id] = nil
+        if complete.contains(id) { complete.remove(id) }
+        if running.contains(id) { running.remove(id) }
+        if checking.contains(id) { checking.remove(id) }
+        shown[id] = nil
     }
 
     /// MapLibre posts pack progress on the main queue (MLNOfflinePack hops there before posting),
     /// so this stays on the main actor and the notification never crosses to it.
     @objc private func packProgress(_ note: Notification) {
-        guard let pack = note.object as? MLNOfflinePack, let id = Self.areaID(pack) else { return }
-        record(pack, id: id)
+        guard let pack = note.object as? MLNOfflinePack, pack.state != .invalid, let tag = tag(of: pack),
+              tag.tiles == tilesNow else { return }
+        record(pack, tag: tag)
+    }
+
+    /// A tile or the style failed (posted on the main queue too). MapLibre keeps trying; the area
+    /// says why it is not moving until it moves again. A missing tile is ordinary (sea, no data).
+    @objc private func packError(_ note: Notification) {
+        guard let pack = note.object as? MLNOfflinePack, pack.state != .invalid, let tag = tag(of: pack),
+              tag.tiles == tilesNow else { return }
+        let error = note.userInfo?[MLNOfflinePackUserInfoKey.error.rawValue] as? NSError
+        let text: String
+        switch error?.code {
+        case MLNErrorCode.notFound.rawValue: return
+        case MLNErrorCode.connectionFailed.rawValue: text = "Không kết nối được, đang thử lại"
+        case MLNErrorCode.badServerResponse.rawValue: text = "Máy chủ bản đồ đang lỗi, đang thử lại"
+        default: text = "Lỗi tải, đang thử lại"
+        }
+        if problems[tag.area] != text { problems[tag.area] = text }
     }
 
     /// The map moved to another tile build (posted on the main queue by `checkPinnedTiles`).
@@ -193,29 +333,259 @@ import TripKit
         refresh()
     }
 
-    private func record(_ pack: MLNOfflinePack, id: String) {
-        guard Self.tiles(of: pack) == Self.tilesNow else {
-            stale.insert(id)
-            complete.remove(id)
-            progress[id] = nil
+    private func record(_ pack: MLNOfflinePack, tag: Tag, force: Bool = false) {
+        let id = tag.area
+        let state = pack.state
+        // not known yet: `requestProgress` answers with a report
+        guard state != .unknown else { return }
+        let p = pack.progress
+        let expected = p.countOfResourcesExpected
+        let done = state == .complete
+            || (expected > 0 && p.countOfResourcesCompleted >= expected && p.maximumResourcesExpected == expected)
+        let active = state == .active && !done
+        let changed = checking.contains(id) || done != complete.contains(id) || active != running.contains(id)
+        // every tile reports; the page is told a few times a second, and at once when the state changes
+        let now = CACurrentMediaTime()
+        guard force || changed || now - (shown[id] ?? 0) >= 0.25 else { return }
+        shown[id] = now
+        if checking.contains(id) { checking.remove(id) }
+        let fraction = done ? 1 : expected > 0 ? min(1, Double(p.countOfResourcesCompleted) / Double(expected)) : 0
+        if fraction > (progress[id] ?? 0), problems[id] != nil { problems[id] = nil }
+        if progress[id] != fraction { progress[id] = fraction }
+        if bytes[id] != p.countOfBytesCompleted { bytes[id] = p.countOfBytesCompleted }
+        if done {
+            if !complete.contains(id) { complete.insert(id) }
+            if running.contains(id) { running.remove(id) }
+            if problems[id] != nil { problems[id] = nil }
+            unwant(id)
+        } else {
+            if complete.contains(id) { complete.remove(id) }
+            if state == .inactive, wanted.contains(id) {
+                // asked for and stopped by a relaunch (packs come back inactive): on again
+                pack.resume()
+                if !running.contains(id) { running.insert(id) }
+            } else if active != running.contains(id) {
+                if active { running.insert(id) } else { running.remove(id) }
+            }
+        }
+    }
+
+    /// The area and tile build a pack was made for. Packs from before they were tagged were made
+    /// from the site's style, pinned to the bundled build.
+    private func tag(of pack: MLNOfflinePack) -> Tag? {
+        let key = ObjectIdentifier(pack)
+        let context = pack.context
+        if let hit = tags[key], hit.context == context { return hit.tag }
+        let tag = (try? JSONDecoder().decode(Tag.self, from: context))
+            ?? String(data: context, encoding: .utf8).map { Tag(area: $0, tiles: Self.pinned) }
+        if let tag { tags[key] = (context, tag) }
+        return tag
+    }
+}
+
+// MARK: - Downloads that outlast the page
+
+/// The trip's downloads (map areas, photos) belong to the app, not to the page that starts them:
+/// they go on while the travellers use the rest of the app, the page shows where they are whenever
+/// it is opened again, and what was asked for and not finished is picked up at the next launch.
+///
+/// Leaving the app: a download started by a tap runs as a continued processing task (iOS 26), which
+/// the system shows as a Live Activity with its progress and a stop button, and lets run in the
+/// background until it is done. The system grants one only for an explicit action, so a download
+/// picked up at launch gets the usual half minute (`beginBackgroundTask`) instead.
+@Observable final class Downloads {
+    let maps = OfflineMaps()
+    let photos = OfflinePhotos()
+
+    /// the areas of the download under way, finished ones included, for one progress over all of it
+    @ObservationIgnored private var job: Set<String> = []
+    @ObservationIgnored private var photosInJob = false
+    @ObservationIgnored private var task: BGContinuedProcessingTask?
+    /// submitted, not started yet
+    @ObservationIgnored private var asked = false
+    @ObservationIgnored private var grace: UIBackgroundTaskIdentifier = .invalid
+    @ObservationIgnored private var ticking: Task<Void, Never>?
+    @ObservationIgnored private var shown = ""
+
+    /// Something asked for is still downloading.
+    var busy: Bool { !maps.pending.isEmpty || photos.running }
+
+    /// How far the download under way is, 0…1: each area weighs one, the photos one more.
+    var fraction: Double {
+        let areas = job.union(maps.pending)
+        var sum = maps.fraction(of: areas) * Double(areas.count)
+        var weight = Double(areas.count)
+        if photosInJob || photos.running {
+            sum += photos.fraction
+            weight += 1
+        }
+        return weight > 0 ? sum / weight : 0
+    }
+
+    // MARK: Taps
+
+    func download(_ area: OfflineMaps.Area) {
+        maps.download(area)
+        job.insert(area.id)
+        keep()
+    }
+
+    func downloadAllMaps() {
+        job.formUnion(maps.downloadAll())
+        keep()
+    }
+
+    func downloadPhotos() {
+        photos.download()
+        photosInJob = true
+        keep()
+    }
+
+    // MARK: The app comes and goes
+
+    /// Back in the app: what was picked up at launch is followed like the rest.
+    func back() {
+        endGrace()
+        if busy { tick() }
+    }
+
+    /// Leaving the app: without a continued task, what still downloads gets the usual half minute.
+    func leaving() {
+        guard busy, task == nil, grace == .invalid else { return }
+        grace = UIApplication.shared.beginBackgroundTask(withName: "Tải dữ liệu offline") {
+            // called on the main thread, the time is up: MapLibre picks up where it was next time
+            AppModel.shared.downloads.endGrace()
+        }
+        tick()
+    }
+
+    private func endGrace() {
+        guard grace != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(grace)
+        grace = .invalid
+    }
+
+    // MARK: The continued task
+
+    /// After a tap: follow the download, and ask the system to let it finish in the background.
+    private func keep() {
+        tick()
+        guard task == nil, !asked, let id = Self.identifier, Self.register(id) else { return }
+        let request = BGContinuedProcessingTaskRequest(identifier: id, title: Self.title, subtitle: subtitle)
+        do {
+            try BGTaskScheduler.shared.submit(request)
+            asked = true
+        } catch {
+            // not granted now: the downloads still run while the app is open, and for half a minute after
+        }
+    }
+
+    /// `<bundle id>.downloads`, listed in Info.plist (BGTaskSchedulerPermittedIdentifiers).
+    private static var identifier: String? { Bundle.main.bundleIdentifier.map { $0 + ".downloads" } }
+    private static let title = "Tải dữ liệu offline cho chuyến đi"
+    private static var registered: Bool?
+
+    /// Once per launch: the system ends an app that registers the same identifier twice. False when
+    /// the identifier is not in Info.plist (a build made before it was added).
+    private static func register(_ id: String) -> Bool {
+        if let registered { return registered }
+        let ok = listen(id)
+        registered = ok
+        return ok
+    }
+
+    /// The handler runs on a queue of the scheduler's, so it is built off the main actor and hops to it.
+    private nonisolated static func listen(_ id: String) -> Bool {
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: id, using: nil) { task in
+            let handed = Handed(task: task)
+            Task { @MainActor in AppModel.shared.downloads.run(handed.task) }
+        }
+    }
+
+    private nonisolated struct Handed: @unchecked Sendable { let task: BGTask }
+
+    private func run(_ started: BGTask) {
+        asked = false
+        guard let started = started as? BGContinuedProcessingTask else {
+            started.setTaskCompleted(success: false)
             return
         }
-        stale.remove(id)
-        let p = pack.progress
-        progress[id] = p.countOfResourcesExpected > 0 ? Double(p.countOfResourcesCompleted) / Double(p.countOfResourcesExpected) : 0
-        bytes[id] = p.countOfBytesCompleted
-        if pack.state == .complete { complete.insert(id) }
+        task = started
+        started.progress.totalUnitCount = 1000
+        // the system's queue again, the moment the task has to stop
+        started.expirationHandler = { @Sendable in
+            Task { @MainActor in AppModel.shared.downloads.expired() }
+        }
+        shown = ""
+        tick()
+        _ = report()
     }
 
-    private static func areaID(_ pack: MLNOfflinePack) -> String? {
-        if let tag = try? JSONDecoder().decode(Tag.self, from: pack.context) { return tag.area }
-        return String(data: pack.context, encoding: .utf8)
+    /// The system stopped the task, or the travellers did from its Live Activity. Away from the app
+    /// the downloads pause where they are and say so ("Tiếp tục" picks them up); in it, they go on.
+    private func expired() {
+        guard let task else { return }
+        if UIApplication.shared.applicationState == .background {
+            maps.pauseAll()
+            photos.pause()
+        }
+        task.setTaskCompleted(success: false)
+        self.task = nil
     }
 
-    /// The tiles a pack was made for. Packs from before they were tagged were made from the site's
-    /// style, pinned to the bundled build.
-    private static func tiles(of pack: MLNOfflinePack) -> String {
-        if let tag = try? JSONDecoder().decode(Tag.self, from: pack.context) { return tag.tiles }
-        return Bundle.main.url(forResource: "jp27-light", withExtension: "json", subdirectory: "map").flatMap(pinnedTiles(in:)) ?? "pinned"
+    /// About once a second while something downloads: the Live Activity's progress, and the end.
+    private func tick() {
+        guard ticking == nil else { return }
+        ticking = Task {
+            while report() {
+                try? await Task.sleep(for: .seconds(1))
+            }
+            ticking = nil
+        }
+    }
+
+    /// Returns whether to go on.
+    private func report() -> Bool {
+        guard busy else {
+            finish()
+            return false
+        }
+        if let task {
+            let units = Int64(fraction * 1000)
+            // the system reads a stuck bar as a stuck task: it only moves forward
+            if units > task.progress.completedUnitCount { task.progress.completedUnitCount = units }
+            let line = subtitle
+            if line != shown {
+                task.updateTitle(Self.title, subtitle: line)
+                shown = line
+            }
+        }
+        return true
+    }
+
+    private func finish() {
+        if let task {
+            task.progress.completedUnitCount = task.progress.totalUnitCount
+            task.updateTitle(Self.title, subtitle: photos.failed > 0 ? "Xong, \(photos.failed) ảnh chưa tải được" : "Xong")
+            task.setTaskCompleted(success: photos.failed == 0)
+            self.task = nil
+        } else if asked, let id = Self.identifier {
+            // nothing left for a task still waiting its turn
+            BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: id)
+            asked = false
+        }
+        endGrace()
+        job = []
+        photosInJob = false
+    }
+
+    /// "Bản đồ 3/10 vùng · Ảnh 120/180 · 42%"
+    private var subtitle: String {
+        var parts: [String] = []
+        let areas = job.union(maps.pending)
+        if !areas.isEmpty { parts.append("Bản đồ \(areas.filter(maps.complete.contains).count)/\(areas.count) vùng") }
+        if photosInJob || photos.running { parts.append("Ảnh \(photos.saved)/\(photos.total)") }
+        parts.append("\(Int(fraction * 100))%")
+        return parts.joined(separator: " · ")
     }
 }
