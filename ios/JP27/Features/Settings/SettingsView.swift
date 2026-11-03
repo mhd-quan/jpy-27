@@ -74,7 +74,9 @@ struct SettingsView: View {
 // MARK: - Diagnostics
 
 /// What the map really draws, measured on the phone: for a jerky map, numbers instead of guesses.
+/// And what the alarms last ran into.
 private struct DiagnosticsSection: View {
+    @Environment(AppModel.self) private var model
     @AppStorage(MapPacer.readingsKey) private var readings = false
     @AppStorage(MapPacer.glassKey) private var glass = true
     @AppStorage(MapPacer.reliefKey) private var relief = false
@@ -104,6 +106,20 @@ private struct DiagnosticsSection: View {
                     }
                 }
             }
+            if let problem = model.alarms.lastError {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Lỗi báo thức gần nhất")
+                        Text(problem).font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "exclamationmark.triangle.fill", tint: .red)
+                }
+            }
+            #if DEBUG
+            testAlarm(minutes: 2)
+            testAlarm(minutes: 5)
+            #endif
         } header: {
             Text("Chẩn đoán")
         } footer: {
@@ -112,6 +128,24 @@ private struct DiagnosticsSection: View {
                 : "Hiện ở góc bản đồ thời gian của từng khung hình, để biết bản đồ giật vì đâu.")
         }
     }
+
+    #if DEBUG
+    /// A real alarm for a ride that does not exist, set the way a followed ride sets one (asks for
+    /// permission, replaces only once set), for the device checks in
+    /// docs/superpowers/checklists/2026-11-device-phase1-3.md. Two lengths on the same ride: the
+    /// second moves the first by more than two minutes, so it is a replacement.
+    private func testAlarm(minutes: Double) -> some View {
+        Button {
+            Task { await model.alarms.alight(rideID: "debug.wake", station: "Ga thử", at: Date().addingTimeInterval(minutes * 60)) }
+        } label: {
+            Label {
+                Text("Báo thức thử sau \(Int(minutes)) phút")
+            } icon: {
+                SettingsIcon(symbol: "alarm", tint: .orange)
+            }
+        }
+    }
+    #endif
 }
 
 // MARK: - Building blocks

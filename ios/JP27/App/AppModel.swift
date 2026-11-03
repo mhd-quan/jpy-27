@@ -224,6 +224,9 @@ enum AppSheet: Identifiable, Hashable {
             return
         }
         asleep = false
+        // what was set while away, made to match the system's: an alarm the app was killed before
+        // saving is taken back, one that rang is forgotten (before the plan sets what is missing)
+        alarms.reconcile()
         startClock()
         location.resume(for: self)
         motion.start()
@@ -390,7 +393,7 @@ enum AppSheet: Identifiable, Hashable {
         let reminders = ReminderPlanner(store: store).upcoming(days: days, now: now) { day, i in self.isSettled(day, i) }
         Task { await notifications.schedule(reminders, clockOffset: clockOffset) }
         location.updateFences(model: self)
-        planWakeAlarms()
+        Task { await planWakeAlarms() }
     }
 
     /// Alarms from the timetable for the long train rides of today and tomorrow (`WakePlanner`:
@@ -398,10 +401,10 @@ enum AppSheet: Identifiable, Hashable {
     /// planned arrival, so the 7:37 Romancecar has its alarm from the evening before. Reconciled on
     /// every change of plan: rides taken, days swapped and alarms turned off are cancelled. Not on
     /// the rehearsal clock, whose times are not real ones.
-    private func planWakeAlarms() {
+    private func planWakeAlarms() async {
         guard clockOffset == 0 else { return }
         let wakes = WakePlanner(store: store).wakes(days: days, now: now) { day, i in self.marks[day.key]?[i] != nil }
-        Task { await alarms.planWake(wakes.map { ($0.rideID, $0.station, $0.at) }) }
+        await alarms.planWake(wakes)
     }
 
     /// The ride's own switch: on by default for the rides worth an alarm, off for the rest (a
@@ -414,7 +417,7 @@ enum AppSheet: Identifiable, Hashable {
     /// position of a followed ride.
     func setWakeAlarm(_ on: Bool, for ride: Ride) {
         alarms.setOn(on, rideID: ride.id)
-        if on { planWakeAlarms() }
+        if on { Task { await planWakeAlarms() } }
     }
 
     // MARK: - Minutes
