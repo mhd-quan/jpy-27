@@ -1034,8 +1034,14 @@ final class SnapshotStyler: NSObject, MLNMapSnapshotterDelegate {
         painter = TripMap.Coordinator(parent: TripMap(content: content, showsUser: false, interactive: false), dark: dark)
     }
 
-    /// On the main thread, where the snapshotter was started.
+    /// On the main thread: MapLibre starts a snapshotter only there (it raises otherwise) and calls
+    /// back on that thread's run loop, which `assumeIsolated` checks. The style is not Sendable (a
+    /// plain NSObject, where the map view's delegate hands over a main-actor UIView), so it crosses
+    /// into the main actor in a box; it never leaves the main thread.
     nonisolated func mapSnapshotter(_ snapshotter: MLNMapSnapshotter, didFinishLoading style: MLNStyle) {
-        MainActor.assumeIsolated { painter.apply(content, in: style) }
+        let handed = Handed(style: style)
+        MainActor.assumeIsolated { painter.apply(content, in: handed.style) }
     }
+
+    private nonisolated struct Handed: @unchecked Sendable { let style: MLNStyle }
 }
