@@ -64,7 +64,7 @@ Số dòng trong brief là của commit `4b2e419`; các task trước làm lệc
 - **TDD:** RED là lệnh đã chạy + output fail + vì sao fail đúng lý do; GREEN là lệnh + output pass. Test
   "phải fail hôm nay" mà pass ngay → phát hiện đó sai: ghi vào report, không giữ test giả.
 - Trước khi commit: `cd ios/Packages/TripKit && swift test` toàn bộ (ghi số test), và khi task chạm
-  `scripts/` hay `src/data/`: `node --test scripts/`, `node scripts/check-plan.mjs; echo exit=$?`,
+  `scripts/` hay `src/data/`: `node --test 'scripts/*.test.mjs'` (không dùng `node --test scripts/`: Node 22.23 nạp thư mục như một module và fail), `node scripts/check-plan.mjs; echo exit=$?`,
   `npm run ios:data && git status --porcelain` (diff dữ liệu phải là diff mà task định ra).
 - Output test sạch: warning mới của compiler trong TripKit là finding.
 - **Không bao giờ** sinh lại fixture, nới assertion, `.disabled`, hay xoá test để có màu xanh. Sinh lại
