@@ -181,6 +181,9 @@ private struct DiagnosticsSection: View {
                     SettingsIcon(symbol: "square.on.square", tint: .gray)
                 }
             }
+            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 2.1c
+            testArrived(asBeforeIDs: false)
+            testArrived(asBeforeIDs: true)
             #endif
         } header: {
             Text("Chẩn đoán")
@@ -192,6 +195,30 @@ private struct DiagnosticsSection: View {
     }
 
     #if DEBUG
+    /// A "Đã tới" notification, now, for the first food stop not yet done of the day the app shows
+    /// (`focusDay`): as this build posts it on entering the stop's circle, or as builds before item ids
+    /// did (the day and the index only). The first marks the stop; the second must mark nothing.
+    private func testArrived(asBeforeIDs: Bool) -> some View {
+        Button {
+            let day = model.focusDay
+            guard let (i, stop) = day.stops.first(where: { model.store.place($0.stop.place)?.kind == .food && !model.isDone(day, $0.index) }),
+                  let place = model.store.place(stop.place) else { return }
+            Task {
+                if asBeforeIDs {
+                    await model.notifications.arrivedAsBeforeIDs(at: place, day: day.key, index: i)
+                } else {
+                    await model.notifications.arrived(at: place, store: model.store, people: model.people, item: ItemRef(day: day.key, id: day.items[i].id))
+                }
+            }
+        } label: {
+            Label {
+                Text(asBeforeIDs ? "Thông báo Đã tới thử, kiểu cũ" : "Thông báo Đã tới thử")
+            } icon: {
+                SettingsIcon(symbol: "checkmark.circle", tint: asBeforeIDs ? Color.gray : Color.green)
+            }
+        }
+    }
+
     /// A real alarm for a ride that does not exist, set the way a followed ride sets one (asks for
     /// permission, replaces only once set), for the device checks in
     /// docs/superpowers/checklists/2026-11-device-phase1-3.md. Two lengths on the same ride: the

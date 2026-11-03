@@ -265,10 +265,11 @@ enum Records {
     /// side store is then set aside (renamed, not deleted).
     ///
     /// Marks and skips go in by day and index, and `#Unique` turns an insert onto a held index into
-    /// an update. A record moved aside below 0 (`AppModel.loadRecords`: left there by a second write
-    /// that failed, or its item gone and its index wanted) could so meet the other store's record on
-    /// the same day and index, and one of the two would be lost. Accepted: it takes a main store that
-    /// would not open, then a plan update, and rows left aside in both stores, before this fold.
+    /// an update. A record below 0 (`AppModel.loadRecords`: left there by a second write that failed,
+    /// or its item gone and its index wanted; or written there because its item's index was held,
+    /// `RecordIndexes.slots`) could so meet the other store's record on the same day and index, and
+    /// one of the two would be lost. Accepted: it takes a main store that would not open, then a plan
+    /// update, and rows left aside in both stores, before this fold.
     private static func foldSideStore(into main: ModelContainer) {
         let fm = FileManager.default
         guard fm.fileExists(atPath: sideURL.path),

@@ -198,8 +198,10 @@ import Testing
         let away = ["s:wargo-gion:rent": "s:wargo-gion:return"]
         #expect(d8.renamed("s:wargo-gion:rent", renames: away) == "s:wargo-gion:rent")
         #expect(d8.migrate(legacy: "s:wargo-gion:rent", index: 0, renames: away) == "s:wargo-gion:rent")
-        // an old name is converted by the plan, not looked up
+        // an old name is converted by the plan, not looked up, even where a rename names it
         #expect(d8.renamed("stop:wargo-gion", renames: [:]) == "stop:wargo-gion")
+        #expect(d8.renamed("stop:wargo-gion", renames: ["stop:wargo-gion": "s:menzo"]) == "stop:wargo-gion")
+        #expect(d8.renamed("move:x", renames: ["move:x": "m:a>b"]) == "move:x")
         #expect(d8.migrate(legacy: "stop:wargo-gion", index: 5, renames: ["stop:wargo-gion": "s:menzo"]) == "s:wargo-gion:rent")
     }
 
@@ -221,6 +223,111 @@ import Testing
         #expect(d8.renamed("s:wargo-gion:return", renames: renames) == "s:wargo-gion:return")
     }
 
+    // MARK: Reading the records
+
+    /// `Day.read` as "identity@index", nil spelled out.
+    func read(_ day: Day, _ index: Int, _ identity: String?, renames: [String: String] = [:], converted: Bool) -> String {
+        let r = day.read(index, identity: identity, renames: renames, converted: converted)
+        return "\(r.identity ?? "nil")@\(r.index.map(String.init) ?? "nil")"
+    }
+
+    /// Every kind of identity a stored row may hold, read by a load before the one-time conversion of
+    /// the records and after it.
+    @Test func aLoadReadsEveryKindOfRecord() throws {
+        let d8 = try #require(store.day("8"))
+        let rent = try #require(d8.index(of: "s:wargo-gion:rent"))
+        let ret = try #require(d8.index(of: "s:wargo-gion:return"))
+        for converted in [false, true] {
+            // an id: its item, wherever the row sits (its own index, aside below 0, another item's index)
+            for at in [ret, -3, rent] {
+                #expect(read(d8, at, "s:wargo-gion:return", converted: converted) == "s:wargo-gion:return@\(ret)")
+            }
+            // an id the plan no longer has: kept, shown nowhere
+            #expect(read(d8, rent, "s:gone", converted: converted) == "s:gone@nil")
+            // an id an update renamed: the new id, and its item
+            let hire = ["s:wargo-gion:hire": "s:wargo-gion:rent"]
+            #expect(read(d8, ret, "s:wargo-gion:hire", renames: hire, converted: converted) == "s:wargo-gion:rent@\(rent)")
+            #expect(read(d8, ret, "s:wargo-gion:hire", converted: converted) == "s:wargo-gion:hire@nil")
+            // no identity: the item at its index, named now; nothing past the day's end
+            #expect(read(d8, ret, nil, converted: converted) == "s:wargo-gion:return@\(ret)")
+            #expect(read(d8, d8.items.count, nil, converted: converted) == "nil@nil")
+            #expect(read(d8, -1, nil, converted: converted) == "nil@nil")
+        }
+        // an old name, before the conversion: converted on this plan, from wherever it was recorded
+        #expect(read(d8, ret, "stop:wargo-gion#1", converted: false) == "s:wargo-gion:return@\(ret)")
+        #expect(read(d8, -1, "stop:wargo-gion", converted: false) == "s:wargo-gion:rent@\(rent)")
+        #expect(read(d8, ret, "stop:wargo-gion#2", converted: false) == "stop:wargo-gion#2@nil")
+        let leg = try #require(d8.items[0].move?.leg.id)
+        #expect(read(d8, 4, "move:\(leg)", converted: false) == "\(d8.items[0].id)@0")
+        // after it: kept as it is and shown nowhere, even where the old scheme would find an item, and
+        // a rename never reaches it
+        #expect(read(d8, ret, "stop:wargo-gion#1", converted: true) == "stop:wargo-gion#1@nil")
+        #expect(read(d8, rent, "stop:wargo-gion", renames: ["stop:wargo-gion": "s:wargo-gion:rent"], converted: true) == "stop:wargo-gion@nil")
+        #expect(read(d8, 0, "move:\(leg)", converted: true) == "move:\(leg)@nil")
+    }
+
+    /// Taking a mark or a skip off deletes the rows a load reads as the item, however each is named
+    /// and wherever it sits.
+    @Test func takingAMarkOffFindsTheItemsOwnRows() throws {
+        let d8 = try #require(store.day("8"))
+        let rent = try #require(d8.index(of: "s:wargo-gion:rent"))
+        let ret = try #require(d8.index(of: "s:wargo-gion:return"))
+        try #require(d8.items.indices.contains(ret + 3))
+        let rows: [(index: Int, identity: String?)] = [
+            (ret, "stop:wargo-gion#1"),  // the return, named the old way, not converted yet
+            (-2, "s:wargo-gion:return"),  // the return again, by its id, set aside: two rows of one item
+            (rent, "s:wargo-gion:rent"),
+            (ret + 1, nil),  // from before identities: the item at its index
+            (ret + 2, "s:gone"),  // an item the plan no longer has, on another item's index
+            (ret + 3, "stop:wargo-gion#2"),  // an old name this plan never had
+        ]
+        #expect(d8.records(of: ret, among: rows, renames: [:], converted: false) == [0, 1])
+        // once converted, the old name is nobody's: kept, never deleted
+        #expect(d8.records(of: ret, among: rows, renames: [:], converted: true) == [1])
+        for converted in [false, true] {
+            #expect(d8.records(of: rent, among: rows, renames: [:], converted: converted) == [2])
+            #expect(d8.records(of: ret + 1, among: rows, renames: [:], converted: converted) == [3])
+            #expect(d8.records(of: ret + 2, among: rows, renames: [:], converted: converted).isEmpty)
+            #expect(d8.records(of: ret + 3, among: rows, renames: [:], converted: converted).isEmpty)
+        }
+        // a row of an id an update renamed is the renamed visit's
+        let hire: [(index: Int, identity: String?)] = [(ret, "s:wargo-gion:hire")]
+        #expect(d8.records(of: rent, among: hire, renames: ["s:wargo-gion:hire": "s:wargo-gion:rent"], converted: true) == [0])
+        #expect(d8.records(of: ret, among: hire, renames: ["s:wargo-gion:hire": "s:wargo-gion:rent"], converted: true).isEmpty)
+    }
+
+    /// An update took the kimono rental out of day 8: the return and everything after it sit one index
+    /// earlier. The load that moves the records failed, so the return's mark still holds its old index,
+    /// now the index of the item after it. Marking that item, then taking either mark off, touches only
+    /// its own row: the insert is not made an update of the return's row by the store's unique day and
+    /// index (R-87), and the delete does not take the row on the index (R-61).
+    @Test func aMarkBesideARecordWaitingForItsIndex() throws {
+        let was = try #require(store.day("8"))
+        let old = try #require(was.index(of: "s:wargo-gion:return"))
+        let store = try TripStore.patched { $0.removeItem(day: "8", id: "s:wargo-gion:rent") }
+        let d8 = try #require(store.day("8"))
+        let ret = try #require(d8.index(of: "s:wargo-gion:return"))
+        #expect(ret == old - 1)
+        // the item now on the return's old index
+        let next = old
+        let nextID = try #require(d8.identity(of: next))
+        var rows: [(index: Int, identity: String?)] = [(old, "s:wargo-gion:return")]
+        #expect(read(d8, old, "s:wargo-gion:return", converted: true) == "s:wargo-gion:return@\(ret)")
+        // insert side
+        let slot = try #require(RecordIndexes.slots(for: [next], holding: rows.map(\.index)).first)
+        #expect(slot != old)
+        #expect(slot < 0)
+        rows.append((slot, nextID))
+        #expect(rows.map { d8.read($0.index, identity: $0.identity, renames: [:], converted: true).index } == [ret, next])
+        // delete side; by the stored index it would have been the return's row
+        #expect(d8.records(of: next, among: rows, renames: [:], converted: true) == [1])
+        #expect(d8.records(of: ret, among: rows, renames: [:], converted: true) == [0])
+        #expect(rows.indices.filter { rows[$0].index == next } == [0])
+        // the next load that writes puts both on their items' indexes
+        let records = rows.map { RecordIndexes.Record(day: "8", index: $0.index, target: d8.read($0.index, identity: $0.identity, renames: [:], converted: true).index) }
+        #expect(RecordIndexes.moves(records).home == [0: ret, 1: next])
+    }
+
     // MARK: "Đã tới"
 
     @Test func legacyArrivedPayloadIsIgnored() {
@@ -231,6 +338,14 @@ import Testing
         #expect(ItemRef.arrived(from: ["day": 8, "item": "s:wargo-gion:return"]) == nil)
         #expect(ItemRef.arrived(from: ["day": "8", "item": 12]) == nil)
         #expect(ItemRef.arrived(from: [:]) == nil)
+    }
+
+    /// The day of a "Đã tới", with the visit or without: one posted before items had ids opens its day.
+    @Test func anArrivedPayloadNamesItsDay() {
+        #expect(ItemRef.arrivedDay(from: ["day": "8", "index": 12]) == "8")
+        #expect(ItemRef.arrivedDay(from: ItemRef(day: "8", id: "s:wargo-gion:return").userInfo) == "8")
+        #expect(ItemRef.arrivedDay(from: ["day": 8, "index": 12]) == nil)
+        #expect(ItemRef.arrivedDay(from: ["link": "jp27://menu/menzo"]) == nil)
     }
 
     @Test func theArrivedPayloadRoundTrips() throws {
@@ -248,9 +363,11 @@ import Testing
 
     @Test func remindersAreKeyedByItemID() throws {
         let planner = ReminderPlanner(store: store)
+        let itinerary = Itinerary(store: store)
         var kinds: Set<Reminder.Kind> = []
         var ids: [String] = []
         for day in allDays {
+            let waypoints = itinerary.waypoints(day)
             for r in planner.reminders(for: day) {
                 ids.append(r.id)
                 #expect(r.day == day.key)
@@ -263,8 +380,9 @@ import Testing
                     #expect(r.id == "\(prefix)-\(day.key)-\(itemID)")
                     #expect(r.id != "\(prefix)-\(day.key)-\(i)")
                     if r.kind == .departure { #expect(day.items[i].move != nil) } else { #expect(day.items[i].stop != nil) }
-                    // read by the app until it reads the id
-                    #expect(r.index == i)
+                    // the id names the waypoint the reminder is for, not another item of the day
+                    let kind: Waypoint.Kind = r.kind == .departure ? .departure : .reservation
+                    #expect(waypoints.contains { $0.index == i && $0.kind == kind }, "\(r.id)")
                     #expect(r.booking == nil)
                 case .morning, .journal:
                     #expect(r.itemID == nil && r.booking == nil)
@@ -281,7 +399,7 @@ import Testing
         for r in bookings {
             let b = try #require(r.booking, "\(r.id)")
             #expect(r.id == "book-\(b)" || r.id == "book-\(b)-eve")
-            #expect(r.index == b)
+            #expect(store.guide?.bookings.indices.contains(b) == true, "\(r.id)")
             #expect(r.itemID == nil && r.day == nil)
         }
     }
@@ -295,11 +413,11 @@ import Testing
                 switch f.kind {
                 case .food, .station:
                     let day = try #require(store.day(f.day))
-                    let i = try #require(f.index, "\(f.id)")
-                    #expect(f.itemID == day.items[i].id, "\(f.id) on day \(f.day)")
+                    let itemID = try #require(f.itemID, "\(f.id)")
+                    let i = try #require(day.index(of: itemID), "\(f.id) on day \(f.day)")
                     if f.kind == .food { #expect(day.items[i].stop?.place == f.placeID) } else { #expect(day.items[i].move?.leg.from == f.placeID) }
                 case .snack, .stay:
-                    #expect(f.itemID == nil && f.index == nil, "\(f.id)")
+                    #expect(f.itemID == nil, "\(f.id)")
                 }
             }
         }
@@ -323,14 +441,54 @@ import Testing
         let byID = Dictionary(uniqueKeysWithValues: fences.map { ($0.id, $0) })
         let back = try JSONDecoder().decode([String: Fence].self, from: JSONEncoder().encode(byID))
         #expect(back == byID)
-        // written without the item (a snack, the hotel) or by a build that knew only the index
+        // written without the item (a snack, the hotel), or with the index an earlier build kept
         let bare = #"{"placeID":"owariya","kind":"food","center":{"lat":35.71,"lng":139.79},"radius":150,"day":"2"}"#
-        let f = try JSONDecoder().decode(Fence.self, from: Data(bare.utf8))
-        #expect(f.id == "food:owariya" && f.itemID == nil && f.index == nil)
-        // the app's call shape, and the new one
-        let old = Fence(placeID: "owariya", kind: .food, center: Coordinate(35.71, 139.79), radius: 150, day: "2", index: 12)
-        #expect(old.index == 12 && old.itemID == nil)
+        let indexed = #"{"placeID":"owariya","kind":"food","center":{"lat":35.71,"lng":139.79},"radius":150,"day":"2","index":12}"#
+        for json in [bare, indexed] {
+            let f = try JSONDecoder().decode(Fence.self, from: Data(json.utf8))
+            #expect(f.id == "food:owariya" && f.itemID == nil && f.day == "2")
+        }
         let new = Fence(placeID: "owariya", kind: .food, center: Coordinate(35.71, 139.79), radius: 150, day: "2", itemID: "s:owariya")
-        #expect(new.itemID == "s:owariya" && new.index == nil && new.id == old.id)
+        #expect(new.itemID == "s:owariya")
+    }
+
+    /// A fence's id names its region with iOS and its last entry ("fences.entered"): kind and place, as
+    /// every build has written it, so a region an earlier build registered is still this build's fence.
+    @Test func aFencesIDIsItsKindAndPlace() {
+        for kind in [Fence.Kind.food, .snack, .station, .stay] {
+            let f = Fence(placeID: "owariya", kind: kind, center: Coordinate(35.71, 139.79), radius: 150, day: "2", itemID: "s:owariya")
+            #expect(f.id == "\(kind.rawValue):owariya")
+        }
+        #expect([Fence.Kind.food, .snack, .station, .stay].map(\.rawValue) == ["food", "snack", "station", "stay"])
+    }
+
+    /// What the app keeps of its fences (`fences.v2`) is read entry by entry: one another build wrote
+    /// in a shape this one cannot read, or one damaged, is left out, and the rest are kept.
+    @Test func theFencesKeptAreReadOneByOne() throws {
+        let fences = FencePlanner(store: store).fences(today: store.day("4")!, cursor: 0, tomorrow: store.day("5"))
+        try #require(fences.count >= 3)
+        let data = try Fence.archive(fences)
+        let back = Fence.unarchive(data)
+        #expect(back == Dictionary(uniqueKeysWithValues: fences.map { ($0.id, $0) }))
+        var raw = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let ids = fences.map(\.id)
+        var boat = try #require(raw[ids[0]] as? [String: Any])
+        boat["kind"] = "boat"
+        raw[ids[0]] = boat
+        var torn = try #require(raw[ids[1]] as? [String: Any])
+        torn["center"] = nil
+        raw[ids[1]] = torn
+        raw["food:elsewhere"] = 5
+        let kept = Fence.unarchive(try JSONSerialization.data(withJSONObject: raw))
+        #expect(Set(kept.keys) == Set(ids.dropFirst(2)))
+        for id in ids.dropFirst(2) { #expect(kept[id] == back[id]) }
+        // not an object of fences: none
+        #expect(Fence.unarchive(Data("not json".utf8)).isEmpty)
+        #expect(Fence.unarchive(Data("[]".utf8)).isEmpty)
+        #expect(try Fence.unarchive(Fence.archive([])).isEmpty)
+        // one id twice: the last, as a region registered twice is
+        let a = fences[0]
+        let again = Fence(placeID: a.placeID, kind: a.kind, center: a.center, radius: a.radius + 1, day: a.day, itemID: a.itemID)
+        #expect(try Fence.unarchive(Fence.archive([a, again])) == [a.id: again])
     }
 }

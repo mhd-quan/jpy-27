@@ -9,7 +9,8 @@ import UserNotifications
     enum Action {
         case open(DeepLink)
         case startRide(String)
-        case markArrived(day: String, index: Int)
+        /// "Đã tới" on a planned food stop's notification: that visit is done
+        case markArrived(ItemRef)
     }
 
     var onAction: ((Action) -> Void)?
@@ -154,7 +155,7 @@ import UserNotifications
         switch r.kind {
         case .departure:
             content.categoryIdentifier = Category.departure
-            if let day = r.day, let i = r.index, let d = AppModel.shared.store.day(day), d.items.indices.contains(i), case .move(let m) = d.items[i],
+            if let day = r.day, let id = r.itemID, let d = AppModel.shared.store.day(day), let i = d.index(of: id), case .move(let m) = d.items[i],
                let ride = AppModel.shared.store.ride(startingWith: m.leg.id, on: d) {
                 info["ride"] = ride.id
                 info["link"] = DeepLink.ride(ride.id).url.absoluteString
@@ -178,9 +179,9 @@ import UserNotifications
     // MARK: Location-triggered
 
     /// Near a restaurant or a snack stop: what to order, how to pay, what it will cost.
-    /// Near a food place: what to order and how to pay. For a stop of the plan (`day`, `index`),
-    /// "Đã tới" marks it done without opening the app, for when iOS is slow to report the visit.
-    func arrived(at place: Place, store: TripStore, people: Int, day: String? = nil, index: Int? = nil) async {
+    /// Near a food place: what to order and how to pay. For a stop of the plan (`item`), "Đã tới"
+    /// marks it done without opening the app, for when iOS is slow to report the visit.
+    func arrived(at place: Place, store: TripStore, people: Int, item: ItemRef? = nil) async {
         let content = UNMutableNotificationContent()
         content.title = place.name
         var lines: [String] = []
@@ -196,19 +197,34 @@ import UserNotifications
         }
         if let est = Spend.estimate(stop: nil, place: place, people: people) { lines.append("Dự kiến \(est.label)") }
         content.body = lines.joined(separator: " · ")
-        content.categoryIdentifier = day != nil && index != nil ? Category.plannedFood : Category.food
+        content.categoryIdentifier = item != nil ? Category.plannedFood : Category.food
         content.interruptionLevel = .active
         content.relevanceScore = 0.8
         content.sound = .default
         content.threadIdentifier = "nearby"
         var info: [String: Any] = ["link": DeepLink.menu(place.id).url.absoluteString, "place": place.id]
-        if let day, let index {
-            info["day"] = day
-            info["index"] = index
-        }
+        // the visit by its id (`ItemRef.userInfo`), which still names it after an update moved it
+        for (key, value) in item?.userInfo ?? [:] { info[key] = value }
         content.userInfo = info
         try? await center.add(UNNotificationRequest(identifier: "near.\(place.id)", content: content, trigger: nil))
     }
+
+    #if DEBUG
+    /// Settings › Chẩn đoán: a planned food stop's notification as builds before item ids posted it,
+    /// its "Đã tới" carrying the day and the item's index only (the old keys spelled here on purpose),
+    /// for the device checks of Task 2.1c (docs/superpowers/checklists/2026-11-device-phase1-3.md).
+    func arrivedAsBeforeIDs(at place: Place, day: String, index: Int) async {
+        let content = UNMutableNotificationContent()
+        content.title = place.name
+        content.body = "Thử: thông báo kiểu cũ, ngày \(day), mục \(index)"
+        content.categoryIdentifier = Category.plannedFood
+        content.interruptionLevel = .active
+        content.sound = .default
+        content.threadIdentifier = "nearby"
+        content.userInfo = ["link": DeepLink.menu(place.id).url.absoluteString, "place": place.id, "day": day, "index": index]
+        try? await center.add(UNNotificationRequest(identifier: "near.\(place.id)", content: content, trigger: nil))
+    }
+    #endif
 
     /// At the boarding station of a fixed departure: which train, which side, start the Live Activity.
     func atStation(_ station: Place, ride: Ride, departure: String?) async {
@@ -234,15 +250,21 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         let link = (info["link"] as? String).flatMap(URL.init(string:))
         let ride = info["ride"] as? String
         let place = info["place"] as? String
-        let day = info["day"] as? String
-        let index = info["index"] as? Int
+        let item = ItemRef.arrived(from: info)
+        let day = ItemRef.arrivedDay(from: info)
         let action = response.actionIdentifier
         await MainActor.run {
             switch action {
             case ActionID.startRide:
                 if let ride { self.onAction?(.startRide(ride)) }
             case ActionID.arrived:
-                if let day, let index { self.onAction?(.markArrived(day: day, index: index)) }
+                // one posted before items had ids carries only an index, which an update may have
+                // given to another item: its day is shown (once the app is opened), nothing is marked
+                if let item {
+                    self.onAction?(.markArrived(item))
+                } else if let day {
+                    self.onAction?(.open(.day(day)))
+                }
             case ActionID.spend:
                 self.onAction?(.open(.spend(place: place)))
             case ActionID.menu:

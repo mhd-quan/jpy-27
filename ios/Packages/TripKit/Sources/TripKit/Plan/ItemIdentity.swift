@@ -6,8 +6,8 @@ import Foundation
 ///
 /// Records kept before items had ids named them by the old scheme (`legacyIdentity(of:)`: "stop:" or
 /// "move:"), which names a place the day comes back to by its order of visits. Those still find their
-/// item, the way they always did, until each is converted once (`migrate`) on the plan it was
-/// written under.
+/// item, the way they always did, until each is converted once (`read`, `migrate`) on the plan it was
+/// written under; one that found no item then is shown nowhere after.
 extension Day {
     /// The id of item `index`; nil when the day has no such item.
     public func identity(of index: Int) -> String? {
@@ -32,9 +32,10 @@ extension Day {
 
     /// The id a record of `id` follows now: the day's renames (`Trip.idRenames[key]`) map an id an
     /// update changed to the one the visit has now. One step, as the data writes them; an id the day
-    /// still has is never renamed away.
+    /// still has is never renamed away, and an old-scheme identity is never looked up (the plan
+    /// converts it, `migrate`).
     public func renamed(_ id: String, renames: [String: String]) -> String {
-        guard index(of: id) == nil, let to = renames[id] else { return id }
+        guard !Self.isLegacy(id), index(of: id) == nil, let to = renames[id] else { return id }
         return to
     }
 
@@ -45,6 +46,39 @@ extension Day {
         guard let legacy else { return identity(of: index) }
         guard Self.isLegacy(legacy) else { return renamed(legacy, renames: renames) }
         return legacyResolve(index, identity: legacy).map { items[$0].id }
+    }
+
+    // MARK: Reading the records
+
+    /// A stored record of this day, `index` and `identity` as its row holds them, read the way every
+    /// load of the records reads it: the identity the row holds from now on, and the index of its item
+    /// now (nil: the record is kept, and shown nowhere).
+    ///
+    /// - No identity (a row from builds that kept none): the item at its index, named now.
+    /// - An id: through the day's renames (`renamed`, on every load), then that item, wherever it is.
+    /// - An old-scheme identity, while the records are not `converted`: converted on this plan
+    ///   (`migrate`) to its item's id; one this plan does not find keeps its identity.
+    /// - An old-scheme identity once they are: shown nowhere. It did not find its item on the plan it
+    ///   was written under, and a later plan must not give it one.
+    public func read(_ index: Int, identity: String?, renames: [String: String], converted: Bool) -> (identity: String?, index: Int?) {
+        guard let identity else {
+            let id = self.identity(of: index)
+            return (id, id == nil ? nil : index)
+        }
+        guard Self.isLegacy(identity) else {
+            let id = renamed(identity, renames: renames)
+            return (id, resolve(index, identity: id))
+        }
+        guard !converted, let i = legacyResolve(index, identity: identity) else { return (identity, nil) }
+        return (items[i].id, i)
+    }
+
+    /// The stored records of item `index`, by their position in `stored` (each row's index and
+    /// identity): the rows a load reads as that item (`read`), whatever index each holds. What taking
+    /// the item's mark or its skip off deletes, and never a row of another item that still holds the
+    /// index because the write that would have moved it failed.
+    public func records(of index: Int, among stored: [(index: Int, identity: String?)], renames: [String: String], converted: Bool) -> [Int] {
+        stored.indices.filter { read(stored[$0].index, identity: stored[$0].identity, renames: renames, converted: converted).index == index }
     }
 
     // MARK: The old scheme

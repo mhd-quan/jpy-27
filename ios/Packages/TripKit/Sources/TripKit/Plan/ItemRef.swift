@@ -17,7 +17,13 @@ public struct ItemRef: Codable, Hashable, Sendable {
     /// The visit a "Đã tới" notification is for. One posted before items had ids carries only the
     /// item's index, which an update may have given to another item: nil, so nothing is marked.
     public static func arrived(from info: [AnyHashable: Any]) -> ItemRef? {
-        guard let day = info["day"] as? String, let id = info["item"] as? String else { return nil }
+        guard let day = arrivedDay(from: info), let id = info["item"] as? String else { return nil }
         return ItemRef(day: day, id: id)
+    }
+
+    /// The day a "Đã tới" notification is for, whether or not it names the visit: one posted before
+    /// items had ids opens its day instead of marking anything.
+    public static func arrivedDay(from info: [AnyHashable: Any]) -> String? {
+        info["day"] as? String
     }
 }

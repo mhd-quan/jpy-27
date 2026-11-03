@@ -13,8 +13,6 @@ public struct Reminder: Sendable, Hashable, Identifiable {
     public let level: Level
     public let kind: Kind
     public let day: String?
-    /// the item for a departure or a reservation, the booking's position for a booking
-    public let index: Int?
     /// the item a departure or a reservation is for (`DayItem.id`); it names the reminder
     public let itemID: String?
     /// the booking's position in the guide's list
@@ -41,7 +39,7 @@ public struct ReminderPlanner: Sendable {
         var out: [Reminder] = []
         let points = itinerary.waypoints(day)
         if let start = itinerary.engine.simulate(day).first?.begin, let at = TripTime.date(day.date, minutes: start - 30) {
-            out.append(Reminder(id: "morning-\(day.key)", fire: at, title: "Ngày \(day.n) · \(day.title)", body: day.route, level: .active, kind: .morning, day: day.key, index: nil, itemID: nil, booking: nil, placeID: nil))
+            out.append(Reminder(id: "morning-\(day.key)", fire: at, title: "Ngày \(day.n) · \(day.title)", body: day.route, level: .active, kind: .morning, day: day.key, itemID: nil, booking: nil, placeID: nil))
         }
         for w in points where w.kind != .stop && !settled(day, w.index) {
             guard let fire = TripTime.date(day.date, minutes: w.setOff - lead), let planned = w.planned else { continue }
@@ -53,16 +51,16 @@ public struct ReminderPlanner: Sendable {
                 let to = store.place(m.leg.to)?.name ?? m.leg.to
                 var body = "\(w.title) \(TripTime.clock(Double(planned))) từ \(from?.name ?? m.leg.from) đi \(to)."
                 if let seat = ride?.seatVerdict { body += " \(seat)." }
-                out.append(Reminder(id: "dep-\(day.key)-\(m.id)", fire: fire, title: "Rời đi lúc \(TripTime.clock(w.setOff))", body: body, level: .timeSensitive, kind: .departure, day: day.key, index: w.index, itemID: m.id, booking: nil, placeID: m.leg.from))
+                out.append(Reminder(id: "dep-\(day.key)-\(m.id)", fire: fire, title: "Rời đi lúc \(TripTime.clock(w.setOff))", body: body, level: .timeSensitive, kind: .departure, day: day.key, itemID: m.id, booking: nil, placeID: m.leg.from))
             case .reservation:
                 let item = day.items[w.index].id
-                out.append(Reminder(id: "res-\(day.key)-\(item)", fire: fire, title: "Rời đi lúc \(TripTime.clock(w.setOff))", body: "\(w.title) lúc \(TripTime.clock(Double(planned))) — đã đặt chỗ.", level: .timeSensitive, kind: .reservation, day: day.key, index: w.index, itemID: item, booking: nil, placeID: w.placeID))
+                out.append(Reminder(id: "res-\(day.key)-\(item)", fire: fire, title: "Rời đi lúc \(TripTime.clock(w.setOff))", body: "\(w.title) lúc \(TripTime.clock(Double(planned))) — đã đặt chỗ.", level: .timeSensitive, kind: .reservation, day: day.key, itemID: item, booking: nil, placeID: w.placeID))
             case .stop:
                 break
             }
         }
         if let at = TripTime.date(day.date, minutes: 21 * 60 + 30) {
-            out.append(Reminder(id: "journal-\(day.key)", fire: at, title: "Nhật ký ngày \(day.n)", body: day.title, level: .passive, kind: .journal, day: day.key, index: nil, itemID: nil, booking: nil, placeID: nil))
+            out.append(Reminder(id: "journal-\(day.key)", fire: at, title: "Nhật ký ngày \(day.n)", body: day.title, level: .passive, kind: .journal, day: day.key, itemID: nil, booking: nil, placeID: nil))
         }
         return out
     }
@@ -72,8 +70,8 @@ public struct ReminderPlanner: Sendable {
         (store.guide?.bookings ?? []).enumerated().flatMap { i, b -> [Reminder] in
             guard let at = b.date else { return [] }
             return [
-                Reminder(id: "book-\(i)-eve", fire: at.addingTimeInterval(-86400), title: "Ngày mai: \(b.title)", body: "\(b.rule). \(b.text)", level: .active, kind: .booking, day: nil, index: i, itemID: nil, booking: i, placeID: nil),
-                Reminder(id: "book-\(i)", fire: at.addingTimeInterval(-15 * 60), title: b.title, body: "Mở lúc \(TripTime.clock(at)) giờ Nhật. \(b.text)", level: .timeSensitive, kind: .booking, day: nil, index: i, itemID: nil, booking: i, placeID: nil),
+                Reminder(id: "book-\(i)-eve", fire: at.addingTimeInterval(-86400), title: "Ngày mai: \(b.title)", body: "\(b.rule). \(b.text)", level: .active, kind: .booking, day: nil, itemID: nil, booking: i, placeID: nil),
+                Reminder(id: "book-\(i)", fire: at.addingTimeInterval(-15 * 60), title: b.title, body: "Mở lúc \(TripTime.clock(at)) giờ Nhật. \(b.text)", level: .timeSensitive, kind: .booking, day: nil, itemID: nil, booking: i, placeID: nil),
             ]
         }
     }

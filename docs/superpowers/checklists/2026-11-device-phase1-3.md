@@ -300,3 +300,53 @@ Chữ mong đợi:
    - **Đạt** khi A ghi "<tên C> chưa lưu được: Giả lỗi lưu (Chẩn đoán)" dù B đã lưu: dòng nói về máy tệ nhất, không
      ghi "Đã đồng bộ" khi còn một máy chưa lưu.
    - Trên C chọn Tắt. **Đạt** khi trong khoảng 15 giây A ghi "Đã đồng bộ với … lúc <giờ mới>".
+
+## Task 2.1c — Mỗi mục có ID riêng: dấu đã đi, điểm bỏ, "Đã tới", geofence, widget
+
+**Quy tắc phát hành (bắt buộc).** Bản này đổi một lần các dấu đã đi và điểm bỏ cũ sang ID, theo lịch của chính
+bản này. Phép đổi chỉ đúng khi lịch là lịch mà các dấu đó được ghi theo. Vì vậy bản phát hành mang thay đổi này
+**không được** đồng thời thêm hay bỏ mục ở một ngày có nơi lặp lại (ngày 1: RESOL Akihabara; ngày 8: wargo Gion),
+và không được sửa `via`/`path` của một đoạn đi bộ. Những sửa đó để bản sau.
+
+**Bản cũ** trong các bước dưới là bản build từ commit **de66fb4** (hay cũ hơn), Release. Không dùng 88adbea: bản
+đó đã ghi ID cho dấu mới nên không thử được phép đổi. Cài **đè** bản mới lên, không xoá app. Dùng giờ thật,
+không chạy thử, trừ khi bước ghi khác: sổ chạy thử bị xoá khi dừng.
+
+1. **Dấu cũ ở đúng mục sau khi cập nhật** (bước chính).
+   - Bản cũ: Kế hoạch › Ngày 8 › nhấn giữ 09:30 "Thuê kimono ở wargo Gion" › Đã tới. Ngày 1 › nhấn giữ 12:00 "Gửi
+     hành lý" › Đã tới. Ngày 8 › nhấn giữ 10:30 "Yasaka Jinja…" › Bỏ điểm này.
+   - Cài bản mới đè lên, mở app.
+   - **Đạt** khi ngày 8: 09:30 đã đánh dấu, 14:30 "Trả kimono" chưa; Yasaka vẫn bị bỏ. Ngày 1: 12:00 đã đánh dấu,
+     15:00 "Nhận phòng" chưa.
+   - Vuốt tắt hẳn app, mở lại. **Đạt** khi vẫn đúng như trên (phép đổi đã ghi xuống máy).
+   - Nhấn giữ 09:30 › Bỏ đánh dấu; tắt hẳn app, mở lại. **Đạt** khi 09:30 chưa đánh dấu, 14:30 vẫn chưa, ngày 1
+     không đổi. Bỏ dấu 12:00 ngày 1 và giữ lại Yasaka để dọn.
+2. **Cập nhật khi đang chạy thử.**
+   - Bản cũ, giờ thật: ngày 8 › 09:30 › Đã tới. Rồi Cài đặt › Chuyến đi › Chạy thử: bắt đầu một lần chạy thử.
+   - Cài bản mới đè lên, mở app (chạy thử vẫn chạy). **Đạt** khi ngày 8: 09:30 đã đánh dấu, 14:30 chưa.
+   - Kết thúc chạy thử. **Đạt** khi sổ thật: 09:30 đã đánh dấu, 14:30 chưa. Tắt hẳn app, mở lại: vẫn vậy. (Sổ thật
+     chỉ được tính là đã đổi khi chính nó được đổi, không phải khi sổ chạy thử được đổi.)
+   - Bỏ dấu 09:30 để dọn.
+3. **"Đã tới" gửi từ bản cũ** (bước chính, cần mô phỏng vị trí).
+   - Bản cũ, quyền vị trí Luôn luôn, chạy thử vào ngày 8 trước 12:30. Xcode › Debug › Simulate Location với một
+     GPX ở Yorozuya (ngày 8, 12:30), hay đứng ở một quán của lịch. Thông báo "Yorozuya" có nút "Đã tới" hiện ra:
+     **không** bấm.
+   - Cài bản mới đè lên. Từ Trung tâm thông báo, nhấn giữ thông báo cũ › Đã tới.
+   - **Đạt** khi không có gì được đánh dấu (ngày 8 của chạy thử: Yorozuya chưa đánh dấu). "Đã tới" chạy nền nên app
+     không tự mở: lần mở app kế tiếp, tab Kế hoạch đang ở trang ngày 8. Kết thúc chạy thử.
+4. **Thử thay, bản Debug** (chỉ thay bước 3 khi không mô phỏng được vị trí; bước 3 vẫn là bước chính).
+   Cài đặt › Chẩn đoán có hai nút. Mỗi nút gửi ngay một thông báo cho quán đầu tiên chưa đánh dấu của ngày app đang
+   hiện (ngày 1 khi chưa tới chuyến: Tsumugi).
+   - "Thông báo Đã tới thử, kiểu cũ": nhấn giữ banner › Đã tới, rồi đóng Cài đặt. **Đạt** khi không có gì được đánh
+     dấu và tab Kế hoạch đang ở trang ngày đó.
+   - "Thông báo Đã tới thử": nhấn giữ banner › Đã tới, rồi đóng Cài đặt. **Đạt** khi quán đó được đánh dấu ở trang
+     ngày. Bỏ dấu để dọn.
+5. **Widget theo đúng mục.** Chạy thử vào một ngày của chuyến; thêm widget "Điểm tiếp theo" (cỡ vừa).
+   - Trong app đánh dấu mục kế tiếp. **Đạt** khi trong vài giây widget chuyển sang mục sau đó.
+   - Ngay sau khi cập nhật từ bản cũ, widget có thể chưa hiện trễ giờ hay gợi ý (tối đa 30 phút, tới khi mở app):
+     nó dùng lịch của chính nó cho tới khi app gửi bản tóm tắt mới. Mở app một lần: widget hiện như trước.
+6. **Geofence sau khi cập nhật** (khi mô phỏng được vị trí). Bản cũ, quyền Luôn luôn, chạy thử vào một ngày có
+   quán, vị trí xa mọi quán. Cài bản mới đè lên, mở app một lần, khoá máy. Mô phỏng vị trí vào một quán của ngày đó
+   chưa đánh dấu (không phải quán đã vào trong 20 phút qua: lần vào lại trong 20 phút không báo).
+   - **Đạt** khi thông báo có "Đã tới" hiện ra, và bấm nó đánh dấu đúng quán đó (trang ngày của chạy thử). Kết
+     thúc chạy thử.

@@ -187,7 +187,10 @@ import TripKit
 
     // MARK: Geofences
 
-    private static let fenceKey = "fences"
+    /// what each registered circle means (`Fence.archive`), for a relaunch straight into a crossing
+    private static let fenceKey = "fences.v2"
+    /// the same, as builds before item ids kept it (a string per circle, with an item index): removed
+    private static let oldFenceKey = "fences"
     private static let enteredKey = "fences.entered"
     /// an entry into the same circle within this long is the same arrival (GPS jitter at the edge)
     private static let reentry: TimeInterval = 20 * 60
@@ -207,12 +210,10 @@ import TripKit
         } else {
             wanted = []
         }
-        // remember what each circle means, for a relaunch straight into a fence event
-        var info: [String: String] = [:]
-        for f in wanted {
-            info[f.id] = "\(f.kind.rawValue)|\(f.placeID)|\(f.day)|\(f.index.map(String.init) ?? "")|\(f.center.lat)|\(f.center.lng)|\(f.radius)"
-        }
-        Shared.defaults.set(info, forKey: Self.fenceKey)
+        // remember what each circle means, for a relaunch straight into a fence event (none kept when
+        // it cannot be written: a circle then means nothing, rather than what it meant before)
+        Shared.defaults.set(try? Fence.archive(wanted), forKey: Self.fenceKey)
+        Shared.defaults.removeObject(forKey: Self.oldFenceKey)
 
         let ids = Set(wanted.map(\.id))
         let current = manager.monitoredRegions
@@ -246,11 +247,10 @@ import TripKit
         onFence?(fence, true)
     }
 
+    /// What the circle `id` means, as `updateFences` kept it; nil for a circle it does not know (one
+    /// registered by a build before item ids, until the first `updateFences` replaces what it kept).
     private static func fence(_ id: String) -> Fence? {
-        guard let s = (Shared.defaults.dictionary(forKey: fenceKey) as? [String: String])?[id] else { return nil }
-        let f = s.split(separator: "|", omittingEmptySubsequences: false).map(String.init)
-        guard f.count == 7, let kind = Fence.Kind(rawValue: f[0]), let lat = Double(f[4]), let lng = Double(f[5]), let r = Double(f[6]) else { return nil }
-        return Fence(placeID: f[1], kind: kind, center: Coordinate(lat, lng), radius: r, day: f[2], index: Int(f[3]))
+        Shared.defaults.data(forKey: fenceKey).flatMap { Fence.unarchive($0)[id] }
     }
 
     /// A significant change in the background re-plans reminders and fences, but only after a real

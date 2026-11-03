@@ -125,7 +125,7 @@ import Testing
         let planner = ReminderPlanner(store: store)
         let all = planner.reminders(for: day)
         let dep = try #require(all.first { $0.kind == .departure })
-        let index = try #require(dep.index)
+        let index = try #require(dep.itemID.flatMap { day.index(of: $0) })
         let left = planner.reminders(for: day) { d, i in d.key == day.key && i == index }
         #expect(!left.contains { $0.id == dep.id })
         #expect(left.count == all.count - 1)

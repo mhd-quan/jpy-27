@@ -37,6 +37,8 @@ nonisolated enum Shared {
         static let clockOffset = "clockOffset"
         static let snapshot = "snapshot"
         static let pace = "pace"
+        /// 2 once the real records name every item by its id (`AppModel.loadRecords`)
+        static let recordIDs = "records.ids"
     }
 
     static var alternatives: Set<String> {
@@ -67,7 +69,8 @@ nonisolated enum Shared {
 /// how late you run, which the widget's own plan clock cannot.
 nonisolated struct Snapshot: Codable, Hashable, Sendable {
     var day: String
-    var index: Int
+    /// the item (`DayItem.id`), which the widget finds on its own plan
+    var itemID: String
     var title: String
     var placeID: String?
     var setOff: Date

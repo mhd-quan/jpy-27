@@ -14,6 +14,8 @@ import Foundation
 ///
 /// A record whose item is gone stays where it is, unless it sits on another record's new index.
 /// Then it steps aside too and stays there; its identity still finds the item if it comes back.
+///
+/// A new record goes on its item's index only while no row holds it (`slots`).
 public enum RecordIndexes {
     /// A row as stored, and where it belongs now.
     public struct Record: Hashable, Sendable {
@@ -71,5 +73,31 @@ public enum RecordIndexes {
             }
         }
         return moves
+    }
+
+    /// Where new records of items `targets` are written, in that order, on a day whose rows hold the
+    /// indexes `holding`: each on its item's index while no row holds it. A row can: another item's,
+    /// whose index a load has still to put right (its write failed), or one whose item is gone, which
+    /// keeps its index. Written there, the store's unique day and index would make the insert an update
+    /// of that row, one record put in the place of another. So such a record goes where a record set
+    /// aside goes, below 0 and below every index the day holds: its identity finds its item from there,
+    /// and the next load that writes brings it home (`moves`). No two of `targets` share an index.
+    public static func slots(for targets: [Int], holding: [Int]) -> [Int] {
+        var held = Set(holding)
+        var free = min(0, holding.min() ?? 0) - 1
+        return targets.map { target in
+            var slot = target
+            if held.contains(target) {
+                slot = free
+                free -= 1
+            }
+            held.insert(slot)
+            return slot
+        }
+    }
+
+    /// Where a new record of item `target` is written (`slots`).
+    public static func slot(for target: Int, holding: [Int]) -> Int {
+        slots(for: [target], holding: holding)[0]
     }
 }

@@ -70,10 +70,12 @@ nonisolated enum WidgetPlan {
             var late: Int?
             var advice: String?
             var lateUntil = Date.distantPast
+            // the snapshot's item, found on the widget's own plan by its id
             if let snap = Shared.snapshot, snap.day == day.key, tripNow.timeIntervalSince(snap.generated) < 1800,
-               let k = list.firstIndex(where: { $0.index >= snap.index }) {
+               let index = day.index(of: snap.itemID),
+               let k = list.firstIndex(where: { $0.index >= index }) {
                 list.removeFirst(k)
-                if list.first?.index == snap.index {
+                if list.first?.index == index {
                     list[0].setOff = snap.setOff.addingTimeInterval(-offset)
                     list[0].begin = max(list[0].begin, snap.begin.addingTimeInterval(-offset))
                     late = snap.late

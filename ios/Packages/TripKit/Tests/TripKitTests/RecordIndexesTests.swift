@@ -182,4 +182,42 @@ import Testing
             #expect(Set(moves.home.keys).isSubset(of: Set(moves.aside.keys)), "round \(round): home without stepping aside")
         }
     }
+
+    // MARK: A new record
+
+    /// A new mark or skip goes on its item's index unless a row of the day already holds it: a row of
+    /// another item whose index is still to be put right (a load whose write failed), one whose item is
+    /// gone, an old one no plan finds. Written there, the store's unique day and index would make the
+    /// insert an update of that row; the new record steps aside instead, to an index no row holds.
+    @Test func aNewRecordNeverLandsOnAHeldIndex() {
+        #expect(RecordIndexes.slots(for: [3], holding: []) == [3])
+        #expect(RecordIndexes.slots(for: [3], holding: [0, 4, 7]) == [3])
+        #expect(RecordIndexes.slots(for: [3], holding: [3, 5]) == [-1])
+        #expect(RecordIndexes.slots(for: [3], holding: [3, -1, -4]) == [-5])
+        // one record (a mark, a skip)
+        #expect(RecordIndexes.slot(for: 3, holding: [0, 4]) == 3)
+        #expect(RecordIndexes.slot(for: 3, holding: [3, -2]) == -3)
+        // a batch (the replanner's drops, one write): each on its own index, never two on one
+        #expect(RecordIndexes.slots(for: [3, 4, 6], holding: [3, 4, 5]) == [-1, -2, 6])
+        #expect(RecordIndexes.slots(for: [2, 2], holding: []) == [2, -1])
+        #expect(RecordIndexes.slots(for: [], holding: [1]) == [])
+    }
+
+    @Test func randomBatchesLandWhereNoRowIs() {
+        var rng = SplitMix(seed: 21)
+        for round in 0 ..< 300 {
+            let holding = (0 ..< Int.random(in: 0 ... 8, using: &rng)).map { _ in Int.random(in: -6 ... 12, using: &rng) }
+            let unique = Array(Set(holding))
+            let targets = (0 ..< Int.random(in: 0 ... 6, using: &rng)).map { _ in Int.random(in: 0 ... 12, using: &rng) }
+            let slots = RecordIndexes.slots(for: targets, holding: unique)
+            #expect(slots.count == targets.count, "round \(round)")
+            #expect(Set(slots).count == slots.count, "round \(round): two new records on one index")
+            #expect(Set(slots).isDisjoint(with: unique), "round \(round): a new record on a held index")
+            for (k, target) in targets.enumerated() {
+                let free = !unique.contains(target) && !targets[..<k].contains(target)
+                #expect((slots[k] == target) == free, "round \(round): target \(target) went to \(slots[k])")
+                if !free { #expect(slots[k] < min(0, unique.min() ?? 0), "round \(round): a step aside onto an index in use") }
+            }
+        }
+    }
 }
