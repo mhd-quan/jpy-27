@@ -12,7 +12,7 @@ open JP27.xcodeproj
 
 Project là file sinh ra, không theo dõi thư mục: mỗi lần kéo code mới có thêm, bớt hay đổi tên file Swift, chạy lại `xcodegen` (hoặc lại lệnh `use-profile.py` đã dùng). Thiếu bước này Xcode báo "Cannot find … in scope" cho những gì nằm trong file mới.
 
-Cần Xcode 26 trở lên; Xcode 27 để có mép cuộn mềm trên iOS 27 (xem Liquid Glass). Bản đồ MapLibre được Swift Package Manager tải về ở lần build đầu. Bundle ID, App Group, team, profile và entitlements là build setting trong `Config/Signing.xcconfig`; cấu hình riêng của máy bạn nằm ở `Config/Signing.local.xcconfig` (không commit).
+Cần Xcode 26.4 trở lên (Swift 6.3; CI build bằng Xcode 26.6); Xcode 27 để có mép cuộn mềm trên iOS 27 (xem Liquid Glass). Bản đồ MapLibre được Swift Package Manager tải về ở lần build đầu. Bundle ID, App Group, team, profile và entitlements là build setting trong `Config/Signing.xcconfig`; cấu hình riêng của máy bạn nằm ở `Config/Signing.local.xcconfig` (không commit).
 
 **Simulator** không cần tài khoản: app tự ký để chạy cục bộ. WeatherKit từ chối bản này nên dự báo mây lấy từ Open-Meteo; camera, AR, geofence nền và báo thức chỉ thử được trên máy thật.
 

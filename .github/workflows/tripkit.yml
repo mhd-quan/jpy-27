@@ -5,6 +5,10 @@ on:
     paths: ['ios/**', 'scripts/**', 'src/data/**', 'src/lib/**', 'research/**', '.github/workflows/tripkit.yml']
   pull_request:
     paths: ['ios/**', 'scripts/**', 'src/data/**', 'src/lib/**', 'research/**', '.github/workflows/tripkit.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   # The app ships JSON exported from the site's data: it must match the sources it came from.
@@ -25,8 +29,63 @@ jobs:
   # The plan clock, replanner, ride tracking and menu matching, on Linux.
   swift:
     runs-on: ubuntu-24.04
-    container: swift:6.2-noble
+    container: swift:6.3-noble
     steps:
       - uses: actions/checkout@v4
       - run: swift test
         working-directory: ios/Packages/TripKit
+
+  # The app and its widgets, compiled for the simulator with no signing: the only place app code
+  # builds outside a Mac. A newer push to the same ref cancels a build still running.
+  app:
+    name: App builds
+    runs-on: macos-26
+    timeout-minutes: 40
+    concurrency:
+      group: app-${{ github.ref }}
+      cancel-in-progress: true
+    env:
+      # the image's path for Xcode 26.6 (Swift 6.3): a missing Xcode fails here, not on another one
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+      - run: xcodebuild -version && swift --version
+      - run: brew install xcodegen
+      - run: xcodegen generate
+        working-directory: ios
+      - name: Build
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild build -project JP27.xcodeproj -scheme JP27 -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee "$RUNNER_TEMP/xcodebuild.log"
+      - name: Warnings
+        if: always()
+        run: |
+          log="$RUNNER_TEMP/xcodebuild.log"
+          touch "$log"
+          # xcodebuild repeats a warning for each pass that sees it
+          grep -E ': warning: ' "$log" | sort -u > "$RUNNER_TEMP/warnings.txt" || true
+          grep -E '/ios/(JP27|JP27Widgets|Shared)/' "$RUNNER_TEMP/warnings.txt" > "$RUNNER_TEMP/own.txt" || true
+          total=$(wc -l < "$RUNNER_TEMP/warnings.txt" | tr -d ' ')
+          own=$(wc -l < "$RUNNER_TEMP/own.txt" | tr -d ' ')
+          echo "$total warnings in the build, $own in ios/JP27, ios/JP27Widgets, ios/Shared"
+          cat "$RUNNER_TEMP/own.txt"
+          {
+            echo "### App build warnings"
+            echo
+            echo "$total in the build, $own in ios/JP27, ios/JP27Widgets, ios/Shared"
+            if [ "$own" -gt 0 ]; then
+              echo
+              echo '```'
+              cat "$RUNNER_TEMP/own.txt"
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: xcodebuild-log
+          path: ${{ runner.temp }}/xcodebuild.log
+          retention-days: 7
