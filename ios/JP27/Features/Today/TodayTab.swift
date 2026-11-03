@@ -31,8 +31,8 @@ struct TodayTab: View {
                                 .animation(.smooth, value: coverGone)
                         }
                     }
-                    // Nghe và dịch sits at the trailing end of the row above the tab bar (NowAccessory);
-                    // the morph source is the bar item itself, its glass, not the button
+                    // Nghe và dịch lives in Sổ tay only; the morph source is the bar item itself,
+                    // its glass, not the button
                     SheetToolbarButton(title: "Cài đặt", symbol: "gearshape", source: "today.settings") {
                         model.present(.settings, from: "today.settings")
                     }

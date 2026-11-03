@@ -94,11 +94,12 @@ struct TalkTab: View {
         .padding(.bottom, 32)
     }
 
-    /// Listen and scan: the two things done with the phone held out, on glass tiles.
+    /// Listen and scan: the two things done with the phone held out, on glass tiles. This is the
+    /// app's one way into Nghe và dịch; the home page and the bar above the tabs no longer carry it.
     private var actions: some View {
         GlassEffectContainer(spacing: 12) {
             HStack(spacing: 12) {
-                TalkActionTile(title: "Nghe", symbol: "translate") { model.present(.listen, from: "talk.listen") }
+                TalkActionTile(title: "Nghe và dịch", symbol: "translate") { model.present(.listen, from: "talk.listen") }
                     .sheetSource("talk.listen")
                 TalkActionTile(title: "Quét menu", symbol: "text.viewfinder") { model.present(.menuScan(TalkNearby.foodPlace(model)), from: "talk.scan") }
                     .sheetSource("talk.scan")

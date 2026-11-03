@@ -84,9 +84,7 @@ struct RootView: View {
         // that stays where it is.
         .tabBarMinimizeBehavior(model.tab == .map ? .never : .onScrollDown)
         .sensoryFeedback(.page, trigger: model.tab)
-        // a row above the bar, beside it once folded (Music's player does the same): what is
-        // happening now, and Nghe và dịch at the trailing end
-        .tabViewBottomAccessory { NowAccessory() }
+        .modifier(NowAccessorySlot(live: model.live.ride != nil || model.next != nil))
         .progressiveEdges()
         .presentsSheets()
         .environment(\.zoomSpace, zoom)
@@ -110,6 +108,22 @@ struct RootView: View {
         }
         // read here, in a view, so the whole app follows when a rehearsal swaps the records
         .modelContainer(model.container)
+    }
+}
+
+/// The line above the tab bar, shown only while something is happening: a ride being followed or
+/// the next stop of a trip day. Before the trip it would only repeat the countdown the home already
+/// shows, so the space goes back to content. Hiding it needs iOS 26.1; on 26.0 it stays. Nghe và
+/// dịch is not here: it lives in Sổ tay, with the phrasebook it belongs to.
+private struct NowAccessorySlot: ViewModifier {
+    let live: Bool
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.1, *) {
+            content.tabViewBottomAccessory(isEnabled: live) { NowAccessory() }
+        } else {
+            content.tabViewBottomAccessory { NowAccessory() }
+        }
     }
 }
 
