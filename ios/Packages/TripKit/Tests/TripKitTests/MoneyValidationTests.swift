@@ -149,49 +149,123 @@ import Testing
         #expect(LedgerValidation.problems(both, now: now) == [.amount, .futureDate])
     }
 
-    /// Two phones swapping ledgers as `LedgerSync` does: A sends, the side that receives merges what it
-    /// believes and answers with `reply`, until one side has nothing to say. Returns how many ledgers
-    /// went over (cut off at 10) and the two ledgers at the end.
-    func exchange(_ a: LedgerState, _ b: LedgerState) -> (messages: Int, a: LedgerState, b: LedgerState) {
+    /// Two phones swapping ledgers as `LedgerSync` does, each by its own clock: one sends its ledger;
+    /// the side that receives screens it by its own `now`, merges what it believes, and answers with
+    /// `reply`; until a side has nothing to say. Returns how many ledgers went over (cut off at 10) and
+    /// the two ledgers at the end.
+    func exchange(_ a: LedgerState, _ b: LedgerState, nowA: Date? = nil, nowB: Date? = nil,
+                  bFirst: Bool = false) -> (messages: Int, a: LedgerState, b: LedgerState) {
         var sides = [a, b]
-        var message: LedgerState? = a
-        var to = 1, messages = 0
+        let nows = [nowA ?? now, nowB ?? now]
+        var to = bFirst ? 0 : 1
+        var message: LedgerState? = sides[1 - to]
+        var messages = 0
         while let m = message, messages < 10 {
             messages += 1
-            message = LedgerMerge.reply(local: sides[to], remote: m, now: now)
-            sides[to] = LedgerMerge.merge(sides[to], LedgerMerge.screened(m, now: now).state)
+            let (clean, _) = LedgerMerge.screened(m, now: nows[to])
+            sides[to] = LedgerMerge.merge(sides[to], clean)
+            message = LedgerMerge.reply(local: sides[to], remote: m, now: nows[to])
             to = 1 - to
         }
         return (messages, sides[0], sides[1])
     }
 
+    func row(_ n: Int, yen: Int = 900, note: String = "", at: Date? = nil, edited: Date? = nil, origin: String = "a") -> LedgerRecord {
+        LedgerRecord(id: id(n), yen: yen, category: "food", method: "cash", note: note, at: at ?? now, updatedAt: edited, origin: origin)
+    }
+
     @Test func phonesStopTalkingOnceTheyAgree() {
-        func row(_ n: Int, yen: Int = 900, note: String = "", origin: String) -> LedgerRecord {
-            LedgerRecord(id: id(n), yen: yen, category: "food", method: "cash", note: note, at: now, origin: origin)
-        }
-        let overCap = row(9, yen: 12_000_000, origin: "a")
-        let longNote = row(9, note: String(repeating: "x", count: 501), origin: "a")
+        let overCap = row(9, yen: 12_000_000)
+        let longNote = row(9, note: String(repeating: "x", count: 501))
         for x in [overCap, longNote] {
-            // both phones hold the row the other refuses (written and synced by the build before)
-            let both = exchange(LedgerState(records: [row(1, origin: "a"), x]), LedgerState(records: [row(1, origin: "a"), x]))
-            #expect(both.messages <= 2, "both hold \(x.yen) / \(x.note.count)")
-            // only A holds it
-            let one = exchange(LedgerState(records: [row(1, origin: "a"), x]), LedgerState(records: [row(1, origin: "a")]))
-            #expect(one.messages <= 2)
-            #expect(one.b.records.map(\.id) == [id(1)], "B never takes it")
-            // both hold it, and each has something the other lacks
-            let more = exchange(LedgerState(records: [row(1, origin: "a"), x]), LedgerState(records: [row(2, origin: "b"), x]))
-            #expect(more.messages <= 2)
-            #expect(more.a.records.map(\.id) == [id(1), id(2), id(9)])
-            #expect(more.b.records.map(\.id) == [id(1), id(2), id(9)])
+            for bFirst in [false, true] {
+                // both phones hold the row the other refuses (written and synced by the build before)
+                let both = exchange(LedgerState(records: [row(1), x]), LedgerState(records: [row(1), x]), bFirst: bFirst)
+                #expect(both.messages <= 3, "both hold \(x.yen) / \(x.note.count)")
+                #expect(both.a.records == [row(1), x] && both.b.records == [row(1), x])
+                // only A holds it: B never takes it
+                let one = exchange(LedgerState(records: [row(1), x]), LedgerState(records: [row(1)]), bFirst: bFirst)
+                #expect(one.messages <= 3)
+                #expect(one.a.records == [row(1), x])
+                #expect(one.b.records == [row(1)])
+                // both hold it, and each has something the other lacks
+                let more = exchange(LedgerState(records: [row(1), x]), LedgerState(records: [row(2, origin: "b"), x]), bFirst: bFirst)
+                #expect(more.messages <= 3)
+                #expect(more.a.records == [row(1), row(2, origin: "b"), x])
+                #expect(more.b.records == more.a.records)
+            }
         }
         // nothing refused, but they differ: they still sync
-        let plain = exchange(LedgerState(records: [row(1, origin: "a")]), LedgerState(records: [row(2, origin: "b")]))
+        let plain = exchange(LedgerState(records: [row(1)]), LedgerState(records: [row(2, origin: "b")]))
         #expect(plain.messages == 2)
         #expect(plain.a == plain.b)
         #expect(plain.a.records.map(\.id) == [id(1), id(2)])
         // already the same: one ledger goes, none comes back
         #expect(exchange(plain.a, plain.b).messages == 1)
+    }
+
+    /// A newer version of a shared row that the other phone refuses (edited on a build before the
+    /// check): each phone keeps its own version, and they stop.
+    @Test func aNewerVersionTheOtherRefusesStaysWhereItIs() {
+        let older = row(9)
+        for newer in [row(9, yen: 12_000_000, edited: now.addingTimeInterval(60)),
+                      row(9, note: String(repeating: "x", count: 501), edited: now.addingTimeInterval(60))] {
+            for bFirst in [false, true] {
+                let e = exchange(LedgerState(records: [row(1), newer]), LedgerState(records: [row(1), older]), bFirst: bFirst)
+                #expect(e.messages <= 3, "bFirst \(bFirst), \(newer.yen) / \(newer.note.count)")
+                #expect(e.a.records == [row(1), newer], "A keeps its own")
+                #expect(e.b.records == [row(1), older], "B keeps the version it can believe")
+            }
+        }
+    }
+
+    /// A phone whose clock runs two days ahead: what it writes is not believed, and the two stop.
+    @Test func aPhoneTwoDaysAheadIsNotBelievedAndTheyStop() {
+        let ahead = now.addingTimeInterval(2 * 24 * 3600)
+        for bFirst in [false, true] {
+            // a new row
+            let added = exchange(LedgerState(records: [row(1), row(5, at: ahead)]), LedgerState(records: [row(1)]),
+                                 nowA: ahead, bFirst: bFirst)
+            #expect(added.messages <= 3)
+            #expect(added.a.records == [row(1), row(5, at: ahead)])
+            #expect(added.b.records == [row(1)])
+            // an edit of a shared row
+            let edited = exchange(LedgerState(records: [row(1, yen: 1_500, edited: ahead)]), LedgerState(records: [row(1)]),
+                                  nowA: ahead, bFirst: bFirst)
+            #expect(edited.messages <= 3)
+            #expect(edited.a.records == [row(1, yen: 1_500, edited: ahead)])
+            #expect(edited.b.records == [row(1)])
+            // a deletion of a row B holds
+            let gone = LedgerTombstone(id: id(1), at: ahead)
+            let deleted = exchange(LedgerState(records: [], tombstones: [gone]), LedgerState(records: [row(1)]),
+                                   nowA: ahead, bFirst: bFirst)
+            #expect(deleted.messages <= 3)
+            #expect(deleted.a.records.isEmpty && deleted.a.tombstones == [gone])
+            #expect(deleted.b.records == [row(1)] && deleted.b.tombstones.isEmpty)
+        }
+    }
+
+    /// What B lacks and would believe still goes over, whichever phone speaks first.
+    @Test func whatTheOtherWouldTakeIsStillSent() {
+        let newer = row(1, yen: 1_500, edited: now.addingTimeInterval(60))
+        let gone = LedgerTombstone(id: id(3), at: now.addingTimeInterval(60))
+        let cases: [(LedgerState, LedgerState, LedgerState)] = [
+            // B lacks a valid row
+            (LedgerState(records: [row(1), row(2)]), LedgerState(records: [row(1)]), LedgerState(records: [row(1), row(2)])),
+            // B holds an older version
+            (LedgerState(records: [newer]), LedgerState(records: [row(1)]), LedgerState(records: [newer])),
+            // B lacks a deletion
+            (LedgerState(records: [row(1)], tombstones: [gone]), LedgerState(records: [row(1), row(3)]),
+             LedgerState(records: [row(1)], tombstones: [gone])),
+        ]
+        for (a, b, end) in cases {
+            for bFirst in [false, true] {
+                let e = exchange(a, b, bFirst: bFirst)
+                #expect(e.messages <= 3, "bFirst \(bFirst)")
+                #expect(e.a == end, "bFirst \(bFirst)")
+                #expect(e.b == end, "bFirst \(bFirst)")
+            }
+        }
     }
 
     @Test func sanitizedIsWhatScreeningKeeps() {

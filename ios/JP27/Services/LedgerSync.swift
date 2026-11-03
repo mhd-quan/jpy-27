@@ -398,8 +398,8 @@ import UIKit
             let (merged, _) = Ledger.merge(clean, into: context)
             cached = nil
             stamp(p.name)
-            // what it lacked goes back; then both hold the same. Rows the other phone refuses do not
-            // count as lacking, or two phones holding one would answer each other for ever
+            // what it lacked and would believe goes back; a row one phone refuses stays where it is
+            // (counted in `rejected`), or the two would answer each other for ever
             if let back = LedgerMerge.reply(local: merged, remote: remote, now: now) { seal(.state(back), to: k) }
             sent[k] = merged
         case .touched:

@@ -215,14 +215,18 @@ public enum LedgerMerge {
 
     /// What to send back for a ledger `remote` the other phone sent, given this phone's `local` (before
     /// or after merging it in: merging again changes nothing): the merged ledger when the other phone
-    /// lacks something it would take, nil when there is nothing to send. Rows this phone holds that the
-    /// other refuses (written before every way in was checked) do not count as lacking: sending them
-    /// again would be refused again, and two phones holding the same such row would answer each other
-    /// for ever. One `now` for both screenings.
+    /// would gain something from it that this phone vouches for (what this phone's own screening, by its
+    /// own clock, keeps of the merged ledger), nil when it would gain nothing. One `now` for both.
+    ///
+    /// So two phones may stay different on a row one of them refuses: a version past the keypad's cap
+    /// or with a note too long (written before every way in was checked), or a write or deletion dated
+    /// more than `clockSlack` ahead of the receiver. The phone that refuses it keeps its own version
+    /// and reports the refused row (`screened`'s `rejected`); neither sends it again, so they never
+    /// answer each other for ever.
     public static func reply(local: LedgerState, remote: LedgerState, now: Date) -> LedgerState? {
         let clean = screened(remote, now: now).state
         let merged = merge(local, clean)
-        return sanitized(merged, now: now) == clean ? nil : merged
+        return merge(remote, sanitized(merged, now: now)) == remote ? nil : merged
     }
 
     /// `screened` without the list of what was left out.
