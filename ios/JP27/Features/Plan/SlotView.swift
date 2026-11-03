@@ -26,7 +26,7 @@ private struct PlanSlotContent: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                 PlanSlotHeader(slot: slot)
-                TripMap(content: content, showsUser: false, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: slot.id)
+                StaticTripMap(content: content, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: slot.id)
                     .frame(height: 260)
                     .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                 if slot.focus != nil || slot.why != nil || slot.skipIf != nil {

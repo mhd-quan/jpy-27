@@ -257,13 +257,21 @@ private struct SpendKeyStyle: ButtonStyle {
 /// newer than this phone's copy replaces it; a meal logged on both phones is kept twice and asked
 /// about in the Spend tab. A file carries no deletions: a row deleted on the other phone stays here
 /// until the phones meet.
+///
+/// The file is written only when it is shared: the Spend tab's menu builds its ShareLink with the
+/// tab (a Menu makes its content up front), and the tab redraws with every change to the ledger.
 nonisolated struct SpendLedgerFile: Transferable, Sendable {
-    let csv: String
+    /// the records the ledger is read from when the file is asked for (the rehearsal's while one runs)
+    let container: ModelContainer
+    let store: TripStore
 
     static var transferRepresentation: some TransferRepresentation {
         // a byte-order mark, so spreadsheet apps read the Vietnamese right
-        DataRepresentation(exportedContentType: .commaSeparatedText) { file in Data(("\u{FEFF}" + file.csv).utf8) }
-            .suggestedFileName("JP27-so-chi.csv")
+        DataRepresentation(exportedContentType: .commaSeparatedText) { file in
+            let csv = await file.csv()
+            return Data(("\u{FEFF}" + csv).utf8)
+        }
+        .suggestedFileName("JP27-so-chi.csv")
     }
 
     static let header = ["id", "luc", "ngay", "gio", "yen", "khoan", "ten_khoan", "tra", "place_id", "cho", "ghi_chu", "may", "sua"]
@@ -276,11 +284,18 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
         return id
     }
 
-    @MainActor init(expenses: [Expense], store: TripStore) {
+    init(container: ModelContainer, store: TripStore) {
+        self.container = container
+        self.store = store
+    }
+
+    /// The ledger as it is now, oldest first.
+    @MainActor func csv() -> String {
         let iso = Self.iso
         let me = Self.installID
+        let expenses = (try? container.mainContext.fetch(FetchDescriptor<Expense>(sortBy: [SortDescriptor(\.at)]))) ?? []
         var rows = [Self.header]
-        for e in expenses.sorted(by: { $0.at < $1.at }) {
+        for e in expenses {
             rows.append([
                 e.id.uuidString, iso.string(from: e.at), e.day ?? "", TripTime.clock(e.at), String(e.yen),
                 e.category, e.spendCategory.label, e.method, e.placeID ?? "",
@@ -288,7 +303,7 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
                 e.updatedAt.map(iso.string(from:)) ?? "",
             ])
         }
-        csv = rows.map { $0.map(Self.field).joined(separator: ",") }.joined(separator: "\r\n") + "\r\n"
+        return rows.map { $0.map(Self.field).joined(separator: ",") }.joined(separator: "\r\n") + "\r\n"
     }
 
     private static func field(_ s: String) -> String {

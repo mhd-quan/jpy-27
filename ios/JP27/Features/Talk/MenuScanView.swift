@@ -340,9 +340,11 @@ struct TalkScannerView: UIViewControllerRepresentable {
     let box: TalkScannerBox
 
     func makeUIViewController(context: Context) -> DataScannerViewController {
+        // the live pass only lights the lines up while the camera moves; the words are read once,
+        // from the photo, at full accuracy (`read`). Balanced is lighter on every frame.
         let vc = DataScannerViewController(
             recognizedDataTypes: [.text(languages: ["ja"])],
-            qualityLevel: .accurate,
+            qualityLevel: .balanced,
             recognizesMultipleItems: true,
             isGuidanceEnabled: false,
             isHighlightingEnabled: true

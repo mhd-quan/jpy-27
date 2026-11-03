@@ -20,6 +20,10 @@ import TripKit
 
     var isAvailable: Bool { ActivityAuthorizationInfo().areActivitiesEnabled }
 
+    /// The ride being followed has reached its end and is only waiting to be closed: the next ride
+    /// may start at once (a change of trains), it replaces this one.
+    var hasArrived: Bool { ending }
+
     func start(_ ride: Ride, model: AppModel) {
         if self.ride?.id == ride.id { return }
         // one ride at a time: close the previous one without waiting for it
@@ -28,6 +32,9 @@ import TripKit
         }
         if let old = self.ride { model.alarms.cancel(old.id) }
         ending = false
+        status = nil
+        arrival = nil
+        lastPush = .distantPast
         self.ride = ride
         tracker = RideTracker(ride: ride, store: model.store)
         model.location.startLive(background: true)
@@ -59,10 +66,13 @@ import TripKit
         let eta = left.map { Date(timeIntervalSinceReferenceDate: (model.now.addingTimeInterval($0 * 60).timeIntervalSinceReferenceDate / 60).rounded(.down) * 60) }
         if arrival != eta { arrival = eta }
         let state = makeState(s, model: model)
-        if model.wakeAlarmIsOn(ride), !s.arrived, let prompt = tracker.minutesToAlightPrompt(km: s.km, speedKmh: model.location.speedKmh) {
-            // ring as the train leaves the stop before yours
+        if !s.arrived, let prompt = tracker.minutesToAlightPrompt(km: s.km, speedKmh: model.location.speedKmh), model.wakeAlarmIsOn(ride) {
+            // ring as the train leaves the stop before yours; a time within two minutes of the one
+            // set is not worth a call (AlarmService would keep the alarm it has anyway)
             let at = Date().addingTimeInterval(max(0, prompt) * 60)
-            Task { await model.alarms.alight(rideID: ride.id, station: ride.toName, at: at) }
+            if model.alarms.time(of: ride.id).map({ abs($0.timeIntervalSince(at)) >= 120 }) ?? true {
+                Task { await model.alarms.alight(rideID: ride.id, station: ride.toName, at: at) }
+            }
         }
         let changed = state.next != lastState?.next || state.alight != lastState?.alight || state.fuji != lastState?.fuji || state.arrived != lastState?.arrived
         if changed || Date().timeIntervalSince(lastPush) > 30 {
@@ -73,25 +83,34 @@ import TripKit
         if s.arrived, !ending {
             ending = true
             model.rideArrived(ride)
+            // closes this ride only: one started meanwhile (a change of trains within the 90
+            // seconds) keeps its Live Activity, its alarm and its background positions
+            let id = ride.id
             Task {
                 try? await Task.sleep(for: .seconds(90))
-                await self.end(model: model, immediately: false)
+                await self.end(model: model, immediately: false, only: id)
             }
         }
     }
 
-    func end(model: AppModel, immediately: Bool) async {
-        guard let ride else { return }
+    /// Stops following the ride; with `only`, only if that is still the ride followed.
+    func end(model: AppModel, immediately: Bool, only rideID: String? = nil) async {
+        guard let ride, rideID == nil || ride.id == rideID else { return }
         model.alarms.cancel(ride.id)
         if let activity, let last = lastState {
             await activity.end(ActivityContent(state: last, staleDate: nil), dismissalPolicy: immediately ? .immediate : .after(Date().addingTimeInterval(15 * 60)))
         }
+        // the activity's end above suspends: a ride started meanwhile is not this one's to clear
+        guard self.ride?.id == ride.id else { return }
         activity = nil
         self.ride = nil
         tracker = nil
         status = nil
+        arrival = nil
         lastState = nil
-        model.location.startLive(background: false)
+        ending = false
+        // back to what the moment calls for: the ordinary stream on screen, nothing behind the lock
+        model.location.follow(model)
     }
 
     private func makeState(_ s: RideTracker.Status, model: AppModel) -> RideAttributes.ContentState {

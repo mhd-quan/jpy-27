@@ -66,51 +66,94 @@ import UserNotifications
 
     // MARK: Plan reminders
 
-    /// Replace the plan's pending reminders. Fire times are trip time; when rehearsing with a shifted
-    /// clock they are moved back onto the real clock. Interval triggers stay right across time zones.
+    /// bumped by every `schedule`: a call still waiting for the pending list when a newer one began
+    /// gives way to it, so an older plan's reminders are never added back after the newer removed them
+    @ObservationIgnored private var generation = 0
+
+    /// Make the plan's pending reminders match `reminders`. Fire times are trip time; when rehearsing
+    /// with a shifted clock they are moved back onto the real clock. Interval triggers stay right
+    /// across time zones.
+    ///
+    /// Only what changed is touched: a reminder already pending with the same text and (to the
+    /// half minute) the same time is left as it is, so a return to the app re-adds nothing. After
+    /// the one wait for the pending list, everything is done without suspending: two calls cannot
+    /// interleave their removals and additions.
     func schedule(_ reminders: [Reminder], clockOffset: TimeInterval) async {
+        generation += 1
+        let mine = generation
         let pending = await center.pendingNotificationRequests()
-        center.removePendingNotificationRequests(withIdentifiers: pending.map(\.identifier).filter { $0.hasPrefix("plan.") })
+        guard mine == generation else { return }
+        var wanted: [String: UNNotificationRequest] = [:]
         for r in reminders {
             let real = r.fire.addingTimeInterval(-clockOffset)
             let interval = real.timeIntervalSinceNow
             guard interval > 1 else { continue }
-            let content = UNMutableNotificationContent()
-            content.title = r.title
-            content.body = r.body
-            content.threadIdentifier = r.day.map { "day-\($0)" } ?? "trip"
-            content.interruptionLevel = switch r.level {
-            case .timeSensitive: .timeSensitive
-            case .active: .active
-            case .passive: .passive
+            let request = UNNotificationRequest(identifier: "plan.\(r.id)", content: content(r, fire: real), trigger: UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false))
+            wanted[request.identifier] = request
+        }
+        var stale: [String] = []
+        var kept = Set<String>()
+        for old in pending where old.identifier.hasPrefix("plan.") {
+            if let new = wanted[old.identifier], Self.same(old, new) {
+                kept.insert(old.identifier)
+            } else {
+                stale.append(old.identifier)
             }
-            content.relevanceScore = r.level == .timeSensitive ? 1 : r.level == .active ? 0.6 : 0.2
-            content.sound = r.level == .passive ? nil : .default
-            var info: [String: String] = [:]
-            switch r.kind {
-            case .departure:
-                content.categoryIdentifier = Category.departure
-                if let day = r.day, let i = r.index, let d = AppModel.shared.store.day(day), case .move(let m) = d.items[i],
-                   let ride = AppModel.shared.store.ride(startingWith: m.leg.id, on: d) {
-                    info["ride"] = ride.id
-                    info["link"] = DeepLink.ride(ride.id).url.absoluteString
-                } else {
-                    info["link"] = DeepLink.today.url.absoluteString
-                }
-            case .reservation:
-                content.categoryIdentifier = Category.plain
-                info["link"] = r.placeID.map { DeepLink.place($0).url.absoluteString } ?? DeepLink.today.url.absoluteString
-            case .journal:
-                content.categoryIdentifier = Category.plain
-                info["link"] = r.day.map { DeepLink.journal($0).url.absoluteString } ?? DeepLink.today.url.absoluteString
-            case .morning, .booking:
-                content.categoryIdentifier = Category.plain
+        }
+        if !stale.isEmpty { center.removePendingNotificationRequests(withIdentifiers: stale) }
+        for (id, request) in wanted where !kept.contains(id) {
+            center.add(request, withCompletionHandler: nil)
+        }
+    }
+
+    /// Two requests for one reminder that would show the same thing at the same time. The time is
+    /// the one written into the request (`fire`): an interval trigger read back from the pending
+    /// list reports its next date counted from now, not from when it was set.
+    private static func same(_ a: UNNotificationRequest, _ b: UNNotificationRequest) -> Bool {
+        guard a.content.title == b.content.title, a.content.body == b.content.body,
+              a.content.interruptionLevel == b.content.interruptionLevel,
+              a.content.categoryIdentifier == b.content.categoryIdentifier,
+              let at = (a.content.userInfo["fire"] as? String).flatMap({ Double($0) }),
+              let bt = (b.content.userInfo["fire"] as? String).flatMap({ Double($0) })
+        else { return false }
+        return abs(at - bt) < 30 && (a.content.userInfo["link"] as? String) == (b.content.userInfo["link"] as? String)
+    }
+
+    private func content(_ r: Reminder, fire: Date) -> UNMutableNotificationContent {
+        let content = UNMutableNotificationContent()
+        content.title = r.title
+        content.body = r.body
+        content.threadIdentifier = r.day.map { "day-\($0)" } ?? "trip"
+        content.interruptionLevel = switch r.level {
+        case .timeSensitive: .timeSensitive
+        case .active: .active
+        case .passive: .passive
+        }
+        content.relevanceScore = r.level == .timeSensitive ? 1 : r.level == .active ? 0.6 : 0.2
+        content.sound = r.level == .passive ? nil : .default
+        var info: [String: String] = ["fire": String(fire.timeIntervalSince1970)]
+        switch r.kind {
+        case .departure:
+            content.categoryIdentifier = Category.departure
+            if let day = r.day, let i = r.index, let d = AppModel.shared.store.day(day), d.items.indices.contains(i), case .move(let m) = d.items[i],
+               let ride = AppModel.shared.store.ride(startingWith: m.leg.id, on: d) {
+                info["ride"] = ride.id
+                info["link"] = DeepLink.ride(ride.id).url.absoluteString
+            } else {
                 info["link"] = DeepLink.today.url.absoluteString
             }
-            content.userInfo = info
-            let request = UNNotificationRequest(identifier: "plan.\(r.id)", content: content, trigger: UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false))
-            try? await center.add(request)
+        case .reservation:
+            content.categoryIdentifier = Category.plain
+            info["link"] = r.placeID.map { DeepLink.place($0).url.absoluteString } ?? DeepLink.today.url.absoluteString
+        case .journal:
+            content.categoryIdentifier = Category.plain
+            info["link"] = r.day.map { DeepLink.journal($0).url.absoluteString } ?? DeepLink.today.url.absoluteString
+        case .morning, .booking:
+            content.categoryIdentifier = Category.plain
+            info["link"] = DeepLink.today.url.absoluteString
         }
+        content.userInfo = info
+        return content
     }
 
     // MARK: Location-triggered

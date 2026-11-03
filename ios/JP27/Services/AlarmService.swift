@@ -2,6 +2,7 @@ import AlarmKit
 import Foundation
 import Observation
 import SwiftUI
+import TripKit
 
 nonisolated struct AlightAlarm: AlarmMetadata {
     var rideID: String
@@ -47,6 +48,19 @@ nonisolated struct AlightAlarm: AlarmMetadata {
 
     private static let key = "alarms.scheduled"
     private static let choicesKey = "alarms.choices"
+
+    /// One alarm wanted for a ride.
+    private struct Request {
+        let station: String
+        let at: Date
+        let source: Source
+    }
+
+    /// One alarm being set per ride at a time (asking for permission, scheduling): a call made
+    /// meanwhile waits, only the latest is kept, and a cancel takes back an alarm being set as it
+    /// lands. Without this, the positions that arrived while the permission prompt was up each set
+    /// an alarm once it was answered, and only the last was known: the others rang, uncancellable.
+    private let serial = OneAtATime<Request>()
 
     init() {
         if let data = Shared.defaults.data(forKey: Self.key),
@@ -99,33 +113,63 @@ nonisolated struct AlightAlarm: AlarmMetadata {
 
     func isSet(_ rideID: String) -> Bool { scheduled[rideID] != nil }
 
+    /// When the ride's alarm rings, if one is set.
+    func time(of rideID: String) -> Date? { scheduled[rideID]?.at }
+
     /// Ring at `date` for the ride; moving it by less than two minutes is not worth a new alarm.
+    /// One call per ride runs at a time; one made meanwhile is done after it, the latest only. The
+    /// GPS knows better than the timetable: a timetable time never replaces a followed ride's.
     func alight(rideID: String, station: String, at date: Date, source: Source = .ride) async {
-        if let current = scheduled[rideID], abs(current.at.timeIntervalSince(date)) < 120 {
-            if current.source != source, source == .ride { scheduled[rideID] = Scheduled(id: current.id, at: current.at, source: .ride) }
-            return
+        let request = Request(station: station, at: date, source: source)
+        await serial.run(rideID, request, overrides: { running, waiting in
+            source == .ride || (running.source != .ride && waiting?.source != .ride)
+        }) { r, ticket in
+            await self.place(rideID, r, ticket: ticket)
         }
-        cancel(rideID)
+    }
+
+    private func place(_ rideID: String, _ r: Request, ticket: OneAtATime<Request>.Ticket) async {
+        if let current = scheduled[rideID] {
+            if r.source == .timetable, current.source == .ride { return }
+            if abs(current.at.timeIntervalSince(r.at)) < 120 {
+                if current.source != r.source, r.source == .ride { scheduled[rideID] = Scheduled(id: current.id, at: current.at, source: .ride) }
+                return
+            }
+        }
+        remove(rideID)
         // the timetable never asks: permission is asked for when a ride is followed
-        guard date > Date().addingTimeInterval(30), source == .timetable ? authorized : await requestAuthorization() else { return }
+        guard r.at > Date().addingTimeInterval(30), r.source == .timetable ? authorized : await requestAuthorization() else { return }
+        // cancelled while the prompt was up
+        guard serial.isCurrent(ticket) else { return }
         let alert = AlarmPresentation.Alert(
-            title: "Sắp tới \(station)",
+            title: "Sắp tới \(r.station)",
             stopButton: AlarmButton(text: "Đã thức", textColor: .white, systemImageName: "checkmark")
         )
         let attributes = AlarmAttributes<AlightAlarm>(
             presentation: AlarmPresentation(alert: alert),
-            metadata: AlightAlarm(rideID: rideID, station: station),
+            metadata: AlightAlarm(rideID: rideID, station: r.station),
             tintColor: .accentColor
         )
         let id = UUID()
-        let configuration = AlarmManager.AlarmConfiguration<AlightAlarm>(schedule: .fixed(date), attributes: attributes)
+        let configuration = AlarmManager.AlarmConfiguration<AlightAlarm>(schedule: .fixed(r.at), attributes: attributes)
         do {
             _ = try await AlarmManager.shared.schedule(id: id, configuration: configuration)
-            scheduled[rideID] = Scheduled(id: id, at: date, source: source)
+            guard serial.isCurrent(ticket) else {
+                try? AlarmManager.shared.cancel(id: id)
+                return
+            }
+            scheduled[rideID] = Scheduled(id: id, at: r.at, source: r.source)
         } catch {}
     }
 
+    /// No alarm for the ride, from either source, including one being set right now.
     func cancel(_ rideID: String) {
+        serial.cancel(rideID)
+        remove(rideID)
+    }
+
+    /// The alarm that is set, taken back.
+    private func remove(_ rideID: String) {
         guard let current = scheduled.removeValue(forKey: rideID) else { return }
         try? AlarmManager.shared.cancel(id: current.id)
     }

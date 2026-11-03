@@ -140,6 +140,11 @@ enum AppSheet: Identifiable, Hashable {
 
     private var clockTask: Task<Void, Never>?
     private var lastProjected: Coordinate?
+    /// the next activation comes back from the background (or is the first): restart what
+    /// `deactivate` stopped. A moment inactive (Control Center, a notification pulled down) stops nothing.
+    @ObservationIgnored private var asleep = true
+    /// the pinned tile build was asked about and answered, this launch
+    @ObservationIgnored private var tilesChecked = false
 
     var guide: Guide { store.guide! }
     var people: Int { store.trip.meta.people }
@@ -196,7 +201,12 @@ enum AppSheet: Identifiable, Hashable {
         location.onUpdate = { [weak self] in self?.positionChanged($0) }
         location.onVisit = { [weak self] in self?.visited($0) }
         location.onFence = { [weak self] fence, entered in self?.fenceEvent(fence, entered: entered) }
-        location.onAuthorizationChange = { [weak self] in self?.rescheduleAll() }
+        location.onAuthorizationChange = { [weak self] in
+            guard let self else { return }
+            // granted from the prompt: the app only went inactive under it, so start what it allows now
+            location.follow(self)
+            rescheduleAll()
+        }
         location.onMoved = { [weak self] in self?.rescheduleAll() }
         motion.onPace = { [weak self] kmh, minutes in self?.learnPace(kmh: kmh, minutes: minutes) }
         notifications.onAction = { [weak self] in self?.notificationAction($0) }
@@ -204,8 +214,16 @@ enum AppSheet: Identifiable, Hashable {
 
     // MARK: - Lifecycle
 
-    /// Foreground: start the clock, resume what tracking the phase calls for, refresh schedules.
+    /// Foreground. Back from the background (or at launch): start the clock, resume what tracking
+    /// the phase calls for, refresh schedules. Back from a moment inactive (Control Center, the
+    /// notifications pulled down, the app switcher glanced at), nothing was stopped: the clock only
+    /// catches up.
     func activate() {
+        guard asleep else {
+            refresh(reschedule: false)
+            return
+        }
+        asleep = false
         startClock()
         location.resume(for: self)
         motion.start()
@@ -215,7 +233,8 @@ enum AppSheet: Identifiable, Hashable {
             await notifications.refreshStatus()
             if notifications.undetermined { await notifications.requestAuthorization() }
             await HeroExporter.exportIfNeeded(store: store)
-            await OfflineMaps.checkPinnedTiles()
+            // once per launch, as soon as it is online and gets an answer
+            if !tilesChecked, network.online { tilesChecked = await OfflineMaps.checkPinnedTiles() }
         }
         // the colour of the photograph each page opens on, read once in the background (and kept),
         // so no page re-colours itself while it zooms open
@@ -255,9 +274,15 @@ enum AppSheet: Identifiable, Hashable {
         return out
     }
 
+    /// Background: stop the clock and what only the screen needs. The position stream stays only for
+    /// a ride being followed (its background session keeps it alive under the lock screen); visits,
+    /// geofences and significant changes still wake the app.
     func deactivate() {
+        asleep = true
         clockTask?.cancel()
         clockTask = nil
+        motion.stop()
+        location.pause(riding: activeRide != nil)
         downloads.leaving()
         ledgerSync.deactivate()
         publishSnapshot(force: true)
@@ -284,9 +309,18 @@ enum AppSheet: Identifiable, Hashable {
         let chosen = store.days(choosing: alternatives)
         if chosen.map(\.key) != days.map(\.key) { days = chosen }
         let p = itinerary.phase(at: now, days: days)
-        if Self.signature(p) != Self.signature(phase) { phase = p }
-        project()
-        if reschedule { rescheduleAll() }
+        if Self.signature(p) != Self.signature(phase) {
+            phase = p
+            // a trip day began or ended: the position stream follows (see LocationService.follow)
+            location.follow(self)
+        }
+        let moved = project()
+        if reschedule {
+            rescheduleAll()
+        } else if moved {
+            // the watched circles follow the cursor
+            location.updateFences(model: self)
+        }
     }
 
     private static func signature(_ p: TripPhase) -> String {
@@ -297,19 +331,23 @@ enum AppSheet: Identifiable, Hashable {
         }
     }
 
-    private func project() {
+    /// Projects the rest of today; true when the cursor moved.
+    @discardableResult
+    private func project() -> Bool {
         guard let day = today, let minutes = TripTime.minutes(of: now, on: day.date) else {
+            let moved = cursor != 0
             if cursor != 0 { cursor = 0 }
             if !projection.isEmpty { projection = [] }
             if replan != nil { replan = nil }
             if next != nil { next = nil }
             publishSnapshot(force: false)
-            return
+            return moved
         }
         let done = Set((marks[day.key] ?? [:]).keys)
         // the cursor comes with the projection: by the marks, the clock, and where you stand
         let result = itinerary.project(day, done: done, now: minutes, position: position, pace: pace.factor, skips: skips[day.key] ?? [])
-        if result.cursor != cursor { cursor = result.cursor }
+        let moved = result.cursor != cursor
+        if moved { cursor = result.cursor }
         if result.slots != projection { projection = result.slots }
         if result.replan != replan { replan = result.replan }
         let n = itinerary.next(day, cursor: cursor)
@@ -317,6 +355,7 @@ enum AppSheet: Identifiable, Hashable {
         autoStartRide(day, minutes: minutes)
         live.update(model: self)
         publishSnapshot(force: false)
+        return moved
     }
 
     /// Start following a fixed departure on its own, from twenty minutes before it: near its
@@ -324,7 +363,8 @@ enum AppSheet: Identifiable, Hashable {
     /// is on screen, so the window is wide (any glance at the app on the way to the platform), and
     /// the station's geofence sends a notification whose "Theo dõi chuyến" opens the app to do it.
     private func autoStartRide(_ day: Day, minutes: Double) {
-        guard live.ride == nil, live.isAvailable, UIApplication.shared.applicationState == .active,
+        // a ride that has arrived is only waiting to close: the connecting one starts over it
+        guard live.ride == nil || live.hasArrived, live.isAvailable, UIApplication.shared.applicationState == .active,
               let dep = itinerary.nextDeparture(day, cursor: cursor),
               let planned = TripTime.minutes(dep.move.at).map(Double.init),
               (planned - 20 ... planned + 10).contains(minutes),
@@ -340,11 +380,14 @@ enum AppSheet: Identifiable, Hashable {
         for (i, item) in day.items.enumerated() {
             if let m = item.move, ride.legs.contains(m.leg.id) { markDone(day, i, source: "ride") }
         }
-        refresh(reschedule: false)
+        refresh(reschedule: true)
     }
 
+    /// Reminders, geofences and alarms, made to match the plan, the clock and what is done. Run when
+    /// any of them changes: a mark, a skip, a day swapped, the rehearsal clock, a return to the app.
     func rescheduleAll() {
-        let reminders = ReminderPlanner(store: store).upcoming(days: days, now: now, pace: pace.factor)
+        // a departure or reservation already done, dropped, or behind something done has no reminder
+        let reminders = ReminderPlanner(store: store).upcoming(days: days, now: now) { day, i in self.isSettled(day, i) }
         Task { await notifications.schedule(reminders, clockOffset: clockOffset) }
         location.updateFences(model: self)
         planWakeAlarms()
@@ -393,6 +436,10 @@ enum AppSheet: Identifiable, Hashable {
     // MARK: - Marks and skips
 
     func isDone(_ day: Day, _ index: Int) -> Bool { marks[day.key]?[index] != nil }
+    /// done, dropped, or before the last item marked done (the day has moved past it)
+    func isSettled(_ day: Day, _ index: Int) -> Bool {
+        isDone(day, index) || isSkipped(day, index) || (marks[day.key]?.keys.max() ?? -1) > index
+    }
     func isSkipped(_ day: Day, _ index: Int) -> Bool { skips[day.key]?.contains(index) == true }
     func doneCount(_ day: Day) -> Int { marks[day.key]?.count ?? 0 }
     func marked(_ day: Day) -> [Int: Date] { marks[day.key] ?? [:] }
@@ -406,13 +453,17 @@ enum AppSheet: Identifiable, Hashable {
             markDone(day, index, source: "hand")
         }
         try? context.save()
-        refresh(reschedule: false)
+        // a reminder, a fence or an alarm may belong to what was just marked
+        refresh(reschedule: true)
     }
 
-    func markDone(_ day: Day, _ index: Int, at: Date? = nil, source: String) {
-        guard !isDone(day, index) else { return }
+    /// Marks item `index` done; false when it already was, or the day has no such item (a fence or
+    /// a notification from before an update that changed the plan).
+    @discardableResult
+    func markDone(_ day: Day, _ index: Int, at: Date? = nil, source: String) -> Bool {
+        guard day.items.indices.contains(index), !isDone(day, index) else { return false }
         let when = at ?? now
-        context.insert(Checkmark(day: day.key, index: index, at: when, source: source))
+        context.insert(Checkmark(day: day.key, index: index, at: when, source: source, identity: day.identity(of: index)))
         marks[day.key, default: [:]][index] = when
         // a stop reached on foot teaches the pace: the walk before it, planned against actual,
         // timed from when the walk began, never from the arrival at the place before (that would
@@ -423,6 +474,7 @@ enum AppSheet: Identifiable, Hashable {
             savePace()
         }
         try? context.save()
+        return true
     }
 
     /// When the walk at item `walk` began, if anything recorded it: the end of the ride that
@@ -453,7 +505,7 @@ enum AppSheet: Identifiable, Hashable {
             try? context.delete(model: Skip.self, where: #Predicate<Skip> { $0.day == key && $0.index == index })
             skips[key]?.remove(index)
         } else {
-            context.insert(Skip(day: key, index: index, at: now))
+            context.insert(Skip(day: key, index: index, at: now, identity: day.identity(of: index)))
             skips[key, default: []].insert(index)
         }
         try? context.save()
@@ -464,7 +516,7 @@ enum AppSheet: Identifiable, Hashable {
     func apply(_ plan: Replan) {
         guard let day = today else { return }
         for i in plan.drop where !isSkipped(day, i) {
-            context.insert(Skip(day: day.key, index: i, at: now))
+            context.insert(Skip(day: day.key, index: i, at: now, identity: day.identity(of: i)))
             skips[day.key, default: []].insert(i)
         }
         try? context.save()
@@ -488,11 +540,45 @@ enum AppSheet: Identifiable, Hashable {
         ledgerSync.activate(context: context)
     }
 
+    /// The marks and skips, each on the item it was recorded for. An update may have edited the
+    /// plan since (an item added before it, one taken out): a record follows its item by identity
+    /// (`Day.resolve`), its stored index is corrected, and a record whose item is gone is left out.
+    /// Records from before identities were kept are named after the item at their index.
     private func loadRecords() {
-        let checks = (try? context.fetch(FetchDescriptor<Checkmark>())) ?? []
-        marks = Dictionary(grouping: checks, by: \.day).mapValues { Dictionary($0.map { ($0.index, $0.at) }, uniquingKeysWith: min) }
-        let dropped = (try? context.fetch(FetchDescriptor<Skip>())) ?? []
-        skips = Dictionary(grouping: dropped, by: \.day).mapValues { Set($0.map(\.index)) }
+        var changed = false
+        var marks: [String: [Int: Date]] = [:]
+        var held: [String: [Int: Checkmark]] = [:]
+        for c in (try? context.fetch(FetchDescriptor<Checkmark>())) ?? [] {
+            guard let day = store.day(c.day), let i = day.resolve(c.index, identity: c.identity) else { continue }
+            if let other = held[c.day]?[i] {
+                // two records came to one item: one is kept, with the earlier time
+                if c.at < other.at { other.at = c.at }
+                context.delete(c)
+                changed = true
+                continue
+            }
+            if c.index != i { c.index = i; changed = true }
+            if c.identity == nil { c.identity = day.identity(of: i); changed = true }
+            held[c.day, default: [:]][i] = c
+            marks[c.day, default: [:]][i] = c.at
+        }
+        var skips: [String: Set<Int>] = [:]
+        var dropped: [String: Set<Int>] = [:]
+        for k in (try? context.fetch(FetchDescriptor<Skip>())) ?? [] {
+            guard let day = store.day(k.day), let i = day.resolve(k.index, identity: k.identity) else { continue }
+            if dropped[k.day]?.contains(i) == true {
+                context.delete(k)
+                changed = true
+                continue
+            }
+            if k.index != i { k.index = i; changed = true }
+            if k.identity == nil { k.identity = day.identity(of: i); changed = true }
+            dropped[k.day, default: []].insert(i)
+            skips[k.day, default: []].insert(i)
+        }
+        if changed { try? context.save() }
+        self.marks = marks
+        self.skips = skips
     }
 
     // MARK: - Money
@@ -518,8 +604,13 @@ enum AppSheet: Identifiable, Hashable {
 
     // MARK: - Position, visits, fences
 
+    /// Every fix. On a ride each one moves the Live Activity on, but the plan barely moves with the
+    /// train (the cursor waits for the arrival, and the clock re-projects every 20 seconds): it is
+    /// projected again every half kilometre then, instead of every 30 m (about every second at speed).
     private func positionChanged(_ p: Coordinate) {
-        if let last = lastProjected, Geo.km(last, p) < 0.03 { return }
+        let riding = activeRide != nil
+        if riding { live.update(model: self) }
+        if let last = lastProjected, Geo.km(last, p) < (riding ? 0.5 : 0.03) { return }
         lastProjected = p
         if location.shouldTrace(p) { context.insert(Trace(at: now, coordinate: p)) }
         refresh(reschedule: false)
@@ -532,19 +623,20 @@ enum AppSheet: Identifiable, Hashable {
     private func visited(_ v: VisitRecord) {
         let from = v.arrival.addingTimeInterval(-120), to = v.arrival.addingTimeInterval(120)
         let near = (try? context.fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival >= from && $0.arrival <= to }))) ?? []
+        var marked = false
         if let same = near.first(where: { VisitRecord(arrival: $0.arrival, departure: $0.departure, coordinate: Coordinate($0.lat, $0.lng)).isSameStay(as: v) }) {
             if same.departure == nil { same.departure = v.departure }
             if same.placeID == nil, let (day, i) = matchPlan(v.coordinate) {
                 same.placeID = day.items[i].stop?.place
-                markDone(day, i, at: same.arrival, source: "visit")
+                marked = markDone(day, i, at: same.arrival, source: "visit")
             }
         } else {
             let match = matchPlan(v.coordinate)
             context.insert(Visit(arrival: v.arrival, departure: v.departure, coordinate: v.coordinate, placeID: match.flatMap { day, i in day.items[i].stop?.place }))
-            if let (day, i) = match { markDone(day, i, at: v.arrival, source: "visit") }
+            if let (day, i) = match { marked = markDone(day, i, at: v.arrival, source: "visit") }
         }
         try? context.save()
-        refresh(reschedule: false)
+        refresh(reschedule: marked)
     }
 
     /// Today's stop a stay belongs to: the nearest one whose `Presence` circle holds it, done or
@@ -561,10 +653,11 @@ enum AppSheet: Identifiable, Hashable {
         case .food, .snack:
             // a planned stop not yet done can be marked from the notification
             var planned: Int?
-            if let i = fence.index, let d = store.day(fence.day), !isDone(d, i) { planned = i }
+            if let i = fence.index, let d = store.day(fence.day), d.items.indices.contains(i), !isDone(d, i) { planned = i }
             Task { await notifications.arrived(at: place, store: store, people: people, day: planned == nil ? nil : fence.day, index: planned) }
         case .station:
-            if let day = store.day(fence.day), let i = fence.index, case .move(let m) = day.items[i],
+            // the circle's index was saved before a relaunch: an update may have changed the day since
+            if let day = store.day(fence.day), let i = fence.index, day.items.indices.contains(i), case .move(let m) = day.items[i],
                let ride = store.ride(startingWith: m.leg.id, on: day) {
                 Task { await notifications.atStation(place, ride: ride, departure: m.at) }
             }
@@ -701,8 +794,8 @@ enum AppSheet: Identifiable, Hashable {
                 live.start(ride, model: self)
             }
         case .markArrived(let day, let index):
-            if let d = store.day(day) { markDone(d, index, source: "fence") }
-            refresh(reschedule: false)
+            let marked = store.day(day).map { markDone($0, index, source: "fence") } ?? false
+            refresh(reschedule: marked)
         }
     }
 

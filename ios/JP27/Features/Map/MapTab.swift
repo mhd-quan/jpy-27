@@ -67,7 +67,7 @@ struct MapTab: View {
                     .id(id)
                 }
 
-                MapPanel(stage: $stage, containerHeight: geo.size.height, headerHeight: $header) {
+                MapPanel(stage: $stage, containerSize: geo.size, headerHeight: $header) {
                     MapPanelTitle(day: day)
                 } strip: {
                     MapStopStrip(day: day, active: active) { i in select(i, day: day, scroll: true, from: "map.stop.\(i)") }
@@ -127,6 +127,14 @@ struct MapTab: View {
             }
         }
         .onChange(of: model.mapDay) { consumeDay() }
+        // the day on show can change without a choice here (the trip moves on to the next day, a
+        // rehearsal starts or ends): what was picked belongs to the old day, whose indices the new
+        // one may not have
+        .onChange(of: day.key) {
+            active = nil
+            side = nil
+            jump = nil
+        }
         .sensoryFeedback(.pick, trigger: picks)
         .sensoryFeedback(.press, trigger: opened)
     }
@@ -589,10 +597,12 @@ enum MapPanelStage: CaseIterable {
     }
 }
 
-/// A floating glass panel that snaps to three heights. Its content is laid out once at the
-/// tallest height and the panel clips it, so a drag only moves an edge: nothing inside is laid
-/// out again under the finger. Release velocity is projected so a flick lands where it heads, and
-/// carried into the spring, so the panel goes on at the finger's speed.
+/// A floating glass panel that snaps to three heights. Its content is laid out once, at the
+/// tallest height and at the inset panel's width, and the panel clips it, so a drag only moves an
+/// edge: nothing inside is laid out again under the finger. The panel itself widens to meet the
+/// screen's sides as it rises (below); the content keeps its width and stays centred, so the rows
+/// are not laid out again for every frame of that either. Release velocity is projected so a
+/// flick lands where it heads, and carried into the spring, so the panel goes on at the finger's speed.
 /// The grabber and title drag it; the strip under them scrolls sideways on its own.
 ///
 /// As a sheet does (WWDC25, Build a SwiftUI app with the new design): glass and inset from the
@@ -600,7 +610,7 @@ enum MapPanelStage: CaseIterable {
 /// to full height, where the map behind is no longer the subject.
 private struct MapPanel<Title: View, Strip: View, Content: View>: View {
     @Binding var stage: MapPanelStage
-    let containerHeight: CGFloat
+    let containerSize: CGSize
     @Binding var headerHeight: CGFloat
     let title: Title
     let strip: Strip
@@ -617,17 +627,20 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
 
     private static var snap: Animation { .spring(response: 0.38, dampingFraction: 0.86) }
 
-    init(stage: Binding<MapPanelStage>, containerHeight: CGFloat, headerHeight: Binding<CGFloat>,
+    /// how far in from the screen's sides the panel floats while it is glass
+    private static var inset: CGFloat { 8 }
+
+    init(stage: Binding<MapPanelStage>, containerSize: CGSize, headerHeight: Binding<CGFloat>,
          @ViewBuilder title: () -> Title, @ViewBuilder strip: () -> Strip, @ViewBuilder content: () -> Content) {
         _stage = stage
-        self.containerHeight = containerHeight
+        self.containerSize = containerSize
         _headerHeight = headerHeight
         self.title = title()
         self.strip = strip()
         self.content = content()
     }
 
-    private func height(_ s: MapPanelStage) -> CGFloat { s.height(in: containerHeight, header: headerHeight) }
+    private func height(_ s: MapPanelStage) -> CGFloat { s.height(in: containerSize.height, header: headerHeight) }
 
     var body: some View {
         let shown = currentHeight
@@ -653,8 +666,11 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
             .accessibilityElement(children: .contain)
             .accessibilityAction(named: stage == .large ? "Thu gọn" : "Mở rộng") { cycle() }
 
+            // the inset width at every height: the panel growing to the screen's sides does not
+            // reflow the timeline (a full row layout per frame of the drag)
             content
-                .frame(height: max(0, height(.large) - headerHeight), alignment: .top)
+                .frame(width: max(0, containerSize.width - 2 * Self.inset), height: max(0, height(.large) - headerHeight), alignment: .top)
+                .frame(maxWidth: .infinity)
                 .opacity(stage == .peek && drag > -20 ? 0 : 1)
         }
         .frame(height: shown, alignment: .top)
@@ -662,7 +678,7 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
         .background(Palette.card.opacity(solid))
         .clipShape(.rect(cornerRadius: 30, style: .continuous))
         .mapGlass(.regular, in: .rect(cornerRadius: 30, style: .continuous))
-        .padding(.horizontal, 8 * (1 - solid))
+        .padding(.horizontal, Self.inset * (1 - solid))
         .padding(.bottom, 6)
         .animation(.smooth(duration: 0.2), value: stage == .peek && drag > -20)
         .sensoryFeedback(.snap, trigger: settled)
@@ -834,7 +850,8 @@ private struct MapStopStrip: View {
         let place = stop.place
         let done = model.isDone(day, index)
         let next = live && model.next?.index == index
-        let lit = active.map { a in a == index || (day.items[a].move != nil && day.stops.first { $0.index > a }?.index == index) } ?? false
+        // `active` can still be the old day's for the one frame before MapTab resets it
+        let lit = active.map { a in a == index || (day.items.indices.contains(a) && day.items[a].move != nil && day.stops.first { $0.index > a }?.index == index) } ?? false
         // on show itself, not only lit as the end of the way being read: a tap opens it
         let opens = active == index
         return Button {

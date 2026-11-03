@@ -3,7 +3,9 @@ import SwiftData
 import TripKit
 
 // What the travellers record during the trip. The plan itself never changes on the phone; these
-// sit beside it and refer to it by day key, item index and place id.
+// sit beside it and refer to it by day key, item index and place id. An update can change the plan,
+// so a mark or a skip also keeps which item it is for (`Day.identity`), and is put back on that
+// item when the plan around it moved (`AppModel.loadRecords`).
 
 /// A plan item done: a stop visited, a ride taken. Marked by hand, by a geofence, or by a visit.
 @Model final class Checkmark {
@@ -13,12 +15,16 @@ import TripKit
     var at: Date
     /// hand, fence, visit
     var source: String
+    /// the item it is for (`Day.identity(of:)`); nil on rows from builds that did not keep it.
+    /// Optional, so the store migrates without a plan.
+    var identity: String?
 
-    init(day: String, index: Int, at: Date, source: String = "hand") {
+    init(day: String, index: Int, at: Date, source: String = "hand", identity: String? = nil) {
         self.day = day
         self.index = index
         self.at = at
         self.source = source
+        self.identity = identity
     }
 }
 
@@ -28,11 +34,14 @@ import TripKit
     var day: String
     var index: Int
     var at: Date
+    /// as `Checkmark.identity`
+    var identity: String?
 
-    init(day: String, index: Int, at: Date) {
+    init(day: String, index: Int, at: Date, identity: String? = nil) {
         self.day = day
         self.index = index
         self.at = at
+        self.identity = identity
     }
 }
 
@@ -303,8 +312,8 @@ enum Records {
         for t in (try? from.fetch(FetchDescriptor<ExpenseTombstone>())) ?? [] {
             to.insert(ExpenseTombstone(id: t.id, at: t.at, duplicateOf: t.duplicateOf, record: t.record))
         }
-        for c in (try? from.fetch(FetchDescriptor<Checkmark>())) ?? [] { to.insert(Checkmark(day: c.day, index: c.index, at: c.at, source: c.source)) }
-        for k in (try? from.fetch(FetchDescriptor<Skip>())) ?? [] { to.insert(Skip(day: k.day, index: k.index, at: k.at)) }
+        for c in (try? from.fetch(FetchDescriptor<Checkmark>())) ?? [] { to.insert(Checkmark(day: c.day, index: c.index, at: c.at, source: c.source, identity: c.identity)) }
+        for k in (try? from.fetch(FetchDescriptor<Skip>())) ?? [] { to.insert(Skip(day: k.day, index: k.index, at: k.at, identity: k.identity)) }
         for p in (try? from.fetch(FetchDescriptor<Purchase>())) ?? [] { to.insert(Purchase(itemID: p.itemID, qty: p.qty, yen: p.yen, placeID: p.placeID, at: p.at)) }
         guard history else { return }
         for v in (try? from.fetch(FetchDescriptor<Visit>())) ?? [] { to.insert(Visit(arrival: v.arrival, departure: v.departure, coordinate: Coordinate(v.lat, v.lng), placeID: v.placeID)) }

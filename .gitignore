@@ -4,6 +4,8 @@ dist/
 .cache/
 .DS_Store
 *.log
+# a script's redirected output
+*.out
 .wrangler
 # iOS: the Xcode project is generated from ios/project.yml (xcodegen)
 ios/*.xcodeproj/
