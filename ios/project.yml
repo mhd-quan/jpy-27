@@ -1,0 +1,161 @@
+# XcodeGen spec — `brew install xcodegen && xcodegen` in ios/ writes JP27.xcodeproj.
+# Signing, bundle ids and the App Group are build settings in Config/Signing.xcconfig: set your team
+# there, or sign with a certificate and profile you were given via scripts/use-profile.sh.
+name: JP27
+
+options:
+  bundleIdPrefix: tech.delphyra
+  deploymentTarget:
+    iOS: "26.0"
+  developmentLanguage: vi
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+configFiles:
+  Debug: Config/Signing.xcconfig
+  Release: Config/Signing.xcconfig
+
+settingGroups:
+  # XcodeGen's presets set CODE_SIGN_IDENTITY on each target, which would beat the xcconfig:
+  # every signing setting is therefore spelled here, from the xcconfig's variables
+  signing:
+    DEVELOPMENT_TEAM: $(JP27_TEAM)
+    CODE_SIGN_STYLE: $(JP27_SIGN_STYLE)
+    CODE_SIGN_IDENTITY: $(JP27_SIGN_IDENTITY)
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "6.0"
+    # Xcode 26 defaults for app code: everything on the main actor unless it says otherwise
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+
+packages:
+  TripKit:
+    path: Packages/TripKit
+  MapLibre:
+    url: https://github.com/maplibre/maplibre-gl-native-distribution
+    # 7.0 stops re-uploading every fill layer's vertices on every frame (maplibre-native#4765),
+    # work done on the main thread that grows with the polygons on screen: most at street level,
+    # where the buildings are
+    from: 7.0.0
+
+targets:
+  JP27:
+    type: application
+    platform: iOS
+    sources:
+      - path: JP27
+      - path: Shared
+      # the site's self-hosted Commons photos ship inside the app, as one folder
+      - path: ../public/img/commons
+        type: folder
+        buildPhase: resources
+      - path: ../public/map
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: TripKit
+      - package: MapLibre
+      - target: JP27Widgets
+        embed: true
+    settings:
+      groups: [signing]
+      base:
+        # iPhone only. Set per target: XcodeGen's iOS preset puts "1,2" on each target, which beats a
+        # project-level value, and an iPad build must support every orientation.
+        TARGETED_DEVICE_FAMILY: "1"
+        PRODUCT_BUNDLE_IDENTIFIER: $(JP27_APP_ID)
+        PROVISIONING_PROFILE_SPECIFIER: $(JP27_APP_PROFILE)
+        CODE_SIGN_ENTITLEMENTS: $(JP27_APP_ENTITLEMENTS)
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        INFOPLIST_FILE: JP27/Info.plist
+    info:
+      path: JP27/Info.plist
+      properties:
+        CFBundleDisplayName: JP27
+        CFBundleDevelopmentRegion: vi
+        UILaunchScreen: {}
+        UIApplicationSupportsIndirectInputEvents: true
+        # ProMotion: without it an iPhone app's own animations (SwiftUI, Core Animation, the map's
+        # display link) are held to 60 Hz while the system's scrolling runs at 120
+        CADisableMinimumFrameDurationOnPhone: true
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        ITSAppUsesNonExemptEncryption: false
+        NSSupportsLiveActivities: true
+        JP27AppGroup: $(JP27_APP_GROUP)
+        JP27WeatherKit: $(JP27_WEATHERKIT)
+        CFBundleURLTypes:
+          - CFBundleURLName: tech.delphyra.jp27
+            CFBundleURLSchemes: [jp27]
+        # processing: for the continued task below (harmless if the system does not ask for it)
+        UIBackgroundModes: [location, fetch, processing]
+        # .downloads: the offline downloads keep going after the app is left (BGContinuedProcessingTask);
+        # the system wants it prefixed with the bundle id, which the personal team profile changes
+        BGTaskSchedulerPermittedIdentifiers: [tech.delphyra.jp27.refresh, "$(PRODUCT_BUNDLE_IDENTIFIER).downloads"]
+        NSLocationWhenInUseUsageDescription: Chấm vị trí của bạn trên lịch hôm nay, tính quãng còn lại tới điểm tiếp theo và những chỗ gần đó.
+        NSLocationAlwaysAndWhenInUseUsageDescription: Báo món nên gọi khi tới gần quán, theo dõi ga trên tàu kể cả khi khoá màn hình, và tự ghi nhật ký những nơi đã ghé.
+        NSMotionUsageDescription: Đo tốc độ đi bộ thật để tính giờ đi bộ cho đúng với hai bạn.
+        NSCameraUsageDescription: Quét thực đơn và tìm hướng núi Fuji qua camera.
+        NSMicrophoneUsageDescription: Nghe câu tiếng Nhật để dịch sang tiếng Việt ngay trên máy.
+        NSSpeechRecognitionUsageDescription: Chuyển lời nói tiếng Nhật thành chữ ngay trên máy để dịch.
+        NSPhotoLibraryUsageDescription: Gắn ảnh bạn chụp vào nhật ký từng điểm dừng theo giờ và nơi chụp.
+        NSAlarmKitUsageDescription: Báo thức trước ga cần xuống, kể cả khi điện thoại đang im lặng.
+        NSLocalNetworkUsageDescription: Tìm máy của bạn đồng hành đang mở JP27 ở gần để hai máy dùng chung một sổ chi, qua Wi‑Fi trực tiếp giữa hai máy, không cần mạng.
+        NSBonjourServices: [_jp27-sync._tcp, _jp27-sync._udp]
+        NSNearbyInteractionUsageDescription: Biết khi hai máy chạm vào nhau để đồng bộ sổ chi ngay.
+        NSUserActivityTypes: [tech.delphyra.jp27.place]
+
+  JP27Widgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: JP27Widgets
+      - path: Shared
+    dependencies:
+      - package: TripKit
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    settings:
+      groups: [signing]
+      base:
+        TARGETED_DEVICE_FAMILY: "1"
+        PRODUCT_BUNDLE_IDENTIFIER: $(JP27_WIDGET_ID)
+        PROVISIONING_PROFILE_SPECIFIER: $(JP27_WIDGET_PROFILE)
+        CODE_SIGN_ENTITLEMENTS: $(JP27_WIDGET_ENTITLEMENTS)
+        INFOPLIST_FILE: JP27Widgets/Info.plist
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    info:
+      path: JP27Widgets/Info.plist
+      properties:
+        CFBundleDisplayName: JP27
+        NSSupportsLiveActivities: true
+        JP27AppGroup: $(JP27_APP_GROUP)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+
+schemes:
+  JP27:
+    build:
+      targets:
+        JP27: all
+        JP27Widgets: all
+    run:
+      # Run is how the app gets onto the phone, and what it installs is what the trip runs on: an
+      # optimised build. A Debug build leaves all the app's Swift (every SwiftUI view, the panel's
+      # animation, the model) unoptimised on the main thread the map shares. Edit Scheme, Run, Info,
+      # Build Configuration: Debug, when stepping through code.
+      config: Release
+      # MapLibre draws with Metal, in many small draw calls. The Metal API validation and the GPU
+      # frame capture Xcode adds to a run sit in front of every one of them, so a map run from Xcode
+      # moves slower than the app does on its own. Turn them back on (Edit Scheme, Run, Diagnostics,
+      # and Options) when chasing a Metal error.
+      enableGPUValidationMode: false
+      enableGPUFrameCaptureMode: disabled
+    test:
+      config: Debug

@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { BOOKINGS, CHECKS, PASSES, PHRASES } from '../../data/trip';
 import { PHRASES as BOOK } from '../../data/enrich.gen';
+import { noteGroup, SCENARIO_GROUPS, STATIONS_TO_KNOW as STATIONS } from '../../data/notes';
 
 // "22/10, 0:00" in Japan time
 const jst = (iso: string) => {
@@ -9,24 +10,6 @@ const jst = (iso: string) => {
   return `${d.getUTCDate()}/${d.getUTCMonth() + 1}, ${d.getUTCHours()}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
 };
 
-const STATIONS = [
-  ['Iseshi', '伊勢市'],
-  ['Ujiyamada', '宇治山田'],
-  ['Toba', '鳥羽'],
-  ['Kashikojima', '賢島'],
-  ['Tambabashi', '丹波橋'],
-  ['Chūshojima', '中書島'],
-  ['Kowakudani', '小涌谷'],
-  ['Kintetsu Nagoya', '近鉄名古屋'],
-];
-// Scenario groups for the phrase launcher; ids come from research/phrases.json
-const SCENARIO_GROUPS = [
-  { title: 'Ăn uống', ids: ['table', 'order', 'shokken', 'ask-food', 'diet', 'izakaya', 'cafe', 'reserve', 'takeout', 'pay'] },
-  { title: 'Đi lại', ids: ['ticket', 'platform', 'bus', 'taxi', 'ferry', 'locker', 'lost', 'directions'] },
-  { title: 'Nơi ở', ids: ['checkin', 'forward', 'ryokan', 'onsen', 'room-problem', 'checkout'] },
-  { title: 'Tham quan, mua sắm', ids: ['temple', 'kimono', 'shop', 'souvenir'] },
-  { title: 'Chung, sức khoẻ', ids: ['greet', 'pharmacy', 'health', 'emergency'] },
-];
 const byId = new Map(BOOK.scenarios.map((x) => [x.id, x]));
 const grouped = new Set(SCENARIO_GROUPS.flatMap((g) => g.ids));
 const others = BOOK.scenarios.filter((x) => !grouped.has(x.id));
@@ -89,12 +72,7 @@ const phraseCount = BOOK.scenarios.reduce((t, x) => t + x.phrases.length, 0);
         }
       </ul>
       <div class="prose">
-        <p>
-          Thẻ IC dùng cho JR trong vùng, metro, nhiều tàu tư và cửa hàng. Khi đi JR local qua ranh Suica–TOICA (Atami → Shizuoka ngày 5), mua vé giấy đúng chặng. Mỗi người một thẻ; điện thoại Android mua ngoài Nhật thường không hỗ trợ Mobile Suica.
-        </p>
-        <p>
-          Không dùng taxi trong tuyến chính. Taxi ngắn để dành cho lúc trời xấu, chân mệt hoặc shuttle thay đổi. Night bus và tàu ngủ Sunrise không hợp tuyến này.
-        </p>
+        {noteGroup('ve').notes.map((n) => <p>{n.text}</p>)}
       </div>
     </div>
   </section>
@@ -102,24 +80,14 @@ const phraseCount = BOOK.scenarios.reduce((t, x) => t + x.phrases.length, 0);
   <section class="wrap block" id="hanh-ly" aria-labelledby="b3">
     <h2 class="t-2" id="b3">Hành lý và hoàn thuế</h2>
     <div class="cols">
-      <div>
-        <h3 class="t-3">Gửi vali</h3>
-        <p>
-          Gửi một vali lớn dùng chung hai chặng: Tokyo → Ise (sáng ngày 3, nhận 22/10) và Kyoto → Osaka (sáng ngày 9, nhận 27/10). Cỡ 160 khoảng ¥3.000/chặng. Xác nhận khách sạn nhận kiện, ghi tên người đặt và ngày đến; giữ đồ cần dùng trong túi đi cùng.
-        </p>
-      </div>
-      <div>
-        <h3 class="t-3">Hoàn thuế từ 1/11/2026</h3>
-        <p>
-          Trả giá có thuế ở cửa hàng, hoàn sau khi xác nhận hàng mang ra khỏi Nhật. Một hóa đơn phải đủ hàng để xác nhận — tách đồ mang về với đồ dùng trong chuyến. Thuế 10% tương ứng tối đa khoảng 9,09% giá gross trước phí.
-        </p>
-      </div>
-      <div>
-        <h3 class="t-3">Cân hành lý</h3>
-        <p>
-          Giỏ mua sắm thêm khoảng 10–13 kg, chưa tính vali mới 3,3 kg. Mang túi gấp, zip bag, cân nhỏ; để trống một phần vali khi bay đi. Phí quá cân của hãng bay không nằm trong ngân sách này.
-        </p>
-      </div>
+      {
+        noteGroup('hanh-ly').notes.map((n) => (
+          <div>
+            <h3 class="t-3">{n.title}</h3>
+            <p>{n.text}</p>
+          </div>
+        ))
+      }
     </div>
   </section>
 
@@ -127,24 +95,14 @@ const phraseCount = BOOK.scenarios.reduce((t, x) => t + x.phrases.length, 0);
     <div class="wrap block">
       <h2 class="t-2" id="b4">Onsen</h2>
       <div class="cols">
-        <div>
-          <h3 class="t-3">Ở Mizunoto</h3>
-          <p>
-            Dùng phòng từ chiều: bồn riêng, đổi không gian ở bồn garden 貸切, ăn đúng lượt, rồi quay lại bồn tối hoặc sáng. Bồn garden miễn phí, ai tới khi trống dùng trước, không có khu vòi tắm đầy đủ — tắm sạch ở phòng trước.
-          </p>
-        </div>
-        <div>
-          <h3 class="t-3">Nhà tắm chung</h3>
-          <p>
-            Thường tách nam nữ. Tắm rửa trước khi ngâm, không để khăn xuống nước, nói nhỏ, không chụp người khác. Hỏi trước về hình xăm nếu có. Ngâm từng lượt ngắn, uống nước, tránh rượu trước khi tắm nóng.
-          </p>
-        </div>
-        <div>
-          <h3 class="t-3">Bồn ngoài trời</h3>
-          <p>
-            露天 nghĩa là ngoài trời, không hứa mọi góc đều kín. Kiểm tra rèm khi nhận phòng; thấy chưa yên tâm thì hỏi nhân viên.
-          </p>
-        </div>
+        {
+          noteGroup('onsen').notes.map((n) => (
+            <div>
+              <h3 class="t-3">{n.title}</h3>
+              <p>{n.text}</p>
+            </div>
+          ))
+        }
       </div>
     </div>
   </section>
@@ -218,10 +176,14 @@ const phraseCount = BOOK.scenarios.reduce((t, x) => t + x.phrases.length, 0);
         }
       </dl>
       <div class="prose">
-        <h3 class="t-3">Lá đỏ và thời tiết</h3>
-        <p>
-          Kyoto cuối tháng 10 thường chưa đỏ rực như ảnh tháng 11 — kỳ vọng cây xanh, vài mảng vàng đỏ sớm, và đổi màu rõ hơn ở vùng cao Hakone. Khoảng 18–29/10 tránh kỳ nghỉ Sports Day 11/10, Hakone rơi vào thứ Năm và Kyoto sau lễ Jidai Matsuri 22/10.
-        </p>
+        {
+          noteGroup('thoi-tiet').notes.map((n) => (
+            <>
+              <h3 class="t-3">{n.title}</h3>
+              <p>{n.text}</p>
+            </>
+          ))
+        }
       </div>
     </div>
   </section>

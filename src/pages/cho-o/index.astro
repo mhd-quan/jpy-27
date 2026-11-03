@@ -5,6 +5,7 @@ import StayAround from '../../components/StayAround.astro';
 import SayButton from '../../components/SayButton.astro';
 import { place, fmtYen } from '../../lib/trip';
 import { STAYS } from '../../data/trip';
+import { HUNT_STEPS } from '../../data/notes';
 
 const total = STAYS.reduce((s, x) => s + x.target * (x.id === 'mizunoto' ? 1 : Number(x.nights[0])), 0);
 ---
@@ -85,22 +86,14 @@ const total = STAYS.reduce((s, x) => s + x.target * (x.id === 'mizunoto' ? 1 : N
   <section class="section wrap hunt" aria-labelledby="hunt-t">
     <h2 class="t-2" id="hunt-t">Săn giá mà vẫn giữ chất lượng</h2>
     <ol class="steps">
-      <li>
-        <strong>Giữ ryokan và Ise trước.</strong>
-        <span>Tuyến phụ thuộc hai nơi này. Sau đó Kyoto, Tokyo, Osaka. Đặt loại có thể hủy khi lịch mở.</span>
-      </li>
-      <li>
-        <strong>So cùng điều kiện.</strong>
-        <span>Cùng ngày, hai người, cùng hạng phòng, cùng bữa ăn, cùng điều kiện hủy — trên trang chính thức, Booking hoặc Agoda, và Jalan.</span>
-      </li>
-      <li>
-        <strong>Xem lại 90, 60, 30 ngày trước.</strong>
-        <span>Đọc review mới nhất đúng cơ sở. Khi thấy early booking hoặc 連泊, tính tổng sau thuế cả 11 đêm.</span>
-      </li>
-      <li>
-        <strong>Không đặt phòng một người.</strong>
-        <span>Mỗi phòng tính cho hai người; phải có phòng tắm và WC riêng, không hút thuốc.</span>
-      </li>
+      {
+        HUNT_STEPS.map((h) => (
+          <li>
+            <strong>{h.title}</strong>
+            <span>{h.text}</span>
+          </li>
+        ))
+      }
     </ol>
   </section>
 </Base>

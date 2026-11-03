@@ -11,7 +11,8 @@
     "check": "astro check",
     "geo": "node scripts/build-geo.mjs && node scripts/build-detours.mjs && node scripts/build-walk.mjs",
     "walk": "node scripts/build-walk.mjs && node scripts/check-plan.mjs",
-    "check:plan": "node scripts/check-plan.mjs"
+    "check:plan": "node scripts/check-plan.mjs",
+    "ios:data": "node scripts/export-ios.mjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",

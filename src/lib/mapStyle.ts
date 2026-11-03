@@ -307,13 +307,27 @@ export function baseStyle(theme: Theme): StyleSpecification {
     version: 8,
     glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     sources: {
-      omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: '© OpenFreeMap © OpenStreetMap' },
+      // pinned to one release: an offline pack keeps tiles by URL, and the bare /planet TileJSON
+      // names a new versioned URL with each weekly release, so a pack downloaded before one no
+      // longer matched once the app had been online. The server answers any version path with
+      // current data, so a pinned path keeps working online too.
+      omt: {
+        type: 'vector',
+        tiles: ['https://tiles.openfreemap.org/planet/20261025_080012_pt/{z}/{x}/{y}.pbf'],
+        minzoom: 0,
+        maxzoom: 14,
+        attribution: '© OpenFreeMap © OpenStreetMap',
+      },
+      // the relief is read from z12 elevation (about 30 m a pixel here) and stretched past it: at
+      // this soft shading the hills look the same, and closer in the map no longer loads 4 to 16
+      // times as many elevation tiles, each shaded in a pass of its own (heavy for MapLibre Native
+      // on a phone while the map moves), nor stores them in the offline packs
       dem: {
         type: 'raster-dem',
         tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
         encoding: 'terrarium',
         tileSize: 256,
-        maxzoom: 14,
+        maxzoom: 12,
         attribution: 'Terrain: Mapzen / AWS',
       },
     },

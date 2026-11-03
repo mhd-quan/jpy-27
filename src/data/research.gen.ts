@@ -52,6 +52,9 @@ export interface Store {
   taxFree: boolean | null;
   near: string | null;
   walkMin: number | null;
+  plan: string | null;
+  buy: string[];
+  advice: string | null;
 }
 
 export interface MenuItem {
@@ -13998,12 +14001,37 @@ export const DETAILS: Record<string, Detail> = {
   }
  },
  "sh-super-potato-akiba": {
-  "images": [],
+  "images": [
+   {
+    "kind": "interior",
+    "src": "img/commons/906a85bf2b96.webp",
+    "caption": "Bên trong cửa hàng Super Potato ở Akihabara (7/2017)",
+    "credit": "Jesusbella",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tienda_Super_Potato_(Akihabara,_Tokio).jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/1e261b785983.webp",
+    "caption": "Kệ băng game Famicom bày bán ở Super Potato (4/2015)",
+    "credit": "IQRemix",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Akihabara_-_Super_Potato_Retro_Game_Shop_(17243583179).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/86f9acb22eab.webp",
+    "caption": "Phố linh kiện ở Sotokanda 1, khu có tòa nhà Super Potato (1/2023)",
+    "credit": "nakashi",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Akiba_parts_street_in_south-west_blocks,_Sotokanda_1_in_2023_(2023-01-21_13.04.21_by_nakashi).jpg"
+   }
+  ],
   "lat": 35.69937,
   "lng": 139.770741,
   "address": "東京都千代田区外神田1-11-2 北林ビル 3F/4F/5F",
   "hours": "11:00–20:00, không nghỉ",
-  "why": "Cửa hàng game retro nổi tiếng nhất Akihabara, cách hotel khoảng 10 phút đi bộ. Mở 7 ngày nên ghé được cả chiều ngày 1.",
+  "why": "Super Potato là cửa hàng game retro chiếm tầng 3–5 tòa Kitabayashi ở Sotokanda 1, tự giới thiệu là nơi có lượng game retro tồn kho lớn nhất Nhật Bản. Hàng bày gồm băng và máy từ Famicom, Super Famicom, Mega Drive đến PlayStation 1–2, cả các máy hiếm như Pyuta, Cassette Vision, Intellivision. Đáng ghé để xem cả lịch sử máy chơi game Nhật trong vài tầng nhỏ.",
   "tips": "3–5F: máy game retro, đồ chơi, snack Nhật; 5F có phòng game retro và chỗ nghỉ",
   "official": "https://www.superpotato.com/shop/akihabara/",
   "store": {
@@ -14014,16 +14042,50 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "manseibashi",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": "Cửa hàng game retro nổi tiếng nhất Akihabara, cách hotel khoảng 10 phút đi bộ. Mở 7 ngày nên ghé được cả chiều ngày 1.",
+   "buy": [
+    "Băng và máy Famicom, Super Famicom, Mega Drive",
+    "Game PlayStation 1 và 2 bản Nhật",
+    "Máy hiếm cho người sưu tầm: Pyuta, Cassette Vision, Intellivision",
+    "Sách hướng dẫn chơi game (攻略本) cũ",
+    "Kẹo dagashi và đồ nhân vật game"
+   ],
+   "advice": "Mang sẵn tiền mặt phòng khi không quẹt được thẻ. Băng game bản Nhật cần máy Nhật để chơi; khu nghỉ ở tầng 5 cho ngồi nghỉ mà không cần chơi game."
   }
  },
  "sh-mandarake-complex": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/a0da4f4abb90.webp",
+    "caption": "Tòa nhà 8 tầng Mandarake Complex ở Akihabara (4/2012)",
+    "credit": "正和",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:MANDARAKE_COMPLEX_AKIHABARA.JPG"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/0fe47ea00533.webp",
+    "caption": "Bên trong Mandarake ở Akihabara (7/2017)",
+    "credit": "PhilaSiti",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Interiors_of_Mandarake,_Akibahara.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/234bd63d0e64.webp",
+    "caption": "Bảng chỉ dẫn các tầng của Mandarake ở Akihabara (7/2017)",
+    "credit": "PhilaSiti",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Floor_Directory_of_Mandarake,_Akibahara.jpg"
+   }
+  ],
   "lat": 35.700354,
   "lng": 139.770525,
   "address": "東京都千代田区外神田3-11-12",
-  "hours": "12:00–20:00",
-  "why": "Cửa hàng đồ sưu tầm manga, anime, figure cũ lớn nhất của chuỗi, nằm giữa Manseibashi và Okachimachi. Chỉ mở từ 12h, đóng 20h nên không dồn vào buổi tối.",
+  "hours": "12:00–20:00, mở cả năm",
+  "why": "Mandarake Complex là tòa nhà 8 tầng của Mandarake ở Sotokanda 3, mua bán lại manga, doujinshi, figure và đồ chơi cũ. Mỗi tầng một nhóm hàng: truyện tranh, đồ Disney, đồ thần tượng nam, đồ cosplay, còn ba tầng trên cùng toàn đồ chơi và mô hình. Hợp để tìm những món đã ngừng bán ở cửa hàng mới.",
   "official": "https://www.timeout.jp/tokyo/ja/ショッピング/mandarake-complex",
   "store": {
    "chain": "hobby",
@@ -14033,16 +14095,50 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "manseibashi",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": "Cửa hàng đồ sưu tầm manga, anime, figure cũ lớn nhất của chuỗi, nằm giữa Manseibashi và Okachimachi. Chỉ mở từ 12h, đóng 20h nên không dồn vào buổi tối.",
+   "buy": [
+    "Figure mỹ thiếu nữ và robot ở 8F",
+    "Đồ chơi tokusatsu và Chogokin ở 7F",
+    "Đồ chơi Mỹ, mô hình nhựa, figure giải thưởng, LEGO ở 6F",
+    "Manga thiếu niên và đồ vintage ở 3F; manga thiếu nữ, BL ở 5F",
+    "Đồ cosplay ở 1F, đồ Disney ở 2F"
+   ],
+   "advice": "Mở 12:00–20:00, không nghỉ ngày nào trong năm; quầy thu mua ở 1F nhận đến 19:30. Mang sẵn tiền mặt phòng khi không quẹt được thẻ."
   }
  },
  "sh-2k540": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/713fae4d277e.webp",
+    "caption": "Khu cửa hàng 2k540 AKI-OKA ARTISAN (5/2019)",
+    "credit": "Lumi iori",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:2k540.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/707648b16867.webp",
+    "caption": "2k540 AKI-OKA ARTISAN (2/2014)",
+    "credit": "ひでわく (hidewaku)",
+    "license": "CC BY-SA 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:2k540_AKI-OKA_ARTISAN_(2014-02-07_14.29_by_hidewaku_@Photozou_190013736).jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/8a1a046372ab.webp",
+    "caption": "Biển 2k540 trên đường nhánh từ Kuramaebashi-dōri, phía bắc ga Akihabara",
+    "credit": "keyaki",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:2k540_AKI-OKA_ARTISAN,_Tokyo_-_Nov_29,_2013.jpg"
+   }
+  ],
   "lat": 35.703581,
   "lng": 139.774158,
   "address": "東京都台東区上野5-9 (dưới cầu cạn JR, giữa Akihabara và Okachimachi)",
   "hours": "11:00–19:00, nghỉ thứ Tư",
-  "why": "Khu xưởng thủ công dưới đường tàu, đồ da, gốm, trang sức làm tay; nằm đúng đường từ Akihabara sang Okachimachi. Thứ Hai ngày 18/10 mở, thứ Tư nghỉ.",
+  "why": "2k540 AKI-OKA ARTISAN là dãy xưởng và cửa hàng dưới cầu cạn JR giữa Akihabara và Okachimachi, do công ty phát triển đô thị của JR East vận hành. Trang chính thức liệt kê khoảng 51 cửa hàng: đồ da, trang sức, đồng hồ làm tay, túi vải, gốm, giấy washi, cà phê và vài quán ăn. Một số tiệm là xưởng có lớp trải nghiệm, nên ghé được cả khi không định mua.",
   "official": "https://www.jrtk.jp/2k540/",
   "store": {
    "chain": "craft",
@@ -14054,15 +14150,49 @@ export const DETAILS: Record<string, Detail> = {
    ],
    "taxFree": null,
    "near": "yamabe",
-   "walkMin": 9
+   "walkMin": 9,
+   "plan": "Khu xưởng thủ công dưới đường tàu, đồ da, gốm, trang sức làm tay; nằm đúng đường từ Akihabara sang Okachimachi. Thứ Hai ngày 18/10 mở, thứ Tư nghỉ.",
+   "buy": [
+    "Túi vải canvas may tay ở 日乃本帆布",
+    "Gốm Takatori-yaki ở 高取焼 鬼丸雪山窯元",
+    "Khăn tenugui nhuộm kiểu chūsen ở にじゆら",
+    "Đồ giấy washi Echizen ở 紙の葉",
+    "Chảo sắt, đồ bếp kim loại ở FUJITA KINZOKU"
+   ],
+   "advice": "Muốn nhuộm khăn tenugui (にじゆら) hay nhuộm tất (GLEN CLYDE) thì xem lịch lớp trên trang 2k540 trước khi đến. Trang có bản tiếng Anh, Trung, Hàn để tra từng cửa hàng."
   }
  },
  "sh-ameyoko": {
-  "images": [],
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/a5e77980fb13.webp",
+    "caption": "Phố mua sắm Ameyoko ở Ueno (10/2023)",
+    "credit": "Stephen Kelly",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ameyoko_Shopping_Streets,_Ueno_(53416667926).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/9c6d145c19dd.webp",
+    "caption": "Phố Ameyoko (6/2022)",
+    "credit": "Syced",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ameyoko_June_2022.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/df890cf21ccf.webp",
+    "caption": "Tòa nhà Ameyoko Center ở Ueno (9/2018)",
+    "credit": "Christophe95",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ameyoko_Center_Building.jpg"
+   }
+  ],
   "lat": 35.710024,
   "lng": 139.774541,
   "address": "東京都台東区上野6-10-7",
-  "why": "Chợ đường phố cạnh Yamabe, mua snack và quà rẻ; giờ từng quán khác nhau nên coi như chỉ chắc đến chiều, không dựa vào buổi tối.",
+  "why": "Ameyoko là viết tắt của Ameya Yokochō, tức “ngõ hàng kẹo”; chữ Ame cũng được hiểu là America vì sau Thế chiến 2 nơi này là chợ đen bán hàng Mỹ. Phố chạy dọc đường ray JR Yamanote và Keihin-Tōhoku từ Ueno đến Okachimachi, người bán rao khách và mùi đồ ăn bay khắp phố. Đáng ghé để mua đồ khô, gia vị, kẹo bánh và đồ ăn vặt trong không khí chợ.",
   "tips": "Khoảng 500 m, khoảng 500 cửa hàng: đồ ăn, hải sản, kẹo, quần áo, mỹ phẩm",
   "official": "https://www.gotokyo.org/jp/spot/71/index.html",
   "store": {
@@ -14073,16 +14203,42 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "yamabe",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": "Chợ đường phố cạnh Yamabe, mua snack và quà rẻ; giờ từng quán khác nhau nên coi như chỉ chắc đến chiều, không dựa vào buổi tối.",
+   "buy": [
+    "Hải sản khô và gia vị",
+    "Cá, hải sản tươi",
+    "Kẹo bánh ở các tiệm bán sỉ",
+    "Mỹ phẩm, túi xách, quần áo giá rẻ",
+    "Đồ ăn đường phố nhiều nước"
+   ],
+   "advice": "Phần lớn tiệm mở khoảng 10:00–20:00, nhiều tiệm nghỉ vào một số thứ Tư. Lối vào gần nhất là cửa Shinobazu ga JR Ueno hoặc cửa soát vé Bắc ga JR Okachimachi."
   }
  },
  "sh-futaba-ameyoko": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/743b406d6c43.webp",
+    "caption": "Một cửa hàng 二木の菓子 ở Ameyoko, gần chùa Marishiten Tokudai-ji (1/2013)",
+    "credit": "yamauchi",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E4%BA%8C%E6%9C%A8%E3%81%AE%E8%8F%93%E5%AD%90_(15869289165).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/a169f57ac276.webp",
+    "caption": "Cửa hàng chính của 二木の菓子 ở Ueno (2009)",
+    "credit": "Kamemaru2000",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nikinokashi_head_store_ueno_taito_tokyo.JPG"
+   }
+  ],
   "lat": 35.708375,
   "lng": 139.77447,
   "address": "東京都台東区上野4-1-8",
   "hours": "10:00–20:00, nghỉ bất thường",
-  "why": "Cửa hàng kẹo bánh sỉ, mở đến 20h nên ghé được sau bữa tối ở Yamabe. Hợp để mua KitKat vị lạ và bánh gạo chia bạn bè.",
+  "why": "二木の菓子 bán sỉ và lẻ bánh kẹo ở Ameyoko từ năm 1947; chi nhánh số 1 có hai tầng, lúc nào cũng có khoảng 5.000 loại. Hàng gồm bánh kẹo nhãn lớn, dagashi, đồ nhắm, kẹo ngậm và hộp quà, có cả loại vị wasabi, matcha. Nhân viên nói được tiếng Anh và tiếng Trung.",
   "tips": "Quầy tax-free; khoảng 5.000 loại bánh kẹo, mua nhiều giá từng cái giảm",
   "official": "https://livejapan.com/ja/in-tokyo/in-pref-tokyo/in-ueno/spot-lj0004520/",
   "store": {
@@ -14093,16 +14249,42 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "yamabe",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": "Cửa hàng kẹo bánh sỉ, mở đến 20h nên ghé được sau bữa tối ở Yamabe. Hợp để mua KitKat vị lạ và bánh gạo chia bạn bè.",
+   "buy": [
+    "Umaibo, Oyatsu Calpis, Oyatsu Cheese (hàng để sẵn số lượng lớn)",
+    "KitKat vị chỉ bán theo vùng",
+    "Snack vị wasabi và matcha",
+    "Kẹo ngậm Ryukakusan",
+    "Dagashi (kẹo bánh rẻ kiểu Nhật)"
+   ],
+   "advice": "Tax-free nay theo kiểu hoàn thuế: trả giá có thuế, mua từ ¥5.000 chưa thuế trong ngày, nhận lại thuế ở hải quan sân bay khi xuất cảnh. Giữ nguyên bánh kẹo đến lúc đó: món đã ăn ở Nhật không được hoàn, thiếu một món là mất hoàn cả hóa đơn."
   }
  },
  "sh-uniqlo-okachimachi": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/7df71bf3f60d.webp",
+    "caption": "Cửa hàng UNIQLO Okachimachi (8/2016)",
+    "credit": "Dick Thomas Johnson",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Uniqlo_Okacimachi_Store_2016_(32589623690).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/a51375794215.webp",
+    "caption": "Tòa nhà Yoshiike ở Okachimachi, nơi có UNIQLO và GU (12/2014)",
+    "credit": "ITA-ATU",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yoshiike_Okachimachi_Main_Building_201412.JPG"
+   }
+  ],
   "lat": 35.707536,
   "lng": 139.774358,
   "address": "東京都台東区上野3-27-12 御徒町吉池本店ビル 1–4F",
   "hours": "10:00–21:00",
-  "why": "Mở đến 21h, cách Yamabe vài bước nên thử size ngay tối ngày 1; đồ mua kịp vào vali lớn gửi đi Ise sáng ngày 3.",
+  "why": "UNIQLO Okachimachi mở ngày 25/4/2014 trong tòa nhà mới Okachimachi Yoshiike Honten, là một trong các cửa hàng UNIQLO cỡ lớn của khu Ueno–Okachimachi. Bán đủ đồ nam, nữ, trẻ em và em bé, nên dễ tìm đủ size và màu trong một lần.",
   "tips": "UNIQLO 1–4F (khoảng 2.800 m²); GU ở 5–6F cùng tòa nhà",
   "official": "https://mitsui-shopping-park.com/urban/yoshiike/store/600358.html",
   "store": {
@@ -14113,16 +14295,42 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "yamabe",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": "Mở đến 21h, cách Yamabe vài bước nên thử size ngay tối ngày 1; đồ mua kịp vào vali lớn gửi đi Ise sáng ngày 3.",
+   "buy": [
+    "Đồ giữ nhiệt HEATTECH",
+    "Áo mặc trong AIRism",
+    "Áo khoác lông vũ nhẹ Ultra Light Down",
+    "Áo thun in hình UT",
+    "Đồ trẻ em và em bé"
+   ],
+   "advice": "Là điểm tax-free: mua từ ¥5.000 chưa thuế trong ngày, trả giá có thuế rồi nhận hoàn ở hải quan sân bay khi xuất cảnh. Cần cắt lai quần thì hỏi quầy 裾上げ khi thanh toán và hỏi giờ lấy."
   }
  },
  "sh-gu-okachimachi": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/a51375794215.webp",
+    "caption": "Tòa nhà Yoshiike ở Okachimachi; GU ở tầng 5–6 (12/2014)",
+    "credit": "ITA-ATU",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yoshiike_Okachimachi_Main_Building_201412.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/cd68a0de2e9f.webp",
+    "caption": "Khu Okachimachi nhìn từ sân ga JR Okachimachi (2/2016)",
+    "credit": "Hide1228",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Okachimachi_town.JPG"
+   }
+  ],
   "lat": 35.707536,
   "lng": 139.774358,
   "address": "東京都台東区上野3-27-12 御徒町吉池本店ビル 5–6F",
   "hours": "10:00–21:00",
-  "why": "Thử quần, áo GU ngay sau khi xem UNIQLO, cùng tòa nhà. Nếu có đổi size thì còn hai ngày ở Tokyo để quay lại.",
+  "why": "GU là thương hiệu thời trang giá thấp của Fast Retailing, công ty mẹ của UNIQLO, nghiêng về kiểu dáng theo mốt hơn là đồ cơ bản. Chi nhánh Okachimachi ở ngay trên UNIQLO trong cùng tòa Yoshiike, nên so được kiểu và giá giữa hai hãng trong một lần ghé.",
   "tips": "5–6F (UNIQLO ở 1–4F cùng tòa nhà)",
   "official": "https://mitsui-shopping-park.com/urban/yoshiike/store/600359.html",
   "store": {
@@ -14133,16 +14341,40 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "yamabe",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": "Thử quần, áo GU ngay sau khi xem UNIQLO, cùng tòa nhà. Nếu có đổi size thì còn hai ngày ở Tokyo để quay lại.",
+   "buy": [
+    "Quần áo nữ và nam theo mùa",
+    "Giày, túi và phụ kiện",
+    "Đồ ngủ, đồ mặc nhà"
+   ],
+   "advice": "GU cũng là điểm tax-free nhưng tính riêng với UNIQLO: mức ¥5.000 chưa thuế áp dụng cho từng cửa hàng trong một ngày. Hoàn thuế nhận ở hải quan sân bay khi xuất cảnh, nên để đồ trong hành lý xách tay đến lúc đó."
   }
  },
  "sh-yodobashi-akiba": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/02841f1b5cc4.webp",
+    "caption": "Tòa nhà Yodobashi Akiba (5/2015)",
+    "credit": "正和",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yodobashi-Akiba_2015.JPG"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/8376aa8e3b61.webp",
+    "caption": "Yodobashi Akiba về đêm (1/2024)",
+    "credit": "Matthide127",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:20240114_Yodobashi_Akiba_21.31.17.jpg"
+   }
+  ],
   "lat": 35.698784,
   "lng": 139.774725,
   "address": "東京都千代田区神田花岡町1-1",
   "hours": "9:30–22:00",
-  "why": "Trên đường Yamabe về hotel, mở đến 22h. Xem hàng điện tử, mỹ phẩm, đồ chơi; có Daiso tầng 1 trong tòa nhà.",
+  "why": "Yodobashi Akiba là tòa nhà 9 tầng nổi, 6 tầng hầm mở năm 2005; diện tích bán hàng khoảng 23.800 m², cửa hàng lớn thứ hai của Yodobashi sau Umeda. Tầng 1–6 là điện máy Yodobashi Camera, tầng 7 là các cửa hàng chuyên, tầng 8 là phố nhà hàng, tầng 9 có sân tập golf và đánh bóng chày.",
   "tips": "B1 và 7F: cửa hàng chuyên (9:30–22:00); 8F nhà hàng 11:00–23:00",
   "official": "https://www.yodobashi-akiba.com/information/access_map.html",
   "store": {
@@ -14153,16 +14385,42 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "resol-akihabara",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": "Trên đường Yamabe về hotel, mở đến 22h. Xem hàng điện tử, mỹ phẩm, đồ chơi; có Daiso tầng 7 trong tòa nhà.",
+   "buy": [
+    "Đồ điện tử, máy ảnh, đồ gia dụng ở 1–6F",
+    "Giày ở ABC-MART MEGA STAGE, 7F",
+    "Kính mắt, kính râm ở JINS, 7F",
+    "Túi, ví ở GRAN SAC'S, 7F",
+    "Đồ dùng giá rẻ ở DAISO, 7F"
+   ],
+   "advice": "Đồ điện bán cho thị trường Nhật thường chạy 100 V, phích dẹt: xem nhãn có ghi 100–240 V trước khi mua để dùng ở Việt Nam (220 V). Hỏi nhân viên về tax-free trước khi thanh toán."
   }
  },
  "sh-donki-akihabara": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/76fc7f13c02c.webp",
+    "caption": "Dãy Tsukumo, Don Quijote và Lammtarra ở Akihabara (6/2015)",
+    "credit": "Franklin Heijnen",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E3%83%84%E3%82%AF%E3%83%A2_%E3%83%89%E3%83%B3%E3%82%AD_%E3%83%A9%E3%83%A0%E3%82%BF%E3%83%A9_(18564961163).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/ef521b8ebbd0.webp",
+    "caption": "Tòa nhà Don Quijote Akihabara về đêm (11/2019)",
+    "credit": "Farrell010427",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Don_Quijote_Akiba_at_Night_-_2019.11.27.jpg"
+   }
+  ],
   "lat": 35.700717,
   "lng": 139.77189,
   "address": "東京都千代田区外神田4-3-3",
   "hours": "24 giờ, không nghỉ",
-  "why": "Mở 24h, tax-free; thuốc chỉ bán khi có dược sĩ trực. Hợp mua snack, mỹ phẩm sau 21h khi các cửa hàng khác đã đóng.",
+  "why": "Don Quijote Akihabara là cửa hàng giảm giá mở 24 giờ trong một tòa nhà nhiều tầng ở Sotokanda 4. Cùng tòa có quầy đổi tiền và tiệm figure ở 1F, quán cà phê hầu gái ở 5F, khu trò chơi ở 6–7F và nhà hát AKB48 ở 8F, nên đây cũng là một điểm văn hóa Akihabara.",
   "official": "https://www.donki.com/store/shop_detail.php?shop_id=98",
   "store": {
    "chain": "donki",
@@ -14172,15 +14430,33 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "resol-akihabara",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": "Mở 24h, tax-free; thuốc chỉ bán khi có dược sĩ trực. Hợp mua snack, mỹ phẩm sau 21h khi các cửa hàng khác đã đóng.",
+   "buy": [
+    "Snack và kẹo làm quà",
+    "Mỹ phẩm, đồ chăm sóc da",
+    "Thuốc không kê đơn",
+    "Figure ở tiệm おもちゃのMARURU, 1F",
+    "Đổi ngoại tệ ở Akihabara Money Exchange, 1F"
+   ],
+   "advice": "Trả được bằng thẻ tín dụng, UnionPay, Suica/PASMO và nhiều ví điện tử như Alipay, WeChat Pay, KakaoPay; trừ majica, ví điện tử chỉ dùng ở một số quầy. Tax-free theo kiểu hoàn thuế: mua từ ¥5.000 chưa thuế trong ngày, giữ đồ nguyên vẹn đến hải quan sân bay."
   }
  },
  "sh-matsukiyo-iwamotocho": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/40265080343c.webp",
+    "caption": "Lối ra A3 ga Iwamotochō, cách cửa hàng chưa tới 100 m (4/2019)",
+    "credit": "Nesnad",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Iwamotocho_station_exit_Apr_05_2019_12-31PM.jpeg"
+   }
+  ],
   "lat": 35.696203,
   "lng": 139.77506,
   "address": "東京都千代田区神田岩本町 (cạnh ga Iwamotochō)",
-  "why": "Drugstore gần nhất với hotel RESOL (khoảng 2 phút đi bộ). Nếu đã đóng thì dùng Don Quijote Akihabara 24h.",
+  "why": "Cửa hàng của chuỗi drugstore Matsumoto Kiyoshi ở tầng 1 tòa Iwamotochō (岩本町ビル), Kanda-Iwamotochō 1, sát ga Iwamotochō tuyến Toei Shinjuku. Ngoài thuốc không kê đơn, mỹ phẩm và đồ dùng hằng ngày còn có quầy thuốc kê đơn (調剤).",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ",
   "store": {
    "chain": "drugstore",
@@ -14190,16 +14466,33 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "resol-akihabara",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": "Drugstore gần nhất với hotel RESOL (khoảng 2 phút đi bộ). Nếu đã đóng thì dùng Don Quijote Akihabara 24h.",
+   "buy": [
+    "Thuốc không kê đơn: dạ dày, cảm, giảm đau",
+    "Kem chống nắng và mỹ phẩm Nhật",
+    "Hàng nhãn riêng matsukiyo",
+    "Mặt nạ giấy, đồ chăm sóc da"
+   ],
+   "advice": "Mở khoảng 10:00–22:00 hằng ngày; quầy thuốc kê đơn nhận đơn thứ Hai–Sáu 10:00–19:00, thứ Bảy 10:00–13:30, không nhận Chủ nhật và ngày lễ. Hỏi quầy về tax-free trước khi mua nhiều."
   }
  },
  "sh-daiso-yodobashi-akiba": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/5ebd62133a4e.webp",
+    "caption": "Tòa nhà Yodobashi Akiba, nơi có DAISO ở tầng 7 (6/2015)",
+    "credit": "Cheng-en Cheng",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yodobashi-Akiba_20150628.jpg"
+   }
+  ],
   "lat": 35.698925,
   "lng": 139.774765,
-  "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 1F",
+  "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 7F",
   "hours": "9:30–22:00",
-  "why": "Daiso duy nhất sát tuyến ở Akihabara, nằm trong Yodobashi nên cùng giờ 9:30–22:00. Mua đồ nhỏ như túi zip, hộp đựng, móc treo.",
+  "why": "DAISO là chuỗi đồ gia dụng giá rẻ của Nhật, phần lớn hàng bán đồng giá. Cửa hàng này nằm trong khu cửa hàng chuyên của Yodobashi Akiba, cùng tầng với UNIQLO, ABC-MART và JINS, nên tiện ghé chung một lượt.",
   "official": "https://www.yodobashi-akiba.com/information/access_map.html",
   "store": {
    "chain": "daiso",
@@ -14209,16 +14502,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "resol-akihabara",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": "Daiso duy nhất sát tuyến ở Akihabara, nằm trong Yodobashi nên cùng giờ 9:30–22:00. Mua đồ nhỏ như túi zip, hộp đựng, móc treo.",
+   "buy": [
+    "Túi zip, hộp đựng, túi nén quần áo cho vali",
+    "Chai, hộp chiết mỹ phẩm đi du lịch",
+    "Văn phòng phẩm, sổ nhỏ",
+    "Đồ bếp nhỏ, hộp cơm"
+   ],
+   "advice": "DAISO ở tầng 7 (khu cửa hàng chuyên); đi thang máy hoặc thang cuốn lên 7F. Cùng tầng có UNIQLO và ABC-MART nếu cần thêm quần áo, giày."
   }
  },
  "sh-hands-be-atre-akiba": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/6f10ef20350e.webp",
+    "caption": "Tòa nhà ga atre Akihabara 1; Hands Be ở tầng 2 (12/2012)",
+    "credit": "ITA-ATU",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Atre_Akihabara.jpg"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/c98ca851f29f.webp",
+    "caption": "Cửa soát vé JR Akihabara phía atre 1 (6/2019)",
+    "credit": "Mister0124",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:JR_Akihabara_Station_Atre_1_Gates.jpg"
+   }
+  ],
   "lat": 35.698326,
   "lng": 139.772479,
   "address": "東京都千代田区外神田1-17-6 アトレ秋葉原1 2F",
   "hours": "10:00–21:00",
-  "why": "Hands cỡ nhỏ ngay ga Akihabara, đóng 21h. Tối ngày 2 ghé nhanh mua văn phòng phẩm nếu không kịp Maruzen.",
+  "why": "Hands Be là dạng cửa hàng nhỏ của chuỗi Hands (trước đây là Tokyu Hands), bán chọn lọc đồ làm đẹp, chăm sóc sức khỏe, văn phòng phẩm và đồ tiện ích. Cửa hàng hay có góc giới thiệu món nhân viên chọn theo mùa, như kem dưỡng thể, máy tạo ẩm mini, mặt nạ giấy.",
   "tips": "2F, nối thẳng ga JR Akihabara; nhóm làm đẹp, bếp, văn phòng phẩm, DIY",
   "official": "https://be.hands.net/be_akihabara/",
   "store": {
@@ -14229,15 +14547,49 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "resol-akihabara",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": "Hands cỡ nhỏ ngay ga Akihabara, đóng 21h. Tối ngày 2 ghé nhanh mua văn phòng phẩm nếu không kịp Maruzen.",
+   "buy": [
+    "Mỹ phẩm, đồ chăm sóc da và sức khỏe",
+    "Văn phòng phẩm, bút, sổ",
+    "Hộp cơm và đồ bếp nhỏ",
+    "Túi, ví, đồ du lịch",
+    "Mặt nạ giấy, kem dưỡng thể theo mùa"
+   ],
+   "advice": "Trả được bằng thẻ tín dụng, thẻ IC giao thông, UnionPay, PayPay, Alipay, WeChat Pay và nhiều ví khác. Có tax-free: mua từ ¥5.000 chưa thuế trong ngày, trả giá có thuế rồi nhận hoàn ở hải quan sân bay."
   }
  },
  "sh-nakamise": {
-  "images": [],
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/e5d2a4183bfb.webp",
+    "caption": "Phố Nakamise ở Asakusa (9/2018)",
+    "credit": "Christophe95",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nakamise_in_Asakusa,_Tokyo.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/b8bf124f6db4.webp",
+    "caption": "Phố Nakamise (12/2021)",
+    "credit": "Asturio Cantabrio",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Asakusa_Nakamise_2021-12_ac.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/fb0a42aa290d.webp",
+    "caption": "Phố Nakamise (4/2025)",
+    "credit": "Olaf2",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nakamise-Stra%C3%9Fe.jpg"
+   }
+  ],
   "lat": 35.71252,
   "lng": 139.796517,
   "address": "東京都台東区浅草1丁目",
-  "why": "Đi qua trên đường vào Sensō-ji, mua quà nhỏ và omamori; giờ do từng quán quyết định nên đến trước 17h cho chắc.",
+  "why": "Nakamise là phố hàng trên đường vào chùa Sensō-ji, dài khoảng 250 m với 87 cửa hàng (52 bên đông, 35 bên tây). Phố hình thành khoảng thời Genroku–Kyōhō (1688–1735), khi cư dân lo quét dọn chùa được cấp quyền bày hàng trên đường vào chùa. Đoạn từ Kaminarimon đến chùa không có xe chạy, hai bên bán bánh, đồ chơi, đồ thủ công và phụ kiện kimono.",
   "tips": "Đồ ăn, quà lưu niệm, đồ chơi, đồ thủ công, phụ kiện kimono",
   "official": "https://www.asakusa-nakamise.jp/",
   "store": {
@@ -14248,15 +14600,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "sensoji",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": "Đi qua trên đường vào Sensō-ji, mua quà nhỏ và omamori; giờ do từng quán quyết định nên đến trước 17h cho chắc.",
+   "buy": [
+    "Ningyo-yaki (bánh nướng nhân đậu) ở Kimuraya Honten",
+    "Age-manju (bánh bao chiên) ở Asakusa Kokonoe",
+    "Kem kẹp vỏ monaka ở Asakusa Chōchin Monaka",
+    "Quạt sensu, trâm kanzashi, đai obi",
+    "Đồ chơi và đồ thủ công truyền thống"
+   ],
+   "advice": "Khu Nakamise không ăn khi đang đi; mua đồ ăn thì đứng ăn ngay trước quầy. Phần lớn cửa hàng nhận thẻ tín dụng lớn và ngày càng nhiều tiệm nhận UnionPay."
   }
  },
  "sh-shimamura-asakusa": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/faf5cdb91c08.webp",
+    "caption": "Lối vào phía đông phố mái che Shin-Nakamise (9/2015)",
+    "credit": "そらみみ (Soramimi)",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:East_entrance_of_Shin-Nakamise_Shopping_Area.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/3e449161f567.webp",
+    "caption": "Phố mái che Shin-Nakamise ở Asakusa (5/2017)",
+    "credit": "Celuici",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Covered_mall,_Asakusa,_May_2017.jpg"
+   }
+  ],
   "lat": 35.712603,
   "lng": 139.793402,
   "address": "東京都台東区浅草1丁目 (đường Shin-Nakamise)",
-  "why": "Cửa hàng Shimamura duy nhất tìm được sát tuyến, cách Owariya chừng 200 m. Áo quần cơ bản mua UNIQLO và GU ngày 1 chắc hơn.",
+  "why": "Shimamura (ファッションセンターしまむら) là chuỗi quần áo giá thấp với hơn 1.400 cửa hàng (2019), phần lớn ở ven đô. Khác UNIQLO, hãng nhập hàng từ nhiều nhà sản xuất thay vì tự sản xuất. Chi nhánh này nằm trên phố có mái che Shin-Nakamise, gần Nakamise.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=しまむら 浅草",
   "store": {
    "chain": "shimamura",
@@ -14266,16 +14644,48 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "owariya",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": "Cửa hàng Shimamura duy nhất tìm được sát tuyến, cách Owariya chừng 200 m. Áo quần cơ bản mua UNIQLO và GU ngày 1 chắc hơn.",
+   "buy": [
+    "Quần áo nam nữ giá thấp",
+    "Đồ hợp tác với nhân vật anime, game",
+    "Tất, đồ lót và đồ dùng lặt vặt"
+   ],
+   "advice": "Xem giờ mở trên trang tìm cửa hàng của Shimamura trước khi đi; nếu định gom đủ ¥5.000, hỏi quầy về tax-free."
   }
  },
  "sh-kappabashi": {
-  "images": [],
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/8ecfa78e29b5.webp",
+    "caption": "Đầu phía nam phố Kappabashi, một buổi sáng nắng (6/2019)",
+    "credit": "Basile Morin",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kappabashi-dori_streetcorner_(Kitchen_town_-_southern_end)_a_sunny_morning_in_Tokyo_Japan.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/2e5198a136e7.webp",
+    "caption": "Đũa bán theo bó trên phố Kappabashi (6/2014)",
+    "credit": "Steven-L-Johnson",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Chopsticks_for_sale_in_bulk_(14163826889).jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/8d1836365daf.webp",
+    "caption": "Mẫu bia bằng nhựa ở một cửa hàng mẫu thức ăn tại Kappabashi",
+    "credit": "Maarten Heerlien",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Plastic_beer_(9412114132).jpg"
+   }
+  ],
   "lat": 35.714251,
   "lng": 139.788889,
   "address": "東京都台東区松が谷3-18-2 (hiệp hội phố)",
   "hours": "10:00–17:00 (giờ từng cửa hàng khác nhau)",
-  "why": "Phố đồ bếp, đi bộ 5 phút từ ga Tawaramachi (Ginza Line, cùng tuyến về Nihonbashi). Đồ nặng, dễ vỡ thì để dành Dōguyasuji ngày 11.",
+  "why": "Kappabashi Dōgugai là phố đồ nghề cho ngành ăn uống với khoảng 160 cửa hàng, tự gọi là “phố của dân chuyên nghiệp phục vụ dân chuyên nghiệp”. Bán dao Nhật, bát đĩa, đồ sơn mài, bếp chuyên dụng, mẫu thức ăn bằng nhựa và cả quà vui như nam châm hình sushi. Gần như tiệm nào cũng bán lẻ cho khách thường.",
   "tips": "Khoảng 160 cửa hàng: dao, gốm, sơn mài, dụng cụ bếp, mẫu thức ăn nhựa",
   "official": "https://www.gotokyo.org/jp/spot/59/index.html",
   "store": {
@@ -14286,16 +14696,42 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "sensoji",
-   "walkMin": 12
+   "walkMin": 12,
+   "plan": "Phố đồ bếp, đi bộ 5 phút từ ga Tawaramachi (Ginza Line, cùng tuyến về Nihonbashi). Đồ nặng, dễ vỡ thì để dành Dōguyasuji ngày 11.",
+   "buy": [
+    "Dao bếp Nhật ở các tiệm dao như かまた刃研社",
+    "Mẫu thức ăn nhựa, nam châm và ốp điện thoại hình món ăn",
+    "Đồ sơn mài (漆器)",
+    "Gốm sứ, bát đĩa giá phải chăng",
+    "Đũa bán theo bó"
+   ],
+   "advice": "Khoảng 70% cửa hàng nghỉ Chủ nhật và ngày lễ; ngày 2 là thứ Ba nên đa số mở. Dao mua về phải để trong hành lý ký gửi, không mang lên khoang máy bay."
   }
  },
  "sh-maruzen-nihonbashi": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/79a020a2095d.webp",
+    "caption": "Tòa nhà Nihonbashi Maruzen Tokyu, nơi có Maruzen Nihonbashi (3/2026)",
+    "credit": "Asanagi",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nihonbashi_Maruzen_Tokyu_Building_2026-03-15.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/98834b2302cb.webp",
+    "caption": "Cơm hayashi và cơm cà ri ở MARUZEN café, Maruzen Nihonbashi (12/2023)",
+    "credit": "ウィキ太郎",
+    "license": "Public domain (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hayashi_rice_and_curry_rice_in_Tokyo_2023-12-30.jpg"
+   }
+  ],
   "lat": 35.681128,
   "lng": 139.77252,
   "address": "東京都中央区日本橋2-3-10",
   "hours": "9:30–20:30",
-  "why": "Hiệu sách và văn phòng phẩm, ngay cạnh ga Nihonbashi. Hợp mua sổ, bút, đồ viết trước bữa tối ở Tamai; đóng 20:30 nên không gấp.",
+  "why": "Maruzen Nihonbashi là hiệu sách nhiều tầng trong tòa Nihonbashi Maruzen Tokyu, nối thẳng lối B3 ga Nihonbashi (Ginza Line, Tōzai Line). Bán sách tiếng Nhật, sách ngoại văn, truyện tranh, văn phòng phẩm và kính mắt; tầng 3 có Maruzen Cafe và phòng tranh. Quán có món hayashi rice, món được cho là mang tên người sáng lập Maruzen, Hayashi Yūteki (早矢仕有的).",
   "official": "https://tokubai.co.jp/prefectures/13/loconavi_spots/720/book_store",
   "store": {
    "chain": "other",
@@ -14305,16 +14741,50 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "maruzen-nihonbashi",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": "Hiệu sách và văn phòng phẩm, ngay cạnh ga Nihonbashi. Hợp mua sổ, bút, đồ viết trước bữa tối ở Tamai; đóng 20:30 nên không gấp.",
+   "buy": [
+    "Bút máy Nhật và nước ngoài ở B1",
+    "Sổ, văn phòng phẩm ở B1",
+    "Sách ngoại văn (洋書)",
+    "Đồng hồ ở quầy tầng 1",
+    "Hayashi rice ở Maruzen Cafe tầng 3"
+   ],
+   "advice": "Đi lối B3 ga Nihonbashi để vào thẳng tòa nhà; chỉ mua bút, sổ thì xuống thẳng B1. Quầy đồng hồ tầng 1 có giờ riêng 11:00–19:00, đóng sớm hơn cửa hàng."
   }
  },
  "sh-coredo-muromachi": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/7d98f79b51d7.webp",
+    "caption": "Tòa nhà COREDO Muromachi 1 ở Nihonbashi (2014)",
+    "credit": "Kentin",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Coredo_muromachi_nihonbashi_tokyo_2014.jpg"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/d998f640c8ca.webp",
+    "caption": "Tầng 2 bên trong COREDO Muromachi 1 (5/2015)",
+    "credit": "Wpcpey",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Coredo_Muromachi_1_Level_2_2015.jpg"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/e56553f23089.webp",
+    "caption": "Tầng 1 bên trong COREDO Muromachi 3 (5/2015)",
+    "credit": "Wpcpey",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Coredo_Muromachi_3_Level_1_2015.jpg"
+   }
+  ],
   "lat": 35.686681,
   "lng": 139.774207,
   "address": "東京都中央区日本橋室町2-2-1 (COREDO Muromachi 2: 室町2-3-1, 3: 室町1-5-5, Terrace: 室町3-2-1)",
   "hours": "Cửa hàng ngày thường 11:00–20:00, cuối tuần 10:00–20:00; nhà hàng 11:00–23:00",
-  "why": "Cụm trung tâm thương mại ở Nihonbashi. Có sẵn cửa hàng Nakagawa Masashichi để xem giá khăn kaya fukin trước khi mua ở Nara.",
+  "why": "COREDO Muromachi là cụm bốn tòa (1, 2, 3 và Terrace) ở Nihonbashi Muromachi. COREDO Muromachi 1 lấy ý tưởng tái hiện cảnh nhộn nhịp thời Edo, gom tiệm lâu đời lẫn kiểu mới, tầng 5–6 là hội trường Nihonbashi Mitsui Hall. Tòa 2 có rạp TOHO Cinemas Nihonbashi, tòa 3 xoay quanh đồ ăn và đồ dùng gia đình, Terrace có hiệu sách Eslite Spectrum (誠品生活日本橋).",
   "tips": "Có Nakagawa Masashichi, Kayanoya, Nōsaku, United Arrows, Urban Research",
   "official": "https://mitsui-shopping-park.com/urban/muromachi/",
   "store": {
@@ -14325,16 +14795,42 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "tamai",
-   "walkMin": 10
+   "walkMin": 10,
+   "plan": "Cụm trung tâm thương mại ở Nihonbashi. Có sẵn cửa hàng Nakagawa Masashichi để xem giá khăn kaya fukin trước khi mua ở Nara.",
+   "buy": [
+    "Đồ thủ công, khăn kaya fukin ở 中川政七商店",
+    "Dashi túi lọc ở 茅乃舎 (Kayanoya)",
+    "Katsuobushi, dashi ở にんべん 日本橋本店 (Ninben)",
+    "Dao, đồ bếp ở 日本橋 木屋 (Kiya)",
+    "Đồ thiếc, đồ đồng của 能作 (Nōsaku)"
+   ],
+   "advice": "Tầng 1 COREDO Muromachi 1 mở sớm hơn các tầng khác, từ 10:30. Một số nhà hàng có thực đơn tiếng Anh, Hàn và Trung."
   }
  },
  "sh-mitsukoshi-nihonbashi": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/03dd4b3bd72d.webp",
+    "caption": "Nihombashi Mitsukoshi Honten ở Nihonbashi Muromachi (5/2019)",
+    "credit": "Lombroso",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nihonbashi_Mitsukoshi,_at_Nihonbashi-Muromachi,_Chuo,_Tokyo_(2019-05-01).jpg"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/3f55eafb8b36.webp",
+    "caption": "Tầng 1 Mitsukoshi Nihonbashi sau khi cải tạo (12/2019)",
+    "credit": "Wpcpey",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mitsukoshi_Nihonbashi_Level_1_after_renovation_201912.JPG"
+   }
+  ],
   "lat": 35.685633,
   "lng": 139.773435,
   "address": "東京都中央区日本橋室町1-4-1",
   "hours": "10:00–19:00 (Tokyo tourism); ngày nghỉ bất thường",
-  "why": "Đóng 19:00 nên phải ghé trước bữa tối ở Tamai, không ghé sau. Tokyo chỉ xem và ăn thử; quà hạn dài mua ở Kyoto và Osaka.",
+  "why": "Mitsukoshi bắt đầu từ tiệm vải kimono Echigoya mở năm 1673 và được coi là bách hóa lâu đời nhất Nhật Bản. Tòa bản quán (本館) hiện nay hoàn thành đợt mở rộng năm 1935 theo phong cách cổ điển phương Tây, là Di sản văn hóa quan trọng quốc gia từ năm 2016. Sảnh trung tâm tầng 1 cao năm tầng, trần kính màu, cột và sàn đá cẩm thạch; tượng Tennyo (“Magokoro”) đứng giữa cầu thang lớn lên tầng 2.",
   "tips": "B1: khu thực phẩm",
   "official": "https://www.gotokyo.org/jp/spot/82/index.html",
   "store": {
@@ -14345,16 +14841,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "tamai",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": "Đóng 19:00 nên phải ghé trước bữa tối ở Tamai, không ghé sau. Tokyo chỉ xem và ăn thử; quà hạn dài mua ở Kyoto và Osaka.",
+   "buy": [
+    "Đồ ăn sẵn và thực phẩm tươi ở B1 bản quán và tân quán",
+    "Bánh Nhật, bánh Tây theo mùa ở B1",
+    "Bánh danh tiếng lâu đời (銘菓) ở B1",
+    "Kimono, yukata"
+   ],
+   "advice": "Ga Mitsukoshimae (Ginza Line, Hanzōmon Line) cách 1 phút đi bộ. Xem sảnh trung tâm tầng 1 bản quán trước rồi xuống B1; khu thực phẩm chia ở cả bản quán và tân quán."
   }
  },
  "sh-uniqlo-shinjuku-honten": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/de34ee123cac.webp",
+    "caption": "Tòa nhà Bicqlo ở Shinjuku lúc hoàng hôn (2015), nay có UNIQLO Shinjuku Honten ở 1–3F",
+    "credit": "Nesnad",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Bicqlo-sunset-july18-2015.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/190bc74c6214.webp",
+    "caption": "Tòa nhà Bicqlo ở Shinjuku (5/2022), nay là Bic Camera và UNIQLO Shinjuku Honten",
+    "credit": "Syced",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Bicqlo.jpg"
+   }
+  ],
   "lat": 35.69138,
   "lng": 139.703007,
   "address": "東京都新宿区新宿3-29-1 MI新宿ビル 1–3F",
   "hours": "10:00–22:00",
-  "why": "Mở 10h, sớm hơn UNIQLO Harajuku (11h), nên lấp được khoảng chờ 9:20–11:00 trước bữa sushi ở Shinjuku.",
+  "why": "Cửa hàng flagship toàn cầu của UNIQLO, mở ngày 25/10/2024 ở 1–3F tòa nhà từng là Bicqlo (đóng cửa 6/2022), diện tích bán hàng khoảng 1.200 tsubo. 1F bày hàng nam nữ theo mùa, có quầy hoa UNIQLO FLOWER ở lối vào; 2F là đồ nữ cùng PLST, Comptoir des Cotonniers và quán UNIQLO COFFEE. 3F có xưởng sửa đồ RE.UNIQLO STUDIO, dịch vụ in áo UTme! và áo phông hợp tác với tám công ty gốc Shinjuku.",
   "tips": "1–3F; cùng địa chỉ với Bic Camera Shinjuku East, GU ở 7F Bic Camera",
   "official": "https://map.uniqlo.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%96%B0%E5%AE%BF",
   "store": {
@@ -14365,16 +14886,42 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "sushi-ten",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": "Mở 10h, sớm hơn UNIQLO Harajuku (11h), nên lấp được khoảng chờ 9:20–11:00 trước bữa sushi ở Shinjuku.",
+   "buy": [
+    "Áo UT hợp tác với Nissin, Sekaido, Nakamuraya, Suehirotei, Takano (3F)",
+    "In áo phông, túi tote theo ý mình ở UTme!, 3F",
+    "Áo khoác bộ sưu tập Âu–Mỹ (欧米特別コレクション), chỉ bán tại cửa hàng này",
+    "Sửa, chỉnh, làm lại đồ UNIQLO ở RE.UNIQLO STUDIO, 3F",
+    "Đồ ngọt của Oiwake Dango và Shinjuku Nakamuraya ở UNIQLO COFFEE, 2F"
+   ],
+   "advice": "Áo hợp tác và UTme! đều ở 3F, nên lên thẳng tầng này nếu ít thời gian. Nếu định làm tax-free (đơn từ ¥5.000 trước thuế), hỏi quầy thu ngân trước và mang hộ chiếu."
   }
  },
  "sh-bic-shinjuku-east": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/190bc74c6214.webp",
+    "caption": "Tòa nhà Bicqlo ở Shinjuku (5/2022), nay là Bic Camera và UNIQLO Shinjuku Honten",
+    "credit": "Syced",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Bicqlo.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/df2fa93e44d3.webp",
+    "caption": "Tòa Bicqlo ở Shinjuku năm 2012, nay là Bic Camera Shinjuku East Exit",
+    "credit": "Nesnad",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Bikkuroshop-shinjuku2012.jpg"
+   }
+  ],
   "lat": 35.691304,
   "lng": 139.702974,
   "address": "東京都新宿区新宿3-29-1",
   "hours": "10:00–22:00",
-  "why": "Hàng điện tử, mỹ phẩm, thuốc; có GU 7F cùng tòa nhà nên một lần dừng thử được cả UNIQLO và GU. Giờ riêng của Bic Camera cần xem lại trước chuyến đi.",
+  "why": "Chi nhánh Bic Camera ở Shinjuku 3-29-1, gần lối ra phía đông ga Shinjuku. Từ 2012 đến 19/6/2022 tòa nhà là Bicqlo, cửa hàng chung của Bic Camera và UNIQLO; sau đó trở lại thành Bic Camera, còn UNIQLO mở cửa hàng riêng ở 1–3F từ 10/2024. Ngoài điện tử và máy ảnh, chuỗi Bic Camera còn bán rượu, đồ chơi, đồ golf, chăn gối và hàng hiệu.",
   "tips": "GU ở 7F (10:00–22:00)",
   "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%96%B0%E5%AE%BF",
   "store": {
@@ -14385,16 +14932,40 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "sushi-ten",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": "Hàng điện tử, mỹ phẩm, thuốc; có GU 7F cùng tòa nhà nên một lần dừng thử được cả UNIQLO và GU. Giờ riêng của Bic Camera cần xem lại trước chuyến đi.",
+   "buy": [
+    "Máy ảnh, ống kính, thẻ nhớ và phụ kiện điện thoại",
+    "Đồ điện gia dụng nhỏ và đồ chơi (6F)",
+    "Quần áo GU ở 7F cùng tòa nhà"
+   ],
+   "advice": "Hỏi quầy thông tin để biết tầng của từng nhóm hàng. Bic Camera làm tax-free: đơn từ ¥5.000 (trước thuế) trong ngày, cần hộ chiếu; từ 1/11/2026 trả đủ thuế, tiền thuế hoàn lại sau khi hải quan xác nhận lúc xuất cảnh."
   }
  },
  "sh-uniqlo-harajuku": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/6d39c1000df7.webp",
+    "caption": "WITH HARAJUKU nhìn từ ga Harajuku (6/2020)",
+    "credit": "Real Estate Japan",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:View_of_with_Harajuku_shopping_complex_from_Harajuku_Station_(50064735746).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/889975014419.webp",
+    "caption": "Tòa WITH HARAJUKU, nơi có UNIQLO Harajuku ở B1–1F (5/2023)",
+    "credit": "Dick Thomas Johnson",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:WITH_HARAJUKU_(53132015533).jpg"
+   }
+  ],
   "lat": 35.670694,
   "lng": 139.703039,
   "address": "東京都渋谷区神宮前1-14-30 ウィズ原宿 B1–1F",
   "hours": "11:00–21:00",
-  "why": "Ngay cạnh ga Harajuku, trên đường ra khỏi Meiji Jingū. Mở 11h, đúng để mua AIRism ngày 3 nếu chưa mua ở Okachimachi.",
+  "why": "UNIQLO trở lại Harajuku ngày 5/6/2020, khoảng 8 năm sau khi cửa hàng cũ (mở năm 1998) đóng cửa năm 2012. Cửa hàng chiếm 1F (khoảng 264 m²) và B1 (khoảng 1.650 m²) của WITH HARAJUKU, tòa nhà do văn phòng Toyo Ito thiết kế, có lối đi lát gỗ tuyết tùng Tama nối phía Omotesandō với phố Takeshita. Lúc khai trương, cửa hàng có khu StyleHint với 240 màn hình gợi ý cách phối đồ và khu áo UT ở 1F.",
   "tips": "B1 và 1F trong tòa WITH HARAJUKU (tòa mở 7:30–23:30, cửa hàng mở 11:00)",
   "official": "https://withharajuku.jp/",
   "store": {
@@ -14405,7 +14976,14 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "meiji-jingu",
-   "walkMin": 12
+   "walkMin": 12,
+   "plan": "Ngay cạnh ga Harajuku, trên đường ra khỏi Meiji Jingū. Mở 11h, đúng để mua AIRism ngày 3 nếu chưa mua ở Okachimachi.",
+   "buy": [
+    "Áo phông UT hợp tác nghệ sĩ, thương hiệu ở khu UT POP OUT, 1F",
+    "Áo AIRism và đồ cơ bản cho những ngày còn nóng",
+    "Trà matcha ở MACCHA HOUSE, 2F cùng tòa nhà"
+   ],
+   "advice": "Ngày thường mở 11:00, thứ Bảy và Chủ nhật mở sớm hơn từ 10:30, đều đóng 21:00. Lối đi gỗ xuyên tòa nhà ra thẳng phố Takeshita, nên có thể ghé UNIQLO trên đường từ ga sang Takeshita."
   }
  },
  "sh-3coins-harajuku": {
@@ -14414,7 +14992,7 @@ export const DETAILS: Record<string, Detail> = {
   "lng": 139.704508,
   "address": "東京都渋谷区神宮前6-12-22 秋田ビル 1F",
   "hours": "11:00–20:00",
-  "why": "Cửa hàng đầu tiên và lớn nhất của 3COINS, gần Cat Street. Đồ gia dụng nhỏ, nhẹ, hợp bỏ vào vali.",
+  "why": "Flagship của 3COINS, khai trương ngày 10/11/2021. Nội thất do SUPPOSE DESIGN OFFICE thiết kế theo ý tưởng nhà kho, trộn kệ công nghiệp có sẵn với vật liệu giả công trình mới. Ngoài đồ gia dụng thường thấy, cửa hàng bày thêm dòng hàng của 3COINS+plus và vài món chỉ bán ở đây.",
   "tips": "1F; lớn hơn 3COINS+plus thông thường, có hàng chỉ bán ở cửa hàng này",
   "official": "https://www.3coins.jp/harajuku/",
   "store": {
@@ -14425,15 +15003,39 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "omotesando",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": "Cửa hàng đầu tiên và lớn nhất của 3COINS, gần Cat Street. Đồ gia dụng nhỏ, nhẹ, hợp bỏ vào vali.",
+   "buy": [
+    "Túi tote chỉ bán ở Harajuku Honten, do Tamotsu Shimada thiết kế",
+    "Bia lon, sake, umeshu GOOD MOOD CHEERS nhãn do họa sĩ vẽ, ¥330 hoặc ¥550",
+    "Đồ gia dụng, đồ bếp nhỏ thuộc dòng 3COINS+plus"
+   ],
+   "advice": "Mang theo ít tiền mặt phòng khi thẻ nước ngoài không dùng được."
   }
  },
  "sh-cat-street": {
-  "images": [],
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/5744108c4b3f.webp",
+    "caption": "Cat Street ban ngày",
+    "credit": "Aw1805",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Cat_Street,_Ura_Harajuku_1.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/25f6524a76ec.webp",
+    "caption": "Cat Street buổi tối",
+    "credit": "Rs1421",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Harajuku-Cat-street-05.jpg"
+   }
+  ],
   "lat": 35.665862,
   "lng": 139.705148,
   "address": "東京都渋谷区神宮前5–6丁目",
-  "why": "Đường nhỏ từ Omotesandō xuống Shibuya, các cửa hàng thời trang và vintage nhỏ, giờ mỗi tiệm một khác. Đi theo hướng này để từ Omotesandō sang Shibuya trước 17:30.",
+  "why": "Tên chính thức là Kyu-Shibuya-gawa Yūhodōro (đường đi bộ sông Shibuya cũ), làm trên đoạn suối được chuyển xuống ngầm năm 1964 khi chuẩn bị Olympic Tokyo. Đường dài khoảng 1,25 km, cắt ngang Omotesandō ở chỗ cửa hàng Ralph Lauren và GYRE rồi kết thúc ở ngã tư Miyashita-kōen. Không khí thong thả hơn hẳn phố Takeshita, hai bên là đồ hiệu Nhật, đồ thể thao, đồ cũ và quán ăn.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=キャットストリート",
   "store": {
    "chain": "street",
@@ -14443,16 +15045,32 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "omotesando",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": "Đường nhỏ từ Omotesandō xuống Shibuya, các cửa hàng thời trang và vintage nhỏ, giờ mỗi tiệm một khác. Đi theo hướng này để từ Omotesandō sang Shibuya trước 17:30.",
+   "buy": [
+    "Đồ thiết kế Nhật đã qua sử dụng (Comme des Garçons, Issey Miyake) ở RAGTAG",
+    "Thương hiệu Nhật BEAMS và United Arrows",
+    "Cửa hàng Nike và adidas dọc đường"
+   ],
+   "advice": "Đi theo hướng từ Omotesandō xuống Shibuya; đường kết thúc ở ngã tư Miyashita-kōen, cạnh Miyashita Park, từ đó đi tiếp vài phút là tới ga Shibuya."
   }
  },
  "sh-gu-shibuya": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/5de4a6f7d0be.webp",
+    "caption": "Phố Center-gai ban ngày, nơi có GU Shibuya (1/2025)",
+    "credit": "ウィ貴公子",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E6%B8%8B%E8%B0%B7%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%E8%A1%97_2025%E5%B9%B41%E6%9C%8812%E6%97%A5%E3%81%AE%E6%B8%8B%E8%B0%B7_202501121409_IMG_0353.jpg"
+   }
+  ],
   "lat": 35.660969,
   "lng": 139.697539,
   "address": "東京都渋谷区宇田川町32-13 B1–3F",
   "hours": "11:00–22:00",
-  "why": "GU lớn ở Shibuya, mở đến 22h nên vừa ghé chiều vừa ghé sau bữa tối ở Toritake. Gần Shibuya Loft và MEGA Donki.",
+  "why": "Flagship thứ tư của GU sau Shinsaibashi, Ginza và Ikebukuro East, khai trương tháng 3/2019 trên nền cửa hàng BOOKOFF Shibuya Center-gai cũ. Cửa hàng có bốn tầng B1–3F, diện tích bán hàng khoảng 1.719 m², tập trung đồ thời trang theo mùa giá rẻ.",
   "tips": "B1–3F",
   "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E6%B8%8B%E8%B0%B7",
   "store": {
@@ -14463,16 +15081,32 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "toritake",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": "GU lớn ở Shibuya, mở đến 22h nên vừa ghé chiều vừa ghé sau bữa tối ở Toritake. Gần Shibuya Loft và MEGA Donki.",
+   "buy": [
+    "Quần áo theo xu hướng mùa của GU cho nam và nữ",
+    "Đồ mặc nhà, đồ ngủ",
+    "Giày, túi và phụ kiện"
+   ],
+   "advice": "Cửa hàng nằm trên Center-gai, có thể gộp với ABC-MART và MEGA Donki trong một vòng đi bộ. Nếu đơn từ ¥5.000 (trước thuế), hỏi quầy thu ngân về tax-free và mang hộ chiếu."
   }
  },
  "sh-shibuya-loft": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/8c412fb02df9.webp",
+    "caption": "Mặt tiền Shibuya Loft ở Udagawachō (9/2011)",
+    "credit": "Rs1421",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shibuya-Loft.jpg"
+   }
+  ],
   "lat": 35.660924,
   "lng": 139.699574,
   "address": "東京都渋谷区宇田川町18-2",
   "hours": "11:00–21:00 (thủ tục tax-free đến 20:30)",
-  "why": "Loft lớn nhất khu Shibuya, có tester mỹ phẩm (CANMAKE) và văn phòng phẩm. Trang cửa hàng báo ngày 31/10/2026 đóng sớm 19:00 vì Halloween; ngày 20/10/2027 xem lại.",
+  "why": "Loft ra đời năm 1987 ở Shibuya, khi đó là một bộ phận của bách hóa Seibu. Cửa hàng Shibuya có 7 tầng từ B1 đến 6F với khoảng 80.000 mặt hàng: văn phòng phẩm, đồng hồ, phụ kiện, mỹ phẩm, đồ chăm sóc sức khỏe, đồ bếp, nội thất và hàng nhân vật. Có cả đồ kiểu Nhật như bưu thiếp, khăn tenugui, búp bê daruma để làm quà.",
   "official": "https://www.loft.co.jp/shop_list/detail.php?shop_id=189",
   "store": {
    "chain": "loft",
@@ -14482,16 +15116,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "toritake",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": "Loft lớn nhất khu Shibuya, có tester mỹ phẩm (CANMAKE) và văn phòng phẩm. Trang cửa hàng báo ngày 31/10/2026 đóng sớm 19:00 vì Halloween; ngày 20/10/2027 xem lại.",
+   "buy": [
+    "Văn phòng phẩm Nhật: bút, sổ, sticker",
+    "Mỹ phẩm, đồ chăm sóc da và tóc của hãng Nhật",
+    "Bưu thiếp, khăn tenugui, daruma làm quà nhỏ",
+    "Hàng nhân vật và đồ bếp"
+   ],
+   "advice": "Thủ tục hoàn thuế cùng giờ mở cửa, cần hộ chiếu và đơn từ ¥5.000 (trước thuế) trong ngày. GO TOKYO ghi nhận thẻ tín dụng lớn, Alipay, UnionPay; trang cửa hàng liệt kê thêm WeChat Pay, PayPay và nhiều ví QR."
   }
  },
  "sh-shibuya-parco": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/89b473d95a9d.webp",
+    "caption": "Shibuya PARCO (12/2019)",
+    "credit": "江戸村のとくぞう",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shibuya_Parco_191229b.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/ca4d29fd21a7.webp",
+    "caption": "Tòa PARCO–Hulic ở Shibuya, nơi có Shibuya PARCO (12/2022)",
+    "credit": "稲妻ノ歯鯨",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shibuya_Parco_Hulic_Building.jpg"
+   }
+  ],
   "lat": 35.662033,
   "lng": 139.698791,
   "address": "東京都渋谷区宇田川町15-1",
   "hours": "Cửa hàng 11:00–21:00; 6F 10:00–21:00; nghỉ bất thường",
-  "why": "Có Pokémon Center và Nintendo TOKYO cùng tầng 6. Đóng 21h nên ghé được sau bữa tối ở Toritake.",
+  "why": "Trung tâm thương mại PARCO ở Udagawachō. Tầng 6 mang tên CYBERSPACE SHIBUYA, gom các cửa hàng game và nhân vật: Nintendo TOKYO, Pokémon Center Shibuya, CAPCOM STORE TOKYO và Godzilla Store Shibuya. Tầng 7 là khu nhà hàng.",
   "tips": "6F: Pokémon Center Shibuya, Nintendo TOKYO (10:00–21:00); tax-free theo từng cửa hàng",
   "official": "https://shibuya.parco.jp/info/access/",
   "store": {
@@ -14502,16 +15161,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "toritake",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": "Có Pokémon Center và Nintendo TOKYO cùng tầng 6. Đóng 21h nên ghé được sau bữa tối ở Toritake.",
+   "buy": [
+    "Hàng Nintendo (Mario, Zelda, Animal Crossing) ở Nintendo TOKYO, 6F",
+    "Hàng Pokémon ở Pokémon Center Shibuya, 6F",
+    "Hàng Monster Hunter, Street Fighter ở CAPCOM STORE TOKYO, 6F",
+    "Hàng Godzilla ở Godzilla Store Shibuya, 6F"
+   ],
+   "advice": "PARCO không có quầy tax-free chung: từng cửa hàng tự làm, nhà hàng không áp dụng. Quầy dịch vụ 5F nhận gửi hàng ra nước ngoài hoặc về khách sạn trong ngày; ATM Seven Bank ở B1 nhận thẻ nước ngoài."
   }
  },
  "sh-mega-donki-shibuya": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/d642a5d93b7a.webp",
+    "caption": "Mặt tiền MEGA Don Quijote Shibuya Honten",
+    "credit": "WhisperToMe",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shibuyamegadonkihonten.jpg"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/5eb343ce0123.webp",
+    "caption": "Hàng bày kín kệ trong MEGA Don Quijote Shibuya Honten (4/2022)",
+    "credit": "毒島みるく",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Product_display_in_Don_Quijote_Shibuya_branch.jpg"
+   }
+  ],
   "lat": 35.660447,
   "lng": 139.69784,
   "address": "東京都渋谷区宇田川町28-6",
   "hours": "24 giờ, không nghỉ",
-  "why": "Mở 24h, tax-free; thuốc chỉ bán khi có dược sĩ. Là drugstore buổi tối của ngày 3, đi bộ vài phút từ Toritake và ga Shibuya.",
+  "why": "Don Quijote mở 24 giờ ở Udagawachō, các tầng bán hàng từ B1 đến 7F. B1 là siêu thị thực phẩm và rượu, 1F có quầy tính tiền chính và quầy gửi hàng, 2F bánh kẹo và đồ khô, 3F mỹ phẩm và thuốc với quầy tính tiền riêng cho thuốc. 4F–6F là đồ hiệu, quần áo, hàng nhân vật, đồ bếp và điện gia dụng; 7F vali và quà lưu niệm.",
   "official": "https://www.donki.com/store/shop_detail.php?shop_id=442",
   "store": {
    "chain": "donki",
@@ -14521,15 +15205,33 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "toritake",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": "Mở 24h, tax-free; thuốc chỉ bán khi có dược sĩ. Là drugstore buổi tối của ngày 3, đi bộ vài phút từ Toritake và ga Shibuya.",
+   "buy": [
+    "KitKat vị giới hạn, Umaibo, đồ khô nhắm ở 2F",
+    "Mặt nạ giấy, kem chống nắng gói lớn ở 3F",
+    "Thuốc giảm đau EVE, Loxonin ở quầy thuốc 3F (khi có dược sĩ)",
+    "Đồng hồ G-SHOCK, Baby-G và áo 'I ♡ TOKYO' ở 4F",
+    "Vali và quà lưu niệm Nhật ở 7F"
+   ],
+   "advice": "Tax-free làm ở quầy TaxFree Only Counter 7F, cần hộ chiếu bản gốc, hàng và hóa đơn; quầy đông nhất khoảng 20:00–23:00. Cả cửa hàng thường vắng hơn vào sáng hoặc đầu chiều ngày thường, khoảng 10:00–15:00."
   }
  },
  "sh-abc-mart-shibuya": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/9006b46eac54.webp",
+    "caption": "Phố Center-gai ban ngày, nơi có ABC-MART (12/2024)",
+    "credit": "Benlisquare",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shibuya_Center_Gai,_December_2024.jpg"
+   }
+  ],
   "lat": 35.660286,
   "lng": 139.698608,
   "address": "東京都渋谷区宇田川町 (Center-gai)",
-  "why": "Cửa hàng giày ABC-MART gần Loft và MEGA Donki, dùng để thử ASICS đi bộ (¥14.000 trong giỏ).",
+  "why": "ABC-MART là chuỗi giày lớn của Nhật, đăng ký trụ sở ở Shibuya, giữ thương hiệu Hawkins và quyền bán Vans tại Nhật. Trên Center-gai có hai cửa hàng ABC-MART cách nhau khoảng 70 m; cửa hàng trong kế hoạch là cái ở giữa phố.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ABC-MART",
   "store": {
    "chain": "other",
@@ -14539,15 +15241,38 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "toritake",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": "Cửa hàng giày ABC-MART gần Loft và MEGA Donki, dùng để thử ASICS đi bộ (¥14.000 trong giỏ).",
+   "buy": [
+    "Giày Vans (ABC-MART giữ quyền bán ở Nhật)",
+    "Giày Hawkins, thương hiệu riêng của ABC-MART"
+   ],
+   "advice": "Trên Center-gai có hai cửa hàng ABC-MART cách nhau khoảng 70 m; nếu cửa hàng giữa phố không có cỡ, sang cửa hàng gần ga Shibuya hơn. Hỏi quầy về tax-free trước khi thanh toán."
   }
  },
  "sh-hakone-yumoto-ekimae": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/0403a0ba0f51.webp",
+    "caption": "Con đường trước ga Hakone-Yumoto (1/2019)",
+    "credit": "Jonashtand",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Road_in_front_of_Hakone-Yumoto_Station.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/948e56642a07.webp",
+    "caption": "Khu trước ga Hakone-Yumoto (8/2011)",
+    "credit": "Rsa",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hakone-Yumoto_Station_square_20110831.jpg"
+   }
+  ],
   "lat": 35.232988,
   "lng": 139.103443,
   "address": "神奈川県足柄下郡箱根町湯本 (trước ga)",
-  "why": "Trước ga có nhiều cửa hàng quà, quán ăn và ryokan. Chỉ có khoảng 20 phút giữa tàu Romancecar và xe buýt H, nên chỉ xem đồ rất nhẹ vì còn mang cả ngày và cả đêm ở Mizunoto.",
+  "why": "Ga Hakone-Yumoto là ga cuối của tàu Romancecar và là cửa ngõ vào Hakone; ngay trước ga là phố có mái che với nhiều cửa hàng quà, bánh kẹo truyền thống và đồ lặt vặt. Các tiệm bánh và chả cá trong bản đồ ăn vặt của Odakyu chỉ cách ga 2–3 phút đi bộ, nhiều món nướng hoặc chiên tại chỗ.",
   "official": "https://ja.wikipedia.org/wiki/箱根湯本駅",
   "store": {
    "chain": "street",
@@ -14557,16 +15282,34 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "st-hakone-yumoto",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": "Trước ga có nhiều cửa hàng quà, quán ăn và ryokan. Chỉ có khoảng 20 phút giữa tàu Romancecar và xe buýt H, nên chỉ xem đồ rất nhẹ vì còn mang cả ngày và cả đêm ở Mizunoto.",
+   "buy": [
+    "Hakone manju nướng kiểu castella ở Kikukawa Shoten",
+    "Chả cá chiên xiên que và chả cá hộp ở Kagoya Seijiro",
+    "Senbei hình trái tim nướng tay ở Teyakido",
+    "Tiramisu đóng chai ở Hakone Tiramisu",
+    "Bánh rusk, tart phô mai mật ong ở Grand Riviere Hakone"
+   ],
+   "advice": "Kikukawa Shoten nghỉ thứ Năm, mà ngày 4 (21/10) là thứ Năm, nên manju phải mua ở tiệm khác. Kagoya Seijiro mở từ 9:00, Hakone Tiramisu từ 10:00."
   }
  },
  "sh-kashinoichi-shimizu": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/8fdbf20703e2.webp",
+    "caption": "Chợ cá Shimizu, phía sau là tòa Maguro-kan của Kashi no Ichi (4/2021)",
+    "credit": "Halowand",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:KASHI_NO_ICHI_maguro_kan_in_shimizu_ward.jpg"
+   }
+  ],
   "lat": 35.021907,
   "lng": 138.490686,
   "address": "静岡県静岡市清水区島崎町149",
   "hours": "Nhà hàng Kaizan (2F) 10:00–21:00",
-  "why": "Chợ cá ngay chỗ ăn trưa Kaizan, đi 3 phút từ ga Shimizu. Xem hàng hải sản khô, đóng gói hạn dài trước hoặc sau bữa trưa; không mua đồ tươi.",
+  "why": "Kashi no Ichi là khu chợ do các nhà buôn sỉ của chợ cá Shimizu bán thẳng cho khách, gồm hai tòa: Ichiba-kan bán cá, hải sản, rau, trà, quýt và đồ ăn chín trên hai tầng, còn Maguro-kan chủ yếu là quán ăn. Tầng 1 Ichiba-kan có khoảng 19 quầy, trong đó có tiệm chuyên cá khô và tiệm chuyên cá ngừ.",
   "tips": "Kaizan ở 2F Maguro-kan",
   "official": "https://tabelog.com/shizuoka/A2201/A220102/22024359/",
   "store": {
@@ -14577,15 +15320,40 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "kaizan",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": "Chợ cá ngay chỗ ăn trưa Kaizan, đi 3 phút từ ga Shimizu. Xem hàng hải sản khô, đóng gói hạn dài trước hoặc sau bữa trưa; không mua đồ tươi.",
+   "buy": [
+    "Cá khô (himono) đóng gói ở tiệm chuyên cá khô, Ichiba-kan",
+    "Tiệm chuyên cá ngừ ở Ichiba-kan",
+    "Trà Shizuoka đóng gói",
+    "Quýt và rau địa phương theo mùa"
+   ],
+   "advice": "Ichiba-kan mở 9:30–17:30 và nghỉ thứ Tư (một số quán ăn vẫn mở); ngày 5 là thứ Sáu nên không vướng."
   }
  },
  "sh-jr-nagoya-takashimaya": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/8bdc10c5c75b.webp",
+    "caption": "Tháp đôi JR Central Towers trên ga Nagoya, nơi có JR Nagoya Takashimaya (11/2015)",
+    "credit": "DrKssn",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nagoya_JR_Central_Towers_dk3823.jpg"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/3c1190c9f52d.webp",
+    "caption": "Quầy bánh Wittamer bên trong JR Nagoya Takashimaya (4/2012)",
+    "credit": "Gryffindor",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Wittamer_Takashimaya_Nagoya.jpg"
+   }
+  ],
   "lat": 35.171229,
   "lng": 136.882724,
   "address": "愛知県名古屋市中村区名駅 (nối ga Nagoya)",
-  "why": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chỉ mua đồ nhẹ vì còn mang đến Ise.",
+  "why": "Bách hóa nằm trong tòa tháp đôi JR Central Towers, là tòa nhà ga JR Nagoya. Khu bán hàng trải từ B2 đến 11F, tầng 12–13 là nhà hàng; tầng hầm B1 có khu bánh kẹo Nhật với các hiệu Nagoya như Bankaku Sōhonpo.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ジェイアール名古屋タカシマヤ",
   "store": {
    "chain": "depachika",
@@ -14595,7 +15363,14 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "st-nagoya",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": "Trung tâm thương mại nối ga Nagoya, ghé nếu Shinkansen đến sớm trước tàu Kintetsu 15:50. Chỉ mua đồ nhẹ vì còn mang đến Ise.",
+   "buy": [
+    "Bánh tôm Yukari hộp hình kinshachi, chỉ bán ở đây, quầy Bankaku B1",
+    "Bánh Piyodora (ぴよどら), hàng chỉ có ở JR Nagoya Takashimaya",
+    "Đặc sản Nagoya ở khu bánh kẹo Nhật (和菓子売場), B1"
+   ],
+   "advice": "Mở khoảng 10:00–20:00 (một số quầy khác giờ), nghỉ không định kỳ. Có quầy hoàn thuế: hỏi nhân viên nơi làm thủ tục và mang hộ chiếu."
   }
  },
  "sh-welcia-ise-kawasaki": {
@@ -14603,7 +15378,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.493152,
   "lng": 136.712872,
   "address": "三重県伊勢市河崎1丁目",
-  "why": "Drugstore lớn gần nhất tìm được quanh ERA Ise (khoảng 10 phút đi bộ, cạnh phố Kawasaki). Mua nước, thuốc cảm, miếng dán chân.",
+  "why": "Welcia là chuỗi drugstore lớn có quầy thuốc kê đơn. Cửa hàng ở Kawasaki 1-3-20 (Ise) có quầy dược (調剤) và bãi đỗ xe, bán thuốc không kê đơn, mỹ phẩm, đồ vệ sinh và đồ ăn uống như các drugstore Nhật khác.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ウエルシア",
   "store": {
    "chain": "drugstore",
@@ -14613,16 +15388,40 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "era-ise",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": "Drugstore lớn gần nhất tìm được quanh ERA Ise (khoảng 10 phút đi bộ, cạnh phố Kawasaki). Mua nước, thuốc cảm, miếng dán chân.",
+   "buy": [
+    "Thuốc cảm, thuốc giảm đau không kê đơn",
+    "Miếng dán giảm đau cho chân sau ngày đi bộ",
+    "Nước, đồ uống và đồ ăn nhẹ cho buổi tối"
+   ],
+   "advice": "Gọi 0596-28-1411 nếu cần biết giờ mở. Thuốc nhóm 1 như Loxonin S chỉ bán khi dược sĩ có mặt."
   }
  },
  "sh-okage-yokocho": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/4476f0fe77a5.webp",
+    "caption": "Phố Okage Yokochō",
+    "credit": "Oilstreet",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Okage_Yokocho02-r.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/fb891623f5f3.webp",
+    "caption": "Mặt tiền một quán trong Okage Yokochō",
+    "credit": "Brakeet",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ise_Mie_Okage_Yokocho_26.jpg"
+   }
+  ],
   "lat": 34.46244,
   "lng": 136.72291,
   "address": "三重県伊勢市宇治中之切町52 (Ise Fuku)",
   "hours": "Tháng 10: 9:30–17:30",
-  "why": "Phố quà Ise cạnh Fukusuke và Akafuku, mở đến 17:30 trong tháng 10. Quà hạn dài thì mua ở đây; Akafuku ăn tại chỗ, không mang theo.",
+  "why": "Okage Yokochō là một khu phố hơn 50 cửa hàng giữa phố Oharai-machi, cách cầu Uji của Nội cung (Naikū) vài phút đi bộ, đánh dấu bằng chiếc đèn lồng lớn ở lối vào. Nhà dựng theo kiến trúc kiểu Ise, gắn với phong trào hành hương Okage Mairi thời Edo; không có cổng rào, đi lại tự do giữa quán ăn, tiệm quà và tiệm đồ thủ công.",
   "official": "https://www.okageyokocho.com/about/",
   "store": {
    "chain": "market",
@@ -14632,15 +15431,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "okage-yokocho",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": "Phố quà Ise cạnh Fukusuke và Akafuku, mở đến 17:30 trong tháng 10. Quà hạn dài thì mua ở đây; Akafuku ăn tại chỗ, không mang theo.",
+   "buy": [
+    "Chả cá Ise chiên nóng ở Wakamatsuya",
+    "Mèo may mắn maneki-neko, khoảng 1.000 loại, ở Kichō Shōfukutei",
+    "Rong biển nori, wakame, aosa giá rẻ ở Mie Gyoren Hanbai",
+    "Vải bông Matsusaka nhuộm chàm ở Momenya Ai",
+    "Chén, bình sake (khoảng 2.500 chén) ở Bansha Kyūbei"
+   ],
+   "advice": "Thứ Bảy, Chủ nhật và ngày lễ có nhóm trống Shinon Taiko biểu diễn; ngày 6 (23/10) là thứ Bảy. Tiệm Omiyageya có quầy thông tin và cho mượn xe lăn, xe đẩy."
   }
  },
  "sh-toba-marche": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/c7fc72dab3ca.webp",
+    "caption": "Tòa nhà Toba Marché (10/2019)",
+    "credit": "Miyuki Meinaka",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Toba_March%C3%A9.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/f7ff97d5588a.webp",
+    "caption": "Cá ngừ Ise bày bán ở Toba Marché (2/2023)",
+    "credit": "Miyuki Meinaka",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ise_Tuna_at_Toba_March%C3%A9.jpg"
+   }
+  ],
   "lat": 34.487117,
   "lng": 136.844663,
   "address": "三重県鳥羽市鳥羽3丁目",
-  "why": "Chợ gần ga Toba, tiện ghé trong khoảng chờ tàu Shimakaze 15:20 sau bữa tôm chiên ở Sazanami. Hàng nhẹ thì mua, hải sản tươi thì không.",
+  "why": "Chợ nông thủy sản bán trực tiếp ở Toba, đi bộ 2 phút từ cửa ra phía Kintetsu của ga Toba, bán hàng tươi và đồ chế biến của hải nữ ama, ngư dân và nông dân địa phương. Nhà hàng buffet đã đóng cửa tháng 1/2025; nay còn quầy đồ ăn mang đi và nhà hàng Toba-meshi phục vụ buổi trưa.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=鳥羽マルシェ",
   "store": {
    "chain": "market",
@@ -14650,16 +15475,32 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "st-toba",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": "Chợ gần ga Toba, tiện ghé trong khoảng chờ tàu Shimakaze 15:20 sau bữa tôm chiên ở Sazanami. Hàng nhẹ thì mua, hải sản tươi thì không.",
+   "buy": [
+    "Đồ biển chế biến của ngư dân và hải nữ ama Toba",
+    "Rau quả theo mùa của nông dân địa phương",
+    "Đồ ăn ở quầy mang đi (10:00–16:30)"
+   ],
+   "advice": "Chợ mở 10:00–18:00, nghỉ thứ Tư và 31/12–3/1; ngày 7 (24/10) là Chủ nhật nên mở. Nhà hàng Toba-meshi chỉ phục vụ 11:00–14:00 và nghỉ thêm thứ Ba."
   }
  },
  "sh-uniqlo-kyoto-mina": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/e971e4ba833b.webp",
+    "caption": "Ngã tư Kawaramachi–Sanjō ngày mưa, gần tòa Mina Kyoto (12/2013)",
+    "credit": "そらみみ",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Crossroads_of_Kawaramachi-Sanjo_in_a_rainy_day.jpg"
+   }
+  ],
   "lat": 35.007939,
   "lng": 135.768637,
   "address": "京都府京都市中京区河原町通三条下ル大黒町58 ミーナ京都 B1–3F",
   "hours": "11:00–21:00",
-  "why": "Cách Cross Hotel Kyoto vài phút, mở đến 21h, nên ghé tối được sau bữa tối. API báo cửa hàng tạm đóng sửa chữa, dự kiến mở lại 6/11/2026.",
+  "why": "UNIQLO Kyoto chuyển từ 5–6F xuống B1–3F tòa Mina Kyoto năm 2019 và khi đó là UNIQLO lớn nhất Kyoto. Sau đợt sửa, cửa hàng mở lại ngày 6/11/2026 với tư cách flagship toàn cầu, khoảng 960 tsubo: B1 chủ yếu đồ nam, 1F có UNIQLO FLOWER và UNIQLO COFFEE, 2F chủ yếu đồ nữ, 3F đồ cả nhà và các dịch vụ. Cửa sổ 1F làm theo kiểu cửa lưới gỗ Kyoto, treo đèn lồng của Kojima Shōten.",
   "tips": "B1–3F; Loft ở 4–6F cùng tòa Mina Kyoto",
   "official": "https://map.uniqlo.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E4%BA%AC%E9%83%BD",
   "store": {
@@ -14670,16 +15511,34 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": "Cách Cross Hotel Kyoto vài phút, mở đến 21h, nên ghé tối được sau bữa tối. API báo cửa hàng tạm đóng sửa chữa, dự kiến mở lại 6/11/2026.",
+   "buy": [
+    "Thêu hình gắn với Kyoto (Yojiya, Randen, Nanza) ở RE.UNIQLO STUDIO, 3F",
+    "HEATTECH cổ lọ nữ LIBERTY LONDON 'Kyoto in Bloom', ¥1.990",
+    "Áo fleece sáu màu chỉ bán ở cửa hàng này",
+    "In áo theo chủ đề Kyoto ở UTme!, 3F",
+    "Đồ PLST ở 3F"
+   ],
+   "advice": "Có tủ khóa nhận hàng đặt online ở 1F. Cửa hàng phát miễn phí bản đồ quanh khu bằng tiếng Nhật và tiếng Anh, làm cùng báo Kyoto Shimbun, ghi quán ăn, công viên và bảo tàng gần đó."
   }
  },
  "sh-loft-kyoto-mina": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/e971e4ba833b.webp",
+    "caption": "Ngã tư Kawaramachi–Sanjō ngày mưa, gần tòa Mina Kyoto (12/2013)",
+    "credit": "そらみみ",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Crossroads_of_Kawaramachi-Sanjo_in_a_rainy_day.jpg"
+   }
+  ],
   "lat": 35.007892,
   "lng": 135.768698,
   "address": "京都府京都市中京区河原町通三条下ル大黒町58 ミーナ京都 4–6F",
   "hours": "11:00–21:00 (tax-free đến 20:30)",
-  "why": "Loft Kyoto cách hotel vài phút, mở đến 21h. Văn phòng phẩm, đồ làm đẹp, tester CANMAKE.",
+  "why": "Loft Kyoto chiếm ba tầng 4–6F của tòa Mina Kyoto, cùng tòa với UNIQLO Kyoto, trên Kawaramachi-dōri ngay phía nam Sanjō. Từ ga Kyoto-Shiyakusho-mae (tuyến Tōzai) hoặc Sanjō (Keihan) đi bộ khoảng 5 phút, từ Kyoto-Kawaramachi (Hankyu) khoảng 6 phút.",
   "tips": "4–6F trong Mina Kyoto",
   "official": "https://www.loft.co.jp/shop_list/detail.php?shop_id=37",
   "store": {
@@ -14690,16 +15549,33 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "cross-kyoto",
-   "walkMin": 2
+   "walkMin": 2,
+   "plan": "Loft Kyoto cách hotel vài phút, mở đến 21h. Văn phòng phẩm, đồ làm đẹp, tester CANMAKE.",
+   "buy": [
+    "Văn phòng phẩm Nhật: bút, sổ, sticker",
+    "Mỹ phẩm, đồ chăm sóc da và tóc",
+    "Đồ chăm sóc sức khỏe",
+    "Đồ gia dụng nhỏ, đồ bếp"
+   ],
+   "advice": "Thủ tục hoàn thuế làm 11:00–20:30, cần hộ chiếu và đơn từ ¥5.000 (trước thuế) trong ngày. Cửa hàng nhận Alipay+, WeChat Pay, UnionPay và nhiều ví QR; nếu định quẹt Visa/Mastercard, hỏi trước."
   }
  },
  "sh-hands-kyoto": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/7b0d55016e05.webp",
+    "caption": "Mặt tiền Tokyu Hands Kyoto, nay là Hands Kyoto (9/2015)",
+    "credit": "Red Skelington",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tokyu_Hands_Kyoto_%E6%9D%B1%E6%80%A5%E3%83%8F%E3%83%B3%E3%82%BA%E4%BA%AC%E9%83%BD%E5%BA%97_Sep_6,_2015.jpg"
+   }
+  ],
   "lat": 35.003551,
   "lng": 135.760751,
   "address": "京都府京都市下京区四条通烏丸東入長刀鉾町27",
   "hours": "10:00–20:30",
-  "why": "Hands ở Shijō–Karasuma, mở đến 20:30, ngay cạnh Daimaru (khoảng 2 phút). Có thể thay Hands Shinsaibashi nếu không đủ thời gian ở Osaka.",
+  "why": "Hands (trước là Tokyu Hands) ở đoạn Shijō–Karasuma, cách ga Karasuma (Hankyu) và ga Shijō (tàu điện ngầm Karasuma) khoảng 1 phút đi bộ. Bốn tầng bán hàng: 1F túi, vali, đồ du lịch và phụ kiện điện thoại; 2F mỹ phẩm, chăm sóc sức khỏe và giấc ngủ; 3F đồ bếp, đồ dọn dẹp và sửa chữa; 4F văn phòng phẩm, đồ thủ công và xưởng Design Workshop.",
   "official": "https://store.hands.net/kyoto/",
   "store": {
    "chain": "hands",
@@ -14709,16 +15585,49 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "cross-kyoto",
-   "walkMin": 17
+   "walkMin": 17,
+   "plan": "Hands ở Shijō–Karasuma, mở đến 20:30, ngay cạnh Daimaru (khoảng 2 phút). Có thể thay Hands Shinsaibashi nếu không đủ thời gian ở Osaka.",
+   "buy": [
+    "Vali, túi xếp đồ và đồ du lịch ở 1F",
+    "Đồ chăm sóc chân, chăm sóc da, đồ tắm ở 2F",
+    "Dụng cụ pha cà phê, trà và đồ bếp ở 3F",
+    "Bút, sổ, sticker ở 4F; làm con dấu riêng ở Design Workshop"
+   ],
+   "advice": "Nhận thẻ tín dụng, thẻ IC, UnionPay, Alipay, WeChat Pay, PayPay (không nhận PiTaPa); có tax-free, cần hộ chiếu. Quầy COFFEE HOUR ở 3F chỉ còn bán cà phê hạt, ngừng bán đồ uống từ 22/4/2024."
   }
  },
  "sh-daimaru-kyoto": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/fed54070d43e.webp",
+    "caption": "Mặt tiền Daimaru Kyoto (7/2023)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:DAIMARU_KY%C5%8CTO_MISE.jpg"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/7ff4ecdd5b78.webp",
+    "caption": "Tầng hầm B1 của Daimaru Kyoto (2025)",
+    "credit": "Fotointheworld",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Daimaru_Kyoto_B1_2025.JPG"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/05ffa02e7201.webp",
+    "caption": "Tầng 1 của Daimaru Kyoto (2025)",
+    "credit": "Fotointheworld",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Daimaru_Kyoto_Level_1_2025.JPG"
+   }
+  ],
   "lat": 35.004372,
   "lng": 135.761899,
   "address": "京都府京都市下京区高倉通四条下ル立売西町79",
   "hours": "B2–2F: 10:00–20:00; 3–7F: 10:00–19:00; nhà hàng 8F 11:00–22:00; mở cả năm trừ 1–2/1",
-  "why": "Depachika lớn ở Shijō, mở đến 20:00 mỗi ngày nên ghé được sau 17h. Chọn quà hạn dài cho Kyoto; từ 1/11/2026 thủ tục tax-free làm tại quầy 8F.",
+  "why": "Daimaru bắt nguồn từ tiệm vải Dai-Monjiya mở ở Kyoto năm 1717; cửa hàng ở góc Shijō–Takakura này mở năm 1912, cách ga Shijō và ga Karasuma khoảng 1 phút đi bộ. Tầng hầm thực phẩm có rau quả, thịt cá, rượu, trà, bánh Tây, wagashi và đồ ăn chín; trang Inside Kyoto gọi đây có lẽ là chợ thực phẩm tốt nhất thành phố.",
   "tips": "B1–B2: thực phẩm (ごちそうパラダイス) và mỹ phẩm; 5F vali; 6F văn phòng phẩm; 8F quầy tax-free và nhà hàng",
   "official": "https://www.daimaru.co.jp/kyoto/hours.html",
   "store": {
@@ -14729,16 +15638,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "cross-kyoto",
-   "walkMin": 14
+   "walkMin": 14,
+   "plan": "Depachika lớn ở Shijō, mở đến 20:00 mỗi ngày nên ghé được sau 17h. Chọn quà hạn dài cho Kyoto; từ 1/11/2026 thủ tục tax-free làm tại quầy 8F.",
+   "buy": [
+    "Wagashi và hộp bánh làm quà của các hiệu Kyoto ở tầng hầm",
+    "Trà Ippodo ở quầy B1",
+    "Đồ ăn chín, bento mang về khách sạn",
+    "Trà và rượu đóng hộp làm quà"
+   ],
+   "advice": "B2–2F mở đến 20:00 nhưng 3–7F đóng lúc 19:00, nên lên các tầng trên trước rồi mua đồ ăn ở tầng hầm sau cùng. Trang giờ mở có liên kết 'For Global Customers' bằng tiếng Anh, Trung và Hàn."
   }
  },
  "sh-ippodo-daimaru-kyoto": {
-  "images": [],
+  "images": [
+   {
+    "kind": "interior",
+    "src": "img/commons/7ff4ecdd5b78.webp",
+    "caption": "Tầng hầm B1 của Daimaru Kyoto, nơi có quầy Ippodo (2025)",
+    "credit": "Fotointheworld",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Daimaru_Kyoto_B1_2025.JPG"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/fed54070d43e.webp",
+    "caption": "Mặt tiền Daimaru Kyoto (7/2023)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:DAIMARU_KY%C5%8CTO_MISE.jpg"
+   }
+  ],
   "lat": 35.004372,
   "lng": 135.761899,
   "address": "京都府京都市下京区高倉通四条下ル立売西町79 大丸京都店 B1",
   "hours": "Theo giờ Daimaru B2–2F: 10:00–20:00",
-  "why": "Phương án thay khi đã quá 17:00, giờ đóng cửa của Honten ở Teramachi. Hōjicha 100 g mua ở đây tiện khoảng cách đến hotel.",
+  "why": "Quầy của Ippodo nằm trong khu thực phẩm tầng hầm B1 của Daimaru Kyoto, cách cửa hàng chính ở Teramachi khoảng 1,2 km về phía nam. Quầy bán trà lá và trà túi lọc của Ippodo, thỉnh thoảng có buổi thử trà miễn phí, ví dụ thử gyokuro ngày 5/11/2026.",
   "tips": "B1, quầy Ippodo",
   "official": "https://www.ippodo-tea.co.jp/blogs/news/shop_20261105",
   "store": {
@@ -14749,16 +15683,32 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "cross-kyoto",
-   "walkMin": 14
+   "walkMin": 14,
+   "plan": "Phương án thay khi đã quá 17:00, giờ đóng cửa của Honten ở Teramachi. Hōjicha 100 g mua ở đây tiện khoảng cách đến hotel.",
+   "buy": [
+    "Hōjicha, sencha, gyokuro đóng hộp hoặc gói",
+    "Matcha hộp nhỏ làm quà",
+    "Trà túi lọc hình kim tự tháp, tiện pha ở khách sạn"
+   ],
+   "advice": "Ippodo đổi quy cách và giá một số loại trà vào tháng 10–11/2026, nên kiểm lại giá ngay tại quầy."
   }
  },
  "sh-ippodo-honten": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/fe660aaab0cf.webp",
+    "caption": "Cửa hàng chính Ippodo trên phố Teramachi (12/2022)",
+    "credit": "Nesnad",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Ippod%C5%8D_Kyoto_-2022_Dec_30_10%EF%BC%9A25AM.jpg"
+   }
+  ],
   "lat": 35.014463,
   "lng": 135.767355,
   "address": "京都府京都市中京区寺町通二条上ル常盤木町52",
   "hours": "10:00–17:00; nghỉ thứ Tư tuần thứ 2 mỗi tháng; trà thất Kaboku order cuối 16:30",
-  "why": "Cửa hàng chính, đóng 17:00 nên chỉ ghé được ngày 8 sau khi trả kimono. 27/10 là thứ Tư tuần thứ 4, không trùng ngày nghỉ.",
+  "why": "Cửa hàng chính của Ippodo trên phố Teramachi, đi bộ khoảng 5 phút từ sông Kamo hoặc Ngự uyển Kyoto, dễ nhận ra nhờ tấm noren in tên Ippodo. Bên trong là quầy dài dưới bảng liệt kê mọi loại trà và một bức tường hũ trà cũ. Trà thất Kaboku bên phải cửa hàng có ba khu ngồi; khách tự pha có nhân viên hướng dẫn hoặc để nhân viên pha, kèm bánh ngọt.",
   "tips": "Có trà thất 嘉木 (44 chỗ) cùng chỗ",
   "official": "https://www.ippodo-tea.co.jp/pages/store-kyoto?view=store-detail",
   "store": {
@@ -14769,16 +15719,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 12
+   "walkMin": 12,
+   "plan": "Cửa hàng chính, đóng 17:00 nên chỉ ghé được ngày 8 sau khi trả kimono. 27/10 là thứ Tư tuần thứ 4, không trùng ngày nghỉ.",
+   "buy": [
+    "Matcha, gyokuro, sencha, hōjicha, genmaicha đóng hộp",
+    "Trà túi lọc và hộp quà",
+    "Dụng cụ pha trà",
+    "Uống thử ở quầy mang đi: matcha ¥972, hōjicha ¥756"
+   ],
+   "advice": "Trà thất Kaboku nhận gọi món cuối lúc 16:30. Tiệm nhận tiền mặt, thẻ tín dụng, thẻ IC giao thông và thanh toán bằng điện thoại."
   }
  },
  "sh-ichizawa-shinzaburo": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/b64105f3a6ab.webp",
+    "caption": "Xưởng Higashiyama của Ichizawa Shinzaburō Hanpu (1/2012)",
+    "credit": "tanohei",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E4%B8%80%E6%BE%A4%E5%B8%86%E5%B8%831905.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/3bb1683e0398.webp",
+    "caption": "Xưởng và văn phòng Higashiyama của Ichizawa Shinzaburō Hanpu (12/2014)",
+    "credit": "T Tonomura",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E4%B8%80%E6%BE%A4%E4%BF%A1%E4%B8%89%E9%83%8E%E5%B8%86%E5%B8%83%E6%9D%B1%E5%B1%B1%E5%B7%A5%E6%88%BF%E3%83%BB%E4%BA%8B%E5%8B%99%E6%89%80.JPG"
+   }
+  ],
   "lat": 35.00765,
   "lng": 135.777788,
   "address": "京都府京都市東山区東大路通 (cạnh Chion-in)",
   "hours": "Nghỉ thứ Ba",
-  "why": "Túi canvas may tay, cách Yasaka Jinja khoảng 5–10 phút đi bộ. Ngày 8 (thứ Hai) mở; ngày 9 (thứ Ba) đóng nên không ghé ngày đó.",
+  "why": "Hãng túi vải canvas thành lập năm 1905 ở Higashiyama, Kyoto, tự gọi cửa hàng của mình là cửa hàng duy nhất trên thế giới. Túi do thợ thủ công may từ vải canvas tốt, có nhiều dáng, màu và họa tiết.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=一澤信三郎帆布",
   "store": {
    "chain": "craft",
@@ -14790,15 +15765,40 @@ export const DETAILS: Record<string, Detail> = {
    ],
    "taxFree": null,
    "near": "yasaka-shrine",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": "Túi canvas may tay, cách Yasaka Jinja khoảng 5–10 phút đi bộ. Ngày 8 (thứ Hai) mở; ngày 9 (thứ Ba) đóng nên không ghé ngày đó.",
+   "buy": [
+    "Túi tote canvas (手さげ)",
+    "Túi đeo vai (ショルダー)",
+    "Ba lô và túi Boston",
+    "Túi nhỏ, ví và đồ lặt vặt (小物)"
+   ],
+   "advice": "Giờ mở 10:00–18:00. Ga gần nhất là Higashiyama (tuyến Tōzai), đi bộ khoảng 5 phút từ lối ra 2."
   }
  },
  "sh-teramachi-kyogoku": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/4f9d1323c623.webp",
+    "caption": "Phố mua sắm Teramachi, Kyoto (5/2017)",
+    "credit": "Celuici",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Teramachi_shopping_street,_Kyoto,_May_2017.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/889df11f8675.webp",
+    "caption": "Phố Shinkyōgoku có mái che (10/2010)",
+    "credit": "erysimum9",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinkyogoku_2010-10-21.jpg"
+   }
+  ],
   "lat": 35.00578,
   "lng": 135.766955,
   "address": "京都府京都市中京区寺町通・新京極通 (Shijō–Sanjō)",
-  "why": "Hai phố có mái che nối Shijō với Sanjō, ngay sau lưng hotel. Dạo tối, cửa hàng thường đóng muộn hơn Nishiki; giờ từng tiệm khác nhau.",
+  "why": "Hai phố có mái che chạy song song từ Sanjō đến Shijō. Shinkyōgoku được Makimura Masanao, quan chức phủ Kyoto, mở năm 1872 trên đất chùa cũ; dọc phố có chùa Seigan-ji, Takoyakushi (Eifuku-ji) và đền Nishiki Tenmangū. Xưa là nơi học sinh đi tham quan mua quà, nay tiệm quà xen với quán ăn và cửa hàng thời trang; Teramachi Kyōgoku ở phía tây có nhiều tiệm lâu năm mà người địa phương hay ghé hơn.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=寺町京極",
   "store": {
    "chain": "street",
@@ -14808,15 +15808,46 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": "Hai phố có mái che nối Shijō với Sanjō, ngay sau lưng hotel. Dạo tối, cửa hàng thường đóng muộn hơn Nishiki; giờ từng tiệm khác nhau.",
+   "buy": [
+    "Quà Kyoto ở các tiệm lưu niệm dọc Shinkyōgoku",
+    "Các tiệm lâu năm trên Teramachi Kyōgoku"
+   ],
+   "advice": "Hai phố chỉ cách nhau một dãy nhà; đi Shinkyōgoku một chiều và về bằng Teramachi để xem cả hai mà không lặp đường."
   }
  },
  "sh-nishiki-market": {
-  "images": [],
+  "images": [
+   {
+    "kind": "detail",
+    "src": "img/commons/84a5f4a4fcda.webp",
+    "caption": "Tiệm dưa muối Uchida trong chợ Nishiki",
+    "credit": "collinox",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Tsukemono_shop_by_collinox_in_Nishiki_Ichiba,_Kyoto.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/59479c8d12f2.webp",
+    "caption": "Chợ Nishiki, Kyoto, 7/2024",
+    "credit": "Sergiy Galyonkin",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nishiki_Market,_Kyoto_(53970899359).jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/a7aacd465c3b.webp",
+    "caption": "Mực nướng bán ở chợ Nishiki",
+    "credit": "Joli Rumi",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Grilled_squid_served_at_Nishiki_market,_Kyoto,_Japan.jpg"
+   }
+  ],
   "lat": 35.005024,
   "lng": 135.765569,
   "address": "京都府京都市中京区西大文字町609 (hiệp hội)",
-  "why": "Chợ thực phẩm Kyoto ở Shijō–Karasuma.",
+  "why": "Chợ Nishiki là dãy phố chợ có mái che chạy theo hướng đông–tây ở trung tâm Kyoto, lối đi chỉ rộng 3,3–5 m, được gọi là “nhà bếp của Kyoto”. Năm 1615 Mạc phủ Tokugawa cấp phép cho nơi này làm chợ cá, nhờ mạch nước giếng giữ 15–18°C quanh năm giúp cá tươi lâu. Hai bên là quầy rau Kyoto, cá sông, dưa muối, yuba, đậu phụ, bánh kẹo, xen với tiệm đũa, gốm và đồ bếp; mái vòm sơn đỏ, vàng, xanh lá che suốt dọc chợ nên đi được cả khi mưa.",
   "tips": "Chợ dài 390 m; hiệp hội yêu cầu không vừa đi vừa ăn",
   "official": "https://www.kyoto-nishiki.or.jp/access/",
   "store": {
@@ -14827,15 +15858,33 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 9
+   "walkMin": 9,
+   "plan": "Chợ thực phẩm Kyoto ở Shijō–Karasuma.",
+   "buy": [
+    "Kyō-tsukemono (dưa muối Kyoto) đóng gói sẵn",
+    "Dashimaki tamago (trứng cuộn nước dashi)",
+    "Yuba, fu (gluten lúa mì) và đậu phụ",
+    "Tsukudani, đồ khô, chả cá và gia vị",
+    "Đũa, gốm và dụng cụ nấu ăn"
+   ],
+   "advice": "Mỗi quầy có giờ mở riêng, không có giờ chung cho cả chợ. Lối đi hẹp nên khi dừng mua hãy đứng sát vào quầy để người khác đi qua."
   }
  },
  "sh-matsukiyo-kiyamachi-kyoto": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/fdfb68234ed5.webp",
+    "caption": "Phố Kiyamachi, Kyoto (ảnh phố, không phải cửa hàng)",
+    "credit": "gorian21",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E6%9C%A8%E5%B1%8B%E7%94%BA_-_panoramio_(2).jpg"
+   }
+  ],
   "lat": 35.004011,
   "lng": 135.770699,
   "address": "京都府京都市中京区木屋町通 (giữa Sanjō và Shijō)",
-  "why": "Drugstore gần Cross Hotel, trên đường về từ ga Sanjō Keihan. Mua mỹ phẩm, thuốc tối ngày 9.",
+  "why": "Matsumoto Kiyoshi (gọi tắt MatsuKiyo) là chuỗi drugstore lớn của Nhật, bán thuốc không kê đơn, mỹ phẩm, đồ chăm sóc da và đồ dùng hằng ngày. Chi nhánh này nằm trên phố Kiyamachi, con phố chạy dọc bờ đông sông Takase; đoạn từ Sanjō trở xuống phía nam có nhiều quán cà phê, bar và nhà hàng, hàng anh đào trồng dọc sông và có vỉa hè đi bộ.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=マツモトキヨシ",
   "store": {
    "chain": "drugstore",
@@ -14845,7 +15894,14 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 8
+   "walkMin": 8,
+   "plan": "Drugstore gần Cross Hotel, trên đường về từ ga Sanjō Keihan. Mua mỹ phẩm, thuốc tối ngày 9.",
+   "buy": [
+    "Thuốc không kê đơn (một số loại chỉ bán khi có dược sĩ)",
+    "Mỹ phẩm và kem chống nắng hãng Nhật",
+    "Mặt nạ giấy và đồ chăm sóc da"
+   ],
+   "advice": "Nếu muốn tax-free, hỏi quầy trước khi thanh toán, mang hộ chiếu và gom đủ ¥5.000 trước thuế trong cùng cửa hàng."
   }
  },
  "sh-nakagawa-masashichi-nara": {
@@ -14853,7 +15909,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.6793,
   "lng": 135.8277,
   "address": "奈良県奈良市 (Naramachi)",
-  "why": "Cửa hàng chính của nhà làm vải kaya fukin, nằm trong lịch lúc 14:00. COREDO Muromachi ở Tokyo cũng có cửa hàng cùng hãng nếu cần dự phòng.",
+  "why": "Nakagawa Masashichi Shōten là hãng thành lập ở Nara năm 1716, nay bán đồ thủ công và dụng cụ sinh hoạt làm cùng hơn 800 nhà làm trên khắp Nhật. Cửa hàng chính ở Nara chiếm tầng 1–2 tòa Shikasarukitsune Building ở khu Naramachi (mở 14/4/2021), bày khoảng 3.000 món, có hàng giới hạn chỉ bán ở đây. Trong tòa còn có Sarutahiko Coffee và quán sukiyaki; gần đó là Yu Nakagawa Honten và quán trà Charon Naramachi.",
   "store": {
    "chain": "craft",
    "city": "nara",
@@ -14862,15 +15918,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "nakagawa-masashichi-nara",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": "Cửa hàng chính của nhà làm vải kaya fukin, nằm trong lịch lúc 14:00. COREDO Muromachi ở Tokyo cũng có cửa hàng cùng hãng nếu cần dự phòng.",
+   "buy": [
+    "Khăn kaya-ori fukin, có mẫu giới hạn vẽ cảnh Naramachi",
+    "Hàng giới hạn chỉ bán ở cửa hàng chính Nara",
+    "Đồ thủ công Nara và dụng cụ bếp, sinh hoạt hằng ngày",
+    "Quần áo và phụ kiện theo mùa",
+    "Trà chọn lọc và bánh theo mùa ở Charon, có mua mang đi"
+   ],
+   "advice": "Rurubu ghi cửa hàng mở 10:00–19:00, không có ngày nghỉ cố định, đi bộ khoảng 8 phút từ cửa số 2 ga Kintetsu Nara, không có bãi đỗ xe. Xưởng Nunokura cho làm thử đồ từ vải gai dệt tay, cần đặt trước."
   }
  },
  "sh-higashimuki": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/d6c83701fa02.webp",
+    "caption": "Phố có mái che Higashimuki, Nara (2015)",
+    "credit": "Kochizufan",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Higashimuki_Mall_in_Nara.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/55df07bb5227.webp",
+    "caption": "Lối vào phố Higashimuki phía Sanjō-dōri (9/2015)",
+    "credit": "Degueulasse",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:20150927_Higashimuki_Street.jpg"
+   }
+  ],
   "lat": 34.683079,
   "lng": 135.828732,
   "address": "奈良県奈良市橋本町 (nối từ ga Kintetsu Nara)",
-  "why": "Nằm ngay ga Kintetsu Nara, ghé trong lúc đi bộ 12 phút từ Hōsekibako ra ga. Narazuke và quà nhỏ nhẹ.",
+  "why": "Higashimuki là phố mua sắm có mái che chạy theo hướng bắc–nam trước ga Kintetsu Nara, từ Noboriōji đến Sanjō-dōri. Tên “Higashimuki” (quay về hướng đông) có từ thời phía đông phố là khuôn viên chùa Kōfuku-ji nên nhà chỉ dựng ở bên tây và đều quay mặt sang đông; mái vòm hiện nay được làm lại năm 1984. Phố có nhiều tiệm lâu năm và quầy quà lưu niệm, xen với quán cà phê, tiệm tạp hóa mới và các chuỗi như Daiso.",
   "tips": "Phố có mái che dài khoảng 250 m từ ga Kintetsu Nara, có hàng narazuke (Yamazaki-ya 10:00–20:00)",
   "official": "https://en.wikivoyage.org/wiki/Nara",
   "store": {
@@ -14881,16 +15963,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "hosekibako",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": "Nằm ngay ga Kintetsu Nara, ghé trong lúc đi bộ 12 phút từ Hōsekibako ra ga. Narazuke và quà nhỏ nhẹ.",
+   "buy": [
+    "Narazuke (dưa ngâm bã rượu sake) ở Yamazaki-ya",
+    "Kaki-no-ha zushi (sushi gói lá hồng)",
+    "Quà lưu niệm Nara ở các tiệm hai bên phố",
+    "Đồ tạp hóa giá rẻ ở Daiso"
+   ],
+   "advice": "Phố có mái che nên đi được khi mưa; đầu bắc ra ga Kintetsu Nara, đầu nam nối với Sanjō-dōri."
   }
  },
  "sh-uniqlo-shinsaibashisuji": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/11e4f408cbd4.webp",
+    "caption": "Tòa UNIQLO và GU trên phố Shinsaibashisuji (12/2022)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:UNIQLO_Shinsaibashi_store_%26_GU_Shinsaibashi_store.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/5b096956645c.webp",
+    "caption": "Phố mua sắm có mái che Shinsaibashisuji, 10/2024",
+    "credit": "Don Ramey Logan",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinsaibashi_Suji_Shopping_Street_Osaka_Japan_by_Don_Ramey_Logan.jpg"
+   }
+  ],
   "lat": 34.671254,
   "lng": 135.501589,
   "address": "大阪府大阪市中央区心斎橋筋2-1-17",
   "hours": "11:00–21:00",
-  "why": "Cách hotel khoảng 10 phút, mở đến 21h. Nơi dự phòng nếu chưa kịp mua AIRism ở Tokyo.",
+  "why": "Đây là cửa hàng UNIQLO và GU chung một tòa trên phố có mái che Shinsaibashisuji, mở lại thành cửa hàng tích hợp ngày 17/9/2021. Lúc mở, UNIQLO chiếm tầng B1–2 (khoảng 420 tsubo) với đồ nam, nữ và trẻ em, GU ở tầng 3–4. Từ 11/2023 cửa hàng mang tên Shinsaibashisuji Shōtengai để phân biệt với UNIQLO SHINSAIBASHI, cửa hàng flagship lớn hơn mở ở Shinsaibashisuji 1-chōme.",
   "tips": "Cùng địa chỉ với GU Shinsaibashi",
   "official": "https://map.uniqlo.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E5%BF%83%E6%96%8E%E6%A9%8B",
   "store": {
@@ -14901,16 +16008,40 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "forza-osaka",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": "Cách hotel khoảng 10 phút, mở đến 21h. Nơi dự phòng nếu chưa kịp mua AIRism ở Tokyo.",
+   "buy": [
+    "Đồ nam, nữ, trẻ em và em bé",
+    "Custom Order MEN: đặt may đồ nam theo số đo",
+    "Đồ GU ở các tầng trên cùng tòa nếu cần mẫu rẻ hơn"
+   ],
+   "advice": "Hỏi quầy thu ngân về tax-free và mang hộ chiếu. Nếu cần in áo UTme! hay sửa, thêu lại đồ ở RE.UNIQLO STUDIO, hai dịch vụ này ở tầng 4 UNIQLO SHINSAIBASHI, cùng phố về phía bắc."
   }
  },
  "sh-gu-shinsaibashi": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/11e4f408cbd4.webp",
+    "caption": "Tòa có GU Shinsaibashi và UNIQLO trên phố Shinsaibashisuji (12/2022)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:UNIQLO_Shinsaibashi_store_%26_GU_Shinsaibashi_store.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/5b096956645c.webp",
+    "caption": "Phố mua sắm có mái che Shinsaibashisuji, 10/2024",
+    "credit": "Don Ramey Logan",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinsaibashi_Suji_Shopping_Street_Osaka_Japan_by_Don_Ramey_Logan.jpg"
+   }
+  ],
   "lat": 34.671255,
   "lng": 135.501611,
   "address": "大阪府大阪市中央区心斎橋筋2-1-17",
   "hours": "11:00–21:00",
-  "why": "Cùng địa chỉ với UNIQLO Shinsaibashisuji. Nếu đã bỏ quần GU ở Tokyo thì dự phòng ở đây.",
+  "why": "GU là thương hiệu thời trang giá rẻ cùng tập đoàn với UNIQLO. GU Shinsaibashi nằm ở các tầng trên của tòa UNIQLO Shinsaibashisuji Shōtengai: khi cửa hàng tích hợp mở ngày 17/9/2021, GU chiếm tầng 3–4, khoảng 270 tsubo, bán đồ nam và nữ. Store locator xếp đây là cửa hàng cỡ tiêu chuẩn, có phòng thử rộng.",
   "official": "https://map.gu-global.com/jp/api/storelocator/v1/ja/stores?limit=10&r=jp&lang=ja&keyword=%E5%BF%83%E6%96%8E%E6%A9%8B",
   "store": {
    "chain": "gu",
@@ -14920,16 +16051,32 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "forza-osaka",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": "Cùng địa chỉ với UNIQLO Shinsaibashisuji. Nếu đã bỏ quần GU ở Tokyo thì dự phòng ở đây.",
+   "buy": [
+    "Đồ nữ và đồ nam theo mùa của GU",
+    "Đồ cơ bản giá thấp hơn UNIQLO để mua thêm khi cần thay",
+    "Hàng đặt trên web hoặc app GU, nhận tại cửa hàng"
+   ],
+   "advice": "Hỏi quầy thu ngân về tax-free và mang hộ chiếu. Nếu sợ hết cỡ, đặt trước trên web GU rồi chọn nhận tại cửa hàng này."
   }
  },
  "sh-donki-dotonbori-midosuji": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/72b0491c5b23.webp",
+    "caption": "Mặt tiền Don Quijote Dōtonbori Midōsuji (6/2015)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Don_Quijote_Dotonbori_Midosuji_store.JPG"
+   }
+  ],
   "lat": 34.669274,
   "lng": 135.499805,
   "address": "大阪府大阪市中央区西心斎橋2-5-9",
   "hours": "24 giờ, không nghỉ",
-  "why": "Mở 24h, tax-free, cách Nankai Namba và hotel vài phút. Mua vali S dự phòng, snack, drugstore; bước cân hành lý cuối cùng ngày 12.",
+  "why": "Don Quijote (Donki) là chuỗi cửa hàng giảm giá của Nhật, bán lẫn lộn snack, mỹ phẩm, thuốc, đồ gia dụng và đồ du lịch. Chi nhánh này nằm bên đại lộ Midōsuji ở Nishi-Shinsaibashi, khác với cửa hàng Don Quijote Dōtonbori có vòng quay Ebisu Tower bên bờ kênh. Cửa hàng có quầy thuốc, rượu, thuốc lá và các quầy chuyên doanh thuê chỗ trong tòa.",
   "tips": "Tầng 9–10 là phòng khám và nhà hàng; khu bán hàng chưa có sơ đồ trên trang",
   "official": "https://www.donki.com/store/shop_detail.php?shop_id=373",
   "store": {
@@ -14940,15 +16087,40 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "forza-osaka",
-   "walkMin": 6
+   "walkMin": 6,
+   "plan": "Mở 24h, tax-free, cách Nankai Namba và hotel vài phút. Mua vali S dự phòng, snack, drugstore; bước cân hành lý cuối cùng ngày 12.",
+   "buy": [
+    "Snack và bánh kẹo Nhật mua số lượng",
+    "Mỹ phẩm, đồ chăm sóc da và thuốc không kê đơn",
+    "Vali và đồ du lịch",
+    "Rượu và đồ uống có cồn"
+   ],
+   "advice": "Thuốc chỉ bán khi có dược sĩ hoặc người bán thuốc có đăng ký trực ca. Ngoài thẻ tín dụng và UnionPay, cửa hàng nhận Suica, ICOCA, Alipay, WeChat Pay, KakaoPay và nhiều ví khác, nhưng ví điện tử (trừ majica) chỉ dùng được ở một số quầy."
   }
  },
  "sh-amerikamura": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/e5faca50ced3.webp",
+    "caption": "Phố ở Amerikamura (7/2014)",
+    "credit": "Wpcpey",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Amerikamura_2014.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/acf33e9b1b51.webp",
+    "caption": "Công viên Tam giác (Mitsu Park) ở Amerikamura",
+    "credit": "DVMG",
+    "license": "CC BY 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sankaku_Park(Mitsu_Park),_Amemura_-_panoramio_(1).jpg"
+   }
+  ],
   "lat": 34.672085,
   "lng": 135.497946,
   "address": "大阪府大阪市中央区西心斎橋",
-  "why": "Khu thời trang vintage, giày secondhand, 10 phút đi bộ từ hotel. Giờ từng tiệm khác nhau (thường đóng muộn).",
+  "why": "Amerikamura (Ame-mura) là khu phố thời trang trẻ ở phía tây ga Shinsaibashi, trải từ Nagahori-dōri xuống tới Dōtonbori. Khu hình thành từ năm 1969, khi quán cà phê Loop mở trước công viên Tam giác và thu hút giới sáng tạo trẻ; sau đó các nhà kho được sửa thành tiệm bán đồ casual nhập từ bờ tây nước Mỹ và Hawaii. Theo số liệu năm 2018 khu có khoảng 2.500 cửa hàng, nhiều nhất là quần áo (cả đồ secondhand), tạp hóa, quán ăn và live house; mốc dễ nhận là tượng Nữ thần Tự do nhỏ và bức tranh tường “Peace on Earth” vẽ năm 1983.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=アメリカ村",
   "store": {
    "chain": "vintage",
@@ -14958,16 +16130,40 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "forza-osaka",
-   "walkMin": 11
+   "walkMin": 11,
+   "plan": "Khu thời trang vintage, giày secondhand, 10 phút đi bộ từ hotel. Giờ từng tiệm khác nhau (thường đóng muộn).",
+   "buy": [
+    "Quần áo, kể cả đồ secondhand và vintage",
+    "Đồ tạp hóa và phụ kiện ở các tiệm nhỏ",
+    "Đồ ăn vặt, cà phê quanh công viên Tam giác"
+   ],
+   "advice": "Lấy công viên Tam giác (Sankaku Kōen, tên chính thức Mitsu Kōen) ở giữa khu làm điểm hẹn và mốc định hướng. Mỗi tiệm có giờ và cách thanh toán riêng; tiệm nhỏ có thể không làm tax-free nên hỏi trước khi trả tiền."
   }
  },
  "sh-doguyasuji-kyoya": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/7295935591f2.webp",
+    "caption": "Phố Sennichimae Dōguyasuji, nơi có Kyōya Honten (12/2021)",
+    "credit": "Dick Thomas Johnson",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sennichimae_Doguyasuji_Shopping_Street_(51769113871).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/a539084f57ec.webp",
+    "caption": "Phố có mái che Dōguyasuji (8/2014)",
+    "credit": "Mc681",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sennichimae-doguya-suji_in_201408.JPG"
+   }
+  ],
   "lat": 34.66393,
   "lng": 135.503517,
   "address": "大阪市中央区難波千日前 (phố Dōguyasuji)",
   "hours": "9:30–18:00; nghỉ dịp đầu năm",
-  "why": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00 và đóng 18:00; lịch tới đây lúc 9:45.",
+  "why": "Kyōya Honten là tiệm bát đĩa trên Sennichimae Dōguyasuji, phố có mái che ở Namba chuyên bán dụng cụ bếp và đồ cho nhà hàng. Tiệm bày nhiều loại bát đĩa kiểu Nhật và kiểu Tây, cùng đồ gốm và đồ sơn mài, từ đồ dùng hằng ngày đến đồ đãi khách, nên có thể so chất liệu, dáng và màu ngay tại chỗ.",
   "tips": "Bát đĩa Nhật và Tây, gốm, sơn mài",
   "official": "https://www.doguyasuji.or.jp/shop/kyouya/",
   "store": {
@@ -14978,15 +16174,33 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "doguyasuji",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": "Mở sớm nhất phố (9:30). Phố Dōguyasuji nói chung mở khoảng 9:30–10:00 và đóng 18:00; lịch tới đây lúc 9:45.",
+   "buy": [
+    "Bát đĩa kiểu Nhật dùng hằng ngày",
+    "Bát đĩa kiểu Tây",
+    "Đồ gốm sứ (tōki)",
+    "Đồ sơn mài (shikki)",
+    "Bát đĩa đãi khách cho dịp đặc biệt"
+   ],
+   "advice": "Tiệm làm tax-free, nhận thẻ tín dụng, thanh toán QR, Alipay, WeChat Pay và thẻ IC giao thông, có nhân viên phục vụ nhiều thứ tiếng. Bát đĩa nặng và dễ vỡ, nên nhờ tiệm gói kỹ hoặc chọn món nhỏ để mang trong hành lý xách tay."
   }
  },
  "sh-takashimaya-osaka": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/a352a4c80f29.webp",
+    "caption": "Ga Namba và Takashimaya Osaka (2006)",
+    "credit": "663highland",
+    "license": "CC BY 2.5 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nankai_namba_station03s3872.jpg"
+   }
+  ],
   "lat": 34.664628,
   "lng": 135.501796,
   "address": "大阪市中央区難波5-1-5",
-  "why": "Depachika cạnh Nankai Namba, nằm trong lịch lúc 12:00. Không mở được trang chính thức nên chưa biết giờ và ngày nghỉ; xem lại trên trang Takashimaya trước chuyến đi.",
+  "why": "Takashimaya Osaka là cửa hàng bách hóa nối thẳng ga Namba, gồm ba tòa Chính, Đông và Tây; đợt mở rộng lớn khai trương ngày 3/3/2011. Tầng hầm B1 của tòa Chính và tòa Đông bán đồ ăn sẵn, bánh Nhật và Tây, rượu; tầng 6 có đồ trẻ em, đồ chơi, đồ gia dụng cùng góc đồ thủ công vùng Kansai; tầng 7–9 là khu nhà hàng NAMBA DiNiNG MAiSON.",
   "tips": "B1: thực phẩm (hộp bánh Yoku Moku trong giỏ mua)",
   "store": {
    "chain": "depachika",
@@ -14996,16 +16210,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "takashimaya-osaka",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": "Depachika cạnh Nankai Namba, nằm trong lịch lúc 12:00. Không mở được trang chính thức nên chưa biết giờ và ngày nghỉ; xem lại trên trang Takashimaya trước chuyến đi.",
+   "buy": [
+    "Bánh ở B1: GOKAN (bánh Lemonsan), Bâton d'or của Glico",
+    "Kakitane Kitchen: kaki no tane vị sốt takoyaki, chỉ bán ở Osaka",
+    "Sô-cô-la muối của Ek Chuah ở B1",
+    "Dao Sakai và đồ thiếc Osaka Naniwa ở tầng 6"
+   ],
+   "advice": "Theo bài hướng dẫn cập nhật 2/2024, quầy tax-free ở tầng 7, và khách nước ngoài trình hộ chiếu để nhận Shopper's Card giảm 5% cho đơn từ ¥3.000 (chưa thuế), trừ một số hãng. Hỏi lại ở quầy thông tin vì quy định tax-free đã đổi từ 11/2026."
   }
  },
  "sh-workman-colors-namba-city": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/6cb3c1cfc98c.webp",
+    "caption": "Mặt ngoài tòa chính Namba CITY (2/2019); Workman Colors ở tòa Nam",
+    "credit": "Rebirth10",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Nanba_CITY_2019,02.jpg"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/ff2924dceff9.webp",
+    "caption": "Tầng 1 bên trong Namba CITY (2025)",
+    "credit": "Fotoinjp",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E3%81%AA%E3%82%93%E3%81%B0CITY_Level_1_2025.jpg"
+   }
+  ],
   "lat": 34.662544,
   "lng": 135.502587,
   "address": "大阪府大阪市中央区難波5-1-60 なんばCITY南館 2F",
   "hours": "11:00–21:00",
-  "why": "Chi nhánh Workman duy nhất sát tuyến; Tokyo và Kyoto trung tâm không có. Cạnh Nankai Namba, tiện ghé sáng ngày 12 nếu mở cửa kịp.",
+  "why": "Workman là chuỗi đồ lao động của Nhật; Workman Colors là dạng cửa hàng không bán đồ lao động, chỉ bán quần áo thường ngày có tính năng cho nữ và nam, trong đó đồ cơ bản chiếm khoảng 60%. Chi nhánh ở tầng 2 tòa Nam Namba CITY mở ngày 2/4/2021 dưới tên #Workman Joshi, là cửa hàng đầu tiên của dạng này ở Kansai, sau đổi sang tên Workman Colors.",
   "tips": "2F, Nam館 (South Building)",
   "official": "https://www.workman.co.jp/store/area/270008",
   "store": {
@@ -15016,16 +16255,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "takashimaya-osaka",
-   "walkMin": 5
+   "walkMin": 5,
+   "plan": "Chi nhánh Workman duy nhất sát tuyến; Tokyo và Kyoto trung tâm không có. Cạnh Nankai Namba, tiện ghé sáng ngày 12 nếu mở cửa kịp.",
+   "buy": [
+    "Quần đa năng mặc cả khi làm việc lẫn hằng ngày",
+    "Áo khoác, hoodie có tính năng (chống UV, giảm nóng) theo mùa",
+    "Đồ active cho thể thao và dã ngoại",
+    "Đồ nam dòng mặc thường ngày"
+   ],
+   "advice": "Nếu định gom đủ ¥5.000 để làm tax-free, hỏi quầy trước về thủ tục và cách thanh toán. Giờ mở theo Namba CITY và có thể đổi theo tòa nhà."
   }
  },
  "sh-hankyu-umeda": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/9116781d9545.webp",
+    "caption": "Tòa Hankyu Umeda Honten (2/2013)",
+    "credit": "Kanchi1979",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:JP-Osaka-Umeda-Hankyu-Department-Store.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/b0f95fedb807.webp",
+    "caption": "Cửa hàng bách hóa Hankyu ở Umeda (2/2016)",
+    "credit": "nakashi",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hankyu_Department_Store,_Umeda_2016-02-10_(24862122741).jpg"
+   }
+  ],
   "lat": 34.702712,
   "lng": 135.498432,
   "address": "大阪府大阪市北区角田町8-7",
   "hours": "10:00–20:00 hằng ngày; nhà hàng 12–13F 11:00–22:00",
-  "why": "Depachika lớn ở Umeda, kế Loft Hanshin. Đóng 20:00 mỗi ngày, ghé trước 19:00 để chọn quà ăn hạn dài.",
+  "why": "Hankyu Umeda Honten mở năm 1929, do công ty đường sắt Hankyu trực tiếp vận hành, và được nhắc đến như cửa hàng bách hóa đặt tại ga đầu mối đầu tiên trên thế giới. Tòa nhà hiện nay xây lại theo hai giai đoạn, mở toàn bộ ngày 21/11/2012, trải từ tầng B2 đến tầng 13. Ở tầng 9 có Shukusai Hiroba, khoảng sảnh cao 16 m thông lên tầng 12, dùng cho hội chợ và sự kiện.",
   "tips": "B1: bánh Nhật và Tây, bánh mì, đồ ăn, có quầy tư vấn quà; 2–3F HANKYU BEAUTY; 8F Gift Center; 10F Gift Salon",
   "official": "https://www.hankyu-dept.co.jp/honten/",
   "store": {
@@ -15036,16 +16300,42 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "loft-umeda",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": "Depachika lớn ở Umeda, kế Loft Hanshin. Đóng 20:00 mỗi ngày, ghé trước 19:00 để chọn quà ăn hạn dài.",
+   "buy": [
+    "Dưa muối, tsukudani, đồ ăn để lâu và rượu ở tầng B2",
+    "Văn phòng phẩm, đồ thủ công, phụ kiện ở Umeda Souk tầng 10",
+    "Đồ du lịch ở tầng 8",
+    "Mỹ phẩm ở HANKYU BEAUTY MAISON tầng 7",
+    "Hội chợ và sự kiện theo mùa ở tầng 9"
+   ],
+   "advice": "Quầy tax-free ở khu thông tin tầng 1; ở B1 có quầy cho khách nước ngoài cũng làm thủ tục tax-free, tiện khi mua đồ ăn. Trang tiếng Anh của cửa hàng có mục Guest coupon cho khách nước ngoài, xem trước khi đi."
   }
  },
  "sh-loft-umeda": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/f66265fb45d7.webp",
+    "caption": "Tòa Hanshin Umeda Honten, nơi Loft ở tầng 6 (11/2023)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:HANSHIN_UMEDA_MAIN_STORE_on_6th_November_2023.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/abdcd9804e84.webp",
+    "caption": "Hanshin Umeda Honten nhìn từ phố (9/2023)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hanshin_Department_Stores_Umeda_Main_Store_on_15th_September_2023.jpg"
+   }
+  ],
   "lat": 34.701165,
   "lng": 135.498607,
   "address": "大阪府大阪市北区梅田1-13-13 阪神梅田本店 6F",
   "hours": "10:00–20:00 (tax-free đến 19:30)",
-  "why": "Nằm trong lịch lúc 13:15. Văn phòng phẩm, tester CANMAKE, đồ gia dụng nhỏ.",
+  "why": "Loft là chuỗi cửa hàng tạp hóa lối sống của Nhật: văn phòng phẩm, mỹ phẩm, đồ gia dụng và đồ chơi. Loft Umeda rời địa điểm Chayamachi sau 34 năm và mở lại ở tầng 6 Hanshin Umeda Honten ngày 21/5/2025, rộng khoảng 2.222 m² với khoảng 40.000 mặt hàng. Sàn chia hai nửa đông và tây theo kiểu khu chợ (“LOFT 市場 NEO”), mỗi khu đánh số và treo rèm noren để dễ tìm.",
   "tips": "6F Hanshin Umeda Honten; không phải địa chỉ Loft Chayamachi cũ",
   "official": "https://www.loft.co.jp/shop_list/detail.php?shop_id=143",
   "store": {
@@ -15056,15 +16346,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "loft-umeda",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": "Nằm trong lịch lúc 13:15. Văn phòng phẩm, tester CANMAKE, đồ gia dụng nhỏ.",
+   "buy": [
+    "Mỹ phẩm mini và đồ chăm sóc da ở khu health & beauty",
+    "Văn phòng phẩm, sổ, bút, băng keo giấy",
+    "Quà riêng của Osaka dòng “Yappa suki yanen Osaka” (lúc khai trương)",
+    "Góc mô hình LOFTOYSHOW (POP MART, JIN ART)",
+    "Đồ bếp và đồ gia dụng nhỏ"
+   ],
+   "advice": "Thanh toán được bằng thẻ IC giao thông, PayPay, Alipay+, WeChat Pay, UnionPay và nhiều ví khác. Theo thông cáo khai trương, cửa hàng nghỉ cùng ngày với Hanshin Umeda Honten."
   }
  },
  "sh-links-umeda": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/5cba8f0b0d6f.webp",
+    "caption": "Tòa LINKS UMEDA (11/2019)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:LINKS_Umeda_on_18th_November_2019.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/630e0d654430.webp",
+    "caption": "LINKS UMEDA về đêm (11/2019)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:LINKS_UMEDA_on_15th_November_2019.jpg"
+   }
+  ],
   "lat": 34.70445,
   "lng": 135.496192,
   "address": "大阪府大阪市北区大深町 (cạnh Yodobashi Umeda)",
-  "why": "Trung tâm thương mại phía Umeda, nơi dự phòng mua anello CROSS BOTTLE nếu không mua ở Shinsaibashi.",
+  "why": "LINKS UMEDA là khu thương mại khoảng 200 cửa hàng trong tòa Yodobashi Umeda Tower phía bắc ga Osaka, mở tháng 11/2019, cùng tòa với khách sạn Hotel Hankyu RESPIRE Osaka khoảng 1.000 phòng. Tầng hầm có chợ thực phẩm LINKS MARCHE Eat & Walk và hẻm quán Oishii Mono Yokochō mở đến 24:00. Từ mùa thu 2025, 26 cửa hàng được làm mới, trong đó UNIQLO UMEDA hai tầng (tầng 1–2) được giới thiệu là UNIQLO lớn nhất miền Tây Nhật Bản.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=LINKS UMEDA",
   "store": {
    "chain": "other",
@@ -15074,15 +16390,40 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "loft-umeda",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": "Trung tâm thương mại phía Umeda, nơi dự phòng mua anello CROSS BOTTLE nếu không mua ở Shinsaibashi.",
+   "buy": [
+    "Đồ ăn, thực phẩm mang đi ở LINKS MARCHE Eat & Walk (B1)",
+    "UNIQLO UMEDA: sửa, thêu lại đồ ở RE.UNIQLO STUDIO tầng 2",
+    "Ba lô anello (bài 2023 ghi có cửa hàng trong tòa)",
+    "Đồ trẻ em và đồ chơi ở tầng 5"
+   ],
+   "advice": "Tầng 5 nối thẳng sang tầng 5 Yodobashi Multimedia Umeda nên đi qua lại không cần ra đường. Tầng 1–7 mở 10:00–21:00 và chợ B1 9:30–22:00, nhưng tòa đang làm mới từ cuối 2025 nên xem lại giờ trước chuyến đi."
   }
  },
  "sh-yodobashi-umeda": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/5118004381b7.webp",
+    "caption": "Tòa Yodobashi Umeda (9/2020)",
+    "credit": "Mr.ちゅらさん",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yodobashi_Umeda_2020-09_(2).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/ec08c0514f0a.webp",
+    "caption": "Yodobashi Umeda nhìn từ phố (9/2020)",
+    "credit": "Mr.ちゅらさん",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yodobashi_Umeda_2020-09_(1).jpg"
+   }
+  ],
   "lat": 34.704206,
   "lng": 135.496361,
   "address": "大阪府大阪市北区大深町1-1",
-  "why": "Cửa hàng điện tử lớn ở Umeda, cạnh LINKS UMEDA. Xem lại trước chuyến đi.",
+  "why": "Yodobashi Camera Multimedia Umeda là cửa hàng điện máy lớn của chuỗi Yodobashi ở phía bắc ga Osaka, bán máy ảnh, máy tính, điện thoại, đồ gia dụng, đồ chơi và nhiều nhóm hàng khác. Khu đồ chơi và mô hình đã dồn về tầng 5 với lối đi rộng; cùng tầng 5 của LINKS UMEDA bên cạnh tạo thành khu trẻ em khoảng 9.900 m², riêng đồ chơi và hobby khoảng 5.300 m².",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=ヨドバシ",
   "store": {
    "chain": "yodobashi",
@@ -15092,16 +16433,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "loft-umeda",
-   "walkMin": 7
+   "walkMin": 7,
+   "plan": "Cửa hàng điện tử lớn ở Umeda, cạnh LINKS UMEDA. Xem lại trước chuyến đi.",
+   "buy": [
+    "Máy ảnh, ống kính và phụ kiện",
+    "Đồ chơi, mô hình và hobby ở tầng 5",
+    "Đồ điện gia dụng Nhật như máy sấy tóc, nồi cơm điện",
+    "Pin dự phòng, cáp sạc và phụ kiện điện thoại"
+   ],
+   "advice": "Cửa hàng mở 9:30–22:00; trang chính thức không tải được lúc tra nên kiểm lại giờ trước khi đi. Các hướng dẫn ghi tầng của quầy tax-free khác nhau, nên mang hộ chiếu và hỏi nhân viên ngay ở tầng mua hàng."
   }
  },
  "sh-hands-shinsaibashi": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/a6cea73196e6.webp",
+    "caption": "Tòa Shinsaibashi PARCO, nơi Hands ở tầng 9–11 (2020)",
+    "credit": "Mr.ちゅらさん",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:PARCO_Shinsaibashi_(1).JPG"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/bdc68831ec3f.webp",
+    "caption": "Mặt tiền Shinsaibashi PARCO, 11/2020",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinsaibashi_PARCO_on_3rd_November_2020.jpg"
+   }
+  ],
   "lat": 34.673865,
   "lng": 135.500971,
   "address": "大阪府大阪市中央区心斎橋筋1-8-3 心斎橋PARCO 9–11F",
   "hours": "10:00–20:00",
-  "why": "Hands còn hoạt động ở Osaka; Hands Shibuya sẽ đóng vĩnh viễn 15/11/2026. Đóng 20:00 nên ghé ngay sau bữa tối sớm ở Tahei.",
+  "why": "Hands (trước đây là Tokyu Hands) là chuỗi cửa hàng đồ dùng, đồ tự làm và tạp hóa của Nhật. Chi nhánh Shinsaibashi nối thẳng ga Shinsaibashi tuyến Midōsuji: tầng 9 bán túi, vali, đồ du lịch, ô và phụ kiện điện thoại; tầng 10 là sức khỏe và làm đẹp; tầng 11 có văn phòng phẩm, dụng cụ DIY, nội thất, đồ tắm, đồ giặt và đồ bếp.",
   "tips": "9–11F Shinsaibashi PARCO",
   "official": "https://store.hands.net/shinsaibashi/",
   "store": {
@@ -15112,7 +16478,16 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "forza-osaka",
-   "walkMin": 10
+   "walkMin": 10,
+   "plan": "Hands còn hoạt động ở Osaka; Hands Shibuya sẽ đóng vĩnh viễn 15/11/2026. Đóng 20:00 nên ghé ngay sau bữa tối sớm ở Tahei.",
+   "buy": [
+    "Vali và đồ tiện ích du lịch ở tầng 9",
+    "Ô và áo mưa ở tầng 9",
+    "Mỹ phẩm, chăm sóc da và đồ chăm sóc sức khỏe ở tầng 10",
+    "Bút, sổ và đồ thiết kế ở góc Design Works tầng 11",
+    "Bình nước, hộp cơm bento, đồ pha cà phê ở tầng 11"
+   ],
+   "advice": "Cửa hàng nhận thẻ tín dụng, thẻ IC giao thông, PayPay, Alipay, WeChat Pay và UnionPay; có tax-free, hỏi quầy thu ngân nơi làm thủ tục. Nếu mua vali, xem tầng 9 sau cùng để khỏi kéo vali lên các tầng trên."
   }
  },
  "sh-anello-shinsaibashi": {
@@ -15120,7 +16495,7 @@ export const DETAILS: Record<string, Detail> = {
   "lat": 34.675369,
   "lng": 135.501859,
   "address": "大阪府大阪市中央区南船場3丁目 (cạnh Nagahori-dōri)",
-  "why": "Cửa hàng anello cho CROSS BOTTLE trong giỏ mua. Cách UNIQLO Shinsaibashi vài phút.",
+  "why": "anello là thương hiệu túi của Carrot Company, hãng làm túi thành lập ở Osaka năm 1988; tên anello trong tiếng Ý nghĩa là vòng tuổi của cây. Ba lô miệng khung (口金リュック) ra mắt tháng 11/2014 rất ăn khách, và hãng mở cửa hàng flagship đầu tiên ở Shinsaibashi tháng 11/2017. Sau khi cửa hàng Harajuku đóng tháng 8/2023, hãng bán ở Nhật qua flagship Osaka, cửa hàng trong LINKS UMEDA và cửa hàng online.",
   "official": "https://nominatim.openstreetmap.org/search?format=json&accept-language=ja&q=anello",
   "store": {
    "chain": "other",
@@ -15130,15 +16505,39 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "forza-osaka",
-   "walkMin": 13
+   "walkMin": 13,
+   "plan": "Cửa hàng anello cho CROSS BOTTLE trong giỏ mua. Cách UNIQLO Shinsaibashi vài phút.",
+   "buy": [
+    "Ba lô miệng khung (口金リュック), dòng làm nên tên tuổi anello",
+    "CROSS BOTTLE bản S trong giỏ mua; xem thử cả bản R lớn hơn",
+    "Các mẫu ba lô khác của hãng để so kích thước trước khi mua"
+   ],
+   "advice": "Bài báo gần nhất về flagship Shinsaibashi là từ 2023, và hai nguồn toạ độ lệch nhau khoảng 100 m (Nagahori-dōri và phố Shinsaibashisuji), nên kiểm lại vị trí trên trang anello trước khi đi."
   }
  },
  "sh-kix-shops": {
-  "images": [],
+  "images": [
+   {
+    "kind": "interior",
+    "src": "img/commons/04629c1e555e.webp",
+    "caption": "Dãy cửa hàng trong khu sau an ninh, sân bay Kansai (2025)",
+    "credit": "Fotointheworld",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kansai_Airport_Terminal_Restrict_Area_shops_2025.JPG"
+   },
+   {
+    "kind": "interior",
+    "src": "img/commons/5e7e345c064e.webp",
+    "caption": "Cửa hàng KIX DUTY FREE ở sân bay Kansai (2025)",
+    "credit": "Fotointheworld",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:KIX_Duty_free_in_Kansai_Airport_Terminal_2025.JPG"
+   }
+  ],
   "lat": 34.43597,
   "lng": 135.24349,
   "address": "大阪府泉佐野市泉州空港北 (Sân bay Kansai)",
-  "why": "Chốt quà còn thiếu trước khi lên máy bay. Xem lại sau khi biết giờ bay. Tax-free mới: phải qua hải quan duyệt trước khi ký gửi.",
+  "why": "Khu mua sắm chính của Terminal 1 sân bay Kansai nằm trong khu miễn thuế sau quầy check-in và cửa an ninh, chia thành Tòa chính, Cánh Bắc và Cánh Nam. Ngay sau an ninh là KIX DUTY FREE rộng khoảng 2.500 m², đi xuyên qua để vào Central Plaza chia bốn khu chủ đề. Terminal 1 được cải tạo từ 5/2021, khu quốc tế làm mới 12/2023 và giai đoạn cuối dự kiến xong vào hè 2026.",
   "official": "https://www.kansai-airport.or.jp/en/shop/",
   "store": {
    "chain": "other",
@@ -15148,16 +16547,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "kix",
-   "walkMin": 1
+   "walkMin": 1,
+   "plan": "Chốt quà còn thiếu trước khi lên máy bay. Xem lại sau khi biết giờ bay. Tax-free mới: phải qua hải quan duyệt trước khi ký gửi.",
+   "buy": [
+    "Mỹ phẩm, nước hoa, rượu, thuốc lá, bánh kẹo ở KIX DUTY FREE",
+    "Bánh kẹo vùng Kansai ở Kansai Tabinikki",
+    "Figure, mô hình ở Anime hunt",
+    "Đồ thủ công Nhật ở IPPINSAN"
+   ],
+   "advice": "Danh sách cửa hàng của sân bay ghi KIX DUTY FREE ở Terminal 1 mở từ 6:00, giờ đóng thay đổi theo lịch bay. Rượu, nước hoa mua sau cửa an ninh không bị giới hạn chất lỏng lúc lên máy bay, nhưng nếu nối chuyến ở sân bay khác hãy hỏi quầy về túi niêm phong."
   }
  },
  "sh-muji-akiba-trim": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/28ad96627b86.webp",
+    "caption": "Tòa Akiba Trim trước ga Akihabara; MUJI ở tầng 3 (4/2012)",
+    "credit": "正和",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Akiba_tolim.JPG"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/851b86d6d3aa.webp",
+    "caption": "Tòa nhà Akiba Trim (7/2008)",
+    "credit": "yoppy",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Akiba_Tolim.jpg"
+   }
+  ],
   "lat": 35.6979,
   "lng": 139.77383,
   "address": "東京都千代田区神田佐久間町1-6-5 アキバ・トリム 3F",
   "hours": "11:00–22:00, mở hằng ngày",
-  "why": "Chi nhánh gần hotel nhất, mở đến 22:00 nên ghé được sau bữa tối ngày 2.",
+  "why": "Chi nhánh MUJI (無印良品, “hàng tốt không nhãn hiệu”) ở tầng 3 Akiba Trim, tòa TX Akihabara Hankyu trước ga Akihabara, cạnh lối lên ga Tsukuba Express. Bán quần áo, văn phòng phẩm, đồ gia dụng và đồ ăn mang nhãn MUJI.",
   "tips": "3F",
   "official": "https://www.muji.com/jp/ja/shop/detail/045443",
   "store": {
@@ -15168,16 +16592,41 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "resol-akihabara",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": "Chi nhánh gần hotel nhất, mở đến 22:00 nên ghé được sau bữa tối ngày 2.",
+   "buy": [
+    "Bút gel, sổ và văn phòng phẩm MUJI",
+    "Hộp, túi đựng đồ đi du lịch",
+    "Quần áo cơ bản, tất",
+    "Cà ri túi và snack MUJI"
+   ],
+   "advice": "Trả được bằng thẻ tín dụng, thẻ IC giao thông, PayPay, COIN+ và MUJI passport Pay. Cần đủ dòng hàng hơn (vali, đồ ăn tươi) thì để dành cho MUJI Ginza."
   }
  },
  "sh-muji-ginza": {
-  "images": [],
+  "images": [
+   {
+    "kind": "interior",
+    "src": "img/commons/32092229ec5c.webp",
+    "caption": "Khu quần áo nam trong MUJI Ginza (11/2023)",
+    "credit": "Nick-D",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mens_clothes_at_the_Muji_Ginza_store_November_2023.jpg"
+   },
+   {
+    "kind": "detail",
+    "src": "img/commons/04801f22d0c8.webp",
+    "caption": "Vali bày bán ở MUJI Ginza (11/2023)",
+    "credit": "Nick-D",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Suitcases_in_the_Muji_Ginza_store_November_2023.jpg"
+   }
+  ],
   "lat": 35.67338,
   "lng": 139.76552,
   "address": "東京都中央区銀座3-3-5",
   "hours": "11:00–21:00; MUJI Diner và Coffee & Salon mở đến 22:00",
-  "why": "Cửa hàng lớn nhất Tokyo, đủ mọi dòng hàng. Đi tàu Ginza Line vài phút từ Nihonbashi; nghỉ chỉ khi kiểm kê.",
+  "why": "MUJI Ginza là cửa hàng chủ lực toàn cầu của MUJI, làm mới và mở lại tháng 9/2023 với trọng tâm là đồ ăn. Tầng hầm có nhà hàng MUJI Diner và khu rượu vang do sommelier chọn, tầng 1 có cà phê rang tại chỗ (có blend riêng Ginza) và tiệm bánh nướng tại cửa hàng. Tầng 6–10 là MUJI HOTEL GINZA, khách sạn MUJI đầu tiên ở Nhật.",
   "tips": "Cửa hàng chủ lực nhiều tầng, có MUJI Diner ở B1",
   "official": "https://www.timeout.jp/tokyo/ja/ショッピング/mujirushiryohin-ginza",
   "store": {
@@ -15188,16 +16637,34 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "maruzen-nihonbashi",
-   "walkMin": 18
+   "walkMin": 18,
+   "plan": "Cửa hàng lớn nhất Tokyo, đủ mọi dòng hàng. Đi tàu Ginza Line vài phút từ Nihonbashi; nghỉ chỉ khi kiểm kê.",
+   "buy": [
+    "Cà phê blend riêng Ginza, rang tại cửa hàng (1F)",
+    "Bánh mì nướng tại chỗ (1F)",
+    "Rượu vang do sommelier chọn (B1)",
+    "Vali và đồ du lịch MUJI",
+    "Quần áo nam, nữ"
+   ],
+   "advice": "Từ ga Ginza (Marunouchi, Ginza, Hibiya Line) đi lối B4 khoảng 3 phút. Cửa hàng có nhân viên tư vấn cà phê và phối đồ, hỏi họ khi cần chọn blend hay size."
   }
  },
  "sh-muji-lumine-shinjuku": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/61160f003b61.webp",
+    "caption": "Lối ra phía đông nam ga JR Shinjuku và tòa LUMINE 2 (5/2023)",
+    "credit": "MaedaAkihiko",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinjuku-STA_South-entrance_2023.jpg"
+   }
+  ],
   "lat": 35.68918,
   "lng": 139.69931,
   "address": "LUMINE 2 6F, ga JR Shinjuku (cổng nam)",
   "hours": "11:00–21:00 (cập nhật 28/4/2026)",
-  "why": "Ngay cổng nam ga Shinjuku, cách SUSHI TOKYO TEN vài phút đi bộ, có tax-free. Mở sau 11:00 nên ghé sau bữa trưa.",
+  "why": "MUJI ở 6F tòa LUMINE 2, ngay cổng soát vé phía nam ga JR Shinjuku. Cửa hàng gọn trong một tầng nhưng có đủ từ quần áo đến đồ nội thất, kèm máy cấp nước uống và dịch vụ giao hàng miễn phí có điều kiện.",
   "tips": "6F, một tầng",
   "official": "https://media.jreast.co.jp/articles/12",
   "store": {
@@ -15208,16 +16675,32 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "sushi-ten",
-   "walkMin": 4
+   "walkMin": 4,
+   "plan": "Ngay cổng nam ga Shinjuku, cách SUSHI TOKYO TEN vài phút đi bộ, có tax-free. Mở sau 11:00 nên ghé sau bữa trưa.",
+   "buy": [
+    "Quần áo cơ bản của MUJI",
+    "Đồ nội thất nhỏ, hộp sắp xếp",
+    "Nước uống ở máy cấp nước của cửa hàng (mang chai riêng)"
+   ],
+   "advice": "Có tax-free: cần hộ chiếu và đơn từ ¥5.000 (trước thuế) trong ngày; từ 1/11/2026 trả đủ thuế rồi được hoàn sau khi hải quan xác nhận lúc xuất cảnh."
   }
  },
  "sh-muji-kyoto-bal": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/e971e4ba833b.webp",
+    "caption": "Ngã tư Kawaramachi–Sanjō ngày mưa, gần Kyoto BAL (12/2013)",
+    "credit": "そらみみ",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Crossroads_of_Kawaramachi-Sanjo_in_a_rainy_day.jpg"
+   }
+  ],
   "lat": 35.00679,
   "lng": 135.76958,
   "address": "〒604-8032 京都市中京区河原町通三条下ル山崎町251 京都BAL 5F",
   "hours": "11:00–20:00, mở hằng ngày (không tính dịp Tết)",
-  "why": "Rất gần Cross Hotel Kyoto, tiện ghé buổi tối ngày 8 trước 20:00.",
+  "why": "MUJI ở 5F Kyoto BAL, tòa thương mại trên Kawaramachi-dōri mở lại ngày 21/8/2015 sau khi xây mới, hai tầng hầm và sáu tầng nổi. Từ mùa thu đông 2024, quần áo ở cửa hàng chuyển sang dòng MUJI Labo; từ 8/2025 có dịch vụ thêu mẫu chỉ có ở Kyoto BAL.",
   "tips": "5F",
   "official": "https://www.muji.com/jp/ja/shop/detail/061717",
   "store": {
@@ -15228,16 +16711,40 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": null,
    "near": "cross-kyoto",
-   "walkMin": 3
+   "walkMin": 3,
+   "plan": "Rất gần Cross Hotel Kyoto, tiện ghé buổi tối ngày 8 trước 20:00.",
+   "buy": [
+    "Quần áo dòng MUJI Labo",
+    "Thêu mẫu riêng của Kyoto BAL (bắt đầu 8/2025)",
+    "Café&Meal MUJI Kyoto BAL để nghỉ chân"
+   ],
+   "advice": "Hỏi quầy về tax-free trước khi thanh toán và mang hộ chiếu."
   }
  },
  "sh-muji-shinsaibashi-parco": {
-  "images": [],
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/9b3527260287.webp",
+    "caption": "Tòa Shinsaibashi PARCO, nơi MUJI chiếm tầng 7 (11/2020)",
+    "credit": "Tokumeigakarinoaoshima",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shinsaibashi_PARCO_on_20th_November_2020_(1).jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/7d992942d3c0.webp",
+    "caption": "Shinsaibashi PARCO, 3/2021",
+    "credit": "Mr.ちゅらさん",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:PARCO_Shinsaibashi_(3).jpg"
+   }
+  ],
   "lat": 34.67387,
   "lng": 135.50097,
   "address": "〒542-0085 大阪市中央区心斎橋筋一丁目8-3 心斎橋PARCO 7F",
   "hours": "10:00–20:00, mở hằng ngày",
-  "why": "Nối thẳng ga Shinsaibashi (Midōsuji), có tax-free. Đi bộ từ Forza khoảng 10 phút, đóng cửa lúc 20:00.",
+  "why": "MUJI (Mujirushi Ryōhin) bán đồ gia dụng, quần áo, văn phòng phẩm, mỹ phẩm và đồ ăn theo phong cách đơn giản, không in logo. Cửa hàng ở Shinsaibashi PARCO chiếm trọn tầng 7; khi mở tháng 11/2020 được giới thiệu là một trong những cửa hàng MUJI lớn nhất tỉnh Osaka, có xưởng thêu, xưởng hương liệu và chỗ ngồi uống cà phê.",
   "tips": "7F",
   "official": "https://www.muji.com/jp/ja/shop/detail/045791",
   "store": {
@@ -15248,7 +16755,15 @@ export const DETAILS: Record<string, Detail> = {
    "closedDow": [],
    "taxFree": true,
    "near": "forza-osaka",
-   "walkMin": 10
+   "walkMin": 10,
+   "plan": "Nối thẳng ga Shinsaibashi (Midōsuji), có tax-free. Đi bộ từ Forza khoảng 10 phút, đóng cửa lúc 20:00.",
+   "buy": [
+    "Thêu chữ, hình lên đồ vừa mua ở xưởng thêu (刺繍工房)",
+    "Tinh dầu và máy khuếch tán ở xưởng hương liệu (香り工房)",
+    "Văn phòng phẩm MUJI: bút, sổ",
+    "Đồ ăn đóng gói của MUJI"
+   ],
+   "advice": "Hands ở tầng 9–11 cùng tòa là cửa hàng riêng, nên mức tối thiểu tax-free ¥5.000 trước thuế tính riêng cho từng nơi, không cộng hóa đơn hai bên. Từ ga Shinsaibashi, cửa soát vé phía nam là lối gần tòa nhà nhất."
   }
  },
  "fs-lawson-kawaguchiko-ekimae": {
@@ -15500,7 +17015,32 @@ export const DETAILS: Record<string, Detail> = {
   "station": "Fujisan 5 phút",
   "why": "Cổng torii lớn bắc ngang quốc lộ, Fuji nằm gọn trong khung cổng; Fujikyu ghi đây là điểm được ưa chuộng.",
   "tips": "Đứng ở vỉa hè hoặc chờ đèn tín hiệu, không chạy ra giữa đường.",
-  "images": [],
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/d385e5b6fd5f.webp",
+    "caption": "Cổng Kane no Torii và Fuji ở Fujiyoshida",
+    "credit": "Katorisi",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kana-dorii_%26_Mt,Fuji,Fuji-yoshida,Japan.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/cb57a49cc46a.webp",
+    "caption": "Fuji và Kane no Torii trên phố Fujiyoshida (ảnh dọc)",
+    "credit": "::::=UT=::::",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Wonderful_Fuji_@_Fujiyoshida_city_walk_-_panoramio.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/6d523218ea1d.webp",
+    "caption": "Kane no Torii và Fuji trong ngày lễ hội lửa Yoshida",
+    "credit": "Sakaori",
+    "license": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Yoshida_Fire_Festival,_Mt.Fuji_and_Kanadorii.jpg"
+   }
+  ],
   "fujiSpot": {
    "area": "fujiyoshida",
    "type": "shrine",
@@ -16219,7 +17759,24 @@ export const DETAILS: Record<string, Detail> = {
   "bestTime": "Sáng.",
   "station": "Fujikawa 20 phút",
   "why": "Quán Starbucks duy nhất trong khu dịch vụ Fujikawa (làn xuống, hướng Nagoya); khu SA này nổi tiếng là điểm ngắm Fuji và có sân thượng ngoài trời. Đây là chi nhánh được nhắc nhiều nhất cho cụm \"Starbucks nhìn thấy Fuji\".",
-  "images": [],
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/cce50c085d44.webp",
+    "caption": "Fuji và cầu Fujikawa trên sông Fuji, nhìn từ khu dịch vụ Fujikawa",
+    "credit": "tomohisa suna",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Fujikawa_Bridge_from_Fujikawa_Service_Area_-_Mar_27,_2016.jpg"
+   },
+   {
+    "kind": "exterior",
+    "src": "img/commons/d0c2d0d964e4.webp",
+    "caption": "Vòng đu quay ở khu dịch vụ Fujikawa (phía làn lên, hướng Tokyo)",
+    "credit": "Taka1",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:%E5%AF%8C%E5%A3%AB%E5%B7%9D%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E3%82%A8%E3%83%AA%E3%82%A2%E8%A6%B3%E8%A6%A7%E8%BB%8A.jpg"
+   }
+  ],
   "fujiSpot": {
    "area": "fuji-city",
    "type": "cafe",
@@ -16286,6 +17843,90 @@ export const DETAILS: Record<string, Detail> = {
     }
    ]
   }
+ },
+ "lake-ashi-cruise-deck": {
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/f09b092e4041.webp",
+    "caption": "Fuji và cổng torii đền Hakone nhìn từ hồ Ashi, lá mùa thu",
+    "credit": "Ken_Lee",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Kanagawa_Hakone_Ashinoko_xl.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/a3fbcd94d6ad.webp",
+    "caption": "Tàu cướp biển Royal II trên hồ Ashi",
+    "credit": "Steven Byles",
+    "license": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Shiver_Me_Timbers!_(51587343376).jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/b841de3d8a99.webp",
+    "caption": "Lá thu và cổng torii đền Kuzuryū bên hồ, nhìn từ tàu Tōgendai–Hakone-machi",
+    "credit": "Guilhem Vellut",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Autumn_foliage_@_Sightseeing_Cruise_@_Lake_Ashi_@_From_Togendai_to_Hakone-Machi_(10621214244).jpg"
+   }
+  ]
+ },
+ "sounzan": {
+  "images": [
+   {
+    "kind": "exterior",
+    "src": "img/commons/4e0a42e7f5dc.webp",
+    "caption": "Nhà ga Sōunzan ở Hakone",
+    "credit": "663highland",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:211126_Sounzan_Station_Hakone_Japan01s3.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/5b2de0a532ac.webp",
+    "caption": "Cabin cáp treo Hakone Ropeway ở ga Sōunzan",
+    "credit": "PanierAvide",
+    "license": "CC BY 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Sounzan_station_-_October_2026_-_01.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/074f4f24d95d.webp",
+    "caption": "Ga Sōunzan nhìn từ cabin Hakone Ropeway",
+    "credit": "inunami",
+    "license": "CC BY 2.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Hakone_20220423120857_(52266567622).jpg"
+   }
+  ]
+ },
+ "miho-no-matsubara": {
+  "images": [
+   {
+    "kind": "view",
+    "src": "img/commons/477c85819266.webp",
+    "caption": "Fuji nhìn từ Miho no Matsubara, Shizuoka",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Miho_no_Matsubara_and_Mount_Fuji.JPG"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/d6a87fc0dc26.webp",
+    "caption": "Fuji và rừng thông Miho no Matsubara",
+    "credit": "Suicasmo",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Miho_no_Matsubara_20151116.jpg"
+   },
+   {
+    "kind": "view",
+    "src": "img/commons/009df5b40769.webp",
+    "caption": "Fuji nhìn từ bờ biển Miho (Miho no Matsubara)",
+    "credit": "Alpsdake",
+    "license": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "page": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_from_Miho_no_Matsubara.JPG"
+   }
+  ]
  }
 };
 
@@ -18208,7 +19849,7 @@ export const EXTRA_PLACES: ExtraPlace[] = [
  },
  {
   "id": "sh-futaba-ameyoko",
-  "name": "Futaba no Kashi (chi nhánh số 1, Ameyoko)",
+  "name": "Niki no Kashi (chi nhánh số 1, Ameyoko)",
   "ja": "二木の菓子 第一営業所",
   "kind": "shop",
   "role": "alt",

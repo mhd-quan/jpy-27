@@ -1,0 +1,32 @@
+name: TripKit
+
+on:
+  push:
+    paths: ['ios/**', 'scripts/**', 'src/data/**', 'src/lib/**', 'research/**', '.github/workflows/tripkit.yml']
+  pull_request:
+    paths: ['ios/**', 'scripts/**', 'src/data/**', 'src/lib/**', 'research/**', '.github/workflows/tripkit.yml']
+
+jobs:
+  # The app ships JSON exported from the site's data: it must match the sources it came from.
+  data:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run ios:data
+      - run: node scripts/check-plan.mjs > ios/Packages/TripKit/Tests/TripKitTests/Fixtures/check-plan.txt
+      - name: Exported data is current
+        run: git diff --exit-code
+
+  # The plan clock, replanner, ride tracking and menu matching, on Linux.
+  swift:
+    runs-on: ubuntu-24.04
+    container: swift:6.2-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift test
+        working-directory: ios/Packages/TripKit

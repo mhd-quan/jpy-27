@@ -12,6 +12,8 @@
 //   research/fuji-spots.json     Fuji spots people post about, Kawaguchiko day logistics
 //   research/stays-around.json   walks and practical places around each hotel
 //   research/shopping-*.json     item catalogue, stores and shopping slots
+//   research/shopping-cards.json what each store is, what to look for, practical advice, photos
+//   research/fuji-photos.json    what each Fuji viewpoint looks like (photos), for places without any
 //   research/trains-*.json       what to see from each ride, transfers, when to get off
 //   research/phrases.json        scenario phrasebook
 //
@@ -222,22 +224,45 @@ for (const file of readAll('snacks-')) {
   }
 }
 
-// Shopping stores: catalog places (kind shop) so the place sheet and maps can use them
+// Commons photos as the research files list them (url, page, credit, licence, Vietnamese caption)
+const commonsImages = (list, fallbackKind) =>
+  (list ?? []).filter((im) => im?.url).map((im) => ({ kind: KIND[im.kind] ?? fallbackKind, src: local(im.url), caption: clean(im.caption) ?? '', credit: clean(im.credit) ?? '', license: clean(im.license), page: im.page }));
+
+// Shopping stores: catalog places (kind shop) so the place sheet and maps can use them. A store's
+// card (shopping-cards.json) says what the store is, which becomes the place's note; the plan's
+// reason to go there moves to store.plan.
 const shopExtra = read('shopping-extra.json') ?? { items: [], stores: [], sources: [] };
+const shopCards = read('shopping-cards.json') ?? {};
 for (const st of [...(read('shopping-stores.json')?.stores ?? []), ...(shopExtra.stores ?? [])]) {
   const lat = num(st?.lat);
   const lng = num(st?.lng);
   if (!st?.id || lat == null || lng == null) continue;
+  const card = shopCards[st.id] ?? {};
+  const about = clean(card.about);
+  const images = commonsImages(card.images, 'exterior');
   details[st.id] = {
     ...(details[st.id] ?? { images: [] }),
     lat: round(lat),
     lng: round(lng),
     address: clean(st.address),
     hours: clean(st.hours),
-    why: clean(st.why),
+    why: about ?? clean(st.why),
     tips: clean(st.floors),
     official: st.src ?? undefined,
-    store: { chain: st.chain ?? 'other', city: st.city ?? null, open: st.open ?? null, close: st.close ?? null, closedDow: Array.isArray(st.closedDow) ? st.closedDow.map(Number) : [], taxFree: st.taxFree ?? null, near: st.near ?? null, walkMin: num(st.walkMin) },
+    images: images.length ? images : details[st.id]?.images ?? [],
+    store: {
+      chain: st.chain ?? 'other',
+      city: st.city ?? null,
+      open: st.open ?? null,
+      close: st.close ?? null,
+      closedDow: Array.isArray(st.closedDow) ? st.closedDow.map(Number) : [],
+      taxFree: st.taxFree ?? null,
+      near: st.near ?? null,
+      walkMin: num(st.walkMin),
+      plan: about ? clean(st.why) ?? null : null,
+      buy: (card.buy ?? []).map(clean).filter(Boolean),
+      advice: clean(card.tips) ?? null,
+    },
   };
   extraPlaces.push({ id: st.id, name: clean(st.name) ?? st.id, ja: clean(st.ja), kind: 'shop', role: 'alt', day: num(st.day) ?? undefined, category: st.chain });
 }
@@ -248,7 +273,7 @@ for (const sp of read('fuji-spots.json')?.spots ?? []) {
   const lat = num(sp?.lat);
   const lng = num(sp?.lng);
   if (!sp?.id || lat == null || lng == null) continue;
-  const images = (sp.images ?? []).filter((im) => im?.url).map((im) => ({ kind: KIND[im.kind] ?? 'view', src: local(im.url), caption: clean(im.caption) ?? '', credit: clean(im.credit) ?? '', license: clean(im.license), page: im.page }));
+  const images = commonsImages(sp.images, 'view');
   details[sp.id] = {
     ...(details[sp.id] ?? {}),
     lat: round(lat),
@@ -272,6 +297,14 @@ for (const sp of read('fuji-spots.json')?.spots ?? []) {
     },
   };
   extraPlaces.push({ id: sp.id, name: clean(sp.name) ?? sp.id, ja: clean(sp.ja), kind: 'sight', role: 'detour', day: FIT_DAY[sp.fit] ?? undefined, category: 'fuji-spot' });
+}
+
+// A Fuji viewpoint's photos (fuji-photos.json) also become the place's own when it has none: a
+// station or a sight shown only by its sight line. Places with photos keep theirs (a ryokan's
+// rooms stay on the ryokan's page; the viewpoint's card shows the scenery first either way).
+for (const [id, v] of Object.entries(read('fuji-photos.json') ?? {})) {
+  const images = commonsImages(v?.images, 'view');
+  if (images.length && !(details[id]?.images ?? []).length) details[id] = { ...(details[id] ?? {}), images };
 }
 
 // Everything that is not a place detail goes to enrich.gen.ts
@@ -378,6 +411,9 @@ export interface Store {
   taxFree: boolean | null;
   near: string | null;
   walkMin: number | null;
+  plan: string | null;
+  buy: string[];
+  advice: string | null;
 }
 
 export interface MenuItem {

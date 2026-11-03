@@ -11103,7 +11103,7 @@ export const SHOP_PLAN: any = {
    "lng": 139.770525,
    "coordSource": "OSM Nominatim: まんだらけ, 外神田3丁目 (35.70035,139.77053)",
    "address": "東京都千代田区外神田3-11-12",
-   "hours": "12:00–20:00",
+   "hours": "12:00–20:00, mở cả năm",
    "open": "12:00",
    "close": "20:00",
    "closedDow": [],
@@ -11162,7 +11162,7 @@ export const SHOP_PLAN: any = {
   },
   {
    "id": "sh-futaba-ameyoko",
-   "name": "Futaba no Kashi (chi nhánh số 1, Ameyoko)",
+   "name": "Niki no Kashi (chi nhánh số 1, Ameyoko)",
    "ja": "二木の菓子 第一営業所",
    "chain": "market",
    "city": "tokyo",
@@ -11243,7 +11243,7 @@ export const SHOP_PLAN: any = {
    "closedDow": [],
    "taxFree": null,
    "floors": "B1 và 7F: cửa hàng chuyên (9:30–22:00); 8F nhà hàng 11:00–23:00",
-   "why": "Trên đường Yamabe về hotel, mở đến 22h. Xem hàng điện tử, mỹ phẩm, đồ chơi; có Daiso tầng 1 trong tòa nhà.",
+   "why": "Trên đường Yamabe về hotel, mở đến 22h. Xem hàng điện tử, mỹ phẩm, đồ chơi; có Daiso tầng 7 trong tòa nhà.",
    "near": "resol-akihabara",
    "walkMin": 4,
    "src": "https://www.yodobashi-akiba.com/information/access_map.html"
@@ -11301,8 +11301,8 @@ export const SHOP_PLAN: any = {
    "day": 1,
    "lat": 35.698925,
    "lng": 139.774765,
-   "coordSource": "OSM Nominatim: ダイソー ヨドバシAKIBA店, tầng 1 Yodobashi (35.69893,139.77477)",
-   "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 1F",
+   "coordSource": "OSM Nominatim: ダイソー ヨドバシAKIBA店, tòa Yodobashi (35.69893,139.77477); tầng 7",
+   "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 7F",
    "hours": "9:30–22:00",
    "open": "09:30",
    "close": "22:00",
@@ -12539,7 +12539,7 @@ export const SHOP_PLAN: any = {
     "sh-uniqlo-okachimachi",
     "sh-gu-okachimachi"
    ],
-   "focus": "Quần áo cơ bản: AIRism cotton ×4, tất ×6, quần và áo GU ×2. Thử size; Futaba no Kashi cho snack chia bạn bè (đóng 20h, nên ghé trước).",
+   "focus": "Quần áo cơ bản: AIRism cotton ×4, tất ×6, quần và áo GU ×2. Thử size; Niki no Kashi cho snack chia bạn bè (đóng 20h, nên ghé trước).",
    "why": "Vali lớn gửi đi Ise sáng ngày 3 (8:00), nên mua tối nay hoặc tối mai để còn bỏ vào vali. UNIQLO và GU cùng tòa nhà, mở đến 21h, đi bộ vài bước từ Yamabe.",
    "skipIf": "Quá mệt sau chuyến bay: bỏ cả slot, mua UNIQLO Shinjuku sáng ngày 3."
   },
@@ -13044,6 +13044,7 @@ export const SHOP_PLAN: any = {
   "Dao và đồ có lưỡi phải bỏ vào hành lý ký gửi; nếu mua tax-free thì cho hải quan xem trước rồi mới gói."
  ],
  "sources": [
+  "https://www.mlit.go.jp/kankocho/tax-free/page01_000001_00021.html",
   "https://be.hands.net/be_akihabara/",
   "https://en.wikivoyage.org/wiki/Nara",
   "https://info.hands.net/list/",

@@ -33,7 +33,7 @@
    "lng": 139.770525,
    "coordSource": "OSM Nominatim: まんだらけ, 外神田3丁目 (35.70035,139.77053)",
    "address": "東京都千代田区外神田3-11-12",
-   "hours": "12:00–20:00 (ngày nghỉ chưa xác nhận)",
+   "hours": "12:00–20:00, mở cả năm",
    "open": "12:00",
    "close": "20:00",
    "closedDow": [],
@@ -92,7 +92,7 @@
   },
   {
    "id": "sh-futaba-ameyoko",
-   "name": "Futaba no Kashi (chi nhánh số 1, Ameyoko)",
+   "name": "Niki no Kashi (chi nhánh số 1, Ameyoko)",
    "ja": "二木の菓子 第一営業所",
    "chain": "market",
    "city": "tokyo",
@@ -173,7 +173,7 @@
    "closedDow": [],
    "taxFree": null,
    "floors": "B1 và 7F: cửa hàng chuyên (9:30–22:00); 8F nhà hàng 11:00–23:00",
-   "why": "Trên đường Yamabe về hotel, mở đến 22h. Xem hàng điện tử, mỹ phẩm, đồ chơi; có Daiso tầng 1 trong tòa nhà.",
+   "why": "Trên đường Yamabe về hotel, mở đến 22h. Xem hàng điện tử, mỹ phẩm, đồ chơi; có Daiso tầng 7 trong tòa nhà.",
    "near": "resol-akihabara",
    "walkMin": 4,
    "src": "https://www.yodobashi-akiba.com/information/access_map.html"
@@ -231,8 +231,8 @@
    "day": 1,
    "lat": 35.698925,
    "lng": 139.774765,
-   "coordSource": "OSM Nominatim: ダイソー ヨドバシAKIBA店, tầng 1 Yodobashi (35.69893,139.77477)",
-   "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 1F",
+   "coordSource": "OSM Nominatim: ダイソー ヨドバシAKIBA店, tòa Yodobashi (35.69893,139.77477); tầng 7 theo trang tầng của Yodobashi Akiba",
+   "address": "東京都千代田区神田花岡町1-1 ヨドバシカメラ マルチメディアAkiba 7F",
    "hours": "9:30–22:00 (theo giờ tòa nhà)",
    "open": "09:30",
    "close": "22:00",
@@ -1359,7 +1359,7 @@
     "sh-uniqlo-okachimachi",
     "sh-gu-okachimachi"
    ],
-   "focus": "Quần áo cơ bản: AIRism cotton ×4, tất ×6, quần và áo GU ×2. Thử size; Futaba no Kashi cho snack chia bạn bè (đóng 20h, nên ghé trước).",
+   "focus": "Quần áo cơ bản: AIRism cotton ×4, tất ×6, quần và áo GU ×2. Thử size; Niki no Kashi cho snack chia bạn bè (đóng 20h, nên ghé trước).",
    "why": "Vali lớn gửi đi Ise sáng ngày 3 (8:00), nên mua tối nay hoặc tối mai để còn bỏ vào vali. UNIQLO và GU cùng tòa nhà, mở đến 21h, đi bộ vài bước từ Yamabe.",
    "skipIf": "Quá mệt sau chuyến bay: bỏ cả slot, mua UNIQLO Shinjuku sáng ngày 3."
   },
@@ -1855,7 +1855,7 @@
   "Vali gửi Kyoto → Osaka sáng ngày 9: mua nhẹ ngày 9–10; đồ nặng, dễ vỡ (bát, hộp bánh) để ngày 11 khi vali đã ở hotel Forza.",
   "Quà ăn hạn dài và trà mua ở Kyoto (ngày 8–9) và Osaka (ngày 11); bánh tươi như Akafuku và 551 Hōrai ăn tại chỗ.",
   "Drugstore và Donki để buổi tối muộn: Donki Akihabara, MEGA Donki Shibuya, Donki Dōtonbori Midōsuji mở 24h và có tax-free.",
-  "Tax-free từ 1/11/2026 (theo trang Daimaru Kyoto, chưa thấy trang chính phủ): trả giá có thuế, làm thủ tục tại quầy trong ngày với hộ chiếu, tối thiểu ¥5.000 trước thuế gộp trong ngày. Trước khi ký gửi ở sân bay phải qua hải quan duyệt, mang theo cả hàng; hoàn tiền sau, phí tới 2,3%.",
+  "Tax-free từ 1/11/2026 (theo Cục Du lịch Nhật Bản): trả giá có thuế, làm thủ tục tại quầy trong ngày với hộ chiếu, tối thiểu ¥5.000 trước thuế gộp trong ngày. Trước khi ký gửi ở sân bay phải qua hải quan duyệt, mang theo cả hàng; hoàn tiền sau, phí tới 2,3%.",
   "Ippodo Honten mở 10:00–17:00 và nghỉ thứ Tư tuần thứ hai; sau 17h dùng quầy Ippodo B1 Daimaru Kyoto (mở đến 20:00).",
   "Phố Dōguyasuji mở khoảng 9:30–10:00 và đóng 18:00: nên đến 9:45, không phải 9:00 như lịch hiện tại.",
   "Hands Shibuya đóng cửa hẳn 15/11/2026 và Hands Nagoya ngày 11/1/2027; còn Hands Shinjuku, Kyoto, Shinsaibashi và Hands Be Akihabara.",
@@ -1864,6 +1864,7 @@
   "Dao và đồ có lưỡi phải bỏ vào hành lý ký gửi; nếu mua tax-free thì cho hải quan xem trước rồi mới gói."
  ],
  "sources": [
+  "https://www.mlit.go.jp/kankocho/tax-free/page01_000001_00021.html",
   "https://be.hands.net/be_akihabara/",
   "https://en.wikivoyage.org/wiki/Nara",
   "https://info.hands.net/list/",

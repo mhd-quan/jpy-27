@@ -1,0 +1,32 @@
+// Signing, bundle ids and the App Group, for both targets (project.yml spells them as these variables).
+//
+// With your own Apple Developer team: put JP27_TEAM = <team id> in Signing.local.xcconfig, keep
+// automatic signing, and register the ids below.
+// With a certificate (.p12) and provisioning profile (.mobileprovision) someone gave you:
+//   python3 scripts/use-profile.py path/to/app.mobileprovision [path/to/widgets.mobileprovision]
+// writes Signing.local.xcconfig and the entitlements that profile allows. Local files are not committed.
+
+JP27_TEAM =
+JP27_SIGN_STYLE = Automatic
+JP27_SIGN_IDENTITY = Apple Development
+
+JP27_APP_ID = tech.delphyra.jp27
+JP27_APP_PROFILE =
+JP27_APP_ENTITLEMENTS = JP27/JP27.entitlements
+
+JP27_WIDGET_ID = $(JP27_APP_ID).widgets
+JP27_WIDGET_PROFILE =
+JP27_WIDGET_ENTITLEMENTS = JP27Widgets/JP27Widgets.entitlements
+
+JP27_APP_GROUP = group.tech.delphyra.jp27
+// NO when the profile lacks WeatherKit: cloud forecasts then come from Open-Meteo
+JP27_WEATHERKIT = YES
+
+// The simulator needs no account: sign to run locally. WeatherKit refuses such builds, so the
+// simulator shows Open-Meteo forecasts.
+JP27_SIGN_STYLE[sdk=iphonesimulator*] = Manual
+JP27_SIGN_IDENTITY[sdk=iphonesimulator*] = -
+JP27_APP_PROFILE[sdk=iphonesimulator*] =
+JP27_WIDGET_PROFILE[sdk=iphonesimulator*] =
+
+#include? "Signing.local.xcconfig"
