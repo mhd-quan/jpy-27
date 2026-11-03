@@ -17,6 +17,10 @@ public struct Trip: Codable, Sendable {
     public let rules: PlanRules
     /// booking windows, carried in the slim schedule for the widget's before-trip view
     @Many public var bookings: [Booking]
+    /// Ids an update changed while the visit stayed the same one, by day key: old id → the id the day
+    /// has now (src/data/id-renames.ts). One step: the data maps every old id straight to today's. The
+    /// slim schedule has none.
+    @ManyByKey public var idRenames: [String: [String: String]]
 }
 
 /// What the plan clock assumes (scripts/plan-rules.mjs).
@@ -368,9 +372,20 @@ public enum DayItem: Codable, Sendable {
         if case .move(let m) = self { return m }
         return nil
     }
+
+    /// The visit's id, written in the data: what records, reminders and fences hold on to.
+    public var id: String {
+        switch self {
+        case .stop(let s): s.id
+        case .move(let m): m.id
+        }
+    }
 }
 
 public struct Stop: Codable, Sendable {
+    /// "s:<place>", or "s:<place>:<key>" when the day comes back to the place, "s::<key>" without a
+    /// place; unique within the day, kept when the time or the order changes
+    public let id: String
     public let at: String?
     public let place: String?
     public let title: String
@@ -388,6 +403,10 @@ public struct Stop: Codable, Sendable {
 }
 
 public struct Move: Codable, Sendable {
+    /// "m:<from>><to>", or with ":<key>" when the day repeats the pair; unique within the day. Not the
+    /// leg's id: paths, rides and the records kept before item ids go by `leg.id`, which changes with
+    /// the way walked.
+    public let id: String
     public let at: String?
     public let leg: Leg
 }

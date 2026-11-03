@@ -20,9 +20,33 @@ public struct Many<Element: Codable & Sendable>: Codable, Sendable {
     }
 }
 
+/// A table by string key that decodes as empty when its key is missing: what a later export added, read
+/// from a file exported without it (the slim schedule has no `idRenames`).
+@propertyWrapper
+public struct ManyByKey<Value: Codable & Sendable>: Codable, Sendable {
+    public var wrappedValue: [String: Value]
+
+    public init(wrappedValue: [String: Value] = [:]) {
+        self.wrappedValue = wrappedValue
+    }
+
+    public init(from decoder: any Decoder) throws {
+        wrappedValue = try decoder.singleValueContainer().decode([String: Value].self)
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var c = encoder.singleValueContainer()
+        try c.encode(wrappedValue)
+    }
+}
+
 extension KeyedDecodingContainer {
     public func decode<E>(_ type: Many<E>.Type, forKey key: Key) throws -> Many<E> {
         try decodeIfPresent(type, forKey: key) ?? Many()
+    }
+
+    public func decode<V>(_ type: ManyByKey<V>.Type, forKey key: Key) throws -> ManyByKey<V> {
+        try decodeIfPresent(type, forKey: key) ?? ManyByKey()
     }
 }
 

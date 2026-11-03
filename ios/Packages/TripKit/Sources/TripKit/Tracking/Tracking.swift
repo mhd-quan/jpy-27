@@ -3,9 +3,10 @@ import Foundation
 // MARK: - Geofences
 
 /// A circle iOS watches in the background. Core Location keeps at most 20 per app, so the planner
-/// picks the ones that matter next.
-public struct Fence: Sendable, Hashable, Identifiable {
-    public enum Kind: String, Sendable { case food, snack, station, stay }
+/// picks the ones that matter next. Codable: the app keeps what it registered, for a relaunch straight
+/// into a crossing.
+public struct Fence: Codable, Sendable, Hashable, Identifiable {
+    public enum Kind: String, Codable, Sendable { case food, snack, station, stay }
 
     public var id: String { "\(kind.rawValue):\(placeID)" }
     public let placeID: String
@@ -16,15 +17,19 @@ public struct Fence: Sendable, Hashable, Identifiable {
     public let day: String
     /// item index on that day, for planned stops and departures
     public let index: Int?
+    /// the item on that day (`DayItem.id`), for planned stops and departures: unlike the index, still
+    /// the same visit after an update edited the day
+    public let itemID: String?
 
-    /// The app rebuilds fences from what it stored when it registered them with `CLMonitor`.
-    public init(placeID: String, kind: Kind, center: Coordinate, radius: Double, day: String, index: Int?) {
+    /// The app rebuilds fences from what it stored when it registered them.
+    public init(placeID: String, kind: Kind, center: Coordinate, radius: Double, day: String, index: Int? = nil, itemID: String? = nil) {
         self.placeID = placeID
         self.kind = kind
         self.center = center
         self.radius = radius
         self.day = day
         self.index = index
+        self.itemID = itemID
     }
 }
 
@@ -49,7 +54,7 @@ public struct FencePlanner: Sendable {
         var seen = Set<String>()
         func add(_ p: Place, _ kind: Fence.Kind, _ day: Day, _ index: Int?, radius: Double) {
             guard out.count < limit, seen.insert(p.id).inserted else { return }
-            out.append(Fence(placeID: p.id, kind: kind, center: p.coordinate, radius: radius, day: day.key, index: index))
+            out.append(Fence(placeID: p.id, kind: kind, center: p.coordinate, radius: radius, day: day.key, index: index, itemID: index.flatMap { day.identity(of: $0) }))
         }
         let itinerary = Itinerary(store: store)
         for (i, s) in today.stops where i >= cursor {
