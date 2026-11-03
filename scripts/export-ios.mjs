@@ -14,6 +14,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { DAYS, ALT_DAYS, dayKey } from '../src/data/days.ts';
+import { ID_RENAMES } from '../src/data/id-renames.ts';
 import { LINES, MODE_LABEL } from '../src/data/lines.ts';
 import { allPlaces, hasPlace, place } from '../src/data/catalog.ts';
 import { GEO } from '../src/data/geo.gen.ts';
@@ -73,12 +74,13 @@ const img = (i) => ({ kind: i.kind, src: src(i.src ?? i.url), full: i.full, capt
 const r2 = (n) => Math.round(n * 100) / 100;
 
 // ——— places ———
+// every visit, in plan order: a day that comes back to a place lists it once per visit
 const uses = new Map();
 for (const d of [...DAYS, ...ALT_DAYS]) {
   for (const it of d.items) {
     if (it.type !== 'stop' || !it.place) continue;
     const list = uses.get(it.place) ?? [];
-    if (!list.some((u) => u.day === dayKey(d))) list.push({ day: dayKey(d), at: it.at });
+    list.push({ day: dayKey(d), at: it.at, id: it.id });
     uses.set(it.place, list);
   }
 }
@@ -165,8 +167,8 @@ function dayOut(v) {
     km: Object.fromEntries(Object.entries(v.km).map(([k, x]) => [k, r2(x)])),
     items: d.items.map((it) =>
       it.type === 'stop'
-        ? { type: 'stop', at: it.at, place: it.place, title: it.title, text: it.text, cost: it.cost, optional: it.optional || undefined, n: it.place ? v.stops.get(it.place) : undefined }
-        : { type: 'move', at: it.at, leg: legOut(v.legs.find((l) => l.id === it.leg.id) ?? it.leg) },
+        ? { type: 'stop', id: it.id, at: it.at, place: it.place, title: it.title, text: it.text, cost: it.cost, optional: it.optional || undefined, n: it.place ? v.stops.get(it.place) : undefined }
+        : { type: 'move', id: it.id, at: it.at, leg: legOut(v.legs.find((l) => l.id === it.leg.id) ?? it.leg) },
     ),
     along: v.along.map((a) => ({
       place: a.p.id,
@@ -226,6 +228,8 @@ const trip = clean({
   altRides: ALT_RIDES.map(rideOut),
   reserved: RESERVED,
   rules: { dwell: DWELL, wait: WAIT, grace: GRACE, tight: TIGHT },
+  // old item id → new, per day key: the app moves its records along (src/data/id-renames.ts)
+  idRenames: ID_RENAMES,
 });
 
 // ——— guide ———
@@ -335,7 +339,7 @@ const slimDay = (d) => ({
   chapter: d.chapter,
   meals: d.meals,
   trims: [],
-  items: d.items.map((it) => (it.type === 'stop' ? { type: 'stop', at: it.at, place: it.place, title: it.title, cost: it.cost, optional: it.optional, n: it.n } : { type: 'move', at: it.at, leg: { id: it.leg.id, line: it.leg.line, from: it.leg.from, to: it.leg.to, via: it.leg.via, min: it.leg.min, km: it.leg.km, walk: it.leg.walk } })),
+  items: d.items.map((it) => (it.type === 'stop' ? { type: 'stop', id: it.id, at: it.at, place: it.place, title: it.title, cost: it.cost, optional: it.optional, n: it.n } : { type: 'move', id: it.id, at: it.at, leg: { id: it.leg.id, line: it.leg.line, from: it.leg.from, to: it.leg.to, via: it.leg.via, min: it.leg.min, km: it.leg.km, walk: it.leg.walk } })),
   along: [],
   slots: [],
 });
@@ -394,4 +398,13 @@ for (const theme of ['light', 'dark']) {
 const ids = new Set(places.map((p) => p.id));
 for (const d of [...days, ...altDays])
   for (const it of d.items) for (const id of it.type === 'stop' ? [it.place] : [it.leg.from, it.leg.to]) if (id && !ids.has(id)) throw new Error(`day ${d.key}: unknown place ${id}`);
+// sanity: every item has an id the app can record it by, unique within its day (scripts/check-ids.mjs)
+for (const d of [...days, ...altDays]) {
+  const seen = new Set();
+  for (const [i, it] of d.items.entries()) {
+    if (!it.id) throw new Error(`day ${d.key} item ${i}: no id`);
+    if (seen.has(it.id)) throw new Error(`day ${d.key}: ${it.id} is used twice`);
+    seen.add(it.id);
+  }
+}
 void place;
