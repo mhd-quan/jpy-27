@@ -261,7 +261,7 @@ private struct PlanNeighbourhood: View {
         VStack(alignment: .leading, spacing: Metrics.stack) {
             VStack(alignment: .leading, spacing: 10) {
                 SectionTitle("Quanh khách sạn")
-                TripMap(content: content, showsUser: false, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: stay.id)
+                StaticTripMap(content: content, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: stay.id)
                     .frame(height: 300)
                     .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                 if let area = around.area { Text(area).font(.body) }
@@ -513,7 +513,7 @@ private struct PlanHighlightContent: View {
                             PlanInfoRow(symbol: "bed.double", text: "\(Fmt.km(km)) đường chim bay từ \(hotel.name)", label: "Cách khách sạn")
                         }
                     }
-                    TripMap(content: content, showsUser: false, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: "\(walk.id)-\(index)")
+                    StaticTripMap(content: content, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: "\(walk.id)-\(index)")
                         .frame(height: 240)
                         .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                     if walk.highlights.count > 1 {

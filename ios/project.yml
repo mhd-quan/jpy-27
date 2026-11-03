@@ -41,8 +41,10 @@ packages:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
     # 7.0 stops re-uploading every fill layer's vertices on every frame (maplibre-native#4765),
     # work done on the main thread that grows with the polygons on screen: most at street level,
-    # where the buildings are
-    from: 7.0.0
+    # where the buildings are. Pinned exactly: the frame pacing (MapPacer), the hillshade left out
+    # of the style and the relief's colour arrays were measured on, and written for, 7.0.0's
+    # internals; a newer 7.x comes in by changing this line and measuring again, not by itself.
+    exactVersion: 7.0.0
 
 targets:
   JP27:
@@ -50,7 +52,10 @@ targets:
     platform: iOS
     sources:
       - path: JP27
+      # the slim plan is the widget's alone: the app reads trip.json
       - path: Shared
+        excludes:
+          - schedule.json
       # the site's self-hosted Commons photos ship inside the app, as one folder
       - path: ../public/img/commons
         type: folder

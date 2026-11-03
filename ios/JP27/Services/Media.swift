@@ -19,13 +19,18 @@ import UIKit
 actor PhotoCache {
     static let shared = PhotoCache()
 
-    /// NSCache locks itself. Sized for the home, which alone holds a dozen covers at two sizes; the
-    /// system empties it under memory pressure.
+    /// NSCache locks itself. Sized for the home's covers (about 15 MB each at 2400 px) and a few
+    /// pages' photos; the system empties it under memory pressure. A photo decoded large serves the
+    /// smaller asks for it too (`cached`), so the home's day cards draw from the covers' decodes
+    /// instead of holding a second copy of each.
     nonisolated(unsafe) private static let memory: NSCache<NSString, UIImage> = {
         let cache = NSCache<NSString, UIImage>()
-        cache.totalCostLimit = 192 * 1024 * 1024
+        cache.totalCostLimit = 128 * 1024 * 1024
         return cache
     }()
+    /// the sizes each photo was decoded at (by src), for `cached` to find a larger one; an entry
+    /// the cache has since let go of is simply a miss
+    private nonisolated static let sizes = OSAllocatedUnfairLock<[String: Set<Int>]>(initialState: [:])
     /// loads in flight, so two views asking for the same photo share one decode
     private var loading: [NSString: Task<UIImage?, Never>] = [:]
     /// photo src → the average of its lower band, kept on disk: a page opened before (or read at
@@ -35,9 +40,14 @@ actor PhotoCache {
     /// On the CPU: the veil's input is 160 px, cheaper to blur here than to queue on the GPU, which
     /// is busy drawing the transition the veil arrives in.
     private let filters = CIContext(options: [.cacheIntermediates: false, .useSoftwareRenderer: true])
+    /// Downloaded photos, kept for use with no signal: in Application Support, which the system
+    /// does not purge as it does Caches, but out of the iCloud backup (they download again).
     private nonisolated static let folder: URL = {
-        let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Photos", isDirectory: true)
+        var url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Photos", isDirectory: true)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? url.setResourceValues(values)
         return url
     }()
 
@@ -55,9 +65,16 @@ actor PhotoCache {
         "\(photo.src)@\(Int(maxPixel))" as NSString
     }
 
-    /// The photo, if it was decoded at this size already: for a view's first frame.
+    /// The photo, if it was decoded at this size already, or at a larger one up to twice it (more
+    /// than that costs more to draw than a decode of its own): for a view's first frame.
     nonisolated static func cached(_ photo: Photo, maxPixel: CGFloat = 1200) -> UIImage? {
-        memory.object(forKey: key(photo, maxPixel))
+        if let hit = memory.object(forKey: key(photo, maxPixel)) { return hit }
+        let want = Int(maxPixel)
+        let larger = sizes.withLock { $0[photo.src]?.filter { $0 > want && $0 <= 2 * want } } ?? []
+        for size in larger.sorted() {
+            if let hit = memory.object(forKey: key(photo, CGFloat(size))) { return hit }
+        }
+        return nil
     }
 
     /// The photo's veil, if it was blurred already.
@@ -72,13 +89,16 @@ actor PhotoCache {
 
     func image(_ photo: Photo, maxPixel: CGFloat = 1200) async -> UIImage? {
         let key = Self.key(photo, maxPixel)
-        if let hit = Self.memory.object(forKey: key) { return hit }
+        if let hit = Self.cached(photo, maxPixel: maxPixel) { return hit }
         if let running = loading[key] { return await running.value }
         let task = Task { await Self.load(photo, maxPixel: maxPixel, network: true) }
         loading[key] = task
         let image = await task.value
         loading[key] = nil
-        if let image { Self.memory.setObject(image, forKey: key, cost: Int(image.size.width * image.size.height * 4)) }
+        if let image {
+            Self.memory.setObject(image, forKey: key, cost: Int(image.size.width * image.scale * image.size.height * image.scale * 4))
+            Self.sizes.withLock { _ = $0[photo.src, default: []].insert(Int(maxPixel)) }
+        }
         return image
     }
 
@@ -98,6 +118,13 @@ actor PhotoCache {
         }
         guard let data else { return nil }
         return downsample(data, maxPixel: maxPixel)
+    }
+
+    /// Read (from the bundle or the disk, never the network) and decoded, and not kept: for work in
+    /// the background (the widget's photos) that should neither download what nobody asked for nor
+    /// push the photos on screen out of memory.
+    nonisolated static func decodeLocal(_ photo: Photo, maxPixel: CGFloat) async -> UIImage? {
+        await load(photo, maxPixel: maxPixel, network: false)
     }
 
     /// The average colour of the photograph's lower band, read once from a small thumbnail and kept:
@@ -451,22 +478,39 @@ struct PlacePhoto: View {
 // MARK: - Widget photos
 
 /// Small JPEGs of each planned place in the App Group, for the widget's background.
+///
+/// Made from what is already on the phone: the bundled photos, and the restaurants' once they have
+/// been seen or downloaded from Settings. Nothing is downloaded for it, and nothing is kept in the
+/// photo cache (some eighty photos at 800 px would push out the covers the home is showing). Done
+/// only once every place has its JPEG; until then each return to the app writes the ones missing.
 enum HeroExporter {
     static func exportIfNeeded(store: TripStore) async {
-        let version = "1:\(store.trip.places.count)"
+        // 2: the first version counted itself done with photos still missing (offline at first launch)
+        let version = "2:\(store.trip.places.count)"
         guard Shared.defaults.string(forKey: "heroes") != version else { return }
         let ids = Set(store.trip.days.flatMap(\.items).compactMap { $0.stop?.place } + store.trip.altDays.flatMap(\.items).compactMap { $0.stop?.place })
         let photos: [(String, Photo)] = ids.compactMap { id in store.place(id)?.hero.map { (id, $0) } }
-        await Task.detached(priority: .utility) {
-            try? FileManager.default.createDirectory(at: Shared.heroes, withIntermediateDirectories: true)
+        let complete = await Task.detached(priority: .utility) { () -> Bool in
+            var folder = Shared.heroes
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            // made again from the photos at any time: nothing for the iCloud backup
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            try? folder.setResourceValues(values)
+            var complete = true
             for (id, photo) in photos {
                 let target = Shared.hero(id)
                 if FileManager.default.fileExists(atPath: target.path) { continue }
-                guard let image = await PhotoCache.shared.image(photo, maxPixel: 800), let jpeg = image.jpegData(compressionQuality: 0.72) else { continue }
-                try? jpeg.write(to: target)
+                guard let image = await PhotoCache.decodeLocal(photo, maxPixel: 800), let jpeg = image.jpegData(compressionQuality: 0.72),
+                      (try? jpeg.write(to: target, options: .atomic)) != nil
+                else {
+                    complete = false
+                    continue
+                }
             }
+            return complete
         }.value
-        Shared.defaults.set(version, forKey: "heroes")
+        if complete { Shared.defaults.set(version, forKey: "heroes") }
     }
 }
 
@@ -483,20 +527,49 @@ enum HeroExporter {
         synth.delegate = self
     }
 
+    /// the session was set up for speaking here, so it is ours to hand back when done
+    private var ownsSession = false
+
     func say(_ ja: String, slow: Bool = false) {
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        let session = AVAudioSession.sharedInstance()
+        // while Nghe is listening the session records: speak through it as it is (changing the
+        // category would stop the microphone), and leave it to Nghe to end
+        if session.category != .playAndRecord {
+            try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+            ownsSession = true
+        }
         let u = AVSpeechUtterance(string: ja)
         u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
         u.rate = slow ? 0.38 : AVSpeechUtteranceDefaultSpeechRate
         speaking = ja
         synth.speak(u)
     }
+
+    /// An utterance ended or was cut off: once nothing is left to say, the music ducked for it
+    /// comes back up (`notifyOthersOnDeactivation`); without this it stays low until the app quits.
+    fileprivate func ended(_ text: String) {
+        // the same line again cuts this one off: still speaking it
+        guard !synth.isSpeaking else { return }
+        if speaking == text { speaking = nil }
+        guard ownsSession else { return }
+        ownsSession = false
+        // Nghe may have taken the session over meanwhile: it is Nghe's to end then
+        let session = AVAudioSession.sharedInstance()
+        guard session.category != .playAndRecord else { return }
+        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+    }
 }
 
 extension Speaker: AVSpeechSynthesizerDelegate {
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        Task { @MainActor in self.speaking = nil }
+        let text = utterance.speechString
+        Task { @MainActor in self.ended(text) }
+    }
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        let text = utterance.speechString
+        Task { @MainActor in self.ended(text) }
     }
 }
 

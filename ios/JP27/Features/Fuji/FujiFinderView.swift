@@ -5,8 +5,9 @@ import SwiftUI
 import TripKit
 
 /// Hold the phone up: a marker sits where Fuji's summit is, computed from your position, with
-/// curvature and refraction. On LiDAR iPhones the room around you is meshed, so a building or tree
-/// in front hides the marker the way it hides the mountain.
+/// curvature and refraction. World tracking only: LiDAR meshing would hide the marker behind what
+/// stands within its few metres' reach, at the cost of the hottest session the app could run, for
+/// a marker 120 m out.
 struct FujiFinderView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
@@ -254,10 +255,12 @@ private struct FujiARView: UIViewRepresentable {
         let config = ARWorldTrackingConfiguration()
         // y up, −z true north: bearings from the compass map straight into the scene
         config.worldAlignment = .gravityAndHeading
-        if ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) {
-            config.sceneReconstruction = .mesh
-            view.environment.sceneUnderstanding.options.insert(.occlusion)
-        }
+        // the marker is unlit: nothing reflects the room, nothing needs its light
+        config.environmentTexturing = .none
+        // a red dot and a word over the camera: none of RealityKit's camera effects are seen on
+        // them, and each is a pass over every frame
+        view.renderOptions = [.disableMotionBlur, .disableDepthOfField, .disableHDR, .disableGroundingShadows,
+                              .disableCameraGrain, .disableAREnvironmentLighting, .disablePersonOcclusion]
         view.session.run(config)
         context.coordinator.attach(to: view, sight: sight)
         return view
@@ -282,8 +285,7 @@ private final class FujiARCoordinator {
     private var updates: (any Cancellable)?
     private var lastCheck = Date.distantPast
 
-    /// The marker floats this far away along the summit's line: far enough that nearby buildings
-    /// (meshed by LiDAR) can stand in front of it, near enough to render crisply.
+    /// The marker floats this far away along the summit's line: near enough to render crisply.
     private static let distance: Float = 120
 
     init(onScreen: Binding<Bool>) {

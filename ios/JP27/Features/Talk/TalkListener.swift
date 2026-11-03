@@ -36,9 +36,23 @@ struct TalkSentence: Identifiable, Hashable {
     private var continuation: AsyncStream<AnalyzerInput>.Continuation?
     private var engine: AVAudioEngine?
     private var resultsTask: Task<Void, Never>?
+    /// bumped by every start and stop: a start still waiting (for the microphone permission, for
+    /// the Japanese model to download) when the screen closed finds it moved on, and turns nothing on
+    private var attempt = 0
+    /// the audio session is ours (active, ducking whatever else plays)
+    private var sessionActive = false
 
     init(scenarios: [Scenario]) {
         matcher = HeardMatcher(scenarios: scenarios)
+    }
+
+    /// Never leave the microphone or the ducked audio session behind with the screen that owned them.
+    isolated deinit {
+        resultsTask?.cancel()
+        engine?.stop()
+        engine?.inputNode.removeTap(onBus: 0)
+        continuation?.finish()
+        if sessionActive { try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation) }
     }
 
     var isListening: Bool { state == .listening }
@@ -49,12 +63,18 @@ struct TalkSentence: Identifiable, Hashable {
 
     func start() async {
         guard state != .listening, state != .preparing else { return }
+        attempt += 1
+        let mine = attempt
         state = .preparing
-        guard await AVAudioApplication.requestRecordPermission() else {
+        let allowed = await AVAudioApplication.requestRecordPermission()
+        guard mine == attempt else { return }
+        guard allowed else {
             state = .unavailable("Cần quyền micro trong Cài đặt để nghe.")
             return
         }
-        guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "ja-JP")) else {
+        let supported = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "ja-JP"))
+        guard mine == attempt else { return }
+        guard let locale = supported else {
             state = .unavailable("Máy này chưa nghe được tiếng Nhật.")
             return
         }
@@ -64,37 +84,52 @@ struct TalkSentence: Identifiable, Hashable {
             if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
                 try await request.downloadAndInstall()
             }
+            guard mine == attempt else { return }
             guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber]) else {
-                state = .unavailable("Không mở được micro.")
+                if mine == attempt { state = .unavailable("Không mở được micro.") }
                 return
             }
+            guard mine == attempt else { return }
             let analyzer = SpeechAnalyzer(modules: [transcriber])
             let (stream, continuation) = AsyncStream<AnalyzerInput>.makeStream()
+            // held before the analyzer starts, so a stop() during its start finishes them
             self.transcriber = transcriber
             self.analyzer = analyzer
             self.continuation = continuation
             listen(to: transcriber)
             try await analyzer.start(inputSequence: stream)
+            // stopped while the analyzer started: stop() has finished it, the microphone stays off
+            guard mine == attempt else { return }
             try startAudio(feeding: continuation, as: format)
             state = .listening
         } catch {
+            guard mine == attempt else { return }
             await stop()
             state = .unavailable("Không bắt đầu nghe được.")
         }
     }
 
     func stop() async {
+        attempt += 1
+        let mine = attempt
         engine?.stop()
         engine?.inputNode.removeTap(onBus: 0)
         engine = nil
         continuation?.finish()
         continuation = nil
-        try? await analyzer?.finalizeAndFinishThroughEndOfInput()
-        analyzer = nil
+        // the other app's audio comes back up at once, not after the last words are transcribed
+        if sessionActive {
+            sessionActive = false
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        }
+        let analyzer = self.analyzer
+        self.analyzer = nil
         transcriber = nil
+        try? await analyzer?.finalizeAndFinishThroughEndOfInput()
         if !partial.isEmpty { finish(partial) }
         partial = ""
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        // a start made while the last words were transcribed owns the state now
+        guard mine == attempt else { return }
         if case .unavailable = state { return }
         state = .idle
     }
@@ -130,6 +165,7 @@ struct TalkSentence: Identifiable, Hashable {
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
+        sessionActive = true
         let engine = AVAudioEngine()
         let input = engine.inputNode
         let feed = TalkAudioFeed(from: input.outputFormat(forBus: 0), to: format, continuation: continuation)

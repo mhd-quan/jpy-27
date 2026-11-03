@@ -51,6 +51,9 @@ private struct HomeCover: View {
     @State private var risen = false
     /// the photographs are on screen: off it, nothing turns or drifts
     @State private var visible = true
+    /// pages turned by themselves since the cover came into view: one tour of the covers, then it
+    /// rests, so a home left open does not redraw every frame for as long as it stays open
+    @State private var toured = 0
 
     static let height: CGFloat = 520
 
@@ -88,13 +91,16 @@ private struct HomeCover: View {
         // else, and no page turn lands in the middle of a sheet's zoom. (Read here, not in the
         // body, so opening a sheet does not re-run the cover.)
         .task(id: "\(page ?? 0)-\(visible)") {
-            guard visible, !reduceMotion, shots.count > 1 else { return }
+            guard visible, !reduceMotion, shots.count > 1, toured < shots.count - 1 else { return }
             repeat {
                 try? await Task.sleep(for: .seconds(6))
             } while !Task.isCancelled && !(model.sheets.isEmpty && model.tab == .today)
-            guard !Task.isCancelled else { return }
+            // Low Power Mode: the covers stay where they are
+            guard !Task.isCancelled, !ProcessInfo.processInfo.isLowPowerModeEnabled else { return }
+            toured += 1
             withAnimation(.smooth(duration: 0.9)) { page = ((page ?? 0) + 1) % shots.count }
         }
+        .onChange(of: visible) { _, on in if on { toured = 0 } }
     }
 
     private func photos(_ shots: [HomeShot]) -> some View {
@@ -107,7 +113,8 @@ private struct HomeCover: View {
                         Button {
                             model.present(.place(shots[i].place.id), from: "home.cover.\(i)")
                         } label: {
-                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible)
+                            // the slow drift is drawn every frame: not in Low Power Mode
+                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible && !ProcessInfo.processInfo.isLowPowerModeEnabled)
                         }
                         .buttonStyle(.pressable(.plain))
                         .containerRelativeFrame(.horizontal)

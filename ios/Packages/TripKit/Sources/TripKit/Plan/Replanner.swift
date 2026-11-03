@@ -22,8 +22,8 @@ extension PlanEngine {
         (from ..< target).filter { i in
             guard case .stop(let s) = day.items[i], !skips.contains(i), let p = store.place(s.place) else { return false }
             if store.reserved.contains(p.id) || p.kind == .stay || p.kind == .station { return false }
-            if s.title.range(of: "^(Gửi|Nhận phòng)", options: .regularExpression) != nil { return false }
-            return dwell(s) > 0
+            if s.isErrand { return false }
+            return dwell(day, i, s) > 0
         }
     }
 
@@ -50,7 +50,7 @@ extension PlanEngine {
         func cost(_ set: [Int]) -> Double {
             set.reduce(0) { total, i in
                 guard case .stop(let s) = day.items[i] else { return total }
-                return total + (s.isOptional ? 10 : 30) + Double(dwell(s))
+                return total + (s.isOptional ? 10 : 30) + Double(dwell(day, i, s))
             }
         }
 

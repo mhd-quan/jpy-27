@@ -1,4 +1,5 @@
 import Foundation
+import Synchronization
 
 /// The decoded plan with the lookups every screen needs. Immutable; share it freely.
 public final class TripStore: Sendable {
@@ -9,15 +10,37 @@ public final class TripStore: Sendable {
     private let paths: [String: [Coordinate]]
     private let ridesByDay: [String: [Ride]]
     private let scenarios: [String: Scenario]
+    /// Each day run through the plan's own clock, once: what the plan says never changes once the
+    /// store is loaded, and the screens, reminders, alarms and the live projection all start from it.
+    /// Keyed by day key; a store's days are the only days there are.
+    private let memo = Mutex(Memo())
+    /// minimum minutes at each stop of each day, by day key and item index (`PlanEngine.dwell`):
+    /// read by the clock for every stop on every pass, worked out once here
+    private let dwells: [String: [Int: Int]]
+
+    private struct Memo {
+        var plans: [String: [PlanEngine.Slot]] = [:]
+        var waypoints: [String: [Waypoint]] = [:]
+        /// km along a leg's walk to the point nearest a place, by "leg|place"
+        var along: [String: Double] = [:]
+    }
 
     public init(trip: Trip, guide: Guide? = nil) {
         self.trip = trip
         self.guide = guide
-        places = Dictionary(trip.places.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let places = Dictionary(trip.places.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        self.places = places
         reserved = Set(trip.reserved)
         paths = trip.paths.mapValues { Polyline.decode($0.p) }
         ridesByDay = Dictionary(grouping: trip.rides + trip.altRides, by: \.day)
         scenarios = Dictionary((guide?.phrases.scenarios ?? []).map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        var dwells: [String: [Int: Int]] = [:]
+        for day in trip.days + trip.altDays {
+            for (i, stop) in day.stops {
+                dwells[day.key, default: [:]][i] = PlanEngine.dwell(stop, place: stop.place.flatMap { places[$0] }, rules: trip.rules)
+            }
+        }
+        self.dwells = dwells
     }
 
     public convenience init(tripJSON: Data, guideJSON: Data? = nil) throws {
@@ -37,6 +60,36 @@ public final class TripStore: Sendable {
         }
         if slim { return try TripStore(tripJSON: data("schedule")) }
         return try TripStore(tripJSON: data("trip"), guideJSON: data("guide"))
+    }
+
+    // MARK: The plan's clock, kept
+
+    /// `PlanEngine.simulate` with the plan's own options for `day`. Made outside the lock, so two
+    /// threads asking at once may both make it; the answer is the same.
+    func plan(_ day: Day, make: () -> [PlanEngine.Slot]) -> [PlanEngine.Slot] {
+        if let hit = memo.withLock({ $0.plans[day.key] }) { return hit }
+        let made = make()
+        memo.withLock { $0.plans[day.key] = made }
+        return made
+    }
+
+    func along(_ leg: String, _ place: String, make: () -> Double) -> Double {
+        let key = leg + "|" + place
+        if let hit = memo.withLock({ $0.along[key] }) { return hit }
+        let made = make()
+        memo.withLock { $0.along[key] = made }
+        return made
+    }
+
+    func dwell(_ day: Day, _ index: Int) -> Int? {
+        dwells[day.key]?[index]
+    }
+
+    func waypoints(_ day: Day, make: () -> [Waypoint]) -> [Waypoint] {
+        if let hit = memo.withLock({ $0.waypoints[day.key] }) { return hit }
+        let made = make()
+        memo.withLock { $0.waypoints[day.key] = made }
+        return made
     }
 
     // MARK: Lookups

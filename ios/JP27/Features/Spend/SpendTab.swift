@@ -114,7 +114,7 @@ struct SpendTab: View {
                     Menu {
                         Button("Đồng bộ với máy kia", systemImage: "iphone.radiowaves.left.and.right") { syncing = true }
                         Section("Dự phòng bằng file") {
-                            ShareLink(item: SpendLedgerFile(expenses: expenses, store: model.store), preview: SharePreview("Sổ chi JP27")) {
+                            ShareLink(item: SpendLedgerFile(container: model.container, store: model.store), preview: SharePreview("Sổ chi JP27")) {
                                 Label("Xuất sổ chi (CSV)", systemImage: "square.and.arrow.up")
                             }
                             Button("Gộp file sổ chi", systemImage: "arrow.triangle.merge") { importing = true }

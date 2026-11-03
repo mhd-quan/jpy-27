@@ -10,7 +10,14 @@ nonisolated enum Shared {
     static let scheme = "jp27"
     static let widgetKind = "NextStop"
 
-    static var defaults: UserDefaults { UserDefaults(suiteName: appGroup) ?? .standard }
+    /// The App Group's defaults: what the widget, the extension or work in the background reads
+    /// (the clock offset, the snapshot, the pace, alarms, fences, downloads wanted). One instance,
+    /// made once: it was made anew on every read, the clock's among them.
+    ///
+    /// A view's own preferences (appearance, the diagnostics switches, a flag a screen keeps) stay
+    /// in `@AppStorage`, the app's standard defaults: nothing outside the app reads them. No key is
+    /// in both; one moved across would lose what is already stored under it.
+    nonisolated(unsafe) static let defaults: UserDefaults = UserDefaults(suiteName: appGroup) ?? .standard
 
     static var container: URL {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup)

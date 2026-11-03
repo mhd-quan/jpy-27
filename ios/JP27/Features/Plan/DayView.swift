@@ -145,8 +145,9 @@ private struct PlanDayHeader: View {
                 }
                 .accessibilityElement(children: .combine)
             }
-            TripMap(content: .day(day, model: model), showsUser: false, interactive: false,
-                    insets: UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 28), frameID: day.key)
+            // a picture of the map, not a live one: a tap opens the Map tab on the day
+            StaticTripMap(content: .day(day, model: model), insets: UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 28),
+                          frameID: day.key, tapToInteract: false)
                 .frame(height: 240)
                 .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                 // the map is still; a tap opens the live map tab

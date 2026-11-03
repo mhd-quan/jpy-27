@@ -53,19 +53,23 @@ import UIKit
 
     static var usesCurrentTiles: Bool { Shared.defaults.bool(forKey: currentTilesKey) }
 
-    static func checkPinnedTiles() async {
+    /// True once the server answered (whatever it said): the launch need not ask again. False with no
+    /// answer (offline, a timeout), so the next return to the app asks.
+    @discardableResult
+    static func checkPinnedTiles() async -> Bool {
         guard let bundled = Bundle.main.url(forResource: "jp27-light", withExtension: "json", subdirectory: "map"),
               let template = pinnedTiles(in: bundled),
               let url = URL(string: template.replacingOccurrences(of: "{z}/{x}/{y}", with: "0/0/0"))
-        else { return }
+        else { return true }
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
         request.httpMethod = "GET"
         // no answer (offline, a timeout) says nothing about the build
-        guard let (_, response) = try? await URLSession.shared.data(for: request), let http = response as? HTTPURLResponse else { return }
+        guard let (_, response) = try? await URLSession.shared.data(for: request), let http = response as? HTTPURLResponse else { return false }
         let gone = http.statusCode == 404 || http.statusCode == 410
-        guard gone != usesCurrentTiles, gone || http.statusCode == 200 else { return }
+        guard gone != usesCurrentTiles, gone || http.statusCode == 200 else { return true }
         Shared.defaults.set(gone, forKey: currentTilesKey)
         NotificationCenter.default.post(name: tilesChanged, object: nil)
+        return true
     }
 
     /// Reads a file and parses it: needs no actor. Left on the main actor (the module's default),

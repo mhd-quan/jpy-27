@@ -40,10 +40,14 @@ import Observation
         }
     }
 
+    /// The app left the screen (`AppModel.deactivate`): nothing here is worth waking for.
     func stop() {
+        guard running else { return }
         pedometer.stopUpdates()
         activity.stopActivityUpdates()
         running = false
+        // the gap until the next start is not walking
+        lastSample = nil
     }
 
     /// Fold instantaneous pace into three-minute samples of real walking.

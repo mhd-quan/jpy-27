@@ -3,9 +3,11 @@ import Foundation
 import Observation
 import TripKit
 
-/// Where you are, kept as cheap as the moment allows:
-/// - foreground: a live stream of positions;
-/// - on a ride or racing a departure: the same stream kept alive under the lock screen;
+/// Where you are, kept as cheap as the moment allows (`follow`):
+/// - on a ride: a navigation-grade stream, kept alive under the lock screen;
+/// - on a trip day, on screen: an ordinary stream;
+/// - before or after the trip, on screen: one position each time the app opens, for the distances
+///   the screens show (the map draws its own dot);
 /// - otherwise: only visits (CLVisit) and up to 20 geofences (region monitoring), which wake the app.
 @Observable final class LocationService: NSObject {
     /// Made in `start()`, from application(_:didFinishLaunchingWithOptions:). AppModel is built with
@@ -37,6 +39,10 @@ import TripKit
     var onMoved: (() -> Void)?
 
     private var liveTask: Task<Void, Never>?
+    /// the stream running is the navigation-grade one (a ride)
+    private var liveNavigation = false
+    /// the app is on screen (between `resume` and `pause`)
+    private var foreground = false
     private var backgroundSession: CLBackgroundActivitySession?
     private var lastTrace: (at: Date, at2: Coordinate)?
     /// where and when the last background move re-planned, to keep that cheap
@@ -77,11 +83,38 @@ import TripKit
 
     // MARK: Live positions
 
+    /// The app came on screen.
     func resume(for model: AppModel) {
+        foreground = true
         if authorization == .notDetermined { requestWhenInUse() }
         guard isAllowed else { return }
-        startLive(background: model.activeRide != nil)
+        follow(model)
         if compasses > 0 { manager?.startUpdatingHeading() }
+    }
+
+    /// The app left the screen: nothing streams on, unless a ride is followed (its background
+    /// session keeps the stream going under the lock screen).
+    func pause(riding: Bool) {
+        foreground = false
+        if !riding { stopLive() }
+        manager?.stopUpdatingHeading()
+    }
+
+    /// The stream the moment calls for. Called on resume, when a ride starts or ends, when a trip
+    /// day begins or ends, and when the permission changes.
+    func follow(_ model: AppModel) {
+        guard isAllowed else { return }
+        if model.activeRide != nil {
+            startLive(background: true)
+        } else if !foreground {
+            stopLive()
+        } else if model.today != nil {
+            startLive(background: false)
+        } else {
+            // months before the trip: GPS kept on would only drain the battery
+            stopLive()
+            manager?.requestLocation()
+        }
     }
 
     /// A compass came on screen or left it. The heading is streamed only while one is: it changes
@@ -95,13 +128,18 @@ import TripKit
         }
     }
 
-    /// Stream positions; with `background`, keep streaming after the screen locks (a ride, a race to a train).
+    /// Stream positions; with `background`, at navigation grade and kept streaming after the screen
+    /// locks (a ride). Without, the ordinary stream: navigation grade keeps every sensor the phone
+    /// has on, which a walk between stops has no use for.
     func startLive(background: Bool) {
-        if liveTask == nil {
+        if liveTask == nil || liveNavigation != background {
+            liveTask?.cancel()
+            liveNavigation = background
+            let configuration: CLLocationUpdate.LiveConfiguration = background ? .otherNavigation : .default
             liveTask = Task { [weak self] in
                 do {
-                    for try await update in CLLocationUpdate.liveUpdates(.otherNavigation) {
-                        guard let self else { return }
+                    for try await update in CLLocationUpdate.liveUpdates(configuration) {
+                        guard let self, !Task.isCancelled else { return }
                         if let loc = update.location { self.accept(loc) }
                     }
                 } catch {}
@@ -120,7 +158,6 @@ import TripKit
         liveTask = nil
         backgroundSession?.invalidate()
         backgroundSession = nil
-        manager?.stopUpdatingHeading()
     }
 
     private func accept(_ loc: CLLocation) {
@@ -153,7 +190,8 @@ import TripKit
     /// an entry into the same circle within this long is the same arrival (GPS jitter at the edge)
     private static let reentry: TimeInterval = 20 * 60
 
-    /// Rotate the watched circles to what is next. Called when the day, cursor or plan changes.
+    /// Rotate the watched circles to what is next. Called when the cursor moves (`AppModel.refresh`)
+    /// and with every reschedule: the day, a mark or a skip, the plan, the permission.
     ///
     /// Region monitoring on the app's one location manager, not `CLMonitor`: it is synchronous, so
     /// two updates in a row cannot interleave and leave more than 20 circles registered, it needs

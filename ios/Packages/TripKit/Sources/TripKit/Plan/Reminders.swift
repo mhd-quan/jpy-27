@@ -29,13 +29,16 @@ public struct ReminderPlanner: Sendable {
         itinerary = Itinerary(store: store)
     }
 
-    public func reminders(for day: Day, pace: Double = 1) -> [Reminder] {
+    /// The day's reminders at the plan's times: the same "Rời đi lúc" the Today screen shows for
+    /// the next stop. A departure or a reservation that is `settled` (done, dropped, or behind what
+    /// was done) is left out: its reminder would only say what already happened.
+    public func reminders(for day: Day, settled: (Day, Int) -> Bool = { _, _ in false }) -> [Reminder] {
         var out: [Reminder] = []
         let points = itinerary.waypoints(day)
         if let start = itinerary.engine.simulate(day).first?.begin, let at = TripTime.date(day.date, minutes: start - 30) {
             out.append(Reminder(id: "morning-\(day.key)", fire: at, title: "Ngày \(day.n) · \(day.title)", body: day.route, level: .active, kind: .morning, day: day.key, index: nil, placeID: nil))
         }
-        for w in points where w.kind != .stop {
+        for w in points where w.kind != .stop && !settled(day, w.index) {
             guard let fire = TripTime.date(day.date, minutes: w.setOff - lead), let planned = w.planned else { continue }
             let from = store.place(w.placeID)
             switch w.kind {
@@ -70,9 +73,15 @@ public struct ReminderPlanner: Sendable {
     }
 
     /// What to keep scheduled from now: iOS keeps 64 pending notifications, so only the next days.
-    public func upcoming(days: [Day], now: Date, horizonDays: Int = 2, pace: Double = 1) -> [Reminder] {
+    /// Only the days that can have a reminder in that window are worked through: a day's reminders
+    /// fire from a little before its midnight (an early start) to its evening.
+    public func upcoming(days: [Day], now: Date, horizonDays: Int = 2, settled: (Day, Int) -> Bool = { _, _ in false }) -> [Reminder] {
         let until = now.addingTimeInterval(Double(horizonDays) * 86400)
-        let all = days.flatMap { reminders(for: $0, pace: pace) } + bookings()
+        let near = days.filter { day in
+            guard let midnight = TripTime.midnight(day.date) else { return false }
+            return midnight.addingTimeInterval(-6 * 3600) < until && midnight.addingTimeInterval(30 * 3600) > now
+        }
+        let all = near.flatMap { reminders(for: $0, settled: settled) } + bookings()
         return all.filter { $0.fire > now && $0.fire < until }.sorted { $0.fire < $1.fire }.prefix(60).map { $0 }
     }
 }
