@@ -10,12 +10,15 @@ import Testing
     @Test func matchesCheckPlanScript() throws {
         var lines: [String] = []
         var problems = 0
+        var withinGrace = 0
         for day in store.trip.days + store.trip.altDays {
             let found = engine.check(day)
             problems += found.filter { $0.kind == .late }.count
+            withinGrace += found.filter { $0.kind == .grace }.count
             if !found.isEmpty { lines.append("Day \(day.key) — \(day.title)\n" + found.map(\.line).joined(separator: "\n")) }
         }
-        lines.append(problems > 0 ? "\n\(problems) stops or departures planned earlier than they can be reached" : "\nevery timed stop can be reached")
+        let grace = withinGrace > 0 ? " (\(withinGrace) within the grace)" : ""
+        lines.append(problems > 0 ? "\n\(problems) stops or departures planned earlier than they can be reached" : "\nevery timed stop can be reached\(grace)")
         let expected = try Bundle_.fixture("check-plan.txt")
         #expect(lines.joined(separator: "\n") + "\n" == expected)
     }

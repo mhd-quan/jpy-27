@@ -114,6 +114,12 @@ public struct PlanEngine: Sendable {
                 let leg = m.leg
                 let mode = store.mode(of: leg)
                 var dur: Double
+                if mode != .walk, let walk = pending {
+                    // the rest of a walk that passed stops, from the last of them to where it ends,
+                    // comes before the ride (walk km and polyline km are measured apart: never below zero)
+                    clock = (clock ?? 0) + walk.min * max(0, walk.km - walk.done) / walk.km
+                    pending = nil
+                }
                 if mode == .walk {
                     let pts = store.path(leg.id)
                     let passes = leg.via.contains { v in day.items.contains { $0.stop?.place == v } }
@@ -170,6 +176,8 @@ public struct PlanEngine: Sendable {
                 slots.append(Slot(index: i, ready: ready, begin: begin, end: clock!, planned: TripTime.minutes(s.at), skipped: skipped, hard: hard, started: started))
             }
         }
+        // a walk still pending here ended the day: nothing after it reads the clock, so its last
+        // stretch is not added
         return slots
     }
 
@@ -279,17 +287,19 @@ public struct PlanEngine: Sendable {
     // MARK: - The plan check
 
     public struct Finding: Sendable, Hashable {
-        public enum Kind: Sendable { case late, tight }
+        public enum Kind: Sendable { case late, grace, tight }
         public let kind: Kind
         public let index: Int
-        /// how many minutes late (positive) or to spare (tight)
+        /// how many minutes late (late, grace) or to spare (tight)
         public let minutes: Int
         /// the line check-plan.mjs prints
         public let line: String
     }
 
-    /// Stops and departures planned earlier than they can be reached, and the tight ones.
+    /// Stops and departures planned earlier than they can be reached, the stops a little behind the
+    /// clock but within their grace, and the tight ones.
     public func check(_ day: Day) -> [Finding] {
+        let rules = store.trip.rules
         var out: [Finding] = []
         for slot in simulate(day) {
             let item = day.items[slot.index]
@@ -297,16 +307,19 @@ public struct PlanEngine: Sendable {
             let clock = slot.ready
             switch item {
             case .move(let m):
-                if Double(planned) < clock - 1 {
+                if Double(planned) < clock - Double(rules.grace.move) {
                     let name = store.line(m.leg.line)?.name ?? m.leg.line
                     let late = Self.jsRound(clock - Double(planned))
                     out.append(Finding(kind: .late, index: slot.index, minutes: late, line: "  ! \(at) \(name) \(m.leg.from) → \(m.leg.to): free only at \(Self.jsClock(clock)) (\(late) min late)"))
                 }
             case .stop(let s):
-                if Double(planned) < clock - 2 {
+                if Double(planned) < clock - Double(rules.grace.stop) {
                     let late = Self.jsRound(clock - Double(planned))
                     out.append(Finding(kind: .late, index: slot.index, minutes: late, line: "  ! \(at) \(s.title): earliest arrival \(Self.jsClock(clock)) (\(late) min short)"))
-                } else if Double(planned) - clock < 3, !s.isErrand {
+                } else if Double(planned) < clock, !s.isErrand {
+                    let late = Self.jsRound(clock - Double(planned))
+                    out.append(Finding(kind: .grace, index: slot.index, minutes: late, line: "  ≈ \(at) \(s.title): \(late) min late, within the \(rules.grace.stop)-min grace"))
+                } else if Double(planned) - clock < Double(rules.tight), !s.isErrand {
                     let spare = Self.jsRound(Double(planned) - clock)
                     out.append(Finding(kind: .tight, index: slot.index, minutes: spare, line: "  ~ \(at) \(s.title): only \(spare) min to spare"))
                 }

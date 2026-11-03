@@ -21,6 +21,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # on its own, before the fixture is made: a plan that cannot be kept and a fixture made from it
+      # would agree with each other
+      - name: Plan is feasible
+        run: node scripts/check-plan.mjs && node --test 'scripts/*.test.mjs'
       - run: npm run ios:data
       - run: node scripts/check-plan.mjs > ios/Packages/TripKit/Tests/TripKitTests/Fixtures/check-plan.txt
       - name: Exported data is current

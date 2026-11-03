@@ -23,3 +23,14 @@ enum Bundle_ {
         return try String(contentsOf: url, encoding: .utf8)
     }
 }
+
+extension TripStore {
+    /// The shipped plan with `edit` applied to its JSON first: a plan the data does not have, for a
+    /// test that needs one (a stop moved, a time changed).
+    static func patched(_ edit: (inout [String: Any]) throws -> Void) throws -> TripStore {
+        let raw = try JSONSerialization.jsonObject(with: Bundle_.data("JP27/Resources/Trip/trip.json"))
+        guard var trip = raw as? [String: Any] else { throw CocoaError(.coderReadCorrupt) }
+        try edit(&trip)
+        return try TripStore(tripJSON: JSONSerialization.data(withJSONObject: trip), guideJSON: Bundle_.data("JP27/Resources/Trip/guide.json"))
+    }
+}

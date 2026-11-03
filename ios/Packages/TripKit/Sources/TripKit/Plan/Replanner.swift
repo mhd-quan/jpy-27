@@ -27,10 +27,13 @@ extension PlanEngine {
         }
     }
 
-    /// The first fixed time ahead that the projection misses by more than a minute.
+    /// The first fixed time ahead that the projection misses by more than its grace: a minute for a
+    /// departure, two for a booking (`PlanRules.grace`, as the plan check counts them).
     public func firstMiss(_ day: Day, _ o: Options) -> (slot: Slot, lateBy: Double)? {
+        let grace = store.trip.rules.grace
         for slot in simulate(day, o) where slot.hard && !slot.skipped {
-            if let spare = slot.spare, spare < -1 { return (slot, -spare) }
+            let allowed = Double(day.items[slot.index].move != nil ? grace.move : grace.stop)
+            if let spare = slot.spare, spare < -allowed { return (slot, -spare) }
         }
         return nil
     }

@@ -33,7 +33,7 @@ node scripts/export-ios.mjs                     # viết lại ios/JP27/Resource
 cd ios/Packages/TripKit && swift test           # chạy được cả trên Linux
 ```
 
-`swift test` đối chiếu đồng hồ lịch trình bằng Swift với đầu ra của `scripts/check-plan.mjs` (file `Tests/TripKitTests/Fixtures/check-plan.txt`; chạy lại `node scripts/check-plan.mjs > …` khi lịch đổi).
+`swift test` đối chiếu đồng hồ lịch trình bằng Swift với đầu ra của `scripts/check-plan.mjs` (file `Tests/TripKitTests/Fixtures/check-plan.txt`), và riêng `PlanFeasibilityTests` kiểm lịch có kịp giờ không. Khi lịch đổi, sinh lại fixture chỉ sau khi gate khả thi đã xanh: `node scripts/check-plan.mjs` thoát với mã 0 (không còn dòng `!`), rồi mới `node scripts/check-plan.mjs > …`. Fixture làm từ một lịch hỏng thì khớp với chính nó.
 
 ## Cấu trúc
 

@@ -43,7 +43,7 @@ import { RIDES, ALT_RIDES, rideAnchor, seatVerdict } from '../src/lib/rides.ts';
 import { SLOTS, CATEGORIES, CHAINS, TAX_FREE, RULES, itemsFor } from '../src/lib/shopping.ts';
 import { baseStyle } from '../src/lib/mapStyle.ts';
 import { deepTidy } from './tidy.mjs';
-import { DWELL, WAIT } from './plan-rules.mjs';
+import { DWELL, GRACE, TIGHT, WAIT } from './plan-rules.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const out = (rel, data) => {
@@ -225,7 +225,7 @@ const trip = clean({
   rides: RIDES.map(rideOut),
   altRides: ALT_RIDES.map(rideOut),
   reserved: RESERVED,
-  rules: { dwell: DWELL, wait: WAIT },
+  rules: { dwell: DWELL, wait: WAIT, grace: GRACE, tight: TIGHT },
 });
 
 // ——— guide ———

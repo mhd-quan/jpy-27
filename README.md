@@ -46,13 +46,14 @@ ios/                 app iPhone (SwiftUI, iOS 26): lõi TripKit, app, widget
 | Đi dạo quanh khách sạn, Fuji từ ryokan | `node scripts/build-stays.mjs` | `src/data/stays.gen.ts`, `public/img/fuji-viewshed-mizunoto.png` |
 | Đường đi bộ của các khung mua sắm | `node scripts/build-shopping.mjs` | `src/data/shopping.gen.ts` |
 | Thời gian đi bộ có tính dốc | `node scripts/build-walk.mjs` | `src/data/walk.gen.ts` |
-| Kiểm tra lịch có kịp giờ | `npm run check:plan` | báo những điểm dừng hoặc chuyến tàu lên lịch sớm hơn lúc tới được |
+| Kiểm tra lịch có kịp giờ | `npm run check:plan` | báo những điểm dừng hoặc chuyến tàu lên lịch sớm hơn lúc tới được; có điểm trễ thì thoát với mã 1 |
 | Dữ liệu cho app iPhone | `npm run ios:data` | `ios/JP27/Resources/Trip/*.json`, `ios/Shared/schedule.json`, `public/map/jp27-*.json` |
 
 Thứ tự khi sửa dữ liệu: merge → localize → merge → geo → detours → rides → fuji → stays → shopping → walk → check:plan → ios:data. `npm run geo` chạy liền geo, detours và walk.
 
 - **Đi bộ**: độ cao lấy mỗi 15 m trên Terrarium z14 (~10 m), làm mượt 105 m và bỏ dao động dưới 4 m (dữ liệu bề mặt thấy cả nhà và cầu vượt); tốc độ theo hàm Tobler nhân 0,78 — khoảng 3,9 km/h trên đường phẳng, chậm hơn khi leo hoặc xuống dốc gắt. Cộng 1 phút định hướng mỗi đoạn và thời gian từ sân ga ra đường ở các ga lớn (Shinjuku, Nagoya, Kyoto, Namba… 3–5 phút; đổi giữa hai ga tính một lần). Thời gian này hiện ở từng đoạn đi bộ, đường rẽ, đường dạo quanh khách sạn và khung mua sắm.
-- **Kiểm tra lịch**: chạy đồng hồ qua từng ngày — đi bộ theo mô hình trên, tàu xe theo cận dưới của thời gian ghi trong lịch cộng thời gian chờ khi không có giờ chạy cụ thể, mỗi điểm dừng có thời gian ở tối thiểu theo loại (bữa chính 45–60 phút, đền chùa lớn 40–50, chỗ chụp ảnh 10–20). Geometry của chặng đã có trong `geo.gen.ts` được giữ lại (id chặng băm theo tuyến, hai đầu và điểm đi qua); `--fresh` để tính lại hết. Thời gian ở và thời gian chờ nằm ở `scripts/plan-rules.mjs`, dùng chung với app iPhone — app chạy cùng đồng hồ này bằng Swift để tính lại lịch khi đang trễ.
+- **Kiểm tra lịch**: chạy đồng hồ qua từng ngày — đi bộ theo mô hình trên, tàu xe theo cận dưới của thời gian ghi trong lịch cộng thời gian chờ khi không có giờ chạy cụ thể, mỗi điểm dừng có thời gian ở tối thiểu theo loại (bữa chính 45–60 phút, đền chùa lớn 40–50, chỗ chụp ảnh 10–20). Một chặng đi bộ ghé qua nhiều điểm được tính dần theo từng điểm, và đoạn còn lại sau điểm cuối được cộng trước chuyến tàu kế tiếp. Trễ quá 1 phút với giờ tàu hay quá 2 phút với giờ một điểm dừng là trễ (`!`, script thoát với mã 1, CI dừng); một điểm dừng trễ không quá 2 phút in `≈`, còn dư dưới 3 phút in `~` (gửi đồ và nhận phòng không in hai dòng này). Thời gian ở, thời gian chờ và các ngưỡng này nằm ở `scripts/plan-rules.mjs`, dùng chung với app iPhone — app chạy cùng đồng hồ này bằng Swift để tính lại lịch khi đang trễ. Test của script: `node --test 'scripts/*.test.mjs'`.
+- **Tính lại từ đầu**: geometry của chặng đã có trong `geo.gen.ts` được `build-geo.mjs` giữ lại (id chặng băm theo tuyến, hai đầu và điểm đi qua); `--fresh` cho `build-geo`, `build-detours`, `build-rides`, `build-stays` và `build-shopping` để tính lại hết. `check-plan.mjs` không nhận tham số.
 
 `merge-research` ghi thêm `src/data/enrich.gen.ts` (câu tiếng Nhật, chỗ ở, Fuji, mua sắm, tàu) từ các file nghiên cứu:
 

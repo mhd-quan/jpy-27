@@ -136,7 +136,7 @@ export const DAYS: Day[] = [
       stop('9:30', 'yanaka-ginza', 'Yanaka', 'Phố dân cư với chùa nhỏ, tiệm thủ công, mèo. Đi chậm, đừng vào ngõ có biển riêng tư.'),
       stop('10:35', 'nezu-taiyaki', 'Taiyaki ở Nezu', 'Nướng từng chiếc, có thể hết sớm.', undefined, true),
       walk('nezu-taiyaki', 'nezu-shrine', { min: '5' }),
-      stop('11:00', 'nezu-shrine', 'Nezu Jinja', 'Hàng cổng torii đỏ nhỏ và hiên gỗ sơn son, vắng hơn Fushimi Inari nhiều.'),
+      stop('11:05', 'nezu-shrine', 'Nezu Jinja', 'Hàng cổng torii đỏ nhỏ và hiên gỗ sơn son, vắng hơn Fushimi Inari nhiều.'),
       walk('nezu-shrine', 'st-ueno-hirokoji', { via: [[35.7148, 139.7663], [35.7118, 139.7699]], min: '40', note: 'Khoảng 2,5 km qua bờ hồ Shinobazu. Chân mỏi thì đi Chiyoda Line từ ga Nezu tới Yushima (5 phút) rồi đi bộ 8 phút.' }),
       leg('ginza', 'st-ueno-hirokoji', 'st-asakusa', { min: '6' }),
       walk('st-asakusa', 'owariya', { min: '5' }),

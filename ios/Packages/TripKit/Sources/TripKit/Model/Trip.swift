@@ -25,6 +25,27 @@ public struct PlanRules: Codable, Sendable {
     public let dwell: [String: Int]
     /// minutes waited for a departure without a fixed time, by mode
     public let wait: [String: Int]
+    /// minutes a planned time may be behind the clock and still count as kept
+    public let grace: Grace
+    /// a stop reached with fewer minutes to spare than this is tight
+    public let tight: Int
+
+    public struct Grace: Codable, Sendable, Hashable {
+        /// for a departure: the train does not wait
+        public let move: Int
+        public let stop: Int
+    }
+
+    private enum CodingKeys: String, CodingKey { case dwell, wait, grace, tight }
+
+    /// `grace` and `tight` came later: a plan exported without them gets the values it was checked with.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        dwell = try c.decode([String: Int].self, forKey: .dwell)
+        wait = try c.decode([String: Int].self, forKey: .wait)
+        grace = try c.decodeIfPresent(Grace.self, forKey: .grace) ?? Grace(move: 1, stop: 2)
+        tight = try c.decodeIfPresent(Int.self, forKey: .tight) ?? 3
+    }
 }
 
 public struct Meta: Codable, Sendable {
