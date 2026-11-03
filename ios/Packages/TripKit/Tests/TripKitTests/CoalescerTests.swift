@@ -54,10 +54,47 @@ import Testing
             await settle()
         }
 
-        /// Lets every task queued on the main actor run until it waits on something again (a sleep,
-        /// a gate): all of this runs there, so a few turns more than the longest chain is enough.
-        func settle() async {
-            for _ in 0..<20 { await Task.yield() }
+        func settle() async { await CoalescerTests.settle() }
+    }
+
+    /// Lets every task queued on the main actor run until it waits on something again (a sleep, a
+    /// gate): all of this runs there, so a few turns more than the longest chain is enough.
+    static func settle() async {
+        for _ in 0..<20 { await Task.yield() }
+    }
+
+    /// A sleep that ends only when the test says, stopped or not: `Task.sleep` returns normally when
+    /// its time had come just before the cancel, its wake already queued on the main actor.
+    @MainActor final class LateSleep {
+        private var sleepers: [CheckedContinuation<Void, Never>] = []
+
+        var waiting: Int { sleepers.count }
+
+        func sleep(_ delay: Duration) async {
+            await withCheckedContinuation { sleepers.append($0) }
+        }
+
+        func wakeAll() {
+            let woken = sleepers
+            sleepers = []
+            for s in woken { s.resume() }
+        }
+    }
+
+    /// The first sleep fails with an error of its own (not a cancellation); the rest are `clock`'s.
+    @MainActor final class FailsOnce {
+        struct Broken: Error {}
+        private let clock: ManualSleep
+        private var failed = false
+
+        init(_ clock: ManualSleep) { self.clock = clock }
+
+        func sleep(_ delay: Duration) async throws {
+            guard failed else {
+                failed = true
+                throw Broken()
+            }
+            try await clock.sleep(delay)
         }
     }
 
@@ -187,15 +224,58 @@ import Testing
         // due at 500 ms and at 2.2 s: the run stays at 300 ms
         c.request(after: .milliseconds(300))
         c.request(after: .seconds(2))
-        // due at 300 ms too: a timer of its own (the delay is shorter), and still one run
+        // due at 300 ms too: still one run
         c.request(after: .milliseconds(100))
-        await clock.settle()
-        #expect(clock.waiting == 2)
         await clock.advance(.milliseconds(99))
         #expect(n == 0)
         await clock.advance(.milliseconds(1))
         #expect(n == 1)
         await clock.advance(.seconds(5))
+        #expect(n == 1)
+    }
+
+    @Test func aShorterRequestDueLaterDoesNotPostponeTheRun() async {
+        let clock = ManualSleep()
+        var n = 0
+        let c = Coalescer(sleep: clock.sleep) { n += 1 }
+        c.request(after: .milliseconds(300))
+        await clock.advance(.milliseconds(200))
+        // a shorter delay, but due at 350 ms: the run stays at 300 ms
+        c.request(after: .milliseconds(150))
+        await clock.advance(.milliseconds(100))
+        #expect(n == 1)
+        await clock.advance(.seconds(5))
+        #expect(n == 1)
+    }
+
+    @Test func aStoppedTimerThatWakesAnywayRunsNothing() async {
+        let late = LateSleep()
+        var n = 0
+        let c = Coalescer(sleep: late.sleep) { n += 1 }
+        c.request(after: .seconds(10))
+        await Self.settle()
+        #expect(late.waiting == 1)
+        #expect(await finishes { await c.flush() })
+        #expect(n == 1)
+        // its time had come as the flush stopped it: the sleep returns as if it had not been stopped
+        late.wakeAll()
+        await Self.settle()
+        #expect(n == 1)
+        #expect(c.isIdle)
+    }
+
+    @Test func aSleepThatFailsLeavesNothingWaiting() async {
+        let clock = ManualSleep()
+        let failing = FailsOnce(clock)
+        var n = 0
+        let c = Coalescer(sleep: failing.sleep) { n += 1 }
+        c.request(after: .milliseconds(300))
+        await clock.settle()
+        #expect(c.isIdle)
+        #expect(n == 0)
+        // the next request is not taken for one already waiting
+        c.request(after: .milliseconds(300))
+        await clock.advance(.milliseconds(300))
         #expect(n == 1)
     }
 
@@ -239,8 +319,9 @@ import Testing
         #expect(!c.isIdle)
         await clock.advance(.milliseconds(300))
         await gate.reached()
-        // a run goes on
+        // a run goes on, and counts from when it began
         #expect(!c.isIdle)
+        #expect(c.runs == 1)
         gate.open()
         await clock.settle()
         #expect(n == 1)

@@ -14,7 +14,8 @@ import Foundation
     private let sleep: @Sendable (Duration) async throws -> Void
     private let work: @MainActor () async -> Void
     /// the timers waiting to start a run, each with the delay it was asked for with
-    private var timers: [(delay: Duration, task: Task<Void, Never>)] = []
+    private var timers: [(id: Int, delay: Duration, task: Task<Void, Never>)] = []
+    private var nextTimer = 0
     /// the runs going on, one after another
     private var running: Task<Void, Never>?
     /// a run is wanted that begins after the one going on
@@ -39,18 +40,23 @@ import Foundation
     /// put off. The timers waiting have ever shorter delays, so there are few.
     public func request(after delay: Duration) {
         if let shortest = timers.map(\.delay).min(), shortest <= delay { return }
+        let id = nextTimer
+        nextTimer += 1
         let task = Task {
             do {
                 try await sleep(delay)
             } catch {
+                // stopped (already gone from `timers`), or a sleep that failed: nothing waits on this
+                // one any more, so it neither keeps the coalescer busy nor stands in for a later request
+                timers.removeAll { $0.id == id }
                 return
             }
-            // stopped as it woke: on the real clock, a timer due with the one that went off may wake
-            // after it, its stop too late to make the sleep throw
+            // stopped though the sleep ended normally: `Task.sleep` does that when its time had come
+            // just before the stop, its wake already queued
             guard !Task.isCancelled else { return }
             due()
         }
-        timers.append((delay, task))
+        timers.append((id, delay, task))
     }
 
     /// Runs now, in place of any timer waiting, and returns once nothing is left to run. A run already

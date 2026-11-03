@@ -70,3 +70,19 @@ iOS đã tắt app ở nền: làm lại bước đó. Bước 3 và 4 cần ch�
 4. **Chạm rồi rời app ngay vẫn đặt xong ở nền.** Đặt breakpoint ở `AppModel.finishRescheduleInBackground`. Chạm
    dấu tích rồi vuốt về màn hình chính ngay (trong khoảng 0,3 s) → breakpoint chạm. Mở lại app, chờ vài giây, rời
    app mà không chạm gì → breakpoint không chạm.
+5. **"Đã tới" trên màn hình khoá đặt lại ở nền** (chạy từ Xcode, quyền vị trí Luôn luôn, trong một ngày của chuyến
+   hay một lần chạy thử, quán ăn kế tiếp của lịch hôm nay chưa tích). Mở Cài đặt › Chẩn đoán, ghi số lần đặt lại.
+   Đặt breakpoint ở `AppModel.finishRescheduleInBackground`. Khoá máy. Tới gần quán đó (hoặc Debug › Simulate
+   Location trong Xcode, một điểm ngay ở quán) cho tới khi thông báo của quán hiện ra với nút "Đã tới". Trên màn
+   hình khoá, giữ thông báo, bấm "Đã tới" → breakpoint chạm khi app còn ở nền; Continue. Mở khoá, mở app: quán đã
+   tích. Nhắc giờ thuộc quán đó (nếu có, ví dụ giờ đặt bàn còn ở phía trước) không reo vào giờ của nó. Mở lại Cài
+   đặt → số tăng **2** so với trước khi khoá: 1 cho "Đã tới" ở nền, 1 cho lần mở lại app. Để so: khoá rồi mở lại
+   mà không bấm gì → tăng 1.
+6. **Tàu tới ga khi máy khoá** (chỉ kiểm được vào ngày đi: cần một chuyến tàu được theo dõi thật, với Live
+   Activity; trước đó ghi "chưa kiểm, ngày đi"). Theo dõi chuyến, khoá máy trước ga cuối. Nếu máy nối Xcode:
+   breakpoint ở `AppModel.finishRescheduleInBackground` chạm khi tàu tới ga (app ở nền). Không có Xcode: ghi số lần
+   đặt lại trước khi khoá; sau khi tới ga, mở app, mở lại Cài đặt → tăng 2 (tới ga ở nền, mở lại app), và những
+   chặng của chuyến đã tích.
+7. **Di chuyển đáng kể ở nền** (significant change) không ép được trên máy: iOS tự quyết khi nào báo. Đường này
+   chỉ được kiểm bằng đọc code: `LocationService.locationManager(_:didUpdateLocations:)` gọi `moved(to:)` chỉ khi
+   app không ở trên màn hình → `onMoved` → `AppModel.requestReschedule` rồi `finishRescheduleInBackground`.
