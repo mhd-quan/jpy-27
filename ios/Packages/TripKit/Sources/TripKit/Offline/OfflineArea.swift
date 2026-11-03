@@ -19,8 +19,7 @@ public enum StyleInfo {
     /// The tile build of a style: the first URL template of its `omt` source. Nil for a style whose
     /// tiles come from a TileJSON (`url`, the `-current` styles): the TileJSON names the build.
     public static func build(style: Data) -> TileBuild? {
-        let style = try? JSONDecoder().decode(Style.self, from: style)
-        return build(style?.sources?.omt?.tiles)
+        build((try? JSONDecoder().decode(StyleTiles.self, from: style))?.sources?.omt?.tiles)
     }
 
     /// The tile build a TileJSON names now (its first URL template).
@@ -32,7 +31,7 @@ public enum StyleInfo {
     /// build and a hash of its content. The site serves that very style for good at
     /// `map/jp27-<theme>@<name>.json`, so a pack can be made from the style the app was built with.
     public static func styleBuild(style: Data) -> String? {
-        guard let name = (try? JSONDecoder().decode(Style.self, from: style))?.metadata?.build, !name.isEmpty else { return nil }
+        guard let name = (try? JSONDecoder().decode(StyleName.self, from: style))?.metadata?.build, !name.isEmpty else { return nil }
         return name
     }
 
@@ -41,9 +40,13 @@ public enum StyleInfo {
         return TileBuild(template: template)
     }
 
-    private struct Style: Decodable {
-        let metadata: Metadata?
+    // Each reader decodes only its own part of the style, so an odd value in the other part hides nothing.
+    private struct StyleTiles: Decodable {
         let sources: Sources?
+    }
+
+    private struct StyleName: Decodable {
+        let metadata: Metadata?
     }
 
     private struct Metadata: Decodable {
@@ -141,6 +144,8 @@ public enum OfflineArea {
 
     /// Where a pack is, from what MapLibre says of it.
     ///
+    /// - `state`: read first. An invalid pack raises on any other message (MLNOfflinePack.h), so its
+    ///   caller has no tag for it: it is broken, whatever the tag.
     /// - `tag`: `PackTag.read` of its context; nil (an older pack) is stale, as is a pack of a build the
     ///   map (`mapBuild`) does not read.
     /// - `error`: the last error MapLibre reported since the pack last moved, if any.
@@ -149,17 +154,18 @@ public enum OfflineArea {
     ///   A pack not known yet (`unknown`) keeps it too.
     public static func phase(state: PackState, completed: UInt64, expected: UInt64, maximum: UInt64, tag: PackTag?,
                              mapBuild: TileBuild, error: String?, previous: AreaPhase? = nil) -> AreaPhase {
+        if state == .invalid { return .failed(broken) }
         guard let tag else { return .stale(nil) }
         guard tag.build == mapBuild else { return .stale(tag.build) }
-        if state == .invalid { return .failed(broken) }
         // every resource counted, and the count is final (`maximum` is UInt64.max until it is)
-        if state == .complete || (expected > 0 && completed >= expected && maximum == expected) { return .complete(mapBuild) }
-        if previous == .complete(mapBuild) { return .complete(mapBuild) }
+        let counted = expected > 0 && completed >= expected && maximum == expected
+        if counted || previous == .complete(mapBuild) { return .complete(mapBuild) }
         switch state {
+        case .complete: return .complete(mapBuild)
         case .unknown: return previous ?? .requested
         case .inactive: return .paused
         case .active: return error == nil ? .downloading(completed: completed, expected: expected) : .waitingForNetwork
-        case .complete, .invalid: return .failed(broken) // handled above
+        case .invalid: return .failed(broken) // returned above, before the tag
         }
     }
 }
@@ -175,12 +181,16 @@ public struct OfflineJob: Codable, Sendable {
         self.photos = photos
     }
 
-    /// How the job ended (or stands): a success only when every area holds the map's build and no
-    /// photo failed.
-    public func result(phases: [String: AreaPhase], photosFailed: Int, mapBuild: TileBuild) -> JobResult {
+    /// How the job ended (or stands): a success only when every area holds the map's build and, when
+    /// the job takes the photos, every photo is on disk and they were not paused. A job without the
+    /// photos does not look at them.
+    public func result(phases: [String: AreaPhase], photos state: PhotoState, mapBuild: TileBuild) -> JobResult {
+        let photos = self.photos ? state : .finished
+        // the failed ones are among those left; either count may be the larger one the app knows
+        let photosLeft = max(photos.left, photos.failed)
         var done = 0
         var failed: [String] = []
-        var paused = false
+        var paused = photos.paused
         for id in areas {
             switch phases[id] {
             case .complete(let b) where b == mapBuild: done += 1
@@ -189,7 +199,7 @@ public struct OfflineJob: Codable, Sendable {
             case .requested, .creating, .downloading, .waitingForNetwork, nil: break
             }
         }
-        let success = done == areas.count && photosFailed == 0
+        let success = done == areas.count && photosLeft == 0 && !photos.paused
         let subtitle: String
         if success {
             subtitle = "Xong"
@@ -199,11 +209,29 @@ public struct OfflineJob: Codable, Sendable {
             var parts: [String] = []
             if !areas.isEmpty { parts.append("Bản đồ \(done)/\(areas.count) vùng") }
             if !failed.isEmpty { parts.append("\(failed.count) lỗi") }
-            if photosFailed > 0 { parts.append("\(photosFailed) ảnh chưa tải được") }
+            if photosLeft > 0 { parts.append("\(photosLeft) ảnh chưa tải được") }
             subtitle = parts.joined(separator: " · ")
         }
         return JobResult(success: success, done: done, failed: failed.sorted(), paused: paused, subtitle: subtitle)
     }
+}
+
+/// The photos of a job, as `OfflinePhotos` has them when the job ends.
+public struct PhotoState: Sendable, Equatable {
+    /// failed in this download
+    public let failed: Int
+    /// not on disk yet, the failed ones included
+    public let left: Int
+    /// stopped by the travellers or by the system
+    public let paused: Bool
+
+    public init(failed: Int, left: Int, paused: Bool) {
+        self.failed = failed
+        self.left = left
+        self.paused = paused
+    }
+    /// every photo on disk
+    public static let finished = PhotoState(failed: 0, left: 0, paused: false)
 }
 
 public struct JobResult: Sendable, Equatable {
@@ -212,7 +240,7 @@ public struct JobResult: Sendable, Equatable {
     public let done: Int
     /// areas that failed or hold another build, sorted
     public let failed: [String]
-    /// an area was stopped where it was
+    /// an area or the photos were stopped where they were
     public let paused: Bool
     /// "Xong", "Đã dừng", or "Bản đồ 8/10 vùng · 2 lỗi"
     public var subtitle: String

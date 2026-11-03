@@ -19,7 +19,7 @@ import Testing
 
     @Test func aRegionWhosePackCouldNotBeMadeFailsTheJob() {
         let r = OfflineJob(areas: ["tokyo", "kyoto"], photos: false)
-            .result(phases: ["tokyo": .complete(build), "kyoto": .failed("Không tạo được vùng tải")], photosFailed: 0, mapBuild: build)
+            .result(phases: ["tokyo": .complete(build), "kyoto": .failed("Không tạo được vùng tải")], photos: .finished, mapBuild: build)
         #expect(!r.success); #expect(r.failed == ["kyoto"]); #expect(r.subtitle != "Xong")
         #expect(r.done == 1)
         #expect(r.subtitle == "Bản đồ 1/2 vùng · 1 lỗi")
@@ -28,59 +28,90 @@ import Testing
     @Test func mapOnlyJobIsDoneOnlyWhenEveryAreaIsComplete() {
         let job = OfflineJob(areas: ["tokyo", "kyoto", "nara"], photos: false)
         let running = job.result(phases: ["tokyo": .complete(build), "kyoto": .complete(build), "nara": .downloading(completed: 5, expected: 10)],
-                                 photosFailed: 0, mapBuild: build)
+                                 photos: .finished, mapBuild: build)
         #expect(!running.success); #expect(running.done == 2); #expect(running.failed.isEmpty); #expect(!running.paused)
         #expect(running.subtitle == "Bản đồ 2/3 vùng")
         let done = job.result(phases: ["tokyo": .complete(build), "kyoto": .complete(build), "nara": .complete(build)],
-                              photosFailed: 0, mapBuild: build)
+                              photos: .finished, mapBuild: build)
         #expect(done == JobResult(success: true, done: 3, failed: [], paused: false, subtitle: "Xong"))
     }
 
     @Test func pausedIsNotDone() {
         let r = OfflineJob(areas: ["tokyo", "kyoto", "nara"], photos: false)
-            .result(phases: ["tokyo": .complete(build), "kyoto": .paused, "nara": .failed("x")], photosFailed: 0, mapBuild: build)
+            .result(phases: ["tokyo": .complete(build), "kyoto": .paused, "nara": .failed("x")], photos: .finished, mapBuild: build)
         #expect(!r.success); #expect(r.paused); #expect(r.subtitle == "Đã dừng")
         #expect(r.failed == ["nara"]); #expect(r.done == 1)
     }
 
     @Test func waitingRegionIsNotComplete() {
         let r = OfflineJob(areas: ["tokyo", "kyoto"], photos: false)
-            .result(phases: ["tokyo": .complete(build), "kyoto": .waitingForNetwork], photosFailed: 0, mapBuild: build)
+            .result(phases: ["tokyo": .complete(build), "kyoto": .waitingForNetwork], photos: .finished, mapBuild: build)
         #expect(!r.success); #expect(r.failed.isEmpty); #expect(!r.paused); #expect(r.done == 1)
     }
 
     @Test func anAreaOfAnotherBuildOrStaleIsAFailureNotDone() {
         let r = OfflineJob(areas: ["tokyo", "kyoto", "nara", "osaka"], photos: false)
             .result(phases: ["tokyo": .complete(other), "kyoto": .stale(other), "nara": .stale(nil), "osaka": .complete(build)],
-                    photosFailed: 0, mapBuild: build)
+                    photos: .finished, mapBuild: build)
         #expect(!r.success); #expect(r.done == 1)
         #expect(r.failed == ["kyoto", "nara", "tokyo"])
         #expect(r.subtitle == "Bản đồ 1/4 vùng · 3 lỗi")
-        let many = ["a", "b", "c", "d", "e", "f"]
+        // twelve names: a set listing them in order by chance is one in 479 001 600
+        let many = ["toba", "ise", "kyoto", "hakone", "osaka", "nara", "tokyo", "shima", "kawaguchiko", "tokaido", "uji", "fuji"]
         let all = OfflineJob(areas: Set(many), photos: false)
-            .result(phases: Dictionary(uniqueKeysWithValues: many.map { ($0, AreaPhase.failed("x")) }), photosFailed: 0, mapBuild: build)
-        #expect(all.failed == many)
+            .result(phases: Dictionary(uniqueKeysWithValues: many.map { ($0, AreaPhase.failed("x")) }), photos: .finished, mapBuild: build)
+        #expect(all.failed == ["fuji", "hakone", "ise", "kawaguchiko", "kyoto", "nara", "osaka", "shima", "toba", "tokaido", "tokyo", "uji"])
     }
 
     @Test func anAreaNobodyKnowsIsNeitherDoneNorFailed() {
         let r = OfflineJob(areas: ["tokyo", "kyoto"], photos: false)
-            .result(phases: ["tokyo": .complete(build)], photosFailed: 0, mapBuild: build)
+            .result(phases: ["tokyo": .complete(build)], photos: .finished, mapBuild: build)
         #expect(!r.success); #expect(r.done == 1); #expect(r.failed.isEmpty); #expect(r.subtitle == "Bản đồ 1/2 vùng")
         for p: AreaPhase in [.requested, .creating] {
-            let s = OfflineJob(areas: ["kyoto"], photos: false).result(phases: ["kyoto": p], photosFailed: 0, mapBuild: build)
+            let s = OfflineJob(areas: ["kyoto"], photos: false).result(phases: ["kyoto": p], photos: .finished, mapBuild: build)
             #expect(!s.success); #expect(s.failed.isEmpty); #expect(!s.paused)
         }
     }
 
     @Test func photosThatFailedFailTheJobEvenWithEveryAreaDone() {
         let r = OfflineJob(areas: ["tokyo"], photos: true)
-            .result(phases: ["tokyo": .complete(build)], photosFailed: 3, mapBuild: build)
-        #expect(!r.success); #expect(r.done == 1); #expect(r.failed.isEmpty)
+            .result(phases: ["tokyo": .complete(build)], photos: PhotoState(failed: 3, left: 3, paused: false), mapBuild: build)
+        #expect(!r.success); #expect(r.done == 1); #expect(r.failed.isEmpty); #expect(!r.paused)
         #expect(r.subtitle == "Bản đồ 1/1 vùng · 3 ảnh chưa tải được")
-        let photosOnly = OfflineJob(areas: [], photos: true).result(phases: [:], photosFailed: 2, mapBuild: build)
+        let photosOnly = OfflineJob(areas: [], photos: true).result(phases: [:], photos: PhotoState(failed: 2, left: 0, paused: false), mapBuild: build)
         #expect(!photosOnly.success); #expect(photosOnly.subtitle == "2 ảnh chưa tải được")
-        let fine = OfflineJob(areas: [], photos: true).result(phases: [:], photosFailed: 0, mapBuild: build)
+        let fine = OfflineJob(areas: [], photos: true).result(phases: [:], photos: .finished, mapBuild: build)
         #expect(fine.success); #expect(fine.subtitle == "Xong")
+    }
+
+    @Test func pausedPhotosAreNotDone() {
+        let paused = PhotoState(failed: 0, left: 40, paused: true)
+        let r = OfflineJob(areas: ["tokyo"], photos: true).result(phases: ["tokyo": .complete(build)], photos: paused, mapBuild: build)
+        #expect(!r.success); #expect(r.paused); #expect(r.subtitle == "Đã dừng"); #expect(r.done == 1)
+        let photosOnly = OfflineJob(areas: [], photos: true).result(phases: [:], photos: paused, mapBuild: build)
+        #expect(!photosOnly.success); #expect(photosOnly.paused); #expect(photosOnly.subtitle == "Đã dừng")
+        // paused with nothing left to download is still a pause the travellers made
+        let nothingLeft = OfflineJob(areas: [], photos: true).result(phases: [:], photos: PhotoState(failed: 0, left: 0, paused: true), mapBuild: build)
+        #expect(!nothingLeft.success); #expect(nothingLeft.paused)
+    }
+
+    @Test func unfinishedPhotosAreNotDone() {
+        let r = OfflineJob(areas: ["tokyo"], photos: true)
+            .result(phases: ["tokyo": .complete(build)], photos: PhotoState(failed: 0, left: 12, paused: false), mapBuild: build)
+        #expect(!r.success); #expect(!r.paused); #expect(r.failed.isEmpty)
+        #expect(r.subtitle == "Bản đồ 1/1 vùng · 12 ảnh chưa tải được")
+        // the failed ones are among those left: counted once
+        let both = OfflineJob(areas: [], photos: true).result(phases: [:], photos: PhotoState(failed: 2, left: 5, paused: false), mapBuild: build)
+        #expect(!both.success); #expect(both.subtitle == "5 ảnh chưa tải được")
+    }
+
+    @Test func aJobWithoutPhotosIgnoresThem() {
+        for photos in [PhotoState(failed: 3, left: 10, paused: false), PhotoState(failed: 0, left: 10, paused: true), PhotoState(failed: 1, left: 0, paused: true)] {
+            let r = OfflineJob(areas: ["tokyo"], photos: false).result(phases: ["tokyo": .complete(build)], photos: photos, mapBuild: build)
+            #expect(r == JobResult(success: true, done: 1, failed: [], paused: false, subtitle: "Xong"))
+            let open = OfflineJob(areas: ["tokyo", "kyoto"], photos: false).result(phases: ["tokyo": .complete(build), "kyoto": .failed("x")], photos: photos, mapBuild: build)
+            #expect(open.subtitle == "Bản đồ 1/2 vùng · 1 lỗi"); #expect(!open.paused)
+        }
     }
 
     @Test func aJobIsSavedAndReadBack() throws {
@@ -111,6 +142,9 @@ import Testing
         #expect(phase(.active, 3, 10, error: "Không kết nối được, đang thử lại") == .waitingForNetwork)
         #expect(phase(.inactive, 3, 10, error: "Không kết nối được, đang thử lại") == .paused)
         #expect(phase(.invalid, 3, 10) == .failed("Vùng tải đã hỏng, tải lại"))
+        // an invalid pack's context cannot be read (MapLibre raises): no tag, still broken, not stale
+        #expect(phase(.invalid, 0, 0, tag: .some(nil)) == .failed("Vùng tải đã hỏng, tải lại"))
+        #expect(phase(.invalid, 0, 0, tag: PackTag(area: "tokyo", build: other, styleURL: "")) == .failed("Vùng tải đã hỏng, tải lại"))
         #expect(phase(.unknown, 0, 0) == .requested)
         #expect(phase(.unknown, 0, 0, previous: .paused) == .paused)
         #expect(phase(.unknown, 0, 0, previous: .complete(build)) == .complete(build))
@@ -184,6 +218,13 @@ import Testing
         #expect(StyleInfo.styleBuild(style: Data(#"{"metadata":{"other":1},"sources":{}}"#.utf8)) == nil)
         #expect(StyleInfo.styleBuild(style: Data(#"{"metadata":{"jp27:build":""}}"#.utf8)) == nil)
         #expect(StyleInfo.styleBuild(style: style) == nil)
+        // each reader reads its own part: an odd value in the other part does not hide it
+        let oddName = Data(#"{"metadata":{"jp27:build":5},"sources":{"omt":{"tiles":["\#(build.template)"]}}}"#.utf8)
+        #expect(StyleInfo.build(style: oddName) == build)
+        #expect(StyleInfo.styleBuild(style: oddName) == nil)
+        let oddTiles = Data(#"{"metadata":{"jp27:build":"b-1"},"sources":{"omt":{"tiles":[1]}}}"#.utf8)
+        #expect(StyleInfo.styleBuild(style: oddTiles) == "b-1")
+        #expect(StyleInfo.build(style: oddTiles) == nil)
     }
 
     /// The styles the app ships and the site serves (scripts/export-ios.mjs): each pins an OpenFreeMap

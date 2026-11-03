@@ -8,8 +8,9 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const dir = new URL('../public/map/', import.meta.url).pathname;
+const dir = fileURLToPath(new URL('../public/map/', import.meta.url));
 const read = (name) => JSON.parse(readFileSync(join(dir, name), 'utf8'));
 const files = readdirSync(dir).filter((f) => f.endsWith('.json'));
 const pinned = files.filter((f) => f.includes('@'));
