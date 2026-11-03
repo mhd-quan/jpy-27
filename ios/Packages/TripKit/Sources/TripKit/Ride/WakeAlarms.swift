@@ -59,12 +59,15 @@ public struct WakeRequest: Sendable, Hashable {
 ///   of the old one puts its id in `orphans`, tried again by `reconcile()`.
 /// - Permission refused, schedule throwing, or the lead run out after waiting on the prompt
 ///   (`placement` asked again after every `await`) → `return`, the one set stays as it is.
-/// - `reconcile()`: an id in `systemAlarmIDs()` that is not in `scheduled` → cancel; an entry in
+/// - `reconcile()`: an id in `systemAlarms()` that is not in `scheduled` → cancel; an entry in
 ///   `scheduled` the system no longer has → dropped (rung, or turned off).
 ///
-/// Two more: the GPS's alarm (`.ride`) is not the timetable's to keep or cancel, only past its time
-/// is it dropped (a followed boat ride is never in `wanted`); and an old alarm replaced after its
-/// time is forgotten, not cancelled, like any alarm that has rung (it may be ringing still).
+/// And more: the GPS's alarm (`.ride`) is not the timetable's to keep or cancel, only past its time
+/// is it dropped (a followed boat ride is never in `wanted`); an old alarm replaced after its time is
+/// forgotten, not cancelled, like any alarm that has rung (it may be ringing still). `reconcile()`
+/// cancels only an alarm the system says is waiting (`.scheduled`), never one ringing, counting down
+/// or paused; does nothing without permission; and, when the saved alarms could not be read, takes
+/// back only what this run set and could not cancel. A rehearsal sets nothing.
 public enum WakeReconciler {
     /// a new alarm from the timetable is set at least this long before it rings
     public static let timetableLead: TimeInterval = 60
@@ -102,16 +105,25 @@ public enum WakeReconciler {
     }
 }
 
+/// What the system says one of its alarms is doing (AlarmKit's `Alarm.State`).
+public enum SystemAlarmState: Sendable, Hashable {
+    /// waiting for its time: the only state in which `reconcile()` takes back an alarm
+    case scheduled
+    case countdown, paused, alerting
+    /// a state the system added after this was written
+    case unknown
+}
+
 /// The system's alarms, as `WakeAlarms` uses them (AlarmKit in the app).
 @MainActor public protocol AlarmScheduling: AnyObject {
     var isAuthorized: Bool { get }
     /// Asks, if it was never asked; true when alarms may be set.
-    func requestAuthorization() async -> Bool
+    func requestAuthorization() async throws -> Bool
     /// Sets an alarm with this id; once it returns, the alarm is set.
     func schedule(id: UUID, request: WakeRequest) async throws
     func cancel(id: UUID) throws
-    /// The alarms the system holds for the app, ringing ones included.
-    func systemAlarmIDs() throws -> Set<UUID>
+    /// The alarms the system holds for the app, ringing ones included, each with its state.
+    func systemAlarms() throws -> [UUID: SystemAlarmState]
 }
 
 /// One alarm per ride before the station to get off at, by `WakeReconciler`'s rules: what is still
@@ -121,34 +133,41 @@ public enum WakeReconciler {
 ///
 /// One alarm is being set per ride at a time (asking for permission, scheduling): a call made
 /// meanwhile waits, only the latest is kept, and a cancel takes back an alarm being set as it lands.
-/// What the system holds and the app does not know (it was killed between setting an alarm and
-/// saving it) is taken back by `reconcile()`.
+/// What the system holds, waiting, that the app does not know (it was killed between setting an alarm
+/// and saving it) is taken back by `reconcile()`.
 @MainActor public final class WakeAlarms {
     /// what is set, per ride; every change is handed to `onChange` (saved, shown)
     public private(set) var scheduled: [String: AlarmSlot] {
         didSet { onChange(scheduled) }
     }
 
-    /// the latest thing the system refused (setting, cancelling, listing), for Settings › Chẩn đoán;
-    /// what was set before it is left as it was
+    /// the latest thing the system refused (permission, setting, cancelling, listing), for Settings ›
+    /// Chẩn đoán; what was set before it is left as it was
     public private(set) var lastError: String?
 
     private let scheduler: any AlarmScheduling
     private let now: () -> Date
+    private let rehearsing: () -> Bool
     private let onChange: ([String: AlarmSlot]) -> Void
     private let serial = OneAtATime<WakeRequest>()
-    /// alarms the system would not cancel, tried again by `reconcile()`
+    /// the saved alarms were read: an alarm the system holds that is not among them is a stray
+    private let knowsEverySlot: Bool
+    /// alarms this run set and the system would not cancel, tried again by `reconcile()`
     private var orphans: Set<UUID> = []
     /// alarms being set right now: the system may hold them before the app does
     private var placing: Set<UUID> = []
 
     /// `saved` as it was saved, alarms past their time included: one may be ringing as the app
-    /// opens, and `reconcile()` would cancel it if it were not known.
-    public init(scheduler: any AlarmScheduling, saved: [String: AlarmSlot], now: @escaping () -> Date = Date.init,
-                onChange: @escaping ([String: AlarmSlot]) -> Void) {
+    /// opens, and `reconcile()` would cancel it if it were not known. Nil when there was a record
+    /// that could not be read: the alarms it held are unknown, so no alarm the system holds is taken
+    /// for a stray. While `rehearsing` says so, no alarm is set (the rehearsal's times are not real).
+    public init(scheduler: any AlarmScheduling, saved: [String: AlarmSlot]?, now: @escaping () -> Date = Date.init,
+                rehearsing: @escaping () -> Bool = { false }, onChange: @escaping ([String: AlarmSlot]) -> Void) {
         self.scheduler = scheduler
-        self.scheduled = saved
+        self.scheduled = saved ?? [:]
+        self.knowsEverySlot = saved != nil
         self.now = now
+        self.rehearsing = rehearsing
         self.onChange = onChange
     }
 
@@ -170,7 +189,7 @@ public enum WakeReconciler {
 
     /// Ring at `request.at` for the ride. One call per ride runs at a time; one made meanwhile is
     /// done after it, the latest only. The GPS knows better than the timetable: a timetable time
-    /// never replaces a followed ride's.
+    /// never replaces a followed ride's. Nothing while rehearsing.
     public func alight(_ request: WakeRequest) async {
         await serial.run(request.rideID, request, overrides: { running, waiting in
             request.source == .ride || (running.source != .ride && waiting?.source != .ride)
@@ -182,7 +201,7 @@ public enum WakeReconciler {
     private func place(_ r: WakeRequest, ticket: OneAtATime<WakeRequest>.Ticket) async {
         guard settle(r) else { return }
         // the timetable never asks: permission is asked for when a ride is followed
-        let allowed = r.source == .timetable ? scheduler.isAuthorized : await scheduler.requestAuthorization()
+        let allowed = r.source == .timetable ? scheduler.isAuthorized : await requestAuthorization()
         // cancelled while the prompt was up, or answered too late for a new alarm
         guard allowed, serial.isCurrent(ticket), settle(r) else { return }
         let id = UUID()
@@ -205,8 +224,10 @@ public enum WakeReconciler {
         if let old, old.at > now() { takeBack(old.id) }
     }
 
-    /// `placement` applied as far as it goes without a new alarm; true when one is needed.
+    /// `placement` applied as far as it goes without a new alarm; true when one is needed. Asked
+    /// before and after every wait: a request left waiting may run once a rehearsal has begun.
     private func settle(_ r: WakeRequest) -> Bool {
+        guard !rehearsing() else { return false }
         let current = scheduled[r.rideID]
         switch WakeReconciler.placement(current: current, request: r, now: now()) {
         case .skip:
@@ -219,6 +240,17 @@ public enum WakeReconciler {
         }
     }
 
+    /// Asks for permission, if it was never asked; true when alarms may be set. An error is recorded
+    /// and counts as a no.
+    public func requestAuthorization() async -> Bool {
+        do {
+            return try await scheduler.requestAuthorization()
+        } catch {
+            lastError = "Xin quyền báo thức: \(error)"
+            return false
+        }
+    }
+
     /// No alarm for the ride, from either source, including one being set right now.
     public func cancel(_ rideID: String) {
         serial.cancel(rideID)
@@ -227,26 +259,31 @@ public enum WakeReconciler {
         takeBack(slot.id)
     }
 
-    /// After a time away, `scheduled` made to match what the system holds: an alarm it holds that the
-    /// app does not know is cancelled, one the app knows that it no longer holds is forgotten (it
-    /// rang, or was turned off). An alarm being set is left alone; with no list to read, only the
-    /// alarms that would not cancel before are tried again, and nothing is forgotten.
+    /// After a time away, `scheduled` made to match what the system holds: an alarm it holds, still
+    /// waiting, that the app does not know is cancelled; one the app knows that it no longer holds is
+    /// forgotten (it rang, or was turned off).
+    ///
+    /// Never an alarm ringing, counting down or paused: whoever it wakes stops it. Never one being set
+    /// right now. When the saved alarms could not be read, only those this run set and could not
+    /// cancel. Nothing at all without permission (the system's list may then be empty though its
+    /// alarms are set), nor when the list cannot be read.
     public func reconcile() {
-        let system: Set<UUID>
+        guard scheduler.isAuthorized else { return }
+        let system: [UUID: SystemAlarmState]
         do {
-            system = try scheduler.systemAlarmIDs()
+            system = try scheduler.systemAlarms()
         } catch {
             lastError = "Đọc báo thức: \(error)"
-            for id in orphans { takeBack(id) }
             return
         }
         // an orphan the system no longer holds has rung
-        orphans.formIntersection(system)
+        orphans.formIntersection(system.keys)
         let known = Set(scheduled.values.map(\.id))
-        for id in system where !known.contains(id) && !placing.contains(id) {
+        for (id, state) in system where state == .scheduled && !known.contains(id) && !placing.contains(id)
+            && (knowsEverySlot || orphans.contains(id)) {
             takeBack(id)
         }
-        for (rideID, slot) in scheduled where !system.contains(slot.id) {
+        for (rideID, slot) in scheduled where system[slot.id] == nil {
             scheduled[rideID] = nil
         }
     }

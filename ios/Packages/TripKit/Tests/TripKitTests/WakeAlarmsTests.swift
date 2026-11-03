@@ -14,14 +14,17 @@ import Testing
     var log: [Call] = []
     var scheduledRequests: [WakeRequest] = []
     var cancelled: Set<UUID> = []
-    /// the alarms the system holds for the app
-    var system: Set<UUID> = []
+    /// the alarms the system holds for the app, each as AlarmKit reports it
+    var system: [UUID: SystemAlarmState] = [:]
     /// the next schedule throws
     var failNext = false
     /// every cancel throws
     var failCancel = false
     /// reading the system's alarms throws
     var failList = false
+    var listReads = 0
+    /// asking for permission throws
+    var failAuthorization = false
     var authorized = true
     /// the answer to the permission prompt
     var grant = true
@@ -37,10 +40,11 @@ import Testing
         log.compactMap { if case .schedule(let id) = $0 { id } else { nil } }
     }
 
-    func requestAuthorization() async -> Bool {
+    func requestAuthorization() async throws -> Bool {
         if authorized { return true }
         prompts += 1
         if let authorizationGate { await authorizationGate.wait() }
+        if failAuthorization { throw Failure() }
         authorized = grant
         return grant
     }
@@ -49,11 +53,11 @@ import Testing
         log.append(.schedule(id))
         scheduledRequests.append(request)
         // the system may hold the alarm before the call returns
-        system.insert(id)
+        system[id] = .scheduled
         if let scheduleGate { await scheduleGate.wait() }
         if failNext {
             failNext = false
-            system.remove(id)
+            system[id] = nil
             throw Failure()
         }
     }
@@ -62,37 +66,38 @@ import Testing
         log.append(.cancel(id))
         if failCancel { throw Failure() }
         cancelled.insert(id)
-        system.remove(id)
+        system[id] = nil
     }
 
-    func systemAlarmIDs() throws -> Set<UUID> {
+    func systemAlarms() throws -> [UUID: SystemAlarmState] {
+        listReads += 1
         if failList { throw Failure() }
         return system
     }
 
-    /// An alarm the system already holds.
-    func seed() -> UUID {
+    /// An alarm the system already holds: waiting to ring, unless told otherwise.
+    func seed(_ state: SystemAlarmState = .scheduled) -> UUID {
         let id = UUID()
-        system.insert(id)
+        system[id] = state
         return id
     }
-}
-
-/// What `onChange` was handed, each time, and what had been cancelled by then.
-@MainActor final class Saves {
-    var slots: [[String: AlarmSlot]] = []
-    var cancelledThen: [Set<UUID>] = []
-}
-
-/// A clock the test moves on.
-@MainActor final class Clock {
-    var now: Date
-    init(_ now: Date) { self.now = now }
 }
 
 /// The alighting alarm (`WakeAlarms`): a wanted alarm is kept however close it is, a new one is set
 /// only with time enough, and the one set is replaced only once its replacement is.
 @Suite @MainActor struct WakeAlarmsTests {
+    /// What `onChange` was handed, each time, and what had been cancelled by then.
+    @MainActor final class SavedLog {
+        var slots: [[String: AlarmSlot]] = []
+        var cancelledThen: [Set<UUID>] = []
+    }
+
+    /// A clock the test moves on.
+    @MainActor final class FakeClock {
+        var now: Date
+        init(_ now: Date) { self.now = now }
+    }
+
     let now = Date(timeIntervalSince1970: 1_800_000_000)
 
     @Test func keepsWantedAlarmDueIn45Seconds() async {
@@ -117,13 +122,14 @@ import Testing
             "r1": AlarmSlot(id: gone, at: now + 600, source: .timetable),
             "r2": AlarmSlot(id: off, at: now + 700, source: .timetable),
             "r3": AlarmSlot(id: kept, at: now + 800, source: .timetable),
-            // a followed ride the timetable never wants (a boat): the GPS's alarm is not the timetable's to take back
+            // a followed ride the timetable never wants (a boat, off by default): the GPS's alarm is not
+            // the timetable's to take back, whatever the switch reads (turning it off cancels it directly)
             "r4": AlarmSlot(id: followed, at: now + 900, source: .ride),
         ], now: { now }) { _ in }
         await a.planWake([
             WakeRequest(rideID: "r2", station: "X", at: now + 700, source: .timetable),
             WakeRequest(rideID: "r3", station: "X", at: now + 800, source: .timetable),
-        ], isOn: { $0 != "r2" })
+        ], isOn: { $0 != "r2" && $0 != "r4" })
         // r1 left the plan, r2's switch is off: both cancelled, and r2 is not set again
         #expect(s.cancelled == [gone, off])
         #expect(Set(a.scheduled.keys) == ["r3", "r4"])
@@ -163,7 +169,7 @@ import Testing
     @Test func oldIsCancelledOnlyAfterNewIsConfirmed() async {
         let s = FakeScheduler()
         let old = s.seed()
-        let saves = Saves()
+        let saves = SavedLog()
         let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: old, at: now + 600, source: .ride)], now: { now }) { slots in
             saves.slots.append(slots)
             saves.cancelledThen.append(s.cancelled)
@@ -189,10 +195,13 @@ import Testing
     @Test func aCloseGPSTimeTakesOverTheTimetableAlarm() async {
         let s = FakeScheduler()
         let old = s.seed()
-        let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: old, at: now + 600, source: .timetable)], now: { now }) { _ in }
+        let saves = SavedLog()
+        let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: old, at: now + 600, source: .timetable)], now: { now }) { saves.slots.append($0) }
         // a minute off is not worth a new alarm, but the ride is the GPS's now: the timetable leaves it alone
         await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 660, source: .ride))
+        // the same alarm, at its own time (the one AlarmKit rings), saved as the GPS's
         #expect(a.scheduled["r1"] == AlarmSlot(id: old, at: now + 600, source: .ride))
+        #expect(saves.slots.last == ["r1": AlarmSlot(id: old, at: now + 600, source: .ride)])
         #expect(s.log.isEmpty)
     }
 
@@ -232,14 +241,17 @@ import Testing
     @Test func reconcileCancelsSystemAlarmsTheAppForgot() async {
         let s = FakeScheduler()
         let orphan = s.seed()
+        // ringing, counting down, paused, or in a state AlarmKit adds later: the traveller's to stop
+        let busy: [UUID] = [s.seed(.alerting), s.seed(.countdown), s.seed(.paused), s.seed(.unknown)]
         let a = WakeAlarms(scheduler: s, saved: [:], now: { now }) { _ in }
         a.reconcile()
         #expect(s.cancelled == [orphan])
+        #expect(busy.allSatisfy { s.system[$0] != nil })
     }
 
     @Test func reconcileForgetsAlarmsTheSystemNoLongerHas() {
         let s = FakeScheduler()
-        let saves = Saves()
+        let saves = SavedLog()
         let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: UUID(), at: now + 600, source: .timetable)], now: { now }) { saves.slots.append($0) }
         a.reconcile()
         #expect(a.scheduled.isEmpty)
@@ -252,14 +264,16 @@ import Testing
     @Test func anAlarmPastItsTimeIsForgottenNotCancelled() async throws {
         // ringing: the planner no longer wants a wake whose time has passed
         let s = FakeScheduler()
-        let ringing = s.seed(), followed = s.seed()
+        let ringing = s.seed(.alerting), followed = s.seed()
+        let saves = SavedLog()
         let a = WakeAlarms(scheduler: s, saved: [
             "r1": AlarmSlot(id: ringing, at: now - 10, source: .timetable),
             // a GPS alarm that has rung is forgotten too, though the timetable never takes one back
             "r2": AlarmSlot(id: followed, at: now - 5, source: .ride),
-        ], now: { now }) { _ in }
+        ], now: { now }) { saves.slots.append($0) }
         await a.planWake([], isOn: { _ in true })
         #expect(a.scheduled.isEmpty)
+        #expect(saves.slots.last == [:])
         #expect(s.log.isEmpty)
         // nor when the GPS moves it on: the new one is set, the one that rang is left alone
         let t = FakeScheduler()
@@ -275,7 +289,7 @@ import Testing
         let s = FakeScheduler(); s.authorized = false; s.grant = true
         let gate = OneAtATimeTests.Gate()
         s.authorizationGate = gate
-        let clock = Clock(now)
+        let clock = FakeClock(now)
         let old = s.seed()
         let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: old, at: now + 600, source: .timetable)], now: { clock.now }) { _ in }
         let asking = Task { await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 40, source: .ride)) }
@@ -303,7 +317,7 @@ import Testing
         await setting.value
         let new = try #require(s.scheduledIDs.first)
         #expect(a.scheduled["r1"]?.id == new)
-        #expect(s.system == [new])
+        #expect(Set(s.system.keys) == [new])
     }
 
     @Test func aFailedCancelIsRetriedByReconcile() async throws {
@@ -314,11 +328,16 @@ import Testing
         await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 1200, source: .ride))
         let new = try #require(s.scheduledIDs.first)
         #expect(a.scheduled["r1"]?.id == new)
-        #expect(s.system.contains(old))
+        #expect(s.system[old] != nil)
         #expect(a.lastError != nil)
-        // the system's list cannot be read either: the orphan is tried again by itself, and nothing is forgotten
+        // with no list to read, nothing is cancelled (the old one may be ringing by now) and nothing forgotten
         s.failCancel = false
         s.failList = true
+        a.reconcile()
+        #expect(s.cancelled.isEmpty)
+        #expect(a.scheduled["r1"]?.id == new)
+        // the list says it is still waiting: taken back
+        s.failList = false
         a.reconcile()
         #expect(s.cancelled == [old])
         #expect(a.scheduled["r1"]?.id == new)
@@ -347,10 +366,148 @@ import Testing
     @Test func reconcileAtLaunchKeepsARingingAlarm() {
         // saved before the app was closed, ringing now as it opens: the app still knows it
         let s = FakeScheduler()
-        let ringing = s.seed()
+        let ringing = s.seed(.alerting)
         let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: ringing, at: now - 20, source: .timetable)], now: { now }) { _ in }
         a.reconcile()
         #expect(s.log.isEmpty)
         #expect(a.scheduled["r1"]?.id == ringing)
+    }
+
+    // MARK: - Fix round 1: what reconcile may touch, the rehearsal, permission, the store
+
+    @Test func aRingingAlarmThePlanForgotIsNotCancelledByReconcile() async {
+        let s = FakeScheduler()
+        let ringing = s.seed(.alerting)
+        let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: ringing, at: now - 10, source: .timetable)], now: { now }) { _ in }
+        await a.planWake([], isOn: { _ in true })
+        // unknown to the app now, but ringing: the traveller stops it, not the app
+        a.reconcile()
+        #expect(a.scheduled.isEmpty)
+        #expect(!s.cancelled.contains(ringing))
+        #expect(s.log.isEmpty)
+    }
+
+    @Test func aRingingAlarmTheGPSReplacedIsNotCancelledByReconcile() async throws {
+        let s = FakeScheduler()
+        let ringing = s.seed(.alerting)
+        let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: ringing, at: now - 10, source: .timetable)], now: { now }) { _ in }
+        await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 300, source: .ride))
+        a.reconcile()
+        let new = try #require(s.scheduledIDs.first)
+        #expect(a.scheduled["r1"]?.id == new)
+        #expect(!s.cancelled.contains(ringing))
+        #expect(s.log == [.schedule(new)])
+    }
+
+    @Test func aRehearsalSetsNoAlarm() async {
+        let s = FakeScheduler(); s.authorized = false; s.grant = true
+        let old = AlarmSlot(id: s.seed(), at: now + 600, source: .timetable)
+        let saves = SavedLog()
+        let a = WakeAlarms(scheduler: s, saved: ["r1": old], now: { now }, rehearsing: { true }) { saves.slots.append($0) }
+        // a replacement (asking for permission first), a relabel, and a new timetable alarm: none happens
+        await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 1200, source: .ride))
+        await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 660, source: .ride))
+        s.authorized = true
+        await a.alight(WakeRequest(rideID: "r2", station: "X", at: now + 900, source: .timetable))
+        #expect(s.prompts == 0)
+        #expect(s.log.isEmpty)
+        #expect(a.scheduled == ["r1": old])
+        #expect(saves.slots.isEmpty)
+    }
+
+    @Test func anUnreadableStoreNeverCancelsWhatItDoesNotKnow() async throws {
+        let s = FakeScheduler()
+        // set by an earlier run, whose record of it could not be read
+        let unknown = s.seed()
+        let a = WakeAlarms(scheduler: s, saved: nil, now: { now }) { _ in }
+        // one this run set, replaced, and could not cancel is still this run's to take back
+        await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 600, source: .ride))
+        let first = try #require(s.scheduledIDs.first)
+        s.failCancel = true
+        await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 1200, source: .ride))
+        s.failCancel = false
+        a.reconcile()
+        #expect(s.cancelled == [first])
+        #expect(s.system[unknown] != nil)
+        #expect(a.scheduled["r1"]?.at == now + 1200)
+    }
+
+    @Test func reconcileDoesNothingWithoutPermission() {
+        // without permission AlarmKit may list nothing, though the alarms are still set
+        let s = FakeScheduler(); s.authorized = false
+        let slot = AlarmSlot(id: UUID(), at: now + 600, source: .ride)
+        let a = WakeAlarms(scheduler: s, saved: ["r1": slot], now: { now }) { _ in }
+        a.reconcile()
+        #expect(a.scheduled == ["r1": slot])
+        #expect(s.log.isEmpty)
+        #expect(s.listReads == 0)
+    }
+
+    @Test func aPermissionErrorKeepsTheOldAlarm() async {
+        let s = FakeScheduler(); s.authorized = false; s.failAuthorization = true
+        let old = s.seed()
+        let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: old, at: now + 600, source: .ride)], now: { now }) { _ in }
+        await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 900, source: .ride))
+        #expect(a.scheduled["r1"]?.id == old)
+        #expect(s.log.isEmpty)
+        #expect(a.lastError != nil)
+    }
+
+    @Test func anOldAlarmThatComesDueWhileTheNewIsSetIsForgotten() async throws {
+        let s = FakeScheduler()
+        let gate = OneAtATimeTests.Gate()
+        s.scheduleGate = gate
+        let clock = FakeClock(now)
+        let old = s.seed()
+        let a = WakeAlarms(scheduler: s, saved: ["r1": AlarmSlot(id: old, at: now + 100, source: .timetable)], now: { clock.now }) { _ in }
+        let setting = Task { await a.alight(WakeRequest(rideID: "r1", station: "X", at: now + 400, source: .ride)) }
+        await gate.reached()
+        // the old alarm's time comes while AlarmKit sets the new one: it is ringing
+        clock.now = now + 100
+        gate.open()
+        await setting.value
+        let new = try #require(s.scheduledIDs.first)
+        #expect(a.scheduled["r1"]?.id == new)
+        #expect(s.log == [.schedule(new)])
+    }
+
+    @Test func aListThatCannotBeReadIsRecorded() {
+        let s = FakeScheduler(); s.failList = true
+        let a = WakeAlarms(scheduler: s, saved: [:], now: { now }) { _ in }
+        a.reconcile()
+        #expect(a.lastError != nil)
+    }
+
+    @Test func anAlarmDueExactlyNowIsForgottenNotCancelled() async {
+        let s = FakeScheduler()
+        let wanted = s.seed(), unwanted = s.seed()
+        let a = WakeAlarms(scheduler: s, saved: [
+            "r1": AlarmSlot(id: wanted, at: now, source: .timetable),
+            "r2": AlarmSlot(id: unwanted, at: now, source: .timetable),
+        ], now: { now }) { _ in }
+        await a.planWake([WakeRequest(rideID: "r1", station: "X", at: now, source: .timetable)], isOn: { _ in true })
+        #expect(a.scheduled.isEmpty)
+        #expect(s.log.isEmpty)
+    }
+
+    @Test func aNewAlarmNeedsMoreThanItsLead() {
+        func placement(in seconds: TimeInterval, _ source: AlarmSource) -> WakeReconciler.Placement {
+            WakeReconciler.placement(current: nil, request: WakeRequest(rideID: "r1", station: "X", at: now + seconds, source: source), now: now)
+        }
+        #expect(placement(in: 60, .timetable) == .skip)
+        #expect(placement(in: 60.001, .timetable) == .replace)
+        #expect(placement(in: 30, .ride) == .skip)
+        #expect(placement(in: 30.001, .ride) == .replace)
+    }
+
+    @Test func aMoveOfLessThanTheSlackIsNotWorthANewAlarm() {
+        let current = AlarmSlot(id: UUID(), at: now + 600, source: .timetable)
+        func placement(at seconds: TimeInterval) -> WakeReconciler.Placement {
+            WakeReconciler.placement(current: current, request: WakeRequest(rideID: "r1", station: "X", at: now + seconds, source: .ride), now: now)
+        }
+        #expect(placement(at: 600 + 120) == .replace)
+        #expect(placement(at: 600 + 119.999) == .relabel(.ride))
+        #expect(placement(at: 600 - 120) == .replace)
+        #expect(placement(at: 600 - 119.999) == .relabel(.ride))
     }
 }

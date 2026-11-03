@@ -14,11 +14,11 @@ nonisolated struct AlightAlarm: AlarmMetadata {
 final class AlarmKitScheduler: AlarmScheduling {
     var isAuthorized: Bool { AlarmManager.shared.authorizationState == .authorized }
 
-    func requestAuthorization() async -> Bool {
+    func requestAuthorization() async throws -> Bool {
         switch AlarmManager.shared.authorizationState {
         case .authorized: return true
         case .denied: return false
-        default: return (try? await AlarmManager.shared.requestAuthorization()) == .authorized
+        default: return try await AlarmManager.shared.requestAuthorization() == .authorized
         }
     }
 
@@ -40,8 +40,23 @@ final class AlarmKitScheduler: AlarmScheduling {
         try AlarmManager.shared.cancel(id: id)
     }
 
-    func systemAlarmIDs() throws -> Set<UUID> {
-        try Set(AlarmManager.shared.alarms.map(\.id))
+    func systemAlarms() throws -> [UUID: SystemAlarmState] {
+        var states: [UUID: SystemAlarmState] = [:]
+        for alarm in try AlarmManager.shared.alarms {
+            states[alarm.id] = Self.state(of: alarm)
+        }
+        return states
+    }
+
+    private static func state(of alarm: Alarm) -> SystemAlarmState {
+        switch alarm.state {
+        case .scheduled: return .scheduled
+        case .countdown: return .countdown
+        case .paused: return .paused
+        case .alerting: return .alerting
+        // a state added later is not "waiting": reconcile leaves it alone
+        @unknown default: return .unknown
+        }
     }
 }
 
@@ -74,18 +89,21 @@ final class AlarmKitScheduler: AlarmScheduling {
     private static let choicesKey = "alarms.choices"
 
     init() {
-        var saved: [String: AlarmSlot] = [:]
+        // nil: there is a record and it could not be read, so no alarm AlarmKit holds is taken for a stray
+        var saved: [String: AlarmSlot]? = [:]
         if let data = Shared.defaults.data(forKey: Self.key) {
             // what earlier builds saved reads too: an entry with no source was the timetable's
             do {
                 saved = try JSONDecoder().decode([String: AlarmSlot].self, from: data)
             } catch {
+                saved = nil
                 storeProblem = "Đọc báo thức đã lưu: \(error)"
             }
         }
-        scheduled = saved
+        scheduled = saved ?? [:]
         choices = Shared.defaults.dictionary(forKey: Self.choicesKey) as? [String: Bool] ?? [:]
-        core = WakeAlarms(scheduler: scheduler, saved: saved, onChange: { [weak self] slots in
+        // a rehearsal sets no real alarm: its times are not real ones
+        core = WakeAlarms(scheduler: scheduler, saved: saved, rehearsing: { Shared.clockOffset != 0 }, onChange: { [weak self] slots in
             self?.scheduled = slots
             self?.save(slots)
         })
@@ -100,9 +118,10 @@ final class AlarmKitScheduler: AlarmScheduling {
         }
     }
 
-    /// The latest thing the system refused (setting, cancelling, listing alarms) or the disk did;
-    /// read when shown, not observed. What was set before it is left as it was.
-    var lastError: String? { core.lastError ?? storeProblem }
+    /// What the disk could not do with the alarms, else the latest thing the system refused
+    /// (permission, setting, cancelling, listing alarms); read when shown, not observed. What was set
+    /// before it is left as it was.
+    var lastError: String? { storeProblem ?? core.lastError }
 
     func isOn(_ rideID: String, default on: Bool) -> Bool { choices[rideID] ?? on }
 
@@ -124,9 +143,10 @@ final class AlarmKitScheduler: AlarmScheduling {
 
     var authorized: Bool { scheduler.isAuthorized }
 
+    /// An error is shown in Settings › Chẩn đoán and counts as a no.
     @discardableResult
     func requestAuthorization() async -> Bool {
-        await scheduler.requestAuthorization()
+        await core.requestAuthorization()
     }
 
     func isSet(_ rideID: String) -> Bool { scheduled[rideID] != nil }
@@ -135,11 +155,9 @@ final class AlarmKitScheduler: AlarmScheduling {
     func time(of rideID: String) -> Date? { scheduled[rideID]?.at }
 
     /// Ring at `date` for the ride (`WakeAlarms.alight`): moving it by less than two minutes is not
-    /// worth a new alarm, and the GPS's time always takes the place of the timetable's. Not while
-    /// rehearsing: a rehearsal sets no real alarm (the timetable's are held back by
-    /// `AppModel.planWakeAlarms`, every other alarm comes through here).
+    /// worth a new alarm, and the GPS's time always takes the place of the timetable's. Nothing while
+    /// rehearsing (`WakeAlarms` asks `Shared.clockOffset`).
     func alight(rideID: String, station: String, at date: Date, source: AlarmSource = .ride) async {
-        guard Shared.clockOffset == 0 else { return }
         await core.alight(WakeRequest(rideID: rideID, station: station, at: date, source: source))
     }
 
@@ -148,9 +166,30 @@ final class AlarmKitScheduler: AlarmScheduling {
         core.cancel(rideID)
     }
 
-    /// Back in the app: an alarm the system holds that the app does not know (it was killed between
-    /// setting one and saving it) is cancelled, and one that rang is forgotten.
+    /// Back in the app: an alarm the system holds, still waiting, that the app does not know (it was
+    /// killed between setting one and saving it) is cancelled, and one that rang is forgotten. Never
+    /// one ringing; nothing without permission (`WakeAlarms.reconcile`).
     func reconcile() {
         core.reconcile()
     }
+
+    #if DEBUG
+    /// What AlarmKit holds for the app right now, by state ("đang reo 1 · đang chờ 2"), for the
+    /// device checks.
+    func systemAlarmsSummary() -> String {
+        do {
+            let states = try Array(scheduler.systemAlarms().values)
+            guard !states.isEmpty else { return "Không có" }
+            let names: [(SystemAlarmState, String)] = [
+                (.alerting, "đang reo"), (.scheduled, "đang chờ"), (.countdown, "đếm ngược"), (.paused, "tạm dừng"), (.unknown, "khác"),
+            ]
+            return names.compactMap { state, name in
+                let count = states.filter { $0 == state }.count
+                return count > 0 ? "\(name) \(count)" : nil
+            }.joined(separator: " · ")
+        } catch {
+            return "Không đọc được: \(error)"
+        }
+    }
+    #endif
 }

@@ -80,6 +80,10 @@ private struct DiagnosticsSection: View {
     @AppStorage(MapPacer.readingsKey) private var readings = false
     @AppStorage(MapPacer.glassKey) private var glass = true
     @AppStorage(MapPacer.reliefKey) private var relief = false
+    #if DEBUG
+    /// what AlarmKit listed, the last time it was asked
+    @State private var systemAlarms: String?
+    #endif
 
     var body: some View {
         Section {
@@ -119,6 +123,20 @@ private struct DiagnosticsSection: View {
             #if DEBUG
             testAlarm(minutes: 2)
             testAlarm(minutes: 5)
+            Button {
+                systemAlarms = model.alarms.systemAlarmsSummary()
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Báo thức trong hệ thống")
+                        if let systemAlarms {
+                            Text(systemAlarms).font(.footnote).foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "list.bullet", tint: .gray)
+                }
+            }
             #endif
         } header: {
             Text("Chẩn đoán")
