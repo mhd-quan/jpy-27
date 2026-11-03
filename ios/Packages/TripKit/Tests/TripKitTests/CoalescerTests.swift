@@ -81,20 +81,29 @@ import Testing
         }
     }
 
-    /// The first sleep fails with an error of its own (not a cancellation); the rest are `clock`'s.
-    @MainActor final class FailsOnce {
+    /// The first sleep waits until the test makes it fail, with the error the test gives; the rest
+    /// are `clock`'s.
+    @MainActor final class FailsWhenTold {
+        /// an error of the sleep's own, not a cancellation
         struct Broken: Error {}
         private let clock: ManualSleep
-        private var failed = false
+        private var first: CheckedContinuation<Void, any Error>?
+        private var used = false
 
         init(_ clock: ManualSleep) { self.clock = clock }
 
         func sleep(_ delay: Duration) async throws {
-            guard failed else {
-                failed = true
-                throw Broken()
+            guard used else {
+                used = true
+                try await withCheckedThrowingContinuation { (c: CheckedContinuation<Void, any Error>) in first = c }
+                return
             }
             try await clock.sleep(delay)
+        }
+
+        func fail(with error: any Error) {
+            first?.resume(throwing: error)
+            first = nil
         }
     }
 
@@ -266,10 +275,12 @@ import Testing
 
     @Test func aSleepThatFailsLeavesNothingWaiting() async {
         let clock = ManualSleep()
-        let failing = FailsOnce(clock)
+        let failing = FailsWhenTold(clock)
         var n = 0
         let c = Coalescer(sleep: failing.sleep) { n += 1 }
         c.request(after: .milliseconds(300))
+        await clock.settle()
+        failing.fail(with: FailsWhenTold.Broken())
         await clock.settle()
         #expect(c.isIdle)
         #expect(n == 0)
@@ -277,6 +288,27 @@ import Testing
         c.request(after: .milliseconds(300))
         await clock.advance(.milliseconds(300))
         #expect(n == 1)
+    }
+
+    @Test func aSleepThatFailsLateTakesOnlyItsOwnTimerAway() async {
+        let clock = ManualSleep()
+        let failing = FailsWhenTold(clock)
+        var n = 0
+        let c = Coalescer(sleep: failing.sleep) { n += 1 }
+        c.request(after: .seconds(10))
+        // a newer, shorter request: a timer of its own, on the clock
+        c.request(after: .milliseconds(300))
+        await clock.settle()
+        #expect(clock.waiting == 1)
+        // the first sleep ends now, late, with a stop's error
+        failing.fail(with: CancellationError())
+        await clock.settle()
+        // the newer timer still waits
+        #expect(!c.isIdle)
+        #expect(n == 0)
+        await clock.advance(.milliseconds(300))
+        #expect(n == 1)
+        #expect(c.isIdle)
     }
 
     @Test func flushRunsWhatIsAskedWhileItRuns() async {
