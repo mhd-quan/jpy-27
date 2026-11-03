@@ -119,6 +119,8 @@ private struct TodayDuring: View {
                 TodayAlwaysCard()
             }
 
+            TodayJournalQuestion()
+
             if let next = model.next {
                 TodayNextCard(day: day, next: next, arrived: $arrived)
             } else {
@@ -605,6 +607,44 @@ private struct TodayAfter: View {
             }
         }
         .padding(.top, 8)
+    }
+}
+
+/// The location journal is off until asked for: asked once, on the first trip day the app is opened,
+/// and answered for good either way (Settings › Nhật ký changes it later, the journal page asks too).
+private struct TodayJournalQuestion: View {
+    @Environment(AppModel.self) private var model
+    @AppStorage("journal.asked") private var asked = false
+
+    var body: some View {
+        if !asked, !model.journalEnabled {
+            Card {
+                HStack(alignment: .top, spacing: 12) {
+                    GlyphTile(symbol: "book.pages.fill", tint: Palette.ai, size: 34)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Ghi nhật ký vị trí?").font(.headline)
+                        Text("App ghi chỗ đã ghé và đường đã đi để tối xem lại trên bản đồ. Chỉ trong chuyến, chỉ trên máy này. Tắt hay xoá trong Cài đặt.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        HStack(spacing: 8) {
+                            Button("Bật") {
+                                // the card goes with the tap: felt at once, not at its next update
+                                Haptic.press()
+                                model.journalEnabled = true
+                                asked = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                            Button("Không") {
+                                Haptic.press()
+                                asked = true
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        .controlSize(.small)
+                    }
+                }
+            }
+        }
     }
 }
 

@@ -68,6 +68,8 @@ enum AppSheet: Identifiable, Hashable {
 
     let store: TripStore
     let itinerary: Itinerary
+    /// when the location journal records, and what is watched in the background
+    let journalPolicy: JournalPolicy
     /// the records on disk
     private let records: ModelContainer
     /// what the app reads and writes: the records, or the rehearsal's own copy of them while one
@@ -123,6 +125,16 @@ enum AppSheet: Identifiable, Hashable {
             Shared.alternatives = alternatives
             forgetRetry()
             refresh(reschedule: true)
+        }
+    }
+
+    /// The location journal's switch (Settings › Nhật ký): stays and the walked trace are kept only
+    /// with it on, and only during the trip (`journalPolicy`).
+    var journalEnabled: Bool = Shared.journalEnabled {
+        didSet {
+            Shared.journalEnabled = journalEnabled
+            // visits are watched off the trip days only for the journal
+            location.applyBackgroundWatch()
         }
     }
 
@@ -190,6 +202,7 @@ enum AppSheet: Identifiable, Hashable {
             fatalError("trip.json and guide.json ship with the app: \(error)")
         }
         itinerary = Itinerary(store: store)
+        journalPolicy = JournalPolicy(days: store.trip.days)
         let real = Records.container()
         records = real
         if Shared.clockOffset != 0 {
@@ -217,6 +230,7 @@ enum AppSheet: Identifiable, Hashable {
             location.follow(self)
             requestReschedule()
         }
+        location.backgroundWatch = { [weak self] in self?.backgroundWatch() ?? .off }
         location.onMoved = { [weak self] in
             guard let self else { return }
             requestReschedule()
@@ -266,6 +280,7 @@ enum AppSheet: Identifiable, Hashable {
         downloads.photos.configure(remotePhotos())
         downloads.back()
         ledgerSync.activate(context: context)
+        purgeOutsideTripOnce()
     }
 
     /// The trip's photos that are not in the bundle: restaurants, shops, a hotel's neighbourhood.
@@ -348,6 +363,9 @@ enum AppSheet: Identifiable, Hashable {
             // the watched circles follow the cursor
             location.updateFences(model: self)
         }
+        // visits and significant changes start and stop near the trip, whose edges are not the
+        // phase's (a day before, six hours after); unchanged, this reaches no Core Location call
+        location.applyBackgroundWatch()
     }
 
     private static func signature(_ p: TripPhase) -> String {
@@ -563,7 +581,8 @@ enum AppSheet: Identifiable, Hashable {
 
     /// When the walk at item `walk` began, if anything recorded it: the end of the ride that
     /// brought you to its start (you step off and walk), or the departure iOS reported from the
-    /// stop before it. Unknown otherwise, and then nothing is learnt from the walk.
+    /// stop before it (the journal's stay, else the stay remembered without it, `StayMemory`).
+    /// Unknown otherwise, and then nothing is learnt from the walk.
     private func walkStart(_ day: Day, walk: Int, until: Date) -> Date? {
         guard walk > 0 else { return nil }
         switch day.items[walk - 1] {
@@ -573,11 +592,13 @@ enum AppSheet: Identifiable, Hashable {
             guard let place = store.place(s.place) else { return nil }
             let since = until.addingTimeInterval(-3 * 3600)
             let visits = (try? context.fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival >= since }))) ?? []
-            return visits
+            let journal = visits
                 .filter { Presence.isAt(Coordinate($0.lat, $0.lng), place) }
                 .compactMap(\.departure)
                 .filter { $0 <= until }
                 .max()
+            // without the journal, the stay iOS reported there (by the place it matched)
+            return journal ?? stays.departure(from: place.id, since: since, until: until)
         default:
             return nil
         }
@@ -919,34 +940,52 @@ enum AppSheet: Identifiable, Hashable {
         if riding { live.update(model: self) }
         if let last = lastProjected, Geo.km(last, p) < (riding ? 0.5 : 0.03) { return }
         lastProjected = p
-        if location.shouldTrace(p) { context.insert(Trace(at: now, coordinate: p)) }
+        // the journal's trace: during the trip, with the switch on (`journalPolicy`)
+        if mayRecord, location.shouldTrace(p) { context.insert(Trace(at: Shared.now, coordinate: p)) }
         refresh(reschedule: false)
     }
 
     /// iOS reports a stay twice: on arrival (no departure yet), then on leaving (both times).
-    /// One stay marks one stop, once: the stop it is nearest to, when it is first reported. The
-    /// second report only completes the record; a stay first reported already with its departure
-    /// still counts.
+    /// One stay marks one stop, once: the stop it is nearest to, when it is first reported
+    /// (`StayMemory`, kept without the journal). The second report only completes the stay; a stay
+    /// first reported already with its departure still counts. The journal keeps the stay too,
+    /// when it records (`mayRecord`).
     private func visited(_ v: VisitRecord) {
-        let from = v.arrival.addingTimeInterval(-120), to = v.arrival.addingTimeInterval(120)
-        let near = (try? context.fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival >= from && $0.arrival <= to }))) ?? []
-        var mark: (day: Day, index: Int, at: Date)?
-        if let same = near.first(where: { VisitRecord(arrival: $0.arrival, departure: $0.departure, coordinate: Coordinate($0.lat, $0.lng)).isSameStay(as: v) }) {
-            if same.departure == nil { same.departure = v.departure }
-            if same.placeID == nil, let (day, i) = matchPlan(v.coordinate) {
-                same.placeID = day.items[i].stop?.place
-                mark = (day, i, same.arrival)
-            }
-        } else {
-            let match = matchPlan(v.coordinate)
-            context.insert(Visit(arrival: v.arrival, departure: v.departure, coordinate: v.coordinate, placeID: match.flatMap { day, i in day.items[i].stop?.place }))
-            if let (day, i) = match { mark = (day, i, v.arrival) }
-        }
-        // the stay in a write of its own: a mark that cannot be saved does not take it back with it
-        guard persist("Chỗ đã ghé", retry: { [weak self] in self?.visited(v) }) else { return }
-        let marked = mark.map { markDone($0.day, $0.index, at: $0.at, source: "visit") } ?? false
+        let match = matchPlan(v.coordinate)
+        var memory = stays
+        let outcome = memory.report(v, placeID: match.flatMap { day, i in day.items[i].stop?.place }, now: Date())
+        stays = memory
+        keepInJournal(outcome.stay, at: v.coordinate)
+        var marked = false
+        if outcome.marks, let (day, i) = match { marked = markDone(day, i, at: outcome.stay.arrival, source: "visit") }
         refresh(reschedule: marked)
         if marked, inBackground { finishRescheduleInBackground() }
+    }
+
+    /// The stay in the journal, in a write of its own (a mark that cannot be saved does not take it
+    /// back with it): a new one, or the departure and place of the one kept on arrival. Nothing
+    /// outside the trip or with the switch off (`mayRecord`).
+    private func keepInJournal(_ stay: StayMemory.Stay, at coordinate: Coordinate) {
+        guard mayRecord else { return }
+        let from = stay.arrival.addingTimeInterval(-120), to = stay.arrival.addingTimeInterval(120)
+        let near = (try? context.fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival >= from && $0.arrival <= to }))) ?? []
+        let v = VisitRecord(arrival: stay.arrival, departure: stay.departure, coordinate: coordinate)
+        if let same = near.first(where: { $0.record.isSameStay(as: v) }) {
+            // nothing new: no write
+            guard (same.departure == nil && stay.departure != nil) || (same.placeID == nil && stay.placeID != nil) else { return }
+            if same.departure == nil { same.departure = stay.departure }
+            if same.placeID == nil { same.placeID = stay.placeID }
+        } else {
+            context.insert(Visit(arrival: stay.arrival, departure: stay.departure, coordinate: coordinate, placeID: stay.placeID))
+        }
+        _ = persist("Chỗ đã ghé", retry: { [weak self] in self?.keepInJournal(stay, at: coordinate) })
+    }
+
+    /// The stays iOS reported lately, without their coordinates (`StayMemory`), in the App Group's
+    /// defaults: a stay's second report often relaunches the app hours after the first.
+    private var stays: StayMemory {
+        get { Shared.defaults.data(forKey: Shared.Key.stays).flatMap { try? JSONDecoder().decode(StayMemory.self, from: $0) } ?? StayMemory() }
+        set { Shared.defaults.set(try? JSONEncoder().encode(newValue), forKey: Shared.Key.stays) }
     }
 
     /// Today's stop a stay belongs to: the nearest one whose `Presence` circle holds it, done or
@@ -980,6 +1019,95 @@ enum AppSheet: Identifiable, Hashable {
         case .stay:
             break
         }
+    }
+
+    // MARK: - Location journal
+
+    /// A stay or a trace point may be written now (`JournalPolicy.mayRecord`): by the real clock,
+    /// or the trip clock while a rehearsal writes to its own store (never when the rehearsal fell
+    /// back on the real records, which happens when its store will not open).
+    private var mayRecord: Bool {
+        journalPolicy.mayRecord(realNow: Date(), tripNow: Shared.now, rehearsing: rehearsing && container !== records, enabled: journalEnabled)
+    }
+
+    /// Visits and significant changes in the background (`JournalPolicy`), by the trip clock while
+    /// rehearsing, the real one otherwise; "Về giờ thật" refreshes, which applies the real one again.
+    private func backgroundWatch() -> BackgroundWatch {
+        let at = rehearsing ? Shared.now : Date()
+        let always = location.isAlways
+        return BackgroundWatch(
+            visits: journalPolicy.wantsVisits(at: at, journal: journalEnabled, alwaysGranted: always),
+            significantChanges: journalPolicy.wantsBackgroundWatch(at: at, journal: journalEnabled, alwaysGranted: always))
+    }
+
+    /// Deletes the location history (stays and trace points). Everything: from the real records
+    /// (the side store, when the records would not open) and, while rehearsing, from the rehearsal's
+    /// store too. With `outsideTripOnly`: what lies outside the trip's window
+    /// (`JournalPolicy.window`), from the real records only, and only when they opened as usual.
+    /// Returns how many rows went; 0 when a write failed, which the alert says.
+    @discardableResult
+    func purgeLocationHistory(outsideTripOnly: Bool) -> Int {
+        purgeHistory(outsideTripOnly: outsideTripOnly, retry: { [weak self] in _ = self?.purgeLocationHistory(outsideTripOnly: outsideTripOnly) }) ?? 0
+    }
+
+    /// `purgeLocationHistory`, nil when a write failed (reported, with `retry` as its "Thử lại").
+    private func purgeHistory(outsideTripOnly: Bool, retry: @escaping @MainActor () -> Void) -> Int? {
+        var stores = [records.mainContext]
+        if outsideTripOnly {
+            // only the main store, opened as usual: never a side store or the memory
+            guard Records.problem == nil else { return 0 }
+        } else if container !== records {
+            stores.append(context)
+        }
+        var deleted = 0
+        for target in stores {
+            guard let n = purge(target, outsideTripOnly: outsideTripOnly, retry: retry) else { return nil }
+            deleted += n
+        }
+        return deleted
+    }
+
+    /// One store's stays and trace points deleted (all, or those outside the trip's window) and
+    /// committed; nil when that failed (reported, nothing deleted from that store).
+    private func purge(_ target: ModelContext, outsideTripOnly: Bool, retry: @escaping @MainActor () -> Void) -> Int? {
+        do {
+            let visits: [Visit], traces: [Trace]
+            if outsideTripOnly {
+                guard let window = journalPolicy.window else { return 0 }
+                let lo = window.lowerBound, hi = window.upperBound
+                visits = try target.fetch(FetchDescriptor<Visit>(predicate: #Predicate { $0.arrival < lo || $0.arrival >= hi }))
+                traces = try target.fetch(FetchDescriptor<Trace>(predicate: #Predicate { $0.at < lo || $0.at >= hi }))
+            } else {
+                visits = try target.fetch(FetchDescriptor<Visit>())
+                traces = try target.fetch(FetchDescriptor<Trace>())
+            }
+            guard !visits.isEmpty || !traces.isEmpty else { return 0 }
+            for v in visits { target.delete(v) }
+            for t in traces { target.delete(t) }
+            try target.commit()
+            return visits.count + traces.count
+        } catch {
+            report("Xoá lịch sử vị trí", error as? SaveFailure ?? SaveFailure(underlying: error), retry: retry)
+            return nil
+        }
+    }
+
+    /// Once (`journal.purged.v1`), the history earlier builds recorded outside the trip, months of
+    /// it, deleted from the real records. Only when the main store opened as usual, and marked done
+    /// only once that write is on disk. Once only: a stay delivered inside the window can begin
+    /// before it, and a purge run again during the trip would take it.
+    private func purgeOutsideTripOnce() {
+        guard Records.problem == nil, !Shared.defaults.bool(forKey: Shared.Key.journalPurged) else { return }
+        guard purgeHistory(outsideTripOnly: true, retry: { [weak self] in self?.purgeOutsideTripOnce() }) != nil else { return }
+        Shared.defaults.set(true, forKey: Shared.Key.journalPurged)
+    }
+
+    /// The stays and trace points in the records the app reads now, for Settings › Chẩn đoán; nil
+    /// when they could not be counted.
+    func locationHistoryCount() -> (visits: Int, traces: Int)? {
+        guard let visits = try? context.fetchCount(FetchDescriptor<Visit>()),
+              let traces = try? context.fetchCount(FetchDescriptor<Trace>()) else { return nil }
+        return (visits, traces)
     }
 
     private func learnPace(kmh: Double, minutes: Double) {

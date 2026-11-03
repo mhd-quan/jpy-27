@@ -18,6 +18,7 @@ struct SettingsView: View {
                 AppearanceSection()
                 PermissionsSection()
                 TripSection()
+                JournalSection()
                 if let problem = Records.problem {
                     Section {
                         Label {
@@ -91,6 +92,8 @@ private struct DiagnosticsSection: View {
     /// `OfflineMaps.fakeOtherStyle`, as the switch shows it
     @State private var fakeStyle = OfflineMaps.fakeOtherStyle
     #endif
+    /// the location history's rows, counted when the page opens (nil: not counted, or unreadable)
+    @State private var history: (visits: Int, traces: Int)?
 
     var body: some View {
         Section {
@@ -137,6 +140,17 @@ private struct DiagnosticsSection: View {
                     SettingsIcon(symbol: "arrow.triangle.2.circlepath", tint: .gray)
                 }
             }
+            // what the location journal holds (Visit, Trace rows), in the records the app reads now
+            LabeledContent {
+                Text(history.map { "\($0.visits) · \($0.traces)" } ?? "—").monospacedDigit()
+            } label: {
+                Label {
+                    Text("Lịch sử vị trí: chỗ ghé · điểm vết")
+                } icon: {
+                    SettingsIcon(symbol: "point.topleft.down.to.point.bottomright.curvepath", tint: .gray)
+                }
+            }
+            .onAppear { history = model.locationHistoryCount() }
             #if DEBUG
             testAlarm(minutes: 2)
             testAlarm(minutes: 5)
@@ -473,6 +487,62 @@ private struct TripSection: View {
     }
 }
 
+// MARK: - Journal
+
+/// The location journal: its switch, and the history deleted on request.
+private struct JournalSection: View {
+    @Environment(AppModel.self) private var model
+    @State private var confirming = false
+    /// how many rows the last "Xoá lịch sử vị trí" deleted
+    @State private var deleted: Int?
+
+    var body: some View {
+        @Bindable var model = model
+        Section {
+            Toggle(isOn: $model.journalEnabled) {
+                Label {
+                    Text("Ghi nhật ký vị trí")
+                } icon: {
+                    SettingsIcon(symbol: "book.pages.fill", tint: .indigo)
+                }
+            }
+            Button(role: .destructive) {
+                confirming = true
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Xoá lịch sử vị trí")
+                        if let deleted {
+                            Text(deleted == 0 ? "Không còn gì để xoá" : "Đã xoá \(deleted) mục")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "trash", tint: .red)
+                }
+            }
+            .alert("Xoá lịch sử vị trí?", isPresented: $confirming) {
+                Button("Xoá", role: .destructive, action: delete)
+                Button("Huỷ", role: .cancel) {}
+            } message: {
+                Text("Mọi chỗ đã ghé và vết đường đi đã ghi trên máy này. Dấu đã đi và điểm bỏ vẫn giữ.")
+            }
+        } header: {
+            Text("Nhật ký")
+        } footer: {
+            Text("Chỉ trong 18–29/10/2027, chỉ trên máy này")
+        }
+    }
+
+    private func delete() {
+        let before = model.saveIssue?.id
+        let n = model.purgeLocationHistory(outsideTripOnly: false)
+        // a write that failed is told by the alert, not as a count
+        deleted = model.saveIssue?.id == before ? n : nil
+    }
+}
+
 // MARK: - Permissions
 
 private struct PermissionsSection: View {
@@ -519,7 +589,7 @@ private struct PermissionsSection: View {
         default: .off
         }
         return PermissionRow(
-            title: "Vị trí luôn bật", detail: "Món nên gọi khi tới quán, ga trên tàu, nhật ký", symbol: "location.fill", tint: .blue,
+            title: "Vị trí luôn bật", detail: "Nhắc khi tới quán, tới ga", symbol: "location.fill", tint: .blue,
             state: state,
             action: {
                 switch status {

@@ -8,7 +8,9 @@ import TripKit
 /// - on a trip day, on screen: an ordinary stream;
 /// - before or after the trip, on screen: one position each time the app opens, for the distances
 ///   the screens show (the map draws its own dot);
-/// - otherwise: only visits (CLVisit) and up to 20 geofences (region monitoring), which wake the app.
+/// - otherwise: only visits (CLVisit), significant changes and up to 20 geofences (region
+///   monitoring), which wake the app; visits and significant changes only near the trip
+///   (`BackgroundWatch`).
 @Observable final class LocationService: NSObject {
     /// Made in `start()`, from application(_:didFinishLaunchingWithOptions:). AppModel is built with
     /// the App struct, before UIApplicationMain has registered the app with the system, and
@@ -39,6 +41,9 @@ import TripKit
     /// fences. Never the position `requestLocation` finds on opening the app, whose return to the app
     /// has re-planned already
     var onMoved: (() -> Void)?
+    /// what is to be watched in the background now (`AppModel.backgroundWatch`), asked each time
+    /// the watch is applied
+    var backgroundWatch: (() -> BackgroundWatch)?
 
     private var liveTask: Task<Void, Never>?
     /// the stream running is the navigation-grade one (a ride)
@@ -49,6 +54,8 @@ import TripKit
     private var lastTrace: (at: Date, at2: Coordinate)?
     /// where and when the last background move re-planned, to keep that cheap
     private var lastMoved: (at: Date, position: Coordinate)?
+    /// what this launch has started or stopped; nil until the first `applyBackgroundWatch`
+    @ObservationIgnored private var watching: BackgroundWatch?
 
     var isAlways: Bool { authorization == .authorizedAlways }
     var isAllowed: Bool { authorization == .authorizedAlways || authorization == .authorizedWhenInUse }
@@ -62,14 +69,29 @@ import TripKit
         m.delegate = self
         m.headingFilter = 3
         authorization = m.authorizationStatus
-        if authorization == .authorizedAlways { startBackgroundWatch() }
+        applyBackgroundWatch()
     }
 
-    /// Visits and significant changes: both wake a suspended or terminated app, at little cost.
-    /// Idempotent; called at launch and when Always is granted.
-    private func startBackgroundWatch() {
-        manager?.startMonitoringVisits()
-        manager?.startMonitoringSignificantLocationChanges()
+    /// Visits and significant changes, started or stopped as `backgroundWatch` says: both wake a
+    /// suspended or terminated app, and both are left running by iOS from one launch to the next,
+    /// so the first call of a launch starts or stops each of them, whatever an earlier build left
+    /// on. After that only a change reaches Core Location. Called at launch, when the permission
+    /// changes, and with every `AppModel.refresh` (the watch's edges are not the trip's days).
+    func applyBackgroundWatch() {
+        guard let manager else { return }
+        let wanted = isAlways ? backgroundWatch?() ?? BackgroundWatch.off : BackgroundWatch.off
+        let was = watching
+        if was?.visits != wanted.visits {
+            if wanted.visits { manager.startMonitoringVisits() } else { manager.stopMonitoringVisits() }
+        }
+        if was?.significantChanges != wanted.significantChanges {
+            if wanted.significantChanges {
+                manager.startMonitoringSignificantLocationChanges()
+            } else {
+                manager.stopMonitoringSignificantLocationChanges()
+            }
+        }
+        watching = wanted
     }
 
     // MARK: Permission
@@ -78,7 +100,8 @@ import TripKit
         manager?.requestWhenInUseAuthorization()
     }
 
-    /// Asked for only when a feature needs it (geofences, journal, rides under the lock screen).
+    /// Asked for only when a feature needs it (geofences, marking stops, the journal, rides under the
+    /// lock screen).
     func requestAlways() {
         manager?.requestAlwaysAuthorization()
     }
@@ -270,7 +293,7 @@ extension LocationService: CLLocationManagerDelegate {
             // called once at launch with the status already known: act on a change only
             guard status != self.authorization else { return }
             self.authorization = status
-            if status == .authorizedAlways { self.startBackgroundWatch() }
+            self.applyBackgroundWatch()
             self.onAuthorizationChange?()
         }
     }
@@ -323,4 +346,15 @@ extension LocationService: CLLocationManagerDelegate {
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {}
+}
+
+/// What the phone watches in the background (`LocationService.applyBackgroundWatch`), decided by
+/// `JournalPolicy`.
+nonisolated struct BackgroundWatch: Equatable, Sendable {
+    /// visits (CLVisit): a stay marks its stop, and the journal keeps it
+    var visits: Bool
+    /// significant location changes: a move re-plans reminders and geofences
+    var significantChanges: Bool
+
+    static let off = BackgroundWatch(visits: false, significantChanges: false)
 }

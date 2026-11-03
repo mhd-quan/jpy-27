@@ -39,6 +39,12 @@ nonisolated enum Shared {
         static let pace = "pace"
         /// 2 once the real records name every item by its id (`AppModel.loadRecords`)
         static let recordIDs = "records.ids"
+        /// the location journal's switch (`journalEnabled`)
+        static let journal = "journal.enabled"
+        /// set once the location history from outside the trip was deleted (`AppModel.activate`)
+        static let journalPurged = "journal.purged.v1"
+        /// the stays iOS reported lately, without their coordinates (`StayMemory`)
+        static let stays = "visits.seen"
     }
 
     static var alternatives: Set<String> {
@@ -49,6 +55,13 @@ nonisolated enum Shared {
     static var clockOffset: TimeInterval {
         get { defaults.double(forKey: Key.clockOffset) }
         set { defaults.set(newValue, forKey: Key.clockOffset) }
+    }
+
+    /// Whether the location journal records stays and the walked trace (only during the trip,
+    /// `JournalPolicy`). Off until switched on.
+    static var journalEnabled: Bool {
+        get { defaults.bool(forKey: Key.journal) }
+        set { defaults.set(newValue, forKey: Key.journal) }
     }
 
     /// The trip's clock: real time, shifted when rehearsing.
