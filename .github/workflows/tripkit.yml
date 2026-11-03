@@ -29,7 +29,10 @@ jobs:
       - name: Plan is feasible
         run: node scripts/check-plan.mjs && node --test 'scripts/*.test.mjs'
       # the app records visits by item id: no visit changes its id without an entry in
-      # src/data/id-renames.ts. A push compares with the commit before it, a pull request with its base.
+      # src/data/id-renames.ts. A push compares with the commit before it (a new branch or a force push:
+      # with HEAD^ when its export has ids, else origin/main), a pull request with its base. Until main
+      # carries ids a pull request into main prints the skip, and since each push is compared with the
+      # one before, a red push can be followed by a green one: the red run stays in the branch history.
       - name: Item ids are stable
         env:
           EVENT: ${{ github.event_name }}
@@ -37,14 +40,14 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: |
           if [ "$EVENT" = pull_request ]; then
-            base="origin/$BASE_REF"
+            set -- "origin/$BASE_REF"
           elif [ -n "$BEFORE" ] && git rev-parse --verify --quiet "$BEFORE^{commit}" > /dev/null; then
-            base="$BEFORE"
+            set -- "$BEFORE"
           else
-            base=origin/main
-            echo "no earlier commit to compare with: comparing with $base"
+            set -- HEAD^ origin/main
+            echo "no earlier commit for this run: comparing with HEAD^ if its export has ids, else origin/main"
           fi
-          node scripts/check-ids.mjs "$base"
+          node scripts/check-ids.mjs "$@"
       # a save on the user's path says when it fails: no `try?` on a save in the app, but for the
       # two best-effort copies marked as such
       - name: Saves are not silent

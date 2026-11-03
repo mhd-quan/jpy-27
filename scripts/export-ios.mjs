@@ -45,6 +45,7 @@ import { SLOTS, CATEGORIES, CHAINS, TAX_FREE, RULES, itemsFor } from '../src/lib
 import { baseStyle } from '../src/lib/mapStyle.ts';
 import { deepTidy } from './tidy.mjs';
 import { DWELL, GRACE, TIGHT, WAIT } from './plan-rules.mjs';
+import { fromExport, problems } from './check-ids.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const out = (rel, data) => {
@@ -398,13 +399,7 @@ for (const theme of ['light', 'dark']) {
 const ids = new Set(places.map((p) => p.id));
 for (const d of [...days, ...altDays])
   for (const it of d.items) for (const id of it.type === 'stop' ? [it.place] : [it.leg.from, it.leg.to]) if (id && !ids.has(id)) throw new Error(`day ${d.key}: unknown place ${id}`);
-// sanity: every item has an id the app can record it by, unique within its day (scripts/check-ids.mjs)
-for (const d of [...days, ...altDays]) {
-  const seen = new Set();
-  for (const [i, it] of d.items.entries()) {
-    if (!it.id) throw new Error(`day ${d.key} item ${i}: no id`);
-    if (seen.has(it.id)) throw new Error(`day ${d.key}: ${it.id} is used twice`);
-    seen.add(it.id);
-  }
-}
+// sanity: every item has an id the app can record it by, by the rules of scripts/check-ids.mjs
+const idProblems = problems(fromExport({ days, altDays }));
+if (idProblems.length) throw new Error(`item ids:\n${idProblems.join('\n')}`);
 void place;
