@@ -237,15 +237,18 @@ public struct PlanEngine: Sendable {
         return bestKm
     }
 
-    /// Starting mid-walk: a walk that passes stops still ahead keeps counting from the first of them.
+    /// Starting mid-walk: a walk that passes stops keeps counting from the first of them still ahead,
+    /// as the plan's own clock would at that point. That holds until its end is reached or a ride
+    /// begins, which adds what is left of it; the end need not be a stop (a walk back to a station).
     private func resumedWalk(_ day: Day, _ o: Options) -> PendingWalk? {
         guard o.from > 0, o.from < day.items.count, case .stop(let first) = day.items[o.from] else { return nil }
         for j in stride(from: o.from - 1, through: 0, by: -1) {
             guard case .move(let m) = day.items[j] else { continue }
             guard store.mode(of: m.leg) == .walk else { return nil }
             let pts = store.path(m.leg.id)
-            let ahead = day.items[o.from...].contains { $0.stop?.place == m.leg.to }
-            guard ahead, let w = m.leg.walk, !pts.isEmpty, m.leg.via.contains(where: { v in day.items.contains { $0.stop?.place == v } }) else { return nil }
+            // its end already passed: the plan's clock let go of it there
+            let ended = day.items[(j + 1) ..< o.from].contains { $0.stop?.place == m.leg.to }
+            guard !ended, let w = m.leg.walk, !pts.isEmpty, m.leg.via.contains(where: { v in day.items.contains { $0.stop?.place == v } }) else { return nil }
             let done = store.place(first.place).map { along(m.leg.id, pts, $0) } ?? 0
             return PendingWalk(leg: m.leg.id, pts: pts, km: w.km, min: w.minutes(pace: o.pace), done: done, to: m.leg.to)
         }

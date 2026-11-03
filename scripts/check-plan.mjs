@@ -146,9 +146,12 @@ export function checkPlan(days) {
   return { lines, late, withinGrace, ready };
 }
 
-// run as a command, not when a test imports it
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const { lines, late } = checkPlan([...DAYS, ...ALT_DAYS]);
+/** The command: prints the check of `days` and fails the process when anything is late. */
+export function main(days = [...DAYS, ...ALT_DAYS]) {
+  const { lines, late } = checkPlan(days);
   console.log(lines.join('\n'));
   process.exitCode = late > 0 ? 1 : 0;
 }
+
+// run as a command, not when a test imports it
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();
