@@ -5,12 +5,15 @@
 //   ios/JP27/Resources/Trip/guide.json   phrasebook, budget, shopping, stays, Fuji, bookings, notes
 //   ios/Shared/schedule.json             a slim copy of the plan for the widget and the Live Activity
 //   public/map/jp27-{light,dark}.json    the basemap style for MapLibre Native (the site's, without the
-//                                        hillshade: see nativeStyle), served by the site for offline packs
+//                                        hillshade: see nativeStyle), bundled by the app
+//   public/map/jp27-{light,dark}@<build>.json  the same, never rewritten: what the site serves the app's
+//                                        offline packs (see pinnedStyle)
 //   public/map/jp27-{light,dark}-current.json  the same on OpenFreeMap's current tile build (its
 //                                        TileJSON), for offline packs once the pinned build is gone
 //
 // Usage: node scripts/export-ios.mjs
 
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { DAYS, ALT_DAYS, dayKey } from '../src/data/days.ts';
@@ -386,11 +389,28 @@ const nativeStyle = (style) => {
   return { ...style, sources, layers };
 };
 
+// The style says which tiles it reads and which style it is, and the site keeps each one for good at
+// jp27-<theme>@<build>.json. An offline pack is made from that copy, by the name in the style the app
+// was built with: the pack then holds the very tiles, glyphs and sprites the app's map asks for, however
+// the site's style moves on later. The name is the tile build and a hash of the style (without its
+// metadata), so any change to the style is a new file and a published one never changes; old ones stay
+// (an installed app still asks for its own), so nothing here deletes them.
+const pinnedStyle = (style) => {
+  const tiles = style.sources.omt.tiles[0];
+  const build = tiles.match(/^https:\/\/tiles\.openfreemap\.org\/planet\/([^/]+)\/\{z\}\/\{x\}\/\{y\}\.pbf$/)?.[1];
+  if (!build) throw new Error(`native style: tiles not on a pinned OpenFreeMap build: ${tiles}`);
+  const hash = createHash('sha256').update(JSON.stringify(style)).digest('hex').slice(0, 8);
+  return { ...style, metadata: { 'jp27:tiles': tiles, 'jp27:build': `${build}-${hash}` } };
+};
+
 for (const theme of ['light', 'dark']) {
   const style = nativeStyle(baseStyle(theme));
-  out(`public/map/jp27-${theme}.json`, style);
+  const pinned = pinnedStyle(style);
+  out(`public/map/jp27-${theme}.json`, pinned);
+  out(`public/map/jp27-${theme}@${pinned.metadata['jp27:build']}.json`, pinned);
   // the app's fallback when the pinned build answers 404 (OfflineMaps.usesCurrentTiles): the same
-  // style with the tile source read from the TileJSON, which always names the current build
+  // style with the tile source read from the TileJSON, which always names the current build. Made
+  // from the style before its metadata: it names no build, the TileJSON does.
   const { tiles, minzoom, maxzoom, ...omt } = style.sources.omt;
   out(`public/map/jp27-${theme}-current.json`, { ...style, sources: { ...style.sources, omt: { ...omt, url: 'https://tiles.openfreemap.org/planet' } } });
 }

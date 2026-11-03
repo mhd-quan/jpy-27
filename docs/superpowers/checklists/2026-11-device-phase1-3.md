@@ -367,3 +367,14 @@ lại thì xoá app và bắt đầu lại từ A.
      dấu và tab Kế hoạch đang ở trang ngày đó.
    - "Thông báo Đã tới thử": nhấn giữ banner › Đã tới, rồi đóng Cài đặt. **Đạt** khi quán đó được đánh dấu ở trang
      ngày. Bỏ dấu để dọn.
+
+## Task 3.1a — Bản đồ offline: style bất biến theo build trên site
+
+**Quy tắc phát hành (bắt buộc).** Deploy site trước khi phát hành app. Từ Task 3.1b, app tải gói offline từ style
+bất biến mà nó được build cùng: `https://jpy27.delphyra.tech/map/jp27-light@<jp27:build>.json`, với `<jp27:build>`
+lấy từ `metadata["jp27:build"]` của `public/map/jp27-light.json` trong app (dạng `<build tile>-<8 hex>`, ví dụ
+`20261025_080012_pt-f5133df5`). Site chưa có file đó thì mọi vùng tải mới báo lỗi.
+1. Sau khi deploy, mở `https://jpy27.delphyra.tech/map/jp27-light@<jp27:build>.json` và bản `jp27-dark@…` (tên đúng
+   như trong `public/map/` của commit phát hành). **Đạt** khi cả hai trả JSON (HTTP 200, không phải trang 404 hay
+   HTML), và `metadata["jp27:build"]` trong đó đúng bằng tên file.
+2. Các file `jp27-*@*.json` cũ vẫn còn trên site (không file nào bị xoá khi deploy): app đã cài vẫn xin file của nó.
