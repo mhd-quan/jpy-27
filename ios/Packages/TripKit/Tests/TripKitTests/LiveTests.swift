@@ -134,12 +134,15 @@ import Testing
         let it = Itinerary(store: store)
         let grace = Double(store.trip.rules.grace.move)
         #expect(grace == 1)
-        for now: Double in [7 * 60 + 36, 7 * 60 + 37 + grace] {
+        // the minutes named first: Swift 6.2's type checker gives up on the literal inside the loop
+        let due: Double = 7 * 60 + 37
+        let inTime: [Double] = [due - 1, due + grace]
+        for now in inTime {
             let p = it.project(day4, done: [], now: now, position: platform)
             #expect(p.cursor == 2)
             #expect(p.replan == nil, "\(now): \(String(describing: p.replan))")
             // there now, or there at its time when that is earlier
-            #expect(p.slots.first?.ready == min(now, 7 * 60 + 37))
+            #expect(p.slots.first?.ready == min(now, due))
         }
         // a minute past that, standing on the platform is missing it, as anywhere else: it has left
         // the minutes named first: Swift 6.2's type checker gives up on the literal inside the loop
@@ -791,7 +794,9 @@ import Testing
     @Test func theGPSAlarmIsNeverLaterThanTheTimetables() throws {
         let day4 = try #require(store.day("4"))
         let timetableAlarm = try #require(WakePlanner(store: store).alarm(for: romancecar))
-        #expect(timetableAlarm == TripTime.date(day4.date, minutes: 7 * 60 + 37 + 105 - 4))
+        let departs: Double = 7 * 60 + 37
+        let ringsAt = departs + 105 - 4
+        #expect(timetableAlarm == TripTime.date(day4.date, minutes: ringsAt))
         // at Machida at 8:05, a fix at 16 km/h: the stop before yours an hour and a half away, at 9:43
         let machida = try #require(TripTime.date(day4.date, minutes: 8 * 60 + 5))
         var t = RideTracker(ride: romancecar, store: store)
@@ -1144,7 +1149,8 @@ import Testing
         #expect(TripTime.beginLabel(planned: nil, begin: 14 * 60 + 5) == "14:05")
         #expect(TripTime.beginLabel(planned: nil, begin: 14 * 60 + 19.6) == "14:20")
         // the snapshot's later begin, not the plan's
-        #expect(TripTime.beginLabel(planned: nil, begin: max(14 * 60 + 5, 14 * 60 + 20)) == "14:20")
+        let planned: Double = 14 * 60 + 5, snapshot: Double = 14 * 60 + 20
+        #expect(TripTime.beginLabel(planned: nil, begin: max(planned, snapshot)) == "14:20")
         // past midnight
         #expect(TripTime.beginLabel(planned: nil, begin: 24 * 60 + 10) == "0:10")
     }
@@ -1384,7 +1390,9 @@ import Testing
         let wakes = wake.wakes(days: days, now: evening) { _, _ in false }
         let romancecar = try #require(wakes.first { $0.rideID == "r-4-romancecar-st-shinjuku-odakyu" })
         // 7:37 plus 105 minutes, four before
-        #expect(romancecar.at == TripTime.date(days[3].date, minutes: 7 * 60 + 37 + 105 - 4))
+        let departs: Double = 7 * 60 + 37
+        let ringsAt = departs + 105 - 4
+        #expect(romancecar.at == TripTime.date(days[3].date, minutes: ringsAt))
         #expect(!romancecar.station.isEmpty)
         // a ride already taken wants no alarm
         let taken = wake.wakes(days: days, now: evening) { day, _ in day.key == "4" }

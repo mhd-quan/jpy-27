@@ -139,7 +139,8 @@ import Testing
         for (k, day) in days.enumerated() where k % 3 == 0 {
             let now = TripTime.date(day.date, minutes: 6 * 60)!
             let until = now.addingTimeInterval(2 * 86400)
-            let every = (days.flatMap { planner.reminders(for: $0) } + planner.bookings())
+            let all: [Reminder] = days.flatMap { planner.reminders(for: $0) } + planner.bookings()
+            let every = all
                 .filter { $0.fire > now && $0.fire < until }.sorted { $0.fire < $1.fire }.prefix(60).map(\.id)
             #expect(planner.upcoming(days: days, now: now).map(\.id) == Array(every))
         }
