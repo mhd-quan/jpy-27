@@ -27,6 +27,9 @@ import TripKit
     @ObservationIgnored private(set) var horizontalAccuracy: Double?
     /// km/h over ground, when moving
     @ObservationIgnored private(set) var speedKmh: Double?
+    /// when the latest fix was taken (its own time, not when it was handled): a followed ride measures
+    /// the train's pace with it (`RideLiveService`)
+    @ObservationIgnored private(set) var fixedAt: Date?
     /// true heading, degrees; streamed only while a compass is on screen (`watchHeading`)
     private(set) var heading: Double?
     @ObservationIgnored private var compasses = 0
@@ -188,6 +191,7 @@ import TripKit
     private func accept(_ loc: CLLocation) {
         guard loc.horizontalAccuracy >= 0, loc.horizontalAccuracy < 200 else { return }
         let p = Coordinate(loc.coordinate.latitude, loc.coordinate.longitude)
+        fixedAt = loc.timestamp
         publish(p)
         if loc.verticalAccuracy >= 0, altitude != loc.altitude.rounded() { altitude = loc.altitude.rounded() }
         horizontalAccuracy = loc.horizontalAccuracy
@@ -331,7 +335,9 @@ extension LocationService: CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let last = locations.last else { return }
         let c = Coordinate(last.coordinate.latitude, last.coordinate.longitude)
+        let at = last.timestamp
         Task { @MainActor in
+            self.fixedAt = at
             self.publish(c)
             self.onUpdate?(c)
             // in the background only: refresh reminders and fences. On screen, the return to the app

@@ -2,16 +2,41 @@ import Foundation
 
 /// Where you are on a ride, from a position: the next station, what to look at on which side,
 /// whether to get ready to alight, and roughly when you arrive. Feeds the Live Activity.
+///
+/// A followed ride keeps one tracker and hands it each fix (`record`): its arrival then comes from
+/// the train's pace over its last minutes, not from the speed of one fix. A fresh tracker knows only
+/// the timetable.
 public struct RideTracker: Sendable {
     public let ride: Ride
     public let track: [Coordinate]
     /// km of track per km the ride's stations count (the research measured the same rails)
     private let scale: Double
+    /// where the train was and when, over the last `memory` seconds (`record`)
+    private var samples: [Sample] = []
+
+    private struct Sample: Sendable {
+        let km: Double
+        let at: Date
+    }
 
     /// km off the track past which a position says nothing about the ride (still on the platform,
     /// a wrong train, or not on it at all): the Live Activity ignores it, and a followed ride does
     /// not carry the day (`Itinerary.project`).
     public static let offTrack = 1.5
+
+    /// Seconds of fixes kept (`record`); the pace counts once they span `paceSpan`.
+    static let memory: TimeInterval = 300
+    static let paceSpan: TimeInterval = 120
+    /// km/h no train of the trip reaches (the Tōkaidō Shinkansen tops out at 285): a fix this far
+    /// ahead of the last one is a jump of the GPS.
+    static let fastest = 350.0
+    /// km/h under which a speed says nothing about the rest of the ride (standing at a station,
+    /// crawling into one): the timetable knows better.
+    static let crawl = 15.0
+    /// A measured arrival stays between `quickest` × the timetable's fast end and `slowest` × its
+    /// slow end.
+    static let quickest = 0.6
+    static let slowest = 1.5
 
     public init(ride: Ride, store: TripStore) {
         self.ride = ride
@@ -77,18 +102,53 @@ public struct RideTracker: Sendable {
         return max(total / 2, total - max(0.8, 0.15 * total))
     }
 
+    /// A fix at `km`, taken at `time` (the fix's own time, not when it is handled). Kept for `memory`
+    /// seconds after the latest. A fix not after the latest is a repeat, or one delivered late: left
+    /// out. One ahead of the latest faster than `fastest` is a jump of the GPS: left out. One behind
+    /// it is noise, or a train standing still (it never runs backward): it counts at the latest km, at
+    /// its own time, so a stop is a stop.
+    public mutating func record(km: Double, at time: Date) {
+        if let last = samples.last {
+            let seconds = time.timeIntervalSince(last.at)
+            guard seconds > 0, (km - last.km) / seconds * 3600 <= Self.fastest else { return }
+            samples.append(Sample(km: max(km, last.km), at: time))
+        } else {
+            samples.append(Sample(km: km, at: time))
+        }
+        let since = time.addingTimeInterval(-Self.memory)
+        samples.removeAll { $0.at < since }
+    }
+
+    /// km/h along the track over the fixes kept, once they span `paceSpan`.
+    private var pace: Double? {
+        guard let first = samples.first, let last = samples.last else { return nil }
+        let seconds = last.at.timeIntervalSince(first.at)
+        guard seconds >= Self.paceSpan else { return nil }
+        return (last.km - first.km) / seconds * 3600
+    }
+
     /// Planned arrival, minutes since midnight: departure plus the stated time.
     public var plannedArrival: Double? {
         guard let dep = TripTime.minutes(ride.at), let dur = TripTime.statedMinutes(ride.min) else { return nil }
         return Double(dep + dur)
     }
 
-    /// Minutes to the end of the ride from km, at the speed the timetable implies, or at a measured speed.
+    /// Minutes to the end of the ride from km: at the speed the timetable implies (its fast end,
+    /// "35–45" as 35), or at a measured one: the pace over the last two to five minutes of fixes
+    /// (`record`), else the speed of the fix (`speedKmh`) until there is such a pace. A speed under
+    /// `crawl` says nothing: the timetable then. A measured time never goes below 0.6 × the
+    /// timetable's fast end nor above 1.5 × its slow end ("35–45" from the start: 21 to 67.5), so
+    /// a train slowing into a station cannot put the arrival hours away. Without a measured speed,
+    /// the timetable's time exactly; with no stated time, the measured one as it is.
     public func minutesLeft(km: Double, speedKmh: Double? = nil) -> Double? {
         let left = max(0, ride.km - km)
-        if let v = speedKmh, v > 15 { return left / v * 60 }
-        guard let dur = TripTime.statedMinutes(ride.min), ride.km > 0 else { return nil }
-        return left / ride.km * Double(dur)
+        let share = ride.km > 0 ? left / ride.km : nil
+        let fast = share.flatMap { s in TripTime.statedMinutes(ride.min).map { s * Double($0) } }
+        guard let v = pace ?? speedKmh, v > Self.crawl else { return fast }
+        let measured = left / v * 60
+        guard let fast, let share, let high = TripTime.statedMaxMinutes(ride.min) else { return measured }
+        let slow = share * Double(high)
+        return min(max(measured, Self.quickest * fast), Self.slowest * slow)
     }
 
     /// Minutes until the stop before yours, where the research says to get ready; on a direct ride,
@@ -98,5 +158,18 @@ public struct RideTracker: Sendable {
         let target = idx == 0 ? tail : ride.stations[idx].km
         guard let total = minutesLeft(km: km, speedKmh: speedKmh), ride.km - km > 0 else { return nil }
         return max(0, total * (target - km) / (ride.km - km))
+    }
+
+    /// When a followed ride's alarm rings, from a fix at `km` taken at `fix`: as the train leaves the
+    /// stop before yours (`minutesToAlightPrompt`), never later than the timetable's alarm for the
+    /// ride (`latest`, `WakePlanner.alarm(for:)`), which a slow train or a lost GPS cannot push back.
+    /// Nil when that leaves too little time for a new alarm (`WakeReconciler.rideLead` after `now`):
+    /// the one set stays as it is, and once the timetable's alarm has had its time, nothing more is
+    /// asked for, however late the train runs (it has rung, early, once).
+    public func alarm(km: Double, speedKmh: Double? = nil, at fix: Date, notAfter latest: Date?, now: Date) -> Date? {
+        guard let prompt = minutesToAlightPrompt(km: km, speedKmh: speedKmh) else { return nil }
+        let gps = fix.addingTimeInterval(prompt * 60)
+        let at = latest.map { min(gps, $0) } ?? gps
+        return at > now.addingTimeInterval(WakeReconciler.rideLead) ? at : nil
     }
 }

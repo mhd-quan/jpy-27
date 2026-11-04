@@ -191,9 +191,23 @@ private struct PlanRideLive: View {
                 Text("Kêu cả khi máy để im lặng")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                #if DEBUG
+                Text(alarmSet)
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                #endif
             }
         }
     }
+
+    #if DEBUG
+    /// What is set for the ride and where its time came from, for the device checks:
+    /// "Báo thức 9:18 · lịch", then "· GPS" once a followed ride has moved it.
+    private var alarmSet: String {
+        guard let slot = model.alarms.scheduled[ride.id] else { return "Chưa đặt báo thức" }
+        return "Báo thức \(TripTime.clock(slot.at)) · \(slot.source == .ride ? "GPS" : "lịch")"
+    }
+    #endif
 
     private var alarmBinding: Binding<Bool> {
         Binding(get: { model.wakeAlarmIsOn(ride) }, set: { model.setWakeAlarm($0, for: ride) })

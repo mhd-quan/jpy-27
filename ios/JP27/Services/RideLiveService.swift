@@ -7,12 +7,18 @@ import Observation
 import TripKit
 
 /// Follows one ride: projects the position onto the track, keeps the Live Activity current,
-/// and keeps the alighting alarm a few minutes before the stop before yours.
+/// and keeps the alighting alarm a few minutes before the stop before yours, never later than the
+/// timetable's alarm for the ride.
 @Observable final class RideLiveService {
     private(set) var ride: Ride?
     private(set) var status: RideTracker.Status?
     private(set) var arrival: Date?
-    private var tracker: RideTracker?
+    /// The ride's one tracker: it keeps the train's last minutes of fixes (`RideTracker.record`), so
+    /// it is changed where it lives, never through a copy. Made new for each ride.
+    @ObservationIgnored private var tracker: RideTracker?
+    /// when the timetable's alarm for the ride rings, on the trip's clock (`WakePlanner.alarm(for:)`),
+    /// for the rides that have one
+    @ObservationIgnored private var timetableAlarm: Date?
     private var activity: Activity<RideAttributes>?
     private var lastState: RideAttributes.ContentState?
     private var lastPush = Date.distantPast
@@ -37,6 +43,7 @@ import TripKit
         lastPush = .distantPast
         self.ride = ride
         tracker = RideTracker(ride: ride, store: model.store)
+        timetableAlarm = WakePlanner(store: model.store).alarm(for: ride)
         model.location.startLive(background: true)
         let after = walkAfter(ride, store: model.store)
         let line = model.store.day(ride.day)?.items.compactMap(\.move).first { $0.leg.id == ride.legs.first }?.leg.line
@@ -53,26 +60,33 @@ import TripKit
         update(model: model)
     }
 
-    /// Called on every position change.
+    /// Called on every position change, and with every projection of the day.
     func update(model: AppModel) {
-        guard let ride, let tracker else { return }
-        guard let p = model.position, let s = tracker.status(at: p) else { return }
+        guard let ride, let p = model.position, let s = tracker?.status(at: p) else { return }
         // a position far off the track says nothing about this ride (still on the platform, or a wrong train)
         guard s.offTrackKm < RideTracker.offTrack else { return }
         if status != s { status = s }
-        let left = tracker.minutesLeft(km: s.km, speedKmh: model.location.speedKmh)
-        // shown as hours and minutes: kept to the minute, so it changes once a minute at most
-        // instead of with every fix (the accessory over the tab bar redraws when it does)
-        let eta = left.map { Date(timeIntervalSinceReferenceDate: (model.now.addingTimeInterval($0 * 60).timeIntervalSinceReferenceDate / 60).rounded(.down) * 60) }
+        // the fix's own time: the pace counts from when the train was there, and a call with no new
+        // fix (a projection, the GPS lost in a tunnel) adds nothing and moves nothing
+        let fix = model.location.fixedAt ?? Date()
+        tracker?.record(km: s.km, at: fix)
+        guard let tracker else { return }
+        let speed = model.location.speedKmh
+        let left = tracker.minutesLeft(km: s.km, speedKmh: speed)
+        // on the trip's clock, from the fix. Shown as hours and minutes: kept to the minute, so it
+        // changes once a minute at most instead of with every fix (the accessory over the tab bar
+        // redraws when it does)
+        let eta = left.map { Date(timeIntervalSinceReferenceDate: (fix.addingTimeInterval(model.clockOffset + $0 * 60).timeIntervalSinceReferenceDate / 60).rounded(.down) * 60) }
         if arrival != eta { arrival = eta }
         let state = makeState(s, model: model)
-        if !s.arrived, let prompt = tracker.minutesToAlightPrompt(km: s.km, speedKmh: model.location.speedKmh), model.wakeAlarmIsOn(ride) {
-            // ring as the train leaves the stop before yours; a time within two minutes of the one
-            // set is not worth a call (AlarmService would keep the alarm it has anyway)
-            let at = Date().addingTimeInterval(max(0, prompt) * 60)
-            if model.alarms.time(of: ride.id).map({ abs($0.timeIntervalSince(at)) >= 120 }) ?? true {
-                Task { await model.alarms.alight(rideID: ride.id, station: ride.toName, at: at) }
-            }
+        // ring as the train leaves the stop before yours, never later than the timetable's alarm (real
+        // time, as alarms are), and nothing once that has had its time (`RideTracker.alarm`); a time
+        // within two minutes of the one set is not worth a call (AlarmService would keep the alarm it
+        // has anyway)
+        if !s.arrived, model.wakeAlarmIsOn(ride),
+           let at = tracker.alarm(km: s.km, speedKmh: speed, at: fix, notAfter: timetableAlarm?.addingTimeInterval(-model.clockOffset), now: Date()),
+           model.alarms.time(of: ride.id).map({ abs($0.timeIntervalSince(at)) >= 120 }) ?? true {
+            Task { await model.alarms.alight(rideID: ride.id, station: ride.toName, at: at) }
         }
         let changed = state.next != lastState?.next || state.alight != lastState?.alight || state.fuji != lastState?.fuji || state.arrived != lastState?.arrived
         if changed || Date().timeIntervalSince(lastPush) > 30 {
@@ -105,6 +119,7 @@ import TripKit
         activity = nil
         self.ride = nil
         tracker = nil
+        timetableAlarm = nil
         status = nil
         arrival = nil
         lastState = nil

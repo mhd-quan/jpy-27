@@ -534,3 +534,33 @@ Chỉ kiểm được trong chuyến:
 - Đứng ở sân ga Odakyu Shinjuku lúc 7:36 và 7:38 (tàu trễ một chút): không có thẻ "Trễ … cho Odakyu Romancecar 7:37".
   Từ 7:39, nếu tàu đã đi: có thẻ đó (quá một phút ân hạn, đứng ở sân ga cũng là lỡ tàu).
 - Xuống ở Hakone-Yumoto sau 9:36 khi xe buýt 9:35 đã đi: có thẻ "Trễ … cho Hakone Tozan Bus 9:35".
+
+## Task 3.3b — Giờ tới theo quãng vừa đi, phà thẳng, báo thức GPS không muộn hơn lịch
+
+**Chuẩn bị.** Bản Debug (dòng nhỏ dưới công tắc "Báo thức trước ga xuống" ở trang chuyến chỉ có trong bản Debug:
+"Báo thức 9:18 · lịch", "Báo thức 9:14 · GPS" hay "Chưa đặt báo thức"). Chạy thử không đặt báo thức thật, và ở nhà vị
+trí cách mọi tuyến của chuyến, nên mọi bước dưới đây chỉ kiểm được trong chuyến.
+
+1. **Dòng Debug.** Tối ngày 3, sau 21:00: Kế hoạch › Ngày 4 › Romancecar. **Đạt** khi dưới công tắc có "Báo thức 9:18 ·
+   lịch" (7:37 + 105 phút − 4). Tắt công tắc: "Chưa đặt báo thức". Bật lại.
+2. **Romancecar, theo dõi chuyến (ngày 4, 7:37).** Theo dõi từ sân ga, công tắc báo thức bật. Mở trang chuyến vài lần
+   trên đường, nhất là khi tàu chậm lại vào Machida (~8:05), Hon-Atsugi và Odawara (~9:10).
+   - **Đạt** khi giờ ở dòng Debug không bao giờ muộn hơn 9:18: hoặc "9:18 · lịch", hoặc sớm hơn với "· GPS" khi tàu chạy
+     trước lịch. Bản cũ dời nó tới khoảng 11:30 khi tàu chậm vào ga.
+   - **Đạt** khi "tới Hakone-Yumoto" (trang chuyến, dòng chuyến ở Hôm nay, Live Activity) không nhảy hàng giờ khi tàu
+     chậm vào ga: lúc ở Machida nó nằm trong khoảng 8:46–9:47; tàu đúng giờ thì quanh 9:15–9:25.
+   - Cho máy vào túi, hay đi qua hầm, vài phút. **Đạt** khi giờ ở dòng Debug không đổi trong lúc đó, và "tới
+     Hakone-Yumoto" không trôi dần về sau.
+   - **Đạt** khi báo thức reo một lần, không muộn hơn 9:18.
+3. **Tàu trễ (nếu gặp).** Nếu tàu tới Iriuda muộn hơn 9:20: **Đạt** khi báo thức reo lúc 9:18 (sớm hơn ga trước ga
+   xuống), một lần, và sau đó không có báo thức thứ hai (R-131).
+   - Đã biết, chấp nhận (R-131): một chuyến chỉ bắt đầu theo dõi sau giờ báo thức của lịch (9:18 với Romancecar)
+     không có báo thức GPS nào.
+4. **Phà thẳng: du thuyền hồ Ashi (ngày 4, 12:30, Moto-Hakone → Tōgendai).** Theo dõi chuyến, bật công tắc báo thức
+   (thuyền mặc định tắt).
+   - **Đạt** khi lúc lên thuyền trang chuyến ghi "Ga tiếp theo", không phải "Chuẩn bị xuống", và Live Activity không
+     có "Xuống".
+   - **Đạt** khi dòng Debug có "Báo thức 13:04 · GPS" (12:30 + 34 phút, lệch theo giờ thuyền chạy thật) thay cho "Chưa
+     đặt báo thức" như bản cũ.
+   - **Đạt** khi "Chuẩn bị xuống" chỉ hiện ở khoảng 900 m cuối, và báo thức reo quanh lúc đó.
+   - Phà Toba → Wagu (ngày 7, 9:15) như vậy: "Chuẩn bị xuống" và báo thức (nếu bật) từ khoảng 9:30.

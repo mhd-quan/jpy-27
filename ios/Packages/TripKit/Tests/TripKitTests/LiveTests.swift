@@ -618,6 +618,140 @@ import Testing
         #expect(romancecar.status(km: 86.4).alightSoon)
         #expect(abs(romancecar.minutesToAlightPrompt(km: 0)! - 86.6 / 88.7 * 105) < 1e-9)
     }
+
+    // day 4: the 7:37 Romancecar, 105 minutes for 88.7 km
+    var romancecar: Ride { store.trip.rides.first { $0.id == "r-4-romancecar-st-shinjuku-odakyu" }! }
+    let t0 = Date(timeIntervalSince1970: 1_000_000)
+
+    /// Minutes the Romancecar's timetable gives from km to its end.
+    func timetable(_ km: Double) -> Double { (romancecar.km - km) / romancecar.km * 105 }
+
+    @Test func slowingIntoAStationDoesNotPushTheAlarm() {
+        let t0 = Date(timeIntervalSince1970: 0)
+        var t = RideTracker(ride: romancecar, store: store)
+        t.record(km: 28.0, at: t0); t.record(km: 30.9, at: t0 + 120)   // ~87 km/h over two minutes, slowing into Machida
+        let timetable = RideTracker(ride: romancecar, store: store).minutesToAlightPrompt(km: 30.9)!
+        #expect(t.minutesToAlightPrompt(km: 30.9, speedKmh: 16)! / timetable < 1.5)   // ~3.2 today
+    }
+
+    @Test func theRidesLastMinutesSetItsPace() {
+        // two minutes at 60 km/h: the pace, over the 200 km/h of one fix
+        var paced = RideTracker(ride: romancecar, store: store)
+        paced.record(km: 10, at: t0)
+        paced.record(km: 12, at: t0 + 120)
+        #expect(abs(paced.minutesLeft(km: 12, speedKmh: 200)! - (romancecar.km - 12) / 60 * 60) < 1e-9)
+        // a second short of two minutes is no pace yet: the fix's speed counts
+        var early = RideTracker(ride: romancecar, store: store)
+        early.record(km: 10, at: t0)
+        early.record(km: 12, at: t0 + 119)
+        #expect(abs(early.minutesLeft(km: 12, speedKmh: 70)! - (romancecar.km - 12) / 70 * 60) < 1e-9)
+        #expect(early.minutesLeft(km: 12) == timetable(12))
+        // two minutes at 12 km/h, standing or crawling: the timetable, not the fix's speed
+        var crawling = RideTracker(ride: romancecar, store: store)
+        crawling.record(km: 10, at: t0)
+        crawling.record(km: 10.4, at: t0 + 120)
+        #expect(crawling.minutesLeft(km: 10.4, speedKmh: 70) == timetable(10.4))
+        // five minutes are kept, to the second: 6 km in 300 s, then the oldest goes
+        var kept = RideTracker(ride: romancecar, store: store)
+        kept.record(km: 0, at: t0)
+        kept.record(km: 1, at: t0 + 60)
+        kept.record(km: 6, at: t0 + 300)
+        #expect(abs(kept.minutesLeft(km: 6)! - (romancecar.km - 6) / 72 * 60) < 1e-9)
+        kept.record(km: 6.05, at: t0 + 301)
+        let pace = 5.05 / 241 * 3600
+        #expect(abs(kept.minutesLeft(km: 6.05)! - (romancecar.km - 6.05) / pace * 60) < 1e-9)
+        // a fresh tracker is the timetable itself (Itinerary projects the day with one)
+        let fresh = RideTracker(ride: romancecar, store: store)
+        #expect(fresh.minutesLeft(km: 30.9) == timetable(30.9))
+        #expect(fresh.minutesLeft(km: 30.9, speedKmh: 15) == timetable(30.9))
+    }
+
+    @Test func anETAStaysWithinItsTimetable() throws {
+        let fresh = RideTracker(ride: romancecar, store: store)
+        // one fix at 300 km/h, or at 16: 0.6 and 1.5 times the timetable at most
+        #expect(abs(fresh.minutesLeft(km: 30.9, speedKmh: 300)! - 0.6 * timetable(30.9)) < 1e-9)
+        #expect(abs(fresh.minutesLeft(km: 30.9, speedKmh: 16)! - 1.5 * timetable(30.9)) < 1e-9)
+        #expect(abs(fresh.minutesLeft(km: 30.9, speedKmh: 80)! - (romancecar.km - 30.9) / 80 * 60) < 1e-9)
+        // and a pace the same
+        var fast = RideTracker(ride: romancecar, store: store)
+        fast.record(km: 20, at: t0)
+        fast.record(km: 30, at: t0 + 120)   // 300 km/h
+        #expect(abs(fast.minutesLeft(km: 30)! - 0.6 * timetable(30)) < 1e-9)
+        var slow = RideTracker(ride: romancecar, store: store)
+        slow.record(km: 30, at: t0)
+        slow.record(km: 30.6, at: t0 + 120)   // 18 km/h
+        #expect(abs(slow.minutesLeft(km: 30.6)! - 1.5 * timetable(30.6)) < 1e-9)
+        // a ranged run, "35–45" to Nara: 0.6 times its fast end, 1.5 times its slow end
+        let nara = RideTracker(ride: try #require(store.trip.rides.first { $0.id == "r-10-kintetsu-st-kintetsu-nara" }), store: store)
+        #expect(nara.minutesLeft(km: 0) == 35)
+        #expect(abs(nara.minutesLeft(km: 0, speedKmh: 300)! - 0.6 * 35) < 1e-9)
+        #expect(abs(nara.minutesLeft(km: 0, speedKmh: 16)! - 1.5 * 45) < 1e-9)
+        // a ride with no stated time has nothing to hold it: the speed alone, as before
+        let ropeway = try #require(store.trip.rides.first { $0.id == "r-4-hakoneRopeway-togendai" })
+        #expect(ropeway.min == nil)
+        let up = RideTracker(ride: ropeway, store: store)
+        #expect(abs(up.minutesLeft(km: 0, speedKmh: 20)! - ropeway.km / 20 * 60) < 1e-9)
+        #expect(up.minutesLeft(km: 0) == nil)
+    }
+
+    @Test func samplesThatMakeNoSenseAreLeftOut() {
+        // the same fix again, and one taken before the last (from further on): not a sample
+        var repeated = RideTracker(ride: romancecar, store: store)
+        repeated.record(km: 10, at: t0)
+        repeated.record(km: 10, at: t0)
+        repeated.record(km: 20, at: t0 - 60)
+        repeated.record(km: 12, at: t0 + 120)
+        #expect(abs(repeated.minutesLeft(km: 12)! - (romancecar.km - 12) / 60 * 60) < 1e-9)
+        // faster than any train (360 km/h): a GPS jump; 342 km/h still counts
+        var jump = RideTracker(ride: romancecar, store: store)
+        jump.record(km: 0, at: t0)
+        jump.record(km: 12, at: t0 + 120)
+        #expect(jump.minutesLeft(km: 12) == timetable(12))
+        var shinkansen = RideTracker(ride: romancecar, store: store)
+        shinkansen.record(km: 0, at: t0)
+        shinkansen.record(km: 11.4, at: t0 + 120)
+        #expect(abs(shinkansen.minutesLeft(km: 11.4)! - 0.6 * timetable(11.4)) < 1e-9)
+        var landed = RideTracker(ride: romancecar, store: store)
+        landed.record(km: 10, at: t0)
+        landed.record(km: 20, at: t0 + 60)   // 600 km/h
+        landed.record(km: 12, at: t0 + 120)
+        #expect(abs(landed.minutesLeft(km: 12)! - (romancecar.km - 12) / 60 * 60) < 1e-9)
+        // a fix behind the last is noise or a standstill: it counts where the train was, at its own time
+        var back = RideTracker(ride: romancecar, store: store)
+        back.record(km: 0, at: t0)
+        back.record(km: 10, at: t0 + 200)
+        back.record(km: 9, at: t0 + 250)
+        back.record(km: 13, at: t0 + 520)   // the first two are gone: 3 km since 250 s
+        #expect(abs(back.minutesLeft(km: 13)! - (romancecar.km - 13) / (3.0 / 270 * 3600) * 60) < 1e-9)
+    }
+
+    @Test func theGPSAlarmIsNeverLaterThanTheTimetables() throws {
+        let day4 = try #require(store.day("4"))
+        let timetableAlarm = try #require(WakePlanner(store: store).alarm(for: romancecar))
+        #expect(timetableAlarm == TripTime.date(day4.date, minutes: 7 * 60 + 37 + 105 - 4))
+        // at Machida at 8:05, a fix at 16 km/h: the stop before yours an hour and a half away, at 9:43
+        let machida = try #require(TripTime.date(day4.date, minutes: 8 * 60 + 5))
+        let t = RideTracker(ride: romancecar, store: store)
+        let prompt = try #require(t.minutesToAlightPrompt(km: 30.9, speedKmh: 16))
+        let gps = machida + prompt * 60
+        #expect(gps > timetableAlarm)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, now: machida) == gps)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: timetableAlarm, now: machida) == timetableAlarm)
+        // a train ahead of the timetable rings ahead of it
+        let early = machida + t.minutesToAlightPrompt(km: 30.9, speedKmh: 200)! * 60
+        #expect(early < timetableAlarm)
+        #expect(t.alarm(km: 30.9, speedKmh: 200, at: machida, notAfter: timetableAlarm, now: machida) == early)
+        // anchored at the fix, not at the moment it is handled
+        #expect(t.alarm(km: 30.9, speedKmh: 200, at: machida, notAfter: timetableAlarm, now: machida + 50) == early)
+        // late, past the timetable's alarm or within the half minute a new alarm needs: nothing more is asked
+        let late = timetableAlarm + 600
+        #expect(t.alarm(km: 80, at: late, notAfter: timetableAlarm, now: late) == nil)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: timetableAlarm, now: timetableAlarm - 30) == nil)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: timetableAlarm, now: timetableAlarm - 31) == timetableAlarm)
+        // without the timetable's alarm, the same half minute
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, now: gps - 30) == nil)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, now: gps - 31) == gps)
+    }
 }
 
 @Suite struct MenuTests {
@@ -886,6 +1020,22 @@ import Testing
         // a ride already taken wants no alarm
         let taken = wake.wakes(days: days, now: evening) { day, _ in day.key == "4" }
         #expect(!taken.contains { $0.rideID == romancecar.rideID })
+    }
+
+    @Test func theTimetableAlarmOfARide() throws {
+        let wake = WakePlanner(store: store)
+        let days = store.days()
+        let wakes = wake.wakes(days: days, now: try #require(TripTime.midnight(days[0].date)), horizon: 30 * 86400) { _, _ in false }
+        #expect(!wakes.isEmpty)
+        for w in wakes {
+            let ride = try #require(store.trip.rides.first { $0.id == w.rideID })
+            #expect(wake.alarm(for: ride) == w.at, "\(w.rideID)")
+        }
+        // none for a boat, a bus, or a ride with no time
+        for id in ["r-4-ashiCruise-moto-hakone-port", "r-4-tozanBus-st-hakone-yumoto", "r-5-shinkansen-st-shizuoka"] {
+            let ride = try #require(store.trip.rides.first { $0.id == id })
+            #expect(wake.alarm(for: ride) == nil, "\(id)")
+        }
     }
 
     @Test func oneSlowLegDoesNotDecideThePace() {

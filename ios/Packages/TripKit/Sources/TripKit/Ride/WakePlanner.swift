@@ -36,6 +36,19 @@ public struct WakePlanner: Sendable {
             && modes.contains { $0 != .walk }
     }
 
+    /// When the timetable's alarm for the ride rings: `lead` minutes before its planned arrival, on its
+    /// day. Nil for a ride not worth an alarm. A followed ride's alarm never rings later than this
+    /// (`RideTracker.alarm`).
+    public func alarm(for ride: Ride) -> Date? {
+        guard let day = store.day(ride.day) else { return nil }
+        return alarm(for: ride, on: day)
+    }
+
+    private func alarm(for ride: Ride, on day: Day) -> Date? {
+        guard isWorthAnAlarm(ride), let arrive = RideTracker(ride: ride, store: store).plannedArrival else { return nil }
+        return TripTime.date(day.date, minutes: arrive - Self.lead)
+    }
+
     /// The alarms wanted from `now` to the end of tomorrow in Japan, for rides not yet ridden.
     public func wakes(days: [Day], now: Date, horizon: TimeInterval = 36 * 3600, ridden: (Day, Int) -> Bool) -> [Wake] {
         var out: [Wake] = []
@@ -43,10 +56,8 @@ public struct WakePlanner: Sendable {
             guard let midnight = TripTime.midnight(day.date),
                   midnight < now.addingTimeInterval(horizon), midnight.addingTimeInterval(30 * 3600) > now
             else { continue }
-            for ride in store.rides(on: day) where isWorthAnAlarm(ride) {
-                guard let arrive = RideTracker(ride: ride, store: store).plannedArrival,
-                      let at = TripTime.date(day.date, minutes: arrive - Self.lead), at > now
-                else { continue }
+            for ride in store.rides(on: day) {
+                guard let at = alarm(for: ride, on: day), at > now else { continue }
                 let legs = day.items.indices.filter { i in day.items[i].move.map { ride.legs.contains($0.leg.id) } ?? false }
                 if !legs.isEmpty, legs.allSatisfy({ ridden(day, $0) }) { continue }
                 out.append(Wake(rideID: ride.id, station: ride.toName, at: at))
