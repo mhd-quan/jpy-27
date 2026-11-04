@@ -510,4 +510,39 @@ import Testing
         #expect(placement(at: 600 - 120) == .replace)
         #expect(placement(at: 600 - 119.999) == .relabel(.ride))
     }
+
+    /// A followed ride's alarm is the timetable's at the latest (`RideTracker.alarm`). On a train
+    /// running twenty minutes late, the timetable's 9:18 has rung: every later fix asks for nothing.
+    /// The capped time itself (`min(at, planned)`, past) handed to `WakeAlarms` would set, cancel and
+    /// report nothing either; it only takes the rung alarm as the GPS's, once.
+    @Test func aLateTrainRingsOnceAtTheTimetablesTime() async throws {
+        let store = Bundle_.store
+        let ride = try #require(store.trip.rides.first { $0.id == "r-4-romancecar-st-shinjuku-odakyu" })
+        let planned = try #require(WakePlanner(store: store).alarm(for: ride))
+        let s = FakeScheduler()
+        let rung = AlarmSlot(id: s.seed(.alerting), at: planned, source: .timetable)
+        let clock = FakeClock(planned)
+        let saves = SavedLog()
+        let a = WakeAlarms(scheduler: s, saved: [ride.id: rung], now: { clock.now }) { saves.slots.append($0) }
+        let tracker = RideTracker(ride: ride, store: store)
+        // from 9:18 to 9:38, a fix a minute, short of Iriuda (86.6 km) at 50 km/h
+        for minute in 0 ... 20 {
+            let fix = planned + Double(minute * 60)
+            clock.now = fix
+            #expect(tracker.alarm(km: 70 + Double(minute) * 0.8, speedKmh: 50, at: fix, notAfter: planned, now: fix) == nil)
+            await a.alight(WakeRequest(rideID: ride.id, station: ride.toName, at: planned, source: .ride))
+        }
+        #expect(s.log.isEmpty)
+        #expect(s.prompts == 0)
+        #expect(a.lastError == nil)
+        #expect(saves.slots == [[ride.id: AlarmSlot(id: rung.id, at: planned, source: .ride)]])
+        // a ride first followed after 9:18, with no alarm set: nothing, the same way
+        let none = FakeScheduler()
+        let b = WakeAlarms(scheduler: none, saved: [:], now: { clock.now }) { _ in }
+        #expect(tracker.alarm(km: 80, at: clock.now, notAfter: planned, now: clock.now) == nil)
+        await b.alight(WakeRequest(rideID: ride.id, station: ride.toName, at: planned, source: .ride))
+        #expect(none.log.isEmpty)
+        #expect(b.scheduled.isEmpty)
+        #expect(b.lastError == nil)
+    }
 }
