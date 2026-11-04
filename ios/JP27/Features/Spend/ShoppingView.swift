@@ -6,7 +6,6 @@ import TripKit
 /// and the researched catalogue. Ticking an item asks what it really cost and logs it.
 struct ShoppingView: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.modelContext) private var context
     @Query private var purchases: [Purchase]
     @State private var buying: SpendBuyItem?
     @Environment(\.zoomSpace) private var space
@@ -58,7 +57,7 @@ struct ShoppingView: View {
 
     private func progress(_ owned: [String: Purchase]) -> some View {
         let total = guide.basket.total
-        let spent = guide.basket.items.reduce(0) { sum, item in sum + (owned[item.id].map { $0.yen ?? item.total } ?? 0) }
+        let spent = Yen.total(guide.basket.items.map { item in owned[item.id].map { $0.yen ?? item.total } ?? 0 })
         let planned = guide.budget.lines.first { $0.id == "shop" }?.yen ?? total
         return VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
@@ -156,18 +155,12 @@ struct ShoppingView: View {
 
     // MARK: Buying
 
-    private func toggle(id: String, name: String, yen: Int, qty: Int, purchase: Purchase?, source: String) {
-        if purchase != nil {
-            let linked: String? = id
-            try? context.delete(model: Purchase.self, where: #Predicate { $0.itemID == id })
-            // through the ledger, so the other phone drops the expense too
-            for e in (try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.itemID == linked }))) ?? [] {
-                Ledger.delete(e, in: context)
-            }
-            try? context.save()
-        } else {
-            buying = SpendBuyItem(id: id, name: name, yen: yen, qty: qty, source: source)
-        }
+    /// Ticked: asks what it cost. Unticked: no longer bought, the expense with it (through the ledger,
+    /// so the other phone drops it too); false when that could not be saved.
+    private func toggle(id: String, name: String, yen: Int, qty: Int, purchase: Purchase?, source: String) -> Bool {
+        guard purchase == nil else { return model.unbuy(id) }
+        buying = SpendBuyItem(id: id, name: name, yen: yen, qty: qty, source: source)
+        return true
     }
 }
 
@@ -190,6 +183,9 @@ private struct SpendBuySheet: View {
     let done: () -> Void
     @State private var value = 0
     @State private var method: PayMethod = .card
+    /// a purchase that could not be saved: the sheet stays, with the price, and says why
+    @State private var issue: SaveIssue?
+    @State private var failed = false
 
     var body: some View {
         NavigationStack {
@@ -224,16 +220,23 @@ private struct SpendBuySheet: View {
                 }
             }
             .onAppear {
-                if value == 0, item.yen > 0 { value = min(item.yen, 9_999_999) }
+                if value == 0, item.yen > 0 { value = min(item.yen, Yen.maxEntry) }
             }
+            .sensoryFeedback(.fail, trigger: failed)
+            .saveIssueAlert($issue) { _ in save() }
         }
         .presentationDetents([.height(540)])
     }
 
     private func save() {
+        // one write for both: bought only with the expense that paid for it
         context.insert(Purchase(itemID: item.id, qty: item.qty, yen: value, placeID: nil, at: model.now))
-        try? context.save()
-        model.logExpense(yen: value, category: .shop, method: method, placeID: nil, note: item.name, itemID: item.id)
+        guard model.logExpense(yen: value, category: .shop, method: method, placeID: nil, note: item.name, itemID: item.id) != nil else {
+            // said here, over the sheet, not behind it
+            issue = model.takeSaveIssue()
+            failed.toggle()
+            return
+        }
         done()
         dismiss()
     }

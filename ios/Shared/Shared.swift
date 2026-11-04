@@ -37,6 +37,14 @@ nonisolated enum Shared {
         static let clockOffset = "clockOffset"
         static let snapshot = "snapshot"
         static let pace = "pace"
+        /// 2 once the real records name every item by its id (`AppModel.loadRecords`)
+        static let recordIDs = "records.ids"
+        /// the location journal's switch (`journalEnabled`)
+        static let journal = "journal.enabled"
+        /// set once the location history from outside the trip was deleted (`AppModel.activate`)
+        static let journalPurged = "journal.purged.v1"
+        /// the stays iOS reported lately, without their coordinates (`StayMemory`)
+        static let stays = "visits.seen"
     }
 
     static var alternatives: Set<String> {
@@ -44,9 +52,26 @@ nonisolated enum Shared {
         set { defaults.set(Array(newValue).sorted(), forKey: Key.alternatives) }
     }
 
+    /// Read and written by the rehearsal clock's rule (`RehearsalClock.offset`): whole minutes, and
+    /// 0 within a minute of the real clock. A value an older build stored (−0.3 s from a picker left
+    /// at now, seconds on a rehearsal) reads by the same rule, in the app and in the widget.
     static var clockOffset: TimeInterval {
-        get { defaults.double(forKey: Key.clockOffset) }
-        set { defaults.set(newValue, forKey: Key.clockOffset) }
+        get { RehearsalClock.offset(storedClockOffset) }
+        set { defaults.set(RehearsalClock.offset(newValue), forKey: Key.clockOffset) }
+    }
+
+    /// The offset as it is stored, unread by the rule: only `AppModel.init` looks, for an offset
+    /// of about 0 an older build left behind.
+    static var storedClockOffset: TimeInterval { defaults.double(forKey: Key.clockOffset) }
+
+    /// A rehearsal is running (`RehearsalClock`): what code without the model asks.
+    static var rehearsing: Bool { RehearsalClock.isRehearsing(storedClockOffset) }
+
+    /// Whether the location journal records stays and the walked trace (only during the trip,
+    /// `JournalPolicy`). Off until switched on.
+    static var journalEnabled: Bool {
+        get { defaults.bool(forKey: Key.journal) }
+        set { defaults.set(newValue, forKey: Key.journal) }
     }
 
     /// The trip's clock: real time, shifted when rehearsing.
@@ -67,7 +92,8 @@ nonisolated enum Shared {
 /// how late you run, which the widget's own plan clock cannot.
 nonisolated struct Snapshot: Codable, Hashable, Sendable {
     var day: String
-    var index: Int
+    /// the item (`DayItem.id`), which the widget finds on its own plan
+    var itemID: String
     var title: String
     var placeID: String?
     var setOff: Date

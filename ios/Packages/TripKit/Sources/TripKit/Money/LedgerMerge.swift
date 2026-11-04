@@ -129,6 +129,37 @@ public struct LedgerPair: Sendable, Hashable {
     }
 }
 
+/// What an expense may hold, the same however it came in: typed on the keypad, read from a file
+/// (`LedgerCSV`), or sent by the other phone (`LedgerMerge.screened`).
+public nonisolated enum LedgerValidation {
+    public enum Problem: Sendable, Hashable {
+        /// outside 1…`Yen.maxEntry`
+        case amount
+        /// written more than `LedgerMerge.clockSlack` ahead of this phone's clock
+        case futureDate
+        /// a note or place name longer than `maxText`
+        case text
+    }
+
+    /// the longest note or typed place name, in characters
+    public static let maxText = 500
+
+    public static func problems(_ r: LedgerRecord, now: Date) -> Set<Problem> {
+        var p = contentProblems(r)
+        let limit = now.addingTimeInterval(LedgerMerge.clockSlack)
+        if r.version > limit || r.at > limit { p.insert(.futureDate) }
+        return p
+    }
+
+    /// The problems that do not depend on the clock (all a file can be checked for as it is read).
+    static func contentProblems(_ r: LedgerRecord) -> Set<Problem> {
+        var p: Set<Problem> = []
+        if !Yen.isValidEntry(r.yen) { p.insert(.amount) }
+        if r.note.count > maxText || (r.placeName?.count ?? 0) > maxText { p.insert(.text) }
+        return p
+    }
+}
+
 public enum LedgerMerge {
     /// Two phones logging one meal do it within this of each other.
     public static let sameMeal: TimeInterval = 3 * 3600
@@ -166,14 +197,44 @@ public enum LedgerMerge {
     /// the second, and a day covers one set by hand to the wrong date.
     public static let clockSlack: TimeInterval = 24 * 3600
 
-    /// A ledger from elsewhere, with what no honest phone could have written left out: rows and
-    /// deletions dated more than `clockSlack` ahead of `now`. A deletion dated 2099 would outrank every
-    /// write to its row from then on, so a row could never come back.
-    public static func sanitized(_ s: LedgerState, now: Date) -> LedgerState {
+    /// A ledger from elsewhere (the other phone, a file), with what this phone's keypad could not have
+    /// written left out, and which rows those were. A row is left out for any `LedgerValidation`
+    /// problem: an amount outside 1…`Yen.maxEntry`, a write dated more than `clockSlack` ahead of `now`,
+    /// a note or place name too long. Deletions dated that far ahead are left out too: one dated 2099
+    /// would outrank every write to its row from then on, so a row could never come back. Nothing
+    /// already on this phone is touched: merging never drops a local row.
+    public static func screened(_ s: LedgerState, now: Date) -> (state: LedgerState, rejected: [UUID]) {
         let limit = now.addingTimeInterval(clockSlack)
-        return LedgerState(records: s.records.filter { $0.version <= limit && $0.at <= limit },
-                           tombstones: s.tombstones.filter { $0.at <= limit },
-                           kept: s.kept)
+        var good: [LedgerRecord] = []
+        var rejected: [UUID] = []
+        for r in s.records {
+            if LedgerValidation.problems(r, now: now).isEmpty { good.append(r) } else { rejected.append(r.id) }
+        }
+        return (LedgerState(records: good, tombstones: s.tombstones.filter { $0.at <= limit }, kept: s.kept), rejected)
+    }
+
+    /// What to send back for a ledger `remote` the other phone sent, given this phone's `local` (before
+    /// or after merging it in: merging again changes nothing): the merged ledger when the other phone
+    /// would gain something from it that this phone vouches for (what this phone's own screening, by its
+    /// own clock, keeps of the merged ledger), nil when it would gain nothing. One `now` for both.
+    ///
+    /// So two phones may stay different on a row one of them refuses: a version past the keypad's cap
+    /// or with a note too long (written before every way in was checked), or a write or deletion dated
+    /// more than `clockSlack` ahead of the receiver. The phone that refuses it keeps its own version
+    /// and reports the refused row (`screened`'s `rejected`). The refused row is never a reason to
+    /// answer (`reply` is nil for it), and the phone that holds it sends that ledger again only at its
+    /// heartbeat, until the other says it wrote it, the refused row left out
+    /// (`LedgerSyncSession.needsSend`; a build before acknowledgements is sent it once), so the two
+    /// never answer each other for ever.
+    public static func reply(local: LedgerState, remote: LedgerState, now: Date) -> LedgerState? {
+        let clean = screened(remote, now: now).state
+        let merged = merge(local, clean)
+        return merge(remote, sanitized(merged, now: now)) == remote ? nil : merged
+    }
+
+    /// `screened` without the list of what was left out.
+    public static func sanitized(_ s: LedgerState, now: Date) -> LedgerState {
+        screened(s, now: now).state
     }
 
     /// The writes that turn `local` into `merged`.

@@ -34,7 +34,10 @@ struct JournalView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Metrics.stack) {
                     JournalMap(day: day, trail: traces.map(\.coordinate) + visits.map { Coordinate($0.lat, $0.lng) })
-                    JournalStats(journal: journal, walked: walked, spent: expenses.reduce(0) { $0 + $1.yen })
+                    JournalStats(journal: journal, walked: walked, spent: Yen.total(expenses.filter(\.isCountable).map(\.yen)))
+                    if !model.journalEnabled {
+                        JournalSwitchCard()
+                    }
                     if !model.photos.allowed {
                         JournalPhotoAccess()
                     }
@@ -134,6 +137,29 @@ private struct JournalPhotoAccess: View {
                 Spacer(minLength: 0)
                 Button("Cho phép") {
                     Task { await model.photos.request() }
+                }
+                .buttonStyle(.pressable(.bordered))
+            }
+        }
+    }
+}
+
+/// The location journal is off: no stays or trail are kept. The one tap that turns it on (Settings ›
+/// Nhật ký turns it off again).
+private struct JournalSwitchCard: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        Card {
+            HStack(spacing: 12) {
+                Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                    .font(.title2)
+                    .foregroundStyle(.tint)
+                Text("Ghi chỗ đã ghé và đường đã đi, chỉ trong chuyến, chỉ trên máy này")
+                    .font(.subheadline)
+                Spacer(minLength: 0)
+                Button("Bật ghi") {
+                    model.journalEnabled = true
                 }
                 .buttonStyle(.pressable(.bordered))
             }

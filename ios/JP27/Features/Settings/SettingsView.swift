@@ -18,6 +18,7 @@ struct SettingsView: View {
                 AppearanceSection()
                 PermissionsSection()
                 TripSection()
+                JournalSection()
                 if let problem = Records.problem {
                     Section {
                         Label {
@@ -74,10 +75,27 @@ struct SettingsView: View {
 // MARK: - Diagnostics
 
 /// What the map really draws, measured on the phone: for a jerky map, numbers instead of guesses.
+/// And what the alarms last ran into, and how often reminders, geofences and alarms were set again.
 private struct DiagnosticsSection: View {
+    @Environment(AppModel.self) private var model
     @AppStorage(MapPacer.readingsKey) private var readings = false
     @AppStorage(MapPacer.glassKey) private var glass = true
     @AppStorage(MapPacer.reliefKey) private var relief = false
+    #if DEBUG
+    /// what AlarmKit listed, the last time it was asked
+    @State private var systemAlarms: String?
+    /// `Records.failSaves`, as the picker shows it (read again on coming back: "Lần lưu tới" turns
+    /// itself off)
+    @State private var failSaves = Records.failSaves
+    /// `Records.failReads`, as the switch shows it
+    @State private var failReads = Records.failReads
+    /// what the last `uniqueProbe` found
+    @State private var unique: String?
+    /// `OfflineMaps.fakeOtherStyle`, as the switch shows it
+    @State private var fakeStyle = OfflineMaps.fakeOtherStyle
+    #endif
+    /// the location history's rows, counted when the page opens (nil: not counted, or unreadable)
+    @State private var history: (visits: Int, traces: Int)?
 
     var body: some View {
         Section {
@@ -104,6 +122,114 @@ private struct DiagnosticsSection: View {
                     }
                 }
             }
+            if let problem = model.alarms.lastError {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Lỗi báo thức gần nhất")
+                        Text(problem).font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "exclamationmark.triangle.fill", tint: .red)
+                }
+            }
+            // since launch, as of when this page opened: one per return to the app before the trip
+            LabeledContent {
+                Text("\(model.reschedules) lần").monospacedDigit()
+            } label: {
+                Label {
+                    Text("Đặt lại nhắc giờ, geofence, báo thức")
+                } icon: {
+                    SettingsIcon(symbol: "arrow.triangle.2.circlepath", tint: .gray)
+                }
+            }
+            // what the location journal holds (Visit, Trace rows), in the records the app reads now
+            LabeledContent {
+                Text(history.map { "\($0.visits) · \($0.traces)" } ?? "—").monospacedDigit()
+            } label: {
+                Label {
+                    Text("Lịch sử vị trí: chỗ ghé · điểm vết")
+                } icon: {
+                    SettingsIcon(symbol: "point.topleft.down.to.point.bottomright.curvepath", tint: .gray)
+                }
+            }
+            .onAppear { history = model.locationHistoryCount() }
+            // counted again after "Xoá lịch sử vị trí", on the same page
+            .onChange(of: model.historyDeletions) { history = model.locationHistoryCount() }
+            #if DEBUG
+            testAlarm(minutes: 2)
+            testAlarm(minutes: 5)
+            Button {
+                systemAlarms = model.alarms.systemAlarmsSummary()
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Báo thức trong hệ thống")
+                        if let systemAlarms {
+                            Text(systemAlarms).font(.footnote).foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "list.bullet", tint: .gray)
+                }
+            }
+            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 1.4
+            Picker(selection: $failSaves) {
+                ForEach(Records.FailSaves.allCases) { Text($0.label).tag($0) }
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Giả lỗi lưu")
+                        Text("Lần lưu tới: một lần báo lỗi rồi thôi. Mọi lần lưu: tới khi tắt").font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "xmark.octagon", tint: .red)
+                }
+            }
+            .onChange(of: failSaves) { _, choice in Records.failSaves = choice }
+            .onAppear { failSaves = Records.failSaves }
+            Toggle(isOn: $failReads) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Giả lỗi đọc sổ chi")
+                        Text("Mọi lần đọc sổ chi để ghi hay để đồng bộ báo lỗi, tới khi tắt").font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "xmark.octagon", tint: .red)
+                }
+            }
+            .onChange(of: failReads) { _, on in Records.failReads = on }
+            .onAppear { failReads = Records.failReads }
+            Button {
+                unique = model.uniqueProbe()
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Thử ghi trùng chỉ số")
+                        if let unique {
+                            Text(unique).font(.footnote).foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "square.on.square", tint: .gray)
+                }
+            }
+            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 2.1c
+            testArrived(asBeforeIDs: false)
+            testArrived(asBeforeIDs: true)
+            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 3.1b
+            Toggle(isOn: $fakeStyle) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Giả style khác bản")
+                        Text("Vùng tải mới xin một style site không có, như khi app mới hơn site").font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "map", tint: .red)
+                }
+            }
+            .onChange(of: fakeStyle) { _, on in OfflineMaps.fakeOtherStyle = on }
+            .onAppear { fakeStyle = OfflineMaps.fakeOtherStyle }
+            #endif
         } header: {
             Text("Chẩn đoán")
         } footer: {
@@ -112,6 +238,48 @@ private struct DiagnosticsSection: View {
                 : "Hiện ở góc bản đồ thời gian của từng khung hình, để biết bản đồ giật vì đâu.")
         }
     }
+
+    #if DEBUG
+    /// A "Đã tới" notification, now, for the first food stop not yet done of the day the app shows
+    /// (`focusDay`): as this build posts it on entering the stop's circle, or as builds before item ids
+    /// did (the day and the index only). The first marks the stop; the second must mark nothing.
+    private func testArrived(asBeforeIDs: Bool) -> some View {
+        Button {
+            let day = model.focusDay
+            guard let (i, stop) = day.stops.first(where: { model.store.place($0.stop.place)?.kind == .food && !model.isDone(day, $0.index) }),
+                  let place = model.store.place(stop.place) else { return }
+            Task {
+                if asBeforeIDs {
+                    await model.notifications.arrivedAsBeforeIDs(at: place, day: day.key, index: i)
+                } else {
+                    await model.notifications.arrived(at: place, store: model.store, people: model.people, item: ItemRef(day: day.key, id: day.items[i].id))
+                }
+            }
+        } label: {
+            Label {
+                Text(asBeforeIDs ? "Thông báo Đã tới thử, kiểu cũ" : "Thông báo Đã tới thử")
+            } icon: {
+                SettingsIcon(symbol: "checkmark.circle", tint: asBeforeIDs ? Color.gray : Color.green)
+            }
+        }
+    }
+
+    /// A real alarm for a ride that does not exist, set the way a followed ride sets one (asks for
+    /// permission, replaces only once set), for the device checks in
+    /// docs/superpowers/checklists/2026-11-device-phase1-3.md. Two lengths on the same ride: the
+    /// second moves the first by more than two minutes, so it is a replacement.
+    private func testAlarm(minutes: Double) -> some View {
+        Button {
+            Task { await model.alarms.alight(rideID: "debug.wake", station: "Ga thử", at: Date().addingTimeInterval(minutes * 60)) }
+        } label: {
+            Label {
+                Text("Báo thức thử sau \(Int(minutes)) phút")
+            } icon: {
+                SettingsIcon(symbol: "alarm", tint: .orange)
+            }
+        }
+    }
+    #endif
 }
 
 // MARK: - Building blocks
@@ -329,9 +497,65 @@ private struct TripSection: View {
                 SettingsPage(title: "Chạy thử") { RehearsalSection() }
             } label: {
                 SettingsLabel(title: "Chạy thử", symbol: "clock.arrow.circlepath", tint: .purple,
-                              value: model.clockOffset == 0 ? "Tắt" : "Đang chạy")
+                              value: model.rehearsing ? "Đang chạy" : "Tắt")
             }
         }
+    }
+}
+
+// MARK: - Journal
+
+/// The location journal: its switch, and the history deleted on request.
+private struct JournalSection: View {
+    @Environment(AppModel.self) private var model
+    @State private var confirming = false
+    /// how many rows the last "Xoá lịch sử vị trí" deleted
+    @State private var deleted: Int?
+
+    var body: some View {
+        @Bindable var model = model
+        Section {
+            Toggle(isOn: $model.journalEnabled) {
+                Label {
+                    Text("Ghi nhật ký vị trí")
+                } icon: {
+                    SettingsIcon(symbol: "book.pages.fill", tint: .indigo)
+                }
+            }
+            Button(role: .destructive) {
+                confirming = true
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Xoá lịch sử vị trí")
+                        if let deleted {
+                            Text(deleted == 0 ? "Không còn gì để xoá" : "Đã xoá \(deleted) mục")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "trash", tint: .red)
+                }
+            }
+            .alert("Xoá lịch sử vị trí?", isPresented: $confirming) {
+                Button("Xoá", role: .destructive, action: delete)
+                Button("Huỷ", role: .cancel) {}
+            } message: {
+                Text("Mọi chỗ đã ghé và vết đường đi đã ghi trên máy này. Dấu đã đi và điểm bỏ vẫn giữ.")
+            }
+        } header: {
+            Text("Nhật ký")
+        } footer: {
+            Text("Chỉ trong 18–29/10/2027, chỉ trên máy này")
+        }
+    }
+
+    private func delete() {
+        let before = model.saveIssue?.id
+        let n = model.purgeLocationHistory(outsideTripOnly: false)
+        // a write that failed is told by the alert, not as a count
+        deleted = model.saveIssue?.id == before ? n : nil
     }
 }
 
@@ -342,13 +566,15 @@ private struct PermissionsSection: View {
     @Environment(\.openURL) private var openURL
     /// AlarmKit and ActivityKit states are read, not observed: bump to re-read after a request
     @State private var tick = 0
+    /// iOS's upgrade to "Always" was asked once (here or on Today): Settings from then on
+    @AppStorage(AppModel.locationAskedAlwaysKey) private var askedAlways = false
 
     var body: some View {
         Section("Quyền") {
             location
             PermissionRow(
                 title: "Thông báo", detail: "Nhắc giờ tàu, xe, đặt bàn", symbol: "bell.badge.fill", tint: .red,
-                state: model.notifications.authorized ? .on : .off,
+                state: model.notifications.authorized ? .on : (model.notifications.undetermined ? .ask : .off),
                 action: { Task { await model.notifications.requestAuthorization(); await model.notifications.refreshStatus(); if !model.notifications.authorized { openSettings() } } })
             PermissionRow(
                 title: "Báo thức", detail: "Đánh thức trước ga cần xuống", symbol: "alarm.fill", tint: .orange,
@@ -381,12 +607,15 @@ private struct PermissionsSection: View {
         default: .off
         }
         return PermissionRow(
-            title: "Vị trí luôn bật", detail: "Món nên gọi khi tới quán, ga trên tàu, nhật ký", symbol: "location.fill", tint: .blue,
+            title: "Vị trí luôn bật", detail: "Nhắc khi tới quán, tới ga", symbol: "location.fill", tint: .blue,
             state: state,
             action: {
                 switch status {
                 case .notDetermined: model.location.requestWhenInUse()
-                case .authorizedWhenInUse: model.location.requestAlways()
+                case .authorizedWhenInUse where !askedAlways:
+                    // iOS shows this upgrade once; after that only Settings can change it
+                    askedAlways = true
+                    model.location.requestAlways()
                 default: openSettings()
                 }
             })
@@ -473,9 +702,12 @@ private struct PermissionRow: View {
 
 /// Where one area is, as its row says it.
 private enum AreaStatus: Equatable {
-    case checking, idle, stale, complete
+    case checking, idle, stale, complete, preparing
     case downloading(Double), waiting(Double), paused(Double)
+    /// downloading, and MapLibre's last error, while it tries again
     case failing(Double, String)
+    /// its pack could not be made: why, and "Thử lại"
+    case failed(String)
 }
 
 /// Downloads belong to the app (`Downloads`), so this page only shows where they are: leave it,
@@ -487,6 +719,11 @@ private struct OfflineSection: View {
         let offline = model.offline
         let downloads = model.downloads
         Group {
+            if downloads.busy || downloads.ended != nil {
+                Section {
+                    JobRow(downloads: downloads)
+                }
+            }
             Section {
                 if !offline.stale.isEmpty {
                     Label("Nguồn bản đồ đã đổi, nên \(offline.stale.count) vùng đã tải không còn dùng được khi mất sóng. Tải lại khi có Wi‑Fi.", systemImage: "exclamationmark.triangle.fill")
@@ -503,7 +740,7 @@ private struct OfflineSection: View {
                             pause: { offline.pause(area.id) },
                             remove: { offline.remove(area) })
                     }
-                    if offline.areas.contains(where: { !offline.complete.contains($0.id) && !offline.wanted.contains($0.id) }) {
+                    if !offline.missing.isEmpty {
                         Button("Tải tất cả bản đồ") { downloads.downloadAllMaps() }
                     }
                 } else {
@@ -532,17 +769,44 @@ private struct OfflineSection: View {
 
     private func status(_ id: String) -> AreaStatus {
         let o = model.offline
-        if o.checking.contains(id) { return .checking }
-        if o.complete.contains(id) { return .complete }
-        if o.stale.contains(id), !o.wanted.contains(id) { return .stale }
         let p = o.progress[id] ?? 0
-        if o.wanted.contains(id) || o.running.contains(id) {
-            if !model.network.online { return .waiting(p) }
-            if let problem = o.problems[id] { return .failing(p, problem) }
-            return .downloading(p)
+        switch o.phases[id] {
+        case nil: return .idle
+        // asked for, its pack not read yet (or not asked how far it is)
+        case .requested?: return .checking
+        case .creating?: return .preparing
+        case .downloading?: return model.network.online ? .downloading(p) : .waiting(p)
+        case .waitingForNetwork?:
+            if model.network.online, let problem = o.problems[id] { return .failing(p, problem) }
+            return .waiting(p)
+        case .paused?: return .paused(p)
+        case .complete?: return .complete
+        case .stale?: return .stale
+        case .failed(let reason)?: return .failed(reason)
         }
-        if let problem = o.problems[id] { return .failing(p, problem) }
-        return o.progress[id] == nil ? .idle : .paused(p)
+    }
+}
+
+/// The download under way, as one line ("Bản đồ 3/10 vùng · Ảnh 120/180 · 42%"), and once it is over, how
+/// it ended: "Xong" only when everything is there, else what is missing ("Bản đồ 8/10 vùng · 2 lỗi"), or
+/// "Đã dừng".
+private struct JobRow: View {
+    let downloads: Downloads
+
+    var body: some View {
+        HStack(spacing: 12) {
+            if downloads.busy {
+                ProgressView()
+                Text(downloads.progressLine)
+            } else if let ended = downloads.ended {
+                Image(systemName: ended.success ? "checkmark.circle.fill" : ended.paused ? "pause.circle.fill" : "exclamationmark.triangle.fill")
+                    .foregroundStyle(ended.success ? Color.green : ended.paused ? Color.secondary : Color.orange)
+                Text(ended.subtitle)
+            }
+        }
+        .font(.footnote)
+        .monospacedDigit()
+        .contentTransition(.numericText())
     }
 }
 
@@ -589,6 +853,13 @@ private struct AreaRow: View {
         switch status {
         case .checking:
             ProgressView()
+        case .failed:
+            Button("Thử lại") {
+                started += 1
+                download()
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
         case .idle, .stale:
             Button(status == .stale ? "Tải lại" : "Tải") {
                 started += 1
@@ -598,13 +869,13 @@ private struct AreaRow: View {
             .controlSize(.small)
         case .complete:
             ProgressRing(value: 1, mode: .done)
-        case .downloading(let p), .waiting(let p), .failing(let p, _):
+        case .preparing, .downloading, .waiting, .failing:
             // as in the App Store: the ring is the stop button
             Button {
                 stopped += 1
                 pause()
             } label: {
-                ProgressRing(value: p, mode: .running)
+                ProgressRing(value: running, mode: .running)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Tạm dừng tải \(name)")
@@ -620,6 +891,14 @@ private struct AreaRow: View {
         }
     }
 
+    /// how far a running download is (its pack being made: nothing yet)
+    private var running: Double {
+        switch status {
+        case .downloading(let p), .waiting(let p), .failing(let p, _): p
+        case .checking, .idle, .stale, .complete, .preparing, .paused, .failed: 0
+        }
+    }
+
     private var size: String? {
         guard let bytes, bytes > 0 else { return nil }
         return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
@@ -631,6 +910,7 @@ private struct AreaRow: View {
         }
         switch status {
         case .checking: return "Đang kiểm tra…"
+        case .preparing: return "Đang chuẩn bị…"
         case .idle: return "Chưa tải"
         case .stale: return "Tải từ nguồn cũ, cần tải lại"
         case .complete: return ["Đã tải", size].compactMap { $0 }.joined(separator: " · ")
@@ -638,14 +918,18 @@ private struct AreaRow: View {
         case .waiting(let p): return with("Chờ có mạng", p)
         case .paused(let p): return with("Tạm dừng", p)
         case .failing(let p, let problem): return with(problem, p)
+        case .failed(let reason): return reason
         }
     }
 
     private var warning: Bool {
-        if case .failing = status { return true }
-        return status == .stale
+        switch status {
+        case .failing, .failed, .stale: true
+        case .checking, .idle, .complete, .preparing, .downloading, .waiting, .paused: false
+        }
     }
 
+    /// something to remove: a pack, or a request (one that failed is dropped with any older pack)
     private var hasData: Bool {
         switch status {
         case .idle, .checking: false
@@ -797,6 +1081,10 @@ private struct RehearsalSection: View {
     @Environment(AppModel.self) private var model
     @State private var picked = Date()
     @State private var seeded = false
+    /// what the picker was set to, and whether that was the clock as it is: left there, it means
+    /// "now" however long the page stays open
+    @State private var seed = Date()
+    @State private var seededAtNow = false
 
     private var range: ClosedRange<Date> {
         let first = model.store.trip.days.first.flatMap { TripTime.midnight($0.date) } ?? Date()
@@ -809,15 +1097,18 @@ private struct RehearsalSection: View {
             DatePicker("Thời điểm", selection: $picked, in: range)
                 .environment(\.timeZone, TripTime.zone)
             Button("Chạy thử từ thời điểm này") {
-                model.clockOffset = picked.timeIntervalSince(Date())
+                model.rehearse(at: effectivePick)
+                reseed()
             }
-            if model.clockOffset != 0 {
+            // nothing to start: the picker at the clock as it is, or within a minute of it
+            .disabled(RehearsalClock.start(at: effectivePick, realNow: Date(), current: model.clockOffset) == nil)
+            if model.rehearsing {
                 LabeledContent("Đồng hồ chuyến đi") {
                     Text(clockLabel(model.now)).monospacedDigit()
                 }
                 Button("Về giờ thật", role: .destructive) {
-                    model.clockOffset = 0
-                    picked = clampedNow
+                    model.endRehearsal()
+                    reseed()
                 }
             }
         } header: {
@@ -828,13 +1119,23 @@ private struct RehearsalSection: View {
         .onAppear {
             guard !seeded else { return }
             seeded = true
-            picked = clampedNow
+            reseed()
         }
     }
 
-    private var clampedNow: Date {
-        let now = model.now
-        return min(max(now, range.lowerBound), range.upperBound)
+    /// The picker set to the trip clock as it is now (`Shared.now`: `model.now` moves only on the
+    /// minute), within the picker's range.
+    private func reseed() {
+        let now = Shared.now
+        seed = min(max(now, range.lowerBound), range.upperBound)
+        seededAtNow = seed == now
+        picked = seed
+    }
+
+    /// The instant the start button means: the trip clock as it is while the picker is left where it
+    /// was set at now, else what was picked.
+    private var effectivePick: Date {
+        seededAtNow && picked == seed ? Shared.now : picked
     }
 
     private func clockLabel(_ d: Date) -> String {

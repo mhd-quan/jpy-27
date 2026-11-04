@@ -27,18 +27,25 @@ public struct PlanEngine: Sendable {
         /// a timed departure on a line that runs every few minutes (the plan check does; a live
         /// projection does not, and takes the next train with half the interval as the wait)
         public var waitAtSoftStops: Bool
+        /// where you are, in a live projection: standing inside the `Presence` circle of item `from`
+        /// when it will not wait (the train's station, the booked table), it begins at its own time —
+        /// you are there, not late for it, even past that time (a table not yet marked; a train only
+        /// for its minute of grace, see `present`). It needs `clock` (now); without one it changes
+        /// nothing, so the plan's memo (`isPlan`) need not look at it.
+        public var position: Coordinate?
 
-        public init(from: Int = 0, clock: Double? = nil, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1, waitAtSoftStops: Bool = true) {
+        public init(from: Int = 0, clock: Double? = nil, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1, waitAtSoftStops: Bool = true, position: Coordinate? = nil) {
             self.from = from
             self.clock = clock
             self.toReach = toReach
             self.skips = skips
             self.pace = pace
             self.waitAtSoftStops = waitAtSoftStops
+            self.position = position
         }
 
-        public static func live(from: Int, now: Double, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1) -> Options {
-            Options(from: from, clock: now, toReach: toReach, skips: skips, pace: pace, waitAtSoftStops: false)
+        public static func live(from: Int, now: Double, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1, position: Coordinate? = nil) -> Options {
+            Options(from: from, clock: now, toReach: toReach, skips: skips, pace: pace, waitAtSoftStops: false, position: position)
         }
 
         /// the plan's own clock, as `Options()` runs it: the same for a day every time
@@ -114,6 +121,12 @@ public struct PlanEngine: Sendable {
                 let leg = m.leg
                 let mode = store.mode(of: leg)
                 var dur: Double
+                if mode != .walk, let walk = pending {
+                    // the rest of a walk that passed stops, from the last of them to where it ends,
+                    // comes before the ride (walk km and polyline km are measured apart: never below zero)
+                    clock = (clock ?? 0) + walk.min * max(0, walk.km - walk.done) / walk.km
+                    pending = nil
+                }
                 if mode == .walk {
                     let pts = store.path(leg.id)
                     let passes = leg.via.contains { v in day.items.contains { $0.stop?.place == v } }
@@ -143,6 +156,7 @@ public struct PlanEngine: Sendable {
                 }
                 let at = TripTime.minutes(m.at).map(Double.init)
                 let started = clock != nil
+                if let now = present(o, i, hard: hard, at: at, place: leg.from, grace: Double(store.trip.rules.grace.move)) { clock = now }
                 let ready = clock ?? at ?? 0
                 if let at, hard || o.waitAtSoftStops || clock == nil { clock = max(clock ?? 0, at) }
                 let begin = clock ?? 0
@@ -161,6 +175,7 @@ public struct PlanEngine: Sendable {
                 let skipped = o.skips.contains(i)
                 let at = TripTime.minutes(s.at).map(Double.init)
                 let started = clock != nil
+                if let now = present(o, i, hard: hard, at: at, place: s.place) { clock = now }
                 let ready = clock ?? at ?? 0
                 if let at, !skipped, hard || o.waitAtSoftStops {
                     clock = max(clock ?? at, at)
@@ -170,7 +185,22 @@ public struct PlanEngine: Sendable {
                 slots.append(Slot(index: i, ready: ready, begin: begin, end: clock!, planned: TripTime.minutes(s.at), skipped: skipped, hard: hard, started: started))
             }
         }
+        // a walk still pending here ended the day: nothing after it reads the clock, so its last
+        // stretch is not added
         return slots
+    }
+
+    /// Item `i` is the one the projection starts from, it will not wait, and you stand inside the
+    /// circle of its place (`Options.position`): the clock it is ready at, now or its own time if
+    /// that is earlier — the way there is done, and being there past its time is not being late.
+    /// For a departure, only up to its `grace` past its time (`PlanRules.grace.move`, the plan
+    /// check's allowance): on the platform after that the train has left, and you are late for it
+    /// as anywhere else. Seated at a booked table, there is no such limit.
+    private func present(_ o: Options, _ i: Int, hard: Bool, at: Double?, place: String?, grace: Double? = nil) -> Double? {
+        guard hard, i == o.from, let now = o.clock, let at, let position = o.position,
+              let p = store.place(place), Presence.isAt(position, p) else { return nil }
+        if let grace, now > at + grace { return nil }
+        return min(now, at)
     }
 
     /// Minimum minutes at a stop (scripts/check-plan.mjs `dwell`).
@@ -229,15 +259,18 @@ public struct PlanEngine: Sendable {
         return bestKm
     }
 
-    /// Starting mid-walk: a walk that passes stops still ahead keeps counting from the first of them.
+    /// Starting mid-walk: a walk that passes stops keeps counting from the first of them still ahead,
+    /// as the plan's own clock would at that point. That holds until its end is reached or a ride
+    /// begins, which adds what is left of it; the end need not be a stop (a walk back to a station).
     private func resumedWalk(_ day: Day, _ o: Options) -> PendingWalk? {
         guard o.from > 0, o.from < day.items.count, case .stop(let first) = day.items[o.from] else { return nil }
         for j in stride(from: o.from - 1, through: 0, by: -1) {
             guard case .move(let m) = day.items[j] else { continue }
             guard store.mode(of: m.leg) == .walk else { return nil }
             let pts = store.path(m.leg.id)
-            let ahead = day.items[o.from...].contains { $0.stop?.place == m.leg.to }
-            guard ahead, let w = m.leg.walk, !pts.isEmpty, m.leg.via.contains(where: { v in day.items.contains { $0.stop?.place == v } }) else { return nil }
+            // its end already passed: the plan's clock let go of it there
+            let ended = day.items[(j + 1) ..< o.from].contains { $0.stop?.place == m.leg.to }
+            guard !ended, let w = m.leg.walk, !pts.isEmpty, m.leg.via.contains(where: { v in day.items.contains { $0.stop?.place == v } }) else { return nil }
             let done = store.place(first.place).map { along(m.leg.id, pts, $0) } ?? 0
             return PendingWalk(leg: m.leg.id, pts: pts, km: w.km, min: w.minutes(pace: o.pace), done: done, to: m.leg.to)
         }
@@ -279,17 +312,19 @@ public struct PlanEngine: Sendable {
     // MARK: - The plan check
 
     public struct Finding: Sendable, Hashable {
-        public enum Kind: Sendable { case late, tight }
+        public enum Kind: Sendable { case late, grace, tight }
         public let kind: Kind
         public let index: Int
-        /// how many minutes late (positive) or to spare (tight)
+        /// how many minutes late (late, grace) or to spare (tight)
         public let minutes: Int
         /// the line check-plan.mjs prints
         public let line: String
     }
 
-    /// Stops and departures planned earlier than they can be reached, and the tight ones.
+    /// Stops and departures planned earlier than they can be reached, the stops a little behind the
+    /// clock but within their grace, and the tight ones.
     public func check(_ day: Day) -> [Finding] {
+        let rules = store.trip.rules
         var out: [Finding] = []
         for slot in simulate(day) {
             let item = day.items[slot.index]
@@ -297,16 +332,19 @@ public struct PlanEngine: Sendable {
             let clock = slot.ready
             switch item {
             case .move(let m):
-                if Double(planned) < clock - 1 {
+                if Double(planned) < clock - Double(rules.grace.move) {
                     let name = store.line(m.leg.line)?.name ?? m.leg.line
                     let late = Self.jsRound(clock - Double(planned))
                     out.append(Finding(kind: .late, index: slot.index, minutes: late, line: "  ! \(at) \(name) \(m.leg.from) → \(m.leg.to): free only at \(Self.jsClock(clock)) (\(late) min late)"))
                 }
             case .stop(let s):
-                if Double(planned) < clock - 2 {
+                if Double(planned) < clock - Double(rules.grace.stop) {
                     let late = Self.jsRound(clock - Double(planned))
                     out.append(Finding(kind: .late, index: slot.index, minutes: late, line: "  ! \(at) \(s.title): earliest arrival \(Self.jsClock(clock)) (\(late) min short)"))
-                } else if Double(planned) - clock < 3, !s.isErrand {
+                } else if Double(planned) < clock, !s.isErrand {
+                    let late = Self.jsRound(clock - Double(planned))
+                    out.append(Finding(kind: .grace, index: slot.index, minutes: late, line: "  ≈ \(at) \(s.title): \(late) min late, within the \(rules.grace.stop)-min grace"))
+                } else if Double(planned) - clock < Double(rules.tight), !s.isErrand {
                     let spare = Self.jsRound(Double(planned) - clock)
                     out.append(Finding(kind: .tight, index: slot.index, minutes: spare, line: "  ~ \(at) \(s.title): only \(spare) min to spare"))
                 }

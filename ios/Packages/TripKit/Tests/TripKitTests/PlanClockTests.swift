@@ -125,7 +125,7 @@ import Testing
         let planner = ReminderPlanner(store: store)
         let all = planner.reminders(for: day)
         let dep = try #require(all.first { $0.kind == .departure })
-        let index = try #require(dep.index)
+        let index = try #require(dep.itemID.flatMap { day.index(of: $0) })
         let left = planner.reminders(for: day) { d, i in d.key == day.key && i == index }
         #expect(!left.contains { $0.id == dep.id })
         #expect(left.count == all.count - 1)
@@ -148,30 +148,18 @@ import Testing
         #expect(planner.upcoming(days: days, now: before).allSatisfy { $0.kind == .booking })
     }
 
-    // MARK: Item identity
+    // MARK: Item identity (the rest is in ItemIdentityTests)
 
-    @Test func identitiesNameEachItemOfADayOnce() {
+    /// A record moved aside below 0 while the indexes are put right (`RecordIndexes`), and left there
+    /// by a second write that failed or because another record took its index, still finds its item.
+    @Test func aRecordSetAsideBelowZeroFindsItsItem() {
         for day in allDays {
-            let ids = day.items.indices.compactMap { day.identity(of: $0) }
-            #expect(ids.count == day.items.count)
-            #expect(Set(ids).count == ids.count, "day \(day.key)")
-            for i in day.items.indices { #expect(day.resolve(i, identity: day.identity(of: i)) == i) }
+            for i in day.items.indices {
+                for k in [1, 2, 9] {
+                    #expect(day.resolve(-k, identity: day.identity(of: i)) == i, "day \(day.key): item \(i) recorded at -\(k)")
+                }
+            }
         }
-        let day = store.day("2")!
-        #expect(day.identity(of: day.items.count) == nil)
-    }
-
-    @Test func aRecordFollowsItsItemWhenThePlanMoves() throws {
-        let day = store.day("2")!
-        let (i, _) = try #require(day.stops.first { $0.stop.place != nil && $0.index > 1 })
-        let id = day.identity(of: i)
-        // recorded two items further on than the item now is: found again where it is
-        #expect(day.resolve(i + 2, identity: id) == i)
-        // an item the plan no longer has: nowhere
-        #expect(day.resolve(i, identity: "stop:gone") == nil)
-        // older records keep their index while the day has it
-        #expect(day.resolve(i, identity: nil) == i)
-        #expect(day.resolve(day.items.count + 3, identity: nil) == nil)
     }
 }
 

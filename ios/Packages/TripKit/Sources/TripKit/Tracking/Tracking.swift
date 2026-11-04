@@ -3,10 +3,13 @@ import Foundation
 // MARK: - Geofences
 
 /// A circle iOS watches in the background. Core Location keeps at most 20 per app, so the planner
-/// picks the ones that matter next.
-public struct Fence: Sendable, Hashable, Identifiable {
-    public enum Kind: String, Sendable { case food, snack, station, stay }
+/// picks the ones that matter next. Codable: the app keeps what it registered (`archive`), for a
+/// relaunch straight into a crossing.
+public struct Fence: Codable, Sendable, Hashable, Identifiable {
+    public enum Kind: String, Codable, Sendable { case food, snack, station, stay }
 
+    /// The region's identifier with iOS, and the key of its last entry: kind and place, as every
+    /// build has written it, so a region an earlier build registered is still found.
     public var id: String { "\(kind.rawValue):\(placeID)" }
     public let placeID: String
     public let kind: Kind
@@ -14,17 +17,53 @@ public struct Fence: Sendable, Hashable, Identifiable {
     /// metres
     public let radius: Double
     public let day: String
-    /// item index on that day, for planned stops and departures
-    public let index: Int?
+    /// the item on that day (`DayItem.id`), for planned stops and departures: unlike its index, still
+    /// the same visit after an update edited the day
+    public let itemID: String?
 
-    /// The app rebuilds fences from what it stored when it registered them with `CLMonitor`.
-    public init(placeID: String, kind: Kind, center: Coordinate, radius: Double, day: String, index: Int?) {
+    public init(placeID: String, kind: Kind, center: Coordinate, radius: Double, day: String, itemID: String? = nil) {
         self.placeID = placeID
         self.kind = kind
         self.center = center
         self.radius = radius
         self.day = day
-        self.index = index
+        self.itemID = itemID
+    }
+}
+
+extension Fence {
+    /// What the app keeps of the fences it registered: one JSON object, each fence under its id (one
+    /// id twice: the last, as iOS keeps the region registered last).
+    public static func archive(_ fences: [Fence]) throws -> Data {
+        var byID: [String: Fence] = [:]
+        for f in fences { byID[f.id] = f }
+        return try JSONEncoder().encode(byID)
+    }
+
+    /// The fences `archive` kept, each read on its own: one that cannot be read (another build's
+    /// shape, or damaged) is left out and the rest are kept. None when `data` is no such object.
+    public static func unarchive(_ data: Data) -> [String: Fence] {
+        guard let entries = try? JSONDecoder().decode([String: Entry].self, from: data) else { return [:] }
+        return entries.compactMapValues(\.fence)
+    }
+
+    /// The item of `today` this circle stands for, when it is today's (`today`: by the trip's clock at
+    /// the moment it is entered, not the day the app last looked at): a food stop its notification may
+    /// mark, a departure whose train it offers to follow. Nil for a circle of another day (tomorrow's
+    /// first meal, watched from the evening before; a station kept from yesterday), one without an item
+    /// (a snack, the hotel), and an item the day no longer has.
+    public func plannedItem(today: Day?) -> Int? {
+        guard let today, day == today.key, let itemID else { return nil }
+        return today.index(of: itemID)
+    }
+
+    /// One entry of `archive`, nil when it is not a fence this build reads.
+    private struct Entry: Decodable {
+        let fence: Fence?
+
+        init(from decoder: any Decoder) throws {
+            fence = try? Fence(from: decoder)
+        }
     }
 }
 
@@ -49,7 +88,7 @@ public struct FencePlanner: Sendable {
         var seen = Set<String>()
         func add(_ p: Place, _ kind: Fence.Kind, _ day: Day, _ index: Int?, radius: Double) {
             guard out.count < limit, seen.insert(p.id).inserted else { return }
-            out.append(Fence(placeID: p.id, kind: kind, center: p.coordinate, radius: radius, day: day.key, index: index))
+            out.append(Fence(placeID: p.id, kind: kind, center: p.coordinate, radius: radius, day: day.key, itemID: index.flatMap { day.identity(of: $0) }))
         }
         let itinerary = Itinerary(store: store)
         for (i, s) in today.stops where i >= cursor {

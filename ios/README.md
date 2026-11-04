@@ -12,7 +12,7 @@ open JP27.xcodeproj
 
 Project là file sinh ra, không theo dõi thư mục: mỗi lần kéo code mới có thêm, bớt hay đổi tên file Swift, chạy lại `xcodegen` (hoặc lại lệnh `use-profile.py` đã dùng). Thiếu bước này Xcode báo "Cannot find … in scope" cho những gì nằm trong file mới.
 
-Cần Xcode 26 trở lên; Xcode 27 để có mép cuộn mềm trên iOS 27 (xem Liquid Glass). Bản đồ MapLibre được Swift Package Manager tải về ở lần build đầu. Bundle ID, App Group, team, profile và entitlements là build setting trong `Config/Signing.xcconfig`; cấu hình riêng của máy bạn nằm ở `Config/Signing.local.xcconfig` (không commit).
+Cần Xcode 26.4 trở lên (Swift 6.3; CI build bằng Xcode 26.6); Xcode 27 để có mép cuộn mềm trên iOS 27 (xem Liquid Glass). Bản đồ MapLibre được Swift Package Manager tải về ở lần build đầu. Bundle ID, App Group, team, profile và entitlements là build setting trong `Config/Signing.xcconfig`; cấu hình riêng của máy bạn nằm ở `Config/Signing.local.xcconfig` (không commit).
 
 **Simulator** không cần tài khoản: app tự ký để chạy cục bộ. WeatherKit từ chối bản này nên dự báo mây lấy từ Open-Meteo; camera, AR, geofence nền và báo thức chỉ thử được trên máy thật.
 
@@ -33,7 +33,7 @@ node scripts/export-ios.mjs                     # viết lại ios/JP27/Resource
 cd ios/Packages/TripKit && swift test           # chạy được cả trên Linux
 ```
 
-`swift test` đối chiếu đồng hồ lịch trình bằng Swift với đầu ra của `scripts/check-plan.mjs` (file `Tests/TripKitTests/Fixtures/check-plan.txt`; chạy lại `node scripts/check-plan.mjs > …` khi lịch đổi).
+`swift test` đối chiếu đồng hồ lịch trình bằng Swift với đầu ra của `scripts/check-plan.mjs` (file `Tests/TripKitTests/Fixtures/check-plan.txt`), và riêng `PlanFeasibilityTests` kiểm lịch có kịp giờ không. Khi lịch đổi, sinh lại fixture chỉ sau khi gate khả thi đã xanh: `node scripts/check-plan.mjs` thoát với mã 0 (không còn dòng `!`), rồi mới `node scripts/check-plan.mjs > …`. Fixture làm từ một lịch hỏng thì khớp với chính nó.
 
 ## Cấu trúc
 
@@ -144,7 +144,7 @@ Một bộ từ duy nhất, đặt tên theo điều vừa xảy ra chứ không
 | `key` | `.impact(.rigid, 0.75)` | một phím của bàn số trong app làm số tiền đổi; phím không đổi gì (0 khi chưa có số, xoá khi trống, vượt trần) thì im |
 | `done` | `.success` | một việc xong: đánh dấu điểm, đã tới, đã mua, lưu khoản chi hay nạp tiền, chép địa chỉ, đọc xong menu, ghép máy, xử lý khoản trùng |
 | `warn` | `.warning` | xong nhưng có giá: bỏ điểm để kịp lịch |
-| `fail` | `.error` | bấm mà không được: micro bị từ chối, ảnh menu không đọc ra chữ nào |
+| `fail` | `.error` | bấm mà không được: micro bị từ chối, ảnh menu không đọc ra chữ nào, một lần lưu không thành từ nút của app (dấu tròn, Lưu khoản chi, rút tiền hay nạp Suica, đã mua, xử lý khoản trùng, khôi phục khoản bị gộp; alert "Chưa lưu được" nói vì sao). `done` và `warn` chỉ rung khi việc đã lưu được |
 | `notch` | `.levelChange` | thanh trượt tỉ giá chạm một mức có trong bảng, không phải mỗi bước |
 | `.start` / `.stop` | của hệ thống | bắt đầu và kết thúc việc chạy liên tục: theo dõi chuyến, micro, tải bản đồ, ảnh hay gói dịch |
 

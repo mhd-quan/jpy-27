@@ -8,7 +8,9 @@ import TripKit
 /// - on a trip day, on screen: an ordinary stream;
 /// - before or after the trip, on screen: one position each time the app opens, for the distances
 ///   the screens show (the map draws its own dot);
-/// - otherwise: only visits (CLVisit) and up to 20 geofences (region monitoring), which wake the app.
+/// - otherwise: only visits (CLVisit), significant changes and up to 20 geofences (region
+///   monitoring), which wake the app; visits and significant changes only near the trip
+///   (`BackgroundWatch`).
 @Observable final class LocationService: NSObject {
     /// Made in `start()`, from application(_:didFinishLaunchingWithOptions:). AppModel is built with
     /// the App struct, before UIApplicationMain has registered the app with the system, and
@@ -25,6 +27,9 @@ import TripKit
     @ObservationIgnored private(set) var horizontalAccuracy: Double?
     /// km/h over ground, when moving
     @ObservationIgnored private(set) var speedKmh: Double?
+    /// when the latest fix was taken (its own time, not when it was handled): a followed ride measures
+    /// the train's pace with it (`RideLiveService`)
+    @ObservationIgnored private(set) var fixedAt: Date?
     /// true heading, degrees; streamed only while a compass is on screen (`watchHeading`)
     private(set) var heading: Double?
     @ObservationIgnored private var compasses = 0
@@ -35,8 +40,13 @@ import TripKit
     var onFence: ((Fence, Bool) -> Void)?
     /// the permission changed: re-plan what depends on it (fences only exist with Always)
     var onAuthorizationChange: (() -> Void)?
-    /// a significant move in the background: worth re-planning reminders and fences
+    /// a significant move while the app is in the background, only: worth re-planning reminders and
+    /// fences. Never the position `requestLocation` finds on opening the app, whose return to the app
+    /// has re-planned already
     var onMoved: (() -> Void)?
+    /// what is to be watched in the background now (`AppModel.backgroundWatch`), asked each time
+    /// the watch is applied
+    var backgroundWatch: (() -> BackgroundWatch)?
 
     private var liveTask: Task<Void, Never>?
     /// the stream running is the navigation-grade one (a ride)
@@ -47,6 +57,8 @@ import TripKit
     private var lastTrace: (at: Date, at2: Coordinate)?
     /// where and when the last background move re-planned, to keep that cheap
     private var lastMoved: (at: Date, position: Coordinate)?
+    /// what this launch has started or stopped; nil until the first `applyBackgroundWatch`
+    @ObservationIgnored private var watching: BackgroundWatch?
 
     var isAlways: Bool { authorization == .authorizedAlways }
     var isAllowed: Bool { authorization == .authorizedAlways || authorization == .authorizedWhenInUse }
@@ -60,14 +72,29 @@ import TripKit
         m.delegate = self
         m.headingFilter = 3
         authorization = m.authorizationStatus
-        if authorization == .authorizedAlways { startBackgroundWatch() }
+        applyBackgroundWatch()
     }
 
-    /// Visits and significant changes: both wake a suspended or terminated app, at little cost.
-    /// Idempotent; called at launch and when Always is granted.
-    private func startBackgroundWatch() {
-        manager?.startMonitoringVisits()
-        manager?.startMonitoringSignificantLocationChanges()
+    /// Visits and significant changes, started or stopped as `backgroundWatch` says: both wake a
+    /// suspended or terminated app, and both are left running by iOS from one launch to the next,
+    /// so the first call of a launch starts or stops each of them, whatever an earlier build left
+    /// on. After that only a change reaches Core Location. Called at launch, when the permission
+    /// changes, and with every `AppModel.refresh` (the watch's edges are not the trip's days).
+    func applyBackgroundWatch() {
+        guard let manager else { return }
+        let wanted = isAlways ? backgroundWatch?() ?? BackgroundWatch.off : BackgroundWatch.off
+        let was = watching
+        if was?.visits != wanted.visits {
+            if wanted.visits { manager.startMonitoringVisits() } else { manager.stopMonitoringVisits() }
+        }
+        if was?.significantChanges != wanted.significantChanges {
+            if wanted.significantChanges {
+                manager.startMonitoringSignificantLocationChanges()
+            } else {
+                manager.stopMonitoringSignificantLocationChanges()
+            }
+        }
+        watching = wanted
     }
 
     // MARK: Permission
@@ -76,7 +103,8 @@ import TripKit
         manager?.requestWhenInUseAuthorization()
     }
 
-    /// Asked for only when a feature needs it (geofences, journal, rides under the lock screen).
+    /// Asked for only when a feature needs it (geofences, marking stops, the journal, rides under the
+    /// lock screen).
     func requestAlways() {
         manager?.requestAlwaysAuthorization()
     }
@@ -161,8 +189,10 @@ import TripKit
     }
 
     private func accept(_ loc: CLLocation) {
-        guard loc.horizontalAccuracy >= 0, loc.horizontalAccuracy < 200 else { return }
+        // one rule for every fix (`Presence.takes`): precise enough, and not older than the newest used
+        guard Presence.takes(accuracy: loc.horizontalAccuracy, at: loc.timestamp, newest: fixedAt) else { return }
         let p = Coordinate(loc.coordinate.latitude, loc.coordinate.longitude)
+        fixedAt = loc.timestamp
         publish(p)
         if loc.verticalAccuracy >= 0, altitude != loc.altitude.rounded() { altitude = loc.altitude.rounded() }
         horizontalAccuracy = loc.horizontalAccuracy
@@ -185,7 +215,10 @@ import TripKit
 
     // MARK: Geofences
 
-    private static let fenceKey = "fences"
+    /// what each registered circle means (`Fence.archive`), for a relaunch straight into a crossing
+    private static let fenceKey = "fences.v2"
+    /// the same, as builds before item ids kept it (a string per circle, with an item index): removed
+    private static let oldFenceKey = "fences"
     private static let enteredKey = "fences.entered"
     /// an entry into the same circle within this long is the same arrival (GPS jitter at the edge)
     private static let reentry: TimeInterval = 20 * 60
@@ -205,12 +238,10 @@ import TripKit
         } else {
             wanted = []
         }
-        // remember what each circle means, for a relaunch straight into a fence event
-        var info: [String: String] = [:]
-        for f in wanted {
-            info[f.id] = "\(f.kind.rawValue)|\(f.placeID)|\(f.day)|\(f.index.map(String.init) ?? "")|\(f.center.lat)|\(f.center.lng)|\(f.radius)"
-        }
-        Shared.defaults.set(info, forKey: Self.fenceKey)
+        // remember what each circle means, for a relaunch straight into a fence event (none kept when
+        // it cannot be written: a circle then means nothing, rather than what it meant before)
+        Shared.defaults.set(try? Fence.archive(wanted), forKey: Self.fenceKey)
+        Shared.defaults.removeObject(forKey: Self.oldFenceKey)
 
         let ids = Set(wanted.map(\.id))
         let current = manager.monitoredRegions
@@ -244,11 +275,10 @@ import TripKit
         onFence?(fence, true)
     }
 
+    /// What the circle `id` means, as `updateFences` kept it; nil for a circle it does not know (one
+    /// registered by a build before item ids, until the first `updateFences` replaces what it kept).
     private static func fence(_ id: String) -> Fence? {
-        guard let s = (Shared.defaults.dictionary(forKey: fenceKey) as? [String: String])?[id] else { return nil }
-        let f = s.split(separator: "|", omittingEmptySubsequences: false).map(String.init)
-        guard f.count == 7, let kind = Fence.Kind(rawValue: f[0]), let lat = Double(f[4]), let lng = Double(f[5]), let r = Double(f[6]) else { return nil }
-        return Fence(placeID: f[1], kind: kind, center: Coordinate(lat, lng), radius: r, day: f[2], index: Int(f[3]))
+        Shared.defaults.data(forKey: fenceKey).flatMap { Fence.unarchive($0)[id] }
     }
 
     /// A significant change in the background re-plans reminders and fences, but only after a real
@@ -268,7 +298,7 @@ extension LocationService: CLLocationManagerDelegate {
             // called once at launch with the status already known: act on a change only
             guard status != self.authorization else { return }
             self.authorization = status
-            if status == .authorizedAlways { self.startBackgroundWatch() }
+            self.applyBackgroundWatch()
             self.onAuthorizationChange?()
         }
     }
@@ -302,14 +332,25 @@ extension LocationService: CLLocationManagerDelegate {
         Task { @MainActor in self.onVisit?(record) }
     }
 
+    /// Significant changes, and the one position `requestLocation` asks for on opening the app.
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // significant changes while in the background: refresh reminders and fences
         guard let last = locations.last else { return }
         let c = Coordinate(last.coordinate.latitude, last.coordinate.longitude)
+        let at = last.timestamp
+        let accuracy = last.horizontalAccuracy
         Task { @MainActor in
-            self.publish(c)
-            self.onUpdate?(c)
-            self.moved(to: c)
+            // where you are only by the live stream's rule (`accept`): a significant change from the cell
+            // towers, kilometres wide, or a fix delivered after a newer one, would put a followed ride's
+            // pace, the projection and the journal at the wrong place or time
+            if Presence.takes(accuracy: accuracy, at: at, newest: self.fixedAt) {
+                self.fixedAt = at
+                self.publish(c)
+                self.onUpdate?(c)
+            }
+            // in the background only: refresh reminders and fences, a coarse fix included (the phone
+            // moved, which is what a significant change says). On screen, the return to the app has just
+            // done that, and this is usually `requestLocation`'s answer to it
+            if !self.foreground { self.moved(to: c) }
         }
     }
 
@@ -319,4 +360,15 @@ extension LocationService: CLLocationManagerDelegate {
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {}
+}
+
+/// What the phone watches in the background (`LocationService.applyBackgroundWatch`), decided by
+/// `JournalPolicy`.
+nonisolated struct BackgroundWatch: Equatable, Sendable {
+    /// visits (CLVisit): a stay marks its stop, and the journal keeps it
+    var visits: Bool
+    /// significant location changes: a move re-plans reminders and geofences
+    var significantChanges: Bool
+
+    static let off = BackgroundWatch(visits: false, significantChanges: false)
 }

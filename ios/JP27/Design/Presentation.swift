@@ -153,6 +153,8 @@ private struct SheetLayer: ViewModifier {
         content.sheet(item: presented) { top in
             SheetHost(sheet: top.sheet)
                 .modifier(SheetLayer(level: level + 1))
+                // a failed write, said on the top sheet (the tabs say it when no sheet is up)
+                .saveIssueAlert(level: level + 1)
                 .progressiveEdges()
                 .environment(model)
                 .environment(\.zoomSpace, space)

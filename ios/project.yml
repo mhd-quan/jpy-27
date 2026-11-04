@@ -104,7 +104,7 @@ targets:
         # the system wants it prefixed with the bundle id, which the personal team profile changes
         BGTaskSchedulerPermittedIdentifiers: [tech.delphyra.jp27.refresh, "$(PRODUCT_BUNDLE_IDENTIFIER).downloads"]
         NSLocationWhenInUseUsageDescription: Chấm vị trí của bạn trên lịch hôm nay, tính quãng còn lại tới điểm tiếp theo và những chỗ gần đó.
-        NSLocationAlwaysAndWhenInUseUsageDescription: Báo món nên gọi khi tới gần quán, theo dõi ga trên tàu kể cả khi khoá màn hình, và tự ghi nhật ký những nơi đã ghé.
+        NSLocationAlwaysAndWhenInUseUsageDescription: Báo món nên gọi khi tới gần quán, theo dõi ga trên tàu kể cả khi khoá màn hình, tự đánh dấu điểm đã tới trong ngày của chuyến, và ghi những nơi đã ghé trong chuyến khi bạn bật nhật ký.
         NSMotionUsageDescription: Đo tốc độ đi bộ thật để tính giờ đi bộ cho đúng với hai bạn.
         NSCameraUsageDescription: Quét thực đơn và tìm hướng núi Fuji qua camera.
         NSMicrophoneUsageDescription: Nghe câu tiếng Nhật để dịch sang tiếng Việt ngay trên máy.

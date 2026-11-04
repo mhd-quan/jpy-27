@@ -71,22 +71,30 @@ struct RideLiveActivity: Widget {
             } compactLeading: {
                 Image(systemName: RideLook.symbol(a.mode))
                     .foregroundStyle(tint)
+                    .accessibilityLabel(a.line)
             } compactTrailing: {
                 if s.alight {
                     Text("Xuống")
                         .font(.caption.weight(.bold))
                         .foregroundStyle(.orange)
+                        .accessibilityLabel("Chuẩn bị xuống ở \(a.to)")
                 } else if let arrival = s.arrival, arrival > .now {
                     Text(timerInterval: Date.now ... arrival, countsDown: true, showsHours: false)
                         .monospacedDigit()
                         .multilineTextAlignment(.trailing)
                         .frame(width: 44)
                         .foregroundStyle(tint)
+                        // a fixed sentence, not the timer: the real time in Japan, as the lock screen shows
+                        .accessibilityLabel("Tới \(a.to) lúc \(TripTime.clock(arrival))")
                 } else {
                     Text("\(s.stopsLeft)").monospacedDigit().foregroundStyle(tint)
+                        .accessibilityLabel(s.stopsLeft == 1 ? "Còn 1 ga" : "Còn \(s.stopsLeft) ga")
                 }
             } minimal: {
                 RideRing(progress: s.progress, tint: s.alight ? .orange : tint)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(s.alight ? "Chuẩn bị xuống ở \(a.to)" : "\(a.line) tới \(a.to)")
+                    .accessibilityValue(Text("Đã đi \(Int((min(1, max(0, s.progress)) * 100).rounded())) phần trăm"))
             }
             .widgetURL(DeepLink.ride(a.rideID).url)
             .keylineTint(tint)
@@ -188,7 +196,10 @@ private struct RideArrivalText: View {
             Image(systemName: "checkmark.circle.fill")
         } else if let arrival {
             HStack(spacing: 4) {
+                // in Japan's zone whatever the phone's is set to; the real time, also while rehearsing
+                // (the app shows the trip's)
                 Text(arrival, style: .time)
+                    .environment(\.timeZone, TripTime.zone)
                 if arrival > .now {
                     Text("·")
                     Text(timerInterval: Date.now ... arrival, countsDown: true, showsHours: false)

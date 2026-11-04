@@ -94,8 +94,8 @@ public struct CashPlan: Sendable {
     }
 
     public let needs: [Need]
-    public var certain: Int { needs.filter(\.certain).reduce(0) { $0 + $1.yen } }
-    public var possible: Int { needs.reduce(0) { $0 + $1.yen } }
+    public var certain: Int { Yen.total(needs.filter(\.certain).map(\.yen)) }
+    public var possible: Int { Yen.total(needs.map(\.yen)) }
 
     /// Stops from (day, cursor) through the end of the following day.
     public init(store: TripStore, days: [Day], from dayIndex: Int, cursor: Int, horizon: Int = 2) {
@@ -112,7 +112,7 @@ public struct CashPlan: Sendable {
 
     /// What to withdraw so cash on hand covers the certain needs with a margin for small things.
     public func shortfall(onHand: Int, margin: Int = 5000) -> Int {
-        max(0, certain + margin - onHand)
+        max(0, Yen.difference(Yen.total([certain, margin]), onHand))
     }
 }
 
@@ -123,14 +123,14 @@ public struct BudgetStatus: Sendable {
         public let category: SpendCategory
         public let planned: Int
         public let spent: Int
-        public var left: Int { planned - spent }
+        public var left: Int { Yen.difference(planned, spent) }
         public var share: Double { planned > 0 ? Double(spent) / Double(planned) : 0 }
     }
 
     public let rows: [Row]
     public let reserve: Int
-    public var planned: Int { rows.reduce(0) { $0 + $1.planned } + reserve }
-    public var spent: Int { rows.reduce(0) { $0 + $1.spent } }
+    public var planned: Int { Yen.total(rows.map(\.planned) + [reserve]) }
+    public var spent: Int { Yen.total(rows.map(\.spent)) }
 
     public init(budget: Budget, spent: [SpendCategory: Int]) {
         rows = SpendCategory.allCases.map { c in

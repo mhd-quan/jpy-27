@@ -17,7 +17,7 @@ struct BudgetView: View {
     @State private var chosen = 0
 
     private var budget: Budget { model.guide.budget }
-    private var total: Int { budget.total - budget.savings.filter { saving.contains($0.id) }.reduce(0) { $0 + $1.yen } }
+    private var total: Int { Yen.difference(budget.total, Yen.total(budget.savings.filter { saving.contains($0.id) }.map(\.yen))) }
 
     var body: some View {
         ScrollView {
@@ -131,7 +131,7 @@ struct BudgetView: View {
 
     private var food: some View {
         let days = model.days
-        let sum = days.reduce(0) { $0 + $1.meals.total }
+        let sum = Yen.total(days.map(\.meals.total))
         return VStack(alignment: .leading, spacing: 10) {
             SectionTitle("Tiền ăn từng ngày", trailing: Fmt.yen(sum))
             Card {
@@ -171,7 +171,7 @@ struct BudgetView: View {
     // MARK: Transport
 
     private var transport: some View {
-        let sum = budget.transport.reduce(0) { $0 + $1.yen }
+        let sum = Yen.total(budget.transport.map(\.yen))
         return VStack(alignment: .leading, spacing: 10) {
             SectionTitle("Di chuyển", trailing: Fmt.yen(sum))
             Card {
@@ -225,8 +225,8 @@ private struct SpendSummary: View {
     let expenses: [Expense]
 
     private var status: BudgetStatus {
-        var spent: [SpendCategory: Int] = [:]
-        for e in expenses { spent[e.spendCategory, default: 0] += e.yen }
+        // only amounts the keypad could have typed; the others wait under "Khoản cần sửa"
+        let spent = Dictionary(grouping: expenses.filter(\.isCountable), by: \.spendCategory).mapValues { Yen.total($0.map(\.yen)) }
         return BudgetStatus(budget: model.guide.budget, spent: spent)
     }
 

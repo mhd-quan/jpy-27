@@ -18,6 +18,8 @@ export interface Leg {
 
 export interface Stop {
   type: 'stop';
+  /** `s:<place>`, or `s:<place>:<key>` for a place the day comes back to (`s::<key>` without a place) */
+  id: string;
   at?: string;
   place?: string;
   title: string;
@@ -29,6 +31,8 @@ export interface Stop {
 
 export interface Move {
   type: 'move';
+  /** `m:<from>><to>`, or `m:<from>><to>:<key>` when the day repeats that from and to */
+  id: string;
   at?: string;
   leg: Leg;
 }
@@ -62,6 +66,21 @@ export interface Day {
 }
 
 type LegOpts = Partial<Omit<Leg, 'id' | 'line' | 'from' | 'to'>>;
+/** Which visit, when a day comes back to a place (or a from and to): written by hand, never derived */
+interface Keyed {
+  key?: string;
+}
+
+// An item's id is what the app records a visit by (done, skipped, reminders, geofences, the widget).
+// It is written here, not derived from the time or the order: retiming a stop or editing a walk keeps
+// it. A day that comes back to a place (or a from and to) gives each visit a key; scripts/check-ids.mjs
+// keeps ids unique within a day and stable from one version to the next (src/data/id-renames.ts).
+const keyed = (base: string, key: string | undefined) => {
+  if (key === undefined) return base;
+  // ids end up in notification ids, UserDefaults keys and widget links
+  if (!/^[a-z0-9-]+$/.test(key)) throw new Error(`${base}: key "${key}" must be lowercase letters, digits and hyphens`);
+  return `${base}:${key}`;
+};
 
 // Stable id: the same line between the same points (and waypoints) shares geometry.
 const hash = (s: string) => {
@@ -69,21 +88,38 @@ const hash = (s: string) => {
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
   return h.toString(36);
 };
-const leg = (line: LineKey, from: string, to: string, opts: LegOpts = {}, at?: string): Move => ({
-  type: 'move',
-  at,
-  leg: { id: `${line}.${from}.${to}.${hash(JSON.stringify([opts.via ?? [], opts.path ?? []]))}`, line, from, to, ...opts },
-});
-const walk = (from: string, to: string, opts: LegOpts = {}, at?: string) => leg('walk', from, to, opts, at);
-const stop = (at: string | undefined, place: string | undefined, title: string, text?: string, cost?: number, optional?: boolean): Stop => ({
-  type: 'stop',
-  at,
-  place,
-  title,
-  text,
-  cost,
-  optional,
-});
+export const leg = (line: LineKey, from: string, to: string, opts: LegOpts & Keyed = {}, at?: string): Move => {
+  // the key names the visit, not the geometry: it stays out of the leg and its id
+  const { key, ...rest } = opts;
+  return {
+    type: 'move',
+    id: keyed(`m:${from}>${to}`, key),
+    at,
+    leg: { id: `${line}.${from}.${to}.${hash(JSON.stringify([rest.via ?? [], rest.path ?? []]))}`, line, from, to, ...rest },
+  };
+};
+export const walk = (from: string, to: string, opts: LegOpts & Keyed = {}, at?: string) => leg('walk', from, to, opts, at);
+export const stop = (
+  at: string | undefined,
+  place: string | undefined,
+  title: string,
+  text?: string,
+  cost?: number,
+  optional?: boolean,
+  opts: Keyed = {},
+): Stop => {
+  if (!place && opts.key === undefined) throw new Error(`stop "${title}": a stop without a place needs a key`);
+  return {
+    type: 'stop',
+    id: keyed(`s:${place ?? ''}`, opts.key),
+    at,
+    place,
+    title,
+    text,
+    cost,
+    optional,
+  };
+};
 
 export const DAYS: Day[] = [
   {
@@ -100,11 +136,11 @@ export const DAYS: Day[] = [
       leg('keikyu', 'haneda-t3', 'st-shinagawa', { min: '15–20', note: 'Hai người khoảng ¥1.500 cả chặng tới Akihabara. Tính 2–3 giờ từ lúc xuống máy bay tới khách sạn.' }, '11:00'),
       leg('keihinTohoku', 'st-shinagawa', 'st-akihabara', { min: '20' }),
       walk('st-akihabara', 'resol-akihabara', { min: '3' }),
-      stop('12:00', 'resol-akihabara', 'Gửi hành lý', 'Nhận phòng từ 15h. Mỗi người một thẻ IC (Welcome Suica hoặc Suica trên iPhone), nạp khoảng ¥3.000.'),
+      stop('12:00', 'resol-akihabara', 'Gửi hành lý', 'Nhận phòng từ 15h. Mỗi người một thẻ IC (Welcome Suica hoặc Suica trên iPhone), nạp khoảng ¥3.000.', undefined, undefined, { key: 'bags' }),
       walk('resol-akihabara', 'tsumugi', { min: '5' }),
       stop('12:30', 'tsumugi', 'Ramen nước trong ở Tsumugi', 'Nếu nhập cảnh trễ, ăn nhẹ ở ga và để Tsumugi cho buổi tối — đừng kéo vali vào hàng chờ.', 2800),
       walk('tsumugi', 'resol-akihabara', { min: '5' }),
-      stop('15:00', 'resol-akihabara', 'Nhận phòng, tắm, nghỉ'),
+      stop('15:00', 'resol-akihabara', 'Nhận phòng, tắm, nghỉ', undefined, undefined, undefined, { key: 'checkin' }),
       walk('resol-akihabara', 'kanda-myojin', { via: ['manseibashi', [35.6993, 139.7677]], min: '30–45' }),
       stop('16:00', 'manseibashi', 'Manseibashi và sông Kanda', 'Qua cây cầu gạch đỏ mAAch ecute, đi dọc sông Kanda rồi rẽ vào ngõ Kanda.'),
       stop('16:45', 'kanda-myojin', 'Kanda Myōjin', 'Còn sức thì lên đền, nhìn ánh chiều trên mái đỏ.', undefined, true),
@@ -136,7 +172,7 @@ export const DAYS: Day[] = [
       stop('9:30', 'yanaka-ginza', 'Yanaka', 'Phố dân cư với chùa nhỏ, tiệm thủ công, mèo. Đi chậm, đừng vào ngõ có biển riêng tư.'),
       stop('10:35', 'nezu-taiyaki', 'Taiyaki ở Nezu', 'Nướng từng chiếc, có thể hết sớm.', undefined, true),
       walk('nezu-taiyaki', 'nezu-shrine', { min: '5' }),
-      stop('11:00', 'nezu-shrine', 'Nezu Jinja', 'Hàng cổng torii đỏ nhỏ và hiên gỗ sơn son, vắng hơn Fushimi Inari nhiều.'),
+      stop('11:05', 'nezu-shrine', 'Nezu Jinja', 'Hàng cổng torii đỏ nhỏ và hiên gỗ sơn son, vắng hơn Fushimi Inari nhiều.'),
       walk('nezu-shrine', 'st-ueno-hirokoji', { via: [[35.7148, 139.7663], [35.7118, 139.7699]], min: '40', note: 'Khoảng 2,5 km qua bờ hồ Shinobazu. Chân mỏi thì đi Chiyoda Line từ ga Nezu tới Yushima (5 phút) rồi đi bộ 8 phút.' }),
       leg('ginza', 'st-ueno-hirokoji', 'st-asakusa', { min: '6' }),
       walk('st-asakusa', 'owariya', { min: '5' }),
@@ -362,14 +398,14 @@ export const DAYS: Day[] = [
       walk('st-kiyomizu-gojo', 'kiyomizudera', { via: [[34.9967, 135.7745], [34.9958, 135.7804]], min: '35, lên dốc 75 m' }),
       stop('7:45', 'kiyomizudera', 'Kiyomizu-dera', 'Sân khấu gỗ nhìn xuống thành phố trước giờ đông. ¥500/người.', 1000),
       walk('kiyomizudera', 'wargo-gion', { via: ['sannenzaka', [35.0003, 135.7787], [35.0021, 135.7754]], min: '30' }),
-      stop('9:30', 'wargo-gion', 'Thuê kimono ở wargo Gion', 'Gói web từ ¥3.300/người. Mở 10h; slot sớm hơn phải đặt trước. Mang giày riêng để thay lúc trả.', 10000),
+      stop('9:30', 'wargo-gion', 'Thuê kimono ở wargo Gion', 'Gói web từ ¥3.300/người. Mở 10h; slot sớm hơn phải đặt trước. Mang giày riêng để thay lúc trả.', 10000, undefined, { key: 'rent' }),
       walk('wargo-gion', 'yorozuya', { via: ['yasaka-shrine', [35.0046, 135.7766], 'gion-shirakawa'], min: '60–90 tính cả dừng' }),
       stop('10:30', 'yasaka-shrine', 'Yasaka Jinja và Gion Shirakawa', 'Đi các đường được phép, chụp bằng điện thoại, không đuổi theo maiko. Còn dư thời gian trước 12:30 thì dạo Hanamikoji và Ishibe-kōji.'),
       stop('12:30', 'yorozuya', 'Udon hành Kujō ở Yorozuya', 'Quán mở 12:30, tới sớm vài phút để vào lượt đầu; hàng có lúc hơn một giờ.', 3600),
       walk('yorozuya', 'sn-gion-tokuya', { min: '3' }),
       stop('13:30', 'sn-gion-tokuya', 'Warabi mochi ở Gion Tokuya', 'Komori nghỉ thứ Hai nên đổi sang Tokuya trên Hanamikoji. Lấy số khi tới; hàng quá dài thì mua phần mang đi hoặc bỏ.', 2900, true),
       walk('sn-gion-tokuya', 'wargo-gion', { min: '6' }),
-      stop('14:30', 'wargo-gion', 'Trả kimono, nghỉ'),
+      stop('14:30', 'wargo-gion', 'Trả kimono, nghỉ', undefined, undefined, undefined, { key: 'return' }),
       walk('wargo-gion', 'menzo', { via: [[35.0067, 135.7773], [35.0089, 135.7807], [35.0128, 135.7822]], min: '25', note: 'Hoặc Keihan tới Sanjō, Tōzai tới Higashiyama rồi đi bộ 10 phút.' }),
       stop('16:00', 'menzo', 'Udon ở Yamamoto Menzō', 'Đặt slot khoảng 16h; có đặt vẫn có thể chờ 20–30 phút. Trả tiền mặt.', 4400),
       walk('menzo', 'st-higashiyama', { via: ['okazaki'], min: '20' }),

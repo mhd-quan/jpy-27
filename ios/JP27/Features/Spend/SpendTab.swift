@@ -24,6 +24,8 @@ struct SpendTab: View {
     @State private var keptTick = 0
     /// phones paired from the card here; the card leaves as the yes lands, so it is felt from the list
     @State private var paired = 0
+    /// a delete or a pair kept apart that could not be saved (the alert in front says why)
+    @State private var failed = false
 
     var body: some View {
         @Bindable var model = model
@@ -39,7 +41,7 @@ struct SpendTab: View {
                 }
 
                 Section {
-                    SpendDial(expenses: expenses, today: todaySpent)
+                    SpendDial(expenses: counted, today: todaySpent)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
                 }
                 .listRowBackground(Color.clear)
@@ -64,8 +66,8 @@ struct SpendTab: View {
                     Section {
                         ForEach(pairs) { pair in
                             SpendDuplicateCard(pair: pair) { gone in
-                                if let gone { delete(gone) } else { Ledger.keepApart(pair.a.id, pair.b.id, in: context) }
-                                keptTick += 1
+                                let settled = gone.map { model.deleteExpense($0.id) } ?? model.keepApart(pair.a.id, pair.b.id)
+                                if settled { keptTick += 1 } else { failed.toggle() }
                             }
                             .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
                         }
@@ -76,6 +78,25 @@ struct SpendTab: View {
                             .textCase(nil)
                     } footer: {
                         Text("App không tự gộp hai khoản nào. Nếu là một lần trả, giữ khoản của máy đã trả; khoản trả bằng tiền mặt hay Suica được gợi ý sẵn, để ví của máy đó vẫn đúng.")
+                    }
+                }
+
+                let toFix = expenses.filter { !$0.isCountable }
+                if !toFix.isEmpty {
+                    Section {
+                        ForEach(toFix) { e in
+                            SpendFixRow(expense: e, edit: { editing = e }, delete: { delete(e) })
+                                .swipeActions {
+                                    Button("Xoá", systemImage: "trash", role: .destructive) { delete(e) }
+                                }
+                        }
+                    } header: {
+                        Text("Khoản cần sửa")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .textCase(nil)
+                    } footer: {
+                        Text("Số tiền ngoài khoảng \(Fmt.yen(1))–\(Fmt.yen(Yen.maxEntry)) nên không được cộng vào tổng nào. Sửa lại số tiền hoặc xoá khoản.")
                     }
                 }
 
@@ -93,7 +114,7 @@ struct SpendTab: View {
                         HStack(alignment: .firstTextBaseline) {
                             Text(dayTitle(group.date))
                             Spacer()
-                            Text(Fmt.yen(group.items.reduce(0) { $0 + $1.yen })).monospacedDigit()
+                            Text(Fmt.yen(Yen.total(group.items.map(\.yen)))).monospacedDigit()
                         }
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
@@ -107,7 +128,10 @@ struct SpendTab: View {
             // a duplicate settled either way, and a phone paired by its button (a touch is felt by the sync)
             .sensoryFeedback(.done, trigger: keptTick)
             .sensoryFeedback(.done, trigger: paired)
+            .sensoryFeedback(.fail, trigger: failed)
             .navigationTitle("Chi tiêu")
+            // what is written while rehearsing goes to the rehearsal's own ledger, deleted with it
+            .navigationSubtitle(model.rehearsing ? "Đang chạy thử · sổ riêng" : "")
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -132,10 +156,16 @@ struct SpendTab: View {
             // rules as the sync; the other phone's rows count in the budget, not in this phone's purses
             .fileImporter(isPresented: $importing, allowedContentTypes: [.commaSeparatedText, .plainText]) { result in
                 guard case .success(let url) = result else { return }
-                do {
-                    merged = try SpendLedgerFile.merge(url, into: context).summary
-                } catch {
-                    merged = "Không đọc được file: \(error.localizedDescription)"
+                // read off the main actor; only the alert waits for it
+                Task {
+                    do {
+                        merged = try await SpendLedgerFile.merge(url, into: context).summary
+                    } catch let failure as SaveFailure {
+                        // read, but not written: nothing of the file was kept
+                        merged = "Chưa lưu được khoản nào trong file: \(failure.localizedDescription)"
+                    } catch {
+                        merged = "Không đọc được file: \(error.localizedDescription)"
+                    }
                 }
             }
             .alert(merged ?? "", isPresented: Binding(get: { merged != nil }, set: { if !$0 { merged = nil } })) {
@@ -156,12 +186,15 @@ struct SpendTab: View {
 
     // MARK: Figures
 
+    /// The rows that count toward the totals (`Expense.isCountable`); the others wait under
+    /// "Khoản cần sửa".
+    private var counted: [Expense] { expenses.filter(\.isCountable) }
+
     /// Spent today, on a trip day.
     private var todaySpent: Int? {
         guard let today = model.today else { return nil }
         let iso = today.date
-        return expenses.filter { e in e.day == today.key || (e.day == nil && TripTime.isoDate(of: e.at) == iso) }
-            .reduce(0) { $0 + $1.yen }
+        return Yen.total(counted.filter { e in e.day == today.key || (e.day == nil && TripTime.isoDate(of: e.at) == iso) }.map(\.yen))
     }
 
     private var ownedCount: Int {
@@ -189,7 +222,7 @@ struct SpendTab: View {
     private var groups: [SpendDayGroup] {
         // under the day it was counted toward, else the day it was logged
         let dates = Dictionary(model.days.map { ($0.key, $0.date) }, uniquingKeysWith: { a, _ in a })
-        let byDate = Dictionary(grouping: expenses) { e in e.day.flatMap { dates[$0] } ?? TripTime.isoDate(of: e.at) }
+        let byDate = Dictionary(grouping: counted) { e in e.day.flatMap { dates[$0] } ?? TripTime.isoDate(of: e.at) }
         return byDate.keys.sorted(by: >).map { SpendDayGroup(date: $0, items: byDate[$0] ?? []) }
     }
 
@@ -200,8 +233,7 @@ struct SpendTab: View {
     }
 
     private func delete(_ e: Expense) {
-        Ledger.delete(e, in: context)
-        try? context.save()
+        if !model.deleteExpense(e.id) { failed.toggle() }
     }
 
     /// Rows of the two phones that may be one expense logged twice; asked only once both phones'
@@ -243,7 +275,7 @@ private struct SpendArc: Identifiable {
     let end: Double
 
     var share: Double { planned > 0 ? Double(spent) / Double(planned) : 0 }
-    var left: Int { planned - spent }
+    var left: Int { Yen.difference(planned, spent) }
     /// How much of the arc the fill covers: its share, but never less than a nub once anything is
     /// spent, so the first ¥500 on a ¥161.000 line still shows.
     var filled: Double {
@@ -351,10 +383,9 @@ private struct SpendDial: View {
     @State private var drawn = false
 
     private var arcs: [SpendArc] {
-        var spent: [String: Int] = [:]
-        for e in expenses { spent[e.spendCategory.rawValue, default: 0] += e.yen }
+        let spent = Dictionary(grouping: expenses.filter(\.isCountable), by: \.spendCategory.rawValue).mapValues { Yen.total($0.map(\.yen)) }
         let lines = model.guide.budget.lines.filter { $0.yen > 0 }
-        let total = Double(max(1, lines.reduce(0) { $0 + $1.yen }))
+        let total = Double(max(1, Yen.total(lines.map(\.yen))))
         var at = 0.0
         return lines.map { line in
             let length = Double(line.yen) / total
@@ -375,8 +406,8 @@ private struct SpendDial: View {
 
     var body: some View {
         let arcs = self.arcs
-        let planned = arcs.reduce(0) { $0 + $1.planned }
-        let spent = arcs.reduce(0) { $0 + $1.spent }
+        let planned = Yen.total(arcs.map(\.planned))
+        let spent = Yen.total(arcs.map(\.spent))
         let planning = spent == 0
         let chosen = arcs.first { $0.id == selected }
         VStack(spacing: 22) {
@@ -418,7 +449,7 @@ private struct SpendDial: View {
             }
         }
         .animation(.smooth(duration: 0.3), value: selected)
-        .animation(.smooth(duration: 0.6), value: arcs.reduce(0) { $0 + $1.spent })
+        .animation(.smooth(duration: 0.6), value: Yen.total(arcs.map(\.spent)))
     }
 
     private func centre(_ arc: SpendArc?, planned: Int, spent: Int, planning: Bool) -> some View {
@@ -657,6 +688,28 @@ private struct SpendShortcuts: View {
 }
 
 // MARK: - Ledger
+
+/// A row saved with an amount the keypad could not have typed (from a file or the other phone,
+/// before every way in was checked): counted nowhere, shown at the head of the ledger to be fixed
+/// or deleted. Nothing deletes it by itself.
+private struct SpendFixRow: View {
+    let expense: Expense
+    let edit: () -> Void
+    let delete: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SpendLedgerRow(expense: expense)
+            HStack(spacing: 10) {
+                Button("Sửa", systemImage: "square.and.pencil", action: edit)
+                    .buttonStyle(.bordered)
+                Button("Xoá", systemImage: "trash", role: .destructive, action: delete)
+                    .buttonStyle(.bordered)
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+}
 
 /// One expense: its category, where (a place from the data, else the name typed in), when and
 /// how it was paid, the amount.

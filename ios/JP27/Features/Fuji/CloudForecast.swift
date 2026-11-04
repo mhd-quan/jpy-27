@@ -23,7 +23,9 @@ struct CloudForecast: View {
     }
 
     private var columns: [Column] {
-        let from = model.now.addingTimeInterval(-30 * 60)
+        // forecast hours are real instants: the real clock, also while rehearsing (still read
+        // through `model.now`, which redraws this on the minute)
+        let from = model.now.addingTimeInterval(-model.clockOffset - 30 * 60)
         return summit.filter { $0.date >= from }.prefix(18).map { s in
             let h = here.min { abs($0.date.timeIntervalSince(s.date)) < abs($1.date.timeIntervalSince(s.date)) }
             let match = h.flatMap { abs($0.date.timeIntervalSince(s.date)) <= 1800 ? $0 : nil }

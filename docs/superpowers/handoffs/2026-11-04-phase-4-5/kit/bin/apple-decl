@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Print the Swift declaration(s) Apple's documentation gives for a symbol, and its topics.
+# Usage: apple-decl alarmkit/alarmmanager/alarms      (path under /documentation/, lowercase)
+#        apple-decl "swiftdata/modelcontext/rollback()"
+set -euo pipefail
+p=${1#/}; p=${p#documentation/}
+curl -sS --fail "https://developer.apple.com/tutorials/data/documentation/${p}.json" > "${TMPDIR:-/tmp}/apple-decl.$$.json"
+python3 - "${TMPDIR:-/tmp}/apple-decl.$$.json" <<'PY'
+import sys, json
+d = json.load(open(sys.argv[1]))
+md = d.get("metadata", {})
+plats = ", ".join("%s %s" % (p.get("name"), p.get("introducedAt", "")) for p in md.get("platforms", []) if p.get("name") in ("iOS", "macOS"))
+print("#", md.get("title", "?"), "|", plats)
+for s in d.get("primaryContentSections", []):
+    for x in s.get("declarations", []):
+        print("".join(t.get("text", "") for t in x.get("tokens", [])))
+for sec in d.get("topicSections", []):
+    print("##", sec.get("title"), ":", ", ".join(i.rsplit("/", 1)[-1] for i in sec.get("identifiers", [])[:40]))
+PY
+rm -f "${TMPDIR:-/tmp}/apple-decl.$$.json"

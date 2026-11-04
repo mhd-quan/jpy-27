@@ -53,6 +53,12 @@ public enum TripTime {
         return "\(wrapped / 60):\(String(format: "%02d", wrapped % 60))"
     }
 
+    /// The time said for an item: the plan's time when it has one (a train, a table: late or not,
+    /// that time stays), otherwise the begin shown with it, in minutes since the day's midnight.
+    public static func beginLabel(planned: Int?, begin: Double) -> String {
+        planned.map { clock(Double($0)) } ?? clock(begin)
+    }
+
     public static func clock(_ instant: Date) -> String {
         let c = calendar.dateComponents([.hour, .minute], from: instant)
         return "\(c.hour!):\(String(format: "%02d", c.minute!))"
@@ -130,6 +136,8 @@ public enum TripTime {
 
 /// Vietnamese number and money formatting, the way the site writes it.
 public enum Fmt {
+    /// What is shown for a number that is not one (NaN, ±∞)
+    public static let missing = "—"
     /// "¥1.500"
     public static func yen(_ n: Int) -> String {
         "¥" + grouped(n)
@@ -137,7 +145,7 @@ public enum Fmt {
 
     /// "1.500"
     public static func grouped(_ n: Int) -> String {
-        let s = String(abs(n))
+        let s = String(n.magnitude)
         var out = ""
         for (i, ch) in s.enumerated() {
             if i > 0, (s.count - i) % 3 == 0 { out.append(".") }
@@ -148,19 +156,27 @@ public enum Fmt {
 
     /// "1,2 km", "850 m"
     public static func km(_ km: Double) -> String {
-        if km < 1 { return "\(Int((km * 1000 / 10).rounded()) * 10) m" }
+        guard km.isFinite else { return missing }
+        // the unit after rounding: 996 m is a kilometre, not "1000 m"
+        if km < 1 {
+            let metres = Int((km * 1000 / 10).rounded()) * 10
+            if metres < 1000 { return "\(metres) m" }
+        }
         let digits = km < 10 ? 1 : 0
         return decimal(km, digits: digits) + " km"
     }
 
     /// "1,2" with a decimal comma
     public static func decimal(_ x: Double, digits: Int) -> String {
+        guard x.isFinite else { return missing }
         let p = pow(10, Double(digits))
         let r = (x * p).rounded() / p
         if digits == 0 || r == r.rounded() { return grouped(Int(r.rounded())) }
-        let whole = Int(r.rounded(.towardZero))
-        let frac = Int((abs(r - Double(whole)) * p).rounded())
-        return "\(grouped(whole)),\(String(format: "%0\(digits)d", frac))"
+        // the magnitude, and the sign of what is shown: −0,4 keeps it, −0,04 at one digit is "0"
+        let m = abs(r)
+        let whole = Int(m.rounded(.towardZero))
+        let frac = Int(((m - Double(whole)) * p).rounded())
+        return (r < 0 ? "−" : "") + "\(grouped(whole)),\(String(format: "%0\(digits)d", frac))"
     }
 
     /// "12 phút", "1 giờ 40", "2 giờ"

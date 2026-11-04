@@ -21,8 +21,13 @@ struct ExpenseEditor: View {
     @State private var place: String?
     @State private var placeName = ""
     @State private var note = ""
+    /// the note loaded was longer than `LedgerValidation.maxText`: saving keeps only its start
+    @State private var longNote = false
     @State private var ready = false
     @State private var saved = false
+    /// a save that failed: the editor stays, with what was typed, and says why
+    @State private var issue: SaveIssue?
+    @State private var failed = false
     /// kinds tapped; the kind also changes by itself, set up from the place and on picking a place
     @State private var chosen = 0
     /// places chosen in the list under "Ở đâu"; the place set up on opening stays quiet
@@ -70,10 +75,12 @@ struct ExpenseEditor: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) { save() }
-                        .disabled(value <= 0)
+                        .disabled(!Yen.isValidEntry(value))
                 }
             }
             .sensoryFeedback(.done, trigger: saved)
+            .sensoryFeedback(.fail, trigger: failed)
+            .saveIssueAlert($issue) { _ in save() }
             // here, not in the list: the list closes as the place is chosen
             .sensoryFeedback(.pick, trigger: placePicks)
             .onAppear(perform: setUp)
@@ -184,11 +191,22 @@ struct ExpenseEditor: View {
                     .frame(width: 24)
                 TextField("Ghi chú", text: $note)
                     .focused($writing)
+                    .onChange(of: note) { _, text in
+                        if text.count > LedgerValidation.maxText { note = String(text.prefix(LedgerValidation.maxText)) }
+                    }
                     .submitLabel(.done)
                     .onSubmit { writing = false }
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 50)
+            if longNote {
+                Text("Ghi chú dài hơn 500 ký tự; khi lưu chỉ giữ 500 ký tự đầu.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 10)
+            }
         }
         .background(Palette.card, in: .rect(cornerRadius: 22, style: .continuous))
     }
@@ -218,17 +236,19 @@ struct ExpenseEditor: View {
     private func setUp() {
         guard !ready else { return }
         if let e = editing {
-            value = e.yen
+            // an amount the keypad could not have typed starts again from nothing
+            value = Yen.isValidEntry(e.yen) ? e.yen : 0
             category = e.spendCategory
             method = e.payMethod
             dayKey = e.day
             place = e.placeID
             placeName = e.placeName ?? ""
             note = e.note
+            longNote = e.note.count > LedgerValidation.maxText
             ready = true
             return
         }
-        if let yen, yen > 0 { value = min(yen, 9_999_999) }
+        if let yen, yen > 0 { value = min(yen, Yen.maxEntry) }
         place = placeID ?? nearestPlanned()
         let p = model.store.place(place)
         // the day it counts toward: today on the trip; else the day the place is planned for
@@ -256,8 +276,10 @@ struct ExpenseEditor: View {
     }
 
     private func save() {
-        guard value > 0 else { return }
-        let name = placeName.trimmingCharacters(in: .whitespaces)
+        guard Yen.isValidEntry(value) else { return }
+        // held to what the other phone and a file are held to (`LedgerValidation`)
+        let name = String(placeName.trimmingCharacters(in: .whitespaces).prefix(LedgerValidation.maxText))
+        let text = String(note.trimmingCharacters(in: .whitespaces).prefix(LedgerValidation.maxText))
         if let e = editing {
             e.yen = value
             e.category = category.rawValue
@@ -265,18 +287,26 @@ struct ExpenseEditor: View {
             e.placeID = place
             e.placeName = place == nil && !name.isEmpty ? name : nil
             e.day = dayKey
-            e.note = note.trimmingCharacters(in: .whitespaces)
+            e.note = text
             e.touch()
-            try? model.context.save()
-            saved.toggle()
-            dismiss()
+            // a failed write takes the edit back on the row; what was typed stays here
+            if model.persist("Khoản chi") { saved.toggle(); dismiss() } else { fail() }
             return
         }
-        model.logExpense(yen: value, category: category, method: method, placeID: place,
-                         placeName: place == nil && !name.isEmpty ? name : nil, day: dayKey,
-                         note: note.trimmingCharacters(in: .whitespaces))
-        saved.toggle()
-        dismiss()
+        if model.logExpense(yen: value, category: category, method: method, placeID: place,
+                            placeName: place == nil && !name.isEmpty ? name : nil, day: dayKey,
+                            note: text) != nil {
+            saved.toggle()
+            dismiss()
+        } else {
+            fail()
+        }
+    }
+
+    /// Not saved: said here, over the editor, not behind it.
+    private func fail() {
+        issue = model.takeSaveIssue()
+        failed.toggle()
     }
 }
 
@@ -303,6 +333,9 @@ private struct ExpensePlacePicker: View {
                             .foregroundStyle(.secondary)
                         TextField("Chỗ khác, gõ tên", text: $draft)
                             .submitLabel(.done)
+                            .onChange(of: draft) { _, text in
+                                if text.count > LedgerValidation.maxText { draft = String(text.prefix(LedgerValidation.maxText)) }
+                            }
                             .onSubmit(useDraft)
                         if !draft.trimmingCharacters(in: .whitespaces).isEmpty {
                             Button("Dùng", action: useDraft)

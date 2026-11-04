@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Review package that shows generated one-line JSON as a semantic diff instead of a 2 MB line.
+# Usage: review-pkg BASE HEAD OUTFILE
+set -euo pipefail
+base=$1; head=$2; out=$3
+git merge-base --is-ancestor "$base" "$head" || { echo "HEAD not a descendant of BASE" >&2; exit 3; }
+[ "$(git rev-list --count "$base..$head")" -gt 0 ] || { echo "empty range" >&2; exit 3; }
+gen=(':(exclude)ios/JP27/Resources/Trip/*.json' ':(exclude)ios/Shared/schedule.json' ':(exclude)public/**/*.json')
+{
+  echo "# Review package: ${base}..${head} (generated JSON shown as a semantic diff at the end)"
+  echo; echo "## Commits"; git log --oneline "$base..$head"
+  echo; echo "## Files changed"; git diff --stat "$base" "$head"
+  echo; echo "## Diff (excluding generated JSON)"; git diff -U10 "$base" "$head" -- . "${gen[@]}"
+  echo; echo "## Semantic diff of generated JSON"
+  for f in $(git diff --name-only "$base" "$head" -- 'ios/JP27/Resources/Trip/*.json' ios/Shared/schedule.json 'public/**/*.json'); do
+    echo "### $f"
+    python3 - "$f" "$base" "$head" <<'PY'
+import json, subprocess, sys
+f, A, B = sys.argv[1:4]
+def load(rev):
+    r = subprocess.run(["git", "show", f"{rev}:{f}"], capture_output=True, text=True)
+    return json.loads(r.stdout) if r.returncode == 0 and r.stdout else None
+a, b = load(A), load(B)
+out = []
+def walk(x, y, p):
+    if type(x) != type(y): out.append(f"{p}: {json.dumps(x)[:200]} -> {json.dumps(y)[:200]}"); return
+    if isinstance(x, dict):
+        for k in sorted(set(x) | set(y)):
+            if k not in x: out.append(f"{p}.{k}: + {json.dumps(y[k])[:200]}")
+            elif k not in y: out.append(f"{p}.{k}: - {json.dumps(x[k])[:200]}")
+            else: walk(x[k], y[k], f"{p}.{k}")
+    elif isinstance(x, list):
+        if len(x) != len(y): out.append(f"{p}: len {len(x)} -> {len(y)}")
+        for i, (u, v) in enumerate(zip(x, y)): walk(u, v, f"{p}[{i}]")
+    elif x != y: out.append(f"{p}: {json.dumps(x)} -> {json.dumps(y)}")
+walk(a, b, "$")
+print("\n".join(out[:300]) or "(no semantic change)")
+if len(out) > 300: print(f"... {len(out)-300} more")
+PY
+  done
+} > "$out"
+echo "wrote $out: $(git rev-list --count "$base..$head") commit(s), $(wc -c < "$out" | tr -d ' ') bytes"

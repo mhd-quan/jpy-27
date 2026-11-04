@@ -119,8 +119,23 @@ private struct TodayDuring: View {
                 TodayAlwaysCard()
             }
 
+            TodayJournalQuestion()
+
             if let next = model.next {
                 TodayNextCard(day: day, next: next, arrived: $arrived)
+            } else if model.cursor < day.items.count, model.itinerary.isUntimed(day) {
+                // a day with no planned time at all (day 12, the way to the airport), items remaining:
+                // the one the day is at, by name. On any other day, nothing timed ahead (the walk back
+                // to the hotel) is the day's end
+                Card {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Label(untimedTitle(day.items[model.cursor]), systemImage: "arrow.forward.circle.fill")
+                            .font(.headline)
+                        Text("Không có giờ cố định")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             } else {
                 Card {
                     Label("Hết lịch hôm nay", systemImage: "moon.stars.fill")
@@ -160,6 +175,18 @@ private struct TodayDuring: View {
         .animation(.smooth, value: model.replan == nil)
         .sensoryFeedback(.warn, trigger: dropped)
         .sensoryFeedback(.done, trigger: arrived)
+    }
+
+    /// A stop's title, or where a move goes and on what ("Đi bộ → Nankai Namba").
+    private func untimedTitle(_ item: DayItem) -> String {
+        switch item {
+        case .stop(let s):
+            return s.title
+        case .move(let m):
+            let to = model.store.place(m.leg.to)?.name ?? m.leg.to
+            if model.store.mode(of: m.leg) == .walk { return "Đi bộ → \(to)" }
+            return "\(model.store.line(m.leg.line)?.name ?? m.leg.line) → \(to)"
+        }
     }
 }
 
@@ -248,8 +275,8 @@ private struct TodayLateBanner: View {
             }
             if plan.works {
                 Button {
-                    dropped += 1
-                    withAnimation(.snappy) { model.apply(plan) }
+                    // felt only once it is saved; the alert in front says when it is not
+                    if withAnimation(.snappy, { model.apply(plan) }) { dropped += 1 }
                 } label: {
                     Text("Bỏ \(model.dropNames(plan, day))")
                         .frame(maxWidth: .infinity)
@@ -472,8 +499,8 @@ private struct TodayNextActions: View {
 
                 if next.kind != .departure {
                     Button {
-                        arrived.toggle()
-                        withAnimation(.snappy) { model.toggleDone(day, next.index) }
+                        // felt only once it is saved; the alert in front says when it is not
+                        if withAnimation(.snappy, { model.toggleDone(day, next.index) }) { arrived.toggle() }
                     } label: {
                         Label("Đã tới", systemImage: "checkmark")
                             .labelStyle(.iconOnly)
@@ -572,7 +599,7 @@ private struct TodayAfter: View {
 
     var body: some View {
         let visited = model.days.reduce(0) { $0 + model.doneCount($1) }
-        let spent = expenses.reduce(0) { $0 + $1.yen }
+        let spent = Yen.total(expenses.filter(\.isCountable).map(\.yen))
         VStack(alignment: .leading, spacing: Metrics.stack) {
             Card {
                 HStack(spacing: 24) {
@@ -608,13 +635,60 @@ private struct TodayAfter: View {
     }
 }
 
+/// The location journal is off until asked for: asked once, on the first trip day the app is opened,
+/// and answered for good either way (Settings › Nhật ký changes it later, the journal page asks too).
+/// An answer given while rehearsing holds only for that rehearsal (`AppModel.journalAskedRehearsalKey`).
+private struct TodayJournalQuestion: View {
+    @Environment(AppModel.self) private var model
+    @AppStorage(AppModel.journalAskedKey) private var askedForTrip = false
+    @AppStorage(AppModel.journalAskedRehearsalKey) private var askedInRehearsal = false
+
+    private var asked: Bool {
+        get { model.rehearsing ? askedInRehearsal : askedForTrip }
+        nonmutating set {
+            if model.rehearsing { askedInRehearsal = newValue } else { askedForTrip = newValue }
+        }
+    }
+
+    var body: some View {
+        if !asked, !model.journalEnabled {
+            Card {
+                HStack(alignment: .top, spacing: 12) {
+                    GlyphTile(symbol: "book.pages.fill", tint: Palette.ai, size: 34)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Ghi nhật ký vị trí?").font(.headline)
+                        Text("App ghi chỗ đã ghé và đường đã đi để tối xem lại trên bản đồ. Chỉ trong chuyến, chỉ trên máy này. Tắt hay xoá trong Cài đặt.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        HStack(spacing: 8) {
+                            Button("Bật") {
+                                // the card goes with the tap: felt at once, not at its next update
+                                Haptic.press()
+                                model.journalEnabled = true
+                                asked = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                            Button("Không") {
+                                Haptic.press()
+                                asked = true
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        .controlSize(.small)
+                    }
+                }
+            }
+        }
+    }
+}
+
 /// Marking stops by itself, the station alerts and the evening journal need location "Always";
 /// without it the day only follows the plan's clock. Said on the day screen, where it matters,
 /// with the one tap that fixes it: iOS's upgrade prompt the first time, Settings after that.
 private struct TodayAlwaysCard: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openURL) private var openURL
-    @AppStorage("location.askedAlways") private var asked = false
+    @AppStorage(AppModel.locationAskedAlwaysKey) private var asked = false
     @State private var pressed = 0
 
     var body: some View {

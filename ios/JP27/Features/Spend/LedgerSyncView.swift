@@ -6,17 +6,20 @@ import TripKit
 // phone near by asks to share, the pairs that may be one expense logged twice, and the sheet that
 // turns it on and explains it.
 
-/// "Đã đồng bộ với Lan lúc 21:04", under the purses; opens the sync sheet.
+/// "Đã đồng bộ với Lan lúc 21:04", under the purses; opens the sync sheet. A write that failed, on
+/// either phone, shows the red triangle.
 struct SpendSyncLine: View {
     @Environment(AppModel.self) private var model
     let open: () -> Void
 
     var body: some View {
         let sync = model.ledgerSync
+        let problem = sync.standing.isProblem
+        let near = sync.nearby != nil
         Button(action: open) {
             HStack(spacing: 8) {
-                Image(systemName: sync.nearby != nil ? "arrow.triangle.2.circlepath" : "iphone.radiowaves.left.and.right")
-                    .foregroundStyle(sync.nearby != nil ? AnyShapeStyle(SpendPurseTint.suica) : AnyShapeStyle(.secondary))
+                Image(systemName: problem ? "exclamationmark.triangle" : near ? "arrow.triangle.2.circlepath" : "iphone.radiowaves.left.and.right")
+                    .foregroundStyle(problem ? AnyShapeStyle(Palette.sun) : near ? AnyShapeStyle(SpendPurseTint.suica) : AnyShapeStyle(.secondary))
                 Text(sync.status)
                     .lineLimit(1)
                 Spacer(minLength: 4)
@@ -190,9 +193,15 @@ struct LedgerSyncSheet: View {
     @Environment(\.modelContext) private var context
     @State private var name = ""
     @State private var folded: [LedgerTombstone] = []
+    /// why the rows folded as copies could not be read, said where they would be
+    @State private var unreadable: String?
     // felt from the list: the rows pressed leave with the press
     @State private var paired = 0
     @State private var restored = 0
+    /// a row brought back that could not be saved: said here, over the sheet, with "Thử lại"
+    @State private var issue: SaveIssue?
+    @State private var unsaved: LedgerTombstone?
+    @State private var failed = false
 
     var body: some View {
         let sync = model.ledgerSync
@@ -231,7 +240,14 @@ struct LedgerSyncSheet: View {
 
                 if sync.enabled {
                     Section("Bây giờ") {
-                        Label(sync.status, systemImage: sync.nearby != nil ? "arrow.triangle.2.circlepath" : "antenna.radiowaves.left.and.right")
+                        Label(sync.status, systemImage: sync.standing.isProblem ? "exclamationmark.triangle"
+                            : sync.nearby != nil ? "arrow.triangle.2.circlepath" : "antenna.radiowaves.left.and.right")
+                        if sync.rejected > 0 {
+                            // the rows `LedgerMerge.screened` left out of the paired phone's last ledger
+                            Text("Không nhận \(sync.rejected) khoản trong sổ của \(sync.rejectedFrom ?? "máy kia"): số tiền, ghi chú hay ngày không hợp lệ.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
                         if let asking = sync.asking {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("\(asking.name) ở gần và muốn dùng chung sổ chi. Chỉ đồng ý khi máy kia hiện cùng mã này.")
@@ -270,6 +286,16 @@ struct LedgerSyncSheet: View {
                     }
                 }
 
+                if let unreadable {
+                    Section {
+                        Text("Không đọc được các khoản đã gộp: \(unreadable)")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    } header: {
+                        Text("Đã gộp vì ghi trùng")
+                    }
+                }
+
                 if !folded.isEmpty {
                     Section {
                         ForEach(folded) { t in
@@ -284,11 +310,7 @@ struct LedgerSyncSheet: View {
                                             .monospacedDigit()
                                     }
                                     Spacer(minLength: 8)
-                                    Button("Không phải trùng") {
-                                        Ledger.restore(t, in: context)
-                                        folded = Ledger.folded(context)
-                                        restored += 1
-                                    }
+                                    Button("Không phải trùng") { restore(t) }
                                     .buttonStyle(.bordered)
                                     .controlSize(.small)
                                 }
@@ -309,6 +331,10 @@ struct LedgerSyncSheet: View {
             .paperList()
             .sensoryFeedback(.done, trigger: paired)
             .sensoryFeedback(.done, trigger: restored)
+            .sensoryFeedback(.fail, trigger: failed)
+            .saveIssueAlert($issue) { _ in
+                if let unsaved { restore(unsaved) }
+            }
             .navigationTitle("Đồng bộ")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -321,13 +347,40 @@ struct LedgerSyncSheet: View {
             }
             .onAppear {
                 name = sync.name
-                folded = Ledger.folded(context)
+                readFolded()
                 // while this page is open, a phone not paired yet may connect to be asked about
                 sync.setPairing(true)
             }
             .onDisappear { sync.setPairing(false) }
         }
         .presentationDetents([.large])
+    }
+
+    /// A row wrongly taken for a copy, brought back; when that cannot be saved, nothing is.
+    private func restore(_ t: LedgerTombstone) {
+        do {
+            try Ledger.restore(t, in: context)
+        } catch {
+            unsaved = t
+            issue = SaveIssue(what: "Khoản bị gộp nhầm", error: error.localizedDescription)
+            failed.toggle()
+            return
+        }
+        unsaved = nil
+        readFolded()
+        restored += 1
+    }
+
+    /// The rows folded as copies, read again; none offered, and the page saying why, when the records
+    /// could not be read.
+    private func readFolded() {
+        do {
+            folded = try Ledger.folded(context)
+            unreadable = nil
+        } catch {
+            folded = []
+            unreadable = error.localizedDescription
+        }
     }
 
     @ViewBuilder

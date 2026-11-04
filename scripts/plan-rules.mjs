@@ -13,3 +13,12 @@ export const DWELL = {
 
 /** Minutes waited for a departure that has no fixed time, by mode. */
 export const WAIT = { subway: 4, train: 6, shinkansen: 8, bus: 8, shuttle: 6, ferry: 10, cruise: 10, ropeway: 5, cable: 6 };
+
+/**
+ * How late a planned time may be and still count as kept, by kind: the clock's own error (lower
+ * bounds, rounded walks) is about this much. A departure gets less: the train does not wait.
+ */
+export const GRACE = { move: 1, stop: 2 };
+
+/** A stop reached with less than this many minutes to spare is reported as tight. */
+export const TIGHT = 3;

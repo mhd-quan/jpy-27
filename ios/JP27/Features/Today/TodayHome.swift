@@ -811,7 +811,10 @@ private struct HomeChecklist: View {
                         if i > 0 { Divider().padding(.leading, 44) }
                         let on = done.contains(c.when)
                         HStack(alignment: .top, spacing: 6) {
-                            CheckButton(isOn: on) { toggle(c.when) }
+                            CheckButton(isOn: on) {
+                                toggle(c.when)
+                                return true
+                            }
                                 .padding(.top, -10)
                                 .padding(.leading, -10)
                             VStack(alignment: .leading, spacing: 2) {
