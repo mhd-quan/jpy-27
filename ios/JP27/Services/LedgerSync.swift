@@ -444,7 +444,9 @@ import UIKit
                 failure = reason
                 SyncLink.log.error("ledger from a paired phone not written: \(reason, privacy: .public)")
             }
-            if let receipt = peers[k]?.session.received(digest, failure: failure) { seal(receipt, to: k) }
+            // their ledger, held there, ends a failure of theirs only when it is this phone's as it is now
+            // (`cached`: dropped by a merge that changed something)
+            if let receipt = peers[k]?.session.received(digest, failure: failure, current: cached?.digest) { seal(receipt, to: k) }
             guard failure == nil else { return }
             // this phone's ledger as now written goes back when the other would gain something from it
             // (`LedgerMerge.reply`) and it is not already on its way; a row one phone refuses stays
@@ -454,7 +456,7 @@ import UIKit
             confirm(k)
         case .ack(let digest):
             guard partner(peer) != nil else { return }
-            peers[k]?.session.peerHas(LedgerDigest(digest))
+            peers[k]?.session.peerHas(LedgerDigest(digest), current: cached?.digest)
             // stamped against this phone's ledger as it is now: worked out here if a save dropped it,
             // or an ack landing in that moment would never stamp
             _ = await snapshot()

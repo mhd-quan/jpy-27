@@ -104,6 +104,37 @@ import Testing
         #expect(s.standing(current: a) == .synced)
     }
 
+    /// Their own ledger, which they hold, or a late ack of an older one of this phone's, says nothing of the one
+    /// they could not write: "X chưa lưu được" stays, not a flicker to "sending" until the next heartbeat.
+    @Test func aLedgerHeldThatIsNeitherTheFailedNorTheCurrentOneLeavesTheFailure() {
+        var s = LedgerSyncSession()
+        s.didSend(b, at: t0)
+        s.didSend(a, at: t0 + 1)
+        s.peerFailed(a, reason: "disk full")
+        _ = s.received("theirs", failure: nil, current: a)
+        #expect(s.lastFailure == "disk full")
+        #expect(s.standing(current: a) == .failed("disk full"))
+        s.peerHas(b, current: a)
+        #expect(s.standing(current: a) == .failed("disk full"))
+    }
+
+    /// Once they hold this phone's ledger as it is now, the failure of an older one is past, also for the ledgers
+    /// after it.
+    @Test func theCurrentLedgerHeldClearsTheFailure() {
+        var s = LedgerSyncSession()
+        s.didSend(a, at: t0)
+        s.peerFailed(a, reason: "disk full")
+        s.didSend(b, at: t0 + 15)
+        s.peerHas(b, current: b)
+        #expect(s.lastFailure == nil)
+        #expect(s.standing(current: LedgerDigest("c")) == .sending)
+        // their own ledger, the same as this phone's now
+        var t = LedgerSyncSession()
+        t.peerFailed(a, reason: "disk full")
+        _ = t.received("c", failure: nil, current: LedgerDigest("c"))
+        #expect(t.lastFailure == nil)
+    }
+
     @Test func theOtherPhonesReasonIsCut() {
         var s = LedgerSyncSession()
         s.peerFailed(a, reason: String(repeating: "é", count: 500))
@@ -283,6 +314,10 @@ struct TwoPhones {
     var sent = 0
     /// how many of the next sends the radio refuses
     var refusals = 0
+    /// "Đã đồng bộ" stamped while the other phone lacks a row of this one's that it would take (`holds`)
+    var falseStamps: [String] = []
+    /// ledgers sent back as an answer though the other phone would gain nothing from them (`LedgerMerge.reply`)
+    var needlessAnswers = 0
 
     init(_ a: Phone, _ b: Phone) {
         phones = [a, b]
@@ -301,6 +336,18 @@ struct TwoPhones {
         if refusals > 0 { refusals -= 1; return false }
         inbox[1 - from].append(m)
         return true
+    }
+
+    /// The connection dropped and came back: what was on its way is lost, each side starts a new session, and
+    /// both send at once.
+    mutating func reconnect() {
+        inbox = [[], []]
+        phones[0].session = LedgerSyncSession(peerVersion: phones[1].old ? nil : LedgerSyncSession.version)
+        phones[1].session = LedgerSyncSession(peerVersion: phones[0].old ? nil : LedgerSyncSession.version)
+        phones[0].oldSent = nil
+        phones[1].oldSent = nil
+        push(0, force: true)
+        push(1, force: true)
     }
 
     /// The connection opened, or the phones touched (`force`), or the heartbeat.
@@ -322,6 +369,7 @@ struct TwoPhones {
         switch inbox[i].removeFirst() {
         case .state(let remote, let digest):
             let now = phones[i].now
+            let before = phones[i].ledger
             let merged = LedgerMerge.merge(phones[i].ledger, LedgerMerge.screened(remote, now: now).state)
             var failure: String?
             // as `Ledger.apply`: a merge that changes nothing writes nothing, so it cannot fail
@@ -339,16 +387,19 @@ struct TwoPhones {
                 phones[i].oldSent = phones[i].ledger
                 return
             }
-            if let receipt = phones[i].session.received(digest, failure: failure) { _ = radio(i, receipt) }
+            // as `LedgerSync`: this phone's digest is known only while the merge changed nothing
+            let current = phones[i].ledger == before ? phones[i].current : nil
+            if let receipt = phones[i].session.received(digest, failure: failure, current: current) { _ = radio(i, receipt) }
             guard failure == nil else { return }
             let mine = phones[i].ledger, d = phones[i].current
-            if phones[i].session.answers(remote, with: mine, digest: d, now: now), radio(i, .state(mine, digest: d.value)) {
-                phones[i].session.didSend(d, at: now)
+            if phones[i].session.answers(remote, with: mine, digest: d, now: now) {
+                if LedgerMerge.reply(local: mine, remote: remote, now: now) == nil { needlessAnswers += 1 }
+                if radio(i, .state(mine, digest: d.value)) { phones[i].session.didSend(d, at: now) }
             }
             stamp(i)
         case .ack(let d):
             guard !phones[i].old else { return }
-            phones[i].session.peerHas(LedgerDigest(d))
+            phones[i].session.peerHas(LedgerDigest(d), current: phones[i].current)
             stamp(i)
         case .nack(let d, let reason):
             guard !phones[i].old else { return }
@@ -364,8 +415,19 @@ struct TwoPhones {
         while busy { deliver(inbox[1].isEmpty ? 0 : 1) }
     }
 
+    /// "Đã đồng bộ", checked against the truth: the other phone holds every row of this one's it would take.
     mutating func stamp(_ i: Int) {
-        if standing(i) == .synced { phones[i].stamps += 1 }
+        guard standing(i) == .synced else { return }
+        phones[i].stamps += 1
+        if !holds(1 - i, i) { falseStamps.append("phone \(i) stamped while phone \(1 - i) lacks a row it would take") }
+    }
+
+    /// Phone `j` gains nothing from phone `i`'s ledger that it would take, by its clock set back by `setBack`:
+    /// the clocks run on while the phones talk, and a row dated ahead that `j` refused when it screened may be
+    /// one it takes by now.
+    func holds(_ j: Int, _ i: Int, setBack: TimeInterval = 20_000) -> Bool {
+        let other = phones[j]
+        return LedgerMerge.merge(other.ledger, LedgerMerge.screened(phones[i].ledger, now: other.now - setBack).state) == other.ledger
     }
 
     /// The heartbeat, 15 seconds on.
@@ -635,6 +697,72 @@ struct TwoPhones {
                 return
             }
         }
+    }
+
+    /// The 1.5 review's shape: edits whenever, messages on their way or not; a reconnect or none, losing what
+    /// was on its way; an older build (every fifth run) whose writes fail too; sends the radio refuses. At every
+    /// stamp, the truth: the other phone lacks no row of this one's that it would take (`TwoPhones.holds`). An
+    /// answer goes only when the other phone would gain something (`LedgerMerge.reply`). They always go quiet,
+    /// and then both say synced, and are (beside an older build, never synced).
+    @Test(arguments: [UInt64(15), 16, 17, 99, 1234])
+    func editsInFlightReconnectsAndTheTruth(seed: UInt64) {
+        var g = SplitMix(seed: seed)
+        var problems: [String] = []
+        for run in 0..<600 {
+            let skews: [TimeInterval] = [0, 0, 2 * 86400, -2 * 86400, 86400 + 30, -(86400 + 30)]
+            var a = TwoPhones.Phone(ledger: randomState(&g), now: now.addingTimeInterval(skews.randomElement(using: &g)!))
+            var b = TwoPhones.Phone(ledger: randomState(&g), now: now.addingTimeInterval(skews.randomElement(using: &g)!))
+            if Int.random(in: 0..<4, using: &g) == 0 { b.salt = "b:" }
+            if run % 5 == 0 { b.old = true }
+            a.failing = Int.random(in: 0..<2, using: &g)
+            b.failing = Int.random(in: 0..<3, using: &g)
+            var p = TwoPhones(a, b)
+            p.refusals = Int.random(in: 0..<3, using: &g)
+            var edits = Int.random(in: 0..<5, using: &g)
+            var reconnects = Int.random(in: 0..<2, using: &g)
+            p.push(0, force: true)
+            p.push(1, force: true)
+            var quiet = 0
+            var steps = 0
+            while quiet < 3, steps < 600 {
+                steps += 1
+                let ready = (0..<2).filter { !p.inbox[$0].isEmpty }
+                let roll = Int.random(in: 0..<20, using: &g)
+                if edits > 0, roll == 0 {
+                    // an edit, whether or not messages are on their way
+                    edits -= 1
+                    let i = Int.random(in: 0..<2, using: &g)
+                    p.edit(i, LedgerRecord(id: id(100 + edits), yen: 700, category: "food", method: "cash", at: p.phones[i].now,
+                                           origin: i == 0 ? "a" : "b"))
+                    quiet = 0
+                } else if reconnects > 0, roll == 1 {
+                    reconnects -= 1
+                    p.reconnect()
+                    quiet = 0
+                } else if !ready.isEmpty, roll > 2 {
+                    p.deliver(ready.randomElement(using: &g)!)
+                } else {
+                    let before = p.sent
+                    p.tick()
+                    quiet = ready.isEmpty && edits == 0 && reconnects == 0 && p.sent == before && !p.busy ? quiet + 1 : 0
+                }
+            }
+            problems += p.falseStamps.map { "run \(run): \($0)" }
+            if p.needlessAnswers > 0 { problems.append("run \(run): \(p.needlessAnswers) answer(s) the other would gain nothing from") }
+            guard quiet == 3 else {
+                problems.append("run \(run) never went quiet: \(p.sent) messages")
+                continue
+            }
+            if b.old {
+                if p.standing(0) == .synced { problems.append("run \(run): synced beside an older build") }
+            } else if p.standing(0) != .synced || p.standing(1) != .synced {
+                problems.append("run \(run) quiet but \(p.standing(0)) / \(p.standing(1))")
+            } else if !p.holds(1, 0) || !p.holds(0, 1) {
+                problems.append("run \(run) quiet and synced, but a phone lacks a row it would take")
+            }
+        }
+        let found = problems.count
+        #expect(found == 0, "seed \(seed), first: \(problems.prefix(3))")
     }
 
     /// The reply rule alone (`LedgerMerge.reply`, R-53): each side answers a ledger with its own only when the

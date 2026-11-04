@@ -15,11 +15,12 @@ public struct LedgerDigest: Codable, Sendable, Hashable {
 ///
 /// A ledger counts as synced only once the other phone has written it: it says so with an ack, or by sending
 /// its own ledger, which it sends only once stored. Until then the ledger is sent again at each heartbeat
-/// `resendAfter` on, and at once after a nack. The ledgers the other phone is known to hold are kept as a set,
-/// not one slot: two phones may stay different on a row one of them refuses (`LedgerMerge.reply`), or on a merge
-/// tie, or work out different digests for one ledger; with one slot, hearing "I hold yours" and then their own
-/// ledger would forget the first, and the two would resend to each other for ever. A phone sends a given ledger
-/// at most once per `resendAfter` until it is held, so with nothing new written the two always go quiet.
+/// `resendAfter` on; after a nack it is due at once, and sent at the next heartbeat. The ledgers the other phone is
+/// known to hold are kept as a set, not one slot: two phones may stay different on a row one of them refuses
+/// (`LedgerMerge.reply`), or on a merge tie, or work out different digests for one ledger; with one slot, hearing
+/// "I hold yours" and then their own ledger would forget the first, and the two would resend to each other for
+/// ever. A phone sends a given ledger at most once per `resendAfter` until it is held, so with nothing new written
+/// the two always go quiet.
 ///
 /// A build from before acknowledgements never acks: it is sent each ledger once (as before), and it is never
 /// counted as synced, since what it holds cannot be known.
@@ -35,8 +36,8 @@ public struct LedgerSyncSession: Sendable {
     /// during a rehearsal: nothing is sent, nothing acknowledged
     public var paused = false
     /// why the other phone could not write the last ledger it said it could not (its nack); cleared once it
-    /// holds one
-    public private(set) var lastFailure: String?
+    /// holds that ledger, or this phone's as it is now (`peerHas`)
+    public var lastFailure: String? { failure?.reason }
     /// why this phone could not write the other's last ledger; cleared by the next one written
     public private(set) var unsaved: String?
 
@@ -44,10 +45,17 @@ public struct LedgerSyncSession: Sendable {
     private var held: Set<LedgerDigest> = []
     /// the last ledger handed to the radio, and when
     private var sent: Sent?
+    /// the last ledger the other phone could not write (its nack), and why
+    private var failure: Failure?
 
     private struct Sent: Sendable {
         var digest: LedgerDigest
         var at: Date
+    }
+
+    private struct Failure: Sendable {
+        var digest: LedgerDigest
+        var reason: String
     }
 
     /// `peerVersion`: the version in the other phone's greeting (nil from a build before acknowledgements).
@@ -60,18 +68,22 @@ public struct LedgerSyncSession: Sendable {
         sent = Sent(digest: d, at: at)
     }
 
-    /// The other phone holds this ledger: it acked it, or sent it as its own.
-    public mutating func peerHas(_ d: LedgerDigest) {
+    /// The other phone holds this ledger: it acked it, or sent it as its own. Its failure to write one of this
+    /// phone's (`lastFailure`) is past once it holds that ledger, or this phone's as it is now (`current`, nil when
+    /// not known); a ledger of its own or a late ack of an older one says nothing of it, and "X chưa lưu được"
+    /// stays rather than flicker to "sending" until the next heartbeat.
+    public mutating func peerHas(_ d: LedgerDigest, current: LedgerDigest? = nil) {
         held.insert(d)
-        lastFailure = nil
+        guard let failure else { return }
+        if failure.digest == d || current.map(held.contains) == true { self.failure = nil }
     }
 
-    /// The other phone could not write this ledger (its nack): it is due again at once, and `lastFailure` says
-    /// why. It takes back an earlier ack of the same ledger: a row it refused then, dated too far ahead of its
-    /// clock, may be one it takes now, and that write is what failed. A nack for an older ledger leaves a newer
-    /// one on its way alone.
+    /// The other phone could not write this ledger (its nack): it is due again at once (sent at the next
+    /// heartbeat), and `lastFailure` says why. It takes back an earlier ack of the same ledger: a row it refused
+    /// then, dated too far ahead of its clock, may be one it takes now, and that write is what failed. A nack for
+    /// an older ledger leaves a newer one on its way alone.
     public mutating func peerFailed(_ d: LedgerDigest, reason: String) {
-        lastFailure = Self.clipped(reason)
+        failure = Failure(digest: d, reason: Self.clipped(reason))
         held.remove(d)
         if sent?.digest == d { sent = nil }
     }
@@ -80,7 +92,7 @@ public struct LedgerSyncSession: Sendable {
     public mutating func disconnected() {
         held = []
         sent = nil
-        lastFailure = nil
+        failure = nil
         unsaved = nil
     }
 
@@ -105,13 +117,13 @@ public struct LedgerSyncSession: Sendable {
     /// phone wrote it (`failure` nil) or could not (`failure`, why). Returns what goes back at once: `.ack` when
     /// written, `.nack` with the reason when not; nothing while paused, to a build that never acks, or for a
     /// ledger that came without a digest. A ledger written is one the other phone holds: it sends only what it
-    /// has stored.
-    public mutating func received(_ digest: String?, failure: String?) -> SyncPayload? {
+    /// has stored (`peerHas`, with this phone's `current` ledger when known).
+    public mutating func received(_ digest: String?, failure: String?, current: LedgerDigest? = nil) -> SyncPayload? {
         guard !paused else { return nil }
         unsaved = failure.map(Self.clipped)
         guard acks, let digest else { return nil }
         guard let failure else {
-            peerHas(LedgerDigest(digest))
+            peerHas(LedgerDigest(digest), current: current)
             return .ack(digest: digest)
         }
         return .nack(digest: digest, reason: Self.clipped(failure))
