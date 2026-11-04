@@ -154,6 +154,24 @@ Rung nhẹ trước đây (`press` là `.soft` 0,3, `snap` là `.soft` 0,5) gầ
 
 Sang tab khác rung một nhịp `page` (`sensoryFeedback` trên `TabView`, theo `model.tab`, nên cả khi app tự chuyển tab).
 
+## Chuyển động
+
+Một bộ năm curve duy nhất, đặt tên theo điều đang chuyển động chứ không theo số (`enum Motion` trong `Design/Motion.swift`), như bộ rung ở trên: cùng một loại khoảnh khắc thì chuyển động như nhau ở mọi trang. Animation mới dùng token, không viết `.snappy(`, `.spring(`… tại chỗ.
+
+| Tên | Là | Khi nào |
+|---|---|---|
+| `press` | `.spring(duration: 0.3, bounce: 0.28)` | ngón tay đang đè lên: nút bấm, phím, một cú kéo vừa thả |
+| `pick` | `.snappy(duration: 0.25)` | chọn một trong vài thứ: chip, dấu chọn, hạng mục, vệt sáng đánh dấu, số tiền trên bàn số |
+| `arrive` | `.easeOut(duration: 0.2)` | thứ chưa có nay mới tới: ảnh, snapshot, tiêu đề. Không dùng khi lấy từ cache (hiện ngay), và không đặt trong `drawingGroup` |
+| `settle` | `.spring(duration: 0.38, bounce: 0.14)` | bảng, dải hay thẻ về chỗ nghỉ. `settle(velocity:)` là bản nối tiếp tốc độ lúc tay thả |
+| `travel` | `.smooth(duration: 1.0)` | một quãng dài mắt đi theo: camera bay, bìa lật, vòng đồng hồ vẽ ra |
+
+`settle` là thuộc tính, `settle(velocity:)` là hàm: `.animation(Motion.settle, value: x)` và `withAnimation(Motion.settle(velocity: v))` đều rõ nghĩa.
+
+**Reduce Motion.** Đọc `@Environment(\.accessibilityReduceMotion)` rồi đi qua `Motion.reduced(token, reduce)`; hàm trả `Animation?`. Khi `reduce` tắt thì trả đúng token. Khi bật: `travel` thành `nil`, `arrive` giữ nguyên (đã là một cú ease ngắn), còn mọi spring (`press`, `pick`, `settle`, `settle(velocity:)`) thành ease-out 0,15 giây, không nảy. `nil` nghĩa là không animation: chỗ gọi nhảy thẳng tới đích, bằng `withAnimation(nil) { … }` hoặc `.animation(nil, value: x)`. Camera vì vậy không bay mà nhảy tới.
+
+**Ngoại lệ `// motion: one-off`.** Chỉ hai loại được viết curve riêng, và dòng đó phải có comment `// motion: one-off` kèm lý do: một curve phải chạy theo thời lượng của chính bàn phím hệ thống, và cú trôi chậm 10 giây của ảnh bìa (nó không phải một khoảnh khắc mà là nền chuyển động). Mọi curve khác thuộc về một trong năm token.
+
 ## Liquid Glass
 
 Theo [Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass) và [Build a SwiftUI app with the new design](https://developer.apple.com/videos/play/wwdc2025/323/):
