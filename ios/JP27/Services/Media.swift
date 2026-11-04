@@ -5,6 +5,7 @@ import Observation
 import os
 import Photos
 import SwiftUI
+import Synchronization
 import TripKit
 import UIKit
 
@@ -530,6 +531,10 @@ enum HeroExporter {
     static let shared = Speaker()
     private let synth = AVSpeechSynthesizer()
     private(set) var speaking: String?
+    /// `speaking != nil`, readable from Nghe's audio thread: the microphone's buffers are dropped
+    /// while the app speaks, so Nghe does not write down the app's own voice (`.measurement` has no
+    /// echo cancelling)
+    let voice = SpeakingFlag()
 
     override init() {
         super.init()
@@ -552,7 +557,14 @@ enum HeroExporter {
         u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
         u.rate = slow ? 0.38 : AVSpeechUtteranceDefaultSpeechRate
         speaking = ja
+        voice.set(true)
         synth.speak(u)
+    }
+
+    /// Nghe stopped while a line is being read: the session, its category already given back, is
+    /// the Speaker's to end once nothing is left to say (`ended`).
+    func adoptSession() {
+        ownsSession = true
     }
 
     /// An utterance ended or was cut off: once nothing is left to say, the music ducked for it
@@ -560,7 +572,10 @@ enum HeroExporter {
     fileprivate func ended(_ text: String) {
         // the same line again cuts this one off: still speaking it
         guard !synth.isSpeaking else { return }
-        if speaking == text { speaking = nil }
+        if speaking == text {
+            speaking = nil
+            voice.set(false)
+        }
         guard ownsSession else { return }
         ownsSession = false
         // Nghe may have taken the session over meanwhile: it is Nghe's to end then
@@ -568,6 +583,16 @@ enum HeroExporter {
         guard session.category != .playAndRecord else { return }
         try? session.setActive(false, options: .notifyOthersOnDeactivation)
     }
+}
+
+/// Whether the app is speaking, set on the main actor and read on the audio thread: one lock-free
+/// atomic, nothing else.
+nonisolated final class SpeakingFlag: Sendable {
+    private let on = Atomic<Bool>(false)
+
+    func set(_ value: Bool) { on.store(value, ordering: .releasing) }
+
+    var isOn: Bool { on.load(ordering: .acquiring) }
 }
 
 extension Speaker: AVSpeechSynthesizerDelegate {

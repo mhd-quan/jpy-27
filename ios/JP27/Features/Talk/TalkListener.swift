@@ -3,6 +3,7 @@ import Foundation
 import Observation
 import Speech
 import TripKit
+import UIKit
 
 /// One heard sentence.
 struct TalkSentence: Identifiable, Hashable {
@@ -40,7 +41,18 @@ struct TalkSentence: Identifiable, Hashable {
     /// the Japanese model to download) when the screen closed finds it moved on, and turns nothing on
     private var attempt = 0
     /// the audio session is ours (active, ducking whatever else plays)
-    private var sessionActive = false
+    @ObservationIgnored private var sessionActive = false
+    /// the session as it was before listening, given back once by `stop()`
+    @ObservationIgnored private var prior: AudioSetup?
+    /// what takes the audio away while listening (a call, Siri, a new route, the app left): one
+    /// set per listen, removed first thing by `stop()`
+    @ObservationIgnored private var observers: [any NSObjectProtocol] = []
+
+    private struct AudioSetup {
+        let category: AVAudioSession.Category
+        let mode: AVAudioSession.Mode
+        let options: AVAudioSession.CategoryOptions
+    }
 
     init(scenarios: [Scenario]) {
         matcher = HeardMatcher(scenarios: scenarios)
@@ -49,10 +61,11 @@ struct TalkSentence: Identifiable, Hashable {
     /// Never leave the microphone or the ducked audio session behind with the screen that owned them.
     isolated deinit {
         resultsTask?.cancel()
+        unwatch()
         engine?.stop()
         engine?.inputNode.removeTap(onBus: 0)
         continuation?.finish()
-        if sessionActive { try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation) }
+        giveSessionBack()
     }
 
     var isListening: Bool { state == .listening }
@@ -100,7 +113,7 @@ struct TalkSentence: Identifiable, Hashable {
             try await analyzer.start(inputSequence: stream)
             // stopped while the analyzer started: stop() has finished it, the microphone stays off
             guard mine == attempt else { return }
-            try startAudio(feeding: continuation, as: format)
+            try startAudio(feeding: continuation, as: format, listen: mine)
             state = .listening
         } catch {
             guard mine == attempt else { return }
@@ -112,16 +125,14 @@ struct TalkSentence: Identifiable, Hashable {
     func stop() async {
         attempt += 1
         let mine = attempt
+        unwatch()
         engine?.stop()
         engine?.inputNode.removeTap(onBus: 0)
         engine = nil
         continuation?.finish()
         continuation = nil
         // the other app's audio comes back up at once, not after the last words are transcribed
-        if sessionActive {
-            sessionActive = false
-            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        }
+        giveSessionBack()
         let analyzer = self.analyzer
         self.analyzer = nil
         transcriber = nil
@@ -161,18 +172,78 @@ struct TalkSentence: Identifiable, Hashable {
         sentences.append(TalkSentence(id: UUID(), ja: text, hit: matcher.best(for: text)))
     }
 
-    private func startAudio(feeding continuation: AsyncStream<AnalyzerInput>.Continuation, as format: AVAudioFormat) throws {
+    private func startAudio(feeding continuation: AsyncStream<AnalyzerInput>.Continuation, as format: AVAudioFormat, listen: Int) throws {
         let session = AVAudioSession.sharedInstance()
+        // on the main actor, in order with the Speaker's (an exception to contract § 4.2 until Task 4.2)
+        if prior == nil { prior = AudioSetup(category: session.category, mode: session.mode, options: session.categoryOptions) }
         try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
         sessionActive = true
         let engine = AVAudioEngine()
         let input = engine.inputNode
-        let feed = TalkAudioFeed(from: input.outputFormat(forBus: 0), to: format, continuation: continuation)
+        // `.measurement` cancels no echo: what the app reads aloud is not heard
+        let feed = TalkAudioFeed(from: input.outputFormat(forBus: 0), to: format, continuation: continuation, muted: Speaker.shared.voice)
         TalkAudioFeed.install(feed, on: input)
         engine.prepare()
         try engine.start()
         self.engine = engine
+        watch(engine, listen: listen)
+    }
+
+    /// A call or Siri (an interruption begins), a new route (the engine stops itself on a
+    /// configuration change, AirPods coming or going) or the app left: listening stops, and the
+    /// screen says so.
+    private func watch(_ engine: AVAudioEngine, listen: Int) {
+        unwatch()
+        observers = [
+            observe(AVAudioSession.interruptionNotification, object: AVAudioSession.sharedInstance(), listen: listen) { note in
+                // only its beginning: once it ends, Nghe stays stopped until tapped again
+                (note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt) == AVAudioSession.InterruptionType.began.rawValue
+            },
+            observe(.AVAudioEngineConfigurationChange, object: engine, listen: listen),
+            observe(UIApplication.didEnterBackgroundNotification, object: nil, listen: listen),
+        ]
+    }
+
+    /// Only Sendable values leave the notification's block: the listen it belongs to, and whether
+    /// it takes the audio.
+    private func observe(_ name: Notification.Name, object: Any?, listen: Int,
+                         when takes: @escaping @Sendable (Notification) -> Bool = { _ in true }) -> any NSObjectProtocol {
+        NotificationCenter.default.addObserver(forName: name, object: object, queue: .main) { [weak self] note in
+            guard takes(note) else { return }
+            Task { @MainActor in await self?.audioTaken(listen) }
+        }
+    }
+
+    private func unwatch() {
+        for o in observers { NotificationCenter.default.removeObserver(o) }
+        observers = []
+    }
+
+    /// The audio was taken: stop once, and only the listen that is still running (a stop since,
+    /// or a second notification for the same call, finds `attempt` moved on).
+    private func audioTaken(_ listen: Int) async {
+        guard listen == attempt, state == .listening else { return }
+        await stop()
+    }
+
+    /// The session as it was before listening (category, mode, options), then deactivated so what
+    /// another app plays comes back up. While the Speaker is reading a line the session stays on
+    /// for it, and the Speaker ends it after the line (`Speaker.adoptSession`).
+    private func giveSessionBack() {
+        let session = AVAudioSession.sharedInstance()
+        // on the main actor, in order with the Speaker's (an exception to contract § 4.2 until Task 4.2)
+        if let prior {
+            self.prior = nil
+            try? session.setCategory(prior.category, mode: prior.mode, options: prior.options)
+        }
+        guard sessionActive else { return }
+        sessionActive = false
+        if Speaker.shared.speaking != nil {
+            Speaker.shared.adoptSession()
+        } else {
+            try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        }
     }
 }
 
@@ -183,11 +254,14 @@ nonisolated final class TalkAudioFeed: @unchecked Sendable {
     private let converter: AVAudioConverter?
     private let target: AVAudioFormat
     private let continuation: AsyncStream<AnalyzerInput>.Continuation
+    /// the app is speaking (`Speaker.voice`): its buffers are dropped
+    private let muted: SpeakingFlag
 
-    init(from source: AVAudioFormat, to target: AVAudioFormat, continuation: AsyncStream<AnalyzerInput>.Continuation) {
+    init(from source: AVAudioFormat, to target: AVAudioFormat, continuation: AsyncStream<AnalyzerInput>.Continuation, muted: SpeakingFlag) {
         converter = source == target ? nil : AVAudioConverter(from: source, to: target)
         self.target = target
         self.continuation = continuation
+        self.muted = muted
     }
 
     /// Installed from a nonisolated context with a @Sendable block, so the tap does not inherit
@@ -199,6 +273,8 @@ nonisolated final class TalkAudioFeed: @unchecked Sendable {
     }
 
     func push(_ buffer: AVAudioPCMBuffer) {
+        // the app's own voice, through the speaker: not a sentence heard
+        guard !muted.isOn else { return }
         guard let converter else {
             continuation.yield(AnalyzerInput(buffer: buffer))
             return

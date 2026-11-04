@@ -680,3 +680,22 @@ trả lại "Đặt tự động" sau các bước đó.
    - **Đạt** khi khoản 123 ¥ không mất hẳn: trong container của app (Xcode › Devices › Download Container) có
      `Library/Application Support/Trip-rehearsal-kept-<số>.store`, và Console (subsystem `tech.delphyra.jp27`, category
      `records`) có đúng một dòng "a rehearsal at about now was ended…". Mở lại app lần nữa: không có dòng thứ hai.
+4. **Cuộc gọi hay Siri trong lúc Nghe.** Sổ tay › Nghe và dịch › bấm nghe (nút đổi sang "đang nghe").
+   - Gọi tới máy từ máy khác (hay gọi FaceTime âm thanh). **Đạt** khi ngay lúc chuông reo, màn Nghe không còn "đang
+     nghe" (nút trở về như trước khi bấm); tắt cuộc gọi, mở lại JP27: vẫn đứng yên, bấm thì nghe lại được.
+   - Làm lại với "Hey Siri" / giữ nút sườn. **Đạt** như trên.
+   - Đang nghe, kết nối hay tháo AirPods. **Đạt** khi Nghe dừng (không treo ở "đang nghe" mà không chép gì).
+   - Đang nghe, về màn hình chính rồi mở lại JP27. **Đạt** khi Nghe đã dừng.
+5. **Nhạc trở lại sau Nghe và sau giọng đọc.** Mở Apple Music (hay Spotify), phát một bài, quay lại JP27.
+   - Bấm nghe: nhạc nhỏ lại. Bấm dừng. **Đạt** khi nhạc to lại trong vòng một giây.
+   - Sau đó, ở Sổ tay, bấm đọc một câu (nút loa). **Đạt** khi nhạc nhỏ lại trong lúc đọc và **to lại** khi đọc xong (bản cũ:
+     nhạc nhỏ mãi tới khi tắt app).
+   - Bấm đọc một câu khi chưa từng mở Nghe. **Đạt** khi nhạc to lại khi đọc xong.
+6. **Nghe không chép giọng của app.** Đang nghe, bấm đọc một câu trả lời gợi ý (loa ngoài, không tai nghe). **Đạt** khi
+   câu app vừa đọc **không** xuất hiện trong bản chép; nói một câu tiếng Nhật sau đó (hay mở một video tiếng Nhật) thì
+   câu đó được chép (Nghe không bị điếc sau khi app đọc).
+7. **Dừng Nghe khi app đang đọc (Q5).** Phát nhạc như bước 5. Đang nghe, bấm đọc một câu dài (đọc chậm) và bấm dừng Nghe
+   khi câu mới đọc được nửa.
+   - **Đạt** khi câu đọc tiếp tới hết (không bị cắt), nhạc to lại sau khi câu đọc xong, và bấm nghe lần nữa thì Nghe chép
+     được câu nói tiếp theo.
+   - **Không đạt** nếu câu bị cắt hay nhạc không to lại: ghi lại, bản sửa đã định sẵn ở report Task 3.4b.
