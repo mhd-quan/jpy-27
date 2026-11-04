@@ -483,7 +483,7 @@ private struct TripSection: View {
                 SettingsPage(title: "Chạy thử") { RehearsalSection() }
             } label: {
                 SettingsLabel(title: "Chạy thử", symbol: "clock.arrow.circlepath", tint: .purple,
-                              value: model.clockOffset == 0 ? "Tắt" : "Đang chạy")
+                              value: model.rehearsing ? "Đang chạy" : "Tắt")
             }
         }
     }
@@ -1062,6 +1062,10 @@ private struct RehearsalSection: View {
     @Environment(AppModel.self) private var model
     @State private var picked = Date()
     @State private var seeded = false
+    /// what the picker was set to, and whether that was the clock as it is: left there, it means
+    /// "now" however long the page stays open
+    @State private var seed = Date()
+    @State private var seededAtNow = false
 
     private var range: ClosedRange<Date> {
         let first = model.store.trip.days.first.flatMap { TripTime.midnight($0.date) } ?? Date()
@@ -1074,15 +1078,18 @@ private struct RehearsalSection: View {
             DatePicker("Thời điểm", selection: $picked, in: range)
                 .environment(\.timeZone, TripTime.zone)
             Button("Chạy thử từ thời điểm này") {
-                model.clockOffset = picked.timeIntervalSince(Date())
+                model.rehearse(at: effectivePick)
+                reseed()
             }
-            if model.clockOffset != 0 {
+            // nothing to start: the picker at the clock as it is, or within a minute of it
+            .disabled(RehearsalClock.start(at: effectivePick, realNow: Date(), current: model.clockOffset) == nil)
+            if model.rehearsing {
                 LabeledContent("Đồng hồ chuyến đi") {
                     Text(clockLabel(model.now)).monospacedDigit()
                 }
                 Button("Về giờ thật", role: .destructive) {
-                    model.clockOffset = 0
-                    picked = clampedNow
+                    model.endRehearsal()
+                    reseed()
                 }
             }
         } header: {
@@ -1093,13 +1100,23 @@ private struct RehearsalSection: View {
         .onAppear {
             guard !seeded else { return }
             seeded = true
-            picked = clampedNow
+            reseed()
         }
     }
 
-    private var clampedNow: Date {
-        let now = model.now
-        return min(max(now, range.lowerBound), range.upperBound)
+    /// The picker set to the trip clock as it is now (`Shared.now`: `model.now` moves only on the
+    /// minute), within the picker's range.
+    private func reseed() {
+        let now = Shared.now
+        seed = min(max(now, range.lowerBound), range.upperBound)
+        seededAtNow = seed == now
+        picked = seed
+    }
+
+    /// The instant the start button means: the trip clock as it is while the picker is left where it
+    /// was set at now, else what was picked.
+    private var effectivePick: Date {
+        seededAtNow && picked == seed ? Shared.now : picked
     }
 
     private func clockLabel(_ d: Date) -> String {

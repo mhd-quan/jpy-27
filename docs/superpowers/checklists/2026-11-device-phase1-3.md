@@ -647,3 +647,36 @@ trí cách mọi tuyến của chuyến, nên bước nào cần đi tàu thật
      mục của ngày N+1 được đánh dấu.
    - Ga: sáng hôm sau, đi ngang ga đi của một chuyến có giờ của hôm qua trước khi mở JP27. **Đạt** khi không có thông
      báo "… Ở <ga>" mời theo dõi chuyến của hôm qua.
+
+## Task 3.4b — Chạy thử không bắt đầu ở "bây giờ", huy hiệu "Đang chạy thử", Nghe nhả micro và trả lại âm thanh
+
+**Chuẩn bị.** Trang Chạy thử chỉ chọn được từ 17/10/2027 tới 31/10/2027. Bước nào cần "bây giờ" nằm trong khoảng đó thì
+đặt ngày của iPhone (Cài đặt › Cài đặt chung › Ngày & Giờ, tắt "Đặt tự động") sang **20/10/2027**, giờ nào cũng được;
+trả lại "Đặt tự động" sau các bước đó.
+
+1. **"Chạy thử" ở bây giờ không làm gì (ngày máy 20/10/2027).** Cài đặt › Chạy thử. Không chạm vào ô "Thời điểm".
+   - **Đạt** khi nút "Chạy thử từ thời điểm này" mờ (không bấm được), kể cả sau khi để trang mở 3 phút; dòng "Chạy thử"
+     ở trang Cài đặt vẫn ghi "Tắt"; không có huy hiệu tím trên thanh tab; tiêu đề Chi tiêu không có dòng phụ.
+   - Chỉnh "Thời điểm" lùi **hai** phút. **Đạt** khi nút sáng, và bấm vào thì dòng "Đồng hồ chuyến đi" hiện và chỉ phút
+     đã chọn (hay phút ngay trước nó: lệch tối đa nửa phút), huy hiệu tím hiện. "Về giờ thật" sau bước này.
+   - Đang chạy thử, kéo "Thời điểm" về đúng giờ thật của máy. **Đạt** khi nút "Chạy thử từ thời điểm này" mờ: chỉ "Về
+     giờ thật" kết thúc buổi chạy thử.
+2. **Huy hiệu (ngày máy bình thường).** Cài đặt › Chạy thử: ngày 4, 7:08 › "Chạy thử từ thời điểm này".
+   - **Đạt** khi trên thanh tab, ở cả năm tab, dòng phía trên có biểu tượng đồng hồ tím và chữ "Chạy thử ·" trước nội dung
+     thường; cuộn xuống cho thanh tab thu nhỏ thì còn biểu tượng tím. VoiceOver đọc "Đang chạy thử".
+   - Tab Chi tiêu: **Đạt** khi dưới tiêu đề "Chi tiêu" có "Đang chạy thử · sổ riêng".
+   - Mở lại trang Chạy thử: **Đạt** khi nút "Chạy thử từ thời điểm này" mờ (ô "Thời điểm" đã đặt theo đồng hồ chuyến
+     đang chạy).
+   - "Về giờ thật". **Đạt** khi huy hiệu và dòng phụ của Chi tiêu biến mất (trên iOS 26.1 trở lên, cả dòng phía trên
+     thanh tab biến mất nếu trước chuyến).
+3. **Máy đang giữ một "chạy thử" ở khoảng bây giờ từ bản cũ (bản trước 3.4b, ngày máy 20/10/2027).**
+   - Với bản cũ: Cài đặt › Chạy thử, đợi phút trên đồng hồ vừa đổi, mở trang và bấm ngay "Chạy thử từ thời điểm này".
+     Dòng "Đồng hồ chuyến đi" phải chỉ cùng phút với đồng hồ máy (nếu lệch, "Về giờ thật" rồi làm lại). Ghi một khoản
+     chi 123 ¥ "Thử 3.4b".
+   - Cài bản này đè lên (không xoá app), mở JP27.
+   - **Đạt** khi: dòng "Chạy thử" trong Cài đặt ghi "Tắt"; không có huy hiệu; Chi tiêu là sổ thật, **không** có khoản
+     123 ¥; đồng bộ với máy kia chạy lại (không còn "Đồng bộ tạm dừng trong lúc chạy thử"); báo thức của các chuyến được
+     đặt lại (Chẩn đoán).
+   - **Đạt** khi khoản 123 ¥ không mất hẳn: trong container của app (Xcode › Devices › Download Container) có
+     `Library/Application Support/Trip-rehearsal-kept-<số>.store`, và Console (subsystem `tech.delphyra.jp27`, category
+     `records`) có đúng một dòng "a rehearsal at about now was ended…". Mở lại app lần nữa: không có dòng thứ hai.

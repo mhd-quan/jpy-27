@@ -86,7 +86,7 @@ struct RootView: View {
         // that stays where it is.
         .tabBarMinimizeBehavior(model.tab == .map ? .never : .onScrollDown)
         .sensoryFeedback(.page, trigger: model.tab)
-        .modifier(NowAccessorySlot(live: model.live.ride != nil || model.next != nil))
+        .modifier(NowAccessorySlot(live: model.live.ride != nil || model.next != nil || model.rehearsing))
         .progressiveEdges()
         .presentsSheets()
         .environment(\.zoomSpace, zoom)
@@ -160,8 +160,8 @@ private struct SaveIssueLayer: ViewModifier {
     }
 }
 
-/// The line above the tab bar, shown only while something is happening: a ride being followed or
-/// the next stop of a trip day. Before the trip it would only repeat the countdown the home already
+/// The line above the tab bar, shown only while something is happening: a ride being followed,
+/// the next stop of a trip day, or a rehearsal (its badge). Before the trip it would only repeat the countdown the home already
 /// shows, so the space goes back to content. Hiding it needs iOS 26.1; on 26.0 it stays. Nghe và
 /// dịch is not here: it lives in Sổ tay, with the phrasebook it belongs to.
 private struct NowAccessorySlot: ViewModifier {

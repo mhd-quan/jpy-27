@@ -130,6 +130,8 @@ struct SpendTab: View {
             .sensoryFeedback(.done, trigger: paired)
             .sensoryFeedback(.fail, trigger: failed)
             .navigationTitle("Chi tiêu")
+            // what is written while rehearsing goes to the rehearsal's own ledger, deleted with it
+            .navigationSubtitle(model.rehearsing ? "Đang chạy thử · sổ riêng" : "")
             .navigationDestination(for: Route.self) { RouteHost(route: $0) }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

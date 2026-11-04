@@ -110,7 +110,7 @@ final class AlarmKitScheduler: AlarmScheduling {
         choices = Shared.defaults.dictionary(forKey: Self.choicesKey) as? [String: Bool] ?? [:]
         noticed = Shared.defaults.dictionary(forKey: Self.noticedKey) as? [String: Date] ?? [:]
         // a rehearsal sets no real alarm: its times are not real ones
-        core = WakeAlarms(scheduler: scheduler, saved: saved, rehearsing: { Shared.clockOffset != 0 }, onChange: { [weak self] slots in
+        core = WakeAlarms(scheduler: scheduler, saved: saved, rehearsing: { Shared.rehearsing }, onChange: { [weak self] slots in
             self?.scheduled = slots
             self?.save(slots)
         })
@@ -163,7 +163,7 @@ final class AlarmKitScheduler: AlarmScheduling {
 
     /// Ring at `date` for the ride (`WakeAlarms.alight`): moving it by less than two minutes is not
     /// worth a new alarm, and the GPS's time always takes the place of the timetable's. Nothing while
-    /// rehearsing (`WakeAlarms` asks `Shared.clockOffset`).
+    /// rehearsing (`WakeAlarms` asks `Shared.rehearsing`).
     func alight(rideID: String, station: String, at date: Date, source: AlarmSource = .ride) async {
         await core.alight(WakeRequest(rideID: rideID, station: station, at: date, source: source))
     }
@@ -173,7 +173,7 @@ final class AlarmKitScheduler: AlarmScheduling {
     /// every fix, nor again after a relaunch. Kept two days. During a rehearsal kept in memory only,
     /// so the evening's rehearsal of tomorrow's ride leaves the real one its notice.
     func firstNotice(for rideID: String) -> Bool {
-        if Shared.clockOffset != 0 { return noticedRehearsing.insert(rideID).inserted }
+        if Shared.rehearsing { return noticedRehearsing.insert(rideID).inserted }
         guard noticed[rideID] == nil else { return false }
         let now = Date()
         noticed = noticed.filter { now.timeIntervalSince($0.value) < 2 * 86_400 }

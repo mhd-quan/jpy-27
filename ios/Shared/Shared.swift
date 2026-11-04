@@ -52,10 +52,20 @@ nonisolated enum Shared {
         set { defaults.set(Array(newValue).sorted(), forKey: Key.alternatives) }
     }
 
+    /// Read and written by the rehearsal clock's rule (`RehearsalClock.offset`): whole minutes, and
+    /// 0 within a minute of the real clock. A value an older build stored (−0.3 s from a picker left
+    /// at now, seconds on a rehearsal) reads by the same rule, in the app and in the widget.
     static var clockOffset: TimeInterval {
-        get { defaults.double(forKey: Key.clockOffset) }
-        set { defaults.set(newValue, forKey: Key.clockOffset) }
+        get { RehearsalClock.offset(storedClockOffset) }
+        set { defaults.set(RehearsalClock.offset(newValue), forKey: Key.clockOffset) }
     }
+
+    /// The offset as it is stored, unread by the rule: only `AppModel.init` looks, for an offset
+    /// of about 0 an older build left behind.
+    static var storedClockOffset: TimeInterval { defaults.double(forKey: Key.clockOffset) }
+
+    /// A rehearsal is running (`RehearsalClock`): what code without the model asks.
+    static var rehearsing: Bool { RehearsalClock.isRehearsing(storedClockOffset) }
 
     /// Whether the location journal records stays and the walked trace (only during the trip,
     /// `JournalPolicy`). Off until switched on.

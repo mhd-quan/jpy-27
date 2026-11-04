@@ -1,4 +1,5 @@
 import Foundation
+import os
 import SwiftData
 import TripKit
 
@@ -323,6 +324,24 @@ enum Records {
             if fm.fileExists(atPath: at.path) { try? fm.removeItem(at: at) }
         }
     }
+
+    /// The rehearsal's store renamed, not deleted, the way the side store is once folded in: an
+    /// older build could start a "rehearsal" at about now (`RehearsalClock`), whose records were
+    /// real ones. Said once in the log; the file stays for a rescue.
+    static func setRehearsalAside() {
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: rehearsalURL.path) else { return }
+        let stamp = Int(Date().timeIntervalSince1970)
+        for suffix in ["", "-shm", "-wal"] {
+            let at = URL(fileURLWithPath: rehearsalURL.path + suffix)
+            if fm.fileExists(atPath: at.path) {
+                try? fm.moveItem(at: at, to: folder.appending(path: "Trip-rehearsal-kept-\(stamp).store" + suffix))
+            }
+        }
+        log.notice("a rehearsal at about now was ended: its store is kept as Trip-rehearsal-kept-\(stamp, privacy: .public).store")
+    }
+
+    private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "records")
 
     /// Every record of one store put into another. Expenses and top-ups that exist there (by id) are
     /// left; the rest are unique by day and index, by item or by id, so inserting one that exists

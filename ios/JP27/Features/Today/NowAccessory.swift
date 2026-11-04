@@ -13,12 +13,15 @@ struct NowAccessory: View {
 
     var body: some View {
         Button(action: tap) {
-            content
-                .font(.subheadline)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .contentShape(.rect)
+            HStack(spacing: 8) {
+                if model.rehearsing { RehearsalBadge(inline: inline) }
+                content
+            }
+            .font(.subheadline)
+            .lineLimit(1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.press, trigger: opened)
@@ -66,6 +69,22 @@ struct NowAccessory: View {
             opened += 1
             model.tab = .today
         }
+    }
+}
+
+/// "Chạy thử ·" before the line while the trip clock is shifted (`AppModel.rehearsing`): on every
+/// tab, so a rehearsal is never forgotten. Folded, the glyph alone.
+private struct RehearsalBadge: View {
+    let inline: Bool
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "clock.arrow.circlepath")
+            if !inline { Text("Chạy thử ·").fontWeight(.semibold) }
+        }
+        .foregroundStyle(.purple)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Đang chạy thử")
     }
 }
 

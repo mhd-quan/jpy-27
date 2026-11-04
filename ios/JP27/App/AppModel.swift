@@ -89,7 +89,7 @@ enum AppSheet: Identifiable, Hashable {
     private var retry: (issue: UUID, run: @MainActor () -> Void)?
     var context: ModelContext { container.mainContext }
     /// a rehearsal is running: the clock is shifted and the records are the rehearsal's
-    var rehearsing: Bool { clockOffset != 0 }
+    var rehearsing: Bool { RehearsalClock.isRehearsing(clockOffset) }
 
     let location = LocationService()
     let notifications = NotificationService()
@@ -147,16 +147,32 @@ enum AppSheet: Identifiable, Hashable {
     /// Bumped each time location history is deleted, for what counts it (Settings › Chẩn đoán).
     private(set) var historyDeletions = 0
 
-    var clockOffset: TimeInterval = Shared.clockOffset {
-        didSet {
-            Shared.clockOffset = clockOffset
-            if (oldValue == 0) != (clockOffset == 0) {
-                // a rehearsal starts or ends: a followed ride's times belong to the other clock
-                live.endAtOnce(model: self)
-                switchRecords()
-            }
-            refresh(reschedule: true)
+    /// Seconds added to the real clock while rehearsing, by `RehearsalClock`'s rule: whole minutes,
+    /// 0 for the real clock. Set only through `rehearse(at:)` and `endRehearsal()`.
+    private(set) var clockOffset: TimeInterval = Shared.clockOffset
+
+    /// "Chạy thử từ thời điểm này": the trip clock moved to `picked`. Nothing when that is about now
+    /// (no rehearsal at real time, and never the end of one) or the rehearsal already running.
+    func rehearse(at picked: Date) {
+        guard let offset = RehearsalClock.start(at: picked, realNow: Date(), current: clockOffset) else { return }
+        setClock(offset)
+    }
+
+    /// "Về giờ thật": the real clock again, and the rehearsal's records thrown away.
+    func endRehearsal() {
+        setClock(0)
+    }
+
+    private func setClock(_ offset: TimeInterval) {
+        let was = rehearsing
+        clockOffset = RehearsalClock.offset(offset)
+        Shared.clockOffset = clockOffset
+        if was != rehearsing {
+            // a rehearsal starts or ends: a followed ride's times belong to the other clock
+            live.endAtOnce(model: self)
+            switchRecords()
         }
+        refresh(reschedule: true)
     }
 
     private(set) var pace: PaceModel
@@ -218,12 +234,19 @@ enum AppSheet: Identifiable, Hashable {
         journalPolicy = JournalPolicy(days: store.trip.days)
         let real = Records.container()
         records = real
-        if Shared.clockOffset != 0 {
+        if Shared.rehearsing {
             container = Records.rehearsal(copying: real, fresh: false)
         } else {
             container = real
-            // a rehearsal that ended with the app closed leaves its store behind
-            Records.discardRehearsal()
+            if Shared.storedClockOffset != 0 {
+                // an older build started a "rehearsal" at about now (a picker left at now): what it
+                // recorded was recorded at real time, so its store is set aside, never deleted
+                Shared.clockOffset = 0
+                Records.setRehearsalAside()
+            } else {
+                // a rehearsal that ended with the app closed leaves its store behind
+                Records.discardRehearsal()
+            }
             UserDefaults.standard.removeObject(forKey: Self.journalAskedRehearsalKey)
         }
         storeAlert = Records.problem != nil
@@ -233,7 +256,7 @@ enum AppSheet: Identifiable, Hashable {
             pace = PaceModel()
         }
         loadRecords()
-        ledgerSync.setPaused(clockOffset != 0)
+        ledgerSync.setPaused(rehearsing)
         refresh(reschedule: false)
         location.onUpdate = { [weak self] in self?.positionChanged($0) }
         location.onVisit = { [weak self] in self?.visited($0) }
@@ -516,7 +539,7 @@ enum AppSheet: Identifiable, Hashable {
     /// every change of plan: rides taken, days swapped and alarms turned off are cancelled. Not on
     /// the rehearsal clock, whose times are not real ones.
     private func planWakeAlarms() async {
-        guard clockOffset == 0 else { return }
+        guard !rehearsing else { return }
         let wakes = WakePlanner(store: store).wakes(days: days, now: now) { day, i in self.marks[day.key]?[i] != nil }
         await alarms.planWake(wakes)
     }
