@@ -425,17 +425,22 @@ enum AppSheet: Identifiable, Hashable {
     /// the station's geofence sends a notification whose "Theo dõi chuyến" opens the app to do it.
     /// The ride the projection already has you on (`riding`: on its line, past its station) comes
     /// first: once you are on it the cursor is past its departure, and the next one is a later ride.
+    /// While you are on that one, the train's motion is its own: a later ride needs its station.
     private func autoStartRide(_ day: Day, minutes: Double, riding: Ride?) {
         // a ride that has arrived is only waiting to close: the connecting one starts over it
         guard live.ride == nil || live.hasArrived, live.isAvailable, UIApplication.shared.applicationState == .active else { return }
         let on = riding.flatMap { r in day.items.compactMap(\.move).first { $0.leg.id == r.legs.first } }
-        for move in [on, itinerary.nextDeparture(day, cursor: cursor)?.move].compactMap({ $0 }) {
+        var candidates: [(move: Move, current: Bool)] = []
+        if let on { candidates.append((on, true)) }
+        if let later = itinerary.nextDeparture(day, cursor: cursor) { candidates.append((later.move, false)) }
+        for (move, current) in candidates {
             guard let planned = TripTime.minutes(move.at).map(Double.init),
                   (planned - 20 ... planned + 10).contains(minutes),
                   let ride = store.ride(startingWith: move.leg.id, on: day)
             else { continue }
             let nearStation = position.flatMap { p in store.place(move.leg.from).map { Geo.km($0.coordinate, p) < 0.4 } } ?? false
-            if nearStation || motion.riding { live.start(ride, model: self) }
+            let moving = motion.riding && (current || riding == nil)
+            if nearStation || moving { live.start(ride, model: self) }
             return
         }
     }
@@ -1154,6 +1159,8 @@ enum AppSheet: Identifiable, Hashable {
 
     private func publishSnapshot(force: Bool) {
         guard let day = today, let next, let itemID = day.identity(of: next.index) else {
+            // forgotten, so the same item coming back is sent again
+            if lastSnapshot != nil { lastSnapshot = nil }
             if Shared.snapshot != nil {
                 Shared.snapshot = nil
                 WidgetCenter.shared.reloadTimelines(ofKind: Shared.widgetKind)
@@ -1170,10 +1177,11 @@ enum AppSheet: Identifiable, Hashable {
             setOff: setOff, begin: date(day, minutes: slot?.begin ?? next.begin), kind: "\(next.kind)",
             late: late, advice: replan.flatMap { advice($0, day: day) }, generated: now)
         // lateness counts in five-minute steps (the exact minutes still go out with each snapshot sent),
-        // and a late snapshot is sent again before the widget's half hour of trusting it runs out
+        // a new advice is sent at once, and a late snapshot is sent again before the widget's half
+        // hour of trusting it runs out
         let changed = lastSnapshot.map { last -> Bool in
             if last.day != snap.day || last.itemID != snap.itemID { return true }
-            if Replan.lateStep(last.late) != Replan.lateStep(snap.late) { return true }
+            if Replan.lateStep(last.late) != Replan.lateStep(snap.late) || last.advice != snap.advice { return true }
             if abs(last.setOff.timeIntervalSince(snap.setOff)) > 120 { return true }
             return snap.late != nil && snap.generated.timeIntervalSince(last.generated) >= 20 * 60
         } ?? true

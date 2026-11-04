@@ -479,19 +479,25 @@ Chỉ kiểm được trong chuyến (giờ thật 18–29/10/2027), công tắc
 **Chuẩn bị.** Bản build của task này (Release hay Debug đều được). Chạy thử: Cài đặt › Chạy thử. Khi chạy thử, vị trí
 vẫn là vị trí thật (ở nhà, xa mọi tuyến của chuyến). Dòng "Đặt lại nhắc giờ, geofence, báo thức" ở Cài đặt › Chẩn
 đoán là số lần đặt lại từ khi mở app.
-1. **Chuyến đang theo dõi không bị báo lỡ.** Chạy thử từ 21/10/2027 08:30 (ngày 4). Kế hoạch › Ngày 4 › Romancecar ›
-   "Theo dõi chuyến". Về Hôm nay.
+1. **Chuyến đang theo dõi không bị báo lỡ.** Ở nhà, vị trí thật cách đường tàu hơn 1,5 km, nên chuyến đang theo dõi
+   không được tính (R-126). Vì vậy bước này chạy **không có vị trí**: Cài đặt iOS › Quyền riêng tư › Dịch vụ định vị ›
+   JP27 › "Không bao giờ", rồi tắt hẳn app và mở lại. Chạy thử từ 21/10/2027 08:30 (ngày 4). Kế hoạch › Ngày 4 ›
+   Romancecar › "Theo dõi chuyến". Về Hôm nay.
    - **Đạt** khi Hôm nay không có thẻ "Trễ … phút cho Odakyu Romancecar 7:37"; thẻ tiếp theo là Hakone Tozan Bus
      9:35; widget trên màn hình chính không có "Trễ".
-   - Mở chuyến, kết thúc theo dõi. **Đạt** khi thẻ "Trễ … phút cho Odakyu Romancecar 7:37" quay lại: không theo dõi,
-     ở xa tuyến, app coi là lỡ tàu (đúng thiết kế).
+   - Mở chuyến, kết thúc theo dõi. **Đạt** khi thẻ "Trễ … phút cho Odakyu Romancecar 7:37" quay lại (không vị trí,
+     không theo dõi: không có gì cho biết đang ở trên tàu, R-119).
    - Chạy thử từ 21/10/2027 07:20, theo dõi Romancecar. **Đạt** khi thẻ tiếp theo vẫn là Romancecar 7:37 (chuyến
      chưa tới giờ thì ngày chưa qua nó).
+   - Bật lại vị trí ("Luôn luôn"), tắt hẳn app, mở lại. Chạy thử từ 21/10/2027 08:30, theo dõi Romancecar. **Đạt**
+     khi thẻ "Trễ … phút cho Odakyu Romancecar 7:37" vẫn hiện: vị trí ở nhà, xa đường tàu, nói là không ở trên tàu.
 2. **Ngày không giờ.** Chạy thử từ 29/10/2027 08:00 (ngày 12).
    - **Đạt** khi Hôm nay › "Còn lại hôm nay" có đủ ba mục (đi bộ tới Nankai Namba, Nankai, Sân bay Kansai), không mục
      nào trong "Đã qua". Đánh dấu mục đầu: nó vào "Đã qua", còn hai mục.
-   - Còn lại, đã biết (R-120, ngoài phạm vi): thẻ "Hết lịch hôm nay" vẫn hiện và widget trống, vì ngày 12 không có
-     điểm nào để báo (Nankai không có giờ, Sân bay Kansai là ga).
+   - **Đạt** khi thẻ ở trên ghi "Đi bộ → Nankai Namba" với dòng "Không có giờ cố định", không phải "Hết lịch hôm
+     nay" (R-122). Đánh dấu cả ba mục: lúc đó mới là "Hết lịch hôm nay".
+   - Còn lại, đã biết (R-120, ngoài phạm vi): widget trống, vì ngày 12 không có điểm nào để báo (Nankai không có
+     giờ, Sân bay Kansai là ga).
 3. **Không nhắc buổi sáng lúc 23:30 đêm trước ngày 12.** Chạy thử từ 28/10/2027 23:20, rời app, chờ qua 23:31 theo
    giờ chạy thử.
    - **Đạt** khi không có thông báo "Ngày 12 · Ra sân bay Kansai". Đối chứng: chạy thử từ 21/10/2027 05:50, chờ qua
@@ -499,18 +505,30 @@ vẫn là vị trí thật (ở nhà, xa mọi tuyến của chuyến). Dòng "�
 4. **Widget: giờ rời đi của kế hoạch khi trễ.** Chạy thử từ 27/10/2027 12:20 (ngày 10). Ở xa AWA nên Hôm nay báo
    trễ bàn 12:30.
    - **Đạt** khi widget có "Trễ N′" và dòng "Rời đi" ghi giờ của kế hoạch, không phải giờ lúc mở app. Để app mở ở
-     Hôm nay 25 phút rồi về màn hình chính: widget vẫn có "Trễ" (ảnh chụp được gửi lại trước khi widget thôi tin nó).
+     Hôm nay 25 phút rồi về màn hình chính: widget vẫn có "Trễ", số phút đã tăng.
+   - Bước này chỉ kiểm các bước 5 phút: ở nhà, độ trễ tăng mỗi phút nên ảnh chụp được gửi lại theo từng bước. Việc
+     gửi lại một ảnh chụp trễ đứng yên sau 20 phút (trước khi widget thôi tin nó sau 30 phút) cần một độ trễ không đổi,
+     không dựng được khi chạy thử; nó chỉ có bài kiểm ở mã.
 5. **Màn hình khoá: chuyến đang theo dõi không đặt lại mọi thứ mỗi lần đổi vị trí (R-43).** Vị trí "Luôn luôn". Chạy
    thử từ 21/10/2027 08:00, theo dõi Romancecar, ghi số ở dòng Chẩn đoán. Khoá máy, đi xe (bus, ô tô, tàu) ít nhất 30
    phút, quãng ≥ 10 km, không mở app.
    - **Đạt** khi mở lại, số đặt lại tăng nhiều nhất 2 (không phải khoảng một lần mỗi 5 phút như bản cũ).
    - Giữ theo dõi, chạy thử tiếp tới sau 10:22 (một giờ sau giờ tới 9:22 của kế hoạch), khoá máy, đi xe thêm ≥ 2 km.
      **Đạt** khi số đặt lại lại tăng: chuyến bỏ dở không giữ việc đặt lại mãi.
+   - Chạy thử từ 20/10/2027 12:00 (hôm trước), theo dõi Romancecar, khoá máy, đi xe ≥ 2 km. **Đạt** khi số đặt lại
+     tăng: một chuyến của ngày khác không giữ gì (chỉ giữ trong ngày của nó, từ 7:07).
 
 Chỉ kiểm được trong chuyến:
 - Ngày 4, lên Romancecar mà **không** bấm theo dõi. Khoảng 7:40, khi tàu đã cách Shinjuku hơn 1 km, mở app. **Đạt**
   khi Live Activity của Romancecar tự bật (máy đang đi xe), Hôm nay không có thẻ "Trễ … cho Odakyu Romancecar 7:37",
   thẻ tiếp theo là xe buýt 9:35. Xuống ở Hakone-Yumoto, mở app trước khi chuyến được đánh dấu: cũng không có thẻ đó.
+  - Đã biết, chấp nhận: trong khoảng một phút đầu, khi tàu đã ra khỏi ga nhưng chưa cách Shinjuku 1 km, thẻ "Trễ …
+    cho Odakyu Romancecar 7:37" có thể hiện thoáng qua (chưa đủ xa để coi là đang đi tàu), rồi tự mất.
+  - Đang trên Romancecar khoảng 9:15–9:22 với app mở: Live Activity của xe buýt 9:35 **không** tự bật (chỉ bật khi
+    đứng gần trạm xe buýt).
 - Ngày Kawaguchiko (nếu chọn): còn ở phố Fujiyoshida (Chūreitō, Honchō-dōri) sau 16:48, mở app. **Đạt** khi Hôm nay
-  có thẻ "Trễ … phút cho Fuji Excursion 16:48".
-- Đứng ở sân ga Odakyu Shinjuku lúc 7:36 và (nếu tàu trễ) sau 7:37: không có thẻ "Trễ … cho Odakyu Romancecar 7:37".
+  có thẻ "Trễ … phút cho Fuji Excursion 16:48". Ở Fuji-Q Highland lúc 17:05 (cạnh đường tàu, xa mọi điểm của ngày):
+  cũng có thẻ đó (chậm hơn giờ tàu chạy qua hơn 10 phút thì không còn coi là đang ở trên tàu).
+- Đứng ở sân ga Odakyu Shinjuku lúc 7:36 và 7:38 (tàu trễ một chút): không có thẻ "Trễ … cho Odakyu Romancecar 7:37".
+  Từ 7:39, nếu tàu đã đi: có thẻ đó (quá một phút ân hạn, đứng ở sân ga cũng là lỡ tàu).
+- Xuống ở Hakone-Yumoto sau 9:36 khi xe buýt 9:35 đã đi: có thẻ "Trễ … cho Hakone Tozan Bus 9:35".

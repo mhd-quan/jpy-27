@@ -123,6 +123,18 @@ private struct TodayDuring: View {
 
             if let next = model.next {
                 TodayNextCard(day: day, next: next, arrived: $arrived)
+            } else if model.cursor < day.items.count {
+                // items remain, none with a time to set off by (day 12, the way to the airport): the
+                // one the day is at, by name
+                Card {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Label(untimedTitle(day.items[model.cursor]), systemImage: "arrow.forward.circle.fill")
+                            .font(.headline)
+                        Text("Không có giờ cố định")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             } else {
                 Card {
                     Label("Hết lịch hôm nay", systemImage: "moon.stars.fill")
@@ -162,6 +174,18 @@ private struct TodayDuring: View {
         .animation(.smooth, value: model.replan == nil)
         .sensoryFeedback(.warn, trigger: dropped)
         .sensoryFeedback(.done, trigger: arrived)
+    }
+
+    /// A stop's title, or where a move goes and on what ("Đi bộ → Nankai Namba").
+    private func untimedTitle(_ item: DayItem) -> String {
+        switch item {
+        case .stop(let s):
+            return s.title
+        case .move(let m):
+            let to = model.store.place(m.leg.to)?.name ?? m.leg.to
+            if model.store.mode(of: m.leg) == .walk { return "Đi bộ → \(to)" }
+            return "\(model.store.line(m.leg.line)?.name ?? m.leg.line) → \(to)"
+        }
     }
 }
 

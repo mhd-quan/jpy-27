@@ -58,7 +58,7 @@ import TripKit
         guard let ride, let tracker else { return }
         guard let p = model.position, let s = tracker.status(at: p) else { return }
         // a position far off the track says nothing about this ride (still on the platform, or a wrong train)
-        guard s.offTrackKm < 1.5 else { return }
+        guard s.offTrackKm < RideTracker.offTrack else { return }
         if status != s { status = s }
         let left = tracker.minutesLeft(km: s.km, speedKmh: model.location.speedKmh)
         // shown as hours and minutes: kept to the minute, so it changes once a minute at most
