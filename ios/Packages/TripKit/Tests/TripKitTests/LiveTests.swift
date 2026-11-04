@@ -1191,6 +1191,24 @@ import Testing
             #expect(Fmt.decimal(x, digits: 0) == Fmt.missing)
         }
         #expect(Fmt.missing == "—")
+
+        // a number too large for a whole Int: the placeholder, not a trap (M3)
+        for x in [1e19, -1e17, -1e16, .greatestFiniteMagnitude, -.greatestFiniteMagnitude] {
+            #expect(Fmt.km(x) == Fmt.missing, "\(x)")
+        }
+        #expect(Fmt.km(-9e15) == "-9000000000000000000 m", "the metres still fit after ×10")
+        for (x, digits) in [(1e19, 0), (-1e19, 0), (1e308, 1), (.greatestFiniteMagnitude, 2), (0x1p63, 0)] as [(Double, Int)] {
+            #expect(Fmt.decimal(x, digits: digits) == Fmt.missing, "\(x)")
+        }
+        // the edges of Int: 2^63 is past it, the double just below and −2^63 are not
+        #expect(Fmt.decimal(9_223_372_036_854_774_784, digits: 0) == "9.223.372.036.854.774.784")
+        #expect(Fmt.decimal(-0x1p63, digits: 0) == "−9.223.372.036.854.775.808")
+        for x in [Double.nan, .infinity, -.infinity, 1e19, -1e19, 0x1p63] {
+            #expect(Fmt.duration(x) == Fmt.missing, "\(x)")
+        }
+        #expect(Fmt.duration(12.4) == "12 phút")
+        #expect(Fmt.duration(100) == "1 giờ 40")
+        #expect(Fmt.duration(120) == "2 giờ")
     }
 }
 

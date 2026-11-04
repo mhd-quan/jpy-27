@@ -136,7 +136,7 @@ public enum TripTime {
 
 /// Vietnamese number and money formatting, the way the site writes it.
 public enum Fmt {
-    /// What is shown for a number that is not one (NaN, ±∞)
+    /// What is shown for a number that is not one (NaN, ±∞), or past a whole Int (x ≥ 2^63, x < −2^63)
     public static let missing = "—"
     /// "¥1.500"
     public static func yen(_ n: Int) -> String {
@@ -159,19 +159,25 @@ public enum Fmt {
         guard km.isFinite else { return missing }
         // the unit after rounding: 996 m is a kilometre, not "1000 m"
         if km < 1 {
-            let metres = Int((km * 1000 / 10).rounded()) * 10
+            // a distance past Int, in tens of metres or once made metres, is not one
+            guard let tens = whole((km * 1000 / 10).rounded()) else { return missing }
+            let (metres, overflow) = tens.multipliedReportingOverflow(by: 10)
+            guard !overflow else { return missing }
             if metres < 1000 { return "\(metres) m" }
         }
         let digits = km < 10 ? 1 : 0
-        return decimal(km, digits: digits) + " km"
+        let shown = decimal(km, digits: digits)
+        return shown == missing ? missing : shown + " km"
     }
 
     /// "1,2" with a decimal comma
     public static func decimal(_ x: Double, digits: Int) -> String {
         guard x.isFinite else { return missing }
         let p = pow(10, Double(digits))
+        // after rounding: a finite `x` can round past Int, or `x * p` past the largest Double
         let r = (x * p).rounded() / p
-        if digits == 0 || r == r.rounded() { return grouped(Int(r.rounded())) }
+        guard let rounded = whole(r.rounded()) else { return missing }
+        if digits == 0 || r == r.rounded() { return grouped(rounded) }
         // the magnitude, and the sign of what is shown: −0,4 keeps it, −0,04 at one digit is "0"
         let m = abs(r)
         let whole = Int(m.rounded(.towardZero))
@@ -179,9 +185,15 @@ public enum Fmt {
         return (r < 0 ? "−" : "") + "\(grouped(whole)),\(String(format: "%0\(digits)d", frac))"
     }
 
+    /// `x`, a whole number, as an Int; nil where an Int cannot hold it (NaN, ±∞, x ≥ 2^63, x < −2^63), so a
+    /// formatter says `missing` instead of trapping
+    private static func whole(_ x: Double) -> Int? {
+        x >= -0x1p63 && x < 0x1p63 ? Int(x) : nil
+    }
+
     /// "12 phút", "1 giờ 40", "2 giờ"
     public static func duration(_ minutes: Double) -> String {
-        let m = Int(minutes.rounded())
+        guard let m = whole(minutes.rounded()) else { return missing }
         if m < 60 { return "\(m) phút" }
         let h = m / 60, r = m % 60
         return r == 0 ? "\(h) giờ" : "\(h) giờ \(r)"
