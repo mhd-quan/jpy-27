@@ -864,3 +864,8 @@ bình thường (trước chuyến).
      tới khi tắt hẳn app rồi mở lại).
    - Cũng vậy sau Task 1.5 bước 5 và sau phần chuẩn bị của Task 3.4b (đặt ngày khác rồi bật lại "Đặt tự động"): vị trí
      vẫn tới mà không phải mở lại app.
+4. **Sổ chi không đọc được thì không xuất file rỗng (New-3, bản Debug).** Sổ chi có ít nhất một khoản. Cài đặt › Chẩn
+   đoán › bật "Giả lỗi đọc sổ chi". Chi tiêu › menu › chia sẻ sổ chi (CSV), chọn "Lưu vào Tệp".
+   - **Đạt** khi không có tệp `JP27-so-chi.csv` nào được lưu (hay tệp không mở được), không bao giờ một tệp chỉ có dòng
+     tiêu đề. Ghi lại iOS hiện gì (hộp lỗi, sheet đóng lại, hay không có gì): ô ____.
+   - Tắt "Giả lỗi đọc sổ chi", chia sẻ lại. **Đạt** khi tệp có đủ các khoản như trước.
