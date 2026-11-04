@@ -79,12 +79,28 @@ public struct TransitionLog: Sendable {
 
     public init() {}
 
-    /// A tap began transition `id` toward a page that will claim it in `slot`. Returns the transition
-    /// still waiting (unclaimed) in that slot, which this one replaces: the caller ends it unpaired.
-    public mutating func begin(_ id: Int, slot: String, from: String?, to: String?, at: Instant) -> Int? {
+    /// What a new tap ends unpaired (the caller ends their intervals).
+    public struct Begun: Sendable, Equatable {
+        /// the transition still waiting in the same slot, which the new one replaces
+        public let superseded: Int?
+        /// transitions waiting, in any slot, for longer than `claimWindow` (no page answered them), by id
+        public let expired: [Int]
+
+        public init(superseded: Int?, expired: [Int]) {
+            self.superseded = superseded
+            self.expired = expired
+        }
+    }
+
+    /// A tap began transition `id` toward a page that will claim it in `slot`. A tap no page answered
+    /// would otherwise wait for ever: every new tap first ends those waiting past `claimWindow`, in any
+    /// slot, then replaces the one still waiting in its own.
+    public mutating func begin(_ id: Int, slot: String, from: String?, to: String?, at: Instant) -> Begun {
+        let stale = waiting.filter { $0.value.at.duration(to: at) > Self.claimWindow }
+        for key in stale.keys { waiting[key] = nil }
         let replaced = waiting[slot]?.id
         waiting[slot] = Waiting(id: id, from: from, to: to, at: at)
-        return replaced
+        return Begun(superseded: replaced, expired: stale.values.map(\.id).sorted())
     }
 
     /// A page's first frame, in `slot`: claims the transition waiting there. `page` names the destination
@@ -113,7 +129,7 @@ public struct TransitionLog: Sendable {
         return true
     }
 
-    /// Ended without settling (dismissed, superseded, expired): true if it was open or waiting; records
+    /// Ended without settling (the page went before it settled): true if it was open or waiting; records
     /// nothing.
     public mutating func drop(_ id: Int) -> Bool {
         if open.removeValue(forKey: id) != nil {

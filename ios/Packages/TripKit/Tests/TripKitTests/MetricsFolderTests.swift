@@ -58,6 +58,16 @@ import Testing
         #expect(Set(MetricsFolder.stale(both(nine) + both(ten), keep: 1)) == Set(both(nine)))
     }
 
+    @Test func withinOneSecondTheLowerIndicesGoFirst() {
+        // 21 payloads ending in the same second (indices 0…20) and 4 later ones; keep 14: the four later
+        // and the indices 11…20 stay. Ten of 21 tied stems are picked out, so an order that ignored the index
+        // could not land on the right ten by chance; 9 and 10 compare as numbers, not as text.
+        let tied = (0...20).map { MetricsFolder.stem(end: day, index: $0) }
+        let later = (1...4).map { MetricsFolder.stem(end: day.addingTimeInterval(Double($0) * 86_400), index: 0) }
+        let names = (tied + later).flatMap(both)
+        #expect(Set(MetricsFolder.stale(names)) == Set(tied[0...10].flatMap(both)))
+    }
+
     @Test func keepZeroReturnsEveryFileOfOurs() {
         let names = stems(2).flatMap(both) + ["notes.txt"]
         #expect(Set(MetricsFolder.stale(names, keep: 0)) == Set(stems(2).flatMap(both)))

@@ -11,8 +11,11 @@ public enum MetricsFolder {
     private static let summaryExtension = ".summary.json"
     private static let payloadExtension = ".json"
 
-    /// "metrics-20261105T070000Z-0": the payload's end in UTC, fixed width so that names sort as time,
-    /// then its place in the delivery (MetricKit can hand over several payloads at once).
+    /// "metrics-20261105T070000Z-0": the payload's end, then its place in the delivery (MetricKit can
+    /// hand over several payloads at once). In UTC, never the phone's zone: the trip moves the phone from
+    /// Vietnam to Japan, and a name written in local time would sort two hours out of order after the move,
+    /// so pruning could delete a newer report. Fixed width, so names sort as time. (Untested: the tests
+    /// run in UTC, where both zones agree; R-217.)
     public static func stem(end: Date, index: Int) -> String {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "UTC")!

@@ -26,8 +26,8 @@ import Testing
 
     @Test func aTapClaimedAndSettledIsOneSample() {
         var log = TransitionLog()
-        let superseded = log.begin(1, slot: "sheet", from: "map.stop.3", to: "place", at: at(0))
-        #expect(superseded == nil)
+        let begun = log.begin(1, slot: "sheet", from: "map.stop.3", to: "place", at: at(0))
+        #expect(begun.superseded == nil)
         let claimed = log.claim("sheet", page: nil, at: at(120))
         #expect(claimed == .claimed(1))
         let settled = log.settle(1, at: at(620))
@@ -74,10 +74,10 @@ import Testing
 
     @Test func aSecondTapBeforeAnyClaimSupersedesTheFirst() {
         var log = TransitionLog()
-        let superseded = log.begin(1, slot: "sheet", from: nil, to: "place", at: at(0))
-        #expect(superseded == nil)
-        let superseded2 = log.begin(2, slot: "sheet", from: nil, to: "ride", at: at(50))
-        #expect(superseded2 == 1)
+        let begun = log.begin(1, slot: "sheet", from: nil, to: "place", at: at(0))
+        #expect(begun.superseded == nil)
+        let begun2 = log.begin(2, slot: "sheet", from: nil, to: "ride", at: at(50))
+        #expect(begun2.superseded == 1)
         let claimed = log.claim("sheet", page: nil, at: at(150))
         #expect(claimed == .claimed(2))
         let claimed2 = log.claim("sheet", page: nil, at: at(160))
@@ -88,8 +88,8 @@ import Testing
         var log = TransitionLog()
         _ = log.begin(1, slot: "sheet", from: nil, to: "place", at: at(0))
         _ = log.claim("sheet", page: nil, at: at(100))
-        let superseded = log.begin(2, slot: "sheet", from: nil, to: "expense", at: at(300))
-        #expect(superseded == nil)
+        let begun = log.begin(2, slot: "sheet", from: nil, to: "expense", at: at(300))
+        #expect(begun.superseded == nil)
         let settled = log.settle(1, at: at(600))
         #expect(settled)
     }
@@ -171,7 +171,78 @@ import Testing
         }
         let settled = log.settle(0, at: at(n * 10))
         #expect(!settled)
+        // only the oldest is forgotten: the next one still settles (a bound of openKept, not openKept - 1)
+        let settled1 = log.settle(1, at: at(n * 10))
+        #expect(settled1)
         let settled2 = log.settle(n - 1, at: at(n * 10))
         #expect(settled2)
+    }
+
+    @Test func settledTransitionsDoNotCountTowardTheOpenBound() {
+        var log = TransitionLog()
+        // one claimed and left open, then openKept more claimed and settled one by one
+        _ = log.begin(0, slot: "push", from: "plan", to: "day", at: at(0))
+        _ = log.claim("push", page: nil, at: at(5))
+        for i in 1...TransitionLog.openKept {
+            _ = log.begin(i, slot: "push", from: "plan", to: "day", at: at(i * 10))
+            _ = log.claim("push", page: nil, at: at(i * 10 + 5))
+            _ = log.settle(i, at: at(i * 10 + 8))
+        }
+        let settled = log.settle(0, at: at(1_000))
+        #expect(settled)
+    }
+
+    @Test func theMediansUseExactlyTheNewestSamplesKept() {
+        var log = TransitionLog()
+        let n = TransitionLog.samplesKept + 1
+        // sample k settles (k + 1) × 10 ms after its first frame (100 ms): with the newest 50 (k = 1…50) the
+        // middle two are 260 and 270 ms past it; with 49 the middle one would be 270, with all 51, 260
+        for k in 0..<n {
+            let start = k * 10_000
+            _ = log.begin(k, slot: "sheet", from: "map", to: "place", at: at(start))
+            _ = log.claim("sheet", page: nil, at: at(start + 100))
+            _ = log.settle(k, at: at(start + 100 + (k + 1) * 10))
+        }
+        #expect(log.rows == [TransitionLog.Row(name: "map → place", count: n, firstFrame: .milliseconds(100), settled: .milliseconds(365))])
+    }
+
+    @Test func aTapNoPageAnswersExpiresAtTheNextTapInAnySlot() {
+        var log = TransitionLog()
+        _ = log.begin(1, slot: "cover", from: nil, to: "phrase", at: at(0))
+        _ = log.begin(2, slot: "sheet", from: "map", to: "place", at: at(1_000))
+        // past the window for 1, not for 2
+        let begun = log.begin(3, slot: "push", from: "plan", to: nil, at: at(3_500))
+        #expect(begun == TransitionLog.Begun(superseded: nil, expired: [1]))
+        // gone from its slot: nothing to claim, nothing to settle or drop
+        let claimed = log.claim("cover", page: "phrase", at: at(3_600))
+        #expect(claimed == .none)
+        let dropped = log.drop(1)
+        #expect(!dropped)
+        // the others still wait
+        let claimed2 = log.claim("sheet", page: nil, at: at(3_700))
+        #expect(claimed2 == .claimed(2))
+    }
+
+    @Test func anExpiredTapInTheSameSlotIsExpiredNotSuperseded() {
+        var log = TransitionLog()
+        _ = log.begin(1, slot: "sheet", from: nil, to: "place", at: at(0))
+        let begun = log.begin(2, slot: "sheet", from: nil, to: "ride", at: at(3_001))
+        #expect(begun == TransitionLog.Begun(superseded: nil, expired: [1]))
+    }
+
+    @Test func aTapAtTheWindowsEdgeIsSupersededNotExpired() {
+        var log = TransitionLog()
+        _ = log.begin(1, slot: "sheet", from: nil, to: "place", at: at(0))
+        let begun = log.begin(2, slot: "sheet", from: nil, to: "ride", at: at(3_000))
+        #expect(begun == TransitionLog.Begun(superseded: 1, expired: []))
+    }
+
+    @Test func expiredTapsComeInIDOrder() {
+        var log = TransitionLog()
+        _ = log.begin(5, slot: "sheet", from: nil, to: "place", at: at(0))
+        _ = log.begin(6, slot: "push", from: "plan", to: nil, at: at(10))
+        _ = log.begin(7, slot: "cover", from: nil, to: "phrase", at: at(20))
+        let begun = log.begin(8, slot: "cover", from: nil, to: "phrase", at: at(5_000))
+        #expect(begun == TransitionLog.Begun(superseded: nil, expired: [5, 6, 7]))
     }
 }

@@ -11,8 +11,10 @@ import TripKit
 //
 // In Instruments (os_signpost, Points of Interest), subsystem tech.delphyra.jp27: one interval
 // "transition" per tap, labelled "map → place", "today → day", with an event "first-frame", ending
-// "settled", "dismissed", "superseded" or "expired". Each transition also has a MetricKit twin under
-// its own name ("sheet.place", "push.today", "cover.phrase") for the daily reports.
+// "settled", "dismissed" (the page closed, or was covered or left, before it settled), "superseded" or
+// "expired". Each transition also has a MetricKit twin under its own name ("sheet.place",
+// "push.today", "cover.phrase") for the daily reports; the twins of transitions that did not settle end
+// too, so MetricKit's medians per name include them.
 
 /// The app's instrumentation: signposts, its own record of transitions, MetricKit's log.
 enum Perf {
@@ -65,7 +67,15 @@ enum Perf {
         let metricID = OSSignpostID(log: metrics)
         mxSignpost(.begin, log: metrics, name: name, signpostID: metricID)
         let mark = TransitionMark(id: lastID, name: name, signpostID: signpostID, state: state, metricID: metricID)
-        if let replaced = log.begin(lastID, slot: slot.rawValue, from: source, to: page, at: .now), let old = waiting[slot], old.id == replaced {
+        let begun = log.begin(lastID, slot: slot.rawValue, from: source, to: page, at: .now)
+        // taps no page answered: past the window, in any slot, then the one this tap replaces
+        for id in begun.expired {
+            if let entry = waiting.first(where: { $0.value.id == id }) {
+                entry.value.end("expired")
+                waiting[entry.key] = nil
+            }
+        }
+        if let replaced = begun.superseded, let old = waiting[slot], old.id == replaced {
             old.end("superseded")
         }
         waiting[slot] = mark
@@ -124,7 +134,8 @@ struct TransitionMark {
         end("settled")
     }
 
-    /// The page went before it settled: ends the interval, records nothing.
+    /// The page went before it settled: closed, or covered or left (a tab switch, a page pushed on top, a
+    /// full-screen cover over it). Ends the interval ("dismissed"), records nothing.
     func dismissed() {
         guard Perf.drop(id) else { return }
         end("dismissed")

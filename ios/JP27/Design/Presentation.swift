@@ -1,4 +1,5 @@
 import SwiftUI
+import TripKit
 
 // How things come on screen. A sheet grows out of the control that opened it (a navigation zoom
 // transition, as the system does for its own toolbar buttons) and shrinks back into it; a sheet
@@ -144,46 +145,48 @@ extension View {
 
 /// See `settles`. The page counts as settled a fixed time after its first frame: SwiftUI reports no end
 /// of a push, a sheet or a zoom (a completion given to `withAnimation` would run at once, since the state
-/// change that presents creates no SwiftUI animation). It can never stay false while the page shows: the
-/// wait starts again on every appearance and is cut short only by the page going away.
+/// change that presents creates no SwiftUI animation). The rules are TripKit's `SettleGate` (tested): the
+/// first appearance claims the tap; every appearance not yet settled waits; a wait cut short (the page
+/// closed, covered or left) leaves it to the next appearance; settled never goes back to false.
 private struct SettlesTransition: ViewModifier {
     let kind: Perf.Settle
     let slot: Perf.Slot?
     let page: String?
+    /// what `transitionSettled` reads: `held.gate.settled`, as state so that the page redraws once with it
     @State private var settled = false
-    @State private var claimed = ClaimedTransition()
+    @State private var held = HeldTransition()
 
     func body(content: Content) -> some View {
         content
             .environment(\.transitionSettled, settled)
             .onAppear {
-                // the first appearance only: a page shown again (a tab switch, a page popped off it)
-                // answers no tap
-                guard !claimed.done else { return }
-                claimed.done = true
-                if let slot { claimed.mark = Perf.claim(slot, page: page) }
-                claimed.mark?.firstFrame()
+                guard held.gate.appeared() else { return }
+                if let slot { held.mark = Perf.claim(slot, page: page) }
+                held.mark?.firstFrame()
             }
             .task {
-                guard !settled else { return }
+                guard held.gate.waits else { return }
+                let finished: Bool
                 do {
                     try await Task.sleep(for: kind.delay)
+                    finished = true
                 } catch {
-                    // gone before it settled
-                    claimed.mark?.dismissed()
-                    claimed.mark = nil
-                    return
+                    finished = false
                 }
-                settled = true
-                claimed.mark?.settled()
-                claimed.mark = nil
+                if held.gate.waited(finished: finished) {
+                    settled = true
+                    held.mark?.settled()
+                } else {
+                    held.mark?.dismissed()
+                }
+                held.mark = nil
             }
     }
 }
 
-/// The tap a page claimed, held where changing it redraws nothing.
-private final class ClaimedTransition {
-    var done = false
+/// The gate and the tap a page claimed, held where changing them redraws nothing.
+private final class HeldTransition {
+    var gate = SettleGate()
     var mark: TransitionMark?
 }
 

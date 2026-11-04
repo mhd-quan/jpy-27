@@ -103,7 +103,7 @@ private struct DiagnosticsSection: View {
         Section {
             // in every build: the measures behind docs/perf/2026-11-baseline.md and a week of real use
             NavigationLink {
-                SettingsPage(title: "Số đo") { MeasuresSection() }
+                MeasuresPage()
             } label: {
                 SettingsLabel(title: "Số đo", symbol: "stopwatch", tint: .gray)
             }
@@ -314,14 +314,26 @@ private struct DiagnosticsSection: View {
     #endif
 }
 
-/// Chẩn đoán › Số đo: the transitions measured since the app opened (from the tap to the first frame,
-/// and to the end, `Perf`), the moments counted, and MetricKit's daily reports, whose JSON can be shared.
+/// Chẩn đoán › Số đo. The reports are read when the page opens, on the page itself: a task on a row of
+/// the form would wait for that row to be scrolled to.
+private struct MeasuresPage: View {
+    /// Caches/metrics/, read off the main thread
+    @State private var stored: MetricsInbox.Stored?
+
+    var body: some View {
+        SettingsPage(title: "Số đo") { MeasuresSection(stored: stored) }
+            .task { stored = await MetricsInbox.stored() }
+    }
+}
+
+/// The transitions measured since the app opened (from the tap to the first frame, and to the end,
+/// `Perf`), the moments counted, and MetricKit's daily reports, whose JSON can be shared.
 private struct MeasuresSection: View {
     /// as of when the page opened
     @State private var rows = Perf.log.rows
     @State private var marks = Perf.log.marks
-    /// Caches/metrics/, read off the main thread when the page opens
-    @State private var stored: MetricsInbox.Stored?
+    /// nil while being read
+    let stored: MetricsInbox.Stored?
 
     var body: some View {
         Section {
@@ -346,7 +358,7 @@ private struct MeasuresSection: View {
         } header: {
             Text("Chuyển trang")
         } footer: {
-            Text("Từ lúc mở app. Mỗi dòng: từ lúc chạm tới khung đầu · tới khi chuyển xong, trung vị, tính bằng ms. Chuyển xong là khung đầu cộng 350 ms (đẩy trang) hay 500 ms (sheet, zoom): một mốc chờ, không phải số đo.")
+            Text("Từ lúc mở app. Mỗi dòng: từ lúc chạm tới khung đầu · tới khi chuyển xong, trung vị, tính bằng ms. Chuyển xong là khung đầu cộng \(Self.ms(Perf.Settle.push.delay)) (đẩy trang) hay \(Self.ms(Perf.Settle.modal.delay)) (sheet, zoom): một mốc chờ, không phải số đo.")
         }
 
         Section {
@@ -363,7 +375,7 @@ private struct MeasuresSection: View {
         } header: {
             Text("MetricKit")
         } footer: {
-            Text("iOS gửi mỗi ngày một báo cáo; app giữ 14 báo cáo gần nhất. Giật: số ms giật trong mỗi giây cuộn, và trong mỗi giây có chuyển động. Mở app: trung vị thời gian tới khung đầu.")
+            Text("iOS gửi mỗi ngày một báo cáo; app giữ \(MetricsFolder.keep) báo cáo gần nhất. Giật: số ms giật trong mỗi giây cuộn, và trong mỗi giây có chuyển động. Mở app: trung vị thời gian tới khung đầu. Trung vị của từng signpost gồm cả những lần chuyển trang không xong (trang đóng, bị che hay rời đi trước khi xong, hoặc không trang nào mở): chúng làm lệch số.")
         }
 
         Section {
@@ -371,8 +383,6 @@ private struct MeasuresSection: View {
                 Label("Chia sẻ JSON", systemImage: "square.and.arrow.up")
             }
             .disabled(stored?.files.isEmpty ?? true)
-            // on this row, always there: a modifier on a section would go to each of its rows
-            .task { stored = await MetricsInbox.stored() }
         }
     }
 
