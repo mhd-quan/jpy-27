@@ -257,15 +257,15 @@ public struct Itinerary: Sendable {
     /// is at risk.
     ///
     /// `riding` is the ride being followed. Once its time has come (an untimed one at once), when
-    /// its legs are one run of the day's items and nothing is marked past them, the day goes on
-    /// right after it — unless a stop after it holds you — with the clock at its arrival
-    /// (`arrival(of:)`), not at the walk from the train to the next place. Without it, a ride the
+    /// its legs are one run of the day's items, the day goes on right after it — unless a mark or
+    /// a stop after it holds the day further on — with the clock at its arrival (`arrival(of:)`),
+    /// not at the walk from the train to the next place. Without it, a ride the
     /// position says you are on does the same (`locate`); with no position, nothing is inferred.
     /// `riding` in the result is the ride the projection started after, if any.
     public func project(_ day: Day, done: Set<Int>, now: Double, position: Coordinate?, pace: Double = 1, skips: Set<Int> = [], riding: Ride? = nil) -> (cursor: Int, slots: [PlanEngine.Slot], replan: Replan?, riding: Ride?) {
         var marks = done
         var followed: Riding?
-        if let riding, riding.day == day.key, let last = lastLeg(of: riding, in: day), (done.max() ?? -1) <= last,
+        if let riding, riding.day == day.key, let last = lastLeg(of: riding, in: day),
            TripTime.minutes(riding.at).map({ Double($0) <= now }) ?? true {
             // its legs count as done: the day is past them
             marks.insert(last)
