@@ -565,6 +565,59 @@ import Testing
         #expect(sides.contains(.right))
         #expect(tracker.minutesLeft(km: ride.km / 2)! > 40)
     }
+
+    static let cruise = "r-4-ashiCruise-moto-hakone-port"
+
+    /// The Ashi cruise, a direct ride (its stop before yours is where you board), made `km` long.
+    func cruise(km: Double) throws -> RideTracker {
+        let patched = try TripStore.patched { trip in
+            guard var rides = trip["rides"] as? [[String: Any]],
+                  let i = rides.firstIndex(where: { $0["id"] as? String == Self.cruise }),
+                  var stations = rides[i]["stations"] as? [[String: Any]], !stations.isEmpty
+            else { throw CocoaError(.coderReadCorrupt) }
+            stations[stations.count - 1]["km"] = km
+            rides[i]["stations"] = stations
+            rides[i]["km"] = km
+            trip["rides"] = rides
+        }
+        let ride = try #require(patched.trip.rides.first { $0.id == Self.cruise })
+        #expect(ride.km == km)
+        return RideTracker(ride: ride, store: patched)
+    }
+
+    @Test func aDirectFerryIsNotAlightingAtBoarding() throws {
+        let t = RideTracker(ride: store.trip.rides.first { $0.id == "r-4-ashiCruise-moto-hakone-port" }!, store: store)
+        #expect(t.status(km: 0).alightSoon == false)
+        #expect(t.status(km: 5.7).alightSoon == true)   // the cruise is 5.9 km
+        #expect(t.minutesToAlightPrompt(km: 0)! > 0)
+        // ready over its last 15 %: from 5.9 - 0.885 = 5.015 km, 34 of its 40 minutes in
+        #expect(!t.status(km: 5.01).alightSoon)
+        #expect(t.status(km: 5.02).alightSoon)
+        #expect(abs(t.minutesToAlightPrompt(km: 0)! - 5.015 / 5.9 * 40) < 1e-9)
+        #expect(t.minutesToAlightPrompt(km: 5.5) == 0)
+        // the Toba ferry to Wagu, 6.2 km in 18 minutes: ready from 5.27 km
+        let toba = try #require(store.trip.rides.first { $0.id == "r-7-tobaFerry-toba-marine-terminal" })
+        let tobaTracker = RideTracker(ride: toba, store: store)
+        #expect(!tobaTracker.status(km: 5.2).alightSoon)
+        #expect(tobaTracker.status(km: 5.3).alightSoon)
+        #expect(abs(tobaTracker.minutesToAlightPrompt(km: 0)! - 5.27 / 6.2 * 18) < 1e-9)
+        // a short one: the last 800 m at least (4 km: from 3.2, not 3.4)
+        let short = try cruise(km: 4)
+        #expect(!short.status(km: 3.19).alightSoon)
+        #expect(short.status(km: 3.21).alightSoon)
+        #expect(abs(short.minutesToAlightPrompt(km: 0)! - 3.2 / 4 * 40) < 1e-9)
+        // and never more than its second half (600 m: from 300 m, not from boarding)
+        let tiny = try cruise(km: 0.6)
+        #expect(!tiny.status(km: 0).alightSoon)
+        #expect(!tiny.status(km: 0.29).alightSoon)
+        #expect(tiny.status(km: 0.31).alightSoon)
+        #expect(abs(tiny.minutesToAlightPrompt(km: 0)! - 0.3 / 0.6 * 40) < 1e-9)
+        // a ride with a station before yours is as it was (the Romancecar gets ready past Iriuda, 86.6 km)
+        let romancecar = RideTracker(ride: store.trip.rides.first { $0.id == "r-4-romancecar-st-shinjuku-odakyu" }!, store: store)
+        #expect(!romancecar.status(km: 86.2).alightSoon)
+        #expect(romancecar.status(km: 86.4).alightSoon)
+        #expect(abs(romancecar.minutesToAlightPrompt(km: 0)! - 86.6 / 88.7 * 105) < 1e-9)
+    }
 }
 
 @Suite struct MenuTests {

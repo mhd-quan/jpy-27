@@ -62,10 +62,19 @@ public struct RideTracker: Sendable {
         }
         let fuji = events.map { ride.events[$0] }.first { $0.fuji && $0.side != .both }?.side
         let prevIdx = ride.alight?.idx ?? max(0, st.count - 2)
-        let alightSoon = st.indices.contains(prevIdx) && km >= st[prevIdx].km - 0.3
+        // a direct ride (the stop before yours is where you board) gets ready over its last stretch
+        let alightSoon = st.indices.contains(prevIdx) && km >= (prevIdx == 0 ? tail : st[prevIdx].km - 0.3)
         let arrived = km >= total - 0.3
         let transfer = nextStop.flatMap { i in ride.transfers.firstIndex { $0.idx == i } }
         return Status(km: km, progress: total > 0 ? km / total : 0, offTrackKm: off, previous: previous, next: next, nextStop: nextStop, stopsLeft: stopsLeft, events: events, fujiSide: fuji, alightSoon: alightSoon, arrived: arrived, transfer: transfer)
+    }
+
+    /// Where a direct ride (one whose stop before yours is where you board: the Ashi cruise, the Toba
+    /// ferry to Wagu) gets ready to alight, km from boarding: its last 15 %, at least its last 800 m,
+    /// never more than its second half. At its first station that would be from the moment you board.
+    var tail: Double {
+        let total = max(ride.km, ride.stations.last?.km ?? 0)
+        return max(total / 2, total - max(0.8, 0.15 * total))
     }
 
     /// Planned arrival, minutes since midnight: departure plus the stated time.
@@ -82,10 +91,11 @@ public struct RideTracker: Sendable {
         return left / ride.km * Double(dur)
     }
 
-    /// Minutes until the stop before yours, where the research says to get ready.
+    /// Minutes until the stop before yours, where the research says to get ready; on a direct ride,
+    /// until its last stretch (`tail`).
     public func minutesToAlightPrompt(km: Double, speedKmh: Double? = nil) -> Double? {
         guard let idx = ride.alight?.idx, ride.stations.indices.contains(idx) else { return minutesLeft(km: km, speedKmh: speedKmh).map { max(0, $0 - 3) } }
-        let target = ride.stations[idx].km
+        let target = idx == 0 ? tail : ride.stations[idx].km
         guard let total = minutesLeft(km: km, speedKmh: speedKmh), ride.km - km > 0 else { return nil }
         return max(0, total * (target - km) / (ride.km - km))
     }
