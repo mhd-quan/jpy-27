@@ -18,8 +18,13 @@ Instruments, ở dòng **Points of Interest** của instrument os_signpost.
 
 - **Bắt đầu** lúc chạm, nhãn `nơi chạm → trang`, ví dụ `today → day`, `map → place`.
 - Sự kiện **`first-frame`** ngay trước khung đầu của trang đích (`onAppear` của trang).
-- **Kết thúc** khi chuyển xong. Lời kết thúc nói vì sao: `settled` (đã xong), `dismissed` (trang đóng trước khi xong),
-  `superseded` (chạm khác tới trước khi trang hiện), `expired` (trang hiện sau hơn 3 giây, không ghép).
+- **Kết thúc** khi chuyển xong. Lời kết thúc nói vì sao:
+  - `settled`: đã xong.
+  - `dismissed`: trang đi trước khi xong. Nó bị đóng, bị che (đẩy trang khác lên, thẻ toàn màn hình), hay bị rời đi
+    (đổi tab).
+  - `superseded`: chạm khác tới trước khi trang hiện.
+  - `expired`: không trang nào trả lời trong 3 giây. Trang hiện quá muộn thì không được ghép; chạm không trang nào mở
+    thì kết thúc ở lần chạm kế tiếp.
 
 SwiftUI không báo lúc một push, một sheet hay một zoom xong. "Xong" là một mốc chờ cố định tính từ khung đầu:
 
@@ -45,9 +50,17 @@ Vì vậy **độ dài khoảng không phải số đo của animation.** Cái g
 - **MetricKit:** báo cáo hằng ngày của iOS.
 - **Chia sẻ JSON:** gửi các báo cáo MetricKit đi.
 
+Mỗi transition còn một bản sao cho MetricKit, theo tên `sheet.place`, `push.today`, `cover.phrase`… Bản sao của những
+lần không `settled` (`dismissed`, `superseded`, `expired`) cũng kết thúc. Vì vậy trung vị theo tên trong báo cáo
+MetricKit gồm cả chúng và bị lệch: lần đóng sớm kéo số xuống, lần chờ tới chạm kế tiếp kéo số lên. Số trong app và
+trong Instruments thì tách được chúng.
+
 ## Cách đo
 
-1. **Bản build.** Mở `ios/JP27.xcodeproj` ở đúng baseline commit. Product › Profile (⌘I) build bản Release.
+1. **Bản build.** `JP27.xcodeproj` là file sinh ra, không nằm trong repo. Lấy đúng baseline commit
+   (`git checkout <baseline commit>`), rồi sinh lại project như `ios/README.md` hướng dẫn: `cd ios && xcodegen`, hoặc
+   chạy lại lệnh `ios/scripts/use-profile.py` đã dùng để ký. Mở `ios/JP27.xcodeproj`. Product › Profile (⌘I) build bản
+   Release.
 2. **Máy.** Sạc đầy, nhiệt độ bình thường (không vừa sạc nhanh, không để nắng). Tắt Chế độ nguồn điện thấp. Đóng các app
    khác.
 3. **Mở app** từ màn hình chính, không từ Xcode. Trong Instruments, chọn tiến trình JP27 đang chạy (Attach), không
