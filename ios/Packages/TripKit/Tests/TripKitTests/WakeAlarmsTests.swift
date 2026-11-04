@@ -524,12 +524,12 @@ import Testing
         let clock = FakeClock(planned)
         let saves = SavedLog()
         let a = WakeAlarms(scheduler: s, saved: [ride.id: rung], now: { clock.now }) { saves.slots.append($0) }
-        let tracker = RideTracker(ride: ride, store: store)
+        var tracker = RideTracker(ride: ride, store: store)
         // from 9:18 to 9:38, a fix a minute, short of Iriuda (86.6 km) at 50 km/h
         for minute in 0 ... 20 {
             let fix = planned + Double(minute * 60)
             clock.now = fix
-            #expect(tracker.alarm(km: 70 + Double(minute) * 0.8, speedKmh: 50, at: fix, notAfter: planned, now: fix) == nil)
+            #expect(tracker.alarm(km: 70 + Double(minute) * 0.8, speedKmh: 50, at: fix, notAfter: planned, scheduled: a.scheduled[ride.id]?.at, now: fix) == nil)
             await a.alight(WakeRequest(rideID: ride.id, station: ride.toName, at: planned, source: .ride))
         }
         #expect(s.log.isEmpty)
@@ -539,7 +539,8 @@ import Testing
         // a ride first followed after 9:18, with no alarm set: nothing, the same way
         let none = FakeScheduler()
         let b = WakeAlarms(scheduler: none, saved: [:], now: { clock.now }) { _ in }
-        #expect(tracker.alarm(km: 80, at: clock.now, notAfter: planned, now: clock.now) == nil)
+        var late = RideTracker(ride: ride, store: store)
+        #expect(late.alarm(km: 80, at: clock.now, notAfter: planned, scheduled: nil, now: clock.now) == nil)
         await b.alight(WakeRequest(rideID: ride.id, station: ride.toName, at: planned, source: .ride))
         #expect(none.log.isEmpty)
         #expect(b.scheduled.isEmpty)

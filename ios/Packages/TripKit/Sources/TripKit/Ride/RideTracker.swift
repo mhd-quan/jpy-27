@@ -13,6 +13,8 @@ public struct RideTracker: Sendable {
     private let scale: Double
     /// where the train was and when, over the last `memory` seconds (`record`)
     private var samples: [Sample] = []
+    /// an alarm for the ride has rung (`alarm`): only the timetable's is left to ring
+    private var rang = false
 
     private struct Sample: Sendable {
         let km: Double
@@ -74,7 +76,6 @@ public struct RideTracker: Sendable {
 
     public func status(km rawKm: Double, off: Double = 0) -> Status {
         let st = ride.stations
-        let total = max(ride.km, st.last?.km ?? 0)
         let km = max(0, min(total, rawKm))
         let next = st.firstIndex { $0.km > km + 0.15 }
         let previous = st.lastIndex { $0.km <= km + 0.15 }
@@ -86,21 +87,27 @@ public struct RideTracker: Sendable {
             return st[e.from].km - 2 <= km && km <= st[e.to].km + 0.3
         }
         let fuji = events.map { ride.events[$0] }.first { $0.fuji && $0.side != .both }?.side
-        let prevIdx = ride.alight?.idx ?? max(0, st.count - 2)
-        // a direct ride (the stop before yours is where you board) gets ready over its last stretch
-        let alightSoon = st.indices.contains(prevIdx) && km >= (prevIdx == 0 ? tail : st[prevIdx].km - 0.3)
+        let alightSoon = isDirect ? km >= tail : st.indices.contains(prevIdx) && km >= st[prevIdx].km - 0.3
         let arrived = km >= total - 0.3
         let transfer = nextStop.flatMap { i in ride.transfers.firstIndex { $0.idx == i } }
         return Status(km: km, progress: total > 0 ? km / total : 0, offTrackKm: off, previous: previous, next: next, nextStop: nextStop, stopsLeft: stopsLeft, events: events, fujiSide: fuji, alightSoon: alightSoon, arrived: arrived, transfer: transfer)
     }
 
-    /// Where a direct ride (one whose stop before yours is where you board: the Ashi cruise, the Toba
-    /// ferry to Wagu) gets ready to alight, km from boarding: its last 15 %, at least its last 800 m,
-    /// never more than its second half. At its first station that would be from the moment you board.
-    var tail: Double {
-        let total = max(ride.km, ride.stations.last?.km ?? 0)
-        return max(total / 2, total - max(0.8, 0.15 * total))
-    }
+    /// km of the ride, by its length or its last station, whichever is further
+    private var total: Double { max(ride.km, ride.stations.last?.km ?? 0) }
+
+    /// The station before yours, where the research says to get ready: the one it names, else the
+    /// last but one.
+    private var prevIdx: Int { ride.alight?.idx ?? max(0, ride.stations.count - 2) }
+
+    /// The stop before yours is where you board (the Ashi cruise, the Toba ferry to Wagu): getting
+    /// ready there would be from the moment you board, so the ride gets ready over its last stretch
+    /// (`tail`) instead, for `Status.alightSoon` and the alarm alike.
+    var isDirect: Bool { prevIdx == 0 && !ride.stations.isEmpty }
+
+    /// Where a direct ride gets ready to alight, km from boarding: its last 15 %, at least its last
+    /// 800 m, never more than its second half.
+    var tail: Double { max(total / 2, total - max(0.8, 0.15 * total)) }
 
     /// A fix at `km`, taken at `time` (the fix's own time, not when it is handled). Kept for `memory`
     /// seconds after the latest. A fix not after the latest is a repeat, or one delivered late: left
@@ -154,10 +161,16 @@ public struct RideTracker: Sendable {
     /// Minutes until the stop before yours, where the research says to get ready; on a direct ride,
     /// until its last stretch (`tail`).
     public func minutesToAlightPrompt(km: Double, speedKmh: Double? = nil) -> Double? {
-        guard let idx = ride.alight?.idx, ride.stations.indices.contains(idx) else { return minutesLeft(km: km, speedKmh: speedKmh).map { max(0, $0 - 3) } }
-        let target = idx == 0 ? tail : ride.stations[idx].km
-        guard let total = minutesLeft(km: km, speedKmh: speedKmh), ride.km - km > 0 else { return nil }
-        return max(0, total * (target - km) / (ride.km - km))
+        let target: Double
+        if isDirect {
+            target = tail
+        } else if let idx = ride.alight?.idx, ride.stations.indices.contains(idx) {
+            target = ride.stations[idx].km
+        } else {
+            return minutesLeft(km: km, speedKmh: speedKmh).map { max(0, $0 - 3) }
+        }
+        guard let left = minutesLeft(km: km, speedKmh: speedKmh), ride.km - km > 0 else { return nil }
+        return max(0, left * (target - km) / (ride.km - km))
     }
 
     /// When a followed ride's alarm rings, from a fix at `km` taken at `fix`: as the train leaves the
@@ -166,7 +179,19 @@ public struct RideTracker: Sendable {
     /// Nil when that leaves too little time for a new alarm (`WakeReconciler.rideLead` after `now`):
     /// the one set stays as it is, and once the timetable's alarm has had its time, nothing more is
     /// asked for, however late the train runs (it has rung, early, once).
-    public func alarm(km: Double, speedKmh: Double? = nil, at fix: Date, notAfter latest: Date?, now: Date) -> Date? {
+    ///
+    /// `scheduled` is what is set for the ride now (`AlarmService.time(of:)`). Once that has had its
+    /// time (`<= now`), an alarm has rung, and this tracker remembers it: from then on only the
+    /// timetable's alarm, while it is still to come, never another GPS time. A fast stretch can put
+    /// the GPS's alarm well before the stop (an arrival at 0.6 × the timetable); a train that then
+    /// stops at a station would otherwise be rung for again and again. At most two rings: an early
+    /// one from the GPS, then the timetable's.
+    public mutating func alarm(km: Double, speedKmh: Double? = nil, at fix: Date, notAfter latest: Date?, scheduled: Date?, now: Date) -> Date? {
+        if let scheduled, scheduled <= now { rang = true }
+        if rang {
+            guard let latest, latest > now.addingTimeInterval(WakeReconciler.rideLead) else { return nil }
+            return latest
+        }
         guard let prompt = minutesToAlightPrompt(km: km, speedKmh: speedKmh) else { return nil }
         let gps = fix.addingTimeInterval(prompt * 60)
         let at = latest.map { min(gps, $0) } ?? gps

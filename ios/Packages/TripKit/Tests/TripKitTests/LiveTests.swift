@@ -593,6 +593,8 @@ import Testing
         // ready over its last 15 %: from 5.9 - 0.885 = 5.015 km, 34 of its 40 minutes in
         #expect(!t.status(km: 5.01).alightSoon)
         #expect(t.status(km: 5.02).alightSoon)
+        #expect(abs(t.tail - 5.015) < 1e-9)
+        #expect(t.status(km: t.tail).alightSoon)
         #expect(abs(t.minutesToAlightPrompt(km: 0)! - 5.015 / 5.9 * 40) < 1e-9)
         #expect(t.minutesToAlightPrompt(km: 5.5) == 0)
         // the Toba ferry to Wagu, 6.2 km in 18 minutes: ready from 5.27 km
@@ -617,6 +619,25 @@ import Testing
         #expect(!romancecar.status(km: 86.2).alightSoon)
         #expect(romancecar.status(km: 86.4).alightSoon)
         #expect(abs(romancecar.minutesToAlightPrompt(km: 0)! - 86.6 / 88.7 * 105) < 1e-9)
+    }
+
+    @Test func aDirectRideWithNoResearchedStationGetsReadyAndRingsAlike() throws {
+        // the Ashi cruise without its researched station before yours: of two stations, that is still
+        // where you board, for "Chuẩn bị xuống" and for the alarm alike
+        let patched = try TripStore.patched { trip in
+            guard var rides = trip["rides"] as? [[String: Any]],
+                  let i = rides.firstIndex(where: { $0["id"] as? String == Self.cruise })
+            else { throw CocoaError(.coderReadCorrupt) }
+            rides[i]["alight"] = nil
+            trip["rides"] = rides
+        }
+        let ride = try #require(patched.trip.rides.first { $0.id == Self.cruise })
+        #expect(ride.alight == nil)
+        #expect(ride.stations.count == 2)
+        let t = RideTracker(ride: ride, store: patched)
+        #expect(!t.status(km: 0).alightSoon)
+        #expect(t.status(km: t.tail).alightSoon)
+        #expect(abs(t.minutesToAlightPrompt(km: 0)! - t.tail / ride.km * 40) < 1e-9)
     }
 
     // day 4: the 7:37 Romancecar, 105 minutes for 88.7 km
@@ -711,6 +732,10 @@ import Testing
         shinkansen.record(km: 0, at: t0)
         shinkansen.record(km: 11.4, at: t0 + 120)
         #expect(abs(shinkansen.minutesLeft(km: 11.4)! - 0.6 * timetable(11.4)) < 1e-9)
+        var edge = RideTracker(ride: romancecar, store: store)
+        edge.record(km: 0, at: t0)
+        edge.record(km: 14, at: t0 + 144)   // 350 km/h exactly: still a train
+        #expect(abs(edge.minutesLeft(km: 14)! - 0.6 * timetable(14)) < 1e-9)
         var landed = RideTracker(ride: romancecar, store: store)
         landed.record(km: 10, at: t0)
         landed.record(km: 20, at: t0 + 60)   // 600 km/h
@@ -725,32 +750,68 @@ import Testing
         #expect(abs(back.minutesLeft(km: 13)! - (romancecar.km - 13) / (3.0 / 270 * 3600) * 60) < 1e-9)
     }
 
+    @Test func afterARingOnlyTheTimetablesRingIsLeft() throws {
+        let day4 = try #require(store.day("4"))
+        let planned = try #require(WakePlanner(store: store).alarm(for: romancecar))
+        let machida = try #require(TripTime.date(day4.date, minutes: 8 * 60 + 5))
+        // through Machida at ~87 km/h, on time: the pace sits on the 0.6 floor, the alarm at 8:44
+        var t = RideTracker(ride: romancecar, store: store)
+        t.record(km: 28.0, at: machida - 120)
+        t.record(km: 30.9, at: machida)
+        let first = t.alarm(km: 30.9, at: machida, notAfter: planned, scheduled: nil, now: machida)
+        let early = try #require(first)
+        #expect(early < planned - 30 * 60)
+        // the timetable's own alarm still to ring counts for nothing: the GPS moves it
+        var fresh = RideTracker(ride: romancecar, store: store)
+        fresh.record(km: 28.0, at: machida - 120)
+        fresh.record(km: 30.9, at: machida)
+        #expect(fresh.alarm(km: 30.9, at: machida, notAfter: planned, scheduled: planned, now: machida) == early)
+        // 8:44 rings (due at that very second counts): from then on the timetable's 9:18 only, however
+        // early the stop before yours reads
+        #expect(t.alarm(km: 50, speedKmh: 300, at: early, notAfter: planned, scheduled: early, now: early) == planned)
+        let after = early + 60
+        #expect(t.alarm(km: 51, speedKmh: 300, at: after, notAfter: planned, scheduled: early, now: after) == planned)
+        // set at 9:18 again, then forgotten by the alarms: still 9:18, never earlier again
+        #expect(t.alarm(km: 52, speedKmh: 300, at: after + 60, notAfter: planned, scheduled: planned, now: after + 60) == planned)
+        #expect(t.alarm(km: 53, speedKmh: 300, at: after + 120, notAfter: planned, scheduled: nil, now: after + 120) == planned)
+        // and nothing within the half minute a new alarm needs, nor after
+        #expect(t.alarm(km: 80, at: planned - 30, notAfter: planned, scheduled: planned, now: planned - 30) == nil)
+        #expect(t.alarm(km: 80, at: planned - 31, notAfter: planned, scheduled: nil, now: planned - 31) == planned)
+        // a ride with no timetable alarm (a boat, switched on by hand) rings once
+        var boat = RideTracker(ride: try #require(store.trip.rides.first { $0.id == Self.cruise }), store: store)
+        let boarding = t0
+        let boatAlarm = boat.alarm(km: 0, at: boarding, notAfter: nil, scheduled: nil, now: boarding)
+        let ring = try #require(boatAlarm)
+        #expect(boat.alarm(km: 1, at: ring + 10, notAfter: nil, scheduled: ring, now: ring + 10) == nil)
+        #expect(boat.alarm(km: 0.5, at: ring + 20, notAfter: nil, scheduled: nil, now: ring + 20) == nil)
+    }
+
     @Test func theGPSAlarmIsNeverLaterThanTheTimetables() throws {
         let day4 = try #require(store.day("4"))
         let timetableAlarm = try #require(WakePlanner(store: store).alarm(for: romancecar))
         #expect(timetableAlarm == TripTime.date(day4.date, minutes: 7 * 60 + 37 + 105 - 4))
         // at Machida at 8:05, a fix at 16 km/h: the stop before yours an hour and a half away, at 9:43
         let machida = try #require(TripTime.date(day4.date, minutes: 8 * 60 + 5))
-        let t = RideTracker(ride: romancecar, store: store)
+        var t = RideTracker(ride: romancecar, store: store)
         let prompt = try #require(t.minutesToAlightPrompt(km: 30.9, speedKmh: 16))
         let gps = machida + prompt * 60
         #expect(gps > timetableAlarm)
-        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, now: machida) == gps)
-        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: timetableAlarm, now: machida) == timetableAlarm)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, scheduled: nil, now: machida) == gps)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: timetableAlarm, scheduled: nil, now: machida) == timetableAlarm)
         // a train ahead of the timetable rings ahead of it
         let early = machida + t.minutesToAlightPrompt(km: 30.9, speedKmh: 200)! * 60
         #expect(early < timetableAlarm)
-        #expect(t.alarm(km: 30.9, speedKmh: 200, at: machida, notAfter: timetableAlarm, now: machida) == early)
+        #expect(t.alarm(km: 30.9, speedKmh: 200, at: machida, notAfter: timetableAlarm, scheduled: nil, now: machida) == early)
         // anchored at the fix, not at the moment it is handled
-        #expect(t.alarm(km: 30.9, speedKmh: 200, at: machida, notAfter: timetableAlarm, now: machida + 50) == early)
+        #expect(t.alarm(km: 30.9, speedKmh: 200, at: machida, notAfter: timetableAlarm, scheduled: nil, now: machida + 50) == early)
         // late, past the timetable's alarm or within the half minute a new alarm needs: nothing more is asked
         let late = timetableAlarm + 600
-        #expect(t.alarm(km: 80, at: late, notAfter: timetableAlarm, now: late) == nil)
-        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: timetableAlarm, now: timetableAlarm - 30) == nil)
-        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: timetableAlarm, now: timetableAlarm - 31) == timetableAlarm)
+        #expect(t.alarm(km: 80, at: late, notAfter: timetableAlarm, scheduled: nil, now: late) == nil)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: timetableAlarm, scheduled: nil, now: timetableAlarm - 30) == nil)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: timetableAlarm, scheduled: nil, now: timetableAlarm - 31) == timetableAlarm)
         // without the timetable's alarm, the same half minute
-        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, now: gps - 30) == nil)
-        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, now: gps - 31) == gps)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, scheduled: nil, now: gps - 30) == nil)
+        #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, scheduled: nil, now: gps - 31) == gps)
     }
 }
 
@@ -1031,6 +1092,11 @@ import Testing
             let ride = try #require(store.trip.rides.first { $0.id == w.rideID })
             #expect(wake.alarm(for: ride) == w.at, "\(w.rideID)")
         }
+        // one due exactly now is no longer wanted
+        let romancecar = try #require(store.trip.rides.first { $0.id == "r-4-romancecar-st-shinjuku-odakyu" })
+        let planned = try #require(wake.alarm(for: romancecar))
+        #expect(!wake.wakes(days: days, now: planned) { _, _ in false }.contains { $0.rideID == romancecar.id })
+        #expect(wake.wakes(days: days, now: planned - 1) { _, _ in false }.contains { $0.rideID == romancecar.id })
         // none for a boat, a bus, or a ride with no time
         for id in ["r-4-ashiCruise-moto-hakone-port", "r-4-tozanBus-st-hakone-yumoto", "r-5-shinkansen-st-shizuoka"] {
             let ride = try #require(store.trip.rides.first { $0.id == id })

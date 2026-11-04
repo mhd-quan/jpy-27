@@ -67,12 +67,13 @@ import TripKit
         guard s.offTrackKm < RideTracker.offTrack else { return }
         if status != s { status = s }
         // the fix's own time: the pace counts from when the train was there, and a call with no new
-        // fix (a projection, the GPS lost in a tunnel) adds nothing and moves nothing
-        let fix = model.location.fixedAt ?? Date()
-        tracker?.record(km: s.km, at: fix)
-        guard let tracker else { return }
+        // fix (a projection, the GPS lost in a tunnel) adds nothing and moves nothing. With no fix
+        // time at all, nothing is recorded: the call's own time would read as the train standing still
+        let fixedAt = model.location.fixedAt
+        if let fixedAt { tracker?.record(km: s.km, at: fixedAt) }
+        let fix = fixedAt ?? Date()
         let speed = model.location.speedKmh
-        let left = tracker.minutesLeft(km: s.km, speedKmh: speed)
+        let left = tracker?.minutesLeft(km: s.km, speedKmh: speed)
         // on the trip's clock, from the fix. Shown as hours and minutes: kept to the minute, so it
         // changes once a minute at most instead of with every fix (the accessory over the tab bar
         // redraws when it does)
@@ -80,12 +81,13 @@ import TripKit
         if arrival != eta { arrival = eta }
         let state = makeState(s, model: model)
         // ring as the train leaves the stop before yours, never later than the timetable's alarm (real
-        // time, as alarms are), and nothing once that has had its time (`RideTracker.alarm`); a time
-        // within two minutes of the one set is not worth a call (AlarmService would keep the alarm it
-        // has anyway)
+        // time, as alarms are), nothing once that has had its time, and once an alarm for the ride
+        // has rung only the timetable's (`RideTracker.alarm`, told what is set); a time within two
+        // minutes of the one set is not worth a call (AlarmService would keep the alarm it has anyway)
+        let current = model.alarms.time(of: ride.id)
         if !s.arrived, model.wakeAlarmIsOn(ride),
-           let at = tracker.alarm(km: s.km, speedKmh: speed, at: fix, notAfter: timetableAlarm?.addingTimeInterval(-model.clockOffset), now: Date()),
-           model.alarms.time(of: ride.id).map({ abs($0.timeIntervalSince(at)) >= 120 }) ?? true {
+           let at = tracker?.alarm(km: s.km, speedKmh: speed, at: fix, notAfter: timetableAlarm?.addingTimeInterval(-model.clockOffset), scheduled: current, now: Date()),
+           current.map({ abs($0.timeIntervalSince(at)) >= 120 }) ?? true {
             Task { await model.alarms.alight(rideID: ride.id, station: ride.toName, at: at) }
         }
         let changed = state.next != lastState?.next || state.alight != lastState?.alight || state.fuji != lastState?.fuji || state.arrived != lastState?.arrived

@@ -545,13 +545,18 @@ trí cách mọi tuyến của chuyến, nên mọi bước dưới đây chỉ 
    lịch" (7:37 + 105 phút − 4). Tắt công tắc: "Chưa đặt báo thức". Bật lại.
 2. **Romancecar, theo dõi chuyến (ngày 4, 7:37).** Theo dõi từ sân ga, công tắc báo thức bật. Mở trang chuyến vài lần
    trên đường, nhất là khi tàu chậm lại vào Machida (~8:05), Hon-Atsugi và Odawara (~9:10).
-   - **Đạt** khi giờ ở dòng Debug không bao giờ muộn hơn 9:18: hoặc "9:18 · lịch", hoặc sớm hơn với "· GPS" khi tàu chạy
-     trước lịch. Bản cũ dời nó tới khoảng 11:30 khi tàu chậm vào ga.
-   - **Đạt** khi "tới Hakone-Yumoto" (trang chuyến, dòng chuyến ở Hôm nay, Live Activity) không nhảy hàng giờ khi tàu
-     chậm vào ga: lúc ở Machida nó nằm trong khoảng 8:46–9:47; tàu đúng giờ thì quanh 9:15–9:25.
-   - Cho máy vào túi, hay đi qua hầm, vài phút. **Đạt** khi giờ ở dòng Debug không đổi trong lúc đó, và "tới
-     Hakone-Yumoto" không trôi dần về sau.
-   - **Đạt** khi báo thức reo một lần, không muộn hơn 9:18.
+   - **Đạt** khi giờ ở dòng Debug không bao giờ muộn hơn 9:18. Tàu đúng giờ vẫn có thể hiện "· GPS" với giờ sớm, tới
+     khoảng 8:44 khi tàu chạy nhanh qua Machida: giờ tới tính theo nhịp vài phút vừa qua, và không sớm hơn 0,6 lần giờ
+     của lịch. Bản cũ dời nó tới khoảng 11:30 khi tàu chậm vào ga.
+   - **Đạt** khi "tới Hakone-Yumoto" (trang chuyến, dòng chuyến ở Hôm nay, Live Activity) không nhảy hàng giờ. Khi tàu
+     chạy qua Machida nó ghi khoảng 8:46, đứng ở ga một phút thì lùi về khoảng 9:05. Nó có thể sớm hơn 9:22 nhiều và đổi
+     qua lại quanh các ga, nhưng ở Machida luôn nằm trong khoảng 8:46–9:47. Thẻ của Hôm nay vẫn tính theo lịch (xe buýt
+     9:35, tới lúc 9:22): hai con số khác nhau là đúng.
+   - Nếu tàu qua hầm dài (mất vị trí vài phút): **Đạt** khi "tới Hakone-Yumoto" không trôi dần về sau trong lúc đó.
+   - **Đạt** khi báo thức reo nhiều nhất hai lần, lần sau không muộn hơn 9:18 (R-136). Lần đầu có thể theo GPS, sớm hơn
+     9:18. Nó phải reo ở khoảng Odawara–Iriuda, không sớm hơn 9:18 từ 20 phút trở lên (trừ khi máy mất vị trí lâu ngay
+     trước đó). Sau lần reo đầu, dòng Debug chỉ còn ghi 9:18 (hay giờ vừa reo, trong giây lát) hoặc "Chưa đặt báo
+     thức", không có giờ GPS nào khác.
 3. **Tàu trễ (nếu gặp).** Nếu tàu tới Iriuda muộn hơn 9:20: **Đạt** khi báo thức reo lúc 9:18 (sớm hơn ga trước ga
    xuống), một lần, và sau đó không có báo thức thứ hai (R-131).
    - Đã biết, chấp nhận (R-131): một chuyến chỉ bắt đầu theo dõi sau giờ báo thức của lịch (9:18 với Romancecar)
