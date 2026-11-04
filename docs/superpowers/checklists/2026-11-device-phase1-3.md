@@ -647,6 +647,22 @@ trí cách mọi tuyến của chuyến, nên bước nào cần đi tàu thật
      mục của ngày N+1 được đánh dấu.
    - Ga: sáng hôm sau, đi ngang ga đi của một chuyến có giờ của hôm qua trước khi mở JP27. **Đạt** khi không có thông
      báo "… Ở <ga>" mời theo dõi chuyến của hôm qua.
+9. **Chuyến của chạy thử không đụng báo thức thật; dời giờ chạy thử thì chuyến kết thúc (R-153, trong cửa sổ chuyến
+   đi).** Cần một chuyến có báo thức lịch đã đặt, tức là giờ tới của nó trong vòng 36 giờ tới (ví dụ tối ngày 3 cho
+   Romancecar sáng ngày 4). Trước khi bắt đầu, ghi lại: Cài đặt › Chẩn đoán › "Báo thức trong hệ thống" (ví dụ "đang
+   chờ 1"), và dòng Debug dưới công tắc báo thức ở trang chuyến đó ("Báo thức 9:18 · lịch").
+   - Cài đặt › Chạy thử: một giờ trước chuyến đó (ví dụ ngày 4, 7:25). Kế hoạch › chuyến đó › "Theo dõi chuyến", rồi
+     "Kết thúc". **Đạt** khi "Báo thức trong hệ thống" vẫn đúng như đã ghi và dòng Debug ở trang chuyến vẫn "Báo thức
+     9:18 · lịch", cả lúc đang chạy thử lẫn sau "Về giờ thật". **Không đạt** nếu số "đang chờ" giảm hay dòng Debug mất.
+   - Chạy thử lại, theo dõi chuyến đó lần nữa, rồi bấm "Về giờ thật" ngay (chuyến kết thúc vì đồng hồ đổi). **Đạt**
+     như trên: báo thức lịch vẫn còn.
+   - Ở giờ thật, đang theo dõi một chuyến thật có báo thức đang đặt, bật chạy thử. **Đạt** khi trang chuyến trở lại
+     "Theo dõi chuyến" và báo thức của chuyến thật vẫn còn trong Chẩn đoán (bản cũ huỷ nó tới "Về giờ thật"). Sau "Về
+     giờ thật", trong cửa sổ giờ đi của nó, chuyến thật lại tự bắt đầu được.
+   - **Dời giờ của chạy thử đang chạy.** Đang chạy thử, theo dõi một chuyến, rồi trong Cài đặt › Chạy thử chọn giờ khác
+     và bấm "Chạy thử từ thời điểm này". **Đạt** khi ngay sau đó trang chuyến trở lại "Theo dõi chuyến" và Live
+     Activity biến khỏi màn hình khoá (bản cũ giữ chuyến theo giờ chạy thử cũ, có khi cả ngày).
+   - "Về giờ thật" sau bước này.
 
 ## Task 3.4b — Chạy thử không bắt đầu ở "bây giờ", huy hiệu "Đang chạy thử", Nghe nhả micro và trả lại âm thanh
 

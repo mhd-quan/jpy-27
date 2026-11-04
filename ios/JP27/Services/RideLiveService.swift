@@ -15,7 +15,7 @@ import TripKit
 /// (`Itinerary.project(riding:)`) and the hold on background re-plans (`holdsReschedule`), and it keeps
 /// `AppModel.autoStartRide` from starting another. It lets go of all of it once (`release`), however it
 /// ends: the button, its arrival, its fixes far from the line, the clock long past it
-/// (`RideTracker.ending`).
+/// (`RideTracker.ending`), the trip's clock moved (`endAtOnce`).
 @Observable final class RideLiveService {
     private(set) var ride: Ride?
     private(set) var status: RideTracker.Status?
@@ -35,8 +35,12 @@ import TripKit
     @ObservationIgnored private var liveArrival: Date?
     /// the ride whose end is under way: it is ended once, whichever path gets there first
     @ObservationIgnored private var closing: String?
-    /// the rides ended since launch, by any path: none starts again on its own (`wasEnded`)
+    /// the real rides ended since the clock last crossed between real time and a rehearsal, by any
+    /// path: none starts again on its own (`wasEnded`)
     @ObservationIgnored private var ended: Set<String> = []
+    /// the clock the ride was followed on: a rehearsal's ride is the real ride of the same train, and its
+    /// end lets go of nothing of the real one's (`RideClock`)
+    @ObservationIgnored private var clock = RideClock(rehearsal: false)
     private var activity: Activity<RideAttributes>?
     private var lastState: RideAttributes.ContentState?
     private var lastPush = Date.distantPast
@@ -57,7 +61,9 @@ import TripKit
         if let old = activity, let last = lastState {
             Task { await old.end(ActivityContent(state: last, staleDate: nil), dismissalPolicy: .immediate) }
         }
-        if let old = self.ride { model.alarms.cancel(old.id) }
+        // its alarm, when it is its own (`RideClock`): a rehearsal's ride set none
+        if let old = self.ride, clock.endCancelsAlarm(rehearsingNow: model.rehearsing) { model.alarms.cancel(old.id) }
+        clock = RideClock(rehearsal: model.rehearsing)
         ending = false
         status = nil
         arrival = nil
@@ -160,39 +166,56 @@ import TripKit
 
     /// Stops following the ride; with `only`, only if that is still the ride followed.
     func end(model: AppModel, immediately: Bool, only rideID: String? = nil) async {
-        guard let ride, rideID == nil || ride.id == rideID, claim(ride) else { return }
-        await release(ride, model: model, policy: immediately ? .immediate : .after(Date().addingTimeInterval(Self.arrivedLinger)))
+        guard let ride, rideID == nil || ride.id == rideID, let claimed = claim(ride, model: model) else { return }
+        await release(ride, claimed, model: model, policy: immediately ? .immediate : .after(Date().addingTimeInterval(Self.arrivedLinger)))
     }
 
-    /// Ends the followed ride at once, from a call that cannot wait: a rehearsal starting or ending,
-    /// whose clock the ride's times no longer belong to.
+    /// Ends the followed ride at once, from a call that cannot wait: the trip's clock moved (a
+    /// rehearsal starting, moving or ending), and the ride's times belong to the clock it was
+    /// followed on.
     func endAtOnce(model: AppModel) {
         guard let ride else { return }
         close(ride, model: model, policy: .immediate)
     }
 
+    /// The clock crossed between real time and a rehearsal: the rides ended on the other clock are
+    /// not this one's to keep from starting.
+    func forgetEnded() {
+        ended = []
+    }
+
     /// A ride `RideTracker.ending` says is over, ended from a call that cannot wait for it: often a
     /// fix or a move that woke the app under the lock screen, so iOS waits for the end to be done.
     private func close(_ ride: Ride, model: AppModel, policy: ActivityUIDismissalPolicy) {
-        guard claim(ride) else { return }
-        BackgroundWork.run(name: "Kết thúc chuyến") { await self.release(ride, model: model, policy: policy) }
+        guard let claimed = claim(ride, model: model) else { return }
+        BackgroundWork.run(name: "Kết thúc chuyến") { await self.release(ride, claimed, model: model, policy: policy) }
     }
 
-    /// The first of the paths ending a ride takes it; the others find it taken. Set before anything
-    /// waits, so two ends of one ride never both run.
-    private func claim(_ ride: Ride) -> Bool {
-        guard self.ride?.id == ride.id, closing != ride.id else { return false }
+    /// What an end that has taken its ride lets go of besides the ride itself.
+    private struct Claimed {
+        /// the ride's alarm is its own to cancel (`RideClock.endCancelsAlarm`)
+        let cancelsAlarm: Bool
+    }
+
+    /// The first of the paths ending a ride takes it; the others find it taken (nil). Set before
+    /// anything waits, so two ends of one ride never both run, and decided on the clock of this
+    /// moment: a rehearsal starting or ending moves the clock and ends the ride in one step.
+    private func claim(_ ride: Ride, model: AppModel) -> Claimed? {
+        guard self.ride?.id == ride.id, closing != ride.id else { return nil }
         closing = ride.id
-        return true
+        // a real ride ended by any path is not started again on its own (the button on the platform,
+        // a taxi after getting off read as a train); a rehearsal's is the real ride's too (`RideClock`)
+        if clock.endIsKept { ended.insert(ride.id) }
+        return Claimed(cancelsAlarm: clock.endCancelsAlarm(rehearsingNow: model.rehearsing))
     }
 
     /// Everything the ride holds, let go of once.
-    private func release(_ ride: Ride, model: AppModel, policy: ActivityUIDismissalPolicy) async {
-        // ended by any path, it is not started again on its own (the button on the platform, a taxi
-        // after getting off read as a train)
-        ended.insert(ride.id)
-        // its alarm: the timetable's comes back with the re-plan below while it is still ahead
-        model.alarms.cancel(ride.id)
+    private func release(_ ride: Ride, _ claimed: Claimed, model: AppModel, policy: ActivityUIDismissalPolicy) async {
+        // its alarm, when it is its own: the timetable's comes back with the re-plan below while it is
+        // still ahead. A rehearsal's ride set none, and the slot of its id holds the real ride's
+        // timetable alarm; a real ride ended as a rehearsal starts keeps its own, which no re-plan
+        // would bring back while rehearsing (`RideClock`)
+        if claimed.cancelsAlarm { model.alarms.cancel(ride.id) }
         if let activity, let last = lastState {
             await activity.end(ActivityContent(state: last, staleDate: nil), dismissalPolicy: policy)
         }
@@ -214,6 +237,7 @@ import TripKit
         lastState = nil
         ending = false
         closing = nil
+        clock = RideClock(rehearsal: false)
         // back to what the moment calls for: the ordinary stream on screen, nothing behind the lock
         // (the navigation stream and its background session end)
         model.location.follow(model)
@@ -221,8 +245,9 @@ import TripKit
         model.rideEnded()
     }
 
-    /// The ride was ended since launch: `AppModel.autoStartRide` does not start it again. Starting it
-    /// by hand, or from the station's notification, still does.
+    /// The ride, followed on the real clock, was ended since launch (since the clock last crossed
+    /// between real time and a rehearsal): `AppModel.autoStartRide` does not start it again. Starting
+    /// it by hand, or from the station's notification, still does.
     func wasEnded(_ rideID: String) -> Bool { ended.contains(rideID) }
 
     /// Back on screen (`AppModel.activate`): a Live Activity this run does not hold (a run killed

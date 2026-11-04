@@ -183,11 +183,18 @@ enum AppSheet: Identifiable, Hashable {
         let before = clockOffset
         clockOffset = RehearsalClock.offset(offset)
         Shared.clockOffset = clockOffset
-        // the widget's own plan runs on this clock when the app has no snapshot for it
-        if clockOffset != before { widgetOutdated = true }
-        if was != rehearsing {
-            // a rehearsal starts or ends: a followed ride's times belong to the other clock
+        if clockOffset != before {
+            // the widget's own plan runs on this clock when the app has no snapshot for it
+            widgetOutdated = true
+            // a followed ride's times belong to the clock it was followed on: a rehearsal starting,
+            // moving or ending ends it (a ride of the rehearsal's lets go of nothing of the real
+            // one's: `RideClock`)
             live.endAtOnce(model: self)
+        }
+        if was != rehearsing {
+            // a rehearsal starts or ends: the rides ended on one clock do not keep the other's from
+            // starting
+            live.forgetEnded()
             switchRecords()
         }
         refresh(reschedule: true)
@@ -490,7 +497,8 @@ enum AppSheet: Identifiable, Hashable {
         if let on { candidates.append((on, true)) }
         if let later = itinerary.nextDeparture(day, cursor: cursor) { candidates.append((later.move, false)) }
         for (move, current) in candidates {
-            // a ride ended since launch (by hand, arrived, left, long past) is not started again on its own
+            // a ride ended since launch (by hand, arrived, left, long past) is not started again on its
+            // own; one of a rehearsal's is (`RideLiveService.wasEnded`)
             guard let planned = TripTime.minutes(move.at).map(Double.init),
                   (planned - 20 ... planned + 10).contains(minutes),
                   let ride = store.ride(startingWith: move.leg.id, on: day), !live.wasEnded(ride.id)

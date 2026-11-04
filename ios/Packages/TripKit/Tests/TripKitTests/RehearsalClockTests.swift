@@ -79,3 +79,22 @@ import Testing
         #expect(RehearsalClock.start(at: real.addingTimeInterval(-day), realNow: real, current: current) == -day)
     }
 }
+
+/// A ride followed in a rehearsal is the real ride of the same train, under the same id, with the same alarm
+/// slot: what its end lets go of depends on the clock it was followed on and the one it ends on (R-153).
+@Suite struct RideClockTests {
+    let real = RideClock(rehearsal: false)
+    let rehearsal = RideClock(rehearsal: true)
+
+    @Test func onlyARealRideEndedOnTheRealClockCancelsTheAlarm() {
+        #expect(real.endCancelsAlarm(rehearsingNow: false))
+        #expect(!real.endCancelsAlarm(rehearsingNow: true), "a real ride ended as a rehearsal starts keeps its alarm")
+        #expect(!rehearsal.endCancelsAlarm(rehearsingNow: true), "a rehearsal ride set none: the slot is the real ride's")
+        #expect(!rehearsal.endCancelsAlarm(rehearsingNow: false), "ended by Về giờ thật")
+    }
+
+    @Test func onlyARealRideStaysEnded() {
+        #expect(real.endIsKept)
+        #expect(!rehearsal.endIsKept, "it would keep the real ride from starting after Về giờ thật")
+    }
+}

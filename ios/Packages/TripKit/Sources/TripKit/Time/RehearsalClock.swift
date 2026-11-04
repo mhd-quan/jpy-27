@@ -35,3 +35,27 @@ public enum RehearsalClock {
         (date.timeIntervalSinceReferenceDate / 60).rounded(.down)
     }
 }
+
+/// The clock a followed ride belongs to: the real one, or a rehearsal's (`RideLiveService`). A ride followed in a
+/// rehearsal is the real ride of the same train, under the same id and with the same alarm slot, so what its end
+/// lets go of is decided by the clock it was followed on and the one it ends on.
+public struct RideClock: Sendable, Equatable {
+    /// followed while rehearsing
+    public let rehearsal: Bool
+
+    public init(rehearsal: Bool) {
+        self.rehearsal = rehearsal
+    }
+
+    /// Whether the ride's end cancels the ride's alarm: only a ride followed on the real clock and ended on it. A
+    /// rehearsal's ride set none (`WakeAlarms` sets nothing while rehearsing), so what the slot holds is the real
+    /// ride's timetable alarm; and a real ride ended because a rehearsal starts keeps its own, since no re-plan
+    /// runs while rehearsing to bring it back.
+    public func endCancelsAlarm(rehearsingNow: Bool) -> Bool {
+        !rehearsal && !rehearsingNow
+    }
+
+    /// Whether the ride, once ended, is kept from starting again on its own for the rest of the launch: a real
+    /// ride only. A rehearsal's would keep the real ride of the same train from starting after "Về giờ thật".
+    public var endIsKept: Bool { !rehearsal }
+}
