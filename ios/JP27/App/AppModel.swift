@@ -188,15 +188,12 @@ enum AppSheet: Identifiable, Hashable {
             widgetOutdated = true
             // a followed ride's times belong to the clock it was followed on: a rehearsal starting,
             // moving or ending ends it (a ride of the rehearsal's lets go of nothing of the real
-            // one's: `RideClock`)
-            live.endAtOnce(model: self)
+            // one's: `RideClock`), decided on the clock just set; then the rehearsal's ended rides
+            // are forgotten, the real ones kept (`RideLiveService.clockMoved`)
+            live.clockMoved(model: self)
         }
-        if was != rehearsing {
-            // a rehearsal starts or ends: the rides ended on one clock do not keep the other's from
-            // starting
-            live.forgetEnded()
-            switchRecords()
-        }
+        // a rehearsal starts or ends: its own records
+        if was != rehearsing { switchRecords() }
         refresh(reschedule: true)
     }
 
@@ -497,11 +494,11 @@ enum AppSheet: Identifiable, Hashable {
         if let on { candidates.append((on, true)) }
         if let later = itinerary.nextDeparture(day, cursor: cursor) { candidates.append((later.move, false)) }
         for (move, current) in candidates {
-            // a ride ended since launch (by hand, arrived, left, long past) is not started again on its
-            // own; one of a rehearsal's is (`RideLiveService.wasEnded`)
+            // a ride ended since launch on this clock (by hand, arrived, left, long past) is not started
+            // again on its own; one ended because the clock changed is (`RideLiveService.wasEnded`)
             guard let planned = TripTime.minutes(move.at).map(Double.init),
                   (planned - 20 ... planned + 10).contains(minutes),
-                  let ride = store.ride(startingWith: move.leg.id, on: day), !live.wasEnded(ride.id)
+                  let ride = store.ride(startingWith: move.leg.id, on: day), !live.wasEnded(ride.id, model: self)
             else { continue }
             let nearStation = position.flatMap { p in store.place(move.leg.from).map { Geo.km($0.coordinate, p) < 0.4 } } ?? false
             let moving = motion.riding && (current || riding == nil)

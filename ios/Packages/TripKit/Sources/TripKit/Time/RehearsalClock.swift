@@ -55,7 +55,38 @@ public struct RideClock: Sendable, Equatable {
         !rehearsal && !rehearsingNow
     }
 
-    /// Whether the ride, once ended, is kept from starting again on its own for the rest of the launch: a real
-    /// ride only. A rehearsal's would keep the real ride of the same train from starting after "Về giờ thật".
-    public var endIsKept: Bool { !rehearsal }
+    /// Whether the ride, once ended, is kept from starting again on its own (`EndedRides`): only when it ends on the
+    /// clock it was followed on. A real ride ended because a rehearsal starts may start again after "Về giờ thật";
+    /// a rehearsal's ride ended by "Về giờ thật" keeps nothing of the real ride's; a rehearsal's ride ended in that
+    /// rehearsal (by hand, arrived, left, long past) is not followed again in it.
+    public func endIsKept(rehearsingNow: Bool) -> Bool { rehearsal == rehearsingNow }
+}
+
+/// The rides ended since launch that do not start again on their own (`AppModel.autoStartRide`), one set per clock:
+/// a real ride ended by hand stays ended through a rehearsal, and a rehearsal's ends last only as long as its offset.
+/// A ride followed again by hand still starts.
+public struct EndedRides: Sendable, Equatable {
+    private var real: Set<String> = []
+    private var rehearsal: Set<String> = []
+
+    public init() {}
+
+    /// The ride `id`, followed on `clock`, has ended with the trip clock now `rehearsingNow`: kept in its clock's
+    /// set when it ended on that clock (`RideClock.endIsKept`).
+    public mutating func insert(_ id: String, clock: RideClock, rehearsingNow: Bool) {
+        guard clock.endIsKept(rehearsingNow: rehearsingNow) else { return }
+        if clock.rehearsal { rehearsal.insert(id) } else { real.insert(id) }
+    }
+
+    /// The trip clock's offset changed (a rehearsal starting, moving or ending): the rehearsal's ends go, the real
+    /// ones stay. Called after the followed ride's end is claimed, so a rehearsal's ride ended by moving its offset
+    /// (claimed while still rehearsing) is not kept in the moved rehearsal.
+    public mutating func offsetChanged() {
+        rehearsal = []
+    }
+
+    /// Whether the ride ended on the clock running now.
+    public func contains(_ id: String, rehearsingNow: Bool) -> Bool {
+        rehearsingNow ? rehearsal.contains(id) : real.contains(id)
+    }
 }
