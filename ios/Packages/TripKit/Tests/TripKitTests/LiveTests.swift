@@ -1451,13 +1451,36 @@ import Testing
     /// One rule for every fix, from the live stream, a significant change or `requestLocation` (R-156).
     @Test func aFixCountsWhenPreciseAndNotOlderThanTheLast() {
         let t = Date(timeIntervalSince1970: 1_000_000)
-        #expect(Presence.takes(accuracy: 5, at: t, newest: nil))
-        #expect(Presence.takes(accuracy: 199.9, at: t, newest: t), "the same fix again")
-        #expect(Presence.takes(accuracy: 30, at: t + 1, newest: t))
-        #expect(!Presence.takes(accuracy: 200, at: t, newest: nil), "a coarse fix")
-        #expect(!Presence.takes(accuracy: 1_500, at: t, newest: nil), "a cell-tower fix from a significant change")
-        #expect(!Presence.takes(accuracy: -1, at: t, newest: nil), "no fix at all")
-        #expect(!Presence.takes(accuracy: 10, at: t - 1, newest: t), "a fix delivered after a newer one")
+        #expect(Presence.takes(accuracy: 5, at: t, newest: nil, now: t + 1))
+        #expect(Presence.takes(accuracy: 199.9, at: t, newest: t, now: t + 1), "the same fix again")
+        #expect(Presence.takes(accuracy: 30, at: t + 1, newest: t, now: t + 1))
+        #expect(!Presence.takes(accuracy: 200, at: t, newest: nil, now: t + 1), "a coarse fix")
+        #expect(!Presence.takes(accuracy: 1_500, at: t, newest: nil, now: t + 1), "a cell-tower fix from a significant change")
+        #expect(!Presence.takes(accuracy: -1, at: t, newest: nil, now: t + 1), "no fix at all")
+        #expect(!Presence.takes(accuracy: 10, at: t - 1, newest: t, now: t + 1), "a fix delivered after a newer one")
+    }
+
+    /// The phone's clock set back (Ngày & Giờ, "Đặt tự động" turned on again after a day ahead): the newest fix
+    /// used is later than now, and every new fix would be "older" than it until the app is opened again (New-2).
+    @Test func aFixCountsAgainOnceThePhonesClockWentBack() {
+        let t = Date(timeIntervalSince1970: 1_000_000)
+        // the clock an hour back: the newest fix used is in the future
+        #expect(Presence.takes(accuracy: 10, at: t - 0.5, newest: t + 3_600, now: t), "a fresh fix after the clock went back")
+        #expect(!Presence.takes(accuracy: 500, at: t - 0.5, newest: t + 3_600, now: t), "still precise enough or nothing")
+        #expect(Presence.takes(accuracy: 10, at: t + 3_500, newest: t + 3_600, now: t), "any precise fix once, as at launch")
+        // a newest fix at now is not in the future: a late one is still refused
+        #expect(!Presence.takes(accuracy: 10, at: t - 1, newest: t, now: t))
+
+        // as LocationService keeps it: the first fix taken is the newest again, and the order holds from there
+        var newest: Date? = t + 3_600
+        var taken: [TimeInterval] = []
+        for (at, now) in [(t, t + 0.2), (t + 1, t + 1.2), (t + 0.5, t + 1.4), (t + 2, t + 2.2)] {
+            if Presence.takes(accuracy: 10, at: at, newest: newest, now: now) {
+                newest = at
+                taken.append(at.timeIntervalSince(t))
+            }
+        }
+        #expect(taken == [0, 1, 2], "the one delivered late after the clock went back is refused")
     }
 }
 

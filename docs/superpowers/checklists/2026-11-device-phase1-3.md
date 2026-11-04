@@ -853,3 +853,14 @@ bình thường (trước chuyến).
      thúc chỉ được nhớ trong một lần mở app): Romancecar tự bắt đầu. Bật chạy thử (ngày 4, 7:40), rồi "Về giờ thật".
      **Đạt** khi khoảng một phút sau, JP27 mở trên Hôm nay, Romancecar tự bắt đầu lại được.
    - Bật lại "Đặt tự động" (đồng hồ máy lùi về hôm nay: bước 3 dưới đây kiểm luôn).
+3. **Chỉnh lùi đồng hồ máy thì vị trí vẫn tới, không cần mở lại app (New-2).** Bản Debug, vị trí thật (bỏ Simulate
+   Location), ngoài trời hay cạnh cửa sổ. Dòng Debug Cài đặt › Chẩn đoán › "Vị trí lúc": giờ của vị trí mới nhất app
+   đã dùng, theo đồng hồ máy, và độ chính xác; chạm vào dòng để đọc lại.
+   - Cài đặt (iPhone) › Ngày & Giờ: tắt "Đặt tự động", đặt **sau 1 ngày**. Mở JP27, đi vài bước, mở Chẩn đoán: "Vị trí
+     lúc" chỉ giờ vừa rồi (của ngày mai).
+   - Về màn hình chính (không vuốt JP27 khỏi đa nhiệm), bật lại "Đặt tự động" (đồng hồ lùi về hôm nay). Mở lại JP27,
+     ra ngoài đi khoảng 50 m, mở Chẩn đoán, chạm "Vị trí lúc". **Đạt** khi dòng chỉ một giờ của hôm nay, trong vài giây
+     trước đồng hồ trên thanh trạng thái, và chạm lại sau 10 giây thì giờ đổi theo (bản cũ đứng yên ở giờ của ngày mai
+     tới khi tắt hẳn app rồi mở lại).
+   - Cũng vậy sau Task 1.5 bước 5 và sau phần chuẩn bị của Task 3.4b (đặt ngày khác rồi bật lại "Đặt tự động"): vị trí
+     vẫn tới mà không phải mở lại app.
