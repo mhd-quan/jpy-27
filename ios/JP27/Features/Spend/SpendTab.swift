@@ -179,6 +179,7 @@ struct SpendTab: View {
             }
             .sheet(item: $topup) { method in
                 SpendTopupSheet(method: method)
+                    .settles(.modal)
                     .zoomed(from: "spend.topup.\(method.rawValue)", in: space)
             }
         }

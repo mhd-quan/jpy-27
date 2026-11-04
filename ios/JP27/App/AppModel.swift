@@ -109,10 +109,19 @@ enum AppSheet: Identifiable, Hashable {
     var tab: AppTab = .today
     /// sheets on screen, bottom first; see `present(_:from:)`
     var sheets: [Presented] = []
-    var todayPath = NavigationPath()
-    var planPath = NavigationPath()
-    var talkPath = NavigationPath()
-    var spendPath = NavigationPath()
+    // a path that grew was a push: a `NavigationLink(value:)` tapped writes it (`Perf`, measures only)
+    var todayPath = NavigationPath() {
+        didSet { if todayPath.count > oldValue.count { Perf.transition("push.today", slot: .push, from: "today", to: nil) } }
+    }
+    var planPath = NavigationPath() {
+        didSet { if planPath.count > oldValue.count { Perf.transition("push.plan", slot: .push, from: "plan", to: nil) } }
+    }
+    var talkPath = NavigationPath() {
+        didSet { if talkPath.count > oldValue.count { Perf.transition("push.talk", slot: .push, from: "talk", to: nil) } }
+    }
+    var spendPath = NavigationPath() {
+        didSet { if spendPath.count > oldValue.count { Perf.transition("push.spend", slot: .push, from: "spend", to: nil) } }
+    }
     /// a place the map should frame next time it shows
     var mapFocus: String?
     /// a day the map should show next time it shows
@@ -618,7 +627,8 @@ enum AppSheet: Identifiable, Hashable {
     /// marks are read again from the disk and the alert says so.
     @discardableResult
     func toggleDone(_ day: Day, _ index: Int) -> Bool {
-        setDone(!isDone(day, index), day, index)
+        Perf.mark("day.check")
+        return setDone(!isDone(day, index), day, index)
     }
 
     /// Item `index` done or not, by hand; true when it is so on disk now.
@@ -1346,6 +1356,8 @@ enum AppSheet: Identifiable, Hashable {
             sheets.removeSubrange((i + 1)...)
             return
         }
+        let perf = sheet.perf
+        Perf.transition(perf.name, slot: .sheet, from: source, to: perf.page)
         sheets.append(Presented(sheet: sheet, source: source))
     }
 

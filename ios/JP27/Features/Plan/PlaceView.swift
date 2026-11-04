@@ -110,6 +110,7 @@ private struct PlanPlaceHero: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .sensoryFeedback(.page, trigger: page)
+            .onChange(of: page) { Perf.mark("place.photo") }
         } foot: {
             HStack(alignment: .center, spacing: 8) {
                 Text(placeFacts(place))
@@ -195,6 +196,7 @@ private struct PlanAmbientPage: View {
         ScrollView {
             VStack(spacing: 0) {
                 AmbientHero(photos: place.images, page: $page)
+                    .onChange(of: page) { Perf.mark("place.photo") }
                     .containerRelativeFrame(.vertical) { length, _ in (length * 0.6).rounded() }
                     .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
                     .overlay(alignment: .bottom) {

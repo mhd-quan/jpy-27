@@ -234,7 +234,10 @@ struct MapTab: View {
         }
     }
 
+    /// One camera move asked for: once per item the reading line reaches, per tap, per button; never
+    /// once per frame (`reading` calls `onRead` only when the item changes).
     private func move(_ m: TripMapCamera.Move) {
+        Perf.mark("map.fly")
         cameraSeq += 1
         camera = TripMapCamera(id: cameraSeq, move: m)
     }

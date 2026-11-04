@@ -59,6 +59,11 @@ struct FujiPageHost: View {
     let page: FujiPage
 
     var body: some View {
+        content.settles(.push, claiming: .push, page: page.perfPage)
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch page {
         case .map(let area, let focus):
             FujiExplorer(area: area, focus: focus, spots: model.guide.fuji.spots, summit: model.guide.fuji.summit.coordinate)

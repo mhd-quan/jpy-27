@@ -39,7 +39,7 @@ struct TodayTab: View {
                 }
                 // a day card on the home grows into its day
                 .navigationDestination(for: Route.self) { route in
-                    RouteHost(route: route)
+                    RouteHost(route: route, settle: homeSource(route) == nil ? .push : .modal)
                         .zoomed(from: homeSource(route), in: zoomSpace)
                 }
         }

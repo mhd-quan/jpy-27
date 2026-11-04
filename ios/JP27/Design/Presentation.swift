@@ -20,6 +20,10 @@ private nonisolated struct CloseSheetKey: EnvironmentKey {
     static var defaultValue: SheetCloser? { nil }
 }
 
+private nonisolated struct TransitionSettledKey: EnvironmentKey {
+    static var defaultValue: Bool { true }
+}
+
 /// Closes the sheet a view is in (and anything stacked on it), from its root or from a page
 /// pushed inside it, where `dismiss` would only go back.
 nonisolated struct SheetCloser: Equatable {
@@ -42,6 +46,14 @@ extension EnvironmentValues {
     nonisolated var closeSheet: SheetCloser? {
         get { self[CloseSheetKey.self] }
         set { self[CloseSheetKey.self] = newValue }
+    }
+
+    /// False from the first frame of a page that a transition brings in (a push, a sheet, a zoom) until
+    /// that transition has had time to end (`settles`); true everywhere else. Heavy work on such a page
+    /// waits for it with `.task(id: transitionSettled)`. Only ever goes from false to true for a page.
+    nonisolated var transitionSettled: Bool {
+        get { self[TransitionSettledKey.self] }
+        set { self[TransitionSettledKey.self] = newValue }
     }
 }
 
@@ -109,6 +121,13 @@ extension View {
         }
     }
 
+    /// The destination of a transition: sets `transitionSettled` from its first frame until the
+    /// transition has had `kind`'s time (`Perf.Settle`), and closes the tap that opened it, if one waits
+    /// in `slot` (none for a sheet no `Perf.transition` begins). Put it inside `zoomed(from:in:)`.
+    func settles(_ kind: Perf.Settle, claiming slot: Perf.Slot? = nil, page: String? = nil) -> some View {
+        modifier(SettlesTransition(kind: kind, slot: slot, page: page))
+    }
+
     /// Presents `AppModel.sheets[level]`, and inside it the level above.
     func presentsSheets(level: Int = 0) -> some View {
         modifier(SheetLayer(level: level))
@@ -121,6 +140,51 @@ extension View {
     func progressiveEdges() -> some View {
         scrollEdgeEffectStyle(.soft, for: .all)
     }
+}
+
+/// See `settles`. The page counts as settled a fixed time after its first frame: SwiftUI reports no end
+/// of a push, a sheet or a zoom (a completion given to `withAnimation` would run at once, since the state
+/// change that presents creates no SwiftUI animation). It can never stay false while the page shows: the
+/// wait starts again on every appearance and is cut short only by the page going away.
+private struct SettlesTransition: ViewModifier {
+    let kind: Perf.Settle
+    let slot: Perf.Slot?
+    let page: String?
+    @State private var settled = false
+    @State private var claimed = ClaimedTransition()
+
+    func body(content: Content) -> some View {
+        content
+            .environment(\.transitionSettled, settled)
+            .onAppear {
+                // the first appearance only: a page shown again (a tab switch, a page popped off it)
+                // answers no tap
+                guard !claimed.done else { return }
+                claimed.done = true
+                if let slot { claimed.mark = Perf.claim(slot, page: page) }
+                claimed.mark?.firstFrame()
+            }
+            .task {
+                guard !settled else { return }
+                do {
+                    try await Task.sleep(for: kind.delay)
+                } catch {
+                    // gone before it settled
+                    claimed.mark?.dismissed()
+                    claimed.mark = nil
+                    return
+                }
+                settled = true
+                claimed.mark?.settled()
+                claimed.mark = nil
+            }
+    }
+}
+
+/// The tap a page claimed, held where changing it redraws nothing.
+private final class ClaimedTransition {
+    var done = false
+    var mark: TransitionMark?
 }
 
 private struct SheetSource: ViewModifier {
@@ -161,6 +225,7 @@ private struct SheetLayer: ViewModifier {
                 .environment(\.closeSheet, SheetCloser(level: level) { [model, level] in
                     if model.sheets.count > level { model.sheets.removeSubrange(level...) }
                 })
+                .settles(.modal, claiming: .sheet)
                 .zoomed(from: top.source, in: space)
         }
     }

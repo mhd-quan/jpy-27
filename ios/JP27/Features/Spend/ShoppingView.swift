@@ -48,6 +48,7 @@ struct ShoppingView: View {
         .navigationBarTitleDisplayMode(.large)
         .sheet(item: $buying) { item in
             SpendBuySheet(item: item) { bought += 1 }
+                .settles(.modal)
                 .zoomed(from: item.source, in: space)
         }
         .sensoryFeedback(.done, trigger: bought)

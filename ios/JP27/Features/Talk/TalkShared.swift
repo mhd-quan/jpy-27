@@ -47,7 +47,12 @@ private struct TalkPhraseCover: ViewModifier {
     func body(content: Content) -> some View {
         content.fullScreenCover(item: $item) { shown in
             TalkShowCard(item: shown)
+                .settles(.modal, claiming: .cover, page: "phrase")
                 .zoomed(from: shown.source, in: space)
+        }
+        // a line tapped sets `item` (the rows set their own state): the tap, for `Perf`
+        .onChange(of: item?.id) { old, new in
+            if old == nil, new != nil { Perf.transition("cover.phrase", slot: .cover, from: nil, to: "phrase") }
         }
     }
 }
@@ -114,6 +119,7 @@ struct TalkShowCard: View {
                 .accessibilityLabel("Đóng")
                 Spacer()
                 Button {
+                    Perf.mark("phrase.turn")
                     if !sideways { pressed += 1 }
                     sideways.toggle()
                 } label: {

@@ -101,6 +101,12 @@ private struct DiagnosticsSection: View {
 
     var body: some View {
         Section {
+            // in every build: the measures behind docs/perf/2026-11-baseline.md and a week of real use
+            NavigationLink {
+                SettingsPage(title: "Số đo") { MeasuresSection() }
+            } label: {
+                SettingsLabel(title: "Số đo", symbol: "stopwatch", tint: .gray)
+            }
             Toggle(isOn: $readings) {
                 Label {
                     Text("Đo khung hình bản đồ")
@@ -306,6 +312,114 @@ private struct DiagnosticsSection: View {
         }
     }
     #endif
+}
+
+/// Chẩn đoán › Số đo: the transitions measured since the app opened (from the tap to the first frame,
+/// and to the end, `Perf`), the moments counted, and MetricKit's daily reports, whose JSON can be shared.
+private struct MeasuresSection: View {
+    /// as of when the page opened
+    @State private var rows = Perf.log.rows
+    @State private var marks = Perf.log.marks
+    /// Caches/metrics/, read off the main thread when the page opens
+    @State private var stored: MetricsInbox.Stored?
+
+    var body: some View {
+        Section {
+            if rows.isEmpty, marks.isEmpty {
+                Text("Chưa có lần chuyển trang nào từ lúc mở app.").foregroundStyle(.secondary)
+            }
+            ForEach(rows, id: \.name) { row in
+                LabeledContent {
+                    Text("\(Self.ms(row.firstFrame)) · \(Self.ms(row.settled))").monospacedDigit()
+                } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(row.name)
+                        Text("\(row.count) lần").font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                    }
+                }
+            }
+            ForEach(marks, id: \.name) { mark in
+                LabeledContent(mark.name) {
+                    Text("\(mark.count) lần").monospacedDigit()
+                }
+            }
+        } header: {
+            Text("Chuyển trang")
+        } footer: {
+            Text("Từ lúc mở app. Mỗi dòng: từ lúc chạm tới khung đầu · tới khi chuyển xong, trung vị, tính bằng ms. Chuyển xong là khung đầu cộng 350 ms (đẩy trang) hay 500 ms (sheet, zoom): một mốc chờ, không phải số đo.")
+        }
+
+        Section {
+            if let stored {
+                if stored.days.isEmpty {
+                    Text("Chưa có báo cáo nào.").foregroundStyle(.secondary)
+                }
+                ForEach(stored.days.indices, id: \.self) { i in
+                    MetricsDayRow(day: stored.days[i])
+                }
+            } else {
+                ProgressView()
+            }
+        } header: {
+            Text("MetricKit")
+        } footer: {
+            Text("iOS gửi mỗi ngày một báo cáo; app giữ 14 báo cáo gần nhất. Giật: số ms giật trong mỗi giây cuộn, và trong mỗi giây có chuyển động. Mở app: trung vị thời gian tới khung đầu.")
+        }
+
+        Section {
+            ShareLink(items: stored?.files ?? []) {
+                Label("Chia sẻ JSON", systemImage: "square.and.arrow.up")
+            }
+            .disabled(stored?.files.isEmpty ?? true)
+            // on this row, always there: a modifier on a section would go to each of its rows
+            .task { stored = await MetricsInbox.stored() }
+        }
+    }
+
+    /// "412 ms", or "—"
+    static func ms(_ d: Duration?) -> String {
+        guard let d else { return "—" }
+        let c = d.components
+        return Fmt.decimal(Double(c.seconds) * 1000 + Double(c.attoseconds) / 1e15, digits: 0) + " ms"
+    }
+}
+
+/// One MetricKit report: its day, the hitch ratios, the launch, the signposts MetricKit counted.
+private struct MetricsDayRow: View {
+    let day: MetricsSummary
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(day.end.formatted(.dateTime.day().month().hour().minute()))
+            Text("Giật khi cuộn \(ratio(day.scrollHitch)) · khi chuyển động \(ratio(day.hitch))")
+                .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+            Text("Mở app \(ms(day.launch))")
+                .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+            ForEach(day.signposts, id: \.name) { s in
+                Text(signpost(s))
+                    .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+            }
+        }
+    }
+
+    /// "2,5 ms/s", or "—"
+    private func ratio(_ value: Double?) -> String {
+        guard let value else { return "—" }
+        return Fmt.decimal(value, digits: 1) + " ms/s"
+    }
+
+    /// "412 ms", or "—"
+    private func ms(_ value: Double?) -> String {
+        guard let value else { return "—" }
+        return Fmt.decimal(value, digits: 0) + " ms"
+    }
+
+    /// "sheet.place: 7 lần · 455 ms"; an event has no length
+    private func signpost(_ s: MetricsSummary.Signpost) -> String {
+        let times = "\(s.name): \(s.count) lần"
+        guard let median = s.median else { return times }
+        return times + " · " + ms(median)
+    }
 }
 
 // MARK: - Building blocks
