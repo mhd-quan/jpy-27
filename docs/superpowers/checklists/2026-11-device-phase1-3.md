@@ -5,6 +5,18 @@ chép bước kiểm của mình vào đây, đã chỉnh theo code thật; Task
 máy thật trước khi phát hành bản Phase 1–3. Bản build: Release, mở từ màn hình chính, trừ khi bước ghi
 khác (công tắc Chẩn đoán chỉ có trong bản Debug).
 
+## Hành vi đã biết
+
+Đúng như thiết kế: người kiểm và người đi đừng báo những điều này là lỗi.
+- **Giờ tới khi đi tàu (3.3b).** "Tới …" của chuyến đang theo dõi tính theo nhịp vài phút vừa qua: ở mỗi ga nó lùi
+  lại, có khi khoảng 20 phút, rồi sớm lại khi tàu chạy tiếp. Thẻ ở Hôm nay vẫn tính theo lịch, nên Hôm nay và dòng
+  chuyến (trang chuyến, Live Activity) có thể ghi hai giờ tới khác nhau. Tàu trễ: báo thức trước ga xuống không bao
+  giờ muộn hơn giờ của lịch, nên có thể reo sớm hơn lúc tàu thật tới; một chuyến reo nhiều nhất hai lần.
+- **Chuyến tự kết thúc khi ngồi yên (3.4a).** Xuống xe rồi ngồi yên (quán ăn, ghế chờ) thì iOS thôi gửi vị trí: chuyến
+  chỉ kết thúc ở lần app chạy kế tiếp (đi tiếp, mở app, làm mới nền).
+- **Huy hiệu "Đang chạy thử" (3.4b).** Nghĩa là đang dùng một sổ riêng: dấu đã đi, chi tiêu và nhật ký ghi lúc chạy
+  thử vào sổ của chạy thử, không vào sổ thật; "Về giờ thật" thì trở lại sổ thật.
+
 ## Task 1.1 — Báo thức: giữ cái còn cần, chỉ thay khi cái mới đã đặt
 
 Bản **Debug** (các nút "Báo thức thử sau 2/5 phút" và "Báo thức trong hệ thống" ở Cài đặt › Chẩn đoán chỉ có
@@ -84,14 +96,21 @@ iOS đã tắt app ở nền: làm lại bước đó. Bước 3 và 4 cần ch�
    tới" tự nó cho đúng một lần đặt lại ở nền: trong log, đúng một lần `finishRescheduleInBackground` có backtrace
    đi qua `AppModel.notificationAction`; các lần còn lại đi qua closure `onMoved`. Để so: khoá rồi mở lại mà không
    bấm gì → tăng 1 + số lần `onMoved` chạm, và không lần nào đi qua `notificationAction`.
+   - Ở nền còn một đường nữa: iOS báo một lần ghé (visit) ở quán thì app tự tích quán và đặt lại ở nền
+     (`AppModel.visited` gọi `finishRescheduleInBackground`); khi đó "Đã tới" không còn gì để tích. Đặt thêm một
+     breakpoint log như trên ở `AppModel.visited`. Nếu nó chạm trước khi bấm "Đã tới" (quán đã tích trước khi bấm),
+     bước này không kiểm được đường "Đã tới": làm lại với quán kế tiếp, bấm ngay khi thông báo hiện (iOS chỉ báo
+     ghé sau khi máy ở yên vài phút).
 6. **Tàu tới ga khi máy khoá** (chỉ kiểm được vào ngày đi: cần một chuyến tàu được theo dõi thật, với Live
    Activity; trước đó ghi "chưa kiểm, ngày đi"). Nối Xcode, đặt hai breakpoint log như bước 5. Theo dõi chuyến,
-   ghi số lần đặt lại, khoá máy trước ga cuối. Trên tàu, khi máy khoá, vị trí vẫn được theo dõi và iOS báo thay
-   đổi đáng kể liên tục, nên `onMoved` sẽ chạm nhiều lần: đếm chúng. Khi tàu tới ga → những chặng của chuyến đã
-   tích (mở app để xem), và mở lại Cài đặt → số tăng 2 + số lần `onMoved` chạm (tới ga ở nền, mở lại app; ít hơn
-   chỉ khi hai lần đánh thức gộp làm một). **Đạt** khi đường tới ga tự nó cho đúng một lần đặt lại ở nền: đúng
-   một lần `finishRescheduleInBackground` có backtrace đi qua `AppModel.rideArrived`. Không nối Xcode thì không
-   đếm được `onMoved`: chỉ kiểm các chặng đã tích, con số không dùng để kết luận.
+   ghi số lần đặt lại, khoá máy trước ga cuối. Trên tàu, khi máy khoá, chuyến được theo dõi vẫn nhận vị trí liên
+   tục (luồng vị trí của chính chuyến, không phải thay đổi đáng kể của iOS); mỗi khi tàu đi thêm 500 m, khoảng
+   20–40 giây một lần, `onMoved` chạm: đếm chúng. Khi tàu tới ga → những chặng của chuyến đã tích (mở app để xem),
+   và mở lại Cài đặt → số tăng 2 + số lần `onMoved` chạm (tới ga ở nền, mở lại app). Ở đây hai lần đánh thức rất dễ
+   gộp làm một (`onMoved` cũng chạm lúc tàu vào ga), nên số có thể ít hơn: không coi là trượt. **Đạt** khi đường
+   tới ga tự nó cho đúng một lần đặt lại ở nền: đúng một lần `finishRescheduleInBackground` có backtrace đi qua
+   `AppModel.rideArrived`. Không nối Xcode thì không đếm được `onMoved`: chỉ kiểm các chặng đã tích, con số không
+   dùng để kết luận.
 7. **Di chuyển đáng kể ở nền** (significant change) không ép được trên máy: iOS tự quyết khi nào báo. Đường này
    chỉ được kiểm bằng đọc code: `LocationService.locationManager(_:didUpdateLocations:)` gọi `moved(to:)` chỉ khi
    app không ở trên màn hình → `onMoved` → `AppModel.requestReschedule` rồi `finishRescheduleInBackground`.
@@ -228,7 +247,8 @@ Tắt công tắc sau mỗi bước.
     - **Đạt** khi app không crash và Nhật ký không có dòng hay đường đi ma (một chỗ ghé hay đoạn đường không có thật,
       hay biến mất khi mở lại trang).
     - Ghi lại Nhật ký hiện gì: đoạn đường vừa đi còn hay mất một khúc cuối.
-13. **"Lần lưu tới" rồi "Thử lại".**
+13. **"Lần lưu tới" rồi "Thử lại".** Giữ yên máy, máy kia để xa hoặc đã bỏ ghép: một lần ghé iOS báo ở nền hay một
+    lần đồng bộ sổ chi cũng là một lần lưu, và có thể dùng mất "Lần lưu tới" trước khi bấm Lưu.
     - Chọn **Lần lưu tới**. Chi tiêu › "+" (Ghi chi) › gõ ¥500 › Lưu.
     - **Đạt** khi alert "Khoản chi: Giả lỗi lưu (Chẩn đoán)" hiện trên editor, và editor còn số ¥500.
     - "Thử lại" → lưu được: editor đóng, rung `done`.
@@ -358,8 +378,10 @@ lại thì xoá app và bắt đầu lại từ A.
 3. **Geofence sau khi cập nhật.** App đã mở một lần sau khi cài. Khoá máy, mô phỏng vị trí ở Yamamoto Menzō (ngày
    8, 16:00).
    - **Đạt** khi thông báo "Yamamoto Menzō" có "Đã tới", và bấm nó đánh dấu 16:00 ở trang ngày 8.
-4. **Cờ chỉ ghi sau khi đã lưu** (bản mới Debug). Cài đặt › Chẩn đoán › Giả lỗi lưu › Lần lưu tới. Ngay sau đó
-   Cài đặt › Chuyến đi › Chạy thử › "Về giờ thật" (lần lưu kế tiếp là lần đổi sổ thật).
+4. **Cờ chỉ ghi sau khi đã lưu** (bản mới Debug). Trước hết di chuyển vị trí giả lập đi chỗ khác, xa mọi quán, và chờ
+   một phút: còn ở Yamamoto Menzō (bước 3), một lần ghé hay geofence ở nền có thể dùng mất "Lần lưu tới" trước khi
+   bấm "Về giờ thật". Rồi Cài đặt › Chẩn đoán › Giả lỗi lưu › Lần lưu tới. Ngay sau đó Cài đặt › Chuyến đi › Chạy
+   thử › "Về giờ thật" (lần lưu kế tiếp là lần đổi sổ thật).
    - **Đạt** khi alert "Chưa lưu được" ghi "Dấu đã đi và điểm bỏ: Giả lỗi lưu (Chẩn đoán)". Bấm **Để sau**, không
      bấm Thử lại. Ngày 8 vẫn hiện 09:30 đã đánh dấu.
    - Tắt hẳn app, mở lại ("Giả lỗi lưu" đã tự về Tắt). **Đạt** khi 09:30 vẫn đã đánh dấu, 14:30 chưa.
@@ -466,8 +488,9 @@ app đang đọc (sổ chạy thử khi đang chạy thử), đếm khi mở tra
    - **Đạt** khi dòng Chẩn đoán ghi "0 · 0". Tắt hẳn app, mở lại: vẫn "0 · 0" (xoá một lần, không báo lỗi gì).
    - Nếu bỏ qua 3 ngày dùng bản cũ thì bước này đạt mà không chứng minh gì: ghi lại là "không kiểm".
 2. **Không theo dõi nền trước chuyến.** Giờ thật trước 16/10/2027 18:00 giờ Nhật (lúc nền bắt đầu theo dõi), không chạy
-   thử, "Luôn luôn" đã cấp. Mở JP27 một lần (mỗi lần mở, app hỏi vị trí một lần để tính quãng đường: iOS ghi "đã dùng
-   gần đây" 24 giờ), rời app, rồi **không mở lại trong ít nhất 25 giờ**, mang máy đi lại vài km trong thời gian đó.
+   thử, "Luôn luôn" đã cấp. Mở JP27 một lần, **trước 15/10/2027 17:00 giờ Nhật** để cả 25 giờ dưới đây xong trước
+   18:00 ngày 16 (mỗi lần mở, app hỏi vị trí một lần để tính quãng đường: iOS ghi "đã dùng gần đây" 24 giờ), rời app,
+   rồi **không mở lại trong ít nhất 25 giờ**, mang máy đi lại vài km trong thời gian đó.
    - **Đạt** khi sau 25 giờ, Cài đặt iOS › Quyền riêng tư & Bảo mật › Dịch vụ định vị › JP27 không có mũi tên tím
      (đang dùng), không có mũi tên xám (dùng trong 24 giờ qua), và cũng không có mũi tên rỗng (geofence): ngoài ngày
      của chuyến app không đăng ký vùng nào (lần mở trước đã gỡ vùng một bản cũ để lại). Mở app: Chẩn đoán vẫn "0 · 0".
