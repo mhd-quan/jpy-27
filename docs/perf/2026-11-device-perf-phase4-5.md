@@ -84,3 +84,16 @@ lỗi: lần đầu bận mà lần thử lại được thì không tính, và 
 | 10 | Bản Debug. Dùng Nghe và loa xen kẽ vài phút như bước 2–7. Mở Chẩn đoán › Phiên âm thanh. | "nhả lỗi 0". Nếu khác 0, chép các dòng `setActive false failed` ở Console vào ghi chú: số dòng bằng N. Một lần huỷ bận rồi thử lại được là bình thường: không tính, không ghi dòng nào. | | |
 | 11 | Bản Debug. Nhạc đang phát. Tab Sổ tay: giữ (nhấn lâu) loa ở một câu dài để câu được đọc chậm, rồi chạm loa ở câu khác khi câu đầu còn đang đọc. Nghe hết câu thứ hai, chờ 2 s, rồi mở Chẩn đoán › Phiên âm thanh. | Câu đầu dừng, câu thứ hai được đọc hết, và câu đầu không đọc tiếp sau đó. Nhạc nhỏ suốt từ câu đầu tới hết câu thứ hai, không bật to lúc chuyển câu, rồi trở lại một lần, khoảng 0,5 s sau khi câu thứ hai dứt (≤ 1 s). Dòng ghi "Không ai giữ · nhả lỗi 0". | | |
 | 12 | Bản Release, so với bản nền: build commit nền `74ceccf` như `2026-11-baseline.md` (mục "Bản build") hướng dẫn, rồi bản ở commit của Task 4.2. Trên mỗi bản, ở một trang yên (tab Sổ tay, không cuộn, không phát gì khác), chạm loa ở cùng một câu 5 lần, mỗi lần nghe hết, và để ý giọng đọc bắt đầu sau cú chạm bao lâu. Không có signpost nào đo lúc giọng bắt đầu (`phrase.turn` chỉ đánh dấu nút xoay của thẻ câu), nên bước này nghe bằng tai. | Giọng bắt đầu nhanh như ở bản nền, không thấy trễ hơn. Nút loa đổi dạng ngay khi chạm ở cả hai bản; giờ giọng chờ lệnh session chạy xong trên hàng đợi rồi mới đọc. Nếu thấy trễ hơn, ghi lại cảm nhận (bao lâu, lần nào). | | |
+
+## Task 4.3 — Nguồn điện thấp theo dõi trực tiếp trên bìa trang chủ
+
+Bản Release ở commit của Task 4.3. `AppModel.lowPower` đọc lại `ProcessInfo.isLowPowerModeEnabled` mỗi lần có
+`NSProcessInfoPowerStateDidChange`; vòng lật bìa (`TodayHome`, `.task(id:)`) và chuyển động trôi của ảnh đọc nó.
+
+| # | Bước | Đạt khi | Kết quả | Ghi chú |
+| --- | --- | --- | --- | --- |
+| 1 | Mở tab Hôm nay, để bìa tự lật (đợi một lần lật). Kéo Control Center xuống, bật Nguồn điện thấp. | Bìa dừng lật ngay, kể cả khi đang đợi 6 giây: không có lần lật nào sau đó. Ảnh đang hiện dừng trôi. | | |
+| 2 | Giữ Nguồn điện thấp bật 20 giây rồi tắt (không thoát app, không đổi tab). | Bìa lật lại sau khoảng 6 giây và ảnh trôi lại, không cần mở lại app. | | |
+| 3 | Mở app khi Nguồn điện thấp đang bật từ trước (S1). | Bìa đứng yên từ khung đầu. Tắt Nguồn điện thấp: bìa lật lại. | | |
+| 4 | Mở app (Release), sau đó mở Cài đặt › Chẩn đoán, đọc dòng số lần đặt lại nhắc giờ. Chạm một dấu tích điểm dừng rồi đọc lại. | Mở app: 1 lần. Chạm dấu tích: tăng đúng 1. (B3.) | | |
+| 5 | Trước chuyến, mở app có định vị bật; Time Profiler (Main Thread) trong khung của một chạm dấu tích. | Không có công việc CoreLocation (`requestLocation`) và không có `rescheduleAll` trong khung của lần chạm. (B3, B4.) | | |

@@ -89,14 +89,15 @@ private struct HomeCover: View {
         // a new photograph every few seconds while the cover is in view; a swipe restarts the wait.
         // Under a sheet or behind another tab it waits: nothing turns while you look at something
         // else, and no page turn lands in the middle of a sheet's zoom. (Read here, not in the
-        // body, so opening a sheet does not re-run the cover.)
-        .task(id: "\(page ?? 0)-\(visible)") {
-            guard visible, !reduceMotion, shots.count > 1, toured < shots.count - 1 else { return }
+        // body, so opening a sheet does not re-run the cover.) Low Power Mode is part of the id: turning
+        // it on cancels the wait at once, turning it off starts the wait again.
+        .task(id: "\(page ?? 0)-\(visible)-\(model.lowPower)") {
+            guard visible, !reduceMotion, !model.lowPower, shots.count > 1, toured < shots.count - 1 else { return }
             repeat {
                 try? await Task.sleep(for: .seconds(6))
             } while !Task.isCancelled && !(model.sheets.isEmpty && model.tab == .today)
             // Low Power Mode: the covers stay where they are
-            guard !Task.isCancelled, !ProcessInfo.processInfo.isLowPowerModeEnabled else { return }
+            guard !Task.isCancelled, !model.lowPower else { return }
             toured += 1
             withAnimation(.smooth(duration: 0.9)) { page = ((page ?? 0) + 1) % shots.count }
         }
@@ -114,7 +115,7 @@ private struct HomeCover: View {
                             model.present(.place(shots[i].place.id), from: "home.cover.\(i)")
                         } label: {
                             // the slow drift is drawn every frame: not in Low Power Mode
-                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible && !ProcessInfo.processInfo.isLowPowerModeEnabled)
+                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible && !model.lowPower)
                         }
                         .buttonStyle(.pressable(.plain))
                         .containerRelativeFrame(.horizontal)

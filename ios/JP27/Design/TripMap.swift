@@ -599,6 +599,9 @@ final class MapPacer {
         return target
     }
 
+    /// Read from `didRender`, on every frame, so a switch of Low Power Mode is followed at the next
+    /// frame without any observer: no change needed here (the home cover, drawn from a view body, needs
+    /// `AppModel.lowPower`).
     private var allowed: Bool {
         top > 60 && !ProcessInfo.processInfo.isLowPowerModeEnabled
             && ProcessInfo.processInfo.thermalState != .critical

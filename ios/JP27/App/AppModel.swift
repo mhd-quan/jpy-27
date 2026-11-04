@@ -219,6 +219,10 @@ enum AppSheet: Identifiable, Hashable {
     private(set) var skips: [String: Set<Int>] = [:]
 
     private var clockTask: Task<Void, Never>?
+    /// Low Power Mode, followed live: the cover's page turns and drift read it (`TodayHome`), so they
+    /// stop when it is switched on and start again when it is switched off, without a relaunch.
+    private(set) var lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
+    @ObservationIgnored private var powerWatch: (any NSObjectProtocol)?
     /// runs `reschedule`, one run at a time, requests close together served by one run
     @ObservationIgnored private lazy var rescheduler = Coalescer { [weak self] in await self?.reschedule() }
     private var lastProjected: Coordinate?
@@ -295,6 +299,11 @@ enum AppSheet: Identifiable, Hashable {
         loadRecords()
         ledgerSync.setPaused(rehearsing)
         refresh(reschedule: false)
+        // The documentation does not say which thread posts this: the block runs on the main queue
+        // and reads the state again there, so a late or repeated post cannot leave an old value.
+        powerWatch = NotificationCenter.default.addObserver(forName: .NSProcessInfoPowerStateDidChange, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled }
+        }
         location.onUpdate = { [weak self] in self?.positionChanged($0) }
         location.onVisit = { [weak self] in self?.visited($0) }
         location.onFence = { [weak self] fence, entered in self?.fenceEvent(fence, entered: entered) }
