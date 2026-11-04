@@ -582,6 +582,14 @@ trí cách mọi tuyến của chuyến, nên bước nào cần đi tàu thật
      biến khỏi màn hình khoá ngay, và dòng Live Activity trên thanh tab không còn.
    - Romancecar (ngày 4) theo dõi lúc 7:30 giờ chạy thử: **Đạt** khi dòng Debug ghi "Tự kết thúc lúc 10:14" (9:22 +
      nửa của 105 phút). Theo dõi nó lúc 9:30: "12:07" (chuyến sau cho chuyến đã lỡ: 9:30 + 105 + 52,5 phút).
+   - Ở nhà vị trí xa mọi tuyến, nên chuyến kết thúc đúng giờ ghi. Trên tàu thật đang chạy trễ thì khác (R-141): quá giờ
+     ghi mà máy vẫn có vị trí trên tuyến (trong 1,5 km, vị trí mới nhất không quá 2 phút) thì chuyến **chưa** kết thúc,
+     Live Activity và báo thức GPS vẫn còn. **Đạt** trên tàu trễ khi chuyến kết thúc lúc tới ga (90 giây sau), hoặc
+     trong vòng 2–3 phút sau khi máy mất vị trí trên tuyến, và chậm nhất sau giờ ghi thêm thời gian của chuyến (ít nhất
+     60 phút: Romancecar 10:14 + 105 phút = 11:59).
+   - **Bắt đầu hay kết thúc chạy thử thì chuyến đang theo dõi kết thúc (R-142).** Đang chạy thử, theo dõi lại Keihan
+     (bước trên), rồi Cài đặt › "Về giờ thật". **Đạt** khi ngay sau đó trang chuyến trở lại "Theo dõi chuyến" và Live
+     Activity biến khỏi màn hình khoá. Cũng vậy theo chiều ngược lại: theo dõi một chuyến ở giờ thật rồi bật chạy thử.
    - "Về giờ thật" sau bước này.
 2. **Một Live Activity sau khi app bị tắt (đi tàu thật, chuyến nào cũng được).** Theo dõi chuyến, bật báo thức nếu
    chuyến có. Giữa chuyến vuốt JP27 khỏi màn hình đa nhiệm. **Đạt** khi Live Activity cũ vẫn còn trên màn hình khoá
@@ -614,9 +622,11 @@ trí cách mọi tuyến của chuyến, nên bước nào cần đi tàu thật
 6. **Ga trước ga xuống đã gần, không còn kịp đặt báo thức (đi tàu thật).** Chọn một chuyến, bật công tắc báo thức
    (chuyến ngắn mặc định tắt). Chỉ bấm "Theo dõi chuyến" sau khi tàu đã rời ga trước ga xuống (hay trong khoảng một phút
    trước đó).
-   - **Đạt** khi ngay lập tức có **một** thông báo "Sắp tới <ga xuống>" (khẩn, kêu cả trong Tập trung), không có báo thức
-     GPS mới (dòng Debug không đổi sang "· GPS").
-   - Mở lại app, hay tắt rồi mở lại: **Đạt** khi không có thông báo thứ hai cho chuyến đó.
+   - **Đạt** khi (báo thức đang đặt cho chuyến, nếu có, không reo trong 2 phút tới) ngay lập tức có **một** thông báo
+     "Sắp tới <ga xuống>" (khẩn, kêu cả trong Tập trung), không có báo thức GPS mới (dòng Debug không đổi sang "· GPS").
+   - Mở lại app, hay tắt rồi mở lại, rồi theo dõi lại chuyến: **Đạt** khi không có thông báo thứ hai cho chuyến đó.
+   - Thông báo của JP27 bị tắt trong Cài đặt iOS (báo thức vẫn cho phép): **Đạt** khi không có thông báo nào, và nếu
+     ga còn cách 30–60 giây thì báo thức GPS được đặt và reo (dòng Debug "· GPS") (R-143).
    - Công tắc báo thức tắt: **Đạt** khi không có thông báo nào.
    - Chuyến đi bình thường, theo dõi từ đầu, dòng Debug đã ghi "· GPS" trước ga trước ga xuống: **Đạt** khi báo thức reo
      như ở Task 3.3b và **không** kèm thông báo "Sắp tới" (cái đã reo, hay sắp reo trong hai phút, đã báo rồi). Nếu báo

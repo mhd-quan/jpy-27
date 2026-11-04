@@ -188,7 +188,8 @@ private struct RideArrivalText: View {
             Image(systemName: "checkmark.circle.fill")
         } else if let arrival {
             HStack(spacing: 4) {
-                // the trip's time, in Japan's zone whatever the phone's is set to
+                // in Japan's zone whatever the phone's is set to; the real time, also while rehearsing
+                // (the app shows the trip's)
                 Text(arrival, style: .time)
                     .environment(\.timeZone, TripTime.zone)
                 if arrival > .now {

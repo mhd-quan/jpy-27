@@ -150,7 +150,11 @@ enum AppSheet: Identifiable, Hashable {
     var clockOffset: TimeInterval = Shared.clockOffset {
         didSet {
             Shared.clockOffset = clockOffset
-            if (oldValue == 0) != (clockOffset == 0) { switchRecords() }
+            if (oldValue == 0) != (clockOffset == 0) {
+                // a rehearsal starts or ends: a followed ride's times belong to the other clock
+                live.endAtOnce(model: self)
+                switchRecords()
+            }
             refresh(reschedule: true)
         }
     }

@@ -21,6 +21,8 @@ public struct RideTracker: Sendable {
     private var seenOnLine = false
     /// the latest fix `note` was handed
     private var lastNoted: Date?
+    /// that fix lay within `offTrack` of the track: the ride may still be under way (`ending`)
+    private var lastOnLine = false
     /// the first and the latest of the fixes in a row farther than `farOff` from the track
     private var offLine: (first: Date, last: Date)?
 
@@ -226,10 +228,12 @@ public struct RideTracker: Sendable {
     /// from now, counted from the fix (followed late, or the GPS lost past it): no new alarm can ring
     /// for it, and one 30 to 60 seconds away would only ring after it. Not once an alarm for the ride
     /// has rung, nor while one set rings within `WakeReconciler.moveSlack` (it rings for it), nor once
-    /// arrived. A timetable alarm set further ahead stays set: two at most, the notice and it.
-    public mutating func wake(km: Double, speedKmh: Double? = nil, at fix: Date, notAfter latest: Date?, scheduled: Date?, now: Date) -> Wake {
+    /// arrived. A timetable alarm set further ahead stays set: two at most, the notice and it. Nor when
+    /// a notification cannot be shown (`canNotify`): then exactly what `alarm` says, an alarm 30 to 60
+    /// seconds away included.
+    public mutating func wake(km: Double, speedKmh: Double? = nil, at fix: Date, notAfter latest: Date?, scheduled: Date?, now: Date, canNotify: Bool) -> Wake {
         if let scheduled, scheduled <= now { rang = true }
-        if !rang, !status(km: km).arrived, let prompt = minutesToAlightPrompt(km: km, speedKmh: speedKmh),
+        if canNotify, !rang, !status(km: km).arrived, let prompt = minutesToAlightPrompt(km: km, speedKmh: speedKmh),
            fix.addingTimeInterval(prompt * 60).timeIntervalSince(now) < Self.noticeWithin,
            scheduled.map({ $0.timeIntervalSince(now) > WakeReconciler.moveSlack }) ?? true {
             return .notice
@@ -252,10 +256,16 @@ public struct RideTracker: Sendable {
     public static let farOff = 3.0
     public static let offLineFor: TimeInterval = 600
     public static let closeAfterArrival: TimeInterval = 90
-    /// minutes after its arrival that a ride is over at the latest, and the share of its time that
-    /// counts instead when larger
+    /// minutes after its arrival that a ride is over by the clock (`deadline`), and the share of its
+    /// time that counts instead when larger
     public static let overdueAfter = 30.0
     public static let overdueShare = 0.5
+    /// seconds a fix within `offTrack` still says the ride is under way: past its deadline it is then
+    /// held, a train long late
+    public static let onLineFresh: TimeInterval = 120
+    /// minutes after the deadline that a ride is over even on its line, and the share of its stated
+    /// time that counts instead when larger (a traveller who got off beside the line is let go)
+    public static let overdueCapAfter = 60.0
 
     /// A fix `offTrackKm` from the track, taken at `fix` (its own time, `CLLocation.timestamp`). Once
     /// one has been within `offTrack`, fixes farther than `farOff` in a row are kept, the first and the
@@ -265,7 +275,8 @@ public struct RideTracker: Sendable {
     public mutating func note(offTrackKm: Double, at fix: Date) {
         if let lastNoted, fix <= lastNoted { return }
         lastNoted = fix
-        if offTrackKm < Self.offTrack { seenOnLine = true }
+        lastOnLine = offTrackKm < Self.offTrack
+        if lastOnLine { seenOnLine = true }
         if offTrackKm > Self.farOff {
             if seenOnLine { offLine = (offLine?.first ?? fix, fix) }
         } else {
@@ -290,12 +301,17 @@ public struct RideTracker: Sendable {
     /// Whether the followed ride is over, and why: arrived `closeAfterArrival` seconds ago (`arrivedAt`
     /// and `now`, the real clock); fixes farther than `farOff` from the track spanning `offLineFor`
     /// seconds (`note`: the fixes' own times, so a stretch with none adds nothing); or `tripNow` past
-    /// `deadline` (the trip's clock).
+    /// `deadline` (the trip's clock) — unless the ride is still on its line, its latest fix within
+    /// `offTrack` and no more than `onLineFresh` seconds before `now` (a train long late), and then
+    /// only until the cap: `overdueCapAfter` minutes after the deadline, or the stated time when longer.
     public func ending(arrivedAt: Date?, followedAt: Date, tripNow: Date, now: Date) -> Ending? {
         if let arrivedAt, now.timeIntervalSince(arrivedAt) >= Self.closeAfterArrival { return .arrived }
         if let offLine, offLine.last.timeIntervalSince(offLine.first) >= Self.offLineFor { return .offLine }
-        if let deadline = deadline(followedAt: followedAt), tripNow >= deadline { return .overdue }
-        return nil
+        guard let deadline = deadline(followedAt: followedAt), tripNow >= deadline else { return nil }
+        let minutes = Double(TripTime.statedMaxMinutes(ride.min) ?? 0)
+        let cap = deadline.addingTimeInterval(max(Self.overdueCapAfter, minutes) * 60)
+        if tripNow < cap, lastOnLine, let lastNoted, now.timeIntervalSince(lastNoted) <= Self.onLineFresh { return nil }
+        return .overdue
     }
 
     /// When a ride arrives, from `minutesLeft` at a fix taken at `fixedAt`: `shown` on the trip's

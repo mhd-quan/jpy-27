@@ -15,6 +15,11 @@ import UserNotifications
 
     var onAction: ((Action) -> Void)?
     private(set) var authorized = false
+    /// notifications may be shown as alerts (`.authorized` only, not provisional, which arrive quietly
+    /// in the Notification Centre): a followed ride says a stop too close for an alarm in one
+    /// (`RideTracker.wake`). Read at once, not awaited; kept by `refreshStatus`, which runs on every
+    /// return to the app (`AppModel.activate`) and after every request.
+    @ObservationIgnored private(set) var alertsAuthorized = false
     /// never asked yet
     private(set) var undetermined = true
     private let center = UNUserNotificationCenter.current()
@@ -57,12 +62,15 @@ import UserNotifications
     func refreshStatus() async {
         let settings = await center.notificationSettings()
         authorized = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
+        alertsAuthorized = settings.authorizationStatus == .authorized
         undetermined = settings.authorizationStatus == .notDetermined
     }
 
     func requestAuthorization() async {
         authorized = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
         undetermined = false
+        // what the answer left, for `alertsAuthorized`
+        await refreshStatus()
     }
 
     // MARK: Plan reminders

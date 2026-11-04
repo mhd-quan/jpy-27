@@ -822,48 +822,67 @@ import Testing
         let at = planned - 600   // 9:08
         // 100 m before Iriuda (the stop before yours, 86.6 km): seconds away; or passed already
         var t = fresh
-        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: nil, now: at) == .notice)
+        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: nil, now: at, canNotify: true) == .notice)
         t = fresh
-        #expect(t.wake(km: 87, at: at, notAfter: planned, scheduled: nil, now: at) == .notice)
+        #expect(t.wake(km: 87, at: at, notAfter: planned, scheduled: nil, now: at, canNotify: true) == .notice)
         // the timetable's 9:18 still set, ten minutes ahead: a notice now, and it rings later
         t = fresh
-        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: planned, now: at) == .notice)
+        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: planned, now: at, canNotify: true) == .notice)
         // an alarm set to ring within two minutes rings for it: nothing more
         t = fresh
-        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: at + 100, now: at) == .nothing)
+        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: at + 100, now: at, canNotify: true) == .nothing)
         t = fresh
-        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: at + 121, now: at) == .notice)
+        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: at + 121, now: at, canNotify: true) == .notice)
         // one that has rung: no notice, only the timetable's ring still ahead (R-136), also once the
         // alarms have forgotten the one that rang; nothing at all once that has had its time too
         var rung = fresh
-        #expect(rung.wake(km: 86.5, at: at, notAfter: planned, scheduled: at - 5, now: at) == .alarm(planned))
-        #expect(rung.wake(km: 86.6, at: at + 20, notAfter: planned, scheduled: nil, now: at + 20) == .alarm(planned))
-        #expect(rung.wake(km: 87, at: planned + 5, notAfter: planned, scheduled: nil, now: planned + 5) == .nothing)
+        #expect(rung.wake(km: 86.5, at: at, notAfter: planned, scheduled: at - 5, now: at, canNotify: true) == .alarm(planned))
+        #expect(rung.wake(km: 86.6, at: at + 20, notAfter: planned, scheduled: nil, now: at + 20, canNotify: true) == .alarm(planned))
+        #expect(rung.wake(km: 87, at: planned + 5, notAfter: planned, scheduled: nil, now: planned + 5, canNotify: true) == .nothing)
         var noTimetable = fresh
-        #expect(noTimetable.wake(km: 86.5, at: at, notAfter: nil, scheduled: at - 5, now: at) == .nothing)
+        #expect(noTimetable.wake(km: 86.5, at: at, notAfter: nil, scheduled: at - 5, now: at, canNotify: true) == .nothing)
         // arrived: nothing
         t = fresh
-        #expect(t.wake(km: 88.6, at: at, notAfter: planned, scheduled: nil, now: at) == .nothing)
+        #expect(t.wake(km: 88.6, at: at, notAfter: planned, scheduled: nil, now: at, canNotify: true) == .nothing)
         // less than a minute from now, counted from the fix: a notice, not an alarm 30–60 s away
         let machida = planned - 73 * 60
         let prompt = try #require(fresh.minutesToAlightPrompt(km: 30.9, speedKmh: 200))
         let gps = machida + prompt * 60
         #expect(gps < planned)
         t = fresh
-        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 45) == .notice)
+        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 45, canNotify: true) == .notice)
         t = fresh
-        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 59) == .notice)
+        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 59, canNotify: true) == .notice)
         t = fresh
-        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 60) == .alarm(gps))
+        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 60, canNotify: true) == .alarm(gps))
         // further: what `alarm` says, unchanged
         var a = fresh, b = fresh
         let alarm = b.alarm(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: machida)
         #expect(alarm == gps)
-        #expect(a.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: machida) == .alarm(gps))
+        #expect(a.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: machida, canNotify: true) == .alarm(gps))
         a = fresh
         b = fresh
-        #expect(a.wake(km: 30.9, speedKmh: 16, at: machida, notAfter: planned, scheduled: nil, now: machida)
+        #expect(a.wake(km: 30.9, speedKmh: 16, at: machida, notAfter: planned, scheduled: nil, now: machida, canNotify: true)
             == b.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: planned, scheduled: nil, now: machida).map { .alarm($0) } ?? .nothing)
+    }
+
+    /// R-143: notifications that cannot be shown leave `wake` as `alarm` exactly: the alarm 30–60 s
+    /// away comes back, not a notice nobody sees.
+    @Test func noNoticeWhenNotificationsCannotBeShown() throws {
+        let planned = try #require(WakePlanner(store: store).alarm(for: romancecar))
+        let fresh = RideTracker(ride: romancecar, store: store)
+        let machida = planned - 73 * 60
+        let prompt = try #require(fresh.minutesToAlightPrompt(km: 30.9, speedKmh: 200))
+        let gps = machida + prompt * 60
+        var t = fresh, u = fresh
+        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 45, canNotify: false) == .alarm(gps))
+        #expect(u.alarm(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 45) == gps)
+        // passed already: no alarm can be set for it, and no notice either
+        let at = planned - 600
+        t = fresh
+        #expect(t.wake(km: 87, at: at, notAfter: planned, scheduled: nil, now: at, canNotify: false) == .nothing)
+        t = fresh
+        #expect(t.wake(km: 87, at: at, notAfter: planned, scheduled: planned, now: at, canNotify: false) == .nothing)
     }
 
     // MARK: the ride's end
@@ -902,6 +921,44 @@ import Testing
         // no stated time either (the ropeway): 30 minutes
         let ropeway = try #require(store.trip.rides.first { $0.id == "r-4-hakoneRopeway-togendai" })
         #expect(RideTracker(ride: ropeway, store: store).deadline(followedAt: boarding) == boarding + 30 * 60)
+    }
+
+    /// R-141: a train long late but still on its line (its latest fix within `offTrack`, at most
+    /// 120 s old) is not ended by the clock, up to a cap: the deadline plus its time, an hour at least.
+    @Test func aLateTrainStillOnItsLineIsHeldUpToTheCap() throws {
+        let day4 = try #require(store.day("4"))
+        let fresh = RideTracker(ride: romancecar, store: store)
+        let boarding = try jst(day4, 7, 30)
+        let end = try jst(day4, 10, 14.5)
+        let cap = end + 105 * 60   // max(60, 105) minutes after the deadline
+        func over(_ t: RideTracker, at now: Date) -> RideTracker.Ending? {
+            t.ending(arrivedAt: nil, followedAt: boarding, tripNow: now, now: now)
+        }
+        var t = fresh
+        t.note(offTrackKm: 0.3, at: end + 30)
+        #expect(over(t, at: end + 60) == nil)
+        // its latest fix 120 s old: still held; 121 s (the GPS lost, or put away): over
+        #expect(over(t, at: end + 150) == nil)
+        #expect(over(t, at: end + 151) == .overdue)
+        // the latest fix off its line, however fresh: over
+        var off = fresh
+        off.note(offTrackKm: 0.3, at: end)
+        off.note(offTrackKm: RideTracker.offTrack, at: end + 30)
+        #expect(over(off, at: end + 60) == .overdue)
+        // on its line past the cap: over
+        var capped = fresh
+        capped.note(offTrackKm: 0.3, at: cap - 10)
+        #expect(over(capped, at: cap - 1) == nil)
+        #expect(over(capped, at: cap) == .overdue)
+        // the ropeway, with no stated time, followed in its queue near its station: held while its
+        // fixes are fresh, until 30 + 60 minutes after it was followed
+        let ropeway = try #require(store.trip.rides.first { $0.id == "r-4-hakoneRopeway-togendai" })
+        var queue = RideTracker(ride: ropeway, store: store)
+        queue.note(offTrackKm: 0.1, at: boarding + 40 * 60)
+        #expect(queue.ending(arrivedAt: nil, followedAt: boarding, tripNow: boarding + 41 * 60, now: boarding + 41 * 60) == nil)
+        queue.note(offTrackKm: 0.1, at: boarding + 89 * 60 + 50)
+        #expect(queue.ending(arrivedAt: nil, followedAt: boarding, tripNow: boarding + 90 * 60 - 1, now: boarding + 90 * 60 - 1) == nil)
+        #expect(queue.ending(arrivedAt: nil, followedAt: boarding, tripNow: boarding + 90 * 60, now: boarding + 90 * 60) == .overdue)
     }
 
     @Test func aRideArrivedClosesNinetySecondsLater() throws {

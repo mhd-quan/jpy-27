@@ -44,6 +44,9 @@ import TripKit
 
     var isAvailable: Bool { ActivityAuthorizationInfo().areActivitiesEnabled }
 
+    /// How long an arrived ride's Live Activity stays on the lock screen once ended.
+    private static let arrivedLinger: TimeInterval = 15 * 60
+
     /// The ride being followed has reached its end and is only waiting to be closed: the next ride
     /// may start at once (a change of trains), it replaces this one.
     var hasArrived: Bool { ending }
@@ -96,7 +99,7 @@ import TripKit
         if let found, let fixedAt { tracker?.note(offTrackKm: found.offTrackKm, at: fixedAt) }
         if let followedAt, let why = tracker?.ending(arrivedAt: arrivedAt, followedAt: followedAt, tripNow: Shared.now, now: Date()) {
             // an arrival stays on the lock screen a while; a ride left or long past, its content wrong
-            close(ride, model: model, policy: why == .arrived ? .after(Date().addingTimeInterval(15 * 60)) : .immediate)
+            close(ride, model: model, policy: why == .arrived ? .after(Date().addingTimeInterval(Self.arrivedLinger)) : .immediate)
             return
         }
         // a position far off the track says nothing about this ride (still on the platform, or a wrong train)
@@ -121,7 +124,9 @@ import TripKit
         // (`RideTracker.wake`, `AlarmService.firstNotice`)
         if !s.arrived, model.wakeAlarmIsOn(ride) {
             let current = model.alarms.time(of: ride.id)
-            switch tracker?.wake(km: s.km, speedKmh: speed, at: fix, notAfter: timetableAlarm?.addingTimeInterval(-model.clockOffset), scheduled: current, now: Date()) {
+            // a notice only where it can be seen: else the alarm, however close (`RideTracker.wake`)
+            let canNotify = model.notifications.alertsAuthorized
+            switch tracker?.wake(km: s.km, speedKmh: speed, at: fix, notAfter: timetableAlarm?.addingTimeInterval(-model.clockOffset), scheduled: current, now: Date(), canNotify: canNotify) {
             case .alarm(let at)? where current.map({ abs($0.timeIntervalSince(at)) >= 120 }) ?? true:
                 Task { await model.alarms.alight(rideID: ride.id, station: ride.toName, at: at) }
             case .notice?:
@@ -156,7 +161,14 @@ import TripKit
     /// Stops following the ride; with `only`, only if that is still the ride followed.
     func end(model: AppModel, immediately: Bool, only rideID: String? = nil) async {
         guard let ride, rideID == nil || ride.id == rideID, claim(ride) else { return }
-        await release(ride, model: model, policy: immediately ? .immediate : .after(Date().addingTimeInterval(15 * 60)))
+        await release(ride, model: model, policy: immediately ? .immediate : .after(Date().addingTimeInterval(Self.arrivedLinger)))
+    }
+
+    /// Ends the followed ride at once, from a call that cannot wait: a rehearsal starting or ending,
+    /// whose clock the ride's times no longer belong to.
+    func endAtOnce(model: AppModel) {
+        guard let ride else { return }
+        close(ride, model: model, policy: .immediate)
     }
 
     /// A ride `RideTracker.ending` says is over, ended from a call that cannot wait for it: often a
@@ -184,8 +196,12 @@ import TripKit
         if let activity, let last = lastState {
             await activity.end(ActivityContent(state: last, staleDate: nil), dismissalPolicy: policy)
         }
-        // the activity's end above suspends: a ride started meanwhile is not this one's to clear
-        guard self.ride?.id == ride.id else { return }
+        // the activity's end above suspends: a ride started meanwhile is not this one's to clear, but
+        // the claim is: this ride, followed again later, can be ended again
+        guard self.ride?.id == ride.id else {
+            if closing == ride.id { closing = nil }
+            return
+        }
         activity = nil
         self.ride = nil
         tracker = nil
