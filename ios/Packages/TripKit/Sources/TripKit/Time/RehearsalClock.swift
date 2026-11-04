@@ -20,10 +20,18 @@ public enum RehearsalClock {
 
     /// What "Chạy thử từ thời điểm này" sets for `picked`, or nil when it would do nothing: no
     /// rehearsal at real time, never the end of one (only "Về giờ thật" ends it), nor the
-    /// rehearsal already running.
+    /// rehearsal already running. A pick in the trip clock's current minute is "now", however long
+    /// the picker stayed open before it was turned back onto it.
     public static func start(at picked: Date, realNow: Date, current: TimeInterval) -> TimeInterval? {
+        let tripNow = realNow.addingTimeInterval(offset(current))
+        guard minute(of: picked) != minute(of: tripNow) else { return nil }
         let wanted = offset(picked.timeIntervalSince(realNow))
         guard wanted != 0, wanted != offset(current) else { return nil }
         return wanted
+    }
+
+    /// the clock minute an instant falls in (minutes since 1/1/2001 UTC, aligned with Japan's)
+    private static func minute(of date: Date) -> Double {
+        (date.timeIntervalSinceReferenceDate / 60).rounded(.down)
     }
 }

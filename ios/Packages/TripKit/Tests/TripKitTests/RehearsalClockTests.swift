@@ -46,10 +46,26 @@ import Testing
         let real = TripTime.date("2026-11-04", "14:23")!.addingTimeInterval(41)
         let picked = TripTime.date("2027-10-18", "8:25")!
         let o = RehearsalClock.start(at: picked, realNow: real, current: 0)
-        #expect(o == RehearsalClock.offset(picked.timeIntervalSince(real)))
-        #expect(o.map { $0.truncatingRemainder(dividingBy: 60) } == 0)
+        // 347 days 18 h 1 min 19 s ahead, to the nearest minute
+        #expect(o == 347 * day + 18 * 3600 + 60)
         // the trip clock then reads the picked time, within half a minute
         #expect(o.map { abs(real.addingTimeInterval($0).timeIntervalSince(picked)) <= 30 } == true)
+    }
+
+    /// A pick in the trip clock's current minute is "now": a wheel turned back onto it after the page
+    /// stayed open a while starts nothing, nor moves a running rehearsal by a minute. The minute before
+    /// is a pick.
+    @Test func aPickInTheCurrentMinuteIsNow() {
+        // not rehearsing: the real clock reads 12:00:50
+        let real = TripTime.date("2027-10-20", "12:00")!.addingTimeInterval(50)
+        #expect(RehearsalClock.start(at: TripTime.date("2027-10-20", "12:00")!, realNow: real, current: 0) == nil)
+        #expect(RehearsalClock.start(at: TripTime.date("2027-10-20", "11:59")!, realNow: real, current: 0) == -120)
+        // rehearsing two days back: the trip clock reads 10:00:50 on the 18th
+        let current = -2 * day
+        let at = TripTime.date("2027-10-20", "10:00")!.addingTimeInterval(50)
+        #expect(RehearsalClock.start(at: TripTime.date("2027-10-18", "10:00")!, realNow: at, current: current) == nil)
+        #expect(RehearsalClock.start(at: TripTime.date("2027-10-18", "10:00")!.addingTimeInterval(59.9), realNow: at, current: current) == nil)
+        #expect(RehearsalClock.start(at: TripTime.date("2027-10-18", "9:59")!.addingTimeInterval(59), realNow: at, current: current) == current - 60)
     }
 
     @Test func theStartButtonNeverEndsARehearsalNorRepeatsIt() {

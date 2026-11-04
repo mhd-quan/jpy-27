@@ -549,10 +549,7 @@ enum HeroExporter {
         let session = AVAudioSession.sharedInstance()
         // while Nghe is listening the session records: speak through it as it is (changing the
         // category would stop the microphone), and leave it to Nghe to end
-        if session.category != .playAndRecord {
-            try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-            ownsSession = true
-        }
+        if session.category != .playAndRecord { takeSession() }
         let u = AVSpeechUtterance(string: ja)
         u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
         u.rate = slow ? 0.38 : AVSpeechUtteranceDefaultSpeechRate
@@ -561,9 +558,17 @@ enum HeroExporter {
         synth.speak(u)
     }
 
-    /// Nghe stopped while a line is being read: the session, its category already given back, is
-    /// the Speaker's to end once nothing is left to say (`ended`).
+    /// Nghe stopped while a line is being read: the session stays active, moves to the Speaker's own
+    /// category, and is the Speaker's to end once nothing is left to say (`ended`).
     func adoptSession() {
+        takeSession()
+    }
+
+    /// The Speaker's category, the one place it is set: mixable and ducking what else plays, heard
+    /// with the Ring/Silent switch on silent. The session is then the Speaker's to end.
+    private func takeSession() {
+        // on the main actor, in order with Nghe's (an exception to contract § 4.2 until Task 4.2)
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
         ownsSession = true
     }
 

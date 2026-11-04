@@ -155,6 +155,16 @@ enum AppSheet: Identifiable, Hashable {
     /// (no rehearsal at real time, and never the end of one) or the rehearsal already running.
     func rehearse(at picked: Date) {
         guard let offset = RehearsalClock.start(at: picked, realNow: Date(), current: clockOffset) else { return }
+        // a store an older build's rehearsal at about now left, not yet set aside (`init`): a new
+        // rehearsal starts from a fresh copy and would delete it, so it does not start until then
+        if !rehearsing, Shared.storedClockOffset != 0 {
+            do {
+                try Records.setRehearsalAside()
+            } catch {
+                report("Không cất được sổ chạy thử cũ", error, retry: { [weak self] in self?.rehearse(at: picked) })
+                return
+            }
+        }
         setClock(offset)
     }
 
@@ -240,9 +250,15 @@ enum AppSheet: Identifiable, Hashable {
             container = real
             if Shared.storedClockOffset != 0 {
                 // an older build started a "rehearsal" at about now (a picker left at now): what it
-                // recorded was recorded at real time, so its store is set aside, never deleted
-                Shared.clockOffset = 0
-                Records.setRehearsalAside()
+                // recorded was recorded at real time, so its store is set aside, never deleted. Not
+                // set aside: the raw offset stays (it reads 0 everywhere) and this runs again at the
+                // next launch, or before a rehearsal starts (`rehearse(at:)`)
+                do {
+                    try Records.setRehearsalAside()
+                    Shared.clockOffset = 0
+                } catch {
+                    // each file that did not move is in the log (`Records`); nothing is deleted
+                }
             } else {
                 // a rehearsal that ended with the app closed leaves its store behind
                 Records.discardRehearsal()

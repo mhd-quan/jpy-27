@@ -656,7 +656,10 @@ trả lại "Đặt tự động" sau các bước đó.
 
 1. **"Chạy thử" ở bây giờ không làm gì (ngày máy 20/10/2027).** Cài đặt › Chạy thử. Không chạm vào ô "Thời điểm".
    - **Đạt** khi nút "Chạy thử từ thời điểm này" mờ (không bấm được), kể cả sau khi để trang mở 3 phút; dòng "Chạy thử"
-     ở trang Cài đặt vẫn ghi "Tắt"; không có huy hiệu tím trên thanh tab; tiêu đề Chi tiêu không có dòng phụ.
+     ở trang Cài đặt vẫn ghi "Tắt"; không có huy hiệu tím trên thanh tab; tiêu đề Chi tiêu không có dòng phụ, và vùng
+     tiêu đề Chi tiêu cao đúng như ở bản trước (không có một dòng trống dưới "Chi tiêu").
+   - Mở bánh xe "Thời điểm", xoay đi rồi xoay về đúng phút đang chỉ trên đồng hồ máy (để trang mở hơn một phút trước
+     đó). **Đạt** khi nút vẫn mờ: một thời điểm trong phút hiện tại là "bây giờ".
    - Chỉnh "Thời điểm" lùi **hai** phút. **Đạt** khi nút sáng, và bấm vào thì dòng "Đồng hồ chuyến đi" hiện và chỉ phút
      đã chọn (hay phút ngay trước nó: lệch tối đa nửa phút), huy hiệu tím hiện. "Về giờ thật" sau bước này.
    - Đang chạy thử, kéo "Thời điểm" về đúng giờ thật của máy. **Đạt** khi nút "Chạy thử từ thời điểm này" mờ: chỉ "Về
@@ -680,6 +683,10 @@ trả lại "Đặt tự động" sau các bước đó.
    - **Đạt** khi khoản 123 ¥ không mất hẳn: trong container của app (Xcode › Devices › Download Container) có
      `Library/Application Support/Trip-rehearsal-kept-<số>.store`, và Console (subsystem `tech.delphyra.jp27`, category
      `records`) có đúng một dòng "a rehearsal at about now was ended…". Mở lại app lần nữa: không có dòng thứ hai.
+   - *Ghi chú (không phải bước kiểm, máy khó tạo ra):* nếu iOS không cho đổi tên sổ đó, Console có dòng lỗi "…was not
+     set aside…", app vẫn chạy với sổ thật, sổ cũ nằm yên tại chỗ (không bị xoá) và lần mở app sau thử cất lại. Trong
+     lúc đó bấm "Chạy thử từ thời điểm này" thì buổi chạy thử **không** bắt đầu; hộp "Chưa lưu được" hiện "Không cất
+     được sổ chạy thử cũ: …" với "Thử lại".
 4. **Cuộc gọi hay Siri trong lúc Nghe.** Sổ tay › Nghe và dịch › bấm nghe (nút đổi sang "đang nghe").
    - Gọi tới máy từ máy khác (hay gọi FaceTime âm thanh). **Đạt** khi ngay lúc chuông reo, màn Nghe không còn "đang
      nghe" (nút trở về như trước khi bấm); tắt cuộc gọi, mở lại JP27: vẫn đứng yên, bấm thì nghe lại được.
@@ -691,6 +698,8 @@ trả lại "Đặt tự động" sau các bước đó.
    - Sau đó, ở Sổ tay, bấm đọc một câu (nút loa). **Đạt** khi nhạc nhỏ lại trong lúc đọc và **to lại** khi đọc xong (bản cũ:
      nhạc nhỏ mãi tới khi tắt app).
    - Bấm đọc một câu khi chưa từng mở Nghe. **Đạt** khi nhạc to lại khi đọc xong.
+   - Làm lại cả bước này với một app podcast hay video (Podcasts, YouTube) thay cho Music. **Đạt** khi tiếng của app đó
+     nhỏ lại rồi to lại như nhạc, không bị dừng hẳn (không phải bấm phát lại).
 6. **Nghe không chép giọng của app.** Đang nghe, bấm đọc một câu trả lời gợi ý (loa ngoài, không tai nghe). **Đạt** khi
    câu app vừa đọc **không** xuất hiện trong bản chép; nói một câu tiếng Nhật sau đó (hay mở một video tiếng Nhật) thì
    câu đó được chép (Nghe không bị điếc sau khi app đọc).
@@ -698,4 +707,5 @@ trả lại "Đặt tự động" sau các bước đó.
    khi câu mới đọc được nửa.
    - **Đạt** khi câu đọc tiếp tới hết (không bị cắt), nhạc to lại sau khi câu đọc xong, và bấm nghe lần nữa thì Nghe chép
      được câu nói tiếp theo.
+   - Làm lại với công tắc Chuông/Im lặng ở **im lặng**. **Đạt** khi nửa sau của câu vẫn nghe rõ tới hết (không im bặt).
    - **Không đạt** nếu câu bị cắt hay nhạc không to lại: ghi lại, bản sửa đã định sẵn ở report Task 3.4b.

@@ -227,23 +227,26 @@ struct TalkSentence: Identifiable, Hashable {
         await stop()
     }
 
-    /// The session as it was before listening (category, mode, options), then deactivated so what
-    /// another app plays comes back up. While the Speaker is reading a line the session stays on
-    /// for it, and the Speaker ends it after the line (`Speaker.adoptSession`).
+    /// The session given back without moving another app's audio. Nothing being read: deactivated
+    /// first (what another app plays comes back up), then the category as it was before listening
+    /// (category, mode, options), which on an inactive session touches nothing else. While the
+    /// Speaker reads a line: the session stays active, in the Speaker's own category, and the
+    /// Speaker ends it after the line (`Speaker.adoptSession`); the category from before is dropped.
     private func giveSessionBack() {
         let session = AVAudioSession.sharedInstance()
+        let prior = self.prior
+        self.prior = nil
         // on the main actor, in order with the Speaker's (an exception to contract § 4.2 until Task 4.2)
-        if let prior {
-            self.prior = nil
-            try? session.setCategory(prior.category, mode: prior.mode, options: prior.options)
-        }
-        guard sessionActive else { return }
-        sessionActive = false
-        if Speaker.shared.speaking != nil {
+        if sessionActive, Speaker.shared.speaking != nil {
+            sessionActive = false
             Speaker.shared.adoptSession()
-        } else {
+            return
+        }
+        if sessionActive {
+            sessionActive = false
             try? session.setActive(false, options: .notifyOthersOnDeactivation)
         }
+        if let prior { try? session.setCategory(prior.category, mode: prior.mode, options: prior.options) }
     }
 }
 

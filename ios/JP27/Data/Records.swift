@@ -327,18 +327,29 @@ enum Records {
 
     /// The rehearsal's store renamed, not deleted, the way the side store is once folded in: an
     /// older build could start a "rehearsal" at about now (`RehearsalClock`), whose records were
-    /// real ones. Said once in the log; the file stays for a rescue.
-    static func setRehearsalAside() {
+    /// real ones. The file stays for a rescue. Throws unless every file of it that exists (the
+    /// store, its `-wal` and `-shm`) moved, each failure in the log; the caller then keeps the store
+    /// where it is and tries again later, never deleting it. "Kept" is logged only on success.
+    static func setRehearsalAside() throws(SaveFailure) {
         let fm = FileManager.default
-        guard fm.fileExists(atPath: rehearsalURL.path) else { return }
         let stamp = Int(Date().timeIntervalSince1970)
+        var moved = false
+        var failure: (any Error)?
         for suffix in ["", "-shm", "-wal"] {
             let at = URL(fileURLWithPath: rehearsalURL.path + suffix)
-            if fm.fileExists(atPath: at.path) {
-                try? fm.moveItem(at: at, to: folder.appending(path: "Trip-rehearsal-kept-\(stamp).store" + suffix))
+            guard fm.fileExists(atPath: at.path) else { continue }
+            do {
+                try fm.moveItem(at: at, to: folder.appending(path: "Trip-rehearsal-kept-\(stamp).store" + suffix))
+                moved = true
+            } catch {
+                log.error("the rehearsal store's file Trip-rehearsal.store\(suffix, privacy: .public) was not set aside: \(error.localizedDescription, privacy: .public)")
+                failure = failure ?? error
             }
         }
-        log.notice("a rehearsal at about now was ended: its store is kept as Trip-rehearsal-kept-\(stamp, privacy: .public).store")
+        if let failure { throw SaveFailure(underlying: failure) }
+        if moved {
+            log.notice("a rehearsal at about now was ended: its store is kept as Trip-rehearsal-kept-\(stamp, privacy: .public).store")
+        }
     }
 
     private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "records")
