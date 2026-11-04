@@ -5,7 +5,7 @@ cách đo. Tài liệu này là phần **trước**: mười kịch bản S1–S
 máy và điền vào; ô trống là chưa đo. Các task sau dùng lại mã S1–S10 trong
 [`2026-11-device-perf-phase4-5.md`](2026-11-device-perf-phase4-5.md).
 
-Baseline commit: (điền sau)
+Baseline commit: `74ceccf9b63a4a3a73533a98ad85519423fa546d` (74ceccf, nhánh `claude/ios-phases-4-5`; build đúng commit này để đo app cũ)
 
 Bản đo được build từ đúng commit này: nó là app cũ, chỉ thêm mốc đo (Task 0.2, "Bước 1"). Không có gì chạy khác đi.
 
