@@ -25,7 +25,7 @@ nằm trong TripKit như plan đã thiết kế; (b) phần app phải mỏng v�
 
 ## 2. Các ghế và mức effort
 
-Mọi ghế chạy **Opus 5.5**. Effort chọn theo hậu quả của một quyết định sai *không bị test bắt*, không theo
+Mọi ghế chạy cùng một model (bậc mạnh nhất có sẵn). Effort chọn theo hậu quả của một quyết định sai *không bị test bắt*, không theo
 độ dài task.
 
 | Ghế | Effort | Vì sao mức này |
@@ -121,12 +121,8 @@ Tiếng Việt, cùng giọng với chữ sẵn có quanh chỗ sửa (câu ng�
 
 - Chỉ commit trên nhánh hiện tại (`claude/festive-maxwell-om1zy7`). Không push, không đổi nhánh, không
   rebase, không tạo PR — controller push sau khi task qua review.
-- Commit message tiếng Anh theo giọng lịch sử (`git log --oneline -20`), kết thúc bằng hai dòng:
-
-```
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01Htz1qfRDfwUJVYxzyR76MR
-```
+- Commit message tiếng Anh theo giọng lịch sử (`git log --oneline -20`), kết thúc bằng các dòng
+  attribution mà phiên làm việc quy định (controller chép nguyên văn vào dispatch).
 
 - Không ghi tên hay mã model vào code, comment, commit.
 - Chỉ sửa file brief liệt kê. File khác cần chạm → mục "File ngoài danh sách" trong report, kèm lý do.

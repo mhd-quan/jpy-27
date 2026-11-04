@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Print a MapLibre Native iOS 7.0.0 public header (the version ios/project.yml pins).
+# Usage: maplibre-header MLNOfflinePack.h
+set -euo pipefail
+curl -sS --fail "https://raw.githubusercontent.com/maplibre/maplibre-native/ios-v7.0.0/platform/darwin/src/$1"
