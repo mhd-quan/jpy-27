@@ -34,11 +34,14 @@ public struct ReminderPlanner: Sendable {
 
     /// The day's reminders at the plan's times: the same "Rời đi lúc" the Today screen shows for
     /// the next stop. A departure or a reservation that is `settled` (done, dropped, or behind what
-    /// was done) is left out: its reminder would only say what already happened.
+    /// was done) is left out: its reminder would only say what already happened. A day whose first
+    /// item has no time has no morning reminder: its clock would start at midnight, and the reminder
+    /// would ring at 23:30 the night before.
     public func reminders(for day: Day, settled: (Day, Int) -> Bool = { _, _ in false }) -> [Reminder] {
         var out: [Reminder] = []
         let points = itinerary.waypoints(day)
-        if let start = itinerary.engine.simulate(day).first?.begin, let at = TripTime.date(day.date, minutes: start - 30) {
+        if let first = itinerary.engine.simulate(day).first, first.planned != nil || first.started,
+           let at = TripTime.date(day.date, minutes: first.begin - 30) {
             out.append(Reminder(id: "morning-\(day.key)", fire: at, title: "Ngày \(day.n) · \(day.title)", body: day.route, level: .active, kind: .morning, day: day.key, itemID: nil, booking: nil, placeID: nil))
         }
         for w in points where w.kind != .stop && !settled(day, w.index) {

@@ -226,6 +226,44 @@ import Testing
         #expect(p.replan?.target == 2)
     }
 
+    // MARK: A day without times
+
+    @Test func theClockMovesTheCursorOnlyOnATimedDay() {
+        let it = Itinerary(store: store), engine = PlanEngine(store: store)
+        let all = store.trip.days + store.trip.altDays
+        // the one day in the data with no time at all: the way to the airport
+        #expect(all.filter { $0.items.first?.at == nil }.map(\.key) == ["12"])
+        for day in all {
+            let slots = engine.simulate(day)
+            for half in 10 ... 47 {
+                let now = Double(half * 30)
+                let cursor = it.cursor(day, done: [], now: now)
+                if day.items.first?.at != nil {
+                    // every half hour from 5:00 to 23:30, with nothing marked and no position: the plan's clock
+                    #expect(cursor == (slots.first { $0.end > now }?.index ?? day.items.count), "day \(day.key) at \(TripTime.clock(now))")
+                } else {
+                    // its made-up times end before 1:30: it stays at its first item, until a mark moves it
+                    #expect(cursor == 0, "day \(day.key) at \(TripTime.clock(now))")
+                    #expect(it.cursor(day, done: [0], now: now) == 1)
+                }
+            }
+        }
+    }
+
+    @Test func anUntimedDayFollowsWhereYouStand() throws {
+        // day 12 with KIX made a sight (a station never holds the day): standing there at 8:00 holds the
+        // day there, although the plan's made-up times left it before 1:30
+        let patched = try TripStore.patched { trip in
+            var places = try #require(trip["places"] as? [[String: Any]])
+            let i = try #require(places.firstIndex { $0["id"] as? String == "kix" })
+            places[i]["kind"] = "sight"
+            trip["places"] = places
+        }
+        let kix = try #require(patched.place("kix"))
+        let day12 = try #require(patched.day("12"))
+        #expect(Itinerary(store: patched).cursor(day12, done: [], now: 8 * 60, position: kix.coordinate) == 2)
+    }
+
     @Test func mergedWalkIsShorterThanTheDetour() {
         let engine = PlanEngine(store: store)
         let keep = engine.simulate(day2, .live(from: 16, now: 900))
@@ -403,6 +441,30 @@ import Testing
         #expect(list.contains { $0.kind == .journal })
         let ids = list.map(\.id)
         #expect(Set(ids).count == ids.count)
+    }
+
+    @Test func anUntimedDayIsNotOverAtNight() {
+        let day12 = store.day("12")!
+        #expect(Itinerary(store: store).cursor(day12, done: [], now: 480) == 0)
+        let morning = ReminderPlanner(store: store).reminders(for: day12).first { $0.kind == .morning }
+        #expect(morning.map { $0.fire >= TripTime.midnight("2027-10-29")! } ?? true)
+    }
+
+    @Test func theMorningReminderOnlyOnATimedDay() throws {
+        let planner = ReminderPlanner(store: store), engine = PlanEngine(store: store)
+        for day in store.trip.days + store.trip.altDays {
+            let mornings = planner.reminders(for: day).filter { $0.kind == .morning }
+            let midnight = try #require(TripTime.midnight(day.date))
+            if day.items.first?.at != nil {
+                // half an hour before the day begins, as it always was
+                let start = try #require(engine.simulate(day).first).begin
+                #expect(mornings.map(\.fire) == [TripTime.date(day.date, minutes: start - 30)], "day \(day.key)")
+                #expect(mornings.map(\.id) == ["morning-\(day.key)"])
+            } else {
+                // a day with no time (12) has nothing to wake you for the night before
+                #expect(mornings.allSatisfy { $0.fire >= midnight }, "day \(day.key): \(mornings.map(\.fire))")
+            }
+        }
     }
 
     @Test func bookingReminders() {

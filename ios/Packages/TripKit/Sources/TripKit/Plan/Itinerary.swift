@@ -112,11 +112,17 @@ public struct Itinerary: Sendable {
     /// a kilometre), more than a kilometre from its station, and more than a kilometre from every
     /// place the day named before it (still in Fujiyoshida after the 16:48 back to Shinjuku, which
     /// runs past the town, is not riding it): with no stop holding you, the day is right after it.
+    ///
+    /// The plan's clock counts only once one of the day's planned times has come (`planned < now`).
+    /// Before that, or all day on a day with no time at all (the way to the airport, whose made-up
+    /// times start at midnight and end before 1:30), the day is at its first item until a mark or
+    /// where you stand moves it.
     func locate(_ day: Day, done: Set<Int>, now: Double, position: Coordinate?, skips: Set<Int>) -> (cursor: Int, riding: Riding?) {
         let count = day.items.count
         let floor = done.max().map { min($0 + 1, count) } ?? 0
         let slots = engine.simulate(day)
-        let clock = done.isEmpty ? (slots.first { $0.end > now }?.index ?? count) : floor
+        let timed = slots.contains { $0.planned.map { Double($0) < now } ?? false }
+        let clock = !done.isEmpty ? floor : timed ? (slots.first { $0.end > now }?.index ?? count) : 0
         guard let position, clock < count else { return (clock, nil) }
         var ceiling = count - 1
         var ridden: Riding?
@@ -143,8 +149,8 @@ public struct Itinerary: Sendable {
         for i in floor ... ceiling where !done.contains(i) && !skips.contains(i) {
             guard case .stop(let s) = day.items[i], let p = store.place(s.place), p.kind != .station else { continue }
             // a stop the plan left more than two hours ago is not where the day stands, even when
-            // the evening walk passes it again
-            if let end = ends[i], end < now - 120 { continue }
+            // the evening walk passes it again (a day the clock does not run has no such hours)
+            if timed, let end = ends[i], end < now - 120 { continue }
             candidates.append((i, p))
         }
         // the nearest stop you are at; latest first, so a place the day comes back to counts as the return
