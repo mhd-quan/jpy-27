@@ -1,8 +1,11 @@
 // node --test 'scripts/*.test.mjs'
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { compare, fromExport, fromSource, keptRenames, main, problems, renameProblems, TRIP } from './check-ids.mjs';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { baseDays, compare, fromExport, fromSource, keptRenames, main, problems, renameProblems, TRIP } from './check-ids.mjs';
 import { DAYS, ALT_DAYS, dayKey, leg, stop, walk } from '../src/data/days.ts';
 
 /** day 8 as the check sees it, with `edit` applied to a copy of its items */
@@ -179,6 +182,41 @@ test('the command takes the first base with ids, and checks the renames that bas
   const dropped = run(['withIds'], undefined, load({ 8: { 's:old': 's:wargo-gion:rent' } }));
   assert.equal(dropped.code, 1, dropped.out);
   assert.match(dropped.out, /s:old was shipped and is gone/);
+});
+
+/** a git repository whose one commit holds `trip` as the exported trip.json; removed after `body` */
+function withBase(trip, body) {
+  const dir = mkdtempSync(join(tmpdir(), 'check-ids-'));
+  try {
+    const git = (...args) =>
+      spawnSync('git', ['-c', 'user.name=check-ids', '-c', 'user.email=check-ids@example.invalid', '-c', 'commit.gpgsign=false', ...args], {
+        cwd: dir,
+        encoding: 'utf8',
+      });
+    assert.equal(git('init', '-q').status, 0);
+    mkdirSync(join(dir, TRIP, '..'), { recursive: true });
+    writeFileSync(join(dir, TRIP), JSON.stringify(trip));
+    assert.equal(git('add', '.').status, 0);
+    const made = git('commit', '-q', '-m', 'base');
+    assert.equal(made.status, 0, made.stderr);
+    return body(dir);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+// A7: the renames a base shipped reach the "shipped renames stay" check only through `baseDays`
+test('the base gives the renames its trip.json shipped, and the command keeps them', () => {
+  const committed = JSON.parse(readFileSync(new URL(`../${TRIP}`, import.meta.url), 'utf8'));
+  const trip = { ...committed, idRenames: { 8: { 's:old': 's:wargo-gion:rent' } } };
+  withBase(trip, (dir) => {
+    const base = baseDays('HEAD', dir);
+    assert.deepEqual(base.renames, trip.idRenames);
+    assert.deepEqual(base.days, fromExport(trip));
+    const r = run(['HEAD'], undefined, (ref) => baseDays(ref, dir));
+    assert.equal(r.code, 1, r.out);
+    assert.match(r.out, /ID_RENAMES\['8'\]: s:old was shipped and is gone/);
+  });
 });
 
 test('ids do not follow the time, the waypoints or the minutes', () => {

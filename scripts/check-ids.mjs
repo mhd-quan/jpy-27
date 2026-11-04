@@ -101,9 +101,12 @@ export function compare(base, head, renames = ID_RENAMES) {
   return out;
 }
 
-/** The base's exported days and renames, or why there is none. Throws when `ref` is no commit or git fails. */
-export function baseDays(ref) {
-  const git = (...args) => spawnSync('git', args, { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 });
+/**
+ * The base's exported days and renames, or why there is none, from the repository at `cwd` (this one by
+ * default). Throws when `ref` is no commit or git fails.
+ */
+export function baseDays(ref, cwd = root) {
+  const git = (...args) => spawnSync('git', args, { cwd, encoding: 'utf8', maxBuffer: 1 << 28 });
   if (git('rev-parse', '--verify', '--quiet', `${ref}^{commit}`).status !== 0) throw new Error(`base ${ref} is not a commit in this checkout (CI checks out with fetch-depth: 0)`);
   const listed = git('ls-tree', '--name-only', ref, '--', TRIP);
   if (listed.status !== 0) throw new Error(`git ls-tree ${ref}: ${listed.stderr.trim()}`);
