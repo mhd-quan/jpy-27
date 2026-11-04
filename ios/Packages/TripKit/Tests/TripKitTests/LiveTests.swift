@@ -195,11 +195,9 @@ import Testing
         #expect(it.project(day, done: [], now: 17 * 60 + 5, position: highland).replan?.target == 21)
         #expect(it.project(day, done: [], now: 17 * 60 + 30, position: fujisan).replan?.target == 21)
         // ten minutes behind where the timetable has the train is still on it; a second more is not
-        let tracker = RideTracker(ride: back, store: store)
-        let status = try #require(tracker.status(at: highland))
-        let arrival = try #require(tracker.plannedArrival)
-        let left = try #require(tracker.minutesLeft(km: status.km))
-        let due = arrival - left
+        let status = try #require(RideTracker(ride: back, store: store).status(at: highland))
+        let due = try #require(Itinerary.due(back, km: status.km))
+        #expect(abs(due - (16 * 60 + 48 + status.km / back.km * 120)) < 1e-9)
         let edge = due + Itinerary.behindTimetable
         #expect(edge - due == Itinerary.behindTimetable)
         #expect(Itinerary.behindTimetable == 10)
@@ -255,6 +253,50 @@ import Testing
         let ignored = it.project(day4, done: [], now: 8 * 60, position: far, riding: romancecar)
         #expect(ignored.cursor == 2)
         #expect(ignored.riding == nil)
+    }
+
+    /// The rides whose destination, with its whole circle, does not lie within `RideTracker.offTrack`
+    /// of the ride's own track (or whose destination cannot be found).
+    func destinationsOffTrack(_ store: TripStore) -> [String] {
+        (store.trip.rides + store.trip.altRides).compactMap { ride in
+            guard let day = store.day(ride.day),
+                  let move = day.items.compactMap(\.move).first(where: { $0.leg.id == ride.legs.last }),
+                  let to = store.place(move.leg.to),
+                  let status = RideTracker(ride: ride, store: store).status(at: to.coordinate),
+                  status.offTrackKm + Presence.radius(of: to) < RideTracker.offTrack
+            else { return ride.id }
+            return nil
+        }
+    }
+
+    @Test func everyRideEndsOnItsTrack() throws {
+        // what `strays` relies on: standing at a ride's destination is never far from its track
+        #expect(destinationsOffTrack(store) == [])
+        // and the check bites: Hakone-Yumoto moved two kilometres south is off the Romancecar's track
+        let moved = try TripStore.patched { trip in
+            var places = try #require(trip["places"] as? [[String: Any]])
+            let i = try #require(places.firstIndex { $0["id"] as? String == "st-hakone-yumoto" })
+            places[i]["lat"] = try #require(places[i]["lat"] as? Double) - 0.018
+            trip["places"] = places
+        }
+        #expect(destinationsOffTrack(moved).contains(romancecar.id))
+    }
+
+    @Test func aRangedRunTimeIsReadAtItsSlowEnd() throws {
+        // day 10: the 16:00 Kintetsu from Nara to Namba runs "35–45" minutes. Near Namba, on schedule
+        // for 45 and five minutes behind it, you are on that train: by the 35 it would be long gone
+        let ride = try #require(store.trip.rides.first { $0.id == "r-10-kintetsu-st-kintetsu-nara" })
+        #expect(ride.min == "35–45")
+        let tracker = RideTracker(ride: ride, store: store)
+        let track = store.track(of: ride)
+        let point = try #require(track.first { p in tracker.status(at: p).map { $0.km > 0.8 * ride.km && !$0.arrived } ?? false })
+        let status = try #require(tracker.status(at: point))
+        let slow = 16 * 60 + status.km / ride.km * 45, quick = 16 * 60 + status.km / ride.km * 35
+        let now = slow + 5
+        #expect(now - quick > Itinerary.behindTimetable)
+        let p = Itinerary(store: store).project(day10, done: Set(0 ... 15), now: now, position: point)
+        #expect(p.cursor == 17)
+        #expect(p.riding?.id == ride.id)
     }
 
     // Kawaguchiko day: item 3 is the 7:30 Fuji Excursion from Shinjuku, item 5 the Lawson stop at
@@ -440,6 +482,13 @@ import Testing
                 }
             }
         }
+    }
+
+    @Test func onlyTheWayToTheAirportHasNoPlannedTime() {
+        // the Today card names the item the day is at, untimed, on such a day only (an evening's walk
+        // back to the hotel on any other day is the day's end)
+        let it = Itinerary(store: store)
+        #expect((store.trip.days + store.trip.altDays).filter { it.isUntimed($0) }.map(\.key) == ["12"])
     }
 
     @Test func anUntimedDayFollowsWhereYouStand() throws {

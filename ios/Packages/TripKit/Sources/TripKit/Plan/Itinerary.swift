@@ -123,7 +123,7 @@ public struct Itinerary: Sendable {
         let count = day.items.count
         let floor = done.max().map { min($0 + 1, count) } ?? 0
         let slots = engine.simulate(day)
-        let timed = slots.contains { $0.planned.map { Double($0) < now } ?? false }
+        let timed = Self.clockCounts(slots, at: now)
         let clock = !done.isEmpty ? floor : timed ? (slots.first { $0.end > now }?.index ?? count) : 0
         guard let position, clock < count else { return (clock, nil) }
         var ceiling = count - 1
@@ -142,7 +142,7 @@ public struct Itinerary: Sendable {
                 ceiling = j
                 break
             }
-            if away, onLine, let tracker, let status, keepsUp(tracker, status, now: now),
+            if away, onLine, let tracker, let status, keepsUp(tracker.ride, status, now: now),
                let last = lastLeg(of: tracker.ride, in: day), !named(day, before: j, near: position) {
                 ridden = (last, tracker.ride)
             }
@@ -169,13 +169,31 @@ public struct Itinerary: Sendable {
 
     /// On a ride's line at `status`, you keep up with the train: at the end of its track (arrived,
     /// `RideTracker.Status.arrived`), or no more than `behindTimetable` minutes behind the minute its
-    /// timetable has it at that km (its departure, plus the share of its time that km is of its
-    /// length).
-    private func keepsUp(_ tracker: RideTracker, _ status: RideTracker.Status, now: Double) -> Bool {
+    /// timetable has it at that km (`due`).
+    private func keepsUp(_ ride: Ride, _ status: RideTracker.Status, now: Double) -> Bool {
         if status.arrived { return true }
-        guard let arrival = tracker.plannedArrival, let left = tracker.minutesLeft(km: status.km) else { return false }
-        let due = arrival - left
+        guard let due = Self.due(ride, km: status.km) else { return false }
         return now - due <= Self.behindTimetable
+    }
+
+    /// The minute the timetable has a ride's train at km `km`: its departure, plus the share of its
+    /// slowest planned run that km is of its length ("35–45" counts as 45, so a train running to the
+    /// slow end of its range is not behind).
+    static func due(_ ride: Ride, km: Double) -> Double? {
+        guard let departure = TripTime.minutes(ride.at), let run = TripTime.statedMaxMinutes(ride.min), ride.km > 0 else { return nil }
+        return Double(departure) + km / ride.km * Double(run)
+    }
+
+    /// The plan's clock counts at `now` once one of the day's planned times has come (`locate`).
+    private static func clockCounts(_ slots: [PlanEngine.Slot], at now: Double) -> Bool {
+        slots.contains { $0.planned.map { Double($0) < now } ?? false }
+    }
+
+    /// A day none of whose planned times ever comes, as it has none (the way to the airport): its
+    /// plan clock is made up from midnight and never counts (`locate`). Today's card names the item
+    /// such a day is at; on any other day, nothing timed ahead is the day's end.
+    public func isUntimed(_ day: Day) -> Bool {
+        !Self.clockCounts(engine.simulate(day), at: .infinity)
     }
 
     /// A place the day's items before `index` name (a stop, where a move starts or ends) lies within

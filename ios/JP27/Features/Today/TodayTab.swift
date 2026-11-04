@@ -123,9 +123,10 @@ private struct TodayDuring: View {
 
             if let next = model.next {
                 TodayNextCard(day: day, next: next, arrived: $arrived)
-            } else if model.cursor < day.items.count {
-                // items remain, none with a time to set off by (day 12, the way to the airport): the
-                // one the day is at, by name
+            } else if model.cursor < day.items.count, model.itinerary.isUntimed(day) {
+                // a day with no planned time at all (day 12, the way to the airport), items remaining:
+                // the one the day is at, by name. On any other day, nothing timed ahead (the walk back
+                // to the hotel) is the day's end
                 Card {
                     VStack(alignment: .leading, spacing: 4) {
                         Label(untimedTitle(day.items[model.cursor]), systemImage: "arrow.forward.circle.fill")

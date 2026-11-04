@@ -496,6 +496,8 @@ vẫn là vị trí thật (ở nhà, xa mọi tuyến của chuyến). Dòng "�
      nào trong "Đã qua". Đánh dấu mục đầu: nó vào "Đã qua", còn hai mục.
    - **Đạt** khi thẻ ở trên ghi "Đi bộ → Nankai Namba" với dòng "Không có giờ cố định", không phải "Hết lịch hôm
      nay" (R-122). Đánh dấu cả ba mục: lúc đó mới là "Hết lịch hôm nay".
+   - Đối chứng, ngày có giờ (R-128): chạy thử từ 19/10/2027 18:10 (ngày 2), bấm "Đã tới" ở thẻ Tamai. **Đạt** khi
+     thẻ là "Hết lịch hôm nay", dù còn đoạn về khách sạn không giờ (chỉ ngày không có giờ nào mới nêu mục đó).
    - Còn lại, đã biết (R-120, ngoài phạm vi): widget trống, vì ngày 12 không có điểm nào để báo (Nankai không có
      giờ, Sân bay Kansai là ga).
 3. **Không nhắc buổi sáng lúc 23:30 đêm trước ngày 12.** Chạy thử từ 28/10/2027 23:20, rời app, chờ qua 23:31 theo
