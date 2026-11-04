@@ -47,6 +47,16 @@ extension Fence {
         return entries.compactMapValues(\.fence)
     }
 
+    /// The item of `today` this circle stands for, when it is today's (`today`: by the trip's clock at
+    /// the moment it is entered, not the day the app last looked at): a food stop its notification may
+    /// mark, a departure whose train it offers to follow. Nil for a circle of another day (tomorrow's
+    /// first meal, watched from the evening before; a station kept from yesterday), one without an item
+    /// (a snack, the hotel), and an item the day no longer has.
+    public func plannedItem(today: Day?) -> Int? {
+        guard let today, day == today.key, let itemID else { return nil }
+        return today.index(of: itemID)
+    }
+
     /// One entry of `archive`, nil when it is not a fence this build reads.
     private struct Entry: Decodable {
         let fence: Fence?

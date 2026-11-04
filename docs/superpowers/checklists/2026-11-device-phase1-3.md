@@ -622,3 +622,18 @@ trí cách mọi tuyến của chuyến, nên bước nào cần đi tàu thật
      như ở Task 3.3b và **không** kèm thông báo "Sắp tới" (cái đã reo, hay sắp reo trong hai phút, đã báo rồi). Nếu báo
      thức đang đặt còn xa hơn hai phút khi tàu qua ga đó (ví dụ "9:18 · lịch" mà tàu tới sớm), có thêm một thông báo
      ngay rồi báo thức vẫn reo: tối đa hai lần, đúng như thiết kế.
+7. **Cờ "đang đi xe" cũ không tự bắt đầu chuyến (chạy thử, có đi xe thật).** Cài đặt › Chạy thử: ngày 4, 7:08
+   (cửa sổ tự bắt đầu của Romancecar mở lúc 7:17). Ở xa ga Shinjuku (ở nhà là được).
+   - Ngồi ô tô hay xe buýt đang chạy với JP27 mở trên màn hình ít nhất một phút: chưa tới cửa sổ, không có gì bắt đầu.
+   - Về màn hình chính (JP27 xuống nền), xuống xe, đi bộ hoặc đứng yên tới khi giờ chạy thử qua 7:18 (khoảng 10 phút).
+   - Mở JP27, không ở trong xe. **Đạt** khi không có Live Activity nào bắt đầu, cả lúc vừa mở lẫn một phút sau (bản cũ
+     bắt đầu Romancecar ngay khi mở, vì còn nhớ "đang đi xe" từ trước khi xuống nền).
+   - "Về giờ thật" sau bước này.
+8. **Quán của ngày mai không mời "Đã tới" (đi thật, cần quyền vị trí "Luôn luôn").** Tối ngày N, đi ngang (trong vòng
+   khoảng 150 m) quán ăn có trong lịch ngày N+1.
+   - **Đạt** khi thông báo về quán vẫn hiện (nên gọi gì, trả tiền thế nào) nhưng **không** có nút "Đã tới", và không
+     mục nào của ngày N hay N+1 bị đánh dấu.
+   - Ngày N+1, tới quán đó (có thể là vòng tròn đã đặt từ tối hôm trước). **Đạt** khi thông báo có "Đã tới", và bấm thì
+     mục của ngày N+1 được đánh dấu.
+   - Ga: sáng hôm sau, đi ngang ga đi của một chuyến có giờ của hôm qua trước khi mở JP27. **Đạt** khi không có thông
+     báo "… Ở <ga>" mời theo dõi chuyến của hôm qua.

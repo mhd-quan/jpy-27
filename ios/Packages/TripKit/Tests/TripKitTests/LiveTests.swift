@@ -1135,6 +1135,43 @@ import Testing
         #expect(f4.contains { $0.placeID == "st-shinjuku-odakyu" && $0.kind == .station })
     }
 
+    /// A circle entered offers its item only on its own day: tomorrow's first meal, watched from the
+    /// evening before, is not "Đã tới" tonight, and is once the night has passed (registered as
+    /// tomorrow's, entered on the day).
+    @Test func aFenceOffersItsItemOnlyOnItsDay() throws {
+        let day4 = try #require(store.day("4")), day5 = try #require(store.day("5"))
+        let fences = FencePlanner(store: store).fences(today: day4, cursor: 0, tomorrow: day5)
+        let tomorrows = fences.filter { $0.day == day5.key }
+        try #require(!tomorrows.isEmpty)
+        for f in tomorrows {
+            #expect(f.kind == .food)
+            #expect(f.plannedItem(today: day4) == nil, "\(f.id)")
+            let id = try #require(f.itemID)
+            #expect(f.plannedItem(today: day5) == day5.index(of: id), "\(f.id)")
+            #expect(f.plannedItem(today: day5) != nil, "\(f.id)")
+        }
+        // today's: the food stops and the stations of its departures, by their item
+        let todays = fences.filter { $0.day == day4.key }
+        let food = try #require(todays.first { $0.kind == .food })
+        let station = try #require(todays.first { $0.kind == .station })
+        for f in [food, station] {
+            let i = try #require(f.plannedItem(today: day4), "\(f.id)")
+            #expect(day4.items[i].id == f.itemID)
+            #expect(f.plannedItem(today: day5) == nil, "\(f.id)")
+            #expect(f.plannedItem(today: nil) == nil, "\(f.id)")
+        }
+        // a station kept from yesterday, entered today, offers yesterday's train nothing
+        let yesterday = try #require(store.day("3"))
+        #expect(station.plannedItem(today: yesterday) == nil)
+        // no item: a snack, the hotel
+        for f in todays where f.kind == .snack || f.kind == .stay {
+            #expect(f.plannedItem(today: day4) == nil, "\(f.id)")
+        }
+        // an item the day no longer has (an update removed it): nothing
+        let gone = Fence(placeID: food.placeID, kind: .food, center: food.center, radius: food.radius, day: day4.key, itemID: "s:nowhere")
+        #expect(gone.plannedItem(today: day4) == nil)
+    }
+
     @Test func journalMarksVisitedLateAndSkipped() throws {
         let day = store.day("2")!
         let kayaba = try #require(store.place("kayaba"))

@@ -24,8 +24,9 @@ import Observation
             activity.startActivityUpdates(to: .main) { [weak self] a in
                 guard let self, let a else { return }
                 MainActor.assumeIsolated {
-                    self.walking = a.walking && a.confidence != .low
-                    self.riding = a.automotive && a.confidence != .low
+                    // one already queued on the main queue as `stop()` ran is from before it
+                    guard self.running else { return }
+                    self.set(walking: a.walking && a.confidence != .low, riding: a.automotive && a.confidence != .low)
                 }
             }
         }
@@ -48,6 +49,16 @@ import Observation
         running = false
         // the gap until the next start is not walking
         lastSample = nil
+        // nor what was true when it left: back on screen `AppModel.autoStartRide` reads these at
+        // once, before the first update (which reports the motion of that moment) arrives, and the
+        // bus of an hour ago would start the train you stand far from
+        set(walking: false, riding: false)
+    }
+
+    /// Written only when they change: views redraw with every write.
+    private func set(walking: Bool, riding: Bool) {
+        if self.walking != walking { self.walking = walking }
+        if self.riding != riding { self.riding = riding }
     }
 
     /// Fold instantaneous pace into three-minute samples of real walking.

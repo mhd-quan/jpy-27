@@ -1047,11 +1047,16 @@ enum AppSheet: Identifiable, Hashable {
     /// posted under a background task, so iOS does not suspend the app before it is.
     private func fenceEvent(_ fence: Fence, entered: Bool) {
         guard entered, let place = store.place(fence.placeID) else { return }
+        // today by the trip's clock now: woken in the background, `today` is still the day the app was
+        // suspended on. A circle of another day (tomorrow's first meal, watched from the evening
+        // before; a station kept from yesterday) offers nothing of its day (`Fence.plannedItem`)
+        var day: Day?
+        if case .during(let d) = itinerary.phase(at: Shared.now, days: days) { day = d }
         switch fence.kind {
         case .food, .snack:
             // a planned stop not yet done can be marked from the notification
             var planned: ItemRef?
-            if let id = fence.itemID, let d = store.day(fence.day), let i = d.index(of: id), !isDone(d, i) { planned = ItemRef(day: d.key, id: id) }
+            if let d = day, let i = fence.plannedItem(today: d), !isDone(d, i), let id = fence.itemID { planned = ItemRef(day: d.key, id: id) }
             let item = planned
             BackgroundWork.run(name: "Báo khi tới quán") {
                 await self.notifications.arrived(at: place, store: self.store, people: self.people, item: item)
@@ -1059,7 +1064,7 @@ enum AppSheet: Identifiable, Hashable {
         case .station:
             // the circle's item, by its id: what was kept before a relaunch may predate an update that
             // moved it in the day
-            if let id = fence.itemID, let day = store.day(fence.day), let i = day.index(of: id), case .move(let m) = day.items[i],
+            if let day, let i = fence.plannedItem(today: day), case .move(let m) = day.items[i],
                let ride = store.ride(startingWith: m.leg.id, on: day) {
                 BackgroundWork.run(name: "Báo khi tới ga") { await self.notifications.atStation(place, ride: ride, departure: m.at) }
             }
