@@ -238,6 +238,19 @@ import UserNotifications
         content.userInfo = ["link": DeepLink.ride(ride.id).url.absoluteString, "ride": ride.id]
         try? await center.add(UNNotificationRequest(identifier: "station.\(ride.id)", content: content, trigger: nil))
     }
+
+    /// On a followed ride, the stop before yours too close for an alarm (`RideTracker.wake`): said
+    /// now, as the alarm would have said it.
+    func alightSoon(_ ride: Ride) async {
+        let content = UNMutableNotificationContent()
+        content.title = "Sắp tới \(ride.toName)"
+        content.body = ride.alight?.announce ?? "Chuẩn bị xuống"
+        content.interruptionLevel = .timeSensitive
+        content.relevanceScore = 1
+        content.sound = .default
+        content.userInfo = ["link": DeepLink.ride(ride.id).url.absoluteString, "ride": ride.id]
+        try? await center.add(UNNotificationRequest(identifier: "alight.\(ride.id)", content: content, trigger: nil))
+    }
 }
 
 extension NotificationService: UNUserNotificationCenterDelegate {

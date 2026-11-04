@@ -813,6 +813,165 @@ import Testing
         #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, scheduled: nil, now: gps - 30) == nil)
         #expect(t.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: nil, scheduled: nil, now: gps - 31) == gps)
     }
+
+    // MARK: the stop too close for an alarm
+
+    @Test func aStopTooCloseForAnAlarmGetsANotice() throws {
+        let planned = try #require(WakePlanner(store: store).alarm(for: romancecar))
+        let fresh = RideTracker(ride: romancecar, store: store)
+        let at = planned - 600   // 9:08
+        // 100 m before Iriuda (the stop before yours, 86.6 km): seconds away; or passed already
+        var t = fresh
+        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: nil, now: at) == .notice)
+        t = fresh
+        #expect(t.wake(km: 87, at: at, notAfter: planned, scheduled: nil, now: at) == .notice)
+        // the timetable's 9:18 still set, ten minutes ahead: a notice now, and it rings later
+        t = fresh
+        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: planned, now: at) == .notice)
+        // an alarm set to ring within two minutes rings for it: nothing more
+        t = fresh
+        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: at + 100, now: at) == .nothing)
+        t = fresh
+        #expect(t.wake(km: 86.5, at: at, notAfter: planned, scheduled: at + 121, now: at) == .notice)
+        // one that has rung: no notice, only the timetable's ring still ahead (R-136), also once the
+        // alarms have forgotten the one that rang; nothing at all once that has had its time too
+        var rung = fresh
+        #expect(rung.wake(km: 86.5, at: at, notAfter: planned, scheduled: at - 5, now: at) == .alarm(planned))
+        #expect(rung.wake(km: 86.6, at: at + 20, notAfter: planned, scheduled: nil, now: at + 20) == .alarm(planned))
+        #expect(rung.wake(km: 87, at: planned + 5, notAfter: planned, scheduled: nil, now: planned + 5) == .nothing)
+        var noTimetable = fresh
+        #expect(noTimetable.wake(km: 86.5, at: at, notAfter: nil, scheduled: at - 5, now: at) == .nothing)
+        // arrived: nothing
+        t = fresh
+        #expect(t.wake(km: 88.6, at: at, notAfter: planned, scheduled: nil, now: at) == .nothing)
+        // less than a minute from now, counted from the fix: a notice, not an alarm 30–60 s away
+        let machida = planned - 73 * 60
+        let prompt = try #require(fresh.minutesToAlightPrompt(km: 30.9, speedKmh: 200))
+        let gps = machida + prompt * 60
+        #expect(gps < planned)
+        t = fresh
+        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 45) == .notice)
+        t = fresh
+        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 59) == .notice)
+        t = fresh
+        #expect(t.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: gps - 60) == .alarm(gps))
+        // further: what `alarm` says, unchanged
+        var a = fresh, b = fresh
+        let alarm = b.alarm(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: machida)
+        #expect(alarm == gps)
+        #expect(a.wake(km: 30.9, speedKmh: 200, at: machida, notAfter: planned, scheduled: nil, now: machida) == .alarm(gps))
+        a = fresh
+        b = fresh
+        #expect(a.wake(km: 30.9, speedKmh: 16, at: machida, notAfter: planned, scheduled: nil, now: machida)
+            == b.alarm(km: 30.9, speedKmh: 16, at: machida, notAfter: planned, scheduled: nil, now: machida).map { .alarm($0) } ?? .nothing)
+    }
+
+    // MARK: the ride's end
+
+    func jst(_ day: Day, _ h: Int, _ m: Double) throws -> Date {
+        try #require(TripTime.date(day.date, minutes: Double(h * 60) + m))
+    }
+
+    @Test func aRideIsOverOnceItsTimeIsLongPast() throws {
+        let day4 = try #require(store.day("4"))
+        let t = RideTracker(ride: romancecar, store: store)
+        let boarding = try jst(day4, 7, 30)
+        // 9:22 planned, plus half its 105 minutes (more than 30): 10:14:30 on the trip's clock
+        let end = try jst(day4, 10, 14.5)
+        #expect(t.deadline(followedAt: boarding) == end)
+        #expect(t.ending(arrivedAt: nil, followedAt: boarding, tripNow: end - 1, now: t0) == nil)
+        #expect(t.ending(arrivedAt: nil, followedAt: boarding, tripNow: end, now: t0) == .overdue)
+        // the next train for a missed one, followed at 9:30: its own 105 minutes from then
+        let next = try jst(day4, 9, 30)
+        #expect(t.deadline(followedAt: next) == next + (105 + 52.5) * 60)
+        // followed on another day: not over at once
+        let day6 = try #require(store.day("6"))
+        let elsewhere = try jst(day6, 10, 0)
+        #expect(t.ending(arrivedAt: nil, followedAt: elsewhere, tripNow: elsewhere, now: t0) == nil)
+        #expect(t.deadline(followedAt: elsewhere) == elsewhere + (105 + 52.5) * 60)
+        // a ranged run at its slow end: 16:00 "35–45" to Nara, 16:45 + 30 (not 16:35 + 30)
+        let day10 = try #require(store.day("10"))
+        let nara = RideTracker(ride: try #require(store.trip.rides.first { $0.id == "r-10-kintetsu-st-kintetsu-nara" }), store: store)
+        #expect(nara.deadline(followedAt: try jst(day10, 15, 55)) == (try jst(day10, 17, 15)))
+        // no planned time: from when it is followed, the Yamanote's 7 minutes + 30
+        let yamanote = try #require(store.trip.rides.first { $0.id == "r-2-yamanote-st-akihabara" })
+        #expect(yamanote.at == nil)
+        let day2 = try #require(store.day("2"))
+        let followed = try jst(day2, 13, 0)
+        #expect(RideTracker(ride: yamanote, store: store).deadline(followedAt: followed) == followed + 37 * 60)
+        // no stated time either (the ropeway): 30 minutes
+        let ropeway = try #require(store.trip.rides.first { $0.id == "r-4-hakoneRopeway-togendai" })
+        #expect(RideTracker(ride: ropeway, store: store).deadline(followedAt: boarding) == boarding + 30 * 60)
+    }
+
+    @Test func aRideArrivedClosesNinetySecondsLater() throws {
+        let day4 = try #require(store.day("4"))
+        let t = RideTracker(ride: romancecar, store: store)
+        let boarding = try jst(day4, 7, 30)
+        #expect(t.ending(arrivedAt: t0, followedAt: boarding, tripNow: boarding, now: t0 + 89) == nil)
+        #expect(t.ending(arrivedAt: t0, followedAt: boarding, tripNow: boarding, now: t0 + 90) == .arrived)
+    }
+
+    /// R-138: ten minutes spanned by the fixes themselves, each farther than 3 km from the track.
+    @Test func offTheLineCountsOnTheFixesThemselves() throws {
+        let day4 = try #require(store.day("4"))
+        let followed = try jst(day4, 7, 30)
+        func over(_ t: RideTracker) -> RideTracker.Ending? {
+            // the clock far on: only the fixes may say it is over (the trip's clock still at boarding)
+            t.ending(arrivedAt: nil, followedAt: followed, tripNow: followed, now: t0 + 86_400)
+        }
+        let fresh = RideTracker(ride: romancecar, store: store)
+        var t = fresh
+        t.note(offTrackKm: 0.2, at: t0)          // on the train
+        t.note(offTrackKm: 3.5, at: t0 + 60)     // got off, away from the line
+        // one fix, then silence (a tunnel, a phone in a bag): nothing, however late it is
+        #expect(over(t) == nil)
+        t.note(offTrackKm: 4, at: t0 + 659)
+        #expect(over(t) == nil)
+        t.note(offTrackKm: 4, at: t0 + 660)
+        #expect(over(t) == .offLine)
+        // off, on (3 km exactly is not off), off: the count starts again
+        var jitter = fresh
+        jitter.note(offTrackKm: 0.2, at: t0)
+        jitter.note(offTrackKm: 3.5, at: t0 + 60)
+        jitter.note(offTrackKm: 3.0, at: t0 + 300)
+        jitter.note(offTrackKm: 3.5, at: t0 + 400)
+        jitter.note(offTrackKm: 3.5, at: t0 + 999)
+        #expect(over(jitter) == nil)
+        jitter.note(offTrackKm: 3.5, at: t0 + 1000)
+        #expect(over(jitter) == .offLine)
+        // never within 1.5 km of its line (followed from the hotel): never off it
+        var hotel = fresh
+        hotel.note(offTrackKm: 5, at: t0)
+        hotel.note(offTrackKm: 2, at: t0 + 60)
+        hotel.note(offTrackKm: 5, at: t0 + 120)
+        hotel.note(offTrackKm: 5, at: t0 + 1200)
+        #expect(over(hotel) == nil)
+        // a fix not after the latest (a repeat, one delivered late) adds nothing
+        var late = fresh
+        late.note(offTrackKm: 1.4, at: t0)
+        late.note(offTrackKm: 4, at: t0 + 60)
+        late.note(offTrackKm: 4, at: t0 - 600)
+        late.note(offTrackKm: 4, at: t0 + 659)
+        #expect(over(late) == nil)
+        late.note(offTrackKm: 0.5, at: t0 + 30)   // older: does not reset either
+        late.note(offTrackKm: 4, at: t0 + 660)
+        #expect(over(late) == .offLine)
+    }
+
+    @Test func theLiveActivityCountsOnThePhonesClock() {
+        let fix = Date(timeIntervalSinceReferenceDate: 800_000_017)
+        // rehearsing a day ahead (37 s off a whole day)
+        let offset = -86_400 + 37.0
+        let a = RideTracker.arrival(minutesLeft: 12.5, fixedAt: fix, clockOffset: offset)
+        #expect(a.live == fix + 750)
+        let trip = fix + offset + 750
+        #expect(a.shown == Date(timeIntervalSinceReferenceDate: (trip.timeIntervalSinceReferenceDate / 60).rounded(.down) * 60))
+        #expect(a.shown < trip && trip.timeIntervalSince(a.shown) < 60)
+        let real = RideTracker.arrival(minutesLeft: 12.5, fixedAt: fix, clockOffset: 0)
+        #expect(real.live == fix + 750)
+        #expect(real.shown == Date(timeIntervalSinceReferenceDate: ((fix + 750).timeIntervalSinceReferenceDate / 60).rounded(.down) * 60))
+    }
 }
 
 @Suite struct MenuTests {

@@ -163,6 +163,14 @@ private struct PlanRideLive: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
+                #if DEBUG
+                // when it ends on its own, for the device checks (Task 3.4a)
+                if let deadline = model.live.deadline {
+                    Text("Tự kết thúc lúc \(TripTime.clock(deadline)) · hay sau 10 phút xa tuyến")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+                #endif
             }
         } else {
             VStack(spacing: 12) {

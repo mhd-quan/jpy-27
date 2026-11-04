@@ -85,8 +85,14 @@ final class AlarmKitScheduler: AlarmScheduling {
     /// what is set could not be read from disk, or written to it
     @ObservationIgnored private var storeProblem: String?
 
+    /// the rides told "Sắp tới …" in a notification (`firstNotice`), and when
+    @ObservationIgnored private var noticed: [String: Date] = [:]
+    /// the same during a rehearsal: kept in memory only, so a rehearsal never uses up a real ride's
+    @ObservationIgnored private var noticedRehearsing: Set<String> = []
+
     private static let key = "alarms.scheduled"
     private static let choicesKey = "alarms.choices"
+    private static let noticedKey = "alarms.noticed"
 
     init() {
         // nil: there is a record and it could not be read, so no alarm AlarmKit holds is taken for a stray
@@ -102,6 +108,7 @@ final class AlarmKitScheduler: AlarmScheduling {
         }
         scheduled = saved ?? [:]
         choices = Shared.defaults.dictionary(forKey: Self.choicesKey) as? [String: Bool] ?? [:]
+        noticed = Shared.defaults.dictionary(forKey: Self.noticedKey) as? [String: Date] ?? [:]
         // a rehearsal sets no real alarm: its times are not real ones
         core = WakeAlarms(scheduler: scheduler, saved: saved, rehearsing: { Shared.clockOffset != 0 }, onChange: { [weak self] slots in
             self?.scheduled = slots
@@ -159,6 +166,20 @@ final class AlarmKitScheduler: AlarmScheduling {
     /// rehearsing (`WakeAlarms` asks `Shared.clockOffset`).
     func alight(rideID: String, station: String, at date: Date, source: AlarmSource = .ride) async {
         await core.alight(WakeRequest(rideID: rideID, station: station, at: date, source: source))
+    }
+
+    /// True the first time it is asked for a ride, then never again: a followed ride whose stop before
+    /// yours is too close for an alarm is told so in one notification (`RideTracker.wake`), not at
+    /// every fix, nor again after a relaunch. Kept two days. During a rehearsal kept in memory only,
+    /// so the evening's rehearsal of tomorrow's ride leaves the real one its notice.
+    func firstNotice(for rideID: String) -> Bool {
+        if Shared.clockOffset != 0 { return noticedRehearsing.insert(rideID).inserted }
+        guard noticed[rideID] == nil else { return false }
+        let now = Date()
+        noticed = noticed.filter { now.timeIntervalSince($0.value) < 2 * 86_400 }
+        noticed[rideID] = now
+        Shared.defaults.set(noticed, forKey: Self.noticedKey)
+        return true
     }
 
     /// No alarm for the ride, from either source, including one being set right now.

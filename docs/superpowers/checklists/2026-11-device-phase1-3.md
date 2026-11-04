@@ -569,3 +569,56 @@ trí cách mọi tuyến của chuyến, nên mọi bước dưới đây chỉ 
      đặt báo thức" như bản cũ.
    - **Đạt** khi "Chuẩn bị xuống" chỉ hiện ở khoảng 900 m cuối, và báo thức reo quanh lúc đó.
    - Phà Toba → Wagu (ngày 7, 9:15) như vậy: "Chuẩn bị xuống" và báo thức (nếu bật) từ khoảng 9:30.
+
+## Task 3.4a — Chuyến tự kết thúc, một Live Activity, giờ của Live Activity, báo khi ga trước ga xuống đã gần, cờ cũ, fence của ngày mai
+
+**Chuẩn bị.** Bản Debug (dòng "Tự kết thúc lúc …" dưới nút "Kết thúc" ở trang chuyến chỉ có trong bản Debug). Ở nhà vị
+trí cách mọi tuyến của chuyến, nên bước nào cần đi tàu thật thì ghi rõ.
+
+1. **Hết giờ (chạy thử, ở nhà).** Cài đặt › Chạy thử: ngày 10, 8:25. Kế hoạch › Ngày 10 › Keihan tới Fushimi-Inari
+   (8:30, 5 phút) › "Theo dõi chuyến".
+   - **Đạt** khi dưới "Kết thúc" có "Tự kết thúc lúc 9:05 · hay sau 10 phút xa tuyến" (8:30 + 5, rồi thêm 30 phút).
+   - Chỉnh giờ chạy thử sang 9:06. **Đạt** khi trong vòng 20 giây trang chuyến trở lại "Theo dõi chuyến", Live Activity
+     biến khỏi màn hình khoá ngay, và dòng Live Activity trên thanh tab không còn.
+   - Romancecar (ngày 4) theo dõi lúc 7:30 giờ chạy thử: **Đạt** khi dòng Debug ghi "Tự kết thúc lúc 10:14" (9:22 +
+     nửa của 105 phút). Theo dõi nó lúc 9:30: "12:07" (chuyến sau cho chuyến đã lỡ: 9:30 + 105 + 52,5 phút).
+   - "Về giờ thật" sau bước này.
+2. **Một Live Activity sau khi app bị tắt (đi tàu thật, chuyến nào cũng được).** Theo dõi chuyến, bật báo thức nếu
+   chuyến có. Giữa chuyến vuốt JP27 khỏi màn hình đa nhiệm. **Đạt** khi Live Activity cũ vẫn còn trên màn hình khoá
+   (app đã tắt, nó đứng yên) và báo thức vẫn còn (dòng Debug sau khi mở lại, hay đồng hồ của iOS).
+   - Mở lại JP27. **Đạt** khi Live Activity cũ biến mất trong vài giây và báo thức của chuyến vẫn còn y như trước
+     (không bị huỷ). Một Live Activity mới chỉ xuất hiện khi chuyến tự bắt đầu được: trong cửa sổ từ 20 phút trước tới
+     10 phút sau giờ đi của nó, và đang ở gần ga đi hay máy thấy đang đi tàu. **Đạt** khi trên màn hình khoá không bao
+     giờ có hai Live Activity của JP27 cùng lúc.
+3. **Xuống sớm, rời tuyến (đi tàu thật).** Theo dõi một chuyến, xuống ở một ga trước ga cuối, rồi đi taxi hay xe buýt
+   ra xa tuyến đó hơn 3 km và **tiếp tục di chuyển**.
+   - **Đạt** khi khoảng 10–11 phút sau lúc đã cách tuyến hơn 3 km, Live Activity biến mất, mũi tên định vị trên thanh
+     trạng thái đổi (định vị dẫn đường của JP27 tắt), và mở app thì trang chuyến ghi "Theo dõi chuyến".
+   - Một đoạn không có vị trí (hầm, máy trong túi) không được tính vào 10 phút: chỉ các vị trí cách tuyến hơn 3 km
+     trải đủ 10 phút mới kết thúc chuyến. Một vị trí trong vòng 3 km (quay lại gần tuyến) đếm lại từ đầu.
+   - Đã biết, chấp nhận: nếu xuống rồi **ngồi yên** (quán ăn, ghế chờ), iOS dừng gửi vị trí và app ngủ; chuyến chỉ kết
+     thúc ở lần app chạy kế tiếp (đi tiếp, iOS báo một chỗ ghé, mở app, làm mới nền). **Đạt** khi đó: mở app thì trong
+     vòng 20 giây chuyến kết thúc như trên; hoặc nó kết thúc chậm nhất ở giờ "Tự kết thúc lúc …" của dòng Debug, ở lần
+     app chạy đầu tiên sau giờ đó.
+   - **Đạt** khi sau đó chuyến không tự bắt đầu lại (kể cả khi đang ngồi taxi trong cửa sổ giờ đi của nó).
+   - Báo thức của lịch (nếu chuyến có và giờ của nó chưa tới) được đặt lại: dòng Debug ghi "· lịch". Đó là lưới an
+     toàn đã chọn (R-140); tắt công tắc nếu không muốn nó reo.
+4. **"Kết thúc" trên sân ga không tự bắt đầu lại (đi tàu thật).** Ở ga đi, trong 20 phút trước giờ đi của một chuyến có
+   giờ, chuyến tự bắt đầu (Live Activity hiện). Bấm "Kết thúc". **Đạt** khi đứng tiếp trên sân ga 2 phút mà chuyến
+   không tự bắt đầu lại (bản cũ bắt đầu lại sau 20 giây). "Theo dõi chuyến" bằng tay vẫn bắt đầu được ngay.
+5. **Giờ tới trên Live Activity (đi tàu thật).** Trong Cài đặt iOS › Cài đặt chung › Ngày & Giờ, tắt "Tự động đặt" và
+   chọn múi giờ Hồ Chí Minh. Theo dõi một chuyến.
+   - **Đạt** khi giờ trên Live Activity (màn hình khoá) bằng giờ "tới …" ở trang chuyến (giờ Nhật), lệch nhiều nhất một
+     phút, dù đồng hồ máy đang chỉ giờ Việt Nam; và bộ đếm ngược về 0 đúng lúc tới đó.
+   - Trả múi giờ về như cũ sau bước này.
+6. **Ga trước ga xuống đã gần, không còn kịp đặt báo thức (đi tàu thật).** Chọn một chuyến, bật công tắc báo thức
+   (chuyến ngắn mặc định tắt). Chỉ bấm "Theo dõi chuyến" sau khi tàu đã rời ga trước ga xuống (hay trong khoảng một phút
+   trước đó).
+   - **Đạt** khi ngay lập tức có **một** thông báo "Sắp tới <ga xuống>" (khẩn, kêu cả trong Tập trung), không có báo thức
+     GPS mới (dòng Debug không đổi sang "· GPS").
+   - Mở lại app, hay tắt rồi mở lại: **Đạt** khi không có thông báo thứ hai cho chuyến đó.
+   - Công tắc báo thức tắt: **Đạt** khi không có thông báo nào.
+   - Chuyến đi bình thường, theo dõi từ đầu, dòng Debug đã ghi "· GPS" trước ga trước ga xuống: **Đạt** khi báo thức reo
+     như ở Task 3.3b và **không** kèm thông báo "Sắp tới" (cái đã reo, hay sắp reo trong hai phút, đã báo rồi). Nếu báo
+     thức đang đặt còn xa hơn hai phút khi tàu qua ga đó (ví dụ "9:18 · lịch" mà tàu tới sớm), có thêm một thông báo
+     ngay rồi báo thức vẫn reo: tối đa hai lần, đúng như thiết kế.

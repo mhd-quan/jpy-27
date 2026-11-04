@@ -243,6 +243,9 @@ enum AppSheet: Identifiable, Hashable {
         location.backgroundWatch = { [weak self] in self?.backgroundWatch() ?? .off }
         location.onMoved = { [weak self] in
             guard let self else { return }
+            // a move that wakes the app in the background is a moment to see whether a followed ride
+            // is over (no timer runs while the app is suspended)
+            live.update(model: self)
             // a followed ride re-projects the day as it goes (every half kilometre, `positionChanged`)
             // and re-plans everything when it arrives (`rideArrived`): the significant changes on the
             // way do not each run the full reschedule under a background task. Only while it has not
@@ -270,6 +273,8 @@ enum AppSheet: Identifiable, Hashable {
         // what was set while away, made to match the system's: an alarm the app was killed before
         // saving is taken back, one that rang is forgotten (before the plan sets what is missing)
         alarms.reconcile()
+        // a Live Activity a killed run left on the lock screen: ended, nothing else touched
+        live.endOrphans()
         startClock()
         location.resume(for: self)
         motion.start()
@@ -434,9 +439,10 @@ enum AppSheet: Identifiable, Hashable {
         if let on { candidates.append((on, true)) }
         if let later = itinerary.nextDeparture(day, cursor: cursor) { candidates.append((later.move, false)) }
         for (move, current) in candidates {
+            // a ride ended since launch (by hand, arrived, left, long past) is not started again on its own
             guard let planned = TripTime.minutes(move.at).map(Double.init),
                   (planned - 20 ... planned + 10).contains(minutes),
-                  let ride = store.ride(startingWith: move.leg.id, on: day)
+                  let ride = store.ride(startingWith: move.leg.id, on: day), !live.wasEnded(ride.id)
             else { continue }
             let nearStation = position.flatMap { p in store.place(move.leg.from).map { Geo.km($0.coordinate, p) < 0.4 } } ?? false
             let moving = motion.riding && (current || riding == nil)
@@ -455,6 +461,15 @@ enum AppSheet: Identifiable, Hashable {
         }
         refresh(reschedule: true)
         // under the lock screen the ride's background positions end with it
+        if inBackground { finishRescheduleInBackground() }
+    }
+
+    /// The followed ride ended, by any path (`RideLiveService.release`): the day projected without it,
+    /// and reminders, geofences and alarms made to match, the timetable's alarm for it included while
+    /// it is still ahead; the re-plans its hold kept back happen now. Under the lock screen, under a
+    /// background task.
+    func rideEnded() {
+        refresh(reschedule: true)
         if inBackground { finishRescheduleInBackground() }
     }
 
