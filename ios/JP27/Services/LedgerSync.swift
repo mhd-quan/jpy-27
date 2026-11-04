@@ -456,10 +456,11 @@ import UIKit
             confirm(k)
         case .ack(let digest):
             guard partner(peer) != nil else { return }
-            peers[k]?.session.peerHas(LedgerDigest(digest), current: cached?.digest)
-            // stamped against this phone's ledger as it is now: worked out here if a save dropped it,
-            // or an ack landing in that moment would never stamp
+            // this phone's ledger as it is now, worked out first if a save dropped it: the ack ends a
+            // failure of theirs when they hold it (`peerHas(current:)`), and it is stamped against it, or
+            // an ack landing in that moment would never stamp
             _ = await snapshot()
+            peers[k]?.session.peerHas(LedgerDigest(digest), current: cached?.digest)
             confirm(k)
         case .nack(let digest, let reason):
             guard partner(peer) != nil else { return }

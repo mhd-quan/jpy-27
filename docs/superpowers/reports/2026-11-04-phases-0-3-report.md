@@ -46,6 +46,14 @@ Sau tất cả các task là một review toàn nhánh, một đợt sửa cuố
 
 **Chưa kiểm:** device checklist (`docs/superpowers/checklists/2026-11-device-phase1-3.md`). App không có target unit test, nên mọi hành vi phía app chỉ được kiểm bằng đọc code và checklist này.
 
+## Đính chính sau merge (4/11)
+
+Máy Mac của người dùng chỉ có Swift 6.2.x, trong khi T0 đã nâng TripKit lên `swift-tools-version: 6.3`,
+nên Xcode không nạp được package và báo "Missing package product 'TripKit'". **R-157** hạ toolchain về
+Swift 6.2.3: TripKit tools 6.2, CI `swift:6.2.3-noble`, job "App builds" dùng Xcode 26.2 (bản thấp
+nhất được hỗ trợ). Các con số kiểm ở trên là của Swift 6.3.3; lần kiểm lại bằng 6.2.3 ghi trong commit
+sửa.
+
 ## Trước khi phát hành
 
 1. Chạy device checklist trên cả hai máy của chuyến đi. Bước nào không kiểm được thì ghi "không kiểm".

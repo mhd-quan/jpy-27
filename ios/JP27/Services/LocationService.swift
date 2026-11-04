@@ -190,7 +190,8 @@ import TripKit
 
     private func accept(_ loc: CLLocation) {
         // one rule for every fix (`Presence.takes`): precise enough, and not older than the newest used
-        guard Presence.takes(accuracy: loc.horizontalAccuracy, at: loc.timestamp, newest: fixedAt) else { return }
+        // unless the phone's clock went back since (real clock, as fix times are)
+        guard Presence.takes(accuracy: loc.horizontalAccuracy, at: loc.timestamp, newest: fixedAt, now: Date()) else { return }
         let p = Coordinate(loc.coordinate.latitude, loc.coordinate.longitude)
         fixedAt = loc.timestamp
         publish(p)
@@ -342,7 +343,7 @@ extension LocationService: CLLocationManagerDelegate {
             // where you are only by the live stream's rule (`accept`): a significant change from the cell
             // towers, kilometres wide, or a fix delivered after a newer one, would put a followed ride's
             // pace, the projection and the journal at the wrong place or time
-            if Presence.takes(accuracy: accuracy, at: at, newest: self.fixedAt) {
+            if Presence.takes(accuracy: accuracy, at: at, newest: self.fixedAt, now: Date()) {
                 self.fixedAt = at
                 self.publish(c)
                 self.onUpdate?(c)

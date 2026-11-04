@@ -93,6 +93,8 @@ private struct DiagnosticsSection: View {
     @State private var unique: String?
     /// `OfflineMaps.fakeOtherStyle`, as the switch shows it
     @State private var fakeStyle = OfflineMaps.fakeOtherStyle
+    /// the latest fix taken (`LocationService.fixedAt`), read on opening the page and on a tap
+    @State private var lastFix: String?
     #endif
     /// the location history's rows, counted when the page opens (nil: not counted, or unreadable)
     @State private var history: (visits: Int, traces: Int)?
@@ -229,6 +231,21 @@ private struct DiagnosticsSection: View {
             }
             .onChange(of: fakeStyle) { _, on in OfflineMaps.fakeOtherStyle = on }
             .onAppear { fakeStyle = OfflineMaps.fakeOtherStyle }
+            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Bước 0: fixes still taken after
+            // the phone's clock was set back (`Presence.takes`)
+            Button {
+                lastFix = lastFixSummary()
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Vị trí lúc")
+                        Text(lastFix ?? "—").font(.footnote).monospacedDigit().foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "location", tint: .gray)
+                }
+            }
+            .onAppear { lastFix = lastFixSummary() }
             #endif
         } header: {
             Text("Chẩn đoán")
@@ -240,6 +257,15 @@ private struct DiagnosticsSection: View {
     }
 
     #if DEBUG
+    /// "7:20:05 · ±12 m": when the latest fix used was taken, on the phone's clock, and how precise it was
+    private func lastFixSummary() -> String? {
+        guard let at = model.location.fixedAt else { return nil }
+        let c = Calendar.current.dateComponents([.hour, .minute, .second], from: at)
+        let time = "\(c.hour ?? 0):\(String(format: "%02d", c.minute ?? 0)):\(String(format: "%02d", c.second ?? 0))"
+        guard let accuracy = model.location.horizontalAccuracy else { return time }
+        return "\(time) · ±\(Int(accuracy.rounded())) m"
+    }
+
     /// A "Đã tới" notification, now, for the first food stop not yet done of the day the app shows
     /// (`focusDay`): as this build posts it on entering the stop's circle, or as builds before item ids
     /// did (the day and the index only). The first marks the stop; the second must mark nothing.

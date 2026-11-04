@@ -176,7 +176,7 @@ For each issue: file:line, what's wrong, why it matters, how to fix
 ## Project-specific lenses (in addition to the above)
 
 **No compiler for app code here.** `ios/JP27`, `ios/JP27Widgets`, `ios/Shared` only compile on the CI
-`app` job (macOS, Xcode 26.6, Swift 6.3.3) or the owner's Mac. For every app hunk, read it as the Swift 6.3
+`app` job (macOS, Xcode 26.2, Swift 6.2.3) or the owner's Mac. For every app hunk, read it as the Swift 6.2.3
 compiler would in Swift 6 language mode with `SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor` and approachable
 concurrency on: missing `await`/`try`, actor-isolation errors (main-actor state touched from a
 `nonisolated`/`@concurrent` context, non-Sendable values crossing actors), typed-throws mismatches,

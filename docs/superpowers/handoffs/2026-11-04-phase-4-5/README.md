@@ -21,7 +21,7 @@ trước không đi theo container mới. Những gì còn dùng được đều
 ## 1. Trạng thái lúc bàn giao
 
 **Đã có trên `main`** (merge từ nhánh `claude/festive-maxwell-om1zy7`, base `4b2e419`):
-- T0: Swift 6.3; CI có job "App builds".
+- T0: CI có job "App builds". Toolchain là **Swift 6.2.3** (R-157, sau merge: máy Mac của người dùng chỉ có Swift 6.2.x, nên bản 6.3 của T0 đã được hạ xuống).
 - 0.1: gate khả thi của lịch.
 - Phase 1: 1.1 báo thức, 1.2 lên lịch lại, 1.3 tiền, 1.4 lưu không im lặng, 1.5 đồng bộ có ack.
 - Phase 2: 2.1a/b/c id ổn định.
@@ -45,10 +45,10 @@ trước không đi theo container mới. Những gì còn dùng được đều
 
 | Việc | Ở đâu | Ghi chú |
 | --- | --- | --- |
-| TripKit | `export PATH=/opt/swift/usr/bin:$PATH; cd ios/Packages/TripKit && swift test` | Swift 6.3.3, khoảng 17 s cho cả bộ |
+| TripKit | Swift **6.2.3**, đúng bản trên máy Mac của người dùng. `/opt/swift` trong container là 6.3.3: nó nhận cả code mà 6.2 từ chối, nên đừng dùng nó để kết luận. Tải bản 6.2.3: `curl -sSO https://download.swift.org/swift-6.2.3-release/ubuntu2404/swift-6.2.3-RELEASE/swift-6.2.3-RELEASE-ubuntu24.04.tar.gz`, giải nén, rồi `export PATH=<thư mục>/usr/bin:$PATH; cd ios/Packages/TripKit && swift test` | khoảng 20 s cho cả bộ |
 | JS | `node --test 'scripts/*.test.mjs'` | Viết đúng như vậy. `node --test scripts/` fail trên Node 22 |
 | Lint/gate | `node scripts/lint-saves.mjs`, `node scripts/check-plan.mjs`, `npm run ios:data && git status --porcelain` | Cả ba đều chạy trong job CI `data` |
-| **Biên dịch app** | **chỉ CI**: job `app` ("App builds"), `macos-26`, Xcode 26.6 | Đọc bước "Warnings" (§ 2.1 dưới bảng). CI đỏ hoặc có warning là finding Critical |
+| **Biên dịch app** | **chỉ CI**: job `app` ("App builds"), `macos-26`, Xcode **26.2** (Swift 6.2.3, bản thấp nhất được hỗ trợ) | Đọc bước "Warnings" (§ 2.1 dưới bảng). CI đỏ hoặc có warning là finding Critical |
 | Chạy app, Instruments, simulator, AlarmKit, GPS | **không có** | Mọi bước "Đo", "chụp màn", "duyệt thiết kế", "spike trên máy" là việc của người dùng |
 | Chữ ký API Apple | `kit/bin/apple-decl alarmkit/alarmmanager/alarms` | Đọc JSON tài liệu Apple: in declaration và iOS tối thiểu. Đường dẫn lấy theo URL của trang tài liệu, viết thường |
 | Header MapLibre 7.0.0 | `kit/bin/maplibre-header MLNMapSnapshotter.h` | Lấy theo tag `ios-v7.0.0`, đúng bản `project.yml` ghim |
@@ -60,7 +60,7 @@ trước không đi theo container mới. Những gì còn dùng được đều
 - **Chờ CI:** CI cần nhiều phút. Đừng poll; dùng `send_later` để nhắc chính mình, sau đó đọc `ReadNotifications`. Chỉ giao task kế tiếp khi CI xanh ở base của nó.
 - **Cài đặt đồng thời:**
   - App chạy `SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor` + `SWIFT_APPROACHABLE_CONCURRENCY: YES`. Một hàm `nonisolated … async` chạy trên actor của nơi gọi; muốn rời main thì phải dùng `@concurrent nonisolated static func`. Mẫu có sẵn: `Media.swift` `load(_:maxPixel:network:)`, `TripMap.swift` `read`.
-  - TripKit dùng tools 6.3, bật `NonisolatedNonsendingByDefault` + `InferIsolatedConformances`, không đặt default MainActor.
+  - TripKit dùng tools 6.2, bật `NonisolatedNonsendingByDefault` + `InferIsolatedConformances`, không đặt default MainActor.
 - **Stop hook:** hook "There are uncommitted changes" bật lên khi một implementer đang làm dở, ví dụ test RED chưa commit. Không commit hộ; chờ implementer commit.
 - **Container có thể khởi động lại:** implementer commit ngay khi test xanh; controller push sau review.
 
@@ -88,7 +88,8 @@ Cuối cùng: một review toàn nhánh ở mức `max`, **một** đợt sửa,
 3. **Một ruling đổi máy trạng thái cũng là code.** Lỗi New-1 sinh ra từ một câu trong brief của controller ("clear `ended` on every crossing"). Ruling nào chạm trạng thái thì phải bắt reviewer lần theo nó trên cả hai đồng hồ (giờ thật / chạy thử).
 4. **Review package toàn nhánh rất lớn** vì có `trip.json`/`schedule.json` sinh ra. `review-pkg` đã bỏ chúng. Diff toàn nhánh nên tách làm hai: nguồn và test.
 5. **Không ghi tên hay mã model vào bất kỳ file nào của repo** (code, comment, docs, commit message ngoài dòng attribution). Lượt trước sót hai chỗ trong hợp đồng thực thi, đã sửa trước khi merge.
-6. **Phần app chỉ được biên dịch trên CI**, nên reviewer phải đọc code app như compiler đọc. Mỗi symbol Apple hay MapLibre dùng lần đầu phải có trong mục "API ledger" của report (hợp đồng § 4.3).
+6. **Toolchain phải là toolchain của người dùng.** T0 đã nâng lên Swift 6.3 vì CI có sẵn bản đó, trong khi máy Mac của người dùng chỉ có 6.2.x, nên bản merge không build được trên máy họ. Hỏi phiên bản Xcode/Swift trước khi đổi toolchain; CI build bằng bản thấp nhất.
+7. **Phần app chỉ được biên dịch trên CI**, nên reviewer phải đọc code app như compiler đọc. Mỗi symbol Apple hay MapLibre dùng lần đầu phải có trong mục "API ledger" của report (hợp đồng § 4.3).
 
 ## 4. Việc phải làm, theo thứ tự đề xuất
 
@@ -199,7 +200,7 @@ Viết `docs/superpowers/plans/2026-11-04-execution-contract-phase4-5.md` theo k
 - **§ 6:**
   - ST-3 (cài lỗi để thử reviewer) làm một lần sau 4.2, với một lỗi đồng thời (lệnh session trên main), một test không assert gì và một lỗi biên dịch phía app.
   - ST-4 (mutation probe) cho mọi kiểu TripKit mới.
-- Giữ nguyên **§ 4.1–4.6** (bằng chứng TDD, Swift 6.3, API ledger, dữ liệu người dùng, chữ trên UI, git), trừ dòng attribution: lấy theo phiên của bạn.
+- Giữ nguyên **§ 4.1–4.6** (bằng chứng TDD, Swift 6.2, API ledger, dữ liệu người dùng, chữ trên UI, git), trừ dòng attribution: lấy theo phiên của bạn.
 
 ## 6. Quy tắc không được phá
 

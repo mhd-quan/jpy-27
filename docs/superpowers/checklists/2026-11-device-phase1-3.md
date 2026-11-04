@@ -825,3 +825,47 @@ bình thường (trước chuyến).
      màn hình khoá); lúc "Xuống": "Chuẩn bị xuống ở <ga>".
    - Mở thêm một Live Activity của app khác (hẹn giờ ở Đồng hồ) để JP27 thành vòng tròn nhỏ. **Đạt** khi đọc "<tuyến>
      tới <ga>" và "Đã đi N phần trăm".
+
+## Bước 0 — Chuyến kết thúc giữ kết thúc trên đồng hồ của nó; vị trí vẫn tới sau khi chỉnh lùi đồng hồ máy
+
+**Chuẩn bị.** Bản Debug chạy từ Xcode. Debug › Simulate Location với một GPX ở ga Shinjuku (Odakyu), 35.69136,
+139.69965 (cách ga dưới 400 m là đủ để chuyến tự bắt đầu). Romancecar ngày 4 (21/10/2027) đi lúc 7:37: cửa sổ tự bắt
+đầu từ 7:17 tới 7:47. Ở Việt Nam thì bước nào cần "giờ thật" trong cửa sổ đó đặt đồng hồ máy: Cài đặt › Cài đặt chung
+› Ngày & Giờ, tắt "Đặt tự động", múi giờ Tokyo, 21/10/2027 7:20; trả lại "Đặt tự động" sau bước đó.
+
+1. **Chạy thử: "Kết thúc" gần ga thì chuyến không tự bắt đầu lại (New-1).** Vị trí mô phỏng ở ga Shinjuku. Cài đặt ›
+   Chạy thử: ngày 4, 7:20 › "Chạy thử từ thời điểm này". Mở Hôm nay: Romancecar tự bắt đầu (Live Activity hiện).
+   - Bấm "Kết thúc" ở trang chuyến. **Đạt** khi trong 3 phút sau đó, JP27 mở trên màn hình (Hôm nay), chuyến **không**
+     tự bắt đầu lại và không có Live Activity mới (bản cũ bắt đầu lại ngay sau khi kết thúc). "Theo dõi chuyến" bằng tay
+     vẫn bắt đầu được ngay; bấm "Kết thúc" lần nữa.
+   - **Dời giờ chạy thử.** Cài đặt › Chạy thử: ngày 4, 7:25 › "Chạy thử từ thời điểm này", rồi mở Hôm nay. **Đạt** khi
+     Romancecar lại tự bắt đầu: buổi chạy thử mới không giữ kết thúc của buổi trước.
+   - Đang theo dõi (từ gạch trên), dời giờ chạy thử sang ngày 4, 7:30. **Đạt** khi chuyến kết thúc (trang chuyến về
+     "Theo dõi chuyến", Live Activity biến mất) rồi tự bắt đầu lại khi mở Hôm nay: kết thúc vì dời giờ không bị giữ.
+   - "Về giờ thật".
+2. **Giờ thật: chuyến kết thúc bằng tay vẫn kết thúc sau một vòng chạy thử (New-1).** Đồng hồ máy 21/10/2027 7:20 giờ
+   Tokyo (Chuẩn bị), vị trí mô phỏng ở ga Shinjuku, không chạy thử. Mở Hôm nay: Romancecar tự bắt đầu. Bấm "Kết thúc".
+   - Cài đặt › Chạy thử: ngày 4, 7:40 › "Chạy thử từ thời điểm này". Mở Hôm nay. **Đạt** khi Romancecar tự bắt đầu trong
+     buổi chạy thử (đó là chuyến của buổi chạy thử, không phải chuyến thật đã kết thúc). Bấm "Kết thúc".
+   - "Về giờ thật", mở Hôm nay, đợi 2 phút. **Đạt** khi Romancecar **không** tự bắt đầu lại (bản cũ bắt đầu lại ngay
+     sau "Về giờ thật").
+   - Kết thúc vì đổi đồng hồ thì khác (giống 3.4a bước 9, gạch 3). Vuốt JP27 khỏi đa nhiệm rồi mở lại (chuyến đã kết
+     thúc chỉ được nhớ trong một lần mở app): Romancecar tự bắt đầu. Bật chạy thử (ngày 4, 7:40), rồi "Về giờ thật".
+     **Đạt** khi khoảng một phút sau, JP27 mở trên Hôm nay, Romancecar tự bắt đầu lại được.
+   - Bật lại "Đặt tự động" (đồng hồ máy lùi về hôm nay: bước 3 dưới đây kiểm luôn).
+3. **Chỉnh lùi đồng hồ máy thì vị trí vẫn tới, không cần mở lại app (New-2).** Bản Debug, vị trí thật (bỏ Simulate
+   Location), ngoài trời hay cạnh cửa sổ. Dòng Debug Cài đặt › Chẩn đoán › "Vị trí lúc": giờ của vị trí mới nhất app
+   đã dùng, theo đồng hồ máy, và độ chính xác; chạm vào dòng để đọc lại.
+   - Cài đặt (iPhone) › Ngày & Giờ: tắt "Đặt tự động", đặt **sau 1 ngày**. Mở JP27, đi vài bước, mở Chẩn đoán: "Vị trí
+     lúc" chỉ giờ vừa rồi (của ngày mai).
+   - Về màn hình chính (không vuốt JP27 khỏi đa nhiệm), bật lại "Đặt tự động" (đồng hồ lùi về hôm nay). Mở lại JP27,
+     ra ngoài đi khoảng 50 m, mở Chẩn đoán, chạm "Vị trí lúc". **Đạt** khi dòng chỉ một giờ của hôm nay, trong vài giây
+     trước đồng hồ trên thanh trạng thái, và chạm lại sau 10 giây thì giờ đổi theo (bản cũ đứng yên ở giờ của ngày mai
+     tới khi tắt hẳn app rồi mở lại).
+   - Cũng vậy sau Task 1.5 bước 5 và sau phần chuẩn bị của Task 3.4b (đặt ngày khác rồi bật lại "Đặt tự động"): vị trí
+     vẫn tới mà không phải mở lại app.
+4. **Sổ chi không đọc được thì không xuất file rỗng (New-3, bản Debug).** Sổ chi có ít nhất một khoản. Cài đặt › Chẩn
+   đoán › bật "Giả lỗi đọc sổ chi". Chi tiêu › menu › chia sẻ sổ chi (CSV), chọn "Lưu vào Tệp".
+   - **Đạt** khi không có tệp `JP27-so-chi.csv` nào được lưu (hay tệp không mở được), không bao giờ một tệp chỉ có dòng
+     tiêu đề. Ghi lại iOS hiện gì (hộp lỗi, sheet đóng lại, hay không có gì): ô ____.
+   - Tắt "Giả lỗi đọc sổ chi", chia sẻ lại. **Đạt** khi tệp có đủ các khoản như trước.

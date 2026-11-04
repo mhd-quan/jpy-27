@@ -10,11 +10,15 @@ brief thắng ở phần giá trị (số, chuỗi, chữ ký hàm, test case).
 
 Đã đo ngày 3/11/2026 ở commit `5782638`.
 
+> **Đính chính 4/11/2026 (R-157):** máy Mac của người dùng chỉ có Swift 6.2.x (Xcode 26.2/26.3), nên
+> toolchain hạ từ 6.3 về **6.2.3**: TripKit `swift-tools-version: 6.2`, CI `swift:6.2.3-noble`, job `app`
+> dùng Xcode **26.2**. Các dòng dưới đây đã sửa theo; R-03 và T0 giữ nguyên để làm lịch sử.
+
 | Cần kiểm | Ở đâu | Kết quả đo |
 | --- | --- | --- |
-| TripKit `swift test` | Máy agent: `export PATH=/opt/swift/usr/bin:$PATH` (Swift **6.3.3**). CI: container `swift:6.3-noble` (sau T0) | 74 test / 11 suite xanh, 25 s |
+| TripKit `swift test` | Máy agent: toolchain Swift **6.2.3** tải từ swift.org (`/opt/swift` là 6.3.3, không dùng để kết luận). CI: container `swift:6.2.3-noble` | 74 test / 11 suite xanh, 25 s |
 | Pipeline dữ liệu | Node 22.23, `npm ci` đã chạy | `npm run ios:data` + sinh lại fixture: không diff; `check-plan` exit 0 |
-| **Biên dịch app** (SwiftUI, AlarmKit, SwiftData, MultipeerConnectivity, MapLibre, ActivityKit) | **Không có trên máy agent.** CI job `app` (T0): `macos-26`, Xcode **26.6** (Swift 6.3.3), simulator, không ký | Chạy sau mỗi lần controller push |
+| **Biên dịch app** (SwiftUI, AlarmKit, SwiftData, MultipeerConnectivity, MapLibre, ActivityKit) | **Không có trên máy agent.** CI job `app` (T0): `macos-26`, Xcode **26.2** (Swift 6.2.3), simulator, không ký | Chạy sau mỗi lần controller push |
 | Chạy app, AlarmKit reo, hai máy ghép sổ, GPS, Instruments | Chỉ máy thật của người dùng | Gom vào checklist Task 6.1 |
 | Chữ ký API Apple | `.superpowers/sdd/2026-11-03-ios-hardening-and-smoothness/bin/apple-decl <framework>/<type>/<member>` (đọc JSON tài liệu Apple; ví dụ `apple-decl alarmkit/alarmmanager/alarms` → `var alarms: [Alarm] { get throws }`) | Chạy được |
 | Header MapLibre 7.0.0 | `…/bin/maplibre-header MLNOfflinePack.h` (tag `ios-v7.0.0`) | Chạy được |
@@ -70,9 +74,9 @@ Số dòng trong brief là của commit `4b2e419`; các task trước làm lệc
 - **Không bao giờ** sinh lại fixture, nới assertion, `.disabled`, hay xoá test để có màu xanh. Sinh lại
   fixture chỉ sau khi gate khả thi xanh, và report nói vì sao output đổi (bài học A8).
 
-### 4.2 Swift 6.3 và đồng thời
+### 4.2 Swift 6.2 và đồng thời
 
-Nền: Swift 6.3.3 / Xcode 26.6; ngôn ngữ Swift 6 (`SWIFT_VERSION: "6.0"` là chế độ ngôn ngữ, không phải
+Nền: Swift 6.2.3 / Xcode 26.2 (bản thấp nhất được hỗ trợ; code không dùng gì của Swift 6.3); ngôn ngữ Swift 6 (`SWIFT_VERSION: "6.0"` là chế độ ngôn ngữ, không phải
 bản compiler).
 
 - **App** (`JP27`, `JP27Widgets`): đã chạy `SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor` và
@@ -89,7 +93,7 @@ bản compiler).
   `nonisolated(unsafe)`, `MainActor.assumeIsolated` — trừ khi report nêu lý do và chỗ thay thế không có.
 - Một `Task {}` thả trôi chỉ hợp lệ khi không ai cần biết nó xong; đường nào mà iOS cần chờ (nền,
   background task, hoàn tất của một thao tác người dùng) phải `await` tới cùng (đây đúng là lớp lỗi A5).
-- **TripKit** (sau T0): `swift-tools-version: 6.3`, bật `NonisolatedNonsendingByDefault` và
+- **TripKit** (sau T0, R-157): `swift-tools-version: 6.2`, bật `NonisolatedNonsendingByDefault` và
   `InferIsolatedConformances`; **không** đặt default isolation MainActor cho TripKit — nó là thư viện kiểu
   giá trị mà widget và code `nonisolated` của app gọi đồng bộ. Lớp điều phối có trạng thái (`OneAtATime`,
   `WakeAlarms`, `Coalescer`) ghi `@MainActor` tường minh; kiểu giá trị là `Sendable`.
@@ -169,7 +173,7 @@ review được trong một lượt (R-04).
 
 | Mã | Kiểm cái gì | Cách | Đạt khi | Không đạt thì |
 | --- | --- | --- | --- | --- |
-| ST-1 | Môi trường giống CI | Toolchain 6.3.3 ở máy agent = `swift:6.3-noble` = Xcode 26.6; chạy cả bộ ở commit gốc trên cả ba | Ba nơi cùng xanh trước task đầu tiên | Sửa môi trường trước khi giao task |
+| ST-1 | Môi trường giống CI | Toolchain 6.2.3 ở máy agent = `swift:6.2.3-noble` = Xcode 26.2; chạy cả bộ ở commit gốc trên cả ba | Ba nơi cùng xanh trước task đầu tiên | Sửa môi trường trước khi giao task |
 | ST-2 | Brief và context có đủ không, agent ở effort này có thấy bẫy không | Mỗi implementer T1/T2 viết **pre-mortem** trước khi code rồi dừng. Controller chấm nó với một danh sách bẫy viết sẵn mà agent không thấy | Bắt được mọi bẫy mức chặn | Bẫy bị sót được đưa vào lệnh tiếp tục; sót ≥ 2 bẫy mức chặn → tăng effort một bậc cho task đó |
 | ST-3 | Reviewer có bắt được lỗi không | Hai lần (sau 1.1 và sau 1.4): cài 3 lỗi vào một bản sao diff đã sạch (một lỗi logic, một test không assert gì, một lỗi biên dịch phía app), đưa reviewer như diff thật | 3/3 | Reviewer bậc đó lên `max`, ghi vào ledger |
 | ST-4 | Test có đủ chặt không | Mutation probe: 6–10 biến thể lỗi thực tế của code TripKit mới (có lỗi gốc của review), chạy test của task | Không biến thể nào sống, hoặc biến thể sống là tương đương | Mỗi biến thể sống là finding Important "thiếu test" |

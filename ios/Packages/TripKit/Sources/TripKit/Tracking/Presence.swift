@@ -38,8 +38,15 @@ public enum Presence {
     /// Whether a fix says where you are: its accuracy known (`accuracy` < 0 is no fix) and within
     /// `fixAccuracy`, and not taken before the newest fix already used (`newest`): one delivered late says
     /// where you were. The same rule for the live stream, a significant change and `requestLocation`.
-    public static func takes(accuracy: Double, at: Date, newest: Date?) -> Bool {
+    ///
+    /// `now` is the phone's real clock (`Date()`), the clock fix times are on; never the trip's clock
+    /// (`Shared.now`), whose rehearsal offset would put every fix days off it. A `newest` later than `now`
+    /// was taken before the phone's clock was set back: it counts as none, so the first precise fix after
+    /// that is taken (as at launch) and is the newest from then on, instead of every fix being refused
+    /// until the app is opened again.
+    public static func takes(accuracy: Double, at: Date, newest: Date?, now: Date) -> Bool {
         guard accuracy >= 0, accuracy < fixAccuracy else { return false }
-        return newest.map { at >= $0 } ?? true
+        guard let newest, newest <= now else { return true }
+        return at >= newest
     }
 }

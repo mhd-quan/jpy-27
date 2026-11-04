@@ -774,7 +774,8 @@ struct TwoPhones {
             var sides = [randomState(&g), randomState(&g)]
             let skews: [TimeInterval] = [0, 2 * 86400, -2 * 86400, 86400 + 30, -(86400 + 30), 3 * 86400]
             var nows = [now.addingTimeInterval(skews.randomElement(using: &g)!), now.addingTimeInterval(skews.randomElement(using: &g)!)]
-            let step: TimeInterval = [0, 3600, 6 * 3600].randomElement(using: &g)!
+            let steps: [TimeInterval] = [0, 3600, 6 * 3600]
+            let step = steps.randomElement(using: &g)!
             var to = Bool.random(using: &g) ? 1 : 0
             var message: LedgerState? = sides[1 - to]
             var messages = 0

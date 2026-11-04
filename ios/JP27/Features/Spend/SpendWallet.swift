@@ -280,7 +280,8 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
     static var transferRepresentation: some TransferRepresentation {
         // a byte-order mark, so spreadsheet apps read the Vietnamese right
         DataRepresentation(exportedContentType: .commaSeparatedText) { file in
-            let csv = await file.csv()
+            // a ledger that could not be read is no file, never an empty one
+            let csv = try await file.csv()
             return Data(("\u{FEFF}" + csv).utf8)
         }
         .suggestedFileName("JP27-so-chi.csv")
@@ -299,11 +300,12 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
         self.store = store
     }
 
-    /// The ledger as it is now, oldest first (`LedgerCSV`).
-    @MainActor func csv() -> String {
+    /// The ledger as it is now, oldest first (`LedgerCSV`); throws when the records could not be read
+    /// (`Ledger.fetch`), so a backup is never written empty.
+    @MainActor func csv() throws(SaveFailure) -> String {
         let me = Self.installID
         let store = self.store
-        let expenses = (try? container.mainContext.fetch(FetchDescriptor<Expense>(sortBy: [SortDescriptor(\.at)]))) ?? []
+        let expenses = try Ledger.fetch(FetchDescriptor<Expense>(sortBy: [SortDescriptor(\.at)]), in: container.mainContext)
         return LedgerCSV.encode(expenses.map { $0.record(me: me) }, placeName: { store.place($0)?.name })
     }
 

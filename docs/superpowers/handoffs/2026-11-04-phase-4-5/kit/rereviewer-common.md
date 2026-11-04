@@ -86,5 +86,5 @@ controller ledgers these for the final review. "None" if none.
 **Fix round:** [All findings addressed, no new Critical/Important
 breakage | Findings remain open] — list the open ones.
 
-App code (ios/JP27, ios/JP27Widgets, ios/Shared) has no compiler here: read app hunks of the fix as the Swift 6.3 compiler would (Swift 6 mode, default MainActor isolation, approachable concurrency); a likely compile error is Critical new breakage.
-Swift for focused checks: `export PATH=/opt/swift/usr/bin:$PATH` (Swift 6.3.3), then `swift test --filter …` in ios/Packages/TripKit.
+App code (ios/JP27, ios/JP27Widgets, ios/Shared) has no compiler here: read app hunks of the fix as the Swift 6.2.3 compiler would (Swift 6 mode, default MainActor isolation, approachable concurrency); a likely compile error is Critical new breakage.
+Swift for focused checks: `export PATH=<toolchain 6.2.3>/usr/bin:$PATH` (Swift 6.2.3, README § 2), then `swift test --filter …` in ios/Packages/TripKit.

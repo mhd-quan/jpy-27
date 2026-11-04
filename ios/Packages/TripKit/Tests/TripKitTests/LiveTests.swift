@@ -134,15 +134,20 @@ import Testing
         let it = Itinerary(store: store)
         let grace = Double(store.trip.rules.grace.move)
         #expect(grace == 1)
-        for now: Double in [7 * 60 + 36, 7 * 60 + 37 + grace] {
+        // the minutes named first: Swift 6.2's type checker gives up on the literal inside the loop
+        let due: Double = 7 * 60 + 37
+        let inTime: [Double] = [due - 1, due + grace]
+        for now in inTime {
             let p = it.project(day4, done: [], now: now, position: platform)
             #expect(p.cursor == 2)
             #expect(p.replan == nil, "\(now): \(String(describing: p.replan))")
             // there now, or there at its time when that is earlier
-            #expect(p.slots.first?.ready == min(now, 7 * 60 + 37))
+            #expect(p.slots.first?.ready == min(now, due))
         }
         // a minute past that, standing on the platform is missing it, as anywhere else: it has left
-        for now: Double in [7 * 60 + 38 + grace, 7 * 60 + 40, 7 * 60 + 45] {
+        // the minutes named first: Swift 6.2's type checker gives up on the literal inside the loop
+        let gone: [Double] = [7 * 60 + 38 + grace, 7 * 60 + 40, 7 * 60 + 45]
+        for now in gone {
             #expect(it.project(day4, done: [], now: now, position: platform).replan?.target == 2, "\(now)")
         }
         // 400 m away, outside the circle, the same minute before it: still on the way, and late
@@ -789,7 +794,9 @@ import Testing
     @Test func theGPSAlarmIsNeverLaterThanTheTimetables() throws {
         let day4 = try #require(store.day("4"))
         let timetableAlarm = try #require(WakePlanner(store: store).alarm(for: romancecar))
-        #expect(timetableAlarm == TripTime.date(day4.date, minutes: 7 * 60 + 37 + 105 - 4))
+        let departs: Double = 7 * 60 + 37
+        let ringsAt = departs + 105 - 4
+        #expect(timetableAlarm == TripTime.date(day4.date, minutes: ringsAt))
         // at Machida at 8:05, a fix at 16 km/h: the stop before yours an hour and a half away, at 9:43
         let machida = try #require(TripTime.date(day4.date, minutes: 8 * 60 + 5))
         var t = RideTracker(ride: romancecar, store: store)
@@ -1142,7 +1149,8 @@ import Testing
         #expect(TripTime.beginLabel(planned: nil, begin: 14 * 60 + 5) == "14:05")
         #expect(TripTime.beginLabel(planned: nil, begin: 14 * 60 + 19.6) == "14:20")
         // the snapshot's later begin, not the plan's
-        #expect(TripTime.beginLabel(planned: nil, begin: max(14 * 60 + 5, 14 * 60 + 20)) == "14:20")
+        let planned: Double = 14 * 60 + 5, snapshot: Double = 14 * 60 + 20
+        #expect(TripTime.beginLabel(planned: nil, begin: max(planned, snapshot)) == "14:20")
         // past midnight
         #expect(TripTime.beginLabel(planned: nil, begin: 24 * 60 + 10) == "0:10")
     }
@@ -1183,6 +1191,24 @@ import Testing
             #expect(Fmt.decimal(x, digits: 0) == Fmt.missing)
         }
         #expect(Fmt.missing == "—")
+
+        // a number too large for a whole Int: the placeholder, not a trap (M3)
+        for x in [1e19, -1e17, -1e16, .greatestFiniteMagnitude, -.greatestFiniteMagnitude] {
+            #expect(Fmt.km(x) == Fmt.missing, "\(x)")
+        }
+        #expect(Fmt.km(-9e15) == "-9000000000000000000 m", "the metres still fit after ×10")
+        for (x, digits) in [(1e19, 0), (-1e19, 0), (1e308, 1), (.greatestFiniteMagnitude, 2), (0x1p63, 0)] as [(Double, Int)] {
+            #expect(Fmt.decimal(x, digits: digits) == Fmt.missing, "\(x)")
+        }
+        // the edges of Int: 2^63 is past it, the double just below and −2^63 are not
+        #expect(Fmt.decimal(9_223_372_036_854_774_784, digits: 0) == "9.223.372.036.854.774.784")
+        #expect(Fmt.decimal(-0x1p63, digits: 0) == "−9.223.372.036.854.775.808")
+        for x in [Double.nan, .infinity, -.infinity, 1e19, -1e19, 0x1p63] {
+            #expect(Fmt.duration(x) == Fmt.missing, "\(x)")
+        }
+        #expect(Fmt.duration(12.4) == "12 phút")
+        #expect(Fmt.duration(100) == "1 giờ 40")
+        #expect(Fmt.duration(120) == "2 giờ")
     }
 }
 
@@ -1382,7 +1408,9 @@ import Testing
         let wakes = wake.wakes(days: days, now: evening) { _, _ in false }
         let romancecar = try #require(wakes.first { $0.rideID == "r-4-romancecar-st-shinjuku-odakyu" })
         // 7:37 plus 105 minutes, four before
-        #expect(romancecar.at == TripTime.date(days[3].date, minutes: 7 * 60 + 37 + 105 - 4))
+        let departs: Double = 7 * 60 + 37
+        let ringsAt = departs + 105 - 4
+        #expect(romancecar.at == TripTime.date(days[3].date, minutes: ringsAt))
         #expect(!romancecar.station.isEmpty)
         // a ride already taken wants no alarm
         let taken = wake.wakes(days: days, now: evening) { day, _ in day.key == "4" }
@@ -1441,13 +1469,36 @@ import Testing
     /// One rule for every fix, from the live stream, a significant change or `requestLocation` (R-156).
     @Test func aFixCountsWhenPreciseAndNotOlderThanTheLast() {
         let t = Date(timeIntervalSince1970: 1_000_000)
-        #expect(Presence.takes(accuracy: 5, at: t, newest: nil))
-        #expect(Presence.takes(accuracy: 199.9, at: t, newest: t), "the same fix again")
-        #expect(Presence.takes(accuracy: 30, at: t + 1, newest: t))
-        #expect(!Presence.takes(accuracy: 200, at: t, newest: nil), "a coarse fix")
-        #expect(!Presence.takes(accuracy: 1_500, at: t, newest: nil), "a cell-tower fix from a significant change")
-        #expect(!Presence.takes(accuracy: -1, at: t, newest: nil), "no fix at all")
-        #expect(!Presence.takes(accuracy: 10, at: t - 1, newest: t), "a fix delivered after a newer one")
+        #expect(Presence.takes(accuracy: 5, at: t, newest: nil, now: t + 1))
+        #expect(Presence.takes(accuracy: 199.9, at: t, newest: t, now: t + 1), "the same fix again")
+        #expect(Presence.takes(accuracy: 30, at: t + 1, newest: t, now: t + 1))
+        #expect(!Presence.takes(accuracy: 200, at: t, newest: nil, now: t + 1), "a coarse fix")
+        #expect(!Presence.takes(accuracy: 1_500, at: t, newest: nil, now: t + 1), "a cell-tower fix from a significant change")
+        #expect(!Presence.takes(accuracy: -1, at: t, newest: nil, now: t + 1), "no fix at all")
+        #expect(!Presence.takes(accuracy: 10, at: t - 1, newest: t, now: t + 1), "a fix delivered after a newer one")
+    }
+
+    /// The phone's clock set back (Ngày & Giờ, "Đặt tự động" turned on again after a day ahead): the newest fix
+    /// used is later than now, and every new fix would be "older" than it until the app is opened again (New-2).
+    @Test func aFixCountsAgainOnceThePhonesClockWentBack() {
+        let t = Date(timeIntervalSince1970: 1_000_000)
+        // the clock an hour back: the newest fix used is in the future
+        #expect(Presence.takes(accuracy: 10, at: t - 0.5, newest: t + 3_600, now: t), "a fresh fix after the clock went back")
+        #expect(!Presence.takes(accuracy: 500, at: t - 0.5, newest: t + 3_600, now: t), "still precise enough or nothing")
+        #expect(Presence.takes(accuracy: 10, at: t + 3_500, newest: t + 3_600, now: t), "any precise fix once, as at launch")
+        // a newest fix at now is not in the future: a late one is still refused
+        #expect(!Presence.takes(accuracy: 10, at: t - 1, newest: t, now: t))
+
+        // as LocationService keeps it: the first fix taken is the newest again, and the order holds from there
+        var newest: Date? = t + 3_600
+        var taken: [TimeInterval] = []
+        for (at, now) in [(t, t + 0.2), (t + 1, t + 1.2), (t + 0.5, t + 1.4), (t + 2, t + 2.2)] {
+            if Presence.takes(accuracy: 10, at: at, newest: newest, now: now) {
+                newest = at
+                taken.append(at.timeIntervalSince(t))
+            }
+        }
+        #expect(taken == [0, 1, 2], "the one delivered late after the clock went back is refused")
     }
 }
 
