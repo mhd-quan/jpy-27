@@ -63,10 +63,17 @@ import Testing
         #expect(all.failed == ["fuji", "hakone", "ise", "kawaguchiko", "kyoto", "nara", "osaka", "shima", "toba", "tokaido", "tokyo", "uji"])
     }
 
-    @Test func anAreaNobodyKnowsIsNeitherDoneNorFailed() {
+    @Test func anAreaRemovedDuringTheJobIsNeitherDoneNorFailedAndTheEndSaysSo() {
+        // Xoá on its row clears its phase: the job still counts it, so its end line gives the reason
         let r = OfflineJob(areas: ["tokyo", "kyoto"], photos: false)
             .result(phases: ["tokyo": .complete(build)], photos: .finished, mapBuild: build)
-        #expect(!r.success); #expect(r.done == 1); #expect(r.failed.isEmpty); #expect(r.subtitle == "Bản đồ 1/2 vùng")
+        #expect(!r.success); #expect(r.done == 1); #expect(r.failed.isEmpty); #expect(r.subtitle == "Bản đồ 1/2 vùng · 1 vùng đã xoá")
+        let two = OfflineJob(areas: ["tokyo", "kyoto", "nara"], photos: false)
+            .result(phases: ["tokyo": .failed("x")], photos: .finished, mapBuild: build)
+        #expect(two.subtitle == "Bản đồ 0/3 vùng · 1 lỗi · 2 vùng đã xoá")
+        // a pause still reads as one
+        #expect(OfflineJob(areas: ["tokyo", "kyoto"], photos: false).result(phases: ["tokyo": .paused], photos: .finished, mapBuild: build)
+                .subtitle == "Đã dừng")
         for p: AreaPhase in [.requested, .creating] {
             let s = OfflineJob(areas: ["kyoto"], photos: false).result(phases: ["kyoto": p], photos: .finished, mapBuild: build)
             #expect(!s.success); #expect(s.failed.isEmpty); #expect(!s.paused)
@@ -188,8 +195,11 @@ import Testing
         for p: AreaPhase in [.requested, .downloading(completed: 3, expected: 10), .waitingForNetwork, .paused, .complete(build)] {
             for previous: AreaPhase? in [nil, .failed("x"), .creating, .requested, .complete(build)] {
                 for requested in [false, true] {
-                    #expect(OfflineArea.settle(current: p, older: nil, previous: previous, requested: requested)
-                            == OfflineArea.Settled(phase: p, make: false, dropOld: false))
+                    // a make still under way changes nothing: the area has its pack (the map moved back to its build)
+                    for making in [false, true] {
+                        #expect(OfflineArea.settle(current: p, older: nil, previous: previous, requested: requested, making: making)
+                                == OfflineArea.Settled(phase: p, make: false, dropOld: false))
+                    }
                 }
             }
         }
@@ -199,7 +209,7 @@ import Testing
         // a pack that could not be made leaves the area with no pack: a refresh used to forget it, reason and all
         for requested in [false, true] {
             for older: AreaPhase? in [nil, .stale(other), .stale(nil)] {
-                let s = OfflineArea.settle(current: nil, older: older, previous: .failed("Không tạo được vùng tải"), requested: requested)
+                let s = OfflineArea.settle(current: nil, older: older, previous: .failed("Không tạo được vùng tải"), requested: requested, making: false)
                 #expect(s.phase == .failed("Không tạo được vùng tải"))
                 // made again by a tap or at the next launch, never by a refresh: one runs on every change of the packs
                 #expect(!s.make)
@@ -209,12 +219,26 @@ import Testing
     }
 
     @Test func anAreaBeingMadeIsLeftAlone() {
-        // paused while it is made (not asked for any more): still made, then left inactive
-        for requested in [false, true] {
-            for older: AreaPhase? in [nil, .stale(other)] {
-                #expect(OfflineArea.settle(current: nil, older: older, previous: .creating, requested: requested)
-                        == OfflineArea.Settled(phase: .creating, make: false, dropOld: false))
+        // paused while it is made (not asked for any more): `.paused` at once, still made, then left inactive
+        for previous: AreaPhase in [.creating, .paused] {
+            for requested in [false, true] {
+                for older: AreaPhase? in [nil, .stale(other)] {
+                    #expect(OfflineArea.settle(current: nil, older: older, previous: previous, requested: requested, making: true)
+                            == OfflineArea.Settled(phase: previous, make: false, dropOld: false))
+                }
             }
+        }
+    }
+
+    @Test func anAreaLeftPreparingWithNoMakeUnderWayIsMadeAgain() {
+        // its make is over and the area has no pack for the map's build: the map moved while the pack was added, so
+        // the new pack holds the old build. "Đang chuẩn bị…" for ever (the job never ending) became: made again.
+        for older: AreaPhase? in [nil, .stale(other)] {
+            #expect(OfflineArea.settle(current: nil, older: older, previous: .creating, requested: true, making: false)
+                    == OfflineArea.Settled(phase: .requested, make: true, dropOld: false))
+            // asked for no more: what it has
+            #expect(OfflineArea.settle(current: nil, older: older, previous: .creating, requested: false, making: false)
+                    == OfflineArea.Settled(phase: older, make: false, dropOld: false))
         }
     }
 
@@ -225,7 +249,7 @@ import Testing
                                       .paused, .waitingForNetwork, .stale(nil)]
         for p in previous {
             for older: AreaPhase? in [nil, .stale(other), .stale(nil)] {
-                #expect(OfflineArea.settle(current: nil, older: older, previous: p, requested: true)
+                #expect(OfflineArea.settle(current: nil, older: older, previous: p, requested: true, making: false)
                         == OfflineArea.Settled(phase: .requested, make: true, dropOld: false))
             }
         }
@@ -233,16 +257,16 @@ import Testing
 
     @Test func aPackOfAnotherBuildIsStaleUntilTheAreaIsAskedFor() {
         for previous: AreaPhase? in [nil, .complete(build), .downloading(completed: 1, expected: 2), .paused, .requested] {
-            #expect(OfflineArea.settle(current: nil, older: .stale(other), previous: previous, requested: false)
+            #expect(OfflineArea.settle(current: nil, older: .stale(other), previous: previous, requested: false, making: false)
                     == OfflineArea.Settled(phase: .stale(other), make: false, dropOld: false))
-            #expect(OfflineArea.settle(current: nil, older: .stale(nil), previous: previous, requested: false)
+            #expect(OfflineArea.settle(current: nil, older: .stale(nil), previous: previous, requested: false, making: false)
                     == OfflineArea.Settled(phase: .stale(nil), make: false, dropOld: false))
         }
     }
 
     @Test func anAreaWithNothingIsNothing() {
         for previous: AreaPhase? in [nil, .requested, .paused, .complete(build), .downloading(completed: 1, expected: 2), .stale(other)] {
-            #expect(OfflineArea.settle(current: nil, older: nil, previous: previous, requested: false)
+            #expect(OfflineArea.settle(current: nil, older: nil, previous: previous, requested: false, making: false)
                     == OfflineArea.Settled(phase: nil, make: false, dropOld: false))
         }
     }
@@ -251,13 +275,13 @@ import Testing
         // while the new one downloads the old one is kept (MapLibre stores a resource once for every pack using it)
         for p: AreaPhase in [.requested, .downloading(completed: 9, expected: 10), .waitingForNetwork, .paused] {
             for requested in [false, true] {
-                #expect(!OfflineArea.settle(current: p, older: .stale(other), previous: nil, requested: requested).dropOld)
+                #expect(!OfflineArea.settle(current: p, older: .stale(other), previous: nil, requested: requested, making: false).dropOld)
             }
         }
-        #expect(OfflineArea.settle(current: .complete(build), older: .stale(other), previous: .downloading(completed: 9, expected: 10), requested: false)
+        #expect(OfflineArea.settle(current: .complete(build), older: .stale(other), previous: .downloading(completed: 9, expected: 10), requested: false, making: false)
                 == OfflineArea.Settled(phase: .complete(build), make: false, dropOld: true))
-        #expect(OfflineArea.settle(current: .complete(build), older: .stale(nil), previous: nil, requested: true).dropOld)
-        #expect(!OfflineArea.settle(current: .complete(build), older: nil, previous: nil, requested: false).dropOld)
+        #expect(OfflineArea.settle(current: .complete(build), older: .stale(nil), previous: nil, requested: true, making: false).dropOld)
+        #expect(!OfflineArea.settle(current: .complete(build), older: nil, previous: nil, requested: false, making: false).dropOld)
     }
 
     // MARK: The style a pack is made from
@@ -280,6 +304,58 @@ import Testing
             #expect(OfflineArea.packBuild(style: page, tileJSON: tileJSON(build), mapBuild: build) == nil)
             #expect(OfflineArea.packBuild(style: page, tileJSON: nil, mapBuild: build) == nil)
         }
+    }
+
+    // MARK: What a make does once it has read the style
+
+    func pinnedStyle(_ b: TileBuild) -> Data { Data(#"{"version":8,"sources":{"omt":{"type":"vector","tiles":["\#(b.template)"]}}}"#.utf8) }
+    var currentStyle: Data { Data(#"{"version":8,"sources":{"omt":{"type":"vector","url":"https://tiles.openfreemap.org/planet"}}}"#.utf8) }
+    func tileJSON(_ b: TileBuild) -> Data { Data(#"{"tilejson":"3.0.0","tiles":["\#(b.template)"]}"#.utf8) }
+
+    @Test func aStyleOfTheMapsBuildMakesThePack() {
+        for again in [false, true] {
+            // the map moved during the read, to the build the style holds: made, of that build
+            for askedOn in [build, other] {
+                #expect(OfflineArea.step(.files(style: pinnedStyle(build), tileJSON: nil), mapBuild: build, askedOn: askedOn, again: again)
+                        == .add(build))
+                #expect(OfflineArea.step(.files(style: currentStyle, tileJSON: tileJSON(build)), mapBuild: build, askedOn: askedOn, again: again)
+                        == .add(build))
+            }
+        }
+    }
+
+    @Test func aMoveOfTheMapDuringTheReadReadsTheStyleOnceMore() {
+        // the map moved to another build while the style was read (the pinned one gone, or OpenFreeMap's moved on):
+        // no fault of the site's or the app's, so the style is read again for the build the map reads now
+        let served: [ServedStyle] = [.files(style: pinnedStyle(other), tileJSON: nil), .files(style: currentStyle, tileJSON: tileJSON(other)),
+                                     .files(style: currentStyle, tileJSON: nil), .refused(OfflineArea.otherBuild),
+                                     .refused("Không kết nối được máy chủ bản đồ")]
+        for s in served {
+            #expect(OfflineArea.step(s, mapBuild: build, askedOn: other, again: false) == .again)
+            // moved again during the second read: it fails, saying so, and "Thử lại" reads it once more
+            #expect(OfflineArea.step(s, mapBuild: build, askedOn: other, again: true) == .fail(OfflineArea.moved))
+        }
+    }
+
+    @Test func aStyleOfAnotherBuildOrNoneFailsWithTheSitesReason() {
+        for again in [false, true] {
+            #expect(OfflineArea.step(.files(style: pinnedStyle(other), tileJSON: nil), mapBuild: build, askedOn: build, again: again)
+                    == .fail(OfflineArea.otherBuild))
+            #expect(OfflineArea.step(.files(style: Data("<html>".utf8), tileJSON: nil), mapBuild: build, askedOn: build, again: again)
+                    == .fail(OfflineArea.otherBuild))
+            #expect(OfflineArea.step(.refused("Máy chủ bản đồ đang lỗi"), mapBuild: build, askedOn: build, again: again)
+                    == .fail("Máy chủ bản đồ đang lỗi"))
+        }
+    }
+
+    @Test func aTileJSONAheadOfTheMapSaysTheSourceMovedNotUpdateTheApp() {
+        // OpenFreeMap moved on, and the app has not looked yet at this launch (`checkPinnedTiles`): updating the app
+        // would not help, so the area does not say so
+        #expect(OfflineArea.step(.files(style: currentStyle, tileJSON: tileJSON(other)), mapBuild: build, askedOn: build, again: false)
+                == .fail(OfflineArea.moved))
+        #expect(!OfflineArea.moved.contains("cập nhật app"))
+        #expect(OfflineArea.moved != OfflineArea.otherBuild)
+        #expect(!OfflineArea.moved.isEmpty)
     }
 
     @Test func theShippedStylesMakePacksOfTheirBuild() throws {

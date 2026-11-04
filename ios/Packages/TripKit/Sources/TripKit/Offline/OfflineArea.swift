@@ -218,19 +218,23 @@ public enum OfflineArea {
     /// - `older`: the `.stale` phase of a pack of it made for another build or by an older version, if any.
     /// - `previous`: the phase the app holds for it.
     /// - `requested`: the travellers asked for it and it is not complete.
+    /// - `making`: its pack is being made: the style read, or the pack added (`.creating`, or `.paused` by a tap
+    ///   meanwhile). Over once the pack is added, or the area failed or was removed.
     ///
     /// A pack for the map's build says where the area is. Without one, an area that failed keeps its failure
-    /// and one being made is left to it: neither is made again here, since a look runs on every change of the
-    /// packs (a failure is tried again by a tap, or at the next launch). An area asked for is made. An older
-    /// pack is let go only once the new one is complete: until then it is what the area has.
-    public static func settle(current: AreaPhase?, older: AreaPhase?, previous: AreaPhase?, requested: Bool) -> Settled {
+    /// and one being made is left to its make: neither is made again here, since a look runs on every change of
+    /// the packs (a failure is tried again by a tap, or at the next launch). An area asked for is made, one left
+    /// `.creating` by a make that is over among them (the map moved while its pack was added, so that pack holds
+    /// the old build). An older pack is let go only once the new one is complete: until then it is what the area has.
+    public static func settle(current: AreaPhase?, older: AreaPhase?, previous: AreaPhase?, requested: Bool, making: Bool) -> Settled {
         if let current {
             let complete = if case .complete = current { true } else { false }
             return Settled(phase: current, make: false, dropOld: complete && older != nil)
         }
+        if making { return Settled(phase: previous, make: false, dropOld: false) }
         switch previous {
-        case .failed?, .creating?: return Settled(phase: previous, make: false, dropOld: false)
-        case .requested?, .downloading?, .waitingForNetwork?, .paused?, .complete?, .stale?, nil: break
+        case .failed?: return Settled(phase: previous, make: false, dropOld: false)
+        case .requested?, .creating?, .downloading?, .waitingForNetwork?, .paused?, .complete?, .stale?, nil: break
         }
         if requested { return Settled(phase: .requested, make: true, dropOld: false) }
         return Settled(phase: older, make: false, dropOld: false)
@@ -250,6 +254,54 @@ public enum OfflineArea {
         }
         return build == mapBuild ? build : nil
     }
+
+    /// The map moved to another tile build while an area's pack was being made: neither the site nor the app is
+    /// at fault, and a second try reads the style for the build the map reads now.
+    public static let moved = "Nguồn bản đồ vừa đổi — thử lại"
+
+    /// What a make does once it has read the style (`served`) for an area's pack.
+    ///
+    /// - `mapBuild`: the build the map reads now; `askedOn`: the one it read when the style was asked for.
+    /// - `again`: this is the second read.
+    ///
+    /// A style holding the map's build makes the pack, of that build. A move of the map's build during the read
+    /// reads the style once more; a second move fails the area with `moved`. So does a TileJSON naming a build the
+    /// map does not read yet: OpenFreeMap moved on, and the map follows once the app has looked at this launch
+    /// (`checkPinnedTiles`), so updating the app would not help. Otherwise the area fails with the site's reason,
+    /// or `otherBuild` for a style of another build.
+    public static func step(_ served: ServedStyle, mapBuild: TileBuild, askedOn: TileBuild, again: Bool) -> MakeStep {
+        if case .files(let style, let tileJSON) = served, let build = packBuild(style: style, tileJSON: tileJSON, mapBuild: mapBuild) {
+            return .add(build)
+        }
+        if mapBuild != askedOn { return again ? .fail(moved) : .again }
+        switch served {
+        case .refused(let reason):
+            return .fail(reason)
+        case .files(let style, let tileJSON):
+            if StyleInfo.build(style: style) == nil, StyleInfo.readsTileJSON(style: style),
+               let named = tileJSON.flatMap({ StyleInfo.build(tileJSON: $0) }), named != mapBuild {
+                return .fail(moved)
+            }
+            return .fail(otherBuild)
+        }
+    }
+}
+
+/// What the site serves for a pack's style: the style and, for one on a TileJSON (the `-current` ones), the
+/// TileJSON that names its build; or why it served nothing usable.
+public enum ServedStyle: Sendable, Equatable {
+    case files(style: Data, tileJSON: Data?)
+    case refused(String)
+}
+
+/// What a make does once it has read the style (`OfflineArea.step`).
+public enum MakeStep: Sendable, Equatable {
+    /// make the pack, of this build
+    case add(TileBuild)
+    /// the map moved to another build during the read: read the style again
+    case again
+    /// the area fails, saying why
+    case fail(String)
 }
 
 extension OfflineArea {
@@ -277,7 +329,8 @@ public struct OfflineJob: Codable, Sendable {
 
     /// How the job ended (or stands): a success only when every area holds the map's build and, when
     /// the job takes the photos, every photo is on disk and they were not paused. A job without the
-    /// photos does not look at them.
+    /// photos does not look at them. Its end line names what is missing: the areas failed, the ones removed
+    /// during the job ("1 vùng đã xoá"), the photos not on disk.
     public func result(phases: [String: AreaPhase], photos state: PhotoState, mapBuild: TileBuild) -> JobResult {
         let photos = self.photos ? state : .finished
         // the failed ones are among those left; either count may be the larger one the app knows
@@ -285,12 +338,15 @@ public struct OfflineJob: Codable, Sendable {
         var done = 0
         var failed: [String] = []
         var paused = photos.paused
+        // no phase once the packs are read: Xoá on its row (its packs and its request gone)
+        var removed = 0
         for id in areas {
             switch phases[id] {
             case .complete(let b) where b == mapBuild: done += 1
             case .complete, .stale, .failed: failed.append(id)
             case .paused: paused = true
-            case .requested, .creating, .downloading, .waitingForNetwork, nil: break
+            case nil: removed += 1
+            case .requested, .creating, .downloading, .waitingForNetwork: break
             }
         }
         let success = done == areas.count && photosLeft == 0 && !photos.paused
@@ -303,6 +359,7 @@ public struct OfflineJob: Codable, Sendable {
             var parts: [String] = []
             if !areas.isEmpty { parts.append("Bản đồ \(done)/\(areas.count) vùng") }
             if !failed.isEmpty { parts.append("\(failed.count) lỗi") }
+            if removed > 0 { parts.append("\(removed) vùng đã xoá") }
             if photosLeft > 0 { parts.append("\(photosLeft) ảnh chưa tải được") }
             subtitle = parts.joined(separator: " · ")
         }
@@ -336,6 +393,6 @@ public struct JobResult: Sendable, Equatable {
     public let failed: [String]
     /// an area or the photos were stopped where they were
     public let paused: Bool
-    /// "Xong", "Đã dừng", or "Bản đồ 8/10 vùng · 2 lỗi"
+    /// "Xong", "Đã dừng", or "Bản đồ 7/10 vùng · 2 lỗi · 1 vùng đã xoá"
     public var subtitle: String
 }

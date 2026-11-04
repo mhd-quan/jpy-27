@@ -43,12 +43,16 @@ import UIKit
     }
 
     /// The bundled style's tile build, and its name (`metadata["jp27:build"]`), which the site keeps that
-    /// very style under for good. Read once (every pack report asks).
-    private static let pinned: TileBuild? = bundledStyle().flatMap { StyleInfo.build(style: $0) }
-    private static let pinnedName: String? = bundledStyle().flatMap { StyleInfo.styleBuild(style: $0) }
+    /// very style under for good. Read once, for both (every pack report asks).
+    private nonisolated static let bundled: (build: TileBuild?, name: String?) = {
+        let style = bundledStyle()
+        return (style.flatMap { StyleInfo.build(style: $0) }, style.flatMap { StyleInfo.styleBuild(style: $0) })
+    }()
+    private static var pinned: TileBuild? { bundled.build }
+    private static var pinnedName: String? { bundled.name }
 
     /// Reads a file: needs no actor. Left on the main actor (the module's default), it could not be
-    /// called from `pinned`'s initializer, which runs on none.
+    /// called from `bundled`'s initializer, which runs on none.
     private nonisolated static func bundledStyle() -> Data? {
         Bundle.main.url(forResource: "jp27-light", withExtension: "json", subdirectory: "map").flatMap { try? Data(contentsOf: $0) }
     }
@@ -221,6 +225,11 @@ import UIKit
     /// the resources each area's pack had at its last report: one more is the network working again
     @ObservationIgnored private var counted: [String: UInt64] = [:]
     @ObservationIgnored private var watch: NSKeyValueObservation?
+    /// Each area whose pack is being made, and the number of the make that makes it: from `download` until the
+    /// pack is added, or the area fails or is removed. A make that finds another number there (Xoá, then Tải,
+    /// during "Đang chuẩn bị…") or none leaves the area alone, so no area gets two packs of one build.
+    @ObservationIgnored private var making: [String: Int] = [:]
+    @ObservationIgnored private var makes = 0
 
     override init() {
         super.init()
@@ -276,8 +285,7 @@ import UIKit
             // the state first: any other message to a removed pack raises
             guard pack.state != .invalid, let label = label(of: pack) else { continue }
             if let tag = label.tag, tag.build == mapBuild {
-                // made twice (it should not be): the complete one, else the first
-                if current[label.area] == nil || pack.state == .complete { current[label.area] = (pack, tag) }
+                if Self.keeps(pack, over: current[label.area]?.pack) { current[label.area] = (pack, tag) }
             } else {
                 older[label.area, default: (phase: .stale(label.tag?.build), packs: [])].packs.append(pack)
             }
@@ -293,7 +301,8 @@ import UIKit
             } else {
                 drop(id)
             }
-            let settled = OfflineArea.settle(current: now, older: older[id]?.phase, previous: phases[id], requested: requests.contains(id))
+            let settled = OfflineArea.settle(current: now, older: older[id]?.phase, previous: phases[id], requested: requests.contains(id),
+                                             making: making[id] != nil)
             set(id, settled.phase)
             if settled.dropOld {
                 // its pack for the map's build is complete: the older ones go (until now they were what it had)
@@ -313,13 +322,16 @@ import UIKit
     /// never sees it idle in between. Asked for until complete, paused or removed; a failure keeps it.
     func download(_ asked: [Area]) {
         let packs = MLNOfflineStorage.shared.packs
-        var toMake: [Area] = []
+        var toMake: [(area: Area, number: Int)] = []
         for area in asked {
             let id = area.id
             request(id)
             if problems[id] != nil { problems[id] = nil }
-            // its pack is being made already
-            if phases[id] == .creating { continue }
+            // its pack is being made already (paused meanwhile: under way again, and started once added)
+            if making[id] != nil {
+                set(id, .creating)
+                continue
+            }
             // not read yet: made by `refresh` once MapLibre has its list, so no pack is made twice
             guard let packs else {
                 set(id, .requested)
@@ -333,7 +345,9 @@ import UIKit
             set(id, .creating)
             if progress[id] != 0 { progress[id] = 0 }
             if bytes[id] != nil { bytes[id] = nil }
-            toMake.append(area)
+            makes += 1
+            making[id] = makes
+            toMake.append((area, makes))
         }
         guard !toMake.isEmpty else { return }
         // nobody waits for it: a download follows the phases, which `make` moves on
@@ -348,40 +362,59 @@ import UIKit
         return Set(missing.map(\.id))
     }
 
-    /// Makes the areas' packs, after one look at the style they will download: it must be served, and hold
-    /// the build the map reads, or the pack would hold tiles the map never asks for.
-    private func make(_ asked: [Area]) async {
-        let current = Self.currentTemplate != nil
-        let style = Self.packStyle(current: current)
-        let served = await Self.served(style, current: current)
-        // read after the wait: the map may have moved to another build meanwhile (`refresh`)
-        let build: TileBuild?
-        let failure: String
-        switch served {
-        case .files(let data, let tileJSON):
-            build = OfflineArea.packBuild(style: data, tileJSON: tileJSON, mapBuild: mapBuild)
-            failure = OfflineArea.otherBuild
-        case .refused(let reason):
-            build = nil
-            failure = reason
-        }
-        // removed meanwhile: nothing to make (paused, it is still made, then left inactive: `record`)
-        for area in asked where phases[area.id] == .creating {
-            if let build {
-                add(area, tag: PackTag(area: area.id, build: build, styleURL: style.absoluteString), style: style)
-            } else {
-                set(area.id, .failed(failure))
+    /// Makes the areas' packs (each under its number in `making`), after a look at the style they will
+    /// download: it must be served, and hold the build the map reads, or the pack would hold tiles the map
+    /// never asks for. The map moving to another build during the look reads the style once more
+    /// (`OfflineArea.step`).
+    private func make(_ asked: [(area: Area, number: Int)]) async {
+        var left = asked
+        var again = false
+        while true {
+            let askedOn = mapBuild
+            let current = Self.currentTemplate != nil
+            let style = Self.packStyle(current: current)
+            let served = await Self.served(style, current: current)
+            // after the wait: removed or made again by a later tap meanwhile, nothing to make here
+            left = left.filter { still($0.area.id, $0.number) }
+            guard !left.isEmpty else { return }
+            // `mapBuild` read after the wait: the map may have moved to another build meanwhile (`refresh`)
+            switch OfflineArea.step(served, mapBuild: mapBuild, askedOn: askedOn, again: again) {
+            case .add(let build):
+                for (area, number) in left {
+                    add(area, tag: PackTag(area: area.id, build: build, styleURL: style.absoluteString), style: style, number: number)
+                }
+                return
+            case .again:
+                again = true
+            case .fail(let reason):
+                for (area, _) in left {
+                    making[area.id] = nil
+                    // paused meanwhile: it stays paused, not failed (and, asked for no more, is not tried again)
+                    if phases[area.id] == .creating { set(area.id, .failed(reason)) }
+                }
+                return
             }
         }
     }
 
-    /// What the site serves for a pack's style now, and in current mode the TileJSON that names its build.
-    private enum Served {
-        case files(style: Data, tileJSON: Data?)
-        case refused(String)
+    /// Whether make `number` still makes the area's pack: the area still under it (not removed, not made
+    /// again by a later tap), with no pack for the map's build (the map moved back to a build it has one of:
+    /// that pack says where it is, `refresh`), and `.creating`, or `.paused` by a tap meanwhile (still made,
+    /// then left inactive: `record`).
+    private func still(_ id: String, _ number: Int) -> Bool {
+        guard making[id] == number else { return false }
+        if let packs = MLNOfflineStorage.shared.packs, currentPack(of: id, in: packs) != nil {
+            making[id] = nil
+            return false
+        }
+        guard phases[id] == .creating || phases[id] == .paused else {
+            making[id] = nil
+            return false
+        }
+        return true
     }
 
-    private static func served(_ style: URL, current: Bool) async -> Served {
+    private static func served(_ style: URL, current: Bool) async -> ServedStyle {
         let unreachable = "Không kết nối được máy chủ bản đồ"
         let failing = "Máy chủ bản đồ đang lỗi"
         guard let answer = await fetch(style, timeout: 20) else { return .refused(unreachable) }
@@ -395,7 +428,7 @@ import UIKit
         return .files(style: answer.data, tileJSON: tiles.data)
     }
 
-    private func add(_ area: Area, tag: PackTag, style: URL) {
+    private func add(_ area: Area, tag: PackTag, style: URL, number: Int) {
         let bounds = MLNCoordinateBounds(sw: CLLocationCoordinate2D(latitude: area.sw.lat, longitude: area.sw.lng),
                                          ne: CLLocationCoordinate2D(latitude: area.ne.lat, longitude: area.ne.lng))
         let region = MLNTilePyramidOfflineRegion(styleURL: style, bounds: bounds, fromZoomLevel: 9, toZoomLevel: 16)
@@ -411,9 +444,14 @@ import UIKit
             let made = pack != nil
             let failure = error?.localizedDescription
             MainActor.assumeIsolated {
+                // the make is over (another number: Xoá, then Tải, made the area again meanwhile, and that
+                // make goes on). Added, the pack says where the area is; one of a build the map left during
+                // the add is filed as older, and the area, made by nothing now, is made again (`settle`).
+                let ours = self.making[id] == number
+                if ours { self.making[id] = nil }
                 if made {
                     self.refresh()
-                } else if self.phases[id] == .creating {
+                } else if ours, self.phases[id] == .creating {
                     // still asked for: a tap, or the next launch, tries again
                     self.set(id, .failed("Không tạo được vùng tải" + (failure.map { ": \($0)" } ?? "")))
                 }
@@ -429,10 +467,11 @@ import UIKit
             pack.suspend()
         }
         // a suspended pack reports nothing more (MLNOfflinePack.h), so the area says it here. One whose
-        // pack is being made is still made, then left inactive (`record`).
+        // pack is being made says so at once too: still made, then left inactive (`record`); if it cannot
+        // be made, it stays paused (`make`).
         switch phases[id] {
-        case .requested?, .downloading?, .waitingForNetwork?: set(id, .paused)
-        case .creating?, .paused?, .complete?, .stale?, .failed?, nil: break
+        case .requested?, .creating?, .downloading?, .waitingForNetwork?: set(id, .paused)
+        case .paused?, .complete?, .stale?, .failed?, nil: break
         }
     }
 
@@ -444,6 +483,8 @@ import UIKit
     func remove(_ area: Area) {
         let id = area.id
         unrequest(id)
+        // a make under way leaves it alone now (`still`)
+        making[id] = nil
         for pack in MLNOfflineStorage.shared.packs ?? [] where pack.state != .invalid && label(of: pack)?.area == id {
             MLNOfflineStorage.shared.removePack(pack) { _ in }
         }
@@ -564,14 +605,20 @@ import UIKit
         return (phase, true)
     }
 
-    /// The area's pack for the map's build, if any (made twice, which it should not be: the complete one).
+    /// The area's pack for the map's build, if any.
     private func currentPack(of id: String, in packs: [MLNOfflinePack]) -> (pack: MLNOfflinePack, tag: PackTag)? {
         var found: (pack: MLNOfflinePack, tag: PackTag)?
         for pack in packs where pack.state != .invalid {
             guard let tag = label(of: pack)?.tag, tag.area == id, tag.build == mapBuild else { continue }
-            if found == nil || pack.state == .complete { found = (pack, tag) }
+            if Self.keeps(pack, over: found?.pack) { found = (pack, tag) }
         }
         return found
+    }
+
+    /// An area's pack for the map's build made twice (it should not be): the complete one is kept, else the
+    /// first. Its state must have been read first, and not be `.invalid`.
+    private static func keeps(_ pack: MLNOfflinePack, over found: MLNOfflinePack?) -> Bool {
+        found == nil || pack.state == .complete
     }
 
     /// What a pack was made for. Its state must have been read first, and not be `.invalid`: the context

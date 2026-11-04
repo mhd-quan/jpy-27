@@ -401,10 +401,11 @@ lấy từ `metadata["jp27:build"]` của `public/map/jp27-light.json` trong app
 3 cần "Giả style khác bản"; các bước khác như Release). Dòng trên cùng của Cài đặt › Dùng khi mất sóng là dòng của
 lần tải: đang chạy thì "Bản đồ 0/1 vùng · 42%", xong thì "Xong", "Đã dừng" hoặc "Bản đồ 8/10 vùng · 2 lỗi".
 1. **Không tạo được vùng thì không "Xong".** Cài đặt iOS › Developer › Network Link Conditioner › "100% Loss", bật.
-   Trong app: Dùng khi mất sóng › một vùng chưa tải (ví dụ Nara) › Tải, rồi rời app ngay.
-   - **Đạt** khi dòng vùng ghi "Đang chuẩn bị…" rồi, trong khoảng 20 giây, "Không kết nối được máy chủ bản đồ" màu cam
-     với nút "Thử lại"; Live Activity kết thúc với dòng "Bản đồ 0/1 vùng · 1 lỗi" (không phải "Xong"), thanh không
-     đầy; mở lại Cài đặt thấy cùng dòng đó ở trên cùng.
+   Trong app: Dùng khi mất sóng › một vùng chưa tải (ví dụ Nara) › Tải; dòng Nara ghi "Đang chuẩn bị…". Rời app ngay.
+   - Ngoài app, xem Live Activity. **Đạt** khi, trong khoảng 20 giây, nó kết thúc với dòng "Bản đồ 0/1 vùng · 1 lỗi"
+     (không phải "Xong"), thanh không đầy.
+   - Mở lại app, vào Cài đặt › Dùng khi mất sóng. **Đạt** khi dòng Nara ghi "Không kết nối được máy chủ bản đồ" màu cam
+     với nút "Thử lại", và dòng trên cùng ghi "Bản đồ 0/1 vùng · 1 lỗi".
    - Vẫn bật "100% Loss": tắt hẳn app, mở lại. **Đạt** khi Nara được thử lại một lần ("Đang chuẩn bị…") rồi lại ghi lỗi
      với "Thử lại", và dòng lần tải ghi "Bản đồ 0/1 vùng · 1 lỗi".
    - Tắt "100% Loss", bấm "Thử lại". **Đạt** khi Nara tải xong ("Đã tải") và dòng lần tải ghi "Xong".
@@ -432,10 +433,26 @@ lần tải: đang chạy thì "Bản đồ 0/1 vùng · 42%", xong thì "Xong",
      vùng thì nó tải tiếp từ đó.
    - Trong app: tải ảnh (mục Ảnh › Tải), bấm vòng để dừng. **Đạt** khi dòng lần tải ghi "Đã dừng", không "Xong".
 6. **Lần tải được theo tiếp sau khi tắt app.** Bấm Tải ở một vùng chưa có; khi đang tải, tắt hẳn app; mở lại.
-   - **Đạt** khi vùng tải tiếp (không bắt đầu lại từ 0 %), dòng lần tải hiện tiến độ rồi "Xong".
+   - **Đạt** khi vùng tải tiếp: vòng có thể loé về 0 % một chút (MapLibre đếm lại khi tải tiếp), rồi trong vài giây
+     trở lại chỗ cũ và đi tiếp; dòng lần tải hiện tiến độ rồi "Xong".
+7. **Dừng, xoá trong lúc "Đang chuẩn bị…".** Network Link Conditioner: chọn một hồ sơ chậm (ví dụ "Very Bad Network";
+   nếu "Đang chuẩn bị…" qua nhanh quá, thêm hồ sơ riêng với Downlink và Uplink Delay 3000 ms), bật. Xoá Nara nếu đã có.
+   - Bấm Tải ở Nara, rồi bấm vòng khi dòng còn ghi "Đang chuẩn bị…". **Đạt** khi dòng đổi ngay sang "Tạm dừng · 0 %"
+     và dòng trên cùng ghi "Đã dừng" (không phải "1 lỗi"). Bấm vòng lần nữa. **Đạt** khi Nara chuẩn bị rồi tải tới
+     "Đã tải", và dòng trên cùng ghi "Xong".
+   - Xoá Nara. Bấm Tải, rồi trong lúc "Đang chuẩn bị…" vuốt trái › Xoá và bấm Tải ngay. **Đạt** khi Nara tải một lần
+     tới "Đã tải" (không đứng mãi ở "Đang chuẩn bị…"), và dòng trên cùng ghi "Xong".
+   - Đổi sang "100% Loss". Xoá Nara, bấm Tải, rồi bấm vòng khi còn "Đang chuẩn bị…". Chờ 30 giây. **Đạt** khi Nara
+     vẫn ghi "Tạm dừng · 0 %" (không phải lỗi), và dòng trên cùng ghi "Đã dừng". Tắt Network Link Conditioner.
+8. **Xoá một vùng giữa lần tải.** Xoá Nara và Kyoto nếu đã có. Bấm Tải ở cả hai; khi cả hai đang tải, vuốt trái Kyoto
+   › Xoá.
+   - **Đạt** khi Nara tải xong, và dòng trên cùng ghi "Bản đồ 1/2 vùng · 1 vùng đã xoá" (không phải "Xong", cũng không
+     chỉ "Bản đồ 1/2 vùng").
 
 Không kiểm được trên máy: chế độ khi build tile được ghim đã mất trên OpenFreeMap (máy chủ trả 404) — cần
-OpenFreeMap thật sự bỏ build đó.
+OpenFreeMap thật sự bỏ build đó. Cũng vậy: build của bản đồ đổi đúng lúc một vùng "Đang chuẩn bị…" (vùng được
+chuẩn bị lại một lần; đổi lần nữa thì ghi "Nguồn bản đồ vừa đổi — thử lại", không bảo cập nhật app). Phần này
+có test trong TripKit (`OfflineAreaTests`).
 
 ## Task 3.2 — Nhật ký vị trí: chỉ trong chuyến, công tắc riêng, xoá được
 
