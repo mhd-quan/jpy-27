@@ -5,7 +5,7 @@ with an independent reviewer, and pushes. You own exactly the task in your brief
 
 Read, in order: the execution contract (docs/superpowers/plans/2026-11-03-execution-contract.md), your
 brief, interfaces.md in this workspace (what earlier tasks really landed — it beats the plan where they
-differ), then the code. Work from /home/user/jpy-27. Swift: `export PATH=/opt/swift/usr/bin:$PATH`.
+differ), then the code. Work from /home/user/jpy-27. Swift 6.2.3 (README § 2): `export PATH=<toolchain 6.2.3>/usr/bin:$PATH`.
 
 ## Phase A — pre-mortem, then STOP (unless your dispatch says "no pause")
 

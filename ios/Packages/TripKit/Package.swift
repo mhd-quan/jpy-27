@@ -1,4 +1,4 @@
-// swift-tools-version: 6.3
+// swift-tools-version: 6.2
 // The trip's logic with no UI and no Apple-only frameworks: models for the bundled JSON, the plan
 // clock (a port of scripts/check-plan.mjs), the late-schedule replanner, ride tracking, menu
 // matching and money. It builds and tests on Linux as well as in the app.

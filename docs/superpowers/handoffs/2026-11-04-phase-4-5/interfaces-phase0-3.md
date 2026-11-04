@@ -3,9 +3,9 @@
 Base for Phase 1–3: 5782638. Nothing landed yet.
 
 ## T0 (eaf8a23)
-- TripKit `swift-tools-version: 6.3`; both targets `swiftSettings: concurrency` = [NonisolatedNonsendingByDefault, InferIsolatedConformances]; no default isolation.
+- TripKit `swift-tools-version: 6.3` at T0; **6.2 since R-157** (the owner's Mac has Swift 6.2.x); both targets `swiftSettings: concurrency` = [NonisolatedNonsendingByDefault, InferIsolatedConformances]; no default isolation.
 - `Tests/TripKitTests/ConcurrencyRulesTests.swift` pins: nonisolated async runs on caller's actor.
-- CI `.github/workflows/tripkit.yml`: jobs `data` (Node 22), `swift` (swift:6.3-noble), `app` ("App builds", macos-26, Xcode 26.6, xcodegen, simulator build unsigned, warnings summary, log artifact). `permissions: contents: read`; `workflow_dispatch`.
+- CI `.github/workflows/tripkit.yml`: jobs `data` (Node 22), `swift` (swift:6.2.3-noble since R-157), `app` ("App builds", macos-26, Xcode 26.2 since R-157, xcodegen, simulator build unsigned, warnings summary, log artifact). `permissions: contents: read`; `workflow_dispatch`.
 - JS tests command: `node --test 'scripts/*.test.mjs'` (R-19).
 
 ## 0.1 (e801b14..5fa4654)

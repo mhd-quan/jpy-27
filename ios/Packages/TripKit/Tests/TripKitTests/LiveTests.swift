@@ -142,7 +142,9 @@ import Testing
             #expect(p.slots.first?.ready == min(now, 7 * 60 + 37))
         }
         // a minute past that, standing on the platform is missing it, as anywhere else: it has left
-        for now: Double in [7 * 60 + 38 + grace, 7 * 60 + 40, 7 * 60 + 45] {
+        // the minutes named first: Swift 6.2's type checker gives up on the literal inside the loop
+        let gone: [Double] = [7 * 60 + 38 + grace, 7 * 60 + 40, 7 * 60 + 45]
+        for now in gone {
             #expect(it.project(day4, done: [], now: now, position: platform).replan?.target == 2, "\(now)")
         }
         // 400 m away, outside the circle, the same minute before it: still on the way, and late

@@ -336,14 +336,17 @@ import Testing
     /// The number a spreadsheet shows: the header is 1, every record after it one more, blank ones
     /// too; a line break inside quotes stays in its record.
     @Test func rowNumbersAreTheSpreadsheetsRows() {
-        let text = LedgerCSV.header.joined(separator: ",") + "\r\n"
-            + "\r\n"
-            + "\(id(1)),2027-10-20T03:00:00.000Z,d3,12:00,900,food,,cash,,,\"two\r\nlines\nand three\",other,\r\n"
-            + ",,,,,,,,,,,,\r\n"
-            + "\(id(2)),2027-10-20T03:00:00.000Z,d3,12:00,0,food,,cash,,,,other,\r\n"
-            + "\n"
-            + "\(id(3)),never,d3,12:00,900,food,,cash,,,,other,"
-        let (records, rejected) = LedgerCSV.decode(text)
+        // pieces joined, not one `+` chain: Swift 6.2's type checker gives up on the chain
+        let pieces: [String] = [
+            LedgerCSV.header.joined(separator: ",") + "\r\n",
+            "\r\n",
+            "\(id(1)),2027-10-20T03:00:00.000Z,d3,12:00,900,food,,cash,,,\"two\r\nlines\nand three\",other,\r\n",
+            ",,,,,,,,,,,,\r\n",
+            "\(id(2)),2027-10-20T03:00:00.000Z,d3,12:00,0,food,,cash,,,,other,\r\n",
+            "\n",
+            "\(id(3)),never,d3,12:00,900,food,,cash,,,,other,",
+        ]
+        let (records, rejected) = LedgerCSV.decode(pieces.joined())
         #expect(records.map(\.id) == [id(1)])
         #expect(records.first?.note == "two\r\nlines\nand three")
         #expect(rejected == [RowProblem(line: 5, reason: .amount("0")), RowProblem(line: 7, reason: .date)])

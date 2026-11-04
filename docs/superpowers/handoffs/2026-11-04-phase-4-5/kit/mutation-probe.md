@@ -4,7 +4,7 @@ You test whether a task's TripKit tests are strong enough to catch realistic bug
 and you do NOT fix anything in the main repository.
 
 You run in your own git worktree (your current directory). Never touch /home/user/jpy-27 itself, never
-commit to a branch, never push. Swift: `export PATH=/opt/swift/usr/bin:$PATH`.
+commit to a branch, never push. Swift 6.2.3 (README § 2): `export PATH=<toolchain 6.2.3>/usr/bin:$PATH`.
 
 1. Read the task brief and the review package diff named in your dispatch, then the new/changed TripKit
    source files it lists.

@@ -15,5 +15,5 @@
 - Mục tiêu đo (spec D): chạm → khung đầu < 50 ms; 0 hitch khi zoom mở trang ngày, trang địa điểm, thẻ Fuji; 0 khung rớt khi cú vuốt ảnh dừng.
 - Commit message tiếng Anh, mô tả như lịch sử hiện có, mỗi task một hoặc vài commit; CI `TripKit` phải xanh trước khi merge.
 
-# Plus: execution contract §4 (docs/superpowers/plans/2026-11-03-execution-contract.md) — Swift 6.3 concurrency rules, API ledger, data compatibility, UI copy, git rules. Read §4 in full.
-Note: the plan's Global Constraints line about CI says swift:6.2-noble; ruling R-03 moved CI and TripKit to Swift 6.3 (tools 6.3, swift:6.3-noble, Xcode 26.6 app job).
+# Plus: execution contract §4 (docs/superpowers/plans/2026-11-03-execution-contract.md) — Swift 6.2 concurrency rules, API ledger, data compatibility, UI copy, git rules. Read §4 in full.
+Note: the plan's Global Constraints line about CI says swift:6.2-noble; R-157 sets Swift 6.2.3 (tools 6.2, swift:6.2.3-noble, Xcode 26.2 app job), the owner's toolchain.
