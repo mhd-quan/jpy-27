@@ -193,6 +193,8 @@ struct LedgerSyncSheet: View {
     @Environment(\.modelContext) private var context
     @State private var name = ""
     @State private var folded: [LedgerTombstone] = []
+    /// why the rows folded as copies could not be read, said where they would be
+    @State private var unreadable: String?
     // felt from the list: the rows pressed leave with the press
     @State private var paired = 0
     @State private var restored = 0
@@ -284,6 +286,16 @@ struct LedgerSyncSheet: View {
                     }
                 }
 
+                if let unreadable {
+                    Section {
+                        Text("Không đọc được các khoản đã gộp: \(unreadable)")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    } header: {
+                        Text("Đã gộp vì ghi trùng")
+                    }
+                }
+
                 if !folded.isEmpty {
                     Section {
                         ForEach(folded) { t in
@@ -335,7 +347,7 @@ struct LedgerSyncSheet: View {
             }
             .onAppear {
                 name = sync.name
-                folded = Ledger.folded(context)
+                readFolded()
                 // while this page is open, a phone not paired yet may connect to be asked about
                 sync.setPairing(true)
             }
@@ -355,8 +367,20 @@ struct LedgerSyncSheet: View {
             return
         }
         unsaved = nil
-        folded = Ledger.folded(context)
+        readFolded()
         restored += 1
+    }
+
+    /// The rows folded as copies, read again; none offered, and the page saying why, when the records
+    /// could not be read.
+    private func readFolded() {
+        do {
+            folded = try Ledger.folded(context)
+            unreadable = nil
+        } catch {
+            folded = []
+            unreadable = error.localizedDescription
+        }
     }
 
     @ViewBuilder

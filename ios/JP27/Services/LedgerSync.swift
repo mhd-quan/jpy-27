@@ -546,11 +546,19 @@ import UIKit
 
     /// This phone's ledger and its digest, read from the records only when an expense changed since
     /// the last read. The digest is worked out off the main actor; one finished after a save is used
-    /// for what it was taken from, not kept.
+    /// for what it was taken from, not kept. Nil when the records could not be read: no digest, so
+    /// nothing is sent, answered or stamped (an empty ledger read in its place would be acked and
+    /// stamped synced though no row went).
     private func snapshot() async -> Snapshot? {
         if let cached { return cached }
         guard let context else { return nil }
-        let state = Ledger.state(context)
+        let state: LedgerState
+        do {
+            state = try Ledger.state(context)
+        } catch {
+            SyncLink.log.error("ledger could not be read: \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
         let taken = generation
         guard let digest = await Self.digest(state) else {
             SyncLink.log.error("ledger could not be encoded for its digest")

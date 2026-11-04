@@ -950,25 +950,45 @@ enum AppSheet: Identifiable, Hashable {
         return persist(method == .cash ? "Rút tiền" : "Nạp Suica")
     }
 
-    /// Deletes an expense, leaving the deletion for the other phone; false when it could not be saved.
+    /// Deletes an expense, leaving the deletion for the other phone; false when it could not be saved,
+    /// or the records it is looked up in could not be read.
     @discardableResult
     func deleteExpense(_ id: UUID) -> Bool {
-        for e in (try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }))) ?? [] {
-            Ledger.delete(e, in: context)
+        let retry: @MainActor () -> Void = { [weak self] in _ = self?.deleteExpense(id) }
+        do {
+            for e in try Ledger.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }), in: context) {
+                try Ledger.delete(e, in: context)
+            }
+        } catch {
+            return unread("Xoá khoản chi", error, retry: retry)
         }
-        return persist("Xoá khoản chi", retry: { [weak self] in _ = self?.deleteExpense(id) })
+        return persist("Xoá khoản chi", retry: retry)
     }
 
     /// An item no longer bought: the purchase and the expenses that paid for it, through the ledger so
-    /// the other phone drops them too, in one write; false when it could not be saved (all of it stays).
+    /// the other phone drops them too, in one write; false when it could not be saved, or the records
+    /// could not be read (all of it stays).
     @discardableResult
     func unbuy(_ itemID: String) -> Bool {
         let linked: String? = itemID
-        try? context.delete(model: Purchase.self, where: #Predicate { $0.itemID == itemID })
-        for e in (try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.itemID == linked }))) ?? [] {
-            Ledger.delete(e, in: context)
+        let retry: @MainActor () -> Void = { [weak self] in _ = self?.unbuy(itemID) }
+        do {
+            try context.delete(model: Purchase.self, where: #Predicate { $0.itemID == itemID })
+            for e in try Ledger.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.itemID == linked }), in: context) {
+                try Ledger.delete(e, in: context)
+            }
+        } catch {
+            return unread("Bỏ đã mua", error, retry: retry)
         }
-        return persist("Bỏ đã mua", retry: { [weak self] in _ = self?.unbuy(itemID) })
+        return persist("Bỏ đã mua", retry: retry)
+    }
+
+    /// A write whose reads failed: none of it is made. What it staged goes back, as a failed `commit`
+    /// takes it back, and the user is told as for a write that failed (`what`, "Thử lại"). False.
+    private func unread(_ what: String, _ error: any Error, retry: @escaping @MainActor () -> Void) -> Bool {
+        context.rollback()
+        report(what, error as? SaveFailure ?? SaveFailure(underlying: error), retry: retry)
+        return false
     }
 
     /// Two rows that look like one expense logged twice, said to be two (`Ledger.keepApart`); false

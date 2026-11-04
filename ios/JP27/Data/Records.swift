@@ -211,6 +211,11 @@ enum Records {
             }
         }
     }
+
+    /// Settings › Chẩn đoán › "Giả lỗi đọc sổ chi": every read of the ledger a decision is made on
+    /// (`Ledger.fetch`) fails, as a store that opened but cannot be read would, until switched off.
+    /// Off at every launch.
+    static var failReads = false
     #endif
 
     private static var folder: URL { URL.applicationSupportDirectory }
@@ -393,9 +398,11 @@ nonisolated struct SaveFailure: LocalizedError {
 }
 
 #if DEBUG
-/// What `Records.failSaves` makes a save fail with.
+/// What `Records.failSaves` makes a save fail with, and `Records.failReads` a read.
 private nonisolated struct PretendFailure: LocalizedError {
-    var errorDescription: String? { "Giả lỗi lưu (Chẩn đoán)" }
+    var reading = false
+
+    var errorDescription: String? { reading ? "Giả lỗi đọc sổ chi (Chẩn đoán)" : "Giả lỗi lưu (Chẩn đoán)" }
 }
 #endif
 
@@ -442,6 +449,10 @@ extension Expense {
 // MARK: - The ledger between two phones
 
 /// The records' side of `LedgerMerge`: the ledger as plain values, and the merged ledger written back.
+///
+/// Every read here throws when the records could not be read (`fetch`), as a write that failed does: a
+/// read that failed is never taken for an empty ledger, so nothing is written, deleted, digested or sent
+/// on it, and the alert, the nack and "Thử lại" that carry a failed write carry it too.
 @MainActor enum Ledger {
     /// Pairs the travellers said are two expenses, not one logged twice (`LedgerMerge.pairKey`).
     static var kept: [String] {
@@ -449,22 +460,53 @@ extension Expense {
         set { Shared.defaults.set(newValue, forKey: "ledger.kept") }
     }
 
-    static func state(_ context: ModelContext) -> LedgerState {
+    /// What `descriptor` finds, for a decision about the money; throws, as a write that failed does,
+    /// when the records could not be read.
+    static func fetch<T: PersistentModel>(_ descriptor: FetchDescriptor<T>, in context: ModelContext) throws(SaveFailure) -> [T] {
+        #if DEBUG
+        if Records.failReads { throw SaveFailure(underlying: PretendFailure(reading: true)) }
+        #endif
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            throw SaveFailure(underlying: error)
+        }
+    }
+
+    /// The ledger as plain values; throws when the records could not be read.
+    static func state(_ context: ModelContext) throws(SaveFailure) -> LedgerState {
         let me = SpendLedgerFile.installID
-        let rows = (try? context.fetch(FetchDescriptor<Expense>())) ?? []
-        let tombs = (try? context.fetch(FetchDescriptor<ExpenseTombstone>())) ?? []
+        let rows = try fetch(FetchDescriptor<Expense>(), in: context)
+        let tombs = try fetch(FetchDescriptor<ExpenseTombstone>(), in: context)
         return LedgerState(records: rows.map { $0.record(me: me) }, tombstones: tombs.map(\.value), kept: kept)
     }
 
     /// Writes what the merge changed; returns it. A write that fails is taken back, and none of it
-    /// is kept (`ModelContext.commit`), the pairs kept apart included.
+    /// is kept (`ModelContext.commit`), the pairs kept apart included. So is one whose reads failed,
+    /// before anything of it is written: a row that could not be looked up is never inserted again
+    /// beside itself.
     @discardableResult
     static func apply(_ c: LedgerChanges, to context: ModelContext) throws(SaveFailure) -> LedgerChanges {
         guard !c.isEmpty else { return c }
+        do {
+            try stage(c, in: context)
+        } catch {
+            // what was staged before the read that failed goes back, as a failed commit takes it back
+            context.rollback()
+            throw error
+        }
+        try context.commit()
+        // kept beside the records, so only once they are written
+        if let k = c.kept { kept = k }
+        return c
+    }
+
+    /// What the merge changed, waiting in `context`, each row looked up first.
+    private static func stage(_ c: LedgerChanges, in context: ModelContext) throws(SaveFailure) {
         let me = SpendLedgerFile.installID
         for r in c.upserts {
             let id = r.id
-            if let e = try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id })).first {
+            if let e = try fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }), in: context).first {
                 e.take(r, me: me)
             } else {
                 let e = Expense(yen: r.yen, category: .extra, method: .cash, at: r.at)
@@ -474,11 +516,11 @@ extension Expense {
             }
         }
         for id in c.deletions {
-            for e in (try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }))) ?? [] { context.delete(e) }
+            for e in try fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }), in: context) { context.delete(e) }
         }
         for t in c.tombstones {
             let id = t.id
-            if let old = try? context.fetch(FetchDescriptor<ExpenseTombstone>(predicate: #Predicate { $0.id == id })).first {
+            if let old = try fetch(FetchDescriptor<ExpenseTombstone>(predicate: #Predicate { $0.id == id }), in: context).first {
                 old.at = t.at
                 old.duplicateOf = t.duplicateOf
                 old.record = t.record.flatMap { try? JSONEncoder().encode($0) }
@@ -486,28 +528,26 @@ extension Expense {
                 context.insert(ExpenseTombstone(t))
             }
         }
-        try context.commit()
-        // kept beside the records, so only once they are written
-        if let k = c.kept { kept = k }
-        return c
     }
 
     /// Merges a ledger from elsewhere (the other phone, a file) into this one; throws, with nothing
-    /// of it kept, when it could not be written.
+    /// of it kept, when it could not be written or this phone's could not be read.
     @discardableResult
     static func merge(_ remote: LedgerState, into context: ModelContext) throws(SaveFailure) -> (merged: LedgerState, changes: LedgerChanges) {
-        let local = state(context)
+        let local = try state(context)
         let merged = LedgerMerge.merge(local, remote)
         return (merged, try apply(LedgerMerge.changes(from: local, to: merged), to: context))
     }
 
     /// Deletes an expense and leaves the deletion for the other phone. Not written yet: the caller
-    /// saves it (`AppModel.persist`) with whatever else goes in the same write.
-    static func delete(_ e: Expense, in context: ModelContext) {
+    /// saves it (`AppModel.persist`) with whatever else goes in the same write. Throws, with nothing
+    /// of it staged, when its deletion record could not be looked up; the caller takes back what it
+    /// staged before.
+    static func delete(_ e: Expense, in context: ModelContext) throws(SaveFailure) {
         // after the row's own last write, whatever the clocks did
         let at = max(Date(), e.version.addingTimeInterval(0.001))
         let id = e.id
-        if let old = try? context.fetch(FetchDescriptor<ExpenseTombstone>(predicate: #Predicate { $0.id == id })).first {
+        if let old = try fetch(FetchDescriptor<ExpenseTombstone>(predicate: #Predicate { $0.id == id }), in: context).first {
             old.at = at
         } else {
             context.insert(ExpenseTombstone(id: id, at: at))
@@ -524,17 +564,18 @@ extension Expense {
         LedgerSync.shared?.ledgerChanged()
     }
 
-    /// Rows taken for the other phone's copy, newest first, that are still gone.
-    static func folded(_ context: ModelContext) -> [LedgerTombstone] {
-        let tombs = (try? context.fetch(FetchDescriptor<ExpenseTombstone>(predicate: #Predicate { $0.duplicateOf != nil }))) ?? []
-        let alive = Set(((try? context.fetch(FetchDescriptor<Expense>())) ?? []).map(\.id))
+    /// Rows taken for the other phone's copy, newest first, that are still gone; throws when the
+    /// records could not be read.
+    static func folded(_ context: ModelContext) throws(SaveFailure) -> [LedgerTombstone] {
+        let tombs = try fetch(FetchDescriptor<ExpenseTombstone>(predicate: #Predicate { $0.duplicateOf != nil }), in: context)
+        let alive = try Set(fetch(FetchDescriptor<Expense>(), in: context).map(\.id))
         return tombs.map(\.value).filter { $0.record != nil && !alive.contains($0.id) }.sorted { $0.at > $1.at }
     }
 
     /// Brings back a row wrongly taken for a copy, and keeps the pair apart; throws, with nothing
-    /// brought back, when it could not be written.
+    /// brought back, when it could not be written or the ledger could not be read.
     static func restore(_ t: LedgerTombstone, in context: ModelContext) throws(SaveFailure) {
-        let local = state(context)
+        let local = try state(context)
         guard let back = LedgerMerge.restore(t, in: local, now: Date()) else { return }
         try apply(LedgerMerge.changes(from: local, to: back), to: context)
     }

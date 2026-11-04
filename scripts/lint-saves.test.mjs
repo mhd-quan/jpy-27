@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { bestEffort, silentSaves } from './lint-saves.mjs';
+import { bestEffort, silentReads, silentSaves } from './lint-saves.mjs';
 
 /** lines that hide a failed save */
 const silent = [
@@ -98,4 +98,86 @@ test('the app marks exactly its two best-effort copies', () => {
       text: 'try? to.save() // save: best-effort, a rehearsal without the copy starts from empty records, never the real ones',
     },
   ]);
+});
+
+// The reads a money write is decided on (R-154): a failed one read as "nothing there" deletes nothing and
+// says done, digests an empty ledger and stamps it synced, or inserts a second row with the same id.
+
+/** money code, numbered from 1 */
+const money = (...lines) => lines.join('\n');
+
+test('a read that hides its failure inside the ledger fails', () => {
+  const text = money(
+    '@MainActor enum Ledger {',
+    '    static func state(_ context: ModelContext) -> LedgerState {',
+    '        let rows = (try? context.fetch(FetchDescriptor<Expense>())) ?? []',
+    '        return LedgerState(records: rows)',
+    '    }',
+    '}',
+    'extension Ledger {',
+    '    static func one(_ id: UUID, in context: ModelContext) -> Expense? {',
+    '        try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id })).first',
+    '    }',
+    '}',
+  );
+  assert.deepEqual(silentReads(text), [
+    { line: 3, text: 'let rows = (try? context.fetch(FetchDescriptor<Expense>())) ?? []' },
+    { line: 9, text: 'try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id })).first' },
+  ]);
+});
+
+test('in a function that calls the ledger, a read or a batch delete that hides its failure fails', () => {
+  const text = money(
+    'func unbuy(_ itemID: String) -> Bool {',
+    '    try? context.delete(model: Purchase.self, where: #Predicate { $0.itemID == itemID })',
+    '    for e in (try? context.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.itemID == linked }))) ?? [] {',
+    '        Ledger.delete(e, in: context)',
+    '    }',
+    '    let n = (try? context.fetchCount(FetchDescriptor<Expense>())) ?? 0',
+    '    return persist("Bỏ đã mua")',
+    '}',
+  );
+  assert.deepEqual(silentReads(text).map((r) => r.line), [2, 3, 6]);
+});
+
+test('reads that throw, and the same silent read where no money is decided, pass', () => {
+  const text = money(
+    'enum Ledger {',
+    '    static func state(_ context: ModelContext) throws(SaveFailure) -> LedgerState {',
+    '        let rows = try fetch(FetchDescriptor<Expense>(), in: context)',
+    '        return LedgerState(records: rows)',
+    '    }',
+    '}',
+    '/// copies, folded in like `Ledger.merge` would: a comment is not a call',
+    'private static func copyRecords(from: ModelContext, to: ModelContext) {',
+    '    for e in (try? from.fetch(FetchDescriptor<Expense>())) ?? [] { to.insert(e.copy()) }',
+    '}',
+    'func csv() -> String {',
+    '    let label = "Ledger.state {"',
+    '    let rows = (try? context.fetch(FetchDescriptor<Expense>())) ?? []',
+    '    return "\\(rows.map { "\\($0.yen) }" })"',
+    '}',
+  );
+  assert.deepEqual(silentReads(text), []);
+});
+
+test('braces in strings, interpolations and comments do not end the ledger early', () => {
+  const text = money(
+    'enum Ledger {',
+    '    static let a = "}"',
+    '    static let b = "\\(x.map { "}" })" // }',
+    '    /* } */',
+    '    static func f(_ c: ModelContext) { _ = try? c.fetch(D()) }',
+    '}',
+    'func g(_ c: ModelContext) { _ = try? c.fetch(D()) }',
+  );
+  assert.deepEqual(silentReads(text).map((r) => r.line), [5]);
+});
+
+test('a silent read in the ledger fails the command, with its file and line', () => {
+  withFiles({ 'Data/Records.swift': 'enum Ledger {\n    static func f(_ c: ModelContext) { _ = try? c.fetch(D()) }\n}\n' }, (dir) => {
+    const r = lint(dir);
+    assert.equal(r.status, 1, r.stdout + r.stderr);
+    assert.match(r.stdout, /Data\/Records\.swift:2: static func f\(_ c: ModelContext\) \{ _ = try\? c\.fetch\(D\(\)\) \}/);
+  });
 });

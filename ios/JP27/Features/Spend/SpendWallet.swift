@@ -322,13 +322,14 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
 
     /// Merges a ledger file into this phone's ledger: read and checked off the main actor, then
     /// held to what the other phone is held to (`LedgerMerge.screened`) and merged. Throws
-    /// `SaveFailure`, with nothing of the file kept, when the merge could not be written.
+    /// `SaveFailure`, with nothing of the file kept, when the merge could not be written or this
+    /// phone's ledger could not be read.
     @MainActor static func merge(_ url: URL, into context: ModelContext) async throws -> Outcome {
         let file = try await read(url)
         // a file is trusted no more than the other phone: rows the keypad could not have typed, and
         // rows dated far ahead, are left out
         let (clean, screenedOut) = LedgerMerge.screened(LedgerState(records: file.records), now: Date())
-        let before = Set(Ledger.state(context).records.map(\.id))
+        let before = try Set(Ledger.state(context).records.map(\.id))
         let (_, changes) = try Ledger.merge(clean, into: context)
         var outcome = Outcome(skipped: file.rejected.count + screenedOut.count, lines: file.rejected.map(\.line))
         for r in changes.upserts {

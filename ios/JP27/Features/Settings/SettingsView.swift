@@ -87,6 +87,8 @@ private struct DiagnosticsSection: View {
     /// `Records.failSaves`, as the picker shows it (read again on coming back: "Lần lưu tới" turns
     /// itself off)
     @State private var failSaves = Records.failSaves
+    /// `Records.failReads`, as the switch shows it
+    @State private var failReads = Records.failReads
     /// what the last `uniqueProbe` found
     @State private var unique: String?
     /// `OfflineMaps.fakeOtherStyle`, as the switch shows it
@@ -185,6 +187,18 @@ private struct DiagnosticsSection: View {
             }
             .onChange(of: failSaves) { _, choice in Records.failSaves = choice }
             .onAppear { failSaves = Records.failSaves }
+            Toggle(isOn: $failReads) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Giả lỗi đọc sổ chi")
+                        Text("Mọi lần đọc sổ chi để ghi hay để đồng bộ báo lỗi, tới khi tắt").font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "xmark.octagon", tint: .red)
+                }
+            }
+            .onChange(of: failReads) { _, on in Records.failReads = on }
+            .onAppear { failReads = Records.failReads }
             Button {
                 unique = model.uniqueProbe()
             } label: {

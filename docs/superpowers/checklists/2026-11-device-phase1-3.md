@@ -234,6 +234,22 @@ Tắt công tắc sau mỗi bước.
     - "Thử lại" → lưu được: editor đóng, rung `done`.
     - Sổ có **đúng một** khoản ¥500 mới, không phải hai.
     - Cài đặt › Chẩn đoán › "Giả lỗi lưu" đã tự về **Tắt**.
+14. **Đọc sổ chi lỗi (R-154).** Bản Debug: Cài đặt › Chẩn đoán › công tắc "Giả lỗi đọc sổ chi". Bật thì mọi lần đọc sổ
+    chi để ghi, để xoá hay để đồng bộ báo lỗi "Giả lỗi đọc sổ chi (Chẩn đoán)", tới khi tắt; mở lại app thì luôn tắt.
+    "Giả lỗi lưu" để **Tắt**. Tắt công tắc sau bước này.
+    - Bật công tắc. Vuốt xoá một khoản. **Đạt** khi alert "Chưa lưu được" ghi "Xoá khoản chi: Giả lỗi đọc sổ chi (Chẩn
+      đoán)", máy rung `fail`, khoản còn trong sổ. "Thử lại" → alert hiện lại. **Không đạt** nếu khoản còn đó mà không
+      có alert nào (bản cũ: không xoá gì, như đã xong).
+    - Mua sắm › bỏ dấu một món đã mua → alert "Bỏ đã mua: Giả lỗi đọc sổ chi (Chẩn đoán)". Món còn dấu, khoản của nó
+      còn trong sổ.
+    - Chi tiêu › ··· › "Đồng bộ với máy kia". **Đạt** khi trang có dòng "Không đọc được các khoản đã gộp: Giả lỗi đọc sổ chi (Chẩn
+      đoán)" dưới tiêu đề "Đã gộp vì ghi trùng". Tắt công tắc, đóng rồi mở lại trang: dòng đó mất.
+    - Hai máy A, B đã ghép, đồng bộ xong một lần, ở gần nhau. Bật công tắc trên **A**. Sửa một khoản trên B.
+      - **Đạt** khi trong khoảng 15 giây A ghi "Chưa lưu được sổ chi của <tên B>: Giả lỗi đọc sổ chi (Chẩn đoán)" và B
+        ghi "<tên A> chưa lưu được: Giả lỗi đọc sổ chi (Chẩn đoán)". Không máy nào ghi "Đã đồng bộ" với giờ mới.
+      - Sổ A không có khoản nào hiện hai lần (bản cũ có thể chép mỗi khoản của B thành dòng thứ hai cùng id).
+    - Tắt công tắc trên A, không sửa gì thêm. **Đạt** khi trong khoảng 15–30 giây cả hai ghi "Đã đồng bộ" với giờ mới,
+      sổ A có thay đổi của B, mỗi khoản đúng một lần.
 
 ## Task 1.5 — Đồng bộ sổ chi có xác nhận: "Đã đồng bộ" chỉ khi máy kia đã lưu
 
