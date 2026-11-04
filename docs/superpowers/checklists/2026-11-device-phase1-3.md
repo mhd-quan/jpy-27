@@ -715,13 +715,17 @@ trả lại "Đặt tự động" sau các bước đó.
 **Chuẩn bị.** Thêm widget JP27 cỡ vừa và cỡ nhỏ lên màn hình chính, một widget chữ nhật trên màn hình khoá. Ngày máy
 bình thường (trước chuyến).
 
-1. **Widget theo chạy thử khi app chưa có snapshot.** Trước chuyến, widget ghi "Còn N ngày".
-   - Cài đặt › Chạy thử: ngày 2, 10:00 › "Chạy thử từ thời điểm này". Về màn hình chính **trong vòng 10 giây**.
-     **Đạt** khi widget đã đổi sang ngày 2 (không còn "Còn N ngày") mà không cần chạm vào nó.
-   - "Về giờ thật", về màn hình chính. **Đạt** khi widget lại ghi "Còn N ngày".
-2. **Ngày thay thế khi app chưa có snapshot.** Chạy thử vào cuối ngày có ngày thay thế, sau mục cuối của ngày (app ghi
-   hết lịch). Bật ngày thay thế đó ở Lịch, về màn hình chính. **Đạt** khi widget đổi theo ngày đã chọn trong vòng 10
-   giây. "Về giờ thật".
+1. **Widget theo chạy thử khi app chưa có snapshot.** Trước chuyến, widget ghi "Còn N ngày" (N lớn hơn 1). Cả hai
+   trạng thái dưới đây đều trước chuyến (app không có mục kế, không có snapshot), nên chỉ bản này tải lại widget; bản
+   trước 3.4c để widget đứng yên tới nửa đêm.
+   - Cài đặt › Chạy thử: **17/10/2027, 22:00** (tối trước ngày 1) › "Chạy thử từ thời điểm này". Về màn hình chính,
+     không chạm vào widget. **Đạt** khi trong vòng 10 giây widget đổi từ "Còn N ngày" sang "Còn 1 ngày".
+   - "Về giờ thật", về màn hình chính. **Đạt** khi trong vòng 10 giây widget lại ghi "Còn N ngày" như lúc đầu.
+2. **Ngày thay thế (kiểm hồi quy, không phân biệt được bản cũ).** Chạy thử ngày 3, 7:00. Bật "Một ngày ở Kawaguchiko"
+   ở Lịch, về màn hình chính. **Đạt** khi trong vòng 10 giây widget ghi ngày Kawaguchiko (mục kế của ngày đó). Tắt lại:
+   **Đạt** khi widget về "Sushi, Harajuku, Shibuya". "Về giờ thật". (Lúc này app có mục kế nên bản cũ cũng tải lại;
+   dữ liệu chuyến chỉ có một ngày thay thế, cùng khách sạn với ngày 3, nên không có lúc nào không có snapshot mà widget
+   lại hiện khác nhau.)
 3. **Giờ của widget theo giờ app.** Chạy thử ở một ngày, trước một quán **không có giờ cố định** chừng 30 phút, rồi
    không đi (để trễ khoảng 15 phút). Mở app (Hôm nay ghi trễ), về màn hình chính.
    - **Đạt** khi widget cỡ vừa ghi "Đang đi · tới hh:mm" (hay giờ ở dòng "Sau đó"/danh sách cỡ lớn) **bằng** giờ tới mà
