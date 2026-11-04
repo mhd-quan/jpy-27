@@ -94,10 +94,21 @@ import Testing
     }
 
     @Test func aRideStaysEndedOnlyWhenItEndsOnTheClockItWasFollowedOn() {
-        #expect(real.endIsKept(rehearsingNow: false), "the button, its arrival, left, long past")
-        #expect(!real.endIsKept(rehearsingNow: true), "ended because a rehearsal starts: it may start again after Về giờ thật")
-        #expect(rehearsal.endIsKept(rehearsingNow: true), "the button in a rehearsal: not followed again in it")
-        #expect(!rehearsal.endIsKept(rehearsingNow: false), "ended by Về giờ thật: the real ride may start")
+        #expect(real.endIsKept(rehearsingNow: false, byClockMove: false), "the button, its arrival, left, long past")
+        #expect(rehearsal.endIsKept(rehearsingNow: true, byClockMove: false), "the button in a rehearsal: not followed again in it")
+        #expect(!real.endIsKept(rehearsingNow: true, byClockMove: false), "not on the clock it was followed on")
+        #expect(!rehearsal.endIsKept(rehearsingNow: false, byClockMove: false), "not on the clock it was followed on")
+    }
+
+    /// Ended because the trip's clock moved, a ride is never kept, whichever clock it was followed on and the move
+    /// went to: a real ride as a rehearsal starts, a rehearsal's on "Về giờ thật", a rehearsal's whose offset moved
+    /// (rehearsing before and after: the clock check alone would keep it).
+    @Test func aRideEndedByAClockMoveIsNeverKept() {
+        for clock in [real, rehearsal] {
+            for now in [false, true] {
+                #expect(!clock.endIsKept(rehearsingNow: now, byClockMove: true), "\(clock) ended by a move to rehearsing \(now)")
+            }
+        }
     }
 }
 
@@ -110,7 +121,7 @@ import Testing
 
     @Test func aRealRideEndedByHandStaysEndedAfterARehearsal() {
         var ends = EndedRides()
-        ends.insert(id, clock: real, rehearsingNow: false)
+        ends.insert(id, clock: real, rehearsingNow: false, byClockMove: false)
         #expect(ends.contains(id, rehearsingNow: false))
         ends.offsetChanged() // a rehearsal starts
         #expect(!ends.contains(id, rehearsingNow: true), "the rehearsal's ride is its own")
@@ -120,7 +131,7 @@ import Testing
 
     @Test func aRealRideEndedByARehearsalStartingIsNotKept() {
         var ends = EndedRides()
-        ends.insert(id, clock: real, rehearsingNow: true)
+        ends.insert(id, clock: real, rehearsingNow: true, byClockMove: true)
         ends.offsetChanged()
         #expect(!ends.contains(id, rehearsingNow: true))
         ends.offsetChanged() // Về giờ thật
@@ -129,14 +140,14 @@ import Testing
 
     @Test func aRehearsalRideEndedByHandStaysEndedInThatRehearsal() {
         var ends = EndedRides()
-        ends.insert(id, clock: rehearsal, rehearsingNow: true)
+        ends.insert(id, clock: rehearsal, rehearsingNow: true, byClockMove: false)
         #expect(ends.contains(id, rehearsingNow: true), "not followed again near its station")
         #expect(!ends.contains(id, rehearsingNow: false), "nothing of the real ride's")
     }
 
     @Test func aRehearsalRideEndedByVeGioThatIsNotKept() {
         var ends = EndedRides()
-        ends.insert(id, clock: rehearsal, rehearsingNow: false)
+        ends.insert(id, clock: rehearsal, rehearsingNow: false, byClockMove: true)
         ends.offsetChanged()
         #expect(!ends.contains(id, rehearsingNow: false))
         #expect(!ends.contains(id, rehearsingNow: true))
@@ -144,15 +155,26 @@ import Testing
 
     @Test func movingTheRehearsalForgetsItsEndsOnly() {
         var ends = EndedRides()
-        // ended by the move itself: claimed on the new clock (still rehearsing), then the move clears it
-        ends.insert(id, clock: rehearsal, rehearsingNow: true)
-        ends.offsetChanged()
-        #expect(!ends.contains(id, rehearsingNow: true), "the moved rehearsal may follow it again")
         // ended by hand, then moved
-        ends.insert("d4-kodama", clock: rehearsal, rehearsingNow: true)
-        ends.insert("d3-shinkansen", clock: real, rehearsingNow: false)
+        ends.insert("d4-kodama", clock: rehearsal, rehearsingNow: true, byClockMove: false)
+        ends.insert("d3-shinkansen", clock: real, rehearsingNow: false, byClockMove: false)
         ends.offsetChanged()
         #expect(!ends.contains("d4-kodama", rehearsingNow: true))
         #expect(ends.contains("d3-shinkansen", rehearsingNow: false), "the real ends are not the rehearsal's to clear")
+    }
+
+    /// A rehearsal's ride ended by moving its offset (claimed while still rehearsing) is not kept in the moved
+    /// rehearsal, whether the rehearsal's ends are forgotten before its end is recorded or after
+    /// (`RideLiveService.clockMoved`): the order of the two is no rule.
+    @Test func aRideEndedByMovingTheRehearsalIsNotKeptWhateverTheOrder() {
+        var after = EndedRides()
+        after.insert(id, clock: rehearsal, rehearsingNow: true, byClockMove: true)
+        after.offsetChanged()
+        #expect(!after.contains(id, rehearsingNow: true))
+
+        var before = EndedRides()
+        before.offsetChanged()
+        before.insert(id, clock: rehearsal, rehearsingNow: true, byClockMove: true)
+        #expect(!before.contains(id, rehearsingNow: true), "the moved rehearsal may follow it again")
     }
 }

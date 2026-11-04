@@ -105,7 +105,7 @@ import TripKit
         if let found, let fixedAt { tracker?.note(offTrackKm: found.offTrackKm, at: fixedAt) }
         if let followedAt, let why = tracker?.ending(arrivedAt: arrivedAt, followedAt: followedAt, tripNow: Shared.now, now: Date()) {
             // an arrival stays on the lock screen a while; a ride left or long past, its content wrong
-            close(ride, model: model, policy: why == .arrived ? .after(Date().addingTimeInterval(Self.arrivedLinger)) : .immediate)
+            close(ride, model: model, policy: why == .arrived ? .after(Date().addingTimeInterval(Self.arrivedLinger)) : .immediate, byClockMove: false)
             return
         }
         // a position far off the track says nothing about this ride (still on the platform, or a wrong train)
@@ -166,25 +166,23 @@ import TripKit
 
     /// Stops following the ride; with `only`, only if that is still the ride followed.
     func end(model: AppModel, immediately: Bool, only rideID: String? = nil) async {
-        guard let ride, rideID == nil || ride.id == rideID, let claimed = claim(ride, model: model) else { return }
+        guard let ride, rideID == nil || ride.id == rideID, let claimed = claim(ride, model: model, byClockMove: false) else { return }
         await release(ride, claimed, model: model, policy: immediately ? .immediate : .after(Date().addingTimeInterval(Self.arrivedLinger)))
     }
 
-    /// The trip's clock moved (a rehearsal starting, moving or ending), from a call that cannot wait.
-    /// In this order: the followed ride ends at once, its times belonging to the clock it was followed
-    /// on, and its end is claimed (synchronously) on the new clock; then the rehearsal's ends are
-    /// forgotten. Cleared after the claim, a rehearsal's ride ended by moving its offset (claimed while
-    /// still rehearsing, so kept by `RideClock.endIsKept`) is not kept from starting in the moved
-    /// rehearsal; the real rides ended stay ended (`EndedRides`).
+    /// The trip's clock moved (a rehearsal starting, moving or ending), from a call that cannot wait:
+    /// the followed ride ends at once, its times belonging to the clock it was followed on, and is not
+    /// kept from starting again (`byClockMove`, decided in `RideClock.endIsKept`); the rehearsal's ended
+    /// rides are forgotten, the real ones stay (`EndedRides`). Neither depends on the other's order.
     func clockMoved(model: AppModel) {
-        if let ride { close(ride, model: model, policy: .immediate) }
+        if let ride { close(ride, model: model, policy: .immediate, byClockMove: true) }
         ends.offsetChanged()
     }
 
     /// A ride `RideTracker.ending` says is over, ended from a call that cannot wait for it: often a
     /// fix or a move that woke the app under the lock screen, so iOS waits for the end to be done.
-    private func close(_ ride: Ride, model: AppModel, policy: ActivityUIDismissalPolicy) {
-        guard let claimed = claim(ride, model: model) else { return }
+    private func close(_ ride: Ride, model: AppModel, policy: ActivityUIDismissalPolicy, byClockMove: Bool) {
+        guard let claimed = claim(ride, model: model, byClockMove: byClockMove) else { return }
         BackgroundWork.run(name: "Kết thúc chuyến") { await self.release(ride, claimed, model: model, policy: policy) }
     }
 
@@ -197,13 +195,13 @@ import TripKit
     /// The first of the paths ending a ride takes it; the others find it taken (nil). Set before
     /// anything waits, so two ends of one ride never both run, and decided on the clock of this
     /// moment: a rehearsal starting or ending moves the clock and ends the ride in one step.
-    private func claim(_ ride: Ride, model: AppModel) -> Claimed? {
+    private func claim(_ ride: Ride, model: AppModel, byClockMove: Bool) -> Claimed? {
         guard self.ride?.id == ride.id, closing != ride.id else { return nil }
         closing = ride.id
         // a ride ended by any path is not started again on its own on the clock it was followed on
         // (the button on the platform, a taxi after getting off read as a train); one ended because the
         // clock changed is not kept (`RideClock.endIsKept`)
-        ends.insert(ride.id, clock: clock, rehearsingNow: model.rehearsing)
+        ends.insert(ride.id, clock: clock, rehearsingNow: model.rehearsing, byClockMove: byClockMove)
         return Claimed(cancelsAlarm: clock.endCancelsAlarm(rehearsingNow: model.rehearsing))
     }
 

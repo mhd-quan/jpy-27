@@ -188,8 +188,8 @@ enum AppSheet: Identifiable, Hashable {
             widgetOutdated = true
             // a followed ride's times belong to the clock it was followed on: a rehearsal starting,
             // moving or ending ends it (a ride of the rehearsal's lets go of nothing of the real
-            // one's: `RideClock`), decided on the clock just set; then the rehearsal's ended rides
-            // are forgotten, the real ones kept (`RideLiveService.clockMoved`)
+            // one's: `RideClock`), decided on the clock just set and not kept from starting again; the
+            // rehearsal's ended rides are forgotten, the real ones kept (`RideLiveService.clockMoved`)
             live.clockMoved(model: self)
         }
         // a rehearsal starts or ends: its own records
