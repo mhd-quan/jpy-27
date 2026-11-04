@@ -226,6 +226,31 @@ import Testing
         #expect(p.replan?.target == 2)
     }
 
+    @Test func lateCountsInFiveMinuteSteps() {
+        // the widget is sent a new snapshot when the step changes, not with every minute
+        #expect(Replan.lateStep(nil) == nil)
+        #expect([0, 2, 3, 7, 8, 12, 13, 17, 18].map { Replan.lateStep($0) } == [0, 0, 1, 1, 2, 2, 3, 3, 4])
+        #expect(Replan.lateStep(12) == Replan.lateStep(10) && Replan.lateStep(13) != Replan.lateStep(12))
+    }
+
+    @Test func aFollowedRideHoldsTheBackgroundReplanUntilAnHourPastItsArrival() throws {
+        let it = Itinerary(store: store)
+        // the Romancecar arrives at 9:22 by the plan: held until 10:22, not after
+        let at = { (hm: String) in TripTime.date(self.day4.date, hm)! }
+        #expect(it.holdsReschedule(for: romancecar, at: at("8:00")))
+        #expect(it.holdsReschedule(for: romancecar, at: at("10:21")))
+        #expect(!it.holdsReschedule(for: romancecar, at: at("10:22")))
+        #expect(!it.holdsReschedule(for: romancecar, at: at("13:00")))
+        // the ropeway, Ōwakudani between its legs: until an hour after its last leg (14:30 by the plan)
+        let ropeway = try #require(store.trip.rides.first { $0.id == "r-4-hakoneRopeway-togendai" })
+        let end = try #require(PlanEngine(store: store).simulate(day4).first { $0.index == 11 }).end
+        #expect(it.holdsReschedule(for: ropeway, at: TripTime.date(day4.date, minutes: end + 59)!))
+        #expect(!it.holdsReschedule(for: ropeway, at: TripTime.date(day4.date, minutes: end + 60)!))
+        // the way to the airport has no time: its made-up end (before 1:30) holds nothing at 8:00
+        let nankai = try #require(store.trip.rides.first { $0.id == "r-12-nankai-st-nankai-namba" })
+        #expect(!it.holdsReschedule(for: nankai, at: TripTime.date("2027-10-29", "8:00")!))
+    }
+
     // MARK: A day without times
 
     @Test func theClockMovesTheCursorOnlyOnATimedDay() {

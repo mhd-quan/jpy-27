@@ -179,6 +179,22 @@ public struct Itinerary: Sendable {
         return last
     }
 
+    /// Minutes past its planned arrival that a followed ride, not yet arrived, still holds back
+    /// (`holdsReschedule`).
+    public static let rideHold = 60.0
+
+    /// A followed ride that has not arrived holds back the full re-plan a move in the background
+    /// sets off: it re-projects the day itself as it goes, and its arrival re-plans everything. Only
+    /// until an hour after the plan has its last leg end, so a ride left half-way, that never
+    /// arrives, holds nothing after that (a ride on a day with no time: its made-up end, at night).
+    public func holdsReschedule(for ride: Ride, at instant: Date) -> Bool {
+        guard let day = store.day(ride.day),
+              let last = day.items.lastIndex(where: { $0.move.map { ride.legs.contains($0.leg.id) } ?? false }),
+              let end = engine.simulate(day).first(where: { $0.index == last })?.end,
+              let now = TripTime.minutes(of: instant, on: day.date) else { return false }
+        return now < end + Self.rideHold
+    }
+
     /// When a ride ends, minutes since midnight: from where its track has you, at the timetable's
     /// pace and never before its timetable arrival; off its track or with no position, when the plan
     /// has it end, and never before now.

@@ -243,6 +243,11 @@ enum AppSheet: Identifiable, Hashable {
         location.backgroundWatch = { [weak self] in self?.backgroundWatch() ?? .off }
         location.onMoved = { [weak self] in
             guard let self else { return }
+            // a followed ride re-projects the day as it goes (every half kilometre, `positionChanged`)
+            // and re-plans everything when it arrives (`rideArrived`): the significant changes on the
+            // way do not each run the full reschedule under a background task. Only while it has not
+            // arrived, and an hour past its planned arrival at most (`Itinerary.holdsReschedule`)
+            if let ride = live.ride, !live.hasArrived, itinerary.holdsReschedule(for: ride, at: Shared.now) { return }
             requestReschedule()
             if inBackground { finishRescheduleInBackground() }
         }
@@ -399,15 +404,16 @@ enum AppSheet: Identifiable, Hashable {
             return moved
         }
         let done = Set((marks[day.key] ?? [:]).keys)
-        // the cursor comes with the projection: by the marks, the clock, and where you stand
-        let result = itinerary.project(day, done: done, now: minutes, position: position, pace: pace.factor, skips: skips[day.key] ?? [])
+        // the cursor comes with the projection: by the marks, the clock, where you stand, and the ride
+        // followed (one that has arrived is only waiting to close: where you stand says more)
+        let result = itinerary.project(day, done: done, now: minutes, position: position, pace: pace.factor, skips: skips[day.key] ?? [], riding: live.hasArrived ? nil : live.ride)
         let moved = result.cursor != cursor
         if moved { cursor = result.cursor }
         if result.slots != projection { projection = result.slots }
         if result.replan != replan { replan = result.replan }
         let n = itinerary.next(day, cursor: cursor)
         if n != next { next = n }
-        autoStartRide(day, minutes: minutes)
+        autoStartRide(day, minutes: minutes, riding: result.riding)
         live.update(model: self)
         publishSnapshot(force: false)
         return moved
@@ -417,16 +423,21 @@ enum AppSheet: Identifiable, Hashable {
     /// station or already moving like a train. iOS lets an app start a Live Activity only while it
     /// is on screen, so the window is wide (any glance at the app on the way to the platform), and
     /// the station's geofence sends a notification whose "Theo dõi chuyến" opens the app to do it.
-    private func autoStartRide(_ day: Day, minutes: Double) {
+    /// The ride the projection already has you on (`riding`: on its line, past its station) comes
+    /// first: once you are on it the cursor is past its departure, and the next one is a later ride.
+    private func autoStartRide(_ day: Day, minutes: Double, riding: Ride?) {
         // a ride that has arrived is only waiting to close: the connecting one starts over it
-        guard live.ride == nil || live.hasArrived, live.isAvailable, UIApplication.shared.applicationState == .active,
-              let dep = itinerary.nextDeparture(day, cursor: cursor),
-              let planned = TripTime.minutes(dep.move.at).map(Double.init),
-              (planned - 20 ... planned + 10).contains(minutes),
-              let ride = store.ride(startingWith: dep.move.leg.id, on: day)
-        else { return }
-        let nearStation = position.flatMap { p in store.place(dep.move.leg.from).map { Geo.km($0.coordinate, p) < 0.4 } } ?? false
-        if nearStation || motion.riding { live.start(ride, model: self) }
+        guard live.ride == nil || live.hasArrived, live.isAvailable, UIApplication.shared.applicationState == .active else { return }
+        let on = riding.flatMap { r in day.items.compactMap(\.move).first { $0.leg.id == r.legs.first } }
+        for move in [on, itinerary.nextDeparture(day, cursor: cursor)?.move].compactMap({ $0 }) {
+            guard let planned = TripTime.minutes(move.at).map(Double.init),
+                  (planned - 20 ... planned + 10).contains(minutes),
+                  let ride = store.ride(startingWith: move.leg.id, on: day)
+            else { continue }
+            let nearStation = position.flatMap { p in store.place(move.leg.from).map { Geo.km($0.coordinate, p) < 0.4 } } ?? false
+            if nearStation || motion.riding { live.start(ride, model: self) }
+            return
+        }
     }
 
     /// A ride reached its end: its legs are done. A mark that cannot be saved stops the rest; "Thử
@@ -945,8 +956,9 @@ enum AppSheet: Identifiable, Hashable {
     // MARK: - Position, visits, fences
 
     /// Every fix. On a ride each one moves the Live Activity on, but the plan barely moves with the
-    /// train (the cursor waits for the arrival, and the clock re-projects every 20 seconds): it is
-    /// projected again every half kilometre then, instead of every 30 m (about every second at speed).
+    /// train (the cursor is past the ride once it is under way, its arrival barely moves, and the
+    /// clock re-projects every 20 seconds): it is projected again every half kilometre then, instead
+    /// of every 30 m (about every second at speed).
     private func positionChanged(_ p: Coordinate) {
         let riding = activeRide != nil
         if riding { live.update(model: self) }
@@ -1150,13 +1162,21 @@ enum AppSheet: Identifiable, Hashable {
         }
         let slot = slot(next.index)
         let late = replan.map(\.lateBy)
-        // running late means leave now; otherwise the plan's time to set off
-        let setOff = late != nil ? now : date(day, minutes: next.setOff)
+        // the plan's time to set off, late or not: a time that moved with the clock made every
+        // refresh a new snapshot. Running late shows as `late` (and "Đang đi" once that time is past)
+        let setOff = date(day, minutes: next.setOff)
         let snap = Snapshot(
             day: day.key, itemID: itemID, title: next.title, placeID: next.placeID,
             setOff: setOff, begin: date(day, minutes: slot?.begin ?? next.begin), kind: "\(next.kind)",
             late: late, advice: replan.flatMap { advice($0, day: day) }, generated: now)
-        let changed = lastSnapshot.map { $0.day != snap.day || $0.itemID != snap.itemID || $0.late != snap.late || abs($0.setOff.timeIntervalSince(snap.setOff)) > 120 } ?? true
+        // lateness counts in five-minute steps (the exact minutes still go out with each snapshot sent),
+        // and a late snapshot is sent again before the widget's half hour of trusting it runs out
+        let changed = lastSnapshot.map { last -> Bool in
+            if last.day != snap.day || last.itemID != snap.itemID { return true }
+            if Replan.lateStep(last.late) != Replan.lateStep(snap.late) { return true }
+            if abs(last.setOff.timeIntervalSince(snap.setOff)) > 120 { return true }
+            return snap.late != nil && snap.generated.timeIntervalSince(last.generated) >= 20 * 60
+        } ?? true
         guard force || changed else { return }
         lastSnapshot = snap
         Shared.snapshot = snap

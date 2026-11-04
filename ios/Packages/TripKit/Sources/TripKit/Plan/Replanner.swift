@@ -13,6 +13,12 @@ public struct Replan: Sendable, Hashable {
     public let spare: Int
 
     public var works: Bool { !drop.isEmpty && spare >= 0 }
+
+    /// Minutes late in five-minute steps, the nearest one (12 → 2, 13 → 3): the widget's snapshot
+    /// counts as changed when the step does, not with every minute the projection moves.
+    public static func lateStep(_ minutes: Int?) -> Int? {
+        minutes.map { Int((Double($0) / 5).rounded()) }
+    }
 }
 
 extension PlanEngine {
