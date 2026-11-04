@@ -164,6 +164,13 @@ private struct DiagnosticsSection: View {
             // counted again after "Xoá lịch sử vị trí", on the same page
             .onChange(of: model.historyDeletions) { history = model.locationHistoryCount() }
             #if DEBUG
+            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 4.1: a day's map picture above the
+            // live map, to compare their framing, and the pictures kept on disk
+            NavigationLink {
+                MapFrameCheck()
+            } label: {
+                SettingsLabel(title: "So khung bản đồ", symbol: "map", tint: .gray)
+            }
             testAlarm(minutes: 2)
             testAlarm(minutes: 5)
             Button {

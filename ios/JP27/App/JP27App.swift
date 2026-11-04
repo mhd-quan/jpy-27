@@ -52,6 +52,8 @@ final class JP27AppDelegate: NSObject, UIApplicationDelegate {
         AppModel.shared.location.start()
         // the daily reports for Chẩn đoán › Số đo
         MXMetricManager.shared.add(MetricsInbox.shared)
+        // the map pictures of the build before (one file per stop marked), then the oldest, off the main thread
+        Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20) }
         return true
     }
 }
