@@ -27,18 +27,25 @@ public struct PlanEngine: Sendable {
         /// a timed departure on a line that runs every few minutes (the plan check does; a live
         /// projection does not, and takes the next train with half the interval as the wait)
         public var waitAtSoftStops: Bool
+        /// where you are, in a live projection: standing inside the `Presence` circle of item `from`
+        /// when it will not wait (the train's station, the booked table), it begins at its own time —
+        /// you are there, not late for it, even past that time (a train running late, a table not yet
+        /// marked). It needs `clock` (now); without one it changes nothing, so the plan's memo
+        /// (`isPlan`) need not look at it.
+        public var position: Coordinate?
 
-        public init(from: Int = 0, clock: Double? = nil, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1, waitAtSoftStops: Bool = true) {
+        public init(from: Int = 0, clock: Double? = nil, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1, waitAtSoftStops: Bool = true, position: Coordinate? = nil) {
             self.from = from
             self.clock = clock
             self.toReach = toReach
             self.skips = skips
             self.pace = pace
             self.waitAtSoftStops = waitAtSoftStops
+            self.position = position
         }
 
-        public static func live(from: Int, now: Double, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1) -> Options {
-            Options(from: from, clock: now, toReach: toReach, skips: skips, pace: pace, waitAtSoftStops: false)
+        public static func live(from: Int, now: Double, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1, position: Coordinate? = nil) -> Options {
+            Options(from: from, clock: now, toReach: toReach, skips: skips, pace: pace, waitAtSoftStops: false, position: position)
         }
 
         /// the plan's own clock, as `Options()` runs it: the same for a day every time
@@ -149,6 +156,7 @@ public struct PlanEngine: Sendable {
                 }
                 let at = TripTime.minutes(m.at).map(Double.init)
                 let started = clock != nil
+                if let now = present(o, i, hard: hard, at: at, place: leg.from) { clock = now }
                 let ready = clock ?? at ?? 0
                 if let at, hard || o.waitAtSoftStops || clock == nil { clock = max(clock ?? 0, at) }
                 let begin = clock ?? 0
@@ -167,6 +175,7 @@ public struct PlanEngine: Sendable {
                 let skipped = o.skips.contains(i)
                 let at = TripTime.minutes(s.at).map(Double.init)
                 let started = clock != nil
+                if let now = present(o, i, hard: hard, at: at, place: s.place) { clock = now }
                 let ready = clock ?? at ?? 0
                 if let at, !skipped, hard || o.waitAtSoftStops {
                     clock = max(clock ?? at, at)
@@ -179,6 +188,15 @@ public struct PlanEngine: Sendable {
         // a walk still pending here ended the day: nothing after it reads the clock, so its last
         // stretch is not added
         return slots
+    }
+
+    /// Item `i` is the one the projection starts from, it will not wait, and you stand inside the
+    /// circle of its place (`Options.position`): the clock it is ready at, now or its own time if
+    /// that is earlier — the way there is done, and being there past its time is not being late.
+    private func present(_ o: Options, _ i: Int, hard: Bool, at: Double?, place: String?) -> Double? {
+        guard hard, i == o.from, let now = o.clock, let at, let position = o.position,
+              let p = store.place(place), Presence.isAt(position, p) else { return nil }
+        return min(now, at)
     }
 
     /// Minimum minutes at a stop (scripts/check-plan.mjs `dwell`).
