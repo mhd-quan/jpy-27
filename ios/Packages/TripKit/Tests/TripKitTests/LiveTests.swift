@@ -1131,6 +1131,59 @@ import Testing
         #expect(Fmt.vndMillions(100_000, rate: 175) == "17,5 triệu")
         #expect(TripTime.clock(16 * 60 + 5) == "16:05")
     }
+
+    /// The widget's time for an item (`NextStopTimeline`): a planned time is the plan's (a train, a
+    /// table), anything else is the begin the widget shows, its own or the app's snapshot's.
+    @Test func beginLabelFollowsTheShownBegin() {
+        #expect(TripTime.beginLabel(planned: 16 * 60 + 15, begin: 16 * 60 + 15) == "16:15")
+        // late for a table: the booking's time stays
+        #expect(TripTime.beginLabel(planned: 12 * 60 + 45, begin: 12 * 60 + 57) == "12:45")
+        // unplanned: the begin, rounded like the clock
+        #expect(TripTime.beginLabel(planned: nil, begin: 14 * 60 + 5) == "14:05")
+        #expect(TripTime.beginLabel(planned: nil, begin: 14 * 60 + 19.6) == "14:20")
+        // the snapshot's later begin, not the plan's
+        #expect(TripTime.beginLabel(planned: nil, begin: max(14 * 60 + 5, 14 * 60 + 20)) == "14:20")
+        // past midnight
+        #expect(TripTime.beginLabel(planned: nil, begin: 24 * 60 + 10) == "0:10")
+    }
+
+    /// The edges: a distance that rounds to a whole kilometre is said in km, a negative under one
+    /// keeps its sign (never "−0"), and a number that is not one shows the placeholder.
+    @Test func formatsEdges() {
+        // metres that round to 1000 are a kilometre, written as `km(1.0)` is
+        #expect(Fmt.km(0.996) == "1 km")
+        #expect(Fmt.km(0.995) == "1 km")
+        #expect(Fmt.km(0.9999) == "1 km")
+        #expect(Fmt.km(1.0) == "1 km")
+        #expect(Fmt.km(0.9949) == "990 m")
+        #expect(Fmt.km(0) == "0 m")
+        #expect(Fmt.km(0.004) == "0 m")
+        #expect(Fmt.km(1.25) == "1,3 km")
+        #expect(Fmt.km(9.94) == "9,9 km")
+        #expect(Fmt.km(9.96) == "10 km")
+        #expect(Fmt.km(12.5) == "13 km")
+
+        // the sign of what is shown, after rounding
+        #expect(Fmt.decimal(-0.4, digits: 1) == "−0,4")
+        #expect(Fmt.decimal(-0.05, digits: 1) == "−0,1")
+        #expect(Fmt.decimal(-0.005, digits: 2) == "−0,01")
+        #expect(Fmt.decimal(-0.04, digits: 1) == "0")
+        #expect(Fmt.decimal(-0.4, digits: 0) == "0")
+        #expect(Fmt.decimal(-0.6, digits: 0) == "−1")
+        #expect(Fmt.decimal(-1.3, digits: 1) == "−1,3")
+        #expect(Fmt.decimal(-1234.5, digits: 1) == "−1.234,5")
+        #expect(Fmt.decimal(0.96, digits: 1) == "1")
+        #expect(Fmt.decimal(4.35, digits: 2) == "4,35")
+        #expect(Fmt.decimal(-0.999, digits: 2) == "−1")
+
+        // not a number: the placeholder, not a trap
+        for x in [Double.nan, .infinity, -.infinity] {
+            #expect(Fmt.km(x) == Fmt.missing)
+            #expect(Fmt.decimal(x, digits: 1) == Fmt.missing)
+            #expect(Fmt.decimal(x, digits: 0) == Fmt.missing)
+        }
+        #expect(Fmt.missing == "—")
+    }
 }
 
 @Suite struct TrackingTests {

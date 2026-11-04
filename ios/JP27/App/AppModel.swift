@@ -123,6 +123,8 @@ enum AppSheet: Identifiable, Hashable {
     var alternatives: Set<String> = Shared.alternatives {
         didSet {
             Shared.alternatives = alternatives
+            // the widget plans its own days by these when the app has no snapshot for it
+            if alternatives != oldValue { widgetOutdated = true }
             forgetRetry()
             refresh(reschedule: true)
         }
@@ -143,6 +145,9 @@ enum AppSheet: Identifiable, Hashable {
     /// rehearsal never answers it for the trip.
     nonisolated static let journalAskedKey = "journal.asked"
     nonisolated static let journalAskedRehearsalKey = "journal.asked.rehearsal"
+    /// iOS's one upgrade to location "Always" was asked for (`@AppStorage`, the app's own defaults):
+    /// after it only Settings can change it. Today's card and the Settings row share it.
+    nonisolated static let locationAskedAlwaysKey = "location.askedAlways"
 
     /// Bumped each time location history is deleted, for what counts it (Settings › Chẩn đoán).
     private(set) var historyDeletions = 0
@@ -175,8 +180,11 @@ enum AppSheet: Identifiable, Hashable {
 
     private func setClock(_ offset: TimeInterval) {
         let was = rehearsing
+        let before = clockOffset
         clockOffset = RehearsalClock.offset(offset)
         Shared.clockOffset = clockOffset
+        // the widget's own plan runs on this clock when the app has no snapshot for it
+        if clockOffset != before { widgetOutdated = true }
         if was != rehearsing {
             // a rehearsal starts or ends: a followed ride's times belong to the other clock
             live.endAtOnce(model: self)
@@ -1219,15 +1227,20 @@ enum AppSheet: Identifiable, Hashable {
     // MARK: - Widget
 
     private var lastSnapshot: Snapshot?
+    /// The clock or the chosen days changed: with no snapshot the widget plans by them itself, so its
+    /// timeline is reloaded once, by the next publish (which the change's own refresh runs). With a
+    /// snapshot the change test decides, and leaving the app sends one anyway.
+    @ObservationIgnored private var widgetOutdated = false
 
     private func publishSnapshot(force: Bool) {
+        let outdated = widgetOutdated
+        widgetOutdated = false
         guard let day = today, let next, let itemID = day.identity(of: next.index) else {
             // forgotten, so the same item coming back is sent again
             if lastSnapshot != nil { lastSnapshot = nil }
-            if Shared.snapshot != nil {
-                Shared.snapshot = nil
-                WidgetCenter.shared.reloadTimelines(ofKind: Shared.widgetKind)
-            }
+            let held = Shared.snapshot != nil
+            if held { Shared.snapshot = nil }
+            if held || outdated { WidgetCenter.shared.reloadTimelines(ofKind: Shared.widgetKind) }
             return
         }
         let slot = slot(next.index)

@@ -688,7 +688,7 @@ private struct TodayJournalQuestion: View {
 private struct TodayAlwaysCard: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openURL) private var openURL
-    @AppStorage("location.askedAlways") private var asked = false
+    @AppStorage(AppModel.locationAskedAlwaysKey) private var asked = false
     @State private var pressed = 0
 
     var body: some View {

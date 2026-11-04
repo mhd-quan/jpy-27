@@ -709,3 +709,43 @@ trả lại "Đặt tự động" sau các bước đó.
      được câu nói tiếp theo.
    - Làm lại với công tắc Chuông/Im lặng ở **im lặng**. **Đạt** khi nửa sau của câu vẫn nghe rõ tới hết (không im bặt).
    - **Không đạt** nếu câu bị cắt hay nhạc không to lại: ghi lại, bản sửa đã định sẵn ở report Task 3.4b.
+
+## Task 3.4c — Widget tải lại khi đổi đồng hồ hay ngày thay thế, giờ của widget, nút quyền, dự báo theo giờ thật, nhãn VoiceOver
+
+**Chuẩn bị.** Thêm widget JP27 cỡ vừa và cỡ nhỏ lên màn hình chính, một widget chữ nhật trên màn hình khoá. Ngày máy
+bình thường (trước chuyến).
+
+1. **Widget theo chạy thử khi app chưa có snapshot.** Trước chuyến, widget ghi "Còn N ngày".
+   - Cài đặt › Chạy thử: ngày 2, 10:00 › "Chạy thử từ thời điểm này". Về màn hình chính **trong vòng 10 giây**.
+     **Đạt** khi widget đã đổi sang ngày 2 (không còn "Còn N ngày") mà không cần chạm vào nó.
+   - "Về giờ thật", về màn hình chính. **Đạt** khi widget lại ghi "Còn N ngày".
+2. **Ngày thay thế khi app chưa có snapshot.** Chạy thử vào cuối ngày có ngày thay thế, sau mục cuối của ngày (app ghi
+   hết lịch). Bật ngày thay thế đó ở Lịch, về màn hình chính. **Đạt** khi widget đổi theo ngày đã chọn trong vòng 10
+   giây. "Về giờ thật".
+3. **Giờ của widget theo giờ app.** Chạy thử ở một ngày, trước một quán **không có giờ cố định** chừng 30 phút, rồi
+   không đi (để trễ khoảng 15 phút). Mở app (Hôm nay ghi trễ), về màn hình chính.
+   - **Đạt** khi widget cỡ vừa ghi "Đang đi · tới hh:mm" (hay giờ ở dòng "Sau đó"/danh sách cỡ lớn) **bằng** giờ tới mà
+     app dự tính, không phải giờ trong lịch.
+   - Một mục có giờ cố định (tàu, bàn đặt): **Đạt** khi widget vẫn ghi giờ của lịch ("Tàu chạy 16:15").
+4. **Nút vị trí "Khi dùng app".** Vị trí ở "Khi dùng app", chưa từng hỏi "Luôn luôn" (cài mới).
+   - Cài đặt › Quyền › Vị trí luôn bật › "Khi dùng app". **Đạt** khi iOS hỏi nâng lên "Luôn luôn". Chọn "Chỉ khi dùng".
+   - Bấm "Khi dùng app" lần nữa. **Đạt** khi app Cài đặt của iOS mở ra (không phải bấm mà không có gì).
+   - Cài mới lại, lần này chạm "Bật" ở thẻ "Bật vị trí Luôn luôn" của Hôm nay trước. **Đạt** khi sau đó nút ở Cài đặt mở
+     thẳng app Cài đặt ngay lần bấm đầu.
+5. **Dòng Thông báo trước khi hỏi.** Cài mới, chưa trả lời câu hỏi thông báo (huỷ nếu app hỏi khi mở; hay xoá app và
+   cài lại rồi mở thẳng Cài đặt › Quyền). **Đạt** khi dòng "Thông báo" có nút "Cho phép" (nền đậm), bấm thì iOS hỏi.
+   Chọn "Không cho phép": **Đạt** khi nút thành "Mở Cài đặt".
+6. **Dự báo Fuji theo giờ thật khi chạy thử.** Chạy thử ngày 5 (năm 2027).
+   - Hôm nay › thẻ "Fuji hôm nay" (hay Lịch › Fuji › "Đỉnh Fuji"). **Đạt** khi thẻ có các cột giờ bắt đầu từ giờ thật
+     hiện tại (không trống, không phải giờ của hôm qua), "Rõ nhất lúc …" là một giờ sắp tới thật.
+   - Mở "Tìm Fuji" (camera). **Đạt** khi phần mây ghi một con số (không trống) giống cột giờ hiện tại ở thẻ trên.
+   - Không chạy thử: **Đạt** khi cả hai giống hệt bản trước.
+7. **Dự báo vẫn từ WeatherKit** (bản có WeatherKit, có mạng). Lịch › Fuji (hai thẻ dự báo tải cùng lúc). **Đạt** khi
+   chân cả hai thẻ có logo Apple Weather và "Nguồn". Quy tắc đếm lỗi trùng nhau có test TripKit (`FailureStreakTests`).
+8. **VoiceOver: "Trễ".** Bật VoiceOver. Đang trễ (bước 3). **Đạt** khi widget cỡ nhỏ/vừa đọc "Trễ 15 phút" và widget
+   chữ nhật trên màn hình khoá đọc "trễ 15 phút" (không đọc "dấu phẩy trên" hay ký hiệu).
+9. **VoiceOver: Dynamic Island thu gọn.** Theo dõi một chuyến tàu, về màn hình chính, VoiceOver bật.
+   - Chạm phần trái: **Đạt** khi đọc tên tuyến. Phần phải: **Đạt** khi đọc "Tới <ga> lúc hh:mm" (giờ Nhật, cùng giờ trên
+     màn hình khoá); lúc "Xuống": "Chuẩn bị xuống ở <ga>".
+   - Mở thêm một Live Activity của app khác (hẹn giờ ở Đồng hồ) để JP27 thành vòng tròn nhỏ. **Đạt** khi đọc "<tuyến>
+     tới <ga>" và "Đã đi N phần trăm".

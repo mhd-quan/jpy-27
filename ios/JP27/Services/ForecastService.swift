@@ -42,8 +42,9 @@ import WeatherKit
     private var weatherKit = (Bundle.main.object(forInfoDictionaryKey: "JP27WeatherKit") as? String) != "NO"
     /// WeatherKit rests until then after a failure, so a bad connection is not asked again and again
     private var weatherKitRests = Date.distantPast
-    /// failures in a row that were not the network's
-    private var refusals = 0
+    /// failures in a row that were not the network's; requests in flight together count once
+    /// (FujiView asks for two forecasts at once, and one outage fails both)
+    private var refusals = FailureStreak()
 
     private var folder: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("Forecast", isDirectory: true)
@@ -54,13 +55,14 @@ import WeatherKit
         if series[key] == nil, let disk = load(key) { series[key] = disk }
         if let s = series[key], Date().timeIntervalSince(s.fetched) < 3600 || !online { return s.hours }
         if weatherKit, Date() >= weatherKitRests {
+            let ticket = refusals.ticket()
             do {
                 let s = Series(fetched: Date(), hours: try await Self.fromWeatherKit(c), source: .weatherKit)
-                refusals = 0
+                refusals.succeeded()
                 if attribution == nil { attribution = try? await WeatherService.shared.attribution }
                 return keep(s, as: key)
             } catch {
-                failedWeatherKit(error)
+                failedWeatherKit(error, ticket: ticket)
             }
         }
         do {
@@ -74,15 +76,14 @@ import WeatherKit
     /// After a WeatherKit failure: rest a few minutes whatever it was; set WeatherKit aside for the
     /// session when it said no (permission denied, which a build without the entitlement gets every
     /// time), or failed twice in a row for a reason that was not the network.
-    private func failedWeatherKit(_ error: any Error) {
+    private func failedWeatherKit(_ error: any Error, ticket: FailureStreak.Ticket) {
         weatherKitRests = Date().addingTimeInterval(5 * 60)
         if let e = error as? WeatherError, case .permissionDenied = e {
             weatherKit = false
             return
         }
         guard !Self.isNetwork(error) else { return }
-        refusals += 1
-        if refusals >= 2 { weatherKit = false }
+        if refusals.failed(ticket) >= 2 { weatherKit = false }
     }
 
     /// A failure of the connection, not of the service: offline, a timeout, a cancelled request.

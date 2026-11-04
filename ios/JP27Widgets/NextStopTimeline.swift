@@ -25,7 +25,10 @@ nonisolated struct WidgetStop: Hashable, Sendable {
     var begin: Date
     /// Japan time labels, "12:32"
     var setOffLabel: String
+    /// `TripTime.beginLabel`: the plan's time when it has one, else `begin`'s
     var beginLabel: String
+    /// the plan's time, minutes since midnight, when it has one
+    var planned: Int? = nil
 
     var isDeparture: Bool { kind == "departure" }
 }
@@ -78,6 +81,10 @@ nonisolated enum WidgetPlan {
                 if list.first?.index == index {
                     list[0].setOff = snap.setOff.addingTimeInterval(-offset)
                     list[0].begin = max(list[0].begin, snap.begin.addingTimeInterval(-offset))
+                    // the time said with it is the begin shown, the snapshot's when that one won
+                    if let minutes = TripTime.minutes(of: list[0].begin.addingTimeInterval(offset), on: day.date) {
+                        list[0].beginLabel = TripTime.beginLabel(planned: list[0].planned, begin: minutes)
+                    }
                     late = snap.late
                     advice = snap.advice
                     lateUntil = list[0].begin
@@ -107,11 +114,12 @@ nonisolated enum WidgetPlan {
             guard let setOff = TripTime.date(day.date, minutes: w.setOff),
                   let begin = TripTime.date(day.date, minutes: w.begin) else { return nil }
             let place = store.place(w.placeID)
-            let beginLabel = w.planned.map { TripTime.clock(Double($0)) } ?? TripTime.clock(w.begin)
+            let beginLabel = TripTime.beginLabel(planned: w.planned, begin: w.begin)
             var stop = WidgetStop(
                 index: w.index, kind: "stop", title: place?.name ?? w.title, subtitle: nil, placeID: w.placeID,
                 color: nil, symbol: place?.kind.symbol ?? "mappin", setOff: setOff.addingTimeInterval(-offset),
-                begin: begin.addingTimeInterval(-offset), setOffLabel: TripTime.clock(w.setOff), beginLabel: beginLabel)
+                begin: begin.addingTimeInterval(-offset), setOffLabel: TripTime.clock(w.setOff), beginLabel: beginLabel,
+                planned: w.planned)
             switch w.kind {
             case .departure:
                 let leg = day.items.indices.contains(w.index) ? day.items[w.index].move?.leg : nil

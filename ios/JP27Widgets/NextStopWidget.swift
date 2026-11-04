@@ -146,6 +146,7 @@ private struct DayStopView: View {
                     .padding(.vertical, 2)
                     .background(.red, in: .capsule)
                     .foregroundStyle(.white)
+                    .accessibilityLabel("Trễ \(late) phút")
             }
         }
     }
@@ -268,7 +269,7 @@ private struct DayStopView: View {
             HStack(spacing: 4) {
                 Image(systemName: stop.symbol)
                 Text(kindLabel)
-                if let late, late > 0 { Text("· trễ \(late)′") }
+                if let late, late > 0 { Text("· trễ \(late)′").accessibilityLabel("trễ \(late) phút") }
             }
             .font(.caption2.weight(.semibold))
             Text(stop.isDeparture ? "\(stop.title) \(stop.beginLabel)" : stop.title)

@@ -552,13 +552,15 @@ private struct PermissionsSection: View {
     @Environment(\.openURL) private var openURL
     /// AlarmKit and ActivityKit states are read, not observed: bump to re-read after a request
     @State private var tick = 0
+    /// iOS's upgrade to "Always" was asked once (here or on Today): Settings from then on
+    @AppStorage(AppModel.locationAskedAlwaysKey) private var askedAlways = false
 
     var body: some View {
         Section("Quyền") {
             location
             PermissionRow(
                 title: "Thông báo", detail: "Nhắc giờ tàu, xe, đặt bàn", symbol: "bell.badge.fill", tint: .red,
-                state: model.notifications.authorized ? .on : .off,
+                state: model.notifications.authorized ? .on : (model.notifications.undetermined ? .ask : .off),
                 action: { Task { await model.notifications.requestAuthorization(); await model.notifications.refreshStatus(); if !model.notifications.authorized { openSettings() } } })
             PermissionRow(
                 title: "Báo thức", detail: "Đánh thức trước ga cần xuống", symbol: "alarm.fill", tint: .orange,
@@ -596,7 +598,10 @@ private struct PermissionsSection: View {
             action: {
                 switch status {
                 case .notDetermined: model.location.requestWhenInUse()
-                case .authorizedWhenInUse: model.location.requestAlways()
+                case .authorizedWhenInUse where !askedAlways:
+                    // iOS shows this upgrade once; after that only Settings can change it
+                    askedAlways = true
+                    model.location.requestAlways()
                 default: openSettings()
                 }
             })
