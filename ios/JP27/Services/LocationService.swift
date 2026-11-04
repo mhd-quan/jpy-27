@@ -189,7 +189,8 @@ import TripKit
     }
 
     private func accept(_ loc: CLLocation) {
-        guard loc.horizontalAccuracy >= 0, loc.horizontalAccuracy < 200 else { return }
+        // one rule for every fix (`Presence.takes`): precise enough, and not older than the newest used
+        guard Presence.takes(accuracy: loc.horizontalAccuracy, at: loc.timestamp, newest: fixedAt) else { return }
         let p = Coordinate(loc.coordinate.latitude, loc.coordinate.longitude)
         fixedAt = loc.timestamp
         publish(p)
@@ -336,12 +337,19 @@ extension LocationService: CLLocationManagerDelegate {
         guard let last = locations.last else { return }
         let c = Coordinate(last.coordinate.latitude, last.coordinate.longitude)
         let at = last.timestamp
+        let accuracy = last.horizontalAccuracy
         Task { @MainActor in
-            self.fixedAt = at
-            self.publish(c)
-            self.onUpdate?(c)
-            // in the background only: refresh reminders and fences. On screen, the return to the app
-            // has just done that, and this is usually `requestLocation`'s answer to it
+            // where you are only by the live stream's rule (`accept`): a significant change from the cell
+            // towers, kilometres wide, or a fix delivered after a newer one, would put a followed ride's
+            // pace, the projection and the journal at the wrong place or time
+            if Presence.takes(accuracy: accuracy, at: at, newest: self.fixedAt) {
+                self.fixedAt = at
+                self.publish(c)
+                self.onUpdate?(c)
+            }
+            // in the background only: refresh reminders and fences, a coarse fix included (the phone
+            // moved, which is what a significant change says). On screen, the return to the app has just
+            // done that, and this is usually `requestLocation`'s answer to it
             if !self.foreground { self.moved(to: c) }
         }
     }

@@ -30,4 +30,16 @@ public enum Presence {
         }
         return best?.item
     }
+
+    /// The accuracy a fix must beat to say where you are, metres: a coarser one (a significant change from
+    /// the cell towers, a first fix indoors) could put you at the wrong stop or off your line.
+    public static let fixAccuracy: Double = 200
+
+    /// Whether a fix says where you are: its accuracy known (`accuracy` < 0 is no fix) and within
+    /// `fixAccuracy`, and not taken before the newest fix already used (`newest`): one delivered late says
+    /// where you were. The same rule for the live stream, a significant change and `requestLocation`.
+    public static func takes(accuracy: Double, at: Date, newest: Date?) -> Bool {
+        guard accuracy >= 0, accuracy < fixAccuracy else { return false }
+        return newest.map { at >= $0 } ?? true
+    }
 }

@@ -1437,6 +1437,18 @@ import Testing
         #expect(w.minutes(pace: pace.factor) > 17)
         #expect(w.minutes(pace: 1) == 17)
     }
+
+    /// One rule for every fix, from the live stream, a significant change or `requestLocation` (R-156).
+    @Test func aFixCountsWhenPreciseAndNotOlderThanTheLast() {
+        let t = Date(timeIntervalSince1970: 1_000_000)
+        #expect(Presence.takes(accuracy: 5, at: t, newest: nil))
+        #expect(Presence.takes(accuracy: 199.9, at: t, newest: t), "the same fix again")
+        #expect(Presence.takes(accuracy: 30, at: t + 1, newest: t))
+        #expect(!Presence.takes(accuracy: 200, at: t, newest: nil), "a coarse fix")
+        #expect(!Presence.takes(accuracy: 1_500, at: t, newest: nil), "a cell-tower fix from a significant change")
+        #expect(!Presence.takes(accuracy: -1, at: t, newest: nil), "no fix at all")
+        #expect(!Presence.takes(accuracy: 10, at: t - 1, newest: t), "a fix delivered after a newer one")
+    }
 }
 
 @Suite struct GeoTests {
