@@ -104,14 +104,16 @@ public struct Itinerary: Sendable {
 
     /// The cursor, and the ride it was put after when you are on that ride.
     ///
-    /// A departure that will not wait, whose time has come, is *taken* when you are not inside its
-    /// station's circle (there the plan clock holds it: `PlanEngine.Options.position`) and are more
-    /// than a kilometre from that station or on its line: stops after it, up to the next departure
-    /// not taken, may then hold you. Only that; a hotel eight kilometres away at 7:45 is a missed
-    /// Romancecar, not a taken one. It is *ridden* when you are on its line (`RideTracker`, within
-    /// a kilometre), more than a kilometre from its station, and more than a kilometre from every
-    /// place the day named before it (still in Fujiyoshida after the 16:48 back to Shinjuku, which
-    /// runs past the town, is not riding it): with no stop holding you, the day is right after it.
+    /// A departure that will not wait, whose time has come (`planned <= now`), is *taken* when you
+    /// are not inside its station's circle (there the plan clock holds it, for its minute of grace:
+    /// `PlanEngine.Options.position`) and are more than a kilometre from that station or on its
+    /// line: stops after it, up to the next departure not taken, may then hold you. Only that; a
+    /// hotel eight kilometres away at 7:45 is a missed Romancecar, not a taken one. It is *ridden*
+    /// when you are on its line (`RideTracker`, within a kilometre), more than a kilometre from its
+    /// station, more than a kilometre from every place the day named before it (still in
+    /// Fujiyoshida after the 16:48 back to Shinjuku, which runs past the town, is not riding it),
+    /// and keeping up with it (`keepsUp`: at Fuji-Q Highland at 17:05 the train is long gone):
+    /// with no stop holding you, the day is right after it.
     ///
     /// The plan's clock counts only once one of the day's planned times has come (`planned < now`).
     /// Before that, or all day on a day with no time at all (the way to the airport, whose made-up
@@ -127,20 +129,22 @@ public struct Itinerary: Sendable {
         var ceiling = count - 1
         var ridden: Riding?
         for j in clock ..< count where engine.isHard(day.items[j]) {
-            guard case .move(let m) = day.items[j], let at = TripTime.minutes(m.at), Double(at) < now,
+            guard case .move(let m) = day.items[j], let at = TripTime.minutes(m.at), Double(at) <= now,
                   let station = store.place(m.leg.from), !Presence.isAt(position, station) else {
                 ceiling = j
                 break
             }
             let away = Geo.km(position, station.coordinate) > 1
-            let ride = store.ride(containing: m.leg.id, on: day)
-            let onLine = ride.flatMap { RideTracker(ride: $0, store: store).status(at: position) }.map { $0.offTrackKm < 1 } ?? false
+            let tracker = store.ride(containing: m.leg.id, on: day).map { RideTracker(ride: $0, store: store) }
+            let status = tracker.flatMap { $0.status(at: position) }
+            let onLine = status.map { $0.offTrackKm < 1 } ?? false
             guard away || onLine else {
                 ceiling = j
                 break
             }
-            if away, onLine, let ride, let last = lastLeg(of: ride, in: day), !named(day, before: j, near: position) {
-                ridden = (last, ride)
+            if away, onLine, let tracker, let status, keepsUp(tracker, status, now: now),
+               let last = lastLeg(of: tracker.ride, in: day), !named(day, before: j, near: position) {
+                ridden = (last, tracker.ride)
             }
         }
         guard floor <= ceiling else { return (clock, nil) }
@@ -157,6 +161,21 @@ public struct Itinerary: Sendable {
         if let at = Presence.nearest(position, among: candidates.reversed()) { return (at, nil) }
         if let ridden { return (ridden.last + 1, ridden) }
         return (clock, nil)
+    }
+
+    /// Minutes behind where its timetable has the train that a position on its line may be and
+    /// still be on it (`keepsUp`): a train running that late reads as missed.
+    static let behindTimetable = 10.0
+
+    /// On a ride's line at `status`, you keep up with the train: at the end of its track (arrived,
+    /// `RideTracker.Status.arrived`), or no more than `behindTimetable` minutes behind the minute its
+    /// timetable has it at that km (its departure, plus the share of its time that km is of its
+    /// length).
+    private func keepsUp(_ tracker: RideTracker, _ status: RideTracker.Status, now: Double) -> Bool {
+        if status.arrived { return true }
+        guard let arrival = tracker.plannedArrival, let left = tracker.minutesLeft(km: status.km) else { return false }
+        let due = arrival - left
+        return now - due <= Self.behindTimetable
     }
 
     /// A place the day's items before `index` name (a stop, where a move starts or ends) lies within
@@ -182,17 +201,31 @@ public struct Itinerary: Sendable {
     /// Minutes past its planned arrival that a followed ride, not yet arrived, still holds back
     /// (`holdsReschedule`).
     public static let rideHold = 60.0
+    /// Minutes before its departure that a followed ride starts to hold it back.
+    public static let rideHoldAhead = 30.0
 
     /// A followed ride that has not arrived holds back the full re-plan a move in the background
     /// sets off: it re-projects the day itself as it goes, and its arrival re-plans everything. Only
-    /// until an hour after the plan has its last leg end, so a ride left half-way, that never
-    /// arrives, holds nothing after that (a ride on a day with no time: its made-up end, at night).
+    /// on the ride's own day, from half an hour before it leaves (a ride with no time: from the
+    /// day's start) until an hour after the plan has its last leg end, so a ride followed ahead of
+    /// its day holds nothing, and one left half-way, that never arrives, holds nothing after that
+    /// (a ride on a day with no time: its made-up end, at night).
     public func holdsReschedule(for ride: Ride, at instant: Date) -> Bool {
         guard let day = store.day(ride.day),
               let last = day.items.lastIndex(where: { $0.move.map { ride.legs.contains($0.leg.id) } ?? false }),
               let end = engine.simulate(day).first(where: { $0.index == last })?.end,
               let now = TripTime.minutes(of: instant, on: day.date) else { return false }
-        return now < end + Self.rideHold
+        let start = TripTime.minutes(ride.at).map { Double($0) - Self.rideHoldAhead } ?? 0
+        return now >= start && now < end + Self.rideHold
+    }
+
+    /// A position farther from a ride's track than `RideTracker.offTrack` (what the Live Activity
+    /// ignores too) says you are not on it: at the hotel, a followed Romancecar is a missed one. Its
+    /// destination lies on its track (within 0.3 km on every ride), so arriving there is never that
+    /// far. With no position, or no track, nothing says so.
+    private func strays(from ride: Ride, at position: Coordinate?) -> Bool {
+        guard let position, let status = RideTracker(ride: ride, store: store).status(at: position) else { return false }
+        return status.offTrackKm >= RideTracker.offTrack
     }
 
     /// When a ride ends, minutes since midnight: from where its track has you, at the timetable's
@@ -257,16 +290,17 @@ public struct Itinerary: Sendable {
     /// is at risk.
     ///
     /// `riding` is the ride being followed. Once its time has come (an untimed one at once), when
-    /// its legs are one run of the day's items, the day goes on right after it — unless a mark or
-    /// a stop after it holds the day further on — with the clock at its arrival (`arrival(of:)`),
-    /// not at the walk from the train to the next place. Without it, a ride the
-    /// position says you are on does the same (`locate`); with no position, nothing is inferred.
+    /// its legs are one run of the day's items, and unless where you stand is far from its track
+    /// (`strays`), the day goes on right after it — unless a mark or a stop after it holds the day
+    /// further on — with the clock at its arrival (`arrival(of:)`), not at the walk from the train
+    /// to the next place. Without it, a ride the position says you are on does the same (`locate`);
+    /// with no position, nothing is inferred.
     /// `riding` in the result is the ride the projection started after, if any.
     public func project(_ day: Day, done: Set<Int>, now: Double, position: Coordinate?, pace: Double = 1, skips: Set<Int> = [], riding: Ride? = nil) -> (cursor: Int, slots: [PlanEngine.Slot], replan: Replan?, riding: Ride?) {
         var marks = done
         var followed: Riding?
         if let riding, riding.day == day.key, let last = lastLeg(of: riding, in: day),
-           TripTime.minutes(riding.at).map({ Double($0) <= now }) ?? true {
+           TripTime.minutes(riding.at).map({ Double($0) <= now }) ?? true, !strays(from: riding, at: position) {
             // its legs count as done: the day is past them
             marks.insert(last)
             followed = (last, riding)

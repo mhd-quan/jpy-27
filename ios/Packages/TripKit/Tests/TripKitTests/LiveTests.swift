@@ -120,21 +120,30 @@ import Testing
         let p = Itinerary(store: store).project(day4, done: [1], now: 9 * 60 + 25, position: yumoto.coordinate)
         #expect(p.cursor == 3)
         #expect(p.replan == nil, "\(String(describing: p.replan))")
+        // still there at 9:34, twelve minutes after the train's 9:22: at the end of its track, you came on it
+        let later = Itinerary(store: store).project(day4, done: [1], now: 9 * 60 + 34, position: yumoto.coordinate)
+        #expect(later.riding?.id == romancecar.id)
     }
 
     @Test func aTrainYouWaitForOnItsPlatformIsNotMissed() throws {
-        // about 145 m from the Odakyu pin, inside the station's circle: a minute before the 7:37, and three
-        // minutes after it (a train running late), neither is a missed train
+        // about 145 m from the Odakyu pin, inside the station's circle: a minute before the 7:37, and up
+        // to its minute of grace after it (a train running a little late), neither is a missed train
         let station = try #require(store.place("st-shinjuku-odakyu"))
         let platform = Coordinate(station.coordinate.lat + 0.0013, station.coordinate.lng)
         #expect(Presence.isAt(platform, station))
         let it = Itinerary(store: store)
-        for now: Double in [7 * 60 + 36, 7 * 60 + 40] {
+        let grace = Double(store.trip.rules.grace.move)
+        #expect(grace == 1)
+        for now: Double in [7 * 60 + 36, 7 * 60 + 37 + grace] {
             let p = it.project(day4, done: [], now: now, position: platform)
             #expect(p.cursor == 2)
             #expect(p.replan == nil, "\(now): \(String(describing: p.replan))")
             // there now, or there at its time when that is earlier
             #expect(p.slots.first?.ready == min(now, 7 * 60 + 37))
+        }
+        // a minute past that, standing on the platform is missing it, as anywhere else: it has left
+        for now: Double in [7 * 60 + 38 + grace, 7 * 60 + 40, 7 * 60 + 45] {
+            #expect(it.project(day4, done: [], now: now, position: platform).replan?.target == 2, "\(now)")
         }
         // 400 m away, outside the circle, the same minute before it: still on the way, and late
         let street = Coordinate(station.coordinate.lat + 0.0036, station.coordinate.lng)
@@ -154,15 +163,98 @@ import Testing
         #expect(it.project(day10, done: Set(0 ... 10), now: 12 * 60 + 34, position: away).replan?.target == 11)
     }
 
+    @Test func aConnectionGoneFromItsStationIsMissed() throws {
+        let it = Itinerary(store: store)
+        // off the Romancecar at Hakone-Yumoto at 9:40, the train marked: the 9:35 bus has left
+        let yumoto = try #require(store.place("st-hakone-yumoto"))
+        #expect(it.project(day4, done: [0, 1, 2], now: 9 * 60 + 40, position: yumoto.coordinate).replan?.target == 3)
+        // at Kintetsu-Nara at 16:05, the 16:00 to Osaka gone
+        let nara = try #require(store.place("st-kintetsu-nara"))
+        let p = it.project(day10, done: Set(0 ... 15), now: 16 * 60 + 5, position: nara.coordinate)
+        #expect(p.cursor == 16)
+        #expect(p.replan?.target == 16)
+    }
+
     @Test func aTrainLeftWhileStillInTownIsMissed() throws {
         // Kawaguchiko day: Honchō-dōri lies 3.3 km from Kawaguchiko station and 0.4 km from the Fujikyu
         // line the 16:48 Fuji Excursion takes back to Shinjuku. At 16:55 standing there is not riding it:
         // the day was there before the train
         let day = try #require(store.day("kawaguchiko"))
+        let it = Itinerary(store: store)
         let honcho = try #require(store.place("fs-honcho-dori"))
-        let p = Itinerary(store: store).project(day, done: [], now: 16 * 60 + 55, position: honcho.coordinate)
+        let p = it.project(day, done: [], now: 16 * 60 + 55, position: honcho.coordinate)
         #expect(p.cursor == 21)
         #expect(p.replan?.target == 21)
+        // on the line 0.8 km from Honchō-dōri, a kilometre being near enough to it
+        #expect(it.project(day, done: [], now: 16 * 60 + 55, position: Coordinate(35.49094, 138.79633)).cursor == 21)
+        // in town along the line, far from every place the day named: at Fuji-Q Highland (km 1.7) at 17:05,
+        // and where the line reverses at Fujisan station (km 2.8) at 17:30, the train is long past
+        let back = try #require(store.trip.altRides.first { $0.id == "r-kawaguchiko-fujiExcursion-st-kawaguchiko" })
+        let track = store.track(of: back)
+        let highland = track[6], fujisan = track[9]
+        #expect(it.project(day, done: [], now: 17 * 60 + 5, position: highland).replan?.target == 21)
+        #expect(it.project(day, done: [], now: 17 * 60 + 30, position: fujisan).replan?.target == 21)
+        // ten minutes behind where the timetable has the train is still on it; a second more is not
+        let tracker = RideTracker(ride: back, store: store)
+        let status = try #require(tracker.status(at: highland))
+        let arrival = try #require(tracker.plannedArrival)
+        let left = try #require(tracker.minutesLeft(km: status.km))
+        let due = arrival - left
+        let edge = due + Itinerary.behindTimetable
+        #expect(edge - due == Itinerary.behindTimetable)
+        #expect(Itinerary.behindTimetable == 10)
+        let on = it.project(day, done: [], now: edge, position: highland)
+        #expect(on.cursor == 22)
+        #expect(on.riding?.id == back.id)
+        #expect(it.project(day, done: [], now: edge + 1.0 / 60, position: highland).cursor == 21)
+    }
+
+    @Test func aTrainIsRiddenAKilometreOut() throws {
+        let it = Itinerary(store: store)
+        // 7:40, on the Odakyu track 1.33 km out of Shinjuku (the nearest place named before it 1.22 km away)
+        #expect(it.project(day4, done: [], now: 7 * 60 + 40, position: Coordinate(35.68015, 139.69465)).cursor == 3)
+        // 8:30, 0.74 km off the track half way: within a kilometre of it is on its line
+        let track = store.track(of: romancecar), mid = track[track.count / 2]
+        let off = Coordinate(mid.lat + 0.009, mid.lng)
+        let status = try #require(RideTracker(ride: romancecar, store: store).status(at: off))
+        #expect(status.offTrackKm > 0.7 && status.offTrackKm < 1)
+        #expect(it.project(day4, done: [], now: 8 * 60 + 30, position: off).cursor == 3)
+        // its time has come at its own minute (as for a followed ride)
+        #expect(it.project(day4, done: [], now: 7 * 60 + 37, position: mid).cursor == 3)
+    }
+
+    @Test func onlyTheItemTheDayIsAtIsMetByStandingThere() throws {
+        // Kawaguchiko day at 9:55, at the Lawson (item 5) 0.13 km from Kawaguchiko station: inside the
+        // station's circle, but the day is at the Lawson, and the 10:00 Fujikyu (item 7) is at risk
+        let day = try #require(store.day("kawaguchiko"))
+        let lawson = try #require(store.place("fs-lawson-kawaguchiko-ekimae"))
+        let p = Itinerary(store: store).project(day, done: Set(0 ... 4), now: 9 * 60 + 55, position: lawson.coordinate)
+        #expect(p.cursor == 5)
+        #expect(p.replan?.target == 7)
+    }
+
+    @Test func aFollowedRideFarFromItsTrackCountsForNothing() throws {
+        let it = Itinerary(store: store)
+        // followed, but at the hotel in Akihabara at 7:45: the Romancecar is missed, as unfollowed
+        let hotel = try #require(store.place("resol-akihabara"))
+        let p = it.project(day4, done: [], now: 7 * 60 + 45, position: hotel.coordinate, riding: romancecar)
+        #expect(p.riding == nil)
+        #expect(p.replan?.target == 2)
+        // at 8:00 near km 4 of its track: 1.35 km off it still counts (the timetable's arrival, the track
+        // being too far to read the km from); farther than `RideTracker.offTrack` it does not
+        let track = store.track(of: romancecar), near = track[track.count / 10]
+        let tracker = RideTracker(ride: romancecar, store: store)
+        let close = Coordinate(near.lat + 0.016, near.lng), far = Coordinate(near.lat + 0.019, near.lng)
+        let closeOff = try #require(tracker.status(at: close)).offTrackKm
+        let farOff = try #require(tracker.status(at: far)).offTrackKm
+        #expect(closeOff > 1 && closeOff < RideTracker.offTrack)
+        #expect(farOff > RideTracker.offTrack && farOff < 1.7)
+        let counted = it.project(day4, done: [], now: 8 * 60, position: close, riding: romancecar)
+        #expect(counted.riding?.id == romancecar.id)
+        #expect(counted.slots.first?.ready == Double(9 * 60 + 22))
+        let ignored = it.project(day4, done: [], now: 8 * 60, position: far, riding: romancecar)
+        #expect(ignored.cursor == 2)
+        #expect(ignored.riding == nil)
     }
 
     // Kawaguchiko day: item 3 is the 7:30 Fuji Excursion from Shinjuku, item 5 the Lawson stop at
@@ -257,6 +349,14 @@ import Testing
         let early = it.project(day4, done: [], now: 7 * 60 + 20, position: nil, riding: romancecar)
         #expect(early.cursor == 2)
         #expect(early.riding == nil)
+        // at its own minute it is
+        #expect(it.project(day4, done: [], now: 7 * 60 + 37, position: nil, riding: romancecar).cursor == 3)
+        // a ride with no time counts at once: the Nankai to the airport on day 12, at 8:00
+        let day12 = try #require(store.day("12"))
+        let nankai = try #require(store.trip.rides.first { $0.id == "r-12-nankai-st-nankai-namba" })
+        let airport = it.project(day12, done: [], now: 8 * 60, position: nil, riding: nankai)
+        #expect(airport.cursor == 2)
+        #expect(airport.riding?.id == nankai.id)
         // marked past it: the marks win
         let past = it.project(day4, done: [4], now: 8 * 60 + 30, position: nil, riding: romancecar)
         #expect(past.cursor == 5)
@@ -307,6 +407,15 @@ import Testing
         // the way to the airport has no time: its made-up end (before 1:30) holds nothing at 8:00
         let nankai = try #require(store.trip.rides.first { $0.id == "r-12-nankai-st-nankai-namba" })
         #expect(!it.holdsReschedule(for: nankai, at: TripTime.date("2027-10-29", "8:00")!))
+        // only on the ride's own day, from half an hour before it leaves (a ride with no time: its day)
+        #expect(Itinerary.rideHoldAhead == 30)
+        #expect(!it.holdsReschedule(for: romancecar, at: at("7:06")))
+        #expect(it.holdsReschedule(for: romancecar, at: at("7:07")))
+        #expect(!it.holdsReschedule(for: romancecar, at: TripTime.date("2027-10-19", "8:00")!))
+        #expect(!it.holdsReschedule(for: romancecar, at: TripTime.date("2027-10-20", "12:00")!))
+        #expect(!it.holdsReschedule(for: nankai, at: TripTime.date("2027-10-28", "20:00")!))
+        #expect(!it.holdsReschedule(for: nankai, at: TripTime.date("2027-10-28", "23:59")!))
+        #expect(it.holdsReschedule(for: nankai, at: TripTime.date("2027-10-29", "0:00")!))
     }
 
     // MARK: A day without times

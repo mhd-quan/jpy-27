@@ -29,9 +29,9 @@ public struct PlanEngine: Sendable {
         public var waitAtSoftStops: Bool
         /// where you are, in a live projection: standing inside the `Presence` circle of item `from`
         /// when it will not wait (the train's station, the booked table), it begins at its own time —
-        /// you are there, not late for it, even past that time (a train running late, a table not yet
-        /// marked). It needs `clock` (now); without one it changes nothing, so the plan's memo
-        /// (`isPlan`) need not look at it.
+        /// you are there, not late for it, even past that time (a table not yet marked; a train only
+        /// for its minute of grace, see `present`). It needs `clock` (now); without one it changes
+        /// nothing, so the plan's memo (`isPlan`) need not look at it.
         public var position: Coordinate?
 
         public init(from: Int = 0, clock: Double? = nil, toReach: Double? = nil, skips: Set<Int> = [], pace: Double = 1, waitAtSoftStops: Bool = true, position: Coordinate? = nil) {
@@ -156,7 +156,7 @@ public struct PlanEngine: Sendable {
                 }
                 let at = TripTime.minutes(m.at).map(Double.init)
                 let started = clock != nil
-                if let now = present(o, i, hard: hard, at: at, place: leg.from) { clock = now }
+                if let now = present(o, i, hard: hard, at: at, place: leg.from, grace: Double(store.trip.rules.grace.move)) { clock = now }
                 let ready = clock ?? at ?? 0
                 if let at, hard || o.waitAtSoftStops || clock == nil { clock = max(clock ?? 0, at) }
                 let begin = clock ?? 0
@@ -193,9 +193,13 @@ public struct PlanEngine: Sendable {
     /// Item `i` is the one the projection starts from, it will not wait, and you stand inside the
     /// circle of its place (`Options.position`): the clock it is ready at, now or its own time if
     /// that is earlier — the way there is done, and being there past its time is not being late.
-    private func present(_ o: Options, _ i: Int, hard: Bool, at: Double?, place: String?) -> Double? {
+    /// For a departure, only up to its `grace` past its time (`PlanRules.grace.move`, the plan
+    /// check's allowance): on the platform after that the train has left, and you are late for it
+    /// as anywhere else. Seated at a booked table, there is no such limit.
+    private func present(_ o: Options, _ i: Int, hard: Bool, at: Double?, place: String?, grace: Double? = nil) -> Double? {
         guard hard, i == o.from, let now = o.clock, let at, let position = o.position,
               let p = store.place(place), Presence.isAt(position, p) else { return nil }
+        if let grace, now > at + grace { return nil }
         return min(now, at)
     }
 

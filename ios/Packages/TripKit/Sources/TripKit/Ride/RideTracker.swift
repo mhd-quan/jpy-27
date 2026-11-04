@@ -8,6 +8,11 @@ public struct RideTracker: Sendable {
     /// km of track per km the ride's stations count (the research measured the same rails)
     private let scale: Double
 
+    /// km off the track past which a position says nothing about the ride (still on the platform,
+    /// a wrong train, or not on it at all): the Live Activity ignores it, and a followed ride does
+    /// not carry the day (`Itinerary.project`).
+    public static let offTrack = 1.5
+
     public init(ride: Ride, store: TripStore) {
         self.ride = ride
         track = store.track(of: ride)

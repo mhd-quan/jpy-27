@@ -40,7 +40,7 @@ public struct ReminderPlanner: Sendable {
     public func reminders(for day: Day, settled: (Day, Int) -> Bool = { _, _ in false }) -> [Reminder] {
         var out: [Reminder] = []
         let points = itinerary.waypoints(day)
-        if let first = itinerary.engine.simulate(day).first, first.planned != nil || first.started,
+        if let first = itinerary.engine.simulate(day).first, first.planned != nil,
            let at = TripTime.date(day.date, minutes: first.begin - 30) {
             out.append(Reminder(id: "morning-\(day.key)", fire: at, title: "Ngày \(day.n) · \(day.title)", body: day.route, level: .active, kind: .morning, day: day.key, itemID: nil, booking: nil, placeID: nil))
         }
