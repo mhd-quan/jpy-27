@@ -95,6 +95,9 @@ private struct DiagnosticsSection: View {
     @State private var fakeStyle = OfflineMaps.fakeOtherStyle
     /// the latest fix taken (`LocationService.fixedAt`), read on opening the page and on a tap
     @State private var lastFix: String?
+    /// who holds the audio session, and the deactivations that failed, read on opening the page and on
+    /// a tap
+    @State private var audioSession: String?
     #endif
     /// the location history's rows, counted when the page opens (nil: not counted, or unreadable)
     @State private var history: (visits: Int, traces: Int)?
@@ -259,6 +262,21 @@ private struct DiagnosticsSection: View {
                 }
             }
             .onAppear { lastFix = lastFixSummary() }
+            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 4.2: who holds the audio session (the
+            // Speaker, Nghe or nobody) and how many deactivations failed since launch
+            Button {
+                audioSession = audioSessionSummary()
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Phiên âm thanh")
+                        Text(audioSession ?? "—").font(.footnote).monospacedDigit().foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "speaker.wave.2", tint: .gray)
+                }
+            }
+            .onAppear { audioSession = audioSessionSummary() }
             #endif
         } header: {
             Text("Chẩn đoán")
@@ -270,6 +288,19 @@ private struct DiagnosticsSection: View {
     }
 
     #if DEBUG
+    /// "Phát âm, chờ nhả · nhả lỗi 0": who holds the audio session (`AudioSessionController`), whether the
+    /// Speaker's release is due, and the deactivations that failed since launch, their retry included
+    private func audioSessionSummary() -> String {
+        let audio = AudioSessionController.shared
+        let owners = audio.state
+        let holder = switch owners.holder {
+        case .nobody: "Không ai giữ"
+        case .speaker: owners.release == nil ? "Phát âm" : "Phát âm, chờ nhả"
+        case .listener: "Nghe"
+        }
+        return "\(holder) · nhả lỗi \(audio.failedDeactivations)"
+    }
+
     /// "7:20:05 · ±12 m": when the latest fix used was taken, on the phone's clock, and how precise it was
     private func lastFixSummary() -> String? {
         guard let at = model.location.fixedAt else { return nil }

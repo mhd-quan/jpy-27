@@ -40,19 +40,15 @@ struct TalkSentence: Identifiable, Hashable {
     /// bumped by every start and stop: a start still waiting (for the microphone permission, for
     /// the Japanese model to download) when the screen closed finds it moved on, and turns nothing on
     private var attempt = 0
-    /// the audio session is ours (active, ducking whatever else plays)
-    @ObservationIgnored private var sessionActive = false
-    /// the session as it was before listening, given back once by `stop()`
-    @ObservationIgnored private var prior: AudioSetup?
+    /// the listen holding the audio session (`AudioSessionController.listen`), given back once by
+    /// `stop()` or deinit
+    @ObservationIgnored private var session: Int?
+    /// the last id a listen was given: unique across listeners, so a late stop of an old one never gives
+    /// back a newer one's session
+    private static var sessions = 0
     /// what takes the audio away while listening (a call, Siri, a new route, the app left): one
     /// set per listen, removed first thing by `stop()`
     @ObservationIgnored private var observers: [any NSObjectProtocol] = []
-
-    private struct AudioSetup {
-        let category: AVAudioSession.Category
-        let mode: AVAudioSession.Mode
-        let options: AVAudioSession.CategoryOptions
-    }
 
     init(scenarios: [Scenario]) {
         matcher = HeardMatcher(scenarios: scenarios)
@@ -113,6 +109,10 @@ struct TalkSentence: Identifiable, Hashable {
             try await analyzer.start(inputSequence: stream)
             // stopped while the analyzer started: stop() has finished it, the microphone stays off
             guard mine == attempt else { return }
+            // The session first, off the main thread. A stop() meanwhile queues its give-back behind it,
+            // and the microphone stays off.
+            guard await takeSession() else { throw SessionRefused() }
+            guard mine == attempt else { return }
             try startAudio(feeding: continuation, as: format, listen: mine)
             state = .listening
         } catch {
@@ -131,7 +131,8 @@ struct TalkSentence: Identifiable, Hashable {
         engine = nil
         continuation?.finish()
         continuation = nil
-        // the other app's audio comes back up at once, not after the last words are transcribed
+        // the session's give-back is queued now: the other app's audio comes back up at once, not after
+        // the last words are transcribed
         giveSessionBack()
         let analyzer = self.analyzer
         self.analyzer = nil
@@ -172,13 +173,21 @@ struct TalkSentence: Identifiable, Hashable {
         sentences.append(TalkSentence(id: UUID(), ja: text, hit: matcher.best(for: text)))
     }
 
+    /// The session in Nghe's category, activated, ducking whatever else plays
+    /// (`AudioSessionController.shared`). The id is held before the calls run, so a stop() while they run
+    /// gives the session back after them.
+    private func takeSession() async -> Bool {
+        Self.sessions += 1
+        let id = Self.sessions
+        session = id
+        return await AudioSessionController.shared.listen(id)
+    }
+
+    /// The session's calls failed: listening does not start.
+    private nonisolated struct SessionRefused: Error {}
+
+    /// The microphone into the analyzer, once the session is Nghe's.
     private func startAudio(feeding continuation: AsyncStream<AnalyzerInput>.Continuation, as format: AVAudioFormat, listen: Int) throws {
-        let session = AVAudioSession.sharedInstance()
-        // on the main actor, in order with the Speaker's (an exception to contract § 4.2 until Task 4.2)
-        if prior == nil { prior = AudioSetup(category: session.category, mode: session.mode, options: session.categoryOptions) }
-        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
-        try session.setActive(true, options: .notifyOthersOnDeactivation)
-        sessionActive = true
         let engine = AVAudioEngine()
         let input = engine.inputNode
         // `.measurement` cancels no echo: what the app reads aloud is not heard
@@ -227,26 +236,18 @@ struct TalkSentence: Identifiable, Hashable {
         await stop()
     }
 
-    /// The session given back without moving another app's audio. Nothing being read: deactivated
-    /// first (what another app plays comes back up), then the category as it was before listening
-    /// (category, mode, options), which on an inactive session touches nothing else. While the
-    /// Speaker reads a line: the session stays active, in the Speaker's own category, and the
-    /// Speaker ends it after the line (`Speaker.adoptSession`); the category from before is dropped.
+    /// The session given back, once, without moving another app's audio (`AudioSessionOwners`). The
+    /// calls run off the main thread, after those issued before, the listen's own among them.
+    ///
+    /// - If nothing is being read, the session is deactivated first, so what another app plays comes
+    ///   back up. Then the category from before listening is put back, which on an inactive session
+    ///   touches nothing else.
+    /// - While the Speaker reads a line, the session stays active in the Speaker's own category, and
+    ///   the Speaker ends it after the line. The category from before is dropped.
     private func giveSessionBack() {
-        let session = AVAudioSession.sharedInstance()
-        let prior = self.prior
-        self.prior = nil
-        // on the main actor, in order with the Speaker's (an exception to contract § 4.2 until Task 4.2)
-        if sessionActive, Speaker.shared.speaking != nil {
-            sessionActive = false
-            Speaker.shared.adoptSession()
-            return
-        }
-        if sessionActive {
-            sessionActive = false
-            try? session.setActive(false, options: .notifyOthersOnDeactivation)
-        }
-        if let prior { try? session.setCategory(prior.category, mode: prior.mode, options: prior.options) }
+        guard let id = session else { return }
+        session = nil
+        AudioSessionController.shared.listenEnded(id)
     }
 }
 

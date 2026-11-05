@@ -527,6 +527,10 @@ enum HeroExporter {
 // MARK: - Japanese voice
 
 /// Reads Japanese aloud with the on-device voice, so a phrase can be played to staff.
+///
+/// The audio session is not touched here. `AudioSessionController.shared` takes it for a line in the
+/// Speaker's category, or leaves Nghe's session as it is while Nghe listens. Its calls run off the main
+/// thread, in the order they were issued, and it releases the session half a second after the last line.
 @Observable final class Speaker: NSObject {
     static let shared = Speaker()
     private let synth = AVSpeechSynthesizer()
@@ -535,58 +539,51 @@ enum HeroExporter {
     /// while the app speaks, so Nghe does not write down the app's own voice (`.measurement` has no
     /// echo cancelling)
     let voice = SpeakingFlag()
+    /// the line waiting for its session calls, spoken from their completion
+    @ObservationIgnored private var waiting: AVSpeechUtterance?
+    /// bumped by every `say`: only the latest line waiting is spoken
+    @ObservationIgnored private var lines = 0
 
     override init() {
         super.init()
         synth.delegate = self
     }
 
-    /// the session was set up for speaking here, so it is ours to hand back when done
-    private var ownsSession = false
-
     func say(_ ja: String, slow: Bool = false) {
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
-        let session = AVAudioSession.sharedInstance()
-        // while Nghe is listening the session records: speak through it as it is (changing the
-        // category would stop the microphone), and leave it to Nghe to end
-        if session.category != .playAndRecord { takeSession() }
         let u = AVSpeechUtterance(string: ja)
         u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
         u.rate = slow ? 0.38 : AVSpeechUtteranceDefaultSpeechRate
+        // the button and Nghe's mute answer the tap at once; the voice follows the session
         speaking = ja
         voice.set(true)
+        lines += 1
+        let line = lines
+        waiting = u
+        // Spoken only once every session call issued before it has run. Otherwise the synthesizer would
+        // activate the session itself, in whatever category it has, and `.soloAmbient` stops the music
+        // instead of ducking it. Spoken even if the session refused: the synthesizer then tries on its own.
+        AudioSessionController.shared.say { [weak self] _ in self?.speak(line) }
+    }
+
+    private func speak(_ line: Int) {
+        guard line == lines, let u = waiting else { return }
+        waiting = nil
         synth.speak(u)
     }
 
-    /// Nghe stopped while a line is being read: the session stays active, moves to the Speaker's own
-    /// category, and is the Speaker's to end once nothing is left to say (`ended`).
-    func adoptSession() {
-        takeSession()
-    }
-
-    /// The Speaker's category, the one place it is set: mixable and ducking what else plays, heard
-    /// with the Ring/Silent switch on silent. The session is then the Speaker's to end.
-    private func takeSession() {
-        // on the main actor, in order with Nghe's (an exception to contract § 4.2 until Task 4.2)
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-        ownsSession = true
-    }
-
-    /// An utterance ended or was cut off: once nothing is left to say, the music ducked for it
-    /// comes back up (`notifyOthersOnDeactivation`); without this it stays low until the app quits.
+    /// An utterance ended or was cut off. Once nothing is left to say, the music ducked for it comes back
+    /// up: the session is released half a second later, unless a line or Nghe comes first. Right after a
+    /// line, a deactivation fails while the voice winds down.
     fileprivate func ended(_ text: String) {
-        // the same line again cuts this one off: still speaking it
-        guard !synth.isSpeaking else { return }
+        // The same line again cuts this one off: still speaking it. A line waiting for the session cut it
+        // off: still to speak.
+        guard !synth.isSpeaking, waiting == nil else { return }
         if speaking == text {
             speaking = nil
             voice.set(false)
         }
-        guard ownsSession else { return }
-        ownsSession = false
-        // Nghe may have taken the session over meanwhile: it is Nghe's to end then
-        let session = AVAudioSession.sharedInstance()
-        guard session.category != .playAndRecord else { return }
-        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        AudioSessionController.shared.ended()
     }
 }
 
@@ -610,6 +607,66 @@ extension Speaker: AVSpeechSynthesizerDelegate {
         let text = utterance.speechString
         Task { @MainActor in self.ended(text) }
     }
+}
+
+/// The app's audio session, as `AudioSessionController` drives it. Each call is made on the controller's
+/// queue, never on the main thread. A failed call is logged (Console, subsystem tech.delphyra.jp27,
+/// category audio) and thrown on to the controller, which stops that step there.
+nonisolated struct SystemAudioSession: AudioSessionPort {
+    private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "audio")
+
+    func current() -> AudioSetup {
+        let session = AVAudioSession.sharedInstance()
+        return AudioSetup(session.category, session.mode, session.categoryOptions)
+    }
+
+    func setCategory(_ setup: AudioSetup) throws {
+        try logged("setCategory \(setup.category)") {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category(rawValue: setup.category),
+                                                            mode: AVAudioSession.Mode(rawValue: setup.mode),
+                                                            options: AVAudioSession.CategoryOptions(rawValue: setup.options))
+        }
+    }
+
+    func activate() throws {
+        try logged("setActive true") { try AVAudioSession.sharedInstance().setActive(true) }
+    }
+
+    func deactivate() throws {
+        try logged("setActive false") {
+            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        }
+    }
+
+    func isBusy(_ error: any Error) -> Bool {
+        (error as NSError).code == AVAudioSession.ErrorCode.isBusy.rawValue
+    }
+
+    private func logged(_ what: String, _ call: () throws -> Void) throws {
+        do {
+            try call()
+        } catch {
+            Self.log.error("\(what, privacy: .public) failed: \(error.localizedDescription, privacy: .public)")
+            throw error
+        }
+    }
+}
+
+extension AudioSetup {
+    nonisolated init(_ category: AVAudioSession.Category, _ mode: AVAudioSession.Mode, _ options: AVAudioSession.CategoryOptions) {
+        self.init(category: category.rawValue, mode: mode.rawValue, options: options.rawValue)
+    }
+}
+
+extension AudioSessionController {
+    /// The app's one audio session, shared by the Speaker and Nghe.
+    static let shared = AudioSessionController(
+        port: SystemAudioSession(),
+        // the Speaker: mixable and ducking what else plays, heard with the Ring/Silent switch on silent
+        speaker: AudioSetup(.playback, .spokenAudio, [.duckOthers]),
+        // Nghe: `.measurement` cancels no echo, so what the app reads aloud reaches the microphone, and
+        // Nghe's tap drops it (`Speaker.voice`)
+        listener: AudioSetup(.playAndRecord, .measurement, [.duckOthers, .defaultToSpeaker]))
 }
 
 // MARK: - Photo library (journal)

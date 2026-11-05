@@ -58,3 +58,25 @@ có sự kiện.
 | 7 | Chế độ máy bay. Mở trang một khách sạn (hoặc đường đi bộ, mua sắm) đã xem lúc có mạng. Chạm bản đồ. Lặp lại, lần này kéo bản đồ ngay sau khi chạm. | Ảnh vẫn hiện tới khi bản đồ thật vẽ xong, hay tối đa 2 giây, rồi mờ đi. Không lúc nào thấy ô trống. Cú kéo ngay sau khi chạm kéo được bản đồ, và ảnh đi luôn. | | |
 | 8 | Chạy lại S2–S10 như `2026-11-baseline.md`. | Không kịch bản nào tệ hơn nền. | | |
 | 9 | (Tuỳ chọn) Xoá app, cài lại, có mạng. Mở lần đầu một trang ngày có ảnh bìa tối. | Ghi lại: có thể thấy ảnh bản đồ sáng rồi đổi sang tối, hai `map.snapshot` (màu ảnh chưa biết ở khung đầu). Lần mở sau chỉ một. | | |
+
+## Task 4.2 — Audio session ngoài main, nhả có hẹn
+
+Bản Release ở commit của Task 4.2, trừ bước 7–10: dòng **Cài đặt › Chẩn đoán › Phiên âm thanh** chỉ có trong bản
+Debug (chạy từ Xcode). Dòng đó đọc lại khi mở trang hay khi chạm, và ghi ai giữ phiên âm thanh: "Phát âm" (kèm "chờ
+nhả" trong nửa giây trước khi nhả), "Nghe" hay "Không ai giữ". Sau đó là "nhả lỗi N": số lần huỷ phiên thất bại kể từ khi mở app,
+tính cả lần thử lại. Mọi lệnh session chạy trên hàng đợi `tech.delphyra.jp27.audio-session`. Lệnh lỗi ghi ở Console:
+subsystem `tech.delphyra.jp27`, category `audio`. Không bước nào đo một kịch bản S1–S10: tab Sổ tay (danh sách câu) không
+có trong bảng đó.
+
+| # | Bước | Đạt khi | Kết quả | Ghi chú |
+| --- | --- | --- | --- | --- |
+| 1 | Time Profiler, Attach vào JP27 đã mở từ màn hình chính. Tab Sổ tay: vừa cuộn vừa chạm loa ở 10 câu liên tiếp, mỗi câu nghe hết rồi mới chạm câu sau. Lọc call tree theo `AVAudioSession`. | Không có `setActive` hay `setCategory` nào trên Main Thread. Chúng nằm trên thread của hàng đợi `…audio-session`. Nếu còn `setActive` dưới `-[AVSpeechSynthesizer speakUtterance:]` trên main, ghi lại kèm số ms: đó là lệnh riêng của bộ đọc, gọi khi phiên đã bật (chưa kiểm). | | |
+| 2 | Mở Nhạc, phát một bài. Trong app chạm loa một câu, nghe hết. | Nhạc nhỏ xuống khi câu được đọc, và trở lại âm lượng thường trong ≤ 1 s sau khi câu dứt (hẹn 0,5 s). | | |
+| 3 | Nhạc đang phát. Chạm loa một câu, rồi chạm câu khác ngay khi câu đầu dứt, trong nửa giây. | Giữa hai câu nhạc vẫn nhỏ, không bật to rồi nhỏ lại. Sau câu thứ hai nhạc trở lại như bước 2. | | |
+| 4 | Gạt công tắc Chuông/Im lặng sang im lặng. Chạm loa một câu. | Vẫn nghe câu được đọc. | | |
+| 5 | Nhạc đang phát. Mở Nghe, bắt đầu nghe. Nói (hay bật từ máy khác) một câu Sổ tay biết, để câu trả lời hiện dưới câu nghe được. Vẫn đang nghe, chạm loa ở câu trả lời. | Micro vẫn chạy: nói một câu tiếng Nhật sau đó thì câu đó hiện ra. Câu app vừa đọc không hiện thành câu nghe được. Nhạc nhỏ suốt lúc nghe. | | |
+| 6 | Nhạc đang phát. Như bước 5, nhưng giữ (nhấn lâu) loa ở câu trả lời để câu được đọc chậm, rồi chạm nút dừng Nghe khi câu còn đang đọc. | Câu đọc tiếp đến hết, ra loa ngoài. Nhạc nhỏ tới hết câu, rồi trở lại trong ≤ 1 s. | | |
+| 7 | Nhạc đang phát. Bắt đầu nghe, không đọc gì, rồi dừng Nghe. Mở Chẩn đoán › Phiên âm thanh (bản Debug). | Nhạc trở lại âm lượng thường ngay. Dòng ghi "Không ai giữ · nhả lỗi 0". | | |
+| 8 | Bản Debug: chạm loa một câu, nghe hết, rồi mở Chẩn đoán › Phiên âm thanh. | "Không ai giữ · nhả lỗi 0": phiên đã được nhả sau câu. Nếu còn "Phát âm", phiên chưa được nhả: ghi lại. | | |
+| 9 | Bản Debug. Đang gọi điện thoại (hay FaceTime âm thanh), mở Nghe, chạm bắt đầu. Sau cuộc gọi, mở Chẩn đoán › Phiên âm thanh. | Nghe báo "Không bắt đầu nghe được." (hay micro không mở). Sau cuộc gọi, nhạc hay app khác phát lại bình thường. Dòng ghi "Không ai giữ", "nhả lỗi" vẫn 0. Nếu "nhả lỗi" tăng, xem Console category `audio`: huỷ một phiên chưa bật đã báo lỗi (chưa kiểm, R-233). | | |
+| 10 | Bản Debug. Dùng Nghe và loa xen kẽ vài phút như bước 2–7. Mở Chẩn đoán › Phiên âm thanh. | "nhả lỗi 0". Nếu khác 0, chép các dòng `setActive false failed` ở Console vào ghi chú. | | |
