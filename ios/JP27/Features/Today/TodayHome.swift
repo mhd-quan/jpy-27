@@ -63,6 +63,8 @@ private struct HomeCover: View {
     @State private var risen = false
     /// the photographs are on screen: off it, nothing turns or drifts
     @State private var visible = true
+    /// how the photographs blur as they turn (Settings › Chuyển ảnh bìa)
+    @AppStorage(CoverBlur.key) private var blur: CoverBlur = .both
 
     static let height: CGFloat = 520
 
@@ -136,8 +138,12 @@ private struct HomeCover: View {
         let current = ring.shot(at)
         let resting = rest ?? ring.start
         let height = Self.height
+        let lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
         // the slow drift is drawn every frame: not in Low Power Mode
-        let drifts = visible && !ProcessInfo.processInfo.isLowPowerModeEnabled
+        let drifts = visible && !lowPower
+        // a blurring page is drawn offscreen on every frame of the turn: not in Low Power Mode, and
+        // not with Reduce Motion, which keeps the turn plain as it keeps the photographs still
+        let blur = lowPower || reduceMotion ? CoverBlur.off : self.blur
         return ZStack(alignment: .bottom) {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
@@ -146,7 +152,7 @@ private struct HomeCover: View {
                         Button {
                             model.present(.place(shot.place.id), from: "home.cover.\(i)")
                         } label: {
-                            HomeCoverPhoto(photo: shot.photo, current: resting == i && drifts)
+                            HomeCoverPhoto(photo: shot.photo, current: resting == i && drifts, blur: blur)
                         }
                         .buttonStyle(.pressable(.plain))
                         .containerRelativeFrame(.horizontal)
@@ -258,11 +264,58 @@ private struct CoverRing {
     func home(_ page: Int) -> Int { start + shot(page) }
 }
 
+/// How the cover photographs blur as they turn, on top of the parallax and the shade; chosen in
+/// Settings › Chuyển ảnh bìa, to compare on the phone.
+nonisolated enum CoverBlur: String, CaseIterable, Identifiable, Sendable {
+    /// both pages by how far each is from rest: the photograph coming in comes into focus as the
+    /// one going goes out of it, and halfway both are a little soft
+    case both
+    /// only the page to the left, the one sinking into shadow: it falls out of focus behind the
+    /// photograph coming over it, which stays sharp all the way
+    case leaving
+    /// the parallax and the shade alone
+    case off
+
+    static let key = "home.coverBlur"
+    /// the blur a whole page away from rest, in points; half of it at the middle of a turn
+    static let full: CGFloat = 10
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .both: "Cả hai ảnh"
+        case .leaving: "Ảnh rời đi"
+        case .off: "Không làm mờ"
+        }
+    }
+
+    var detail: String {
+        switch self {
+        case .both: "Ảnh tới rõ dần, ảnh đi nhoè dần; giữa lần chuyển cả hai hơi mềm."
+        case .leaving: "Chỉ ảnh lùi sang trái nhoè đi cùng lớp tối, như ra khỏi vùng lấy nét; ảnh trượt tới luôn sắc."
+        case .off: "Chỉ có parallax và lớp tối."
+        }
+    }
+
+    /// The blur of a page `away` widths from rest (negative: to the left). Under a third of a point
+    /// it is none: a page at rest can sit a hair off zero, and any radius at all is an offscreen
+    /// pass on every frame of the slow drift.
+    func radius(away: CGFloat) -> CGFloat {
+        let r: CGFloat = switch self {
+        case .both: min(abs(away), 1) * Self.full
+        case .leaving: min(max(-away, 0), 1) * Self.full
+        case .off: 0
+        }
+        return r < 0.3 ? 0 : r
+    }
+}
+
 /// One cover page. As the pages turn, the photograph moves at half the speed of its page, so the
 /// page slides over it like a window: the photograph coming in is uncovered rather than pushed in,
 /// the one going stays behind as its page leaves, and halfway through each shows its own middle.
-/// The page leaving to the left sinks a little into shadow under the one coming over it. At rest
-/// the photograph drifts slowly closer.
+/// The page leaving to the left sinks a little into shadow under the one coming over it, and the
+/// photographs blur as `CoverBlur` says. At rest the photograph drifts slowly closer.
 ///
 /// The parallax needs no over-scan: a page only ever shows the part of its photograph that has
 /// moved in under it, so the cover, cut to the screen's own pixels (1290 × 1560), is drawn at its
@@ -272,6 +325,7 @@ private struct HomeCoverPhoto: View {
     let photo: Photo
     /// the page at rest in view
     let current: Bool
+    let blur: CoverBlur
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// drawn closer. Set once the page is in place rather than read from `current`: a page made
     /// already current (the move to the middle copy at rest) starts its drift from the cover's own
@@ -283,12 +337,18 @@ private struct HomeCoverPhoto: View {
         let lag: CGFloat = 0.5
         // how dark the page leaving to the left is as it goes
         let shade: Double = 0.38
+        let blur = self.blur
         Color.clear
             .overlay {
                 PlacePhoto(photo: photo, maxPixel: 2400)
                     .scaleEffect(near ? 1.05 : 1)
                     .visualEffect { content, proxy in
-                        content.offset(x: -proxy.frame(in: .scrollView(axis: .horizontal)).minX * lag)
+                        let frame = proxy.frame(in: .scrollView(axis: .horizontal))
+                        return content
+                            .offset(x: -frame.minX * lag)
+                            // opaque: the edges are spread from the photograph's own, not faded into
+                            // the paper, which would show as a pale seam between the two pages
+                            .blur(radius: blur.radius(away: frame.minX / max(frame.width, 1)), opaque: true)
                     }
             }
             .overlay {

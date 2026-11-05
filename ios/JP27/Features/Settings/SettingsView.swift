@@ -16,6 +16,7 @@ struct SettingsView: View {
             Form {
                 SettingsHeader()
                 AppearanceSection()
+                CoverSection()
                 PermissionsSection()
                 TripSection()
                 JournalSection()
@@ -421,6 +422,49 @@ private struct AppearanceSection: View {
             Text("Giao diện")
         } footer: {
             Text("Tự động đổi sáng, tối theo iPhone, cả bản đồ.")
+        }
+    }
+}
+
+/// How the home's cover photographs blur as they turn: a row with its value, the choice on a page.
+private struct CoverSection: View {
+    @AppStorage(CoverBlur.key) private var blur: CoverBlur = .both
+
+    var body: some View {
+        Section {
+            NavigationLink {
+                SettingsPage(title: "Chuyển ảnh bìa") { CoverBlurSection() }
+            } label: {
+                SettingsLabel(title: "Chuyển ảnh bìa", symbol: "photo.on.rectangle.angled", tint: .teal, value: blur.label)
+            }
+        }
+    }
+}
+
+/// The three ways to blur a turn, each with a line on how it looks.
+private struct CoverBlurSection: View {
+    @AppStorage(CoverBlur.key) private var blur: CoverBlur = .both
+
+    var body: some View {
+        Section {
+            Picker("Làm mờ khi chuyển ảnh", selection: $blur) {
+                ForEach(CoverBlur.allCases) { b in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(b.label)
+                        Text(b.detail)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    .tag(b)
+                }
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
+            .sensoryFeedback(.pick, trigger: blur)
+        } header: {
+            Text("Làm mờ khi chuyển ảnh")
+        } footer: {
+            Text("Ảnh bìa của trang Hôm nay trước chuyến đi. Ảnh luôn trôi chậm hơn trang (parallax) và ảnh lùi sang trái tối đi; đây chỉ là phần mờ thêm. Không làm mờ khi bật Giảm chuyển động hoặc Chế độ nguồn điện thấp.")
         }
     }
 }
