@@ -289,7 +289,8 @@ private struct DiagnosticsSection: View {
 
     #if DEBUG
     /// "Phát âm, chờ nhả · nhả lỗi 0": who holds the audio session (`AudioSessionController`), whether the
-    /// Speaker's release is due, and the deactivations that failed since launch, their retry included
+    /// Speaker's release is due, and the deactivations that failed for good since launch (a busy one only
+    /// once its retry failed too), each also logged once as `setActive false failed`
     private func audioSessionSummary() -> String {
         let audio = AudioSessionController.shared
         let owners = audio.state

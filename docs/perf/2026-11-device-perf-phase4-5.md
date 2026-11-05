@@ -61,12 +61,14 @@ có sự kiện.
 
 ## Task 4.2 — Audio session ngoài main, nhả có hẹn
 
-Bản Release ở commit của Task 4.2, trừ bước 7–10: dòng **Cài đặt › Chẩn đoán › Phiên âm thanh** chỉ có trong bản
+Bản Release ở commit của Task 4.2, trừ bước 7–11: dòng **Cài đặt › Chẩn đoán › Phiên âm thanh** chỉ có trong bản
 Debug (chạy từ Xcode). Dòng đó đọc lại khi mở trang hay khi chạm, và ghi ai giữ phiên âm thanh: "Phát âm" (kèm "chờ
-nhả" trong nửa giây trước khi nhả), "Nghe" hay "Không ai giữ". Sau đó là "nhả lỗi N": số lần huỷ phiên thất bại kể từ khi mở app,
-tính cả lần thử lại. Mọi lệnh session chạy trên hàng đợi `tech.delphyra.jp27.audio-session`. Lệnh lỗi ghi ở Console:
-subsystem `tech.delphyra.jp27`, category `audio`. Không bước nào đo một kịch bản S1–S10: tab Sổ tay (danh sách câu) không
-có trong bảng đó.
+nhả" trong nửa giây trước khi nhả), "Nghe" hay "Không ai giữ". Sau đó là "nhả lỗi N": số lần huỷ phiên thất bại hẳn kể
+từ khi mở app. Lần huỷ bị từ chối vì bận (`isBusy`) được thử lại một lần sau 150 ms, và chỉ tính khi cả lần thử lại cũng
+lỗi: lần đầu bận mà lần thử lại được thì không tính, và Console không ghi gì. Mọi lệnh session chạy trên hàng đợi
+`tech.delphyra.jp27.audio-session`. Chỉ lệnh lỗi hẳn mới ghi ở Console (subsystem `tech.delphyra.jp27`, category
+`audio`), mỗi lần một dòng: số dòng `setActive false failed` bằng N. Không bước nào đo một kịch bản S1–S10: tab Sổ tay
+(danh sách câu) không có trong bảng đó.
 
 | # | Bước | Đạt khi | Kết quả | Ghi chú |
 | --- | --- | --- | --- | --- |
@@ -79,4 +81,6 @@ có trong bảng đó.
 | 7 | Nhạc đang phát. Bắt đầu nghe, không đọc gì, rồi dừng Nghe. Mở Chẩn đoán › Phiên âm thanh (bản Debug). | Nhạc trở lại âm lượng thường ngay. Dòng ghi "Không ai giữ · nhả lỗi 0". | | |
 | 8 | Bản Debug: chạm loa một câu, nghe hết, rồi mở Chẩn đoán › Phiên âm thanh. | "Không ai giữ · nhả lỗi 0": phiên đã được nhả sau câu. Nếu còn "Phát âm", phiên chưa được nhả: ghi lại. | | |
 | 9 | Bản Debug. Đang gọi điện thoại (hay FaceTime âm thanh), mở Nghe, chạm bắt đầu. Sau cuộc gọi, mở Chẩn đoán › Phiên âm thanh. | Nghe báo "Không bắt đầu nghe được." (hay micro không mở). Sau cuộc gọi, nhạc hay app khác phát lại bình thường. Dòng ghi "Không ai giữ", "nhả lỗi" vẫn 0. Nếu "nhả lỗi" tăng, xem Console category `audio`: huỷ một phiên chưa bật đã báo lỗi (chưa kiểm, R-233). | | |
-| 10 | Bản Debug. Dùng Nghe và loa xen kẽ vài phút như bước 2–7. Mở Chẩn đoán › Phiên âm thanh. | "nhả lỗi 0". Nếu khác 0, chép các dòng `setActive false failed` ở Console vào ghi chú. | | |
+| 10 | Bản Debug. Dùng Nghe và loa xen kẽ vài phút như bước 2–7. Mở Chẩn đoán › Phiên âm thanh. | "nhả lỗi 0". Nếu khác 0, chép các dòng `setActive false failed` ở Console vào ghi chú: số dòng bằng N. Một lần huỷ bận rồi thử lại được là bình thường: không tính, không ghi dòng nào. | | |
+| 11 | Bản Debug. Nhạc đang phát. Tab Sổ tay: giữ (nhấn lâu) loa ở một câu dài để câu được đọc chậm, rồi chạm loa ở câu khác khi câu đầu còn đang đọc. Nghe hết câu thứ hai, chờ 2 s, rồi mở Chẩn đoán › Phiên âm thanh. | Câu đầu dừng, câu thứ hai được đọc hết, và câu đầu không đọc tiếp sau đó. Nhạc nhỏ suốt từ câu đầu tới hết câu thứ hai, không bật to lúc chuyển câu, rồi trở lại một lần, khoảng 0,5 s sau khi câu thứ hai dứt (≤ 1 s). Dòng ghi "Không ai giữ · nhả lỗi 0". | | |
+| 12 | Bản Release, so với bản nền: build commit nền `74ceccf` như `2026-11-baseline.md` (mục "Bản build") hướng dẫn, rồi bản ở commit của Task 4.2. Trên mỗi bản, ở một trang yên (tab Sổ tay, không cuộn, không phát gì khác), chạm loa ở cùng một câu 5 lần, mỗi lần nghe hết, và để ý giọng đọc bắt đầu sau cú chạm bao lâu. Không có signpost nào đo lúc giọng bắt đầu (`phrase.turn` chỉ đánh dấu nút xoay của thẻ câu), nên bước này nghe bằng tai. | Giọng bắt đầu nhanh như ở bản nền, không thấy trễ hơn. Nút loa đổi dạng ngay khi chạm ở cả hai bản; giờ giọng chờ lệnh session chạy xong trên hàng đợi rồi mới đọc. Nếu thấy trễ hơn, ghi lại cảm nhận (bao lâu, lần nào). | | |

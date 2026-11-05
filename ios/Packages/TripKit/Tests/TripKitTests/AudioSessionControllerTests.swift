@@ -65,6 +65,8 @@ import Testing
         private struct Inside {
             var setup: AudioSetup
             var log: [Call] = []
+            /// the failures the controller handed back as final, in order
+            var failures: [Call] = []
             /// calls (and reads, as nil) made anywhere but on the controller's queue
             var offQueue: [Call?] = []
             /// deactivations still to fail with `isBusy`
@@ -86,6 +88,7 @@ import Testing
         }
 
         var log: [Call] { inside.withLock { $0.log } }
+        var failures: [Call] { inside.withLock { $0.failures } }
         var offQueue: [Call?] { inside.withLock { $0.offQueue } }
 
         private var isOnQueue: Bool { DispatchQueue.getSpecific(key: Self.onQueue) == true }
@@ -127,6 +130,14 @@ import Testing
         }
 
         func isBusy(_ error: any Error) -> Bool { error is Busy }
+
+        func failed(_ call: Call, _ error: any Error) {
+            let onQueue = isOnQueue
+            inside.withLock { s in
+                s.failures.append(call)
+                if !onQueue { s.offQueue.append(call) }
+            }
+        }
     }
 
     /// The retry's wait: each delay asked for, held at a gate when the test gives one.
@@ -211,6 +222,7 @@ import Testing
         ])
         #expect(session.offQueue.isEmpty)
         #expect(audio.failedDeactivations == 0)
+        #expect(session.failures.isEmpty)
     }
 
     /// Row 3: a line while Nghe listens makes no call, and is spoken (its completion says so).
@@ -285,10 +297,34 @@ import Testing
         #expect(audio.state.holder == .speaker)
     }
 
+    /// Each release timer acts on its own line's release: the first line's timer, firing once a second
+    /// line has ended, does nothing; the second line's releases the session, once.
+    @Test func eachReleaseTimerActsOnItsOwnLine() async {
+        let session = FakeSession()
+        let timers = Timers()
+        let audio = controller(session, timers: timers)
+        _ = await say(audio, session)
+        audio.ended()
+        _ = await say(audio, session)
+        audio.ended()
+        await drained(session)
+        #expect(timers.delays == [.milliseconds(500), .milliseconds(500)])
+        #expect(session.log == [.setCategory(Self.speaker), .activate, .activate])
+        timers.fire(0)
+        await drained(session)
+        #expect(session.log == [.setCategory(Self.speaker), .activate, .activate])
+        #expect(audio.state.holder == .speaker)
+        timers.fire(1)
+        await drained(session)
+        #expect(session.log == [.setCategory(Self.speaker), .activate, .activate, .deactivate])
+        #expect(audio.state.holder == .nobody)
+    }
+
     // MARK: Failures
 
     /// Row 12: a deactivation refused as busy is tried once more, 150 ms later; then the setup from
-    /// before listening is put back.
+    /// before listening is put back. The busy first try is no failure: neither counted nor handed back
+    /// to be logged.
     @Test func aBusyDeactivationIsTriedOnceMoreAfter150ms() async {
         let session = FakeSession(busy: 1)
         let sleeps = Sleeps()
@@ -299,10 +335,11 @@ import Testing
         #expect(session.log == [.setCategory(Self.listener), .activate, .deactivate, .deactivate, .setCategory(Self.fresh)])
         #expect(sleeps.delays == [.milliseconds(150)])
         #expect(audio.failedDeactivations == 0)
+        #expect(session.failures.isEmpty)
     }
 
     /// Busy twice: given up after the second try, and the setup from before is not put back onto the
-    /// session still active (R-232).
+    /// session still active (R-232). One failure, counted and handed back once.
     @Test func aDeactivationBusyTwiceGivesUpAndPutsNothingBack() async {
         let session = FakeSession(busy: 2)
         let sleeps = Sleeps()
@@ -313,6 +350,7 @@ import Testing
         #expect(session.log == [.setCategory(Self.listener), .activate, .deactivate, .deactivate])
         #expect(sleeps.delays == [.milliseconds(150)])
         #expect(audio.failedDeactivations == 1)
+        #expect(session.failures == [.deactivate])
     }
 
     /// Any other failure is not tried again, and stops the step there.
@@ -326,6 +364,7 @@ import Testing
         #expect(session.log == [.setCategory(Self.listener), .activate, .deactivate])
         #expect(sleeps.delays.isEmpty)
         #expect(audio.failedDeactivations == 1)
+        #expect(session.failures == [.deactivate])
     }
 
     /// Row 11a: a refused category stops the step: no activation in a category not asked for. The
@@ -343,6 +382,8 @@ import Testing
         timers.fire(0)
         await drained(session)
         #expect(session.log == [.setCategory(Self.speaker), .deactivate])
+        #expect(session.failures == [.setCategory(Self.speaker)])
+        #expect(audio.failedDeactivations == 0)
     }
 
     /// Row 11b: a refused activation is reported to Nghe; its stop then deactivates all the same
@@ -354,6 +395,7 @@ import Testing
         audio.listenEnded(1)
         await drained(session)
         #expect(session.log == [.setCategory(Self.listener), .activate, .deactivate, .setCategory(Self.fresh)])
+        #expect(session.failures == [.activate])
     }
 
     // MARK: Nothing overtakes
@@ -393,5 +435,113 @@ import Testing
         await drained(session)
         #expect(session.log == [.setCategory(Self.listener), .activate, .deactivate, .setCategory(Self.fresh)])
         #expect(audio.state.holder == .nobody)
+    }
+
+    /// P4b for Nghe: a listen is queued before it suspends, so a stop issued right after it on the same
+    /// actor is queued behind it, though neither has run yet (the queue held). A listen that left the
+    /// caller's actor first would be queued after the stop, which would then find nothing to stop and
+    /// leave the session held by Nghe.
+    @Test func aListenIsQueuedBeforeItSuspends() async {
+        let session = FakeSession()
+        let audio = controller(session)
+        let gate = Gate()
+        await hold(session, at: gate)
+        // main-actor tasks start in the order they were created
+        let listening = Task { await audio.listen(1) }
+        let stopping = Task { audio.listenEnded(1) }
+        await stopping.value
+        gate.open()
+        #expect(await listening.value)
+        await drained(session)
+        #expect(session.log == [.setCategory(Self.listener), .activate, .deactivate, .setCategory(Self.fresh)])
+        #expect(audio.state.holder == .nobody)
+    }
+
+    // MARK: The app's controller
+
+    /// A session whose first call holds its thread for up to half a second: long enough for a call
+    /// handed in meanwhile to start, unless the queue is serial. Such a call lets the first go at once.
+    final class SlowFirstCall: AudioSessionPort {
+        private struct Inside {
+            var setup = AudioSessionOwnersTests.fresh
+            var started = 0
+            var running = 0
+            var overlapped = false
+            var log: [Call] = []
+        }
+
+        private let inside = Mutex(Inside())
+        private let overlap = DispatchSemaphore(value: 0)
+
+        /// a call started while another was still running
+        var overlapped: Bool { inside.withLock { $0.overlapped } }
+        var log: [Call] { inside.withLock { $0.log } }
+
+        /// Records the call (a read as nil); `setCategory` changes what `current()` reads.
+        @discardableResult
+        private func call(_ call: Call?) -> AudioSetup {
+            let (first, overlapping) = inside.withLock { s in
+                s.started += 1
+                s.running += 1
+                if s.running > 1 { s.overlapped = true }
+                if let call { s.log.append(call) }
+                if case .setCategory(let setup) = call { s.setup = setup }
+                return (s.started == 1, s.running > 1)
+            }
+            if overlapping { overlap.signal() }
+            if first { _ = overlap.wait(timeout: .now() + 0.5) }
+            return inside.withLock { s in
+                s.running -= 1
+                return s.setup
+            }
+        }
+
+        func current() -> AudioSetup { call(nil) }
+        func setCategory(_ setup: AudioSetup) throws { call(.setCategory(setup)) }
+        func activate() throws { call(.activate) }
+        func deactivate() throws { call(.deactivate) }
+        func isBusy(_ error: any Error) -> Bool { false }
+        func failed(_ call: Call, _ error: any Error) {}
+    }
+
+    /// The app's controller (the public init) runs one call at a time: a second line's calls wait for the
+    /// first's, though its first call holds the queue for half a second.
+    @Test func theAppsControllerRunsOneCallAtATime() async {
+        let session = SlowFirstCall()
+        let audio = AudioSessionController(port: session, speaker: Self.speaker, listener: Self.listener)
+        let said = await withCheckedContinuation { c in
+            audio.say { _ in }
+            audio.say { ok in c.resume(returning: ok) }
+        }
+        #expect(said)
+        #expect(!session.overlapped)
+        #expect(session.log == [.setCategory(Self.speaker), .activate, .activate])
+    }
+
+    /// The app's controller releases the Speaker's session on a real timer, half a second after the line
+    /// ended, not sooner (and well within five seconds).
+    @Test(.timeLimit(.minutes(1))) func theAppsControllerReleasesHalfASecondAfterTheLine() async throws {
+        let session = FakeSession()
+        let audio = AudioSessionController(port: session, speaker: Self.speaker, listener: Self.listener)
+        _ = await say(audio, session)
+        let clock = ContinuousClock()
+        let start = clock.now
+        audio.ended()
+        while session.log.last != .deactivate, clock.now - start < .seconds(5) {
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        let waited = clock.now - start
+        #expect(session.log == [.setCategory(Self.speaker), .activate, .deactivate])
+        #expect(waited >= .milliseconds(400))
+        #expect(waited < .seconds(5))
+        #expect(audio.state.holder == .nobody)
+    }
+
+    /// The delays the app's controller sleeps and waits, in seconds.
+    @Test func delaysAreGivenToTheSystemInSeconds() {
+        #expect(AudioSessionController.seconds(.milliseconds(150)) == 0.15)
+        #expect(AudioSessionController.seconds(.milliseconds(500)) == 0.5)
+        #expect(AudioSessionController.seconds(.seconds(2)) == 2)
+        #expect(AudioSessionController.seconds(.seconds(1) + .milliseconds(250)) == 1.25)
     }
 }

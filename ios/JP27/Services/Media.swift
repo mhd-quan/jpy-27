@@ -610,8 +610,10 @@ extension Speaker: AVSpeechSynthesizerDelegate {
 }
 
 /// The app's audio session, as `AudioSessionController` drives it. Each call is made on the controller's
-/// queue, never on the main thread. A failed call is logged (Console, subsystem tech.delphyra.jp27,
-/// category audio) and thrown on to the controller, which stops that step there.
+/// queue, never on the main thread. A failed call is thrown on to the controller, which stops that step
+/// there and tells `failed` once the failure is final: only then is it logged (Console, subsystem
+/// tech.delphyra.jp27, category audio). A deactivation refused as busy and made good by its retry logs
+/// nothing, so each `setActive false failed` line is one counted in Chẩn đoán's "nhả lỗi".
 nonisolated struct SystemAudioSession: AudioSessionPort {
     private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "audio")
 
@@ -621,34 +623,30 @@ nonisolated struct SystemAudioSession: AudioSessionPort {
     }
 
     func setCategory(_ setup: AudioSetup) throws {
-        try logged("setCategory \(setup.category)") {
-            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category(rawValue: setup.category),
-                                                            mode: AVAudioSession.Mode(rawValue: setup.mode),
-                                                            options: AVAudioSession.CategoryOptions(rawValue: setup.options))
-        }
+        try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category(rawValue: setup.category),
+                                                        mode: AVAudioSession.Mode(rawValue: setup.mode),
+                                                        options: AVAudioSession.CategoryOptions(rawValue: setup.options))
     }
 
     func activate() throws {
-        try logged("setActive true") { try AVAudioSession.sharedInstance().setActive(true) }
+        try AVAudioSession.sharedInstance().setActive(true)
     }
 
     func deactivate() throws {
-        try logged("setActive false") {
-            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        }
+        try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
     func isBusy(_ error: any Error) -> Bool {
         (error as NSError).code == AVAudioSession.ErrorCode.isBusy.rawValue
     }
 
-    private func logged(_ what: String, _ call: () throws -> Void) throws {
-        do {
-            try call()
-        } catch {
-            Self.log.error("\(what, privacy: .public) failed: \(error.localizedDescription, privacy: .public)")
-            throw error
+    func failed(_ call: AudioSessionOwners.Call, _ error: any Error) {
+        let what = switch call {
+        case .setCategory(let setup): "setCategory \(setup.category)"
+        case .activate: "setActive true"
+        case .deactivate: "setActive false"
         }
+        Self.log.error("\(what, privacy: .public) failed: \(error.localizedDescription, privacy: .public)")
     }
 }
 

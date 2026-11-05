@@ -13,6 +13,10 @@ public protocol AudioSessionPort: Sendable {
     func deactivate() throws
     /// the deactivation failed because audio was still playing or recording (`isBusy`): worth one more try
     func isBusy(_ error: any Error) -> Bool
+    /// `call` failed for good, and its step stopped there: for the log. Told once per failure, on the queue.
+    /// A deactivation refused as busy has failed for good only once its retry has failed too: a busy try
+    /// that the retry made good is no failure, and is not told.
+    func failed(_ call: AudioSessionOwners.Call, _ error: any Error)
 }
 
 /// The app's audio session, for its two owners (the Speaker, Nghe): `AudioSessionOwners` decides who
@@ -34,7 +38,8 @@ public final class AudioSessionController: Sendable {
 
     private struct Inside {
         var owners: AudioSessionOwners
-        /// deactivations that failed, their retry included: the session left active
+        /// deactivations that failed for good (a busy one, only once its retry failed too): the session left
+        /// active
         var failedDeactivations = 0
     }
 
@@ -67,7 +72,8 @@ public final class AudioSessionController: Sendable {
     /// who holds the session now, as of the last event run (for Settings › Chẩn đoán and the tests)
     public var state: AudioSessionOwners { inside.withLock { $0.owners } }
 
-    /// deactivations that failed since launch, their retry included
+    /// deactivations that failed for good since launch: a busy one counts only once its retry has failed
+    /// too, as `AudioSessionPort.failed` tells it
     public var failedDeactivations: Int { inside.withLock { $0.failedDeactivations } }
 
     /// The Speaker is about to read a line: queued now, behind every event handed in before. `done` runs
@@ -116,7 +122,7 @@ public final class AudioSessionController: Sendable {
     }
 
     /// The calls of one step, in order, on the queue; true if all succeeded. The step stops at its first
-    /// failed call (each is logged by the port).
+    /// failed call, which the port is told of once (`failed`), after the retry of a busy deactivation.
     @discardableResult
     private func run(_ calls: [AudioSessionOwners.Call]) -> Bool {
         for call in calls {
@@ -128,6 +134,7 @@ public final class AudioSessionController: Sendable {
                 }
             } catch {
                 if call == .deactivate { inside.withLock { $0.failedDeactivations += 1 } }
+                port.failed(call, error)
                 return false
             }
         }
@@ -145,7 +152,8 @@ public final class AudioSessionController: Sendable {
         }
     }
 
-    private static func seconds(_ duration: Duration) -> Double {
+    /// `duration` in seconds, as `Thread.sleep` and `DispatchTime` take it
+    static func seconds(_ duration: Duration) -> Double {
         let (seconds, attoseconds) = duration.components
         return Double(seconds) + Double(attoseconds) / 1e18
     }
