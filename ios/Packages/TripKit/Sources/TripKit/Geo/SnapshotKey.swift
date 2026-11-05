@@ -98,6 +98,14 @@ public struct SnapshotKey: Hashable, Sendable {
         }
     }
 
+    /// Whether a pin of this kind, by the raw name of the app's `MapPin.Kind`, is drawn over the picture instead of
+    /// into it: the stops, visited ("done") or not ("stop"), and no other kind. The app asks this wherever it
+    /// decides (the key, the content it draws, the stops it lays over): a visited stop drawn into the picture would
+    /// cost a snapshot and a file for every mark.
+    public static func isOverlaid(kind: String) -> Bool { overlaidKinds.contains(kind) }
+
+    private static let overlaidKinds: Set<String> = ["stop", "done"]
+
     /// The map's pins, in order. An overlaid pin counts by its id and place only, so its look (a stop marked
     /// visited) never reaches the key; any other pin by its look too.
     public static func fingerprint(_ pins: [Pin]) -> UInt64 {

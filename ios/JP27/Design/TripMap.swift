@@ -23,10 +23,6 @@ nonisolated struct MapPin: Hashable, Sendable {
     enum Kind: String, Sendable, CaseIterable {
         /// halo: a soft disc under the place being looked at; never tappable
         case stop, done, stay, station, along, snack, fuji, highlight, halo
-
-        /// Drawn over a map's picture (`SnapshotPin`) instead of into it: the stops, visited or not, so that
-        /// marking one changes neither the picture nor its key (`SnapshotKey.Pin.overlaid`).
-        var overlaid: Bool { self == .stop || self == .done }
     }
 
     let id: String
@@ -947,14 +943,15 @@ struct StaticTripMap: View {
             .task(id: Wanted(key: request.key, settled: settled)) { await load(request) }
     }
 
-    /// The stops over the picture, at the points the snapshotter gave their places (`Picture.pins`),
-    /// laid out as `scaledToFill()` lays out the picture; visited ones under the others and every number
-    /// over every disc, as the live map's layers stack. Hidden from VoiceOver: the picture is one
+    /// The stops over the picture (`SnapshotKey.isOverlaid`), at the points the snapshotter gave their places
+    /// (`Picture.pins`), laid out as `scaledToFill()` lays out the picture; visited ones under the others and
+    /// every number over every disc, as the live map's layers stack. Hidden from VoiceOver: the picture is one
     /// element, "Bản đồ".
     private func stops(on picture: MapSnapshots.Picture, in box: CGSize) -> some View {
         let drawn = Size(width: Double(picture.size.width), height: Double(picture.size.height))
         let view = Size(width: Double(box.width), height: Double(box.height))
-        let layered = content.pins.filter { $0.kind == .done } + content.pins.filter { $0.kind == .stop }
+        let over = content.pins.filter { SnapshotKey.isOverlaid(kind: $0.kind.rawValue) }
+        let layered = over.filter { $0.kind == .done } + over.filter { $0.kind != .done }
         let placed = layered.compactMap { pin -> Placed? in
             guard let p = picture.pins[pin.id] else { return nil }
             let at = drawn.point(Double(p.x), Double(p.y), filling: view)
@@ -963,7 +960,8 @@ struct StaticTripMap: View {
         // by pin id: a stop marked visited moves under the others without another stop's disc taking its place
         return ZStack {
             ForEach(placed, id: \.pin.id) { stop in
-                SnapshotPin(kind: stop.pin.kind, dark: dark)
+                // in the picture's scheme, which is the page's but for a moment after it changes
+                SnapshotPin(kind: stop.pin.kind, dark: picture.dark)
                     .position(stop.at)
             }
             ForEach(placed, id: \.pin.id) { stop in
@@ -998,6 +996,9 @@ struct StaticTripMap: View {
             withAnimation(.easeOut(duration: 0.2)) { shown = saved }
             return
         }
+        // cancelled during the read (the page left, a new size or scheme): no snapshot that nobody shows, whose
+        // write would prune the frame's shown picture
+        guard !Task.isCancelled else { return }
         if !settled {
             do { try await Task.sleep(for: Self.settleCap) } catch { return }
         }
@@ -1055,17 +1056,21 @@ struct SnapshotPin: View {
 final class MapSnapshots {
     static let shared = MapSnapshots()
 
-    /// A drawn map: the image, its size in points, and where each stop it leaves out sits on it.
+    /// A drawn map: the image, its size in points, its scheme, and where each stop it leaves out sits on it.
     nonisolated final class Picture: Sendable {
         let image: UIImage
         /// the snapshot's size in points, which `pins` are in
         let size: CGSize
+        /// drawn in the dark style: its stops are drawn so too (`SnapshotPin`), even while the page has turned
+        /// light and this picture waits for its light one
+        let dark: Bool
         /// by pin id, from the image's top left (`MLNMapSnapshot.point(for:)`)
         let pins: [String: CGPoint]
 
-        init(image: UIImage, size: CGSize, pins: [String: CGPoint]) {
+        init(image: UIImage, size: CGSize, dark: Bool, pins: [String: CGPoint]) {
             self.image = image
             self.size = size
+            self.dark = dark
             self.pins = pins
         }
     }
@@ -1101,7 +1106,7 @@ final class MapSnapshots {
     /// What `content` draws, folded once per map (`StaticTripMap.init`), never per frame: everything but
     /// the pins (each line's look and points, the heat, the focus, the insets, and the app's build, whose
     /// style, code and data draw it), then the pins, a stop by its id and place alone
-    /// (`MapPin.Kind.overlaid`), so that marking it visited leaves the key as it was.
+    /// (`SnapshotKey.isOverlaid`), so that marking it visited leaves the key as it was.
     static func prints(_ content: MapContent, insets: UIEdgeInsets) -> Prints {
         var route = SnapshotKey.Fingerprint()
         route.add(UInt64(content.routes.count))
@@ -1121,7 +1126,8 @@ final class MapSnapshots {
         let pins = content.pins.map { p in
             let number = p.number.map { String($0) } ?? ""
             let title = p.titled ? p.label ?? "" : ""
-            return SnapshotKey.Pin(id: p.id, coordinate: p.coordinate, look: "\(p.kind.rawValue)·\(number)·\(title)", overlaid: p.kind.overlaid)
+            return SnapshotKey.Pin(id: p.id, coordinate: p.coordinate, look: "\(p.kind.rawValue)·\(number)·\(title)",
+                                   overlaid: SnapshotKey.isOverlaid(kind: p.kind.rawValue))
         }
         return Prints(route: route.value, pins: SnapshotKey.fingerprint(pins))
     }
@@ -1160,7 +1166,8 @@ final class MapSnapshots {
         let image = Self.folder.appending(path: key.fileName)
         let pins = Self.folder.appending(path: key.pinsFileName)
         let scale = request.scale
-        let task = Task { await Self.read(image: image, pins: pins, scale: scale) }
+        let dark = request.dark
+        let task = Task { await Self.read(image: image, pins: pins, scale: scale, dark: dark) }
         reading[key] = task
         let picture = await task.value
         reading[key] = nil
@@ -1169,7 +1176,7 @@ final class MapSnapshots {
     }
 
     /// Draws `request`, one snapshotter per key at a time: an ask while one draws waits for it. Kept in
-    /// memory, and on disk when online (`write`), after which the frame's other pictures go.
+    /// memory, and on disk when online (`Folder.write`), after which the frame's other pictures go.
     func render(_ request: Request) async -> Picture? {
         let key = request.key
         if let hit = cached(key) { return hit }
@@ -1182,7 +1189,7 @@ final class MapSnapshots {
         keep(picture, as: key)
         if AppModel.shared.network.online {
             // nobody waits for the files: the picture is in memory already
-            Task(priority: .utility) { await Self.write(picture, as: key) }
+            Task(priority: .utility) { await Self.folderWriter.write(picture, as: key) }
         }
         return picture
     }
@@ -1199,13 +1206,14 @@ final class MapSnapshots {
         Self.frame(request, in: options)
         let snapshotter = MLNMapSnapshotter(options: options)
         var drawn = request.content
-        drawn.pins.removeAll { $0.kind.overlaid }
+        drawn.pins.removeAll { SnapshotKey.isOverlaid(kind: $0.kind.rawValue) }
         let styler = SnapshotStyler(content: drawn, dark: request.dark)
         snapshotter.delegate = styler
         let id = ObjectIdentifier(styler)
         stylers[id] = styler
         defer { stylers[id] = nil }
-        let stops = request.content.pins.filter { $0.kind.overlaid }
+        let stops = request.content.pins.filter { SnapshotKey.isOverlaid(kind: $0.kind.rawValue) }
+        let dark = request.dark
         Perf.mark("map.snapshot")
         return await withCheckedContinuation { (done: CheckedContinuation<Picture?, Never>) in
             // started on the main thread, as MapLibre insists; the snapshotter keeps itself alive
@@ -1219,7 +1227,7 @@ final class MapSnapshots {
                 for stop in stops {
                     points[stop.id] = snapshot.point(for: CLLocationCoordinate2D(latitude: stop.coordinate.lat, longitude: stop.coordinate.lng))
                 }
-                done.resume(returning: Picture(image: snapshot.image, size: snapshot.image.size, pins: points))
+                done.resume(returning: Picture(image: snapshot.image, size: snapshot.image.size, dark: dark, pins: points))
             }
         }
     }
@@ -1233,58 +1241,75 @@ final class MapSnapshots {
     }
 
     /// Off the main thread, both files or nothing (half a picture is drawn again). ImageIO reads the
-    /// image by its content: HEIC, or the JPEG written where HEIC could not be (`write`).
-    @concurrent private nonisolated static func read(image: URL, pins: URL, scale: CGFloat) async -> Picture? {
+    /// image by its content: HEIC, or the JPEG written where HEIC could not be (`Folder.write`).
+    @concurrent private nonisolated static func read(image: URL, pins: URL, scale: CGFloat, dark: Bool) async -> Picture? {
         guard let data = try? Data(contentsOf: image), let decoded = UIImage(data: data, scale: scale),
               let json = try? Data(contentsOf: pins), let saved = try? JSONDecoder().decode(SavedPins.self, from: json),
               saved.v == 1 else { return nil }
         var points: [String: CGPoint] = [:]
         for (id, p) in saved.pins where p.count == 2 { points[id] = CGPoint(x: p[0], y: p[1]) }
         let ready = await decoded.byPreparingForDisplay() ?? decoded
-        return Picture(image: ready, size: CGSize(width: saved.w, height: saved.h), pins: points)
+        return Picture(image: ready, size: CGSize(width: saved.w, height: saved.h), dark: dark, pins: points)
     }
 
-    /// Off the main thread: the image as HEIC, or as JPEG (0.85) under the same name where HEIC cannot be
-    /// made, then its pins, each written whole; then, both written, the frame's other pictures go
-    /// (`prune`). A file that cannot be written leaves the frame's older picture where it is.
-    @concurrent private nonisolated static func write(_ picture: Picture, as key: SnapshotKey) async {
-        var pins: [String: [Double]] = [:]
-        for (id, p) in picture.pins { pins[id] = [Double(p.x), Double(p.y)] }
-        let saved = SavedPins(w: Double(picture.size.width), h: Double(picture.size.height), pins: pins)
-        guard let image = picture.image.heicData() ?? picture.image.jpegData(compressionQuality: 0.85),
-              let json = try? JSONEncoder().encode(saved) else { return }
-        do {
-            try image.write(to: folder.appending(path: key.fileName), options: .atomic)
-            try json.write(to: folder.appending(path: key.pinsFileName), options: .atomic)
-        } catch {
-            // a cache: the picture stays in memory, and is drawn again at a later launch
-            return
-        }
-        prune(keeping: key)
+    /// The folder's one writer (`Folder`): every write, prune and trim goes through it.
+    private nonisolated static let folderWriter = Folder()
+
+    /// At launch: the pictures of the build before 4.1 ("<key>.png") go, then the oldest pictures until the
+    /// folder holds `bytes` at most (`Folder.trim`).
+    nonisolated static func trim(toBytes bytes: Int) async {
+        await folderWriter.trim(toBytes: bytes)
     }
 
-    /// Deletes the frame's other pictures (`SnapshotKey.stale`): one picture per frame on disk.
-    nonisolated static func prune(keeping key: SnapshotKey) {
-        guard let urls = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return }
-        for name in SnapshotKey.stale(urls.map(\.lastPathComponent), keeping: key) {
-            try? FileManager.default.removeItem(at: folder.appending(path: name))
+    /// Everything that changes Caches/MapSnapshots/, one call at a time, off the main thread: a picture's two
+    /// files and the prune after them, and the trim at launch. No call suspends inside, so each runs whole before
+    /// the next starts: a frame's prune always follows its own write and never lists the folder while another
+    /// write is half done. Two pictures of one frame written close together (light and dark, two sizes) leave the
+    /// later one on disk, never none. Reads (`read`) need no turn: a file pruned under one is a miss.
+    private actor Folder {
+        /// The image as HEIC, or as JPEG (0.85) under the same name where HEIC cannot be made, then its pins,
+        /// each written whole; then, both written, the frame's other pictures go (`prune`). A file that cannot
+        /// be written leaves the frame's older picture where it is.
+        func write(_ picture: Picture, as key: SnapshotKey) {
+            var pins: [String: [Double]] = [:]
+            for (id, p) in picture.pins { pins[id] = [Double(p.x), Double(p.y)] }
+            let saved = SavedPins(w: Double(picture.size.width), h: Double(picture.size.height), pins: pins)
+            guard let image = picture.image.heicData() ?? picture.image.jpegData(compressionQuality: 0.85),
+                  let json = try? JSONEncoder().encode(saved) else { return }
+            do {
+                try image.write(to: folder.appending(path: key.fileName), options: .atomic)
+                try json.write(to: folder.appending(path: key.pinsFileName), options: .atomic)
+            } catch {
+                // a cache: the picture stays in memory, and is drawn again at a later launch
+                return
+            }
+            prune(keeping: key)
         }
-    }
 
-    /// At launch, off the main thread: the pictures of the build before 4.1 ("<key>.png") go, then the
-    /// oldest pictures until the folder holds `bytes` at most (`SnapshotKey.trimmed`). Nothing that is
-    /// not ours is touched.
-    @concurrent nonisolated static func trim(toBytes bytes: Int) async {
-        let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
-        guard let urls = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys) else { return }
-        let files = urls.compactMap { url -> SnapshotKey.File? in
-            guard let values = try? url.resourceValues(forKeys: Set(keys)) else { return nil }
-            return SnapshotKey.File(name: url.lastPathComponent, bytes: values.fileSize ?? 0,
-                                    modified: values.contentModificationDate ?? .distantPast)
+        /// Deletes the frame's other pictures (`SnapshotKey.stale`): one picture per frame on disk.
+        private func prune(keeping key: SnapshotKey) {
+            guard let urls = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return }
+            for name in SnapshotKey.stale(urls.map(\.lastPathComponent), keeping: key) {
+                try? FileManager.default.removeItem(at: folder.appending(path: name))
+            }
         }
-        for name in SnapshotKey.trimmed(files, toBytes: bytes) {
-            try? FileManager.default.removeItem(at: folder.appending(path: name))
+
+        /// The pictures of the build before 4.1 go, then the oldest pictures until the folder holds `bytes` at
+        /// most (`SnapshotKey.trimmed`). Nothing that is not ours is touched.
+        func trim(toBytes bytes: Int) {
+            let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
+            guard let urls = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys) else { return }
+            let files = urls.compactMap { url -> SnapshotKey.File? in
+                guard let values = try? url.resourceValues(forKeys: Set(keys)) else { return nil }
+                return SnapshotKey.File(name: url.lastPathComponent, bytes: values.fileSize ?? 0,
+                                        modified: values.contentModificationDate ?? .distantPast)
+            }
+            for name in SnapshotKey.trimmed(files, toBytes: bytes) {
+                try? FileManager.default.removeItem(at: folder.appending(path: name))
+            }
         }
+
+        private var folder: URL { MapSnapshots.folder }
     }
 
     #if DEBUG

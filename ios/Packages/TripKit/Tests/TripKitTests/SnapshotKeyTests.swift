@@ -43,12 +43,33 @@ import Testing
         var renamed = day
         renamed[1].id = "yushima"
         #expect(SnapshotKey.fingerprint(renamed) != SnapshotKey.fingerprint(day))
+        // a pin drawn into the picture counts by its place and its id too: moved, or another pin there
+        var movedIn = day
+        movedIn[2].coordinate.lng += 0.0001
+        #expect(SnapshotKey.fingerprint(movedIn) != SnapshotKey.fingerprint(day))
+        var renamedIn = day
+        renamedIn[2].id = "gracery-shinjuku"
+        #expect(SnapshotKey.fingerprint(renamedIn) != SnapshotKey.fingerprint(day))
         // a pin drawn into the picture instead of over it is another picture
         var drawnIn = day
         drawnIn[1].overlaid = false
         #expect(SnapshotKey.fingerprint(drawnIn) != SnapshotKey.fingerprint(day))
         // one more stop is another picture
         #expect(SnapshotKey.fingerprint(Array(day.prefix(2))) != SnapshotKey.fingerprint(day))
+    }
+
+    /// Which pins the picture leaves out, by the raw names of the app's `MapPin.Kind` (every case is listed here):
+    /// the stops, visited or not, and nothing else. A visited stop drawn into the picture would cost a snapshot and
+    /// a file per mark again; any other kind left out would vanish from the picture, which `SnapshotPin` only
+    /// draws stops over.
+    @Test func onlyTheStopsAreDrawnOverThePicture() {
+        #expect(SnapshotKey.isOverlaid(kind: "stop"))
+        #expect(SnapshotKey.isOverlaid(kind: "done"))
+        for kind in ["stay", "station", "along", "snack", "fuji", "highlight", "halo"] {
+            #expect(!SnapshotKey.isOverlaid(kind: kind), "\(kind)")
+        }
+        #expect(!SnapshotKey.isOverlaid(kind: "Stop"))
+        #expect(!SnapshotKey.isOverlaid(kind: ""))
     }
 
     @Test func keyChangesWithRouteAndScheme() {
@@ -70,6 +91,17 @@ import Testing
         // the frame names the file, not the picture
         let other = key("2", route: SnapshotKey.fingerprint(line))
         #expect(other != base && other.hash == base.hash)
+    }
+
+    /// To the nearest point, each side: a layout pass a fraction off either way is the same picture.
+    @Test func aSizeCountsToTheNearestPoint() {
+        func sized(_ width: Double, _ height: Double) -> SnapshotKey { key(size: Size(width: width, height: height)) }
+        #expect(sized(361, 100.4) == sized(361, 100))
+        #expect(sized(361, 100.6) == sized(361, 101))
+        #expect(sized(100.4, 240) == sized(100, 240))
+        #expect(sized(100.6, 240) == sized(101, 240))
+        #expect(sized(361, 100.4) != sized(361, 100.6))
+        #expect(sized(100.4, 240) != sized(100.6, 240))
     }
 
     /// Pinned (the value was worked out apart, in Python, from the bytes `make` is meant to read): a change to what the hash reads, or in what order, renames every picture on every phone (each
@@ -188,6 +220,20 @@ import Testing
         #expect(Set(SnapshotKey.trimmed(files, toBytes: 21)) == ["1-oldest.heic", "1-oldest.json", "kawaguchiko-mid.heic", "kawaguchiko-mid.json"])
         #expect(SnapshotKey.trimmed(files, toBytes: 33).isEmpty)
         #expect(SnapshotKey.trimmed([], toBytes: 0).isEmpty)
+    }
+
+    /// A picture is as old as the newest of its two files, in whatever order the folder lists them: an image
+    /// written at 9 with pins from 1 is newer than a picture written whole at 5.
+    @Test func aPicturesAgeIsItsNewestFile() {
+        func at(_ seconds: Double) -> Date { t0.addingTimeInterval(seconds) }
+        let a = [SnapshotKey.File(name: "1-a.heic", bytes: 10, modified: at(9)),
+                 SnapshotKey.File(name: "1-a.json", bytes: 1, modified: at(1))]
+        let b = [SnapshotKey.File(name: "2-b.heic", bytes: 10, modified: at(5)),
+                 SnapshotKey.File(name: "2-b.json", bytes: 1, modified: at(5))]
+        // 22 bytes, 11 allowed: exactly one picture goes, B
+        for files in [a + b, b + a, a.reversed() + b, b + a.reversed()] {
+            #expect(SnapshotKey.trimmed(files, toBytes: 11) == ["2-b.heic", "2-b.json"])
+        }
     }
 
     @Test func trimNeverTouchesNamesThatAreNotOurs() {
