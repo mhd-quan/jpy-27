@@ -52,6 +52,8 @@ final class JP27AppDelegate: NSObject, UIApplicationDelegate {
         AppModel.shared.location.start()
         // the day's hitches, launch times and transitions, delivered once a day (Chẩn đoán › Số đo)
         MXMetricManager.shared.add(MetricsInbox.shared)
+        // the maps' pictures held to 40 MB, the old format's gone; off the main thread, and nothing waits for it
+        Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20) }
         return true
     }
 }

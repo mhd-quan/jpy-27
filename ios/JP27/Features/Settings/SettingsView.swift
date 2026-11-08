@@ -95,6 +95,8 @@ private struct DiagnosticsSection: View {
     @State private var fakeStyle = OfflineMaps.fakeOtherStyle
     /// the latest fix taken (`LocationService.fixedAt`), read on opening the page and on a tap
     @State private var lastFix: String?
+    /// what `Caches/MapSnapshots` holds, read on opening the page
+    @State private var mapPictures: String?
     #endif
     /// the location history's rows, counted when the page opens (nil: not counted, or unreadable)
     @State private var history: (visits: Int, traces: Int)?
@@ -251,6 +253,27 @@ private struct DiagnosticsSection: View {
                 }
             }
             .onAppear { lastFix = lastFixSummary() }
+            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 4.1: a picture and the live map that replaces
+            // it frame the same view; marking stops adds no picture
+            NavigationLink {
+                MapFrameCheck()
+            } label: {
+                Label {
+                    Text("So khung bản đồ")
+                } icon: {
+                    SettingsIcon(symbol: "map", tint: .teal)
+                }
+            }
+            LabeledContent {
+                Text(mapPictures ?? "—").monospacedDigit()
+            } label: {
+                Label {
+                    Text("Ảnh bản đồ đã lưu")
+                } icon: {
+                    SettingsIcon(symbol: "photo.on.rectangle", tint: .gray)
+                }
+            }
+            .task { mapPictures = await MapSnapshots.usage() }
             #endif
         } header: {
             Text("Chẩn đoán")

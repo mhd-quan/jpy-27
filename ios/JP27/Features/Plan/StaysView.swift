@@ -147,7 +147,7 @@ private struct PlanStayContent: View {
                         .buttonStyle(.pressable(.bordered))
                     }
                     if let around = stay.around {
-                        PlanNeighbourhood(stay: stay, around: around)
+                        PlanNeighbourhood(stay: stay, around: around, mapScheme: photos.isEmpty ? nil : (canvas?.scheme ?? system))
                     }
                     AmbientCredit(photos: photos, page: page)
                 }
@@ -256,12 +256,14 @@ private struct PlanNeighbourhood: View {
     @Environment(AppModel.self) private var model
     let stay: StayPlan
     let around: StayAround
+    /// the album page's light or dark, which the map's picture is drawn in; nil without photographs
+    var mapScheme: ColorScheme?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.stack) {
             VStack(alignment: .leading, spacing: 10) {
                 SectionTitle("Quanh khách sạn")
-                StaticTripMap(content: content, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: stay.id)
+                StaticTripMap(content: content, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: stay.id, scheme: mapScheme)
                     .frame(height: 300)
                     .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                 if let area = around.area { Text(area).font(.body) }
@@ -513,7 +515,8 @@ private struct PlanHighlightContent: View {
                             PlanInfoRow(symbol: "bed.double", text: "\(Fmt.km(km)) đường chim bay từ \(hotel.name)", label: "Cách khách sạn")
                         }
                     }
-                    StaticTripMap(content: content, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: "\(walk.id)-\(index)")
+                    StaticTripMap(content: content, insets: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: "\(walk.id)-\(index)",
+                                  scheme: photos.isEmpty ? nil : (canvas?.scheme ?? system))
                         .frame(height: 240)
                         .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                     if walk.highlights.count > 1 {

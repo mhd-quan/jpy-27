@@ -35,7 +35,7 @@ private struct PlanDayContent: View {
                         .overlay(alignment: .bottom) { PlanDayHeadline(day: day, label: label) }
                 }
                 LazyVStack(alignment: .leading, spacing: Metrics.stack) {
-                    PlanDayHeader(day: day, titled: photo == nil)
+                    PlanDayHeader(day: day, titled: photo == nil, mapScheme: photo == nil ? nil : (canvas?.scheme ?? system))
                     PlanDayTimeline(day: day)
                     if !day.along.isEmpty { PlanDayAlong(day: day) }
                     if !day.trims.isEmpty {
@@ -135,6 +135,8 @@ private struct PlanDayHeader: View {
     let day: Day
     /// the date and title, when there is no photograph above to carry them
     var titled = true
+    /// the album page's light or dark, which the map's picture is drawn in; nil without a photograph
+    var mapScheme: ColorScheme?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -147,7 +149,7 @@ private struct PlanDayHeader: View {
             }
             // a picture of the map, not a live one: a tap opens the Map tab on the day
             StaticTripMap(content: .day(day, model: model), insets: UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 28),
-                          frameID: day.key, tapToInteract: false)
+                          frameID: day.key, tapToInteract: false, scheme: mapScheme)
                 .frame(height: 240)
                 .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                 // the map is still; a tap opens the live map tab
