@@ -618,6 +618,8 @@ final class MapPacer {
         return target
     }
 
+    /// Read from `didRender`, each frame it is asked, so it needs no observer: a map rendering follows Low
+    /// Power Mode within a frame. (The home cover reads `AppModel.lowPower` instead: nothing re-runs it otherwise.)
     private var allowed: Bool {
         top > 60 && !ProcessInfo.processInfo.isLowPowerModeEnabled
             && ProcessInfo.processInfo.thermalState != .critical

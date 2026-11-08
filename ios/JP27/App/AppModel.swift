@@ -244,6 +244,8 @@ enum AppSheet: Identifiable, Hashable {
     @ObservationIgnored private var asleep = true
     /// the pinned tile build was asked about and answered, this launch
     @ObservationIgnored private var tilesChecked = false
+    /// Low Power Mode, followed live (the cover stops and restarts its flips with it)
+    private(set) var lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
 
     var guide: Guide { store.guide! }
     var people: Int { store.trip.meta.people }
@@ -337,6 +339,10 @@ enum AppSheet: Identifiable, Hashable {
         }
         motion.onPace = { [weak self] kmh, minutes in self?.learnPace(kmh: kmh, minutes: minutes) }
         notifications.onAction = { [weak self] in self?.notificationAction($0) }
+        // delivered on whatever thread changed the setting: asked again on the main actor, not trusted from here
+        NotificationCenter.default.addObserver(forName: .NSProcessInfoPowerStateDidChange, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled }
+        }
     }
 
     // MARK: - Lifecycle

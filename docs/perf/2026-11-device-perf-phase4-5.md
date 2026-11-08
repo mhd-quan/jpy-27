@@ -61,6 +61,17 @@ app nhả session).
 
 ## 4.3
 
+Bản nào cũng được. Không có mã S: không kịch bản nào trong `docs/perf/2026-11-baseline.md` đo việc này.
+Nguồn điện thấp bật/tắt từ Control Center khi app đang mở ở trang chủ (`AppModel.lowPower`).
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | Trang chủ, bìa đang lật (đợi một lần lật), bật Nguồn điện thấp từ Control Center rồi quay về app | bìa dừng ngay, không lật thêm trang; ảnh bìa không còn trôi chậm | |
+| 2 | Vẫn ở trang chủ, tắt Nguồn điện thấp | bìa lật lại sau khoảng 6 giây, ảnh bìa trôi lại | |
+| 3 | Mở app lúc Nguồn điện thấp đang bật, vào trang chủ | bìa đứng yên từ đầu | |
+| 4 | Cài đặt › Chẩn đoán, dòng số lần chạy lịch nhắc (`model.reschedules` = `rescheduler.runs`), mở app một lần từ tắt hẳn | số lần chạy = 1 | |
+| 5 | Bấm đánh dấu xong một điểm trong Time Profiler (main thread), trong 300 ms sau bấm | không có việc của CoreLocation (`CLLocationManager`) trong khung của lần bấm | |
+
 ## 5.8a
 
 ## 5.1a

@@ -90,13 +90,13 @@ private struct HomeCover: View {
         // Under a sheet or behind another tab it waits: nothing turns while you look at something
         // else, and no page turn lands in the middle of a sheet's zoom. (Read here, not in the
         // body, so opening a sheet does not re-run the cover.)
-        .task(id: "\(page ?? 0)-\(visible)") {
+        .task(id: "\(page ?? 0)-\(visible)-\(model.lowPower)") {
             guard visible, !reduceMotion, shots.count > 1, toured < shots.count - 1 else { return }
             repeat {
                 try? await Task.sleep(for: .seconds(6))
             } while !Task.isCancelled && !(model.sheets.isEmpty && model.tab == .today)
-            // Low Power Mode: the covers stay where they are
-            guard !Task.isCancelled, !ProcessInfo.processInfo.isLowPowerModeEnabled else { return }
+            // Low Power Mode: the covers stay where they are (`model.lowPower` is in the task id: turned off, the flips start again)
+            guard !Task.isCancelled, !model.lowPower else { return }
             toured += 1
             withAnimation(.smooth(duration: 0.9)) { page = ((page ?? 0) + 1) % shots.count }
         }
@@ -114,7 +114,7 @@ private struct HomeCover: View {
                             model.present(.place(shots[i].place.id), from: "home.cover.\(i)")
                         } label: {
                             // the slow drift is drawn every frame: not in Low Power Mode
-                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible && !ProcessInfo.processInfo.isLowPowerModeEnabled)
+                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible && !model.lowPower)
                         }
                         .buttonStyle(.pressable(.plain))
                         .containerRelativeFrame(.horizontal)
