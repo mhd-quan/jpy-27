@@ -154,6 +154,22 @@ Rung nhẹ trước đây (`press` là `.soft` 0,3, `snap` là `.soft` 0,5) gầ
 
 Sang tab khác rung một nhịp `page` (`sensoryFeedback` trên `TabView`, theo `model.tab`, nên cả khi app tự chuyển tab).
 
+## Chuyển động
+
+Mọi animation của app đặt tên theo khoảnh khắc nó phục vụ, như bộ `SensoryFeedback` ở mục Rung, và nằm trong `Motion` (`ios/JP27/Design/Motion.swift`). Không viết `.snappy`, `.smooth`, `.spring` rời ở chỗ gọi.
+
+| Token | Dùng cho |
+|---|---|
+| `press` | ngón tay đang chạm: nhấn nút, phím, thả một cú kéo |
+| `pick` | chọn một trong vài thứ: chip, dấu chọn, danh mục, vùng sáng, số tiền trên bàn phím |
+| `arrive` | thứ chưa có nay xuất hiện: ảnh, ảnh chụp bản đồ, tiêu đề. Không dùng khi lấy từ cache, không đặt trong `drawingGroup` |
+| `settle` | bảng, dải hay thẻ về chỗ nằm. `settle(velocity:)` là bản nhận vận tốc của ngón tay lúc thả |
+| `travel` | một chuyển động dài mắt phải theo kịp: camera bay, bìa lật, mặt số vẽ dần |
+
+Giảm chuyển động: chỗ gọi đọc `accessibilityReduceMotion` rồi chạy qua `Motion.reduced(token, reduce)`. Khi bật, lò xo (`press`, `settle`) và `pick` thành một cú ease ngắn 0,2 giây, `arrive` giữ nguyên, `travel` thành không animation (nhảy thẳng tới đích). Khi tắt, trả đúng token.
+
+`scripts/lint-motion.mjs` (task 5.8b) sẽ bắt buộc điều này trong CI; đến lúc đó các chỗ cũ chưa chuyển vẫn còn.
+
 ## Liquid Glass
 
 Theo [Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass) và [Build a SwiftUI app with the new design](https://developer.apple.com/videos/play/wwdc2025/323/):
