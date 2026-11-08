@@ -491,21 +491,23 @@ private struct DetailPage: ViewModifier {
         content
             .ignoresSafeArea(edges: .top)
             .scrollEdgeEffectHidden(!past, for: .top)
-            // Judged whole from the scroll view's own geometry, on every reading: the distance
-            // scrolled against where the photograph ends. A photograph sized as a share of the page
-            // is measured from the same geometry, the way `containerRelativeFrame` sizes it (the
-            // page's height less its safe-area insets), so a page that grows while it zooms open is
-            // judged on the height it lands at, and nothing is written while it zooms. The build
-            // before read the photograph's height into the page's state as it zoomed, and redrew the
-            // whole page for it.
+            // Judged whole from the scroll view's own geometry, on every reading (`HeroEdge`): the
+            // distance scrolled against where the photograph ends. A photograph sized as a share of
+            // the page is measured from the same geometry, by the formula `containerRelativeFrame`
+            // sizes it with (the page's height less its content insets), so a page that grows while
+            // it zooms open is judged on the height it lands at, and nothing is written while it
+            // zooms. The build before read the photograph's height into the page's state as it
+            // zoomed, and redrew the whole page for it.
             .onScrollGeometryChange(for: Bool.self) { [hero] geo in
-                let scrolled = geo.contentOffset.y + geo.contentInsets.top
-                let height = switch hero {
-                case .height(let fixed): fixed
-                case .fraction(let share): ((geo.containerSize.height - geo.contentInsets.top - geo.contentInsets.bottom) * share).rounded()
+                let offset = Double(geo.contentOffset.y)
+                let top = Double(geo.contentInsets.top)
+                return switch hero {
+                case .height(let fixed):
+                    HeroEdge(height: Double(fixed), offset: offset, insetTop: top).past
+                case .fraction(let share):
+                    HeroEdge(fraction: Double(share), containerHeight: Double(geo.containerSize.height), insetTop: top,
+                             insetBottom: Double(geo.contentInsets.bottom), offset: offset).past
                 }
-                // the bar takes the title and its edge once the photograph is nearly gone; at the top, never
-                return scrolled > 0 && scrolled > height - 130
             } action: { _, now in
                 withAnimation(.smooth(duration: 0.25)) { past = now }
             }
@@ -622,8 +624,10 @@ private struct AmbientPicture: View {
     var body: some View {
         Color.clear
             .overlay {
-                if let picture {
-                    Image(uiImage: picture)
+                // read here, not only at init: a picture in memory for the size the box has in this
+                // frame (a layout pass that lands at another size than the first) draws in this frame
+                if let shown = PhotoCache.cachedAmbient(photo, size: size) ?? picture {
+                    Image(uiImage: shown)
                         .resizable()
                         .scaledToFill()
                         .transition(.opacity)

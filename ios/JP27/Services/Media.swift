@@ -38,8 +38,9 @@ actor PhotoCache {
     /// decoded whole has one entry of its own (`fullKey`) whatever it was asked at.
     private nonisolated static let sizes = OSAllocatedUnfairLock<[String: Set<Int>]>(initialState: [:])
     /// loads in flight, by ask, so two views asking for the same photo share one decode; `network`
-    /// says whether the load may download (a colour never does, `tone`)
-    private var loading: [NSString: (task: Task<UIImage?, Never>, network: Bool)] = [:]
+    /// says whether the load may download (a colour never does, `tone`); `src` finds another ask's
+    /// load of the same photo (`shared`)
+    private var loading: [NSString: (task: Task<UIImage?, Never>, network: Bool, src: String)] = [:]
     /// veils and colours being made, by src: the page's colour and its hero ask for them together
     private var deriving: [String: Task<Derived?, Never>] = [:]
     /// album pictures being composed, by `ambientKey`
@@ -113,11 +114,14 @@ actor PhotoCache {
         "\(photo.src)@amb@\(Int(size.width.rounded()))x\(Int(size.height.rounded()))"
     }
 
-    /// "a1": the way pictures are composed; a change there names every picture anew instead of
-    /// reading old ones
+    /// Named after the picture's key and the app's build (`AmbientFile`): Caches outlive an update,
+    /// and a new build never reads a picture an older one composed.
     private nonisolated static func ambientFile(_ key: String) -> URL {
-        ambientFolder.appendingPathComponent("a1-" + hash36(key) + ".heic")
+        ambientFolder.appendingPathComponent(AmbientFile.name(key: key, build: build))
     }
+
+    /// the app's build: its code composes the pictures, and its bundle holds the photographs
+    private nonisolated static let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
 
     private nonisolated static func pixels(_ image: UIImage) -> Size {
         Size(width: Double(image.size.width * image.scale), height: Double(image.size.height * image.scale))
@@ -158,12 +162,24 @@ actor PhotoCache {
         tones.withLock { $0[photo.src] }
     }
 
+    /// The photo's veil, made if it was not: for a page that is not an album's, which looks in
+    /// `cachedVeil` for its first frame and asks this on a miss. From the decode at the hero's ask
+    /// (`heroPixel`, shared with any other ask for it, downloaded if the photo is not on this phone
+    /// yet), through `derive`, which keeps the veil for `cachedVeil` and the colour with the others.
+    func veil(_ photo: Photo) async -> UIImage? {
+        if let hit = Self.cachedVeil(photo) { return hit }
+        guard let sharp = await image(photo, maxPixel: Self.heroPixel) else { return nil }
+        return await derived(photo, from: sharp)?.veil
+    }
+
     /// The photo at this size, decoded once and kept. `network` false reads only what is on this
     /// phone. A read in flight for the same ask is shared, except that one which may not download
-    /// and found nothing does not answer an ask that may: that one then downloads.
+    /// and found nothing does not answer an ask that may: that one then downloads. A decode of the
+    /// photo in flight for another ask is waited for, and taken if it serves this one (`shared`).
     func image(_ photo: Photo, maxPixel: CGFloat = 1200, network: Bool = true) async -> UIImage? {
         if let hit = Self.cached(photo, maxPixel: maxPixel) { return hit }
         let key = Self.key(photo, maxPixel)
+        if loading[key] == nil, let hit = await shared(photo, maxPixel: maxPixel, key: key) { return hit }
         if let running = loading[key] {
             let image = await running.task.value
             guard image == nil, !running.network, network else { return image }
@@ -175,11 +191,26 @@ actor PhotoCache {
             guard let decoded = await Self.load(photo, maxPixel: maxPixel, network: network) else { return nil }
             return Self.keep(decoded, photo, maxPixel: maxPixel)
         }
-        loading[key] = (task, network)
+        loading[key] = (task, network, photo.src)
         let image = await task.value
         // a download that took over this ask after a local read found nothing is not this one's to clear
         if loading[key]?.task == task { loading[key] = nil }
         return image
+    }
+
+    /// Waits for the decodes of this photo under way for other asks, and takes one that serves this
+    /// ask (`cached`, by `DecodePlan`): on a cold home the cover (2400) and its day card (1800) cost
+    /// one decode of the cover, which is smaller than both and so decoded whole. One that does not
+    /// serve leaves the ask to decode its own. A load never waits for anything, so nothing here waits
+    /// in a circle.
+    private func shared(_ photo: Photo, maxPixel: CGFloat, key: NSString) async -> UIImage? {
+        var waited: Set<NSString> = [key]
+        while let other = loading.first(where: { $0.value.src == photo.src && !waited.contains($0.key) }) {
+            waited.insert(other.key)
+            _ = await other.value.task.value
+            if let hit = Self.cached(photo, maxPixel: maxPixel) { return hit }
+        }
+        return nil
     }
 
     /// Into memory: a whole decode under the photo's one full entry (a whole decode made for another
@@ -187,8 +218,12 @@ actor PhotoCache {
     private nonisolated static func keep(_ decoded: Decoded, _ photo: Photo, maxPixel: CGFloat) -> UIImage {
         let image = decoded.image
         if decoded.whole {
-            if let held = memory.object(forKey: fullKey(photo)) { return held }
-            memory.setObject(image, forKey: fullKey(photo), cost: cost(image))
+            // under the lock: two whole decodes that finish together keep one bitmap, never two
+            return sizes.withLock { _ in
+                if let held = memory.object(forKey: fullKey(photo)) { return held }
+                memory.setObject(image, forKey: fullKey(photo), cost: cost(image))
+                return image
+            }
         } else {
             memory.setObject(image, forKey: key(photo, maxPixel), cost: cost(image))
             sizes.withLock { _ = $0[photo.src, default: []].insert(Int(maxPixel)) }
@@ -383,7 +418,7 @@ actor PhotoCache {
         }
         guard let sharp = await image(photo, maxPixel: Self.heroPixel),
               let parts = await derived(photo, from: sharp),
-              let picture = await Self.compose(sharp, veil: parts.veil, aspect: Double(size.width / size.height))
+              let picture = await Self.compose(sharp, veil: parts.veil, frame: Size(width: Double(size.width), height: Double(size.height)))
         else { return nil }
         Self.memory.setObject(picture, forKey: key as NSString, cost: Self.cost(picture))
         // on disk after it is on screen: nobody waits for the file
@@ -391,43 +426,38 @@ actor PhotoCache {
         return picture
     }
 
-    /// See `ambient`. The box's aspect decides the crop; the photograph is drawn at scale 1, the veil
-    /// scaled to fill the same crop.
-    @concurrent private nonisolated static func compose(_ photo: UIImage, veil soft: UIImage, aspect: Double) async -> UIImage? {
+    /// See `ambient`. The part of the photograph the box shows when the photograph fills it
+    /// (`Size.fillCrop`) is the bitmap, at the photograph's own pixels; the veil, the same
+    /// photograph small and blurred, is laid over the same place, scaled up.
+    @concurrent private nonisolated static func compose(_ photo: UIImage, veil soft: UIImage, frame: Size) async -> UIImage? {
         guard let sharp = photo.cgImage, let veil = soft.cgImage else { return nil }
         let source = Size(width: Double(sharp.width), height: Double(sharp.height))
-        // the part of the photograph a box of this aspect shows when the photograph fills it
-        let cropWidth = min(source.width, source.height * aspect)
-        let width = max(1, Int(cropWidth.rounded()))
-        let height = max(1, Int((cropWidth / aspect).rounded()))
-        let box = Size(width: Double(width), height: Double(height))
-        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
-              let context = bitmap(width: width, height: height, space: space),
+        guard let crop = source.fillCrop(frame),
+              let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = bitmap(width: Int(crop.size.width), height: Int(crop.size.height), space: space),
               let fade = CGGradient(colorSpace: space,
                                     colorComponents: heroFade.flatMap { [0, 0, 0, CGFloat($0.shown)] },
                                     locations: heroFade.map { CGFloat($0.at) }, count: heroFade.count)
         else { return nil }
+        let whole = placing(source, crop)
         context.interpolationQuality = .high
-        context.draw(veil, in: filling(Size(width: Double(veil.width), height: Double(veil.height)), box))
+        context.draw(veil, in: whole)
         // the sharp photograph alone in a layer, its alpha cut by the fade, then laid over the veil
         context.beginTransparencyLayer(auxiliaryInfo: nil)
-        context.draw(sharp, in: filling(source, box))
+        context.draw(sharp, in: whole)
         context.setBlendMode(.destinationIn)
         // Core Graphics counts y up from the bottom: the fade's top is the bitmap's last row
-        context.drawLinearGradient(fade, start: CGPoint(x: 0, y: box.height), end: CGPoint(x: 0, y: 0),
+        context.drawLinearGradient(fade, start: CGPoint(x: 0, y: crop.size.height), end: CGPoint(x: 0, y: 0),
                                    options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
         context.endTransparencyLayer()
         guard let out = context.makeImage() else { return nil }
         return UIImage(cgImage: out)
     }
 
-    /// Where a picture of size `image` lands when it fills `box` as `scaledToFill` lays it out
-    /// (`Size.point`), as a rect in Core Graphics' bottom-up coordinates.
-    private nonisolated static func filling(_ image: Size, _ box: Size) -> CGRect {
-        let top = image.point(0, 0, filling: box)
-        let bottom = image.point(image.width, image.height, filling: box)
-        let height = bottom.y - top.y
-        return CGRect(x: top.x, y: box.height - top.y - height, width: bottom.x - top.x, height: height)
+    /// Where the whole photograph goes for `crop` of it to fill the bitmap, in Core Graphics'
+    /// bottom-up coordinates: the crop's top-down corner, its y counted from the photograph's foot.
+    private nonisolated static func placing(_ source: Size, _ crop: Size.Crop) -> CGRect {
+        CGRect(x: -crop.x, y: crop.y + crop.size.height - source.height, width: source.width, height: source.height)
     }
 
     /// Off the main thread, decoded here rather than at its first draw. ImageIO reads the file by
