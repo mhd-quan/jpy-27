@@ -92,8 +92,8 @@ Bản Release ở commit của Task 4.3. `AppModel.lowPower` đọc lại `Proce
 
 | # | Bước | Đạt khi | Kết quả | Ghi chú |
 | --- | --- | --- | --- | --- |
-| 1 | Mở tab Hôm nay, để bìa tự lật (đợi một lần lật). Kéo Control Center xuống, bật Nguồn điện thấp. | Bìa dừng lật ngay, kể cả khi đang đợi 6 giây: không có lần lật nào sau đó. Ảnh đang hiện dừng trôi. | | |
-| 2 | Giữ Nguồn điện thấp bật 20 giây rồi tắt (không thoát app, không đổi tab). | Bìa lật lại sau khoảng 6 giây và ảnh trôi lại, không cần mở lại app. | | |
+| 1 | Mở tab Hôm nay, để bìa tự lật (đợi một lần lật). Kéo Control Center xuống, bật Nguồn điện thấp. | Bìa dừng lật ngay, kể cả khi đang đợi 6 giây: không có lần lật nào sau đó. Ảnh đang hiện thôi trôi bằng cách thu về cỡ nghỉ trong khoảng 0,5 giây, không đứng khựng: đừng tính đó là lỗi. | | |
+| 2 | Giữ Nguồn điện thấp bật 20 giây rồi tắt (không thoát app, không đổi tab). | Bìa lật lại sau khoảng 6 giây và ảnh trôi lại, không cần mở lại app. Lưu ý: bìa tự nghỉ sau khi đã đi hết một vòng các ảnh (mỗi lần mở lại tab Hôm nay thì vòng đếm lại từ đầu). Nếu đã để bìa chạy hết một vòng trước bước 1, hãy rời tab Hôm nay rồi quay lại trước khi tắt Nguồn điện thấp; bìa đứng yên vì đã nghỉ thì không tính là lỗi. | | |
 | 3 | Mở app khi Nguồn điện thấp đang bật từ trước (S1). | Bìa đứng yên từ khung đầu. Tắt Nguồn điện thấp: bìa lật lại. | | |
-| 4 | Mở app (Release), sau đó mở Cài đặt › Chẩn đoán, đọc dòng số lần đặt lại nhắc giờ. Chạm một dấu tích điểm dừng rồi đọc lại. | Mở app: 1 lần. Chạm dấu tích: tăng đúng 1. (B3.) | | |
-| 5 | Trước chuyến, mở app có định vị bật; Time Profiler (Main Thread) trong khung của một chạm dấu tích. | Không có công việc CoreLocation (`requestLocation`) và không có `rescheduleAll` trong khung của lần chạm. (B3, B4.) | | |
+| 4 | Mở app (Release), sau đó mở Cài đặt › Chẩn đoán, đọc dòng số lần đặt lại nhắc giờ. Chạm một dấu tích điểm dừng rồi đọc lại. | Mở app: 1 lần. Chạm dấu tích: tăng đúng 1. (B3.) Điều kiện của B4: trước chuyến, định vị đang được cho phép (khi đó mỗi lần mở app có một `requestLocation()`, và kết quả của nó không được gây lần đặt lại thứ hai). | | |
+| 5 | Trước chuyến, mở app có định vị bật; Time Profiler (Main Thread) trong khung của một chạm dấu tích. | Không có công việc CoreLocation (`requestLocation`) và không có công việc đặt lại (`AppModel.reschedule()`: nhắc giờ, geofence, báo thức) chạy trong khung của lần chạm: nó chạy sau 300 ms, qua `Coalescer`. (B3, B4.) | | |

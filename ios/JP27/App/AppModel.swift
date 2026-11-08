@@ -304,6 +304,9 @@ enum AppSheet: Identifiable, Hashable {
         powerWatch = NotificationCenter.default.addObserver(forName: .NSProcessInfoPowerStateDidChange, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled }
         }
+        // a switch made between the first read (the property's initial value) and the observer above,
+        // while the store and records loaded, posted to nobody: read once more now it is listening
+        lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
         location.onUpdate = { [weak self] in self?.positionChanged($0) }
         location.onVisit = { [weak self] in self?.visited($0) }
         location.onFence = { [weak self] fence, entered in self?.fenceEvent(fence, entered: entered) }
