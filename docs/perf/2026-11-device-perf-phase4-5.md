@@ -34,7 +34,7 @@ Cài đặt › Chẩn đoán › "Ảnh bản đồ đã lưu" và "So khung b�
 | 3 | S9: trang ngày, chạm dấu tích 5 lần | không có `map.snapshot` nào trong 5 lần chạm; ghim của điểm vừa đánh dấu đổi xám ngay trên ảnh | |
 | 4 | Chẩn đoán › "Ảnh bản đồ đã lưu": ghi số; mở trang ngày, đánh dấu 5 điểm, bỏ đánh dấu; quay lại Chẩn đoán | số ảnh không đổi (một ảnh cho mỗi khung) | |
 | 5 | Chẩn đoán › "So khung bản đồ", vài ngày (cả ngày đi bộ ngắn), cả "Bản đồ thật chồng lên ảnh"; chụp màn | ảnh và bản đồ thật đóng khung giống hệt: cùng tâm, cùng mức phóng, đường và ghim trùng nhau | |
-| 6 | Trang khách sạn › "Quanh khách sạn": chạm bản đồ, kéo ngay | ảnh ở yên tới khi bản đồ thật vẽ xong rồi mờ đi, không có khung trống hay xám; kéo được ngay từ lần chạm đầu | |
+| 6 | Trang khách sạn › "Quanh khách sạn": chạm bản đồ rồi chờ; lần khác (trang khác, chưa mở bản đồ) chạm rồi kéo ngay | Chờ: ảnh ở yên tới khi bản đồ thật vẽ xong rồi mờ đi, không có khung trống hay xám. Kéo ngay khi bản đồ chưa vẽ xong: ảnh nhấc lên khi ngón tay bắt đầu kéo, thấy bản đồ di chuyển theo tay | |
 | 7 | Như bước 6 ở chế độ máy bay (vùng chưa tải) | ảnh rời đi chậm nhất khoảng 3 giây sau khi chạm | |
 | 8 | Duyệt thiết kế, sáng và tối: trang ngày có vài điểm đã đánh dấu; so ghim đã ghé trên ảnh với tab Bản đồ cùng ngày; so ảnh cũ (trước bản này) với ảnh mới | ghim đã ghé trên ảnh đọc như trên bản đồ thật (xám, viền, số trắng; viền dày hơn khoảng 1 pt, số là font hệ thống); nút "kéo" trên nền thẻ đục, không còn kính mờ. Ghi nhận xét | |
 | 9 | Mở lại app sau khi đã mở nhiều trang (thư mục quá 40 MB), hoặc ngay sau khi cài bản này lên bản cũ | Chẩn đoán › "Ảnh bản đồ đã lưu" không còn "ảnh kiểu cũ" và dưới 40 MB | |

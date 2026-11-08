@@ -10,17 +10,17 @@ import TripKit
 /// map held open in the page, each of which is a Metal surface with its own tiles in memory and its
 /// own display link. The picture is there from the first frame when memory has it, read from the disk
 /// off the main thread otherwise, and drawn only once the page has come on screen. With
-/// `tapToInteract` a tap puts the live map under the picture, which lifts once the map has drawn itself.
+/// `tapToInteract` a tap puts the live map under the picture, which lifts once the map has drawn itself or
+/// a finger moves it.
 struct StaticTripMap: View {
-    let content: MapContent
+    /// the content and its fingerprint, made once per value of this view: it reads every point
+    private let printed: FingerprintedContent
     let insets: UIEdgeInsets
     let frameID: String
     let tapToInteract: Bool
     /// the page's light or dark when the page is laid on a colour of its own (`AmbientCanvas.scheme`, read
     /// from `PhotoCache.knownTone` before it opens); nil: the environment's
     let scheme: ColorScheme?
-    /// `content.fingerprint`, once per value of this view: it reads every point
-    private let fingerprint: UInt64
 
     @Environment(\.colorScheme) private var environmentScheme
     @Environment(\.displayScale) private var displayScale
@@ -28,7 +28,7 @@ struct StaticTripMap: View {
     /// the last picture shown, kept on screen while another one is made (another size, the other scheme)
     @State private var image: MapSnapshot?
     @State private var live = false
-    /// the live map under the picture has drawn itself (or the cap passed): the picture goes
+    /// the live map under the picture has drawn itself, or a finger moves it, or the cap passed: the picture goes
     @State private var liveReady = false
     /// the scheme the page opened in, held while the page comes on screen: a page colour read during the
     /// zoom changes the picture once the zoom is over, never inside it
@@ -36,14 +36,15 @@ struct StaticTripMap: View {
 
     init(content: MapContent, insets: UIEdgeInsets = UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), frameID: String = "",
          tapToInteract: Bool = true, scheme: ColorScheme? = nil) {
-        self.content = content
+        printed = FingerprintedContent(content)
         self.insets = insets
         self.frameID = frameID
         self.tapToInteract = tapToInteract
         self.scheme = scheme
-        fingerprint = content.fingerprint
         _opened = State(initialValue: scheme)
     }
+
+    private var content: MapContent { printed.content }
 
     /// light or dark, for the picture and the live map under it
     private var pictureScheme: ColorScheme {
@@ -55,7 +56,9 @@ struct StaticTripMap: View {
         GeometryReader { geo in
             ZStack {
                 if live {
-                    TripMap(content: content, showsUser: false, insets: insets, frameID: frameID, onReady: { lift() })
+                    // a pan that starts before the map has drawn itself lifts the picture at once: the map moves
+                    // under the finger, even if part of it is still coming in
+                    TripMap(content: content, showsUser: false, insets: insets, frameID: frameID, onUserMove: { lift() }, onReady: { lift() })
                         .environment(\.colorScheme, pictureScheme)
                 }
                 if !liveReady {
@@ -79,7 +82,7 @@ struct StaticTripMap: View {
     }
 
     private func picture(size: CGSize) -> some View {
-        let request = MapSnapshots.Request(content: content, fingerprint: fingerprint, frameID: frameID, insets: insets,
+        let request = MapSnapshots.Request(printed, frameID: frameID, insets: insets,
                                            size: size, scale: displayScale, dark: pictureScheme == .dark)
         let wanted = Wanted(key: request.key, settled: settled)
         // the right picture from the first frame when memory has it, else the last one shown
@@ -207,6 +210,19 @@ private struct SnapshotPin: View {
     }
 }
 
+/// Content and its fingerprint, taken together by the one init, so a picture's key always names the content
+/// it draws. Made once per content (the fingerprint reads every point): by `StaticTripMap.init`, or off the
+/// main thread by a prefetch.
+nonisolated struct FingerprintedContent: Sendable {
+    let content: MapContent
+    let fingerprint: UInt64
+
+    init(_ content: MapContent) {
+        self.content = content
+        fingerprint = content.fingerprint
+    }
+}
+
 /// A picture of a map, and where its pins landed in it (points from its top left, in its size).
 nonisolated struct MapSnapshot: Sendable {
     let image: UIImage
@@ -224,8 +240,8 @@ nonisolated struct MapSnapshot: Sendable {
 final class MapSnapshots {
     static let shared = MapSnapshots()
 
-    /// A picture asked for: a page's map (Task 5.7's prefetch asks for the same). The key is made once;
-    /// pass the content's fingerprint when it is known already.
+    /// A picture asked for: a page's map (Task 5.7's prefetch asks for the same). The key is made once, from
+    /// the fingerprint taken with the content.
     struct Request {
         let content: MapContent
         let frameID: String
@@ -237,14 +253,14 @@ final class MapSnapshots {
         /// and the app's build, whose style draws it
         let key: SnapshotKey
 
-        init(content: MapContent, fingerprint: UInt64? = nil, frameID: String, insets: UIEdgeInsets, size: CGSize, scale: CGFloat, dark: Bool) {
-            self.content = content
+        init(_ printed: FingerprintedContent, frameID: String, insets: UIEdgeInsets, size: CGSize, scale: CGFloat, dark: Bool) {
+            content = printed.content
             self.frameID = frameID
             self.insets = insets
             self.size = size
             self.scale = scale
             self.dark = dark
-            key = SnapshotKey.make(frameID: frameID, content: fingerprint ?? content.fingerprint,
+            key = SnapshotKey.make(frameID: frameID, content: printed.fingerprint,
                                    size: SnapshotKey.Size(width: Double(size.width), height: Double(size.height)),
                                    scale: Double(scale), dark: dark,
                                    insets: [insets.top, insets.left, insets.bottom, insets.right].map { Double($0) },

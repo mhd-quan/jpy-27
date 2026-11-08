@@ -72,7 +72,7 @@ extension MapContent {
 
     /// The content as one number, the same on every launch, blind to which stops were visited (the
     /// picture never shows it, `unvisited`): it reads every point, so whoever builds the content computes
-    /// it once (`StaticTripMap.init`; a prefetch may do it off the main thread).
+    /// it once (`FingerprintedContent`).
     nonisolated var fingerprint: UInt64 { SnapshotKey.fingerprint(shape) }
 
     /// What a picture draws: the visited stops as stops. Their visit is drawn over the picture
