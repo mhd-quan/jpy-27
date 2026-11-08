@@ -77,6 +77,7 @@ import Testing
             ("inset left", key(shape(), insets: [28, 30, 28, 28])),
             ("inset bottom", key(shape(), insets: [28, 28, 30, 28])),
             ("inset right", key(shape(), insets: [28, 28, 28, 30])),
+            ("three insets", key(shape(), insets: [28, 28, 28])),
             ("tiles", key(shape(), tiles: "https://tiles.openfreemap.org/planet/20261101_001001_pt/{z}/{x}/{y}.pbf")),
             ("build", key(shape(), build: "43")),
         ]
@@ -86,6 +87,9 @@ import Testing
         }
         // and no two changes land on the same name
         #expect(Set(variants.map(\.1)).count == variants.count)
+        // the insets are counted: a fourth inset whose eight bytes read as text is not the start of the tiles
+        let ascii = Double(bitPattern: 0x6867_6665_6463_6261) // "abcdefgh", least significant byte first
+        #expect(key(shape(), insets: [28, 28, 28, ascii], tiles: "t") != key(shape(), insets: [28, 28, 28], tiles: "abcdefght"))
     }
 
     @Test func keyRoundsTheSize() {
@@ -167,5 +171,48 @@ import Testing
         // under the budget only the old format goes; a file not named by the app is neither counted nor deleted
         #expect(SnapshotKey.evicted(files, toBytes: 40 << 20) == ["oldkey.png"])
         #expect(SnapshotKey.evicted(files, toBytes: 0) == files.map(\.name).filter { $0 != "notes.txt" }.sorted())
+    }
+
+    private let t0 = Date(timeIntervalSince1970: 1_762_560_000)
+
+    private func stored(_ name: String, _ bytes: Int, minutes: Double = 0) -> SnapshotKey.StoredFile {
+        SnapshotKey.StoredFile(name: name, bytes: bytes, used: t0.addingTimeInterval(minutes * 60))
+    }
+
+    @Test func trimKeepsAFolderExactlyAtTheBudget() {
+        let files = [stored("p-a.jpg", 100), stored("p-a.json", 100)]
+        #expect(SnapshotKey.evicted(files, toBytes: 200).isEmpty)
+        #expect(SnapshotKey.evicted(files, toBytes: 199) == ["p-a.jpg", "p-a.json"])
+    }
+
+    @Test func trimCountsThePinsFiles() {
+        // the jpgs alone (200 B) fit in 250 B; with their pins (320 B) they do not: the least recently used
+        // picture goes, both of its files
+        let files = [stored("1-a.jpg", 100), stored("1-a.json", 60), stored("2-b.jpg", 100, minutes: 1), stored("2-b.json", 60, minutes: 1)]
+        #expect(SnapshotKey.evicted(files, toBytes: 250) == ["1-a.jpg", "1-a.json"])
+    }
+
+    @Test func trimListsAnOldFileOnce() {
+        // the old format's names can hold dashes; they are still not pictures
+        #expect(SnapshotKey.parse("w-kamo-abc.png") == nil)
+        let files = [stored("w-x-abc.png", 500), stored("w-x-def.jpg", 100), stored("w-x-def.json", 10)]
+        #expect(SnapshotKey.evicted(files, toBytes: 1 << 20) == ["w-x-abc.png"])
+        #expect(SnapshotKey.evicted(files, toBytes: 0) == ["w-x-abc.png", "w-x-def.jpg", "w-x-def.json"])
+        #expect(SnapshotKey.stale(files.map(\.name), keeping: SnapshotKey(frameID: "w-x", hash: "q")) == ["w-x-def.jpg", "w-x-def.json"])
+    }
+
+    @Test func trimBreaksTiesByName() {
+        // eight pictures last used at the same moment, room for four: the four first by name go, whatever
+        // the order of the listing
+        let files = "abcdefgh".flatMap { c in [stored("t-\(c).jpg", 100), stored("t-\(c).json", 10)] }
+        var listings: [[SnapshotKey.StoredFile]] = []
+        for shift in 0 ..< files.count {
+            let rotated = Array(files[shift...] + files[..<shift])
+            listings += [rotated, rotated.reversed()]
+        }
+        let expected = "abcd".flatMap { c in ["t-\(c).jpg", "t-\(c).json"] }
+        for listing in listings {
+            #expect(SnapshotKey.evicted(listing, toBytes: 440) == expected)
+        }
     }
 }
