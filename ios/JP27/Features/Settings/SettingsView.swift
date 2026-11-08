@@ -97,6 +97,8 @@ private struct DiagnosticsSection: View {
     @State private var lastFix: String?
     /// what `Caches/MapSnapshots` holds, read on opening the page
     @State private var mapPictures: String?
+    /// how far the photos' tones moved from the 96 px thumbnail, the last time it was asked
+    @State private var toneDrift: String?
     #endif
     /// the location history's rows, counted when the page opens (nil: not counted, or unreadable)
     @State private var history: (visits: Int, traces: Int)?
@@ -274,6 +276,24 @@ private struct DiagnosticsSection: View {
                 }
             }
             .task { mapPictures = await MapSnapshots.usage() }
+            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 5.1a: the tone of a photo read from the decode its
+            // page draws, against the one the 96 px thumbnail gave before
+            Button {
+                let photos = toneDriftPhotos()
+                toneDrift = "Đang so \(photos.count) ảnh…"
+                Task { toneDrift = await PhotoCache.toneDrift(photos) }
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("So màu ảnh: mới và cũ")
+                        if let toneDrift {
+                            Text(toneDrift).font(.footnote).foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "eyedropper", tint: .gray)
+                }
+            }
             #endif
         } header: {
             Text("Chẩn đoán")
@@ -285,6 +305,15 @@ private struct DiagnosticsSection: View {
     }
 
     #if DEBUG
+    /// For "So màu ảnh": the day covers (JPEG, the most shrunk when a tone is read) first, then bundled place
+    /// photos by name, twenty in all
+    private func toneDriftPhotos() -> [Photo] {
+        let covers = HomeCovers.byDay.keys.sorted().compactMap { HomeCovers.byDay[$0]?.photo }
+        let places = model.store.places.values.compactMap(\.hero).filter(\.isBundled).sorted { $0.src < $1.src }
+        var seen = Set<String>()
+        return Array((covers + places).filter { seen.insert($0.src).inserted }.prefix(20))
+    }
+
     /// "7:20:05 · ±12 m": when the latest fix used was taken, on the phone's clock, and how precise it was
     private func lastFixSummary() -> String? {
         guard let at = model.location.fixedAt else { return nil }
