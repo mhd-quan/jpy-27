@@ -86,29 +86,6 @@ extension MapContent {
     }
 }
 
-/// What a map of some points is framed on: one place (or a few metres) centred at street level, else
-/// everything, at least ~600 m across, with the map's insets kept clear around it. The live map
-/// (`TripMap.Coordinator.fit`) and its picture (`MapSnapshots`) frame by this one rule, so the live map
-/// that replaces a picture shows the same view (Settings › Chẩn đoán › So khung bản đồ, in Debug).
-nonisolated enum MapFraming {
-    case point(Coordinate)
-    case area(sw: Coordinate, ne: Coordinate)
-
-    /// the zoom a lone place is shown at
-    static let pointZoom = 15.5
-
-    static func of(_ pts: [Coordinate]) -> MapFraming? {
-        guard let b = Geo.bounds(pts) else { return nil }
-        let mid = Coordinate((b.sw.lat + b.ne.lat) / 2, (b.sw.lng + b.ne.lng) / 2)
-        if pts.count == 1 || (b.ne.lat - b.sw.lat < 0.002 && b.ne.lng - b.sw.lng < 0.002) {
-            return .point(mid)
-        }
-        // a short walk is not blown up to street level: at least ~600 m across
-        let half = (lat: max((b.ne.lat - b.sw.lat) / 2, 0.0028), lng: max((b.ne.lng - b.sw.lng) / 2, 0.0034))
-        return .area(sw: Coordinate(mid.lat - half.lat, mid.lng - half.lng), ne: Coordinate(mid.lat + half.lat, mid.lng + half.lng))
-    }
-}
-
 struct TripMap: UIViewRepresentable {
     var content: MapContent
     var showsUser = true
@@ -385,7 +362,7 @@ struct TripMap: UIViewRepresentable {
             fit(map, parent.content.outline, animated: animated)
         }
 
-        /// `MapFraming`, as `MapSnapshots.frame` draws it into a picture.
+        /// `MapFraming` (TripKit), as `MapSnapshots.frame` draws it into a picture.
         private func fit(_ map: MLNMapView, _ pts: [Coordinate], animated: Bool) {
             switch MapFraming.of(pts) {
             case nil:
@@ -1224,7 +1201,7 @@ final class MapSnapshots {
         }
     }
 
-    /// `MapFraming`, as `TripMap.Coordinator.fit` frames the live map: a lone place centred at street
+    /// `MapFraming` (TripKit), as `TripMap.Coordinator.fit` frames the live map: a lone place centred at street
     /// level; else the area grown by the share of the picture the insets take, so the content fills what
     /// is left, as the live map's edge padding leaves it.
     private static func frame(_ pts: [Coordinate], insets i: UIEdgeInsets, size: CGSize, in options: MLNMapSnapshotOptions) {
