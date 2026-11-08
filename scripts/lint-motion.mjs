@@ -17,14 +17,16 @@
 // Charts `.linear` of `interpolationMethod(` and `type:`; `Motion.arrive`, which may be bare (a short ease that
 // Reduce Motion keeps); a `.default` that is not the argument of `withAnimation(` or `.animation(`. Not seen:
 // `.phaseAnimator(`, whose animation lives in a trailing closure that a line-local scan cannot read (the tree has
-// none). UIKit's `UIView.transition` is outside the lint too.
+// none). UIKit's `UIView.transition` is outside the lint too. Of `Animation`'s own statics, every curve is in
+// CURVE (`interactiveSpring` too) and `.default` in BARE_WITH; not seen are `Animation(_:)` over a CustomAnimation
+// (the tree has none) and the visionOS-only `systemOverlay…` animations.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { blanked } from './lint-saves.mjs';
 
 /** a curve named at the call site */
-const CURVE = /\.(?:snappy|smooth|easeOut|easeInOut|easeIn|bouncy|spring|interpolatingSpring|timingCurve)\b|(?<!interpolationMethod\(\s*)(?<!type:\s*)\.linear\b|\.blurReplace\b/g;
+const CURVE = /\.(?:snappy|smooth|easeOut|easeInOut|easeIn|bouncy|spring|interactiveSpring|interpolatingSpring|timingCurve)\b|(?<!interpolationMethod\(\s*)(?<!type:\s*)\.linear\b|\.blurReplace\b/g;
 /** the default curve, named nowhere: `withAnimation { }`, `withAnimation()`, `withAnimation({`, `withAnimation(completionCriteria:`,
  *  `withAnimation(.default`, `.animation(.default`, `.animation()` (both `.default` only ever mean an Animation here) */
 const BARE_WITH = /\bwithAnimation\s*(?:\{|\(\s*(?:\)|\{|\.default\b|completionCriteria:))|\.animation\s*\(\s*(?:\)|\.default\b)/g;
