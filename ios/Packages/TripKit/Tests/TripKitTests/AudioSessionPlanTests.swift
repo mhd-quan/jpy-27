@@ -196,13 +196,13 @@ private func broken(_ step: Plan.Step) -> Plan.Failure { Plan.Failure(step: step
         // the category failing stops the batch before the activation: the same
         _ = plan.handle(.listenerStarting)
         let second = plan.generation
-        _ = plan.handle(.failed(broken(.setCategory(.listener)), generation: second))
+        #expect(plan.handle(.failed(broken(.setCategory(.listener)), generation: second)) == [])
         #expect(plan.handle(.listenerStopped(ticket: second, lineBeingRead: false)) == [restore])
 
         // an older listen's failure does not touch a newer listen
         _ = plan.handle(.listenerStarting)
         let third = plan.generation
-        _ = plan.handle(.failed(broken(.activate), generation: second))
+        #expect(plan.handle(.failed(broken(.activate), generation: second)) == [])
         #expect(plan.holder == .listener(active: true))
         #expect(plan.handle(.listenerStopped(ticket: third, lineBeingRead: false)) == [deactivate, restore])
     }
@@ -292,6 +292,21 @@ private func broken(_ step: Plan.Step) -> Plan.Failure { Plan.Failure(step: step
         #expect(plan.holder == .speaker)
         #expect(plan.handle(.speakerDone) == [.release(afterMilliseconds: 500, generation: plan.generation)])
         #expect(plan.handle(.speakerWillSpeak) == [.cancelRelease, setSpeaker])
+    }
+
+    @Test func anOlderLinesFailedCategoryIsSetAgainToo() {
+        var plan = Plan()
+        _ = plan.handle(.speakerWillSpeak)
+        let first = plan.generation
+        // a second line takes the session before the first one's set has run: the category is the one set last
+        #expect(plan.handle(.speakerWillSpeak) == [])
+        #expect(plan.generation != first)
+        // the first line's set then fails: the category is unknown, though that line's generation is gone
+        #expect(plan.handle(.failed(broken(.setCategory(.speaker)), generation: first)) == [])
+        #expect(plan.lastSet == nil)
+        #expect(plan.holder == .speaker)
+        // the next line sets it again instead of taking it as already set
+        #expect(plan.handle(.speakerWillSpeak) == [setSpeaker])
     }
 
     @Test func aMediaServicesResetMakesTheCategoryUnknown() {

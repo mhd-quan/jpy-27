@@ -76,4 +76,21 @@ import Testing
             }
         }
     }
+
+    @Test func otherRangesCostTheSame() {
+        // ⌈log2 count⌉: 1 for two sizes, 10 for 1...1000, 5 for -10...10
+        for range in [0...1, 5...6, 1...1000, -10...10] {
+            let most = ceilLog2(range.count)
+            for t in (range.lowerBound - 2)...(range.upperBound + 2) {
+                let asked = search(range, threshold: t).asked
+                #expect(asked.count <= most, "\(range) threshold \(t): \(asked.count) asks, at most \(most)")
+                #expect(!asked.contains(range.lowerBound), "\(range) threshold \(t): \(asked)")
+            }
+        }
+    }
+
+    /// the smallest `k` with 2^k ≥ `n`, for `n` ≥ 1
+    private func ceilLog2(_ n: Int) -> Int {
+        n <= 1 ? 0 : Int.bitWidth - (n - 1).leadingZeroBitCount
+    }
 }
