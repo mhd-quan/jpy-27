@@ -4,7 +4,16 @@ Phase 4–5 chỉ có nghĩa khi so được trước và sau trên cùng kịch
 build của baseline commit, chưa có code nào của Phase 4–5. Chỉ người dùng đo, trên máy thật; agent không đo
 và không điền ô nào ở đây.
 
-Baseline commit: (controller fills this in)
+Baseline commit: `a99614013cf7fe6fc6ef2a121737196c0b578491` (`a996140`, "Measure transitions: signposts from tap to
+settled, MetricKit hitch ratio in Diagnostics, baseline"). CI "App builds" xanh, 0 warning.
+
+Lấy đúng bản này để build, lúc nào cũng được (không cần đo trước khi Phase 4–5 tiếp tục):
+
+```bash
+git fetch origin && git switch --detach a99614013cf7fe6fc6ef2a121737196c0b578491
+```
+
+Đo xong thì quay về nhánh đang dùng (`git switch -`).
 
 ## Cách đo
 
