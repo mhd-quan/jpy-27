@@ -36,6 +36,13 @@ import Testing
         #expect(AmbientFrame.Frame(width: 1, height: 1) != nil)
     }
 
+    @Test func aFrameIsUnderAHundredThousandPoints() {
+        #expect(AmbientFrame.Frame(width: 99_999, height: 1) != nil)
+        #expect(AmbientFrame.Frame(width: 100_000, height: 1) == nil)
+        #expect(AmbientFrame.Frame(width: 1, height: 99_999) != nil)
+        #expect(AmbientFrame.Frame(width: 1, height: 100_000) == nil)
+    }
+
     // MARK: The picture's size
 
     @Test func aLandscapeInAPortraitFrameKeepsTheSourcesPixels() throws {
@@ -188,6 +195,12 @@ import Testing
         let files = [file("b.jpg", 100, 1), file("a.jpg", 100, 1), file("c.jpg", 100, 1)]
         #expect(AmbientFrame.evicted(files, toBytes: 200 * 1024) == ["a.jpg"])
         #expect(AmbientFrame.evicted(files.reversed(), toBytes: 100 * 1024) == ["a.jpg", "b.jpg"])
+    }
+
+    @Test func theNamesComeBackByNameNotInTheOrderTheyGo() {
+        // z goes first (the oldest), then m
+        let files = [file("z.jpg", 100, 1), file("m.jpg", 100, 2), file("a.jpg", 100, 3)]
+        #expect(AmbientFrame.evicted(files, toBytes: 100 * 1024) == ["m.jpg", "z.jpg"])
     }
 
     @Test func aFileThatIsNotAPictureIsNeitherCountedNorDeleted() {

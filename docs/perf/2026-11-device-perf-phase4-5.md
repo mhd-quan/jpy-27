@@ -103,7 +103,7 @@ SwiftUI (View Body) và Animation Hitches. Mỗi ảnh đầu trang album đư�
 thành một ảnh): mỗi lần ghép xong hay đọc từ đĩa là một event `photo.ambient` "`<ảnh> <rộng>x<cao> made|disk`", cỡ
 khung tính bằng điểm. Ảnh ghép nằm trong `Caches/Ambient` (giữ dưới 40 MB mỗi lần mở app, ảnh lâu không dùng đi
 trước), làm lại được bất cứ lúc nào. Màu trang lấy từ ảnh đầu và giữ suốt lúc trang mở: vuốt sang ảnh khác không đổi
-nền nữa. Bước 9, 10 và 14 là **duyệt thiết kế** (mắt người, không có số).
+nền nữa. Bước 9, 10 và 14 là **duyệt thiết kế** (mắt người, không có số). Ghép ảnh là việc nền: trang đóng hay đổi ảnh trước khi ghép xong thì việc ghép dừng, không giữ, không ghi; ở Nguồn điện thấp app không ghép ảnh mới.
 
 | # | Bước | Mong đợi | Kết quả |
 | --- | --- | --- | --- |
@@ -111,7 +111,7 @@ nền nữa. Bước 9, 10 và 14 là **duyệt thiết kế** (mắt người, 
 | 1b | S1 lần hai cho cùng ngày đó | `PlanDayContent` ≤ 2 lần body; 0 hitch; ảnh ghép có từ khung đầu, không mờ dần; không có `photo.ambient` | |
 | 2 | S2: tab Bản đồ, chạm ghim một địa điểm kiểu album → sheet địa điểm (`sheet.place`) | `PlanAmbientPage` ≤ 2 lần body; 0 hitch | |
 | 3 | S3: tab Lịch trình → trang Fuji (`push.plan`) | 0 hitch (phép đọc tiêu đề của `detailPage` đã đổi) | |
-| 4 | S4: trang Fuji, chạm một chỗ ngắm có ảnh (`sheet.fujiSpot`) | `FujiSpotCard` ≤ 2 lần body; 0 hitch | |
+| 4 | S4: trang Fuji, chạm một chỗ ngắm có ảnh (`sheet.fujiSpot`) | `FujiSpotAlbum` ≤ 2 lần body; 0 hitch (`FujiSpotCard` là thẻ trên bản đồ 3D, không phải trang này) | |
 | 5 | S5: trang một địa điểm nhiều ảnh, vuốt qua vài ảnh rồi dừng | 0 khung rơi khi dừng vuốt; màu nền, thẻ và chữ của trang không đổi khi vuốt | |
 | 6 | Một trang album chưa từng mở: mở, vuốt qua mọi ảnh, đóng; mở lại; rồi tắt hẳn app (vuốt khỏi app switcher), mở lại cùng trang và vuốt qua mọi ảnh. Đọc các `photo.ambient` | lần đầu: một `made` cho mỗi ảnh đã hiện, mọi event của trang cùng một cỡ khung; lần hai: không có; sau khi mở lại app: một `disk` cho mỗi ảnh, không có `made`. Nếu một ảnh có hai cỡ khung trong cùng một lần mở, ghi lại | |
 | 7 | Có mạng. Trang một quán có ảnh từ mạng chưa từng tải (chưa tải ở Cài đặt): mở, chờ ảnh tải xong, vuốt và cuộn; đóng rồi mở lại | lần đầu: nền giấy suốt đời trang, kể cả sau khi ảnh đã tải, khi vuốt và khi cuộn (ảnh tải xong trước khi zoom dừng thì màu có thể tới một lần, ngay khi zoom xong: ghi lại); lần mở lại: màu có từ khung đầu | |
@@ -121,7 +121,8 @@ nền nữa. Bước 9, 10 và 14 là **duyệt thiết kế** (mắt người, 
 | 11 | Bật Giảm độ trong suốt (Cài đặt › Trợ năng › Màn hình & cỡ chữ), mở một trang địa điểm và một trang ngày | không có bản mờ dưới ảnh, ảnh nét tan vào màu trang như bản trước với Giảm độ trong suốt; không có `photo.ambient` | |
 | 12 | Bật Giảm chuyển động, làm lại bước 1a và 8 | ảnh ghép vẫn mờ dần lên, màu trang vẫn mờ dần sang (cùng 0,2 giây); không có chuyển động nào khác | |
 | 13 | Đang mở một trang album, đổi sáng/tối từ Control Center rồi quay lại app | trang sang bản sáng/tối của cùng màu, không chớp; không có `photo.ambient` mới | |
-| 14 | **Duyệt thiết kế.** Chụp màn trước và sau, sáng và tối: trang địa điểm, trang ngày, trang khách sạn, thẻ chỗ ngắm Fuji, ở đầu trang. Bản "trước" build từ `866f093` | giống nhau; khác biệt duy nhất được chấp nhận: màu nền không theo ảnh khi vuốt (ảnh thứ hai trở đi nằm trên màu của ảnh đầu). Ghi nhận xét về độ nét của ảnh và độ mờ | |
+| 14 | **Duyệt thiết kế.** Chụp màn trước và sau, sáng và tối: trang địa điểm, trang ngày, trang khách sạn, thẻ chỗ ngắm Fuji, ở đầu trang. Bản "trước" build từ `866f093`. Mỗi trang và mỗi chế độ một file trong `docs/perf/screens-5.1b/`, trước bên trái, sau bên phải: `place-light.png`, `place-dark.png`, `day-light.png`, `day-dark.png`, `stay-light.png`, `stay-dark.png`, `fuji-light.png`, `fuji-dark.png` | giống nhau; khác biệt duy nhất được chấp nhận: màu nền không theo ảnh khi vuốt (ảnh thứ hai trở đi nằm trên màu của ảnh đầu). Ghi nhận xét về độ nét của ảnh và độ mờ | |
+| 15 | Bật Nguồn điện thấp (Control Center). Mở một trang album chưa từng mở (ảnh chưa ghép); rồi, trang vẫn mở, tắt Nguồn điện thấp. Đọc các `photo.ambient` | lúc Nguồn điện thấp bật: không có `made`; ảnh vẫn hiện (ảnh nét phủ kín khung, chưa có bản mờ dưới phần tan). Tắt đi: đúng một `made` cho ảnh đang hiện, ảnh ghép mờ dần lên trên. Một trang đã mở trước đó vẫn hiện ảnh ghép khi Nguồn điện thấp bật (`disk` sau khi mở lại app) | |
 
 ## 5.2
 

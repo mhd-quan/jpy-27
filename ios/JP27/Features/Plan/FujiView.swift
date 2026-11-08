@@ -325,7 +325,7 @@ struct FujiSpotPage: View {
 
     var body: some View {
         if let spot = model.guide.fuji.spots.first(where: { $0.id == id }) {
-            FujiSpotCard(spot: spot, photos: photos(spot), fromMap: fromMap)
+            FujiSpotAlbum(spot: spot, photos: photos(spot), fromMap: fromMap)
         } else {
             ContentUnavailableView("Không có chỗ ngắm này", systemImage: "mountain.2")
                 .toolbar { CloseButton() }
@@ -345,7 +345,7 @@ struct FujiSpotPage: View {
 }
 
 /// `FujiSpotPage` for a viewpoint found, with its photographs.
-private struct FujiSpotCard: View {
+private struct FujiSpotAlbum: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var system
     let spot: FujiGuide.Spot

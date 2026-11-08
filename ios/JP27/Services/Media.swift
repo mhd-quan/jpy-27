@@ -49,8 +49,11 @@ actor PhotoCache {
     private var loads = 0
     /// derivations in flight, by photo: a veil and a tone asked for together share one
     private var deriving: [String: Task<(held: Derived, newTone: Bool), Never>] = [:]
-    /// album pictures being made, by key (`AmbientFrame.key`): the page and a prefetch of it share one
-    private var composing: [String: Task<UIImage?, Never>] = [:]
+    /// album pictures being made, by key (`AmbientFrame.key`): the page and a prefetch of it share one, which is
+    /// cancelled when the last of them stops waiting
+    private var composing: [String: Making] = [:]
+    /// the makings so far, numbering each: a waiter that leaves late does not count against a later one
+    private var makings = 0
     /// the latest write of the tones file: waiting out its second, or writing
     private var saving: Task<Void, Never>?
     /// photo src → the average of its lower band, kept on disk: a page opened before (or read at
@@ -390,18 +393,62 @@ actor PhotoCache {
     /// swipe and a scroll then move a finished picture: no mask, no flattening, nothing drawn again on the way. From
     /// memory; else from `Caches/Ambient` (made on an earlier launch); else made now from the decode the page draws
     /// (`albumPixel`, downloaded if need be, as the photo itself is) and its veil, off this actor, and kept in both.
-    /// One making per picture at a time: the page and a prefetch of it share it. A making runs to its end and is
-    /// kept, whoever stopped waiting for it, so a swipe back finds it.
+    /// One making per picture at a time: the page and a prefetch of it share it. It is background work (contract
+    /// § 4.2), so it stops when the last of them stops waiting (the page went away, or shows another photo): it is
+    /// then neither kept nor written, and the next to ask starts again. Not asked for in Low Power Mode, where the
+    /// page shows only a picture made before (`savedAmbient`).
     func ambient(_ photo: Photo, size: CGSize) async -> UIImage? {
         guard let frame = Self.frame(size) else { return nil }
         let key = AmbientFrame.key(src: photo.src, frame: frame)
         if let hit = Self.memory.object(forKey: key as NSString) { return hit }
-        if let running = composing[key] { return await running.value }
-        let task = Task { await self.composed(photo, frame: frame, key: key) }
-        composing[key] = task
-        let image = await task.value
-        composing[key] = nil
+        guard !Task.isCancelled else { return nil }
+        let making: Making
+        if var running = composing[key] {
+            running.waiters += 1
+            composing[key] = running
+            making = running
+        } else {
+            makings += 1
+            making = Making(id: makings, task: Task { await self.composed(photo, frame: frame, key: key) }, waiters: 1)
+            composing[key] = making
+        }
+        let id = making.id
+        let image = await withTaskCancellationHandler {
+            await making.task.value
+        } onCancel: {
+            // called off this actor, at once: the count is kept on it
+            Task { await self.leave(key, making: id) }
+        }
+        if composing[key]?.id == id { composing[key] = nil }
         return image
+    }
+
+    /// The album picture if it was made before: from memory, else from `Caches/Ambient`. Never made here.
+    func savedAmbient(_ photo: Photo, size: CGSize) async -> UIImage? {
+        guard let frame = Self.frame(size) else { return nil }
+        let key = AmbientFrame.key(src: photo.src, frame: frame)
+        if let hit = Self.memory.object(forKey: key as NSString) { return hit }
+        return await readSaved(photo, frame: frame, key: key)
+    }
+
+    /// One making of an album picture, and how many wait for it.
+    private nonisolated struct Making: Sendable {
+        let id: Int
+        let task: Task<UIImage?, Never>
+        var waiters: Int
+    }
+
+    /// A waiter of `ambient` stopped waiting: the making goes on for the others; with none left it is cancelled, and
+    /// whoever asks next starts a new one.
+    private func leave(_ key: String, making id: Int) {
+        guard var making = composing[key], making.id == id else { return }
+        making.waiters -= 1
+        if making.waiters > 0 {
+            composing[key] = making
+        } else {
+            making.task.cancel()
+            composing[key] = nil
+        }
     }
 
     /// The album picture, if memory has it: for a view's first frame.
@@ -419,22 +466,30 @@ actor PhotoCache {
         AmbientFrame.Frame(width: Double(size.width), height: Double(size.height))
     }
 
-    /// From the disk, else made from the photo, and kept on disk when it is whole (opaque).
+    /// From the disk, else made from the photo, and kept on disk when it is whole (opaque). Cancelled (`leave`): it
+    /// stops after the decode, after the veil or once composed, and keeps and writes nothing. The decode and the veil
+    /// it waited for are shared with the photo's other uses, and kept.
     private func composed(_ photo: Photo, frame: AmbientFrame.Frame, key: String) async -> UIImage? {
-        let name = AmbientFrame.fileName(key: key)
-        if let saved = await Self.readAmbient(name) {
-            Self.markAmbient(photo, frame, "disk")
-            return Self.keepAmbient(saved, as: key)
-        }
-        guard let full = await decoded(photo, maxPixel: Self.albumPixel, network: true)?.cgImage else { return nil }
+        if let saved = await readSaved(photo, frame: frame, key: key) { return saved }
+        guard let full = await decoded(photo, maxPixel: Self.albumPixel, network: true)?.cgImage,
+              !Task.isCancelled else { return nil }
         // the veil from that same decode (and its tone, kept as it is read)
         let veil = await derived(photo, network: true)?.veil?.cgImage
-        guard let made = await Self.compose(full, veil: veil, frame: frame) else { return nil }
+        guard !Task.isCancelled, let made = await Self.compose(full, veil: veil, frame: frame),
+              !Task.isCancelled else { return nil }
         Self.markAmbient(photo, frame, "made")
         let kept = Self.keepAmbient(made.image, as: key)
         // nobody waits for the file: the next launch reads it, or makes the picture again
+        let name = AmbientFrame.fileName(key: key)
         if made.opaque { Task(priority: .utility) { await Self.storeAmbient(kept, as: name) } }
         return kept
+    }
+
+    /// The picture from `Caches/Ambient`, kept in memory.
+    private func readSaved(_ photo: Photo, frame: AmbientFrame.Frame, key: String) async -> UIImage? {
+        guard let saved = await Self.readAmbient(AmbientFrame.fileName(key: key)) else { return nil }
+        Self.markAmbient(photo, frame, "disk")
+        return Self.keepAmbient(saved, as: key)
     }
 
     private nonisolated static func keepAmbient(_ image: UIImage, as key: String) -> UIImage {
@@ -478,10 +533,14 @@ actor PhotoCache {
         // the veil
         context.beginTransparencyLayer(in: whole, auxiliaryInfo: nil)
         context.draw(full, in: rect(AmbientFrame.fill(source, into: canvas)))
+        // destination-in for the fade alone: the layer is laid over the veil in the normal mode, whatever Core
+        // Graphics would do with a blend mode still set when it ends
+        context.saveGState()
         context.setBlendMode(.destinationIn)
         // from the picture's top, which a bitmap context puts at y = height, to its bottom at y = 0
         context.drawLinearGradient(fade, start: CGPoint(x: 0, y: whole.height), end: .zero,
                                    options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+        context.restoreGState()
         context.endTransparencyLayer()
         guard let picture = context.makeImage() else { return nil }
         return Composite(image: UIImage(cgImage: picture), opaque: opaque)

@@ -622,7 +622,11 @@ struct AmbientPhoto: View {
 /// decode the page draws, when memory has it, stands in from the first frame (the sharp photo alone,
 /// filling the hero; the hero's dissolve covers its foot), and the picture fades in over it once made;
 /// with neither, the photo's placeholder until the picture fades in, as a photo arrives anywhere.
+/// In Low Power Mode no picture is made: one made before still shows (from memory or the disk), else the
+/// decode stays as the stand-in, loaded as `PlacePhoto` loads it; once Low Power Mode is off, the picture
+/// is made and fades in over it.
 private struct AmbientPicture: View {
+    @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let photo: Photo
     let size: CGSize
@@ -631,14 +635,20 @@ private struct AmbientPicture: View {
     @State private var shown: Held?
     /// the photo alone, until the picture has faded in over it
     @State private var standIn: Held?
-    /// the placeholder under it all, until a picture has faded in: then gone, so a picture with no veil (its
-    /// blur failed) leaves its foot to the page's colour, as the masked photo did
-    @State private var placeholder: Bool
+    /// the photo whose placeholder is under it all, until its picture has faded in: then gone, so a picture
+    /// with no veil (its blur failed) leaves its foot to the page's colour, as the masked photo did
+    @State private var placeholder: String?
 
     /// An image and the photo it is of: shown only while that is the photo here.
     private struct Held {
         let src: String
         let image: UIImage
+    }
+
+    /// what the task loads: the picture of this size, and whether it may be made
+    private nonisolated struct Load: Equatable, Sendable {
+        let key: String?
+        let making: Bool
     }
 
     init(photo: Photo, size: CGSize) {
@@ -648,21 +658,25 @@ private struct AmbientPicture: View {
         _shown = State(initialValue: picture.map { Held(src: photo.src, image: $0) })
         let decode = picture == nil ? PhotoCache.cached(photo, maxPixel: PhotoCache.albumPixel) : nil
         _standIn = State(initialValue: decode.map { Held(src: photo.src, image: $0) })
-        _placeholder = State(initialValue: picture == nil)
+        _placeholder = State(initialValue: picture == nil ? photo.src : nil)
     }
 
     var body: some View {
         let picture = PhotoCache.cachedAmbient(photo, size: size) ?? shown.flatMap { $0.src == photo.src ? $0.image : nil }
         let alone = standIn.flatMap { $0.src == photo.src ? $0.image : nil }
+        let making = !model.lowPower
         Color.clear
             .overlay {
-                if placeholder { Rectangle().fill(.fill.tertiary) }
+                if placeholder == photo.src || (picture == nil && alone == nil) {
+                    Rectangle().fill(.fill.tertiary)
+                }
             }
             .overlay {
                 if let alone {
                     Image(uiImage: alone)
                         .resizable()
                         .scaledToFill()
+                        .transition(.opacity)
                 }
             }
             .overlay {
@@ -676,34 +690,59 @@ private struct AmbientPicture: View {
             .frame(width: size.width, height: size.height)
             .clipped()
             .accessibilityLabel(photo.caption ?? "")
-            .task(id: PhotoCache.ambientKey(photo, size: size)) { await load() }
+            // Low Power Mode in the id: turned off on an open page, the picture is made then
+            .task(id: Load(key: PhotoCache.ambientKey(photo, size: size), making: making)) {
+                await load(making: making)
+            }
     }
 
-    private func load() async {
+    private func load(making: Bool) async {
+        let src = photo.src
         if let hit = PhotoCache.cachedAmbient(photo, size: size) {
             // never faded: there from the first frame, or another size's swapped for it
-            if shown?.image !== hit { shown = Held(src: photo.src, image: hit) }
+            if shown?.image !== hit { shown = Held(src: src, image: hit) }
             if standIn != nil { standIn = nil }
-            if placeholder { placeholder = false }
+            if placeholder != nil { placeholder = nil }
             return
         }
-        // another photo here than the one the view was made with: its own decode stands in, if memory has it,
-        // over the placeholder
-        if shown?.src != photo.src, standIn?.src != photo.src {
-            if !placeholder { placeholder = true }
-            if let decode = PhotoCache.cached(photo, maxPixel: PhotoCache.albumPixel) {
-                standIn = Held(src: photo.src, image: decode)
+        if shown != nil, shown?.src != src {
+            // another photo here than the one shown: nothing of the last one's stays, so its fade, if it is still
+            // under way, finds nothing of this one's to take away when it ends
+            shown = nil
+        }
+        if shown == nil {
+            if placeholder != src { placeholder = src }
+            // its own decode stands in, if memory has it
+            if standIn?.src != src, let decode = PhotoCache.cached(photo, maxPixel: PhotoCache.albumPixel) {
+                standIn = Held(src: src, image: decode)
             }
         }
+        guard making else {
+            // Low Power Mode: a picture made before, else the decode as the stand-in, loaded as a photo is
+            if let saved = await PhotoCache.shared.savedAmbient(photo, size: size) {
+                guard !Task.isCancelled else { return }
+                arrive(saved, of: src)
+                return
+            }
+            guard !Task.isCancelled, shown == nil, standIn?.src != src,
+                  let decode = await PhotoCache.shared.image(photo, maxPixel: PhotoCache.albumPixel),
+                  !Task.isCancelled else { return }
+            withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) { standIn = Held(src: src, image: decode) }
+            return
+        }
+        // cancelled with this task (the view went away, or shows another photo or size): the making stops when
+        // nobody else waits for it
         guard let made = await PhotoCache.shared.ambient(photo, size: size), !Task.isCancelled else { return }
-        let src = photo.src
+        arrive(made, of: src)
+    }
+
+    /// The picture fades in; what was under it for the same photo goes once it has, and nothing of another's.
+    private func arrive(_ picture: UIImage, of src: String) {
         withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) {
-            shown = Held(src: src, image: made)
+            shown = Held(src: src, image: picture)
         } completion: {
-            // under the picture now: let go once it has faded in
-            guard shown?.src == src else { return }
-            if standIn != nil { standIn = nil }
-            if placeholder { placeholder = false }
+            if standIn?.src == src { standIn = nil }
+            if placeholder == src { placeholder = nil }
         }
     }
 }
@@ -800,31 +839,38 @@ private struct AmbientPageStyle: ViewModifier {
 /// the phone, never the network. No body reads the colour anywhere else: one learned later (a remote
 /// photo downloaded while its page is open, its veil reading the colour) waits for the page's next
 /// opening, instead of turning the page from paper to colour on a later swipe or scroll. The first
-/// photograph decides light or dark and the hue for the whole page; the others no longer move it.
+/// photograph decides light or dark and the hue for the whole page; the others no longer move it. The rule
+/// is TripKit's `HeldChoice`, by the photograph's src.
 nonisolated struct PageTone: Equatable, Sendable {
-    /// the photograph it is for
-    private(set) var src: String?
-    private(set) var tone: AmbientTone?
-    /// decided for `src`: nothing changes it any more
-    private(set) var decided: Bool
+    private var choice: HeldChoice<String, AmbientTone>
 
     init(_ first: Photo?) {
-        src = first?.src
-        tone = first.flatMap { PhotoCache.knownTone($0) }
-        decided = tone != nil
+        choice = HeldChoice(key: first?.src, known: first.flatMap { PhotoCache.knownTone($0) })
+    }
+
+    /// the photograph it is for
+    var src: String? { choice.key }
+
+    /// Whether the colour for `first` is still to be decided.
+    func wants(_ first: Photo) -> Bool {
+        choice.wants(first.src)
     }
 
     /// The colour, once and for good: a decision for another photograph than this one's, or a second one,
-    /// changes nothing.
+    /// changes nothing; a decision of none leaves the page on paper.
     mutating func decide(_ found: AmbientTone?, for first: Photo) {
-        guard first.src == src, !decided else { return }
-        tone = found
-        decided = true
+        choice.decide(found, for: first.src)
+    }
+
+    /// `first` is now the page's first photograph: another one starts again, its colour if read before, else
+    /// paper until decided; the colour held for the last one is let go.
+    mutating func follow(_ first: Photo) {
+        choice.follow(first.src, known: PhotoCache.knownTone(first))
     }
 
     /// The page's colour, `dim` in dark mode; nil: paper.
     func canvas(dim: Bool) -> AmbientCanvas? {
-        tone.map { $0.canvas(light: $0.prefersLight, dim: dim) }
+        choice.value.map { $0.canvas(light: $0.prefersLight, dim: dim) }
     }
 }
 
@@ -853,9 +899,10 @@ private struct DecideTone: ViewModifier {
     func body(content: Content) -> some View {
         content.task(id: Ask(src: first?.src, settled: settled)) {
             guard settled, let first else { return }
-            // another photograph first since the page was made (a day replanned): its colour, by the same rule
-            if held.src != first.src { held = PageTone(first) }
-            guard !held.decided else { return }
+            // another photograph first since the page was made (a day replanned): its colour, by the same rule;
+            // written only then
+            if held.src != first.src { held.follow(first) }
+            guard held.wants(first) else { return }
             // read before, or read now from the photo on the phone (never downloaded for); nil leaves the page
             // on paper for the rest of its life. A decision for a photo no longer first changes nothing.
             let found = await PhotoCache.shared.tone(first)
