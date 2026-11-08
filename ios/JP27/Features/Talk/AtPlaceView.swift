@@ -38,7 +38,7 @@ struct AtPlaceView: View {
         return ScrollView {
             VStack(alignment: .leading, spacing: Metrics.stack) {
                 if let photo = place.hero {
-                    DetailHero(title: place.name, height: 360) {
+                    DetailHero(title: place.name, height: 360, veil: photo) {
                         PlacePhoto(photo: photo, maxPixel: 1800)
                     } foot: {
                         EmptyView()

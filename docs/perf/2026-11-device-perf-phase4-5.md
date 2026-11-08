@@ -126,6 +126,27 @@ nền nữa. Bước 9, 10 và 14 là **duyệt thiết kế** (mắt người, 
 
 ## 5.2
 
+Bản Release, Instruments như `docs/perf/2026-11-baseline.md`: track os_signpost (`tech.delphyra.jp27` / `perf`),
+SwiftUI (View Body), Animation Hitches. Tên ở chân ảnh đầu trang (trang địa điểm thường, "Đang ở quán", trang Fuji)
+không còn nằm trên `ultraThinMaterial` che bằng mask: dưới nó là bản mờ 160 px của chính ảnh, phần sau chân ảnh vẽ
+một lần thành một ảnh nhỏ với độ mờ dần lên trộn sẵn vào alpha, lớp tối 0,42 đè lên; không có bản mờ thì chỉ lớp tối
+0,55. Mỗi lần vẽ ảnh nhỏ ấy là một event `hero.foot` "`<ảnh hay picture> <rộng>x<cao>`", cỡ chân ảnh tính bằng điểm.
+Trang Fuji chưa có bản mờ (Task 5.3 đưa vào ảnh chụp địa hình đã làm mờ): tạm thời chỉ lớp tối 0,55 trên bản đồ.
+Bước 5, 6, 9 và 10 là **duyệt thiết kế** (mắt người, không có số); PR ghi "Cần duyệt thiết kế" cho 5.2.
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | Simulator › Debug › Color Off-screen Rendered. Mở sheet một địa điểm thường (không phải kiểu album; chạm ghim trên tab Bản đồ), trang "Đang ở quán" (nút "Nói ở quán" trên trang một quán ăn hay cửa hàng có ảnh), trang Fuji; nhìn chân ảnh lúc zoom ra và lúc cuộn | chân ảnh không vàng; ở trang Fuji chỉ hai nút kính ("Bản đồ 3D", "Tìm bằng camera") được phép vàng | |
+| 2 | S3 (tab Lịch trình → trang Fuji, `push.plan`), Metal System Trace trên máy: thời gian GPU mỗi khung trong lần mở và trong 1,2 giây bản đồ bay khi đổi vùng, so với baseline (`a996140`) | giảm so baseline (đây là phần vật liệu rời khỏi bản đồ sống; trang Fuji chưa có bản mờ) | |
+| 3 | Sheet một địa điểm thường (S2 với một ghim không phải kiểu album) và trang "Đang ở quán": hitch và View Body trong lần mở; đếm `hero.foot` | 0 hitch; một `hero.foot` cho mỗi lần mở có bản mờ trong bộ nhớ (thêm một khi chân ảnh đổi cao, ví dụ vuốt sang ảnh có hay không có dòng tác giả); không có chuỗi `hero.foot` mỗi khung trong lúc zoom (nếu có: lần zoom bố trí chân ảnh ở nhiều cỡ, ghi lại) | |
+| 4 | Time Profiler, bước 3: thời gian của `FootPicture.draw` (vẽ ảnh nhỏ trên main thread) | dưới 1 ms mỗi lần (ước tính: ảnh tối đa khoảng 100 × 50 px với bản mờ 160 px) | |
+| 5 | **Duyệt thiết kế.** Địa điểm thường có nhiều ảnh: vuốt chậm, vuốt nhanh | ghi lại lúc nào chân ảnh đổi sang bản mờ của ảnh mới (đổi ngay, không mờ dần) và chỗ đó có thành một cú "giật" không. Nếu có: phương án dự phòng là mỗi trang ảnh mang bản mờ của riêng nó (trượt cùng ảnh) | |
+| 6 | **Duyệt thiết kế.** Bật Giảm độ trong suốt (Cài đặt › Trợ năng › Màn hình & cỡ chữ), mở ba trang của bước 1 | không có bản mờ, chỉ lớp tối 0,55; tên và dòng dưới nó vẫn đọc được trên ảnh sáng (tuyết, trời) | |
+| 7 | Bật Nguồn điện thấp. Mở một địa điểm thường chưa từng mở trong lần chạy này; rồi, trang vẫn mở, tắt Nguồn điện thấp | lúc bật: chân ảnh chỉ có lớp tối 0,55 (bản mờ không được làm); tắt đi: bản mờ mờ dần lên một lần (0,2 giây) | |
+| 8 | Mở một địa điểm thường có ảnh chưa giải mã (mở app lần đầu, hay ảnh tải từ mạng); đóng rồi mở lại | lần đầu: chân ảnh lớp tối 0,55, rồi bản mờ mờ dần lên một lần sau khi ảnh hiện; lần mở lại: bản mờ có từ khung đầu, không mờ dần | |
+| 9 | **Duyệt thiết kế.** Trang Fuji, có mạng: đổi vùng để bản đồ bay 1,2 giây | tên, "富士山", dòng số liệu đọc được trên bản đồ nét (chưa có bản mờ tới Task 5.3) | |
+| 10 | **Duyệt thiết kế.** Chụp màn trước và sau, sáng và tối, ở đầu trang. Bản "trước" build từ `7691ad2`. Mỗi trang và mỗi chế độ một file trong `docs/perf/screens-5.2/`, trước bên trái, sau bên phải: `place-bright-light.png`, `place-bright-dark.png` (địa điểm thường, ảnh sáng), `place-dark-light.png`, `place-dark-dark.png` (ảnh tối), `atplace-light.png`, `atplace-dark.png`, `fuji-online-light.png`, `fuji-online-dark.png`, `fuji-offline-light.png`, `fuji-offline-dark.png` | ghi nhận xét: độ mờ so với vật liệu cũ, độ đọc được của chữ trắng (bản mờ không có lớp tối sẵn của vật liệu), chỗ mờ bắt đầu có mềm như trước không | |
+
 ## 5.5
 
 ## 5.4

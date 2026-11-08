@@ -396,15 +396,57 @@ extension TripPhase {
 /// The top of a detail page: a photograph filling the page up to its top edge, under the bar and
 /// its buttons, with the page's name set on a soft blur at the photograph's foot. There is no bar
 /// strip while it is in view; `detailPage` brings the name into the bar once it has scrolled away.
+///
+/// The blur is not live: it is the photograph's veil (`veil`, the blurred copy `PhotoCache` derives
+/// from the decode the page draws), or a blurred picture of the page's own (`backdrop`, which wins
+/// when both are given), drawn under the name by `HeroBlur`. A veil already in memory is there from
+/// the first frame, and when the photograph changes (a swipe) the next one's takes its place at once;
+/// one that is not is derived from the photograph and fades in (`Motion.arrive`), and until then the
+/// foot is the deeper shade alone. In Low Power Mode none is derived (one in memory still shows), and
+/// with Reduce Transparency there is none.
 struct DetailHero<Background: View, Foot: View>: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.accessibilityReduceTransparency) private var plain
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let title: String
     var subtitle: String?
-    var height: CGFloat = 440
-    @ViewBuilder var background: Background
+    var height: CGFloat
+    /// the photograph shown, whose veil is under the name
+    var veil: Photo?
+    /// a blurred picture of its own under the name (Fuji's terrain), in place of a veil
+    var backdrop: UIImage?
+    let background: Background
     /// under the name: tags, page dots, a credit
-    @ViewBuilder var foot: Foot
+    let foot: Foot
+    /// the veil that arrived: re-renders the hero, and keeps it on screen should memory let it go
+    @State private var held: HeldVeil?
+
+    init(title: String, subtitle: String? = nil, height: CGFloat = 440, veil: Photo? = nil, backdrop: UIImage? = nil,
+         @ViewBuilder background: () -> Background, @ViewBuilder foot: () -> Foot) {
+        self.title = title
+        self.subtitle = subtitle
+        self.height = height
+        self.veil = veil
+        self.backdrop = backdrop
+        self.background = background()
+        self.foot = foot()
+    }
+
+    /// A veil and the photograph it is of: shown only while that is the photograph here.
+    private struct HeldVeil {
+        let src: String
+        let image: UIImage
+    }
+
+    /// what the task loads: the photograph's veil, and whether it may be derived
+    private nonisolated struct VeilLoad: Equatable, Sendable {
+        let src: String?
+        let making: Bool
+    }
 
     var body: some View {
+        let under = shown
+        let making = !model.lowPower && !plain
         Color.clear
             .frame(height: height)
             .overlay { background }
@@ -435,26 +477,124 @@ struct DetailHero<Background: View, Foot: View>: View {
                 .padding(.horizontal, Metrics.gutter)
                 .padding(.top, 56)
                 .padding(.bottom, 18)
-                .background { HeroBlur() }
+                .background { HeroBlur(backdrop: under?.image, heroHeight: height, name: under?.name ?? "picture") }
                 .environment(\.colorScheme, .dark)
                 .accessibilityElement(children: .contain)
             }
+            // Low Power Mode in the id: turned off on an open page, the veil is derived then
+            .task(id: VeilLoad(src: veil?.src, making: making)) {
+                await loadVeil(making: making)
+            }
+    }
+
+    /// What is under the name, read from memory as the hero is drawn: a page turned to a photograph
+    /// whose veil is held shows it in that same frame, with nothing written.
+    private var shown: (image: UIImage, name: String)? {
+        guard !plain else { return nil }
+        if let backdrop { return (backdrop, "picture") }
+        guard let veil else { return nil }
+        if let held, held.src == veil.src { return (held.image, veil.src) }
+        return PhotoCache.cachedVeil(veil).map { ($0, veil.src) }
+    }
+
+    /// Only for a veil not in memory: derived from the photograph (the decode the page draws, shared
+    /// with it), and faded in. One in memory is already drawn and writes nothing.
+    private func loadVeil(making: Bool) async {
+        guard let veil, backdrop == nil, making, PhotoCache.cachedVeil(veil) == nil else { return }
+        let src = veil.src
+        guard let made = await PhotoCache.shared.veil(veil), !Task.isCancelled else { return }
+        withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) { held = HeldVeil(src: src, image: made) }
     }
 }
 
-/// A blur that rises from nothing into a frosted foot, with a shade for white type: the soft,
-/// progressive edge, not a band with a hard top.
+/// A blur that rises from nothing into a soft foot, with a shade for white type: the progressive
+/// edge, not a band with a hard top. The blur is the part of `backdrop` behind the foot, drawn once
+/// into a small picture with the rise already in its alpha (`HeroFoot`): one plain image, with no
+/// material, no mask and nothing flattened, so the zoom and the scroll move a finished picture. The
+/// backdrop fills the whole hero as its photograph does, so the blur is of what is just above it; it
+/// is drawn as `cgImage` holds it (upright). Without one, the shade alone, deeper.
 struct HeroBlur: View {
+    let backdrop: UIImage?
+    /// the hero's height: the foot is its bottom part, as wide as it
+    let heroHeight: CGFloat
+    /// what the backdrop is, for the `hero.foot` event: a photograph's src, or "picture"
+    let name: String
+    @State private var drawn = FootPicture()
+
+    init(backdrop: UIImage?, heroHeight: CGFloat, name: String = "picture") {
+        self.backdrop = backdrop
+        self.heroHeight = heroHeight
+        self.name = name
+    }
+
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .mask {
-                    LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black.opacity(0.7), location: 0.45), .init(color: .black, location: 1)], startPoint: .top, endPoint: .bottom)
+        GeometryReader { geo in
+            let picture = backdrop.flatMap { drawn.picture(of: $0, named: name, foot: geo.size, heroHeight: heroHeight) }
+            ZStack {
+                if let picture {
+                    Image(uiImage: picture)
+                        .resizable()
                 }
-            LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black.opacity(0.42), location: 1)], startPoint: .top, endPoint: .bottom)
+                LinearGradient(stops: [.init(color: .clear, location: 0),
+                                       .init(color: .black.opacity(HeroFoot.shade(backdrop: picture != nil)), location: 1)],
+                               startPoint: .top, endPoint: .bottom)
+            }
         }
         .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// The foot's picture, drawn when the backdrop or a size changes and kept for every other render: held
+/// by `HeroBlur` in a `@State` box that SwiftUI does not observe, so drawing it writes nothing a view
+/// reads. Small and quick: the backdrop's own pixels behind the foot, never more (a 160 px veil gives at
+/// most 160 px a side), one draw and one gradient, no decode and no file.
+private final class FootPicture {
+    private struct Key: Equatable {
+        let width: Int
+        let height: Int
+        let hero: Int
+    }
+
+    private var backdrop: UIImage?
+    private var key: Key?
+    private var made: UIImage?
+
+    func picture(of backdrop: UIImage, named name: String, foot: CGSize, heroHeight: CGFloat) -> UIImage? {
+        let key = Key(width: Int(foot.width.rounded()), height: Int(foot.height.rounded()), hero: Int(heroHeight.rounded()))
+        if backdrop === self.backdrop, key == self.key { return made }
+        self.backdrop = backdrop
+        self.key = key
+        made = Self.draw(backdrop, foot: foot, heroHeight: heroHeight)
+        if made != nil {
+            Perf.signposter.emitEvent("hero.foot", "\(name, privacy: .public) \(key.width, privacy: .public)x\(key.height, privacy: .public)")
+        }
+        return made
+    }
+
+    /// The backdrop where `HeroFoot.layout` puts it, its alpha multiplied by `HeroFoot.rise`
+    /// (destination-in), in sRGB. Nil, and so the shade alone, when it has no CGImage or a size is empty.
+    private static func draw(_ backdrop: UIImage, foot: CGSize, heroHeight: CGFloat) -> UIImage? {
+        let stops = HeroFoot.rise
+        // black at each stop's strength: only its alpha counts
+        let components: [CGFloat] = stops.flatMap { [0, 0, 0, CGFloat($0.shown)] }
+        let locations: [CGFloat] = stops.map { CGFloat($0.at) }
+        guard let image = backdrop.cgImage,
+              let layout = HeroFoot.layout(backdrop: DecodePlan.Size(width: image.width, height: image.height),
+                                           heroWidth: Double(foot.width), heroHeight: Double(heroHeight), foot: Double(foot.height)),
+              let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(data: nil, width: layout.canvas.width, height: layout.canvas.height, bitsPerComponent: 8,
+                                      bytesPerRow: layout.canvas.width * 4, space: space,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue),
+              let rise = CGGradient(colorSpace: space, colorComponents: components, locations: locations, count: stops.count) else { return nil }
+        context.interpolationQuality = .high
+        let r = layout.draw
+        context.draw(image, in: CGRect(x: r.x, y: r.y, width: r.width, height: r.height))
+        context.setBlendMode(.destinationIn)
+        // from the foot's top, which a bitmap context puts at y = height, to its bottom at y = 0
+        context.drawLinearGradient(rise, start: CGPoint(x: 0, y: layout.canvas.height), end: .zero,
+                                   options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+        return context.makeImage().map { UIImage(cgImage: $0) }
     }
 }
 

@@ -94,7 +94,8 @@ private struct FujiHero: View {
 
     var body: some View {
         let shown = spots.filter { area.contains($0) }
-        DetailHero(title: "Fuji", subtitle: "富士山", height: Self.height) {
+        // no blur under the name yet: the shade alone over the live map (Task 5.3 passes the blurred terrain snapshot)
+        DetailHero(title: "Fuji", subtitle: "富士山", height: Self.height, backdrop: nil) {
             ZStack {
                 if model.network.online {
                     FujiTerrainMap(spots: shown, position: $position, selection: .constant(nil))

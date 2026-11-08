@@ -93,7 +93,7 @@ private struct PlanPlaceContent: View {
 // MARK: - Photos
 
 /// The place's photographs filling the top of the page, its name and what it is on the soft blur
-/// at their foot, the photographer under them.
+/// at their foot (the veil of the photograph shown), the photographer under them.
 private struct PlanPlaceHero: View {
     let place: Place
     @State private var page = 0
@@ -101,7 +101,7 @@ private struct PlanPlaceHero: View {
 
     var body: some View {
         let photos = place.images
-        DetailHero(title: place.name, subtitle: place.ja) {
+        DetailHero(title: place.name, subtitle: place.ja, veil: photos.indices.contains(page) ? photos[page] : nil) {
             TabView(selection: $page) {
                 ForEach(photos.indices, id: \.self) { i in
                     PlacePhoto(photo: photos[i], maxPixel: 1800)
