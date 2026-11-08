@@ -526,7 +526,8 @@ enum HeroExporter {
 
 // MARK: - Japanese voice
 
-/// Reads Japanese aloud with the on-device voice, so a phrase can be played to staff.
+/// Reads Japanese aloud with the on-device voice, so a phrase can be played to staff. The audio session is not
+/// touched here: `AudioSessionController` decides what it needs, and its queue does it, in order with Nghe's.
 @Observable final class Speaker: NSObject {
     static let shared = Speaker()
     private let synth = AVSpeechSynthesizer()
@@ -535,58 +536,51 @@ enum HeroExporter {
     /// while the app speaks, so Nghe does not write down the app's own voice (`.measurement` has no
     /// echo cancelling)
     let voice = SpeakingFlag()
+    /// lines asked for so far: only the one asked for last is read
+    @ObservationIgnored private var asked = 0
+    /// the line asked for last, until the session work decided for it has run
+    @ObservationIgnored private var waiting: (line: Int, utterance: AVSpeechUtterance)?
 
     override init() {
         super.init()
         synth.delegate = self
     }
 
-    /// the session was set up for speaking here, so it is ours to hand back when done
-    private var ownsSession = false
-
     func say(_ ja: String, slow: Bool = false) {
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
-        let session = AVAudioSession.sharedInstance()
-        // while Nghe is listening the session records: speak through it as it is (changing the
-        // category would stop the microphone), and leave it to Nghe to end
-        if session.category != .playAndRecord { takeSession() }
         let u = AVSpeechUtterance(string: ja)
         u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
         u.rate = slow ? 0.38 : AVSpeechUtteranceDefaultSpeechRate
+        asked += 1
+        let line = asked
+        waiting = (line, u)
         speaking = ja
         voice.set(true)
-        synth.speak(u)
+        // the Speaker's category (none while Nghe listens: the line goes through its recording session as it
+        // is), set on the audio queue behind whatever was decided before. The line is read once that has run,
+        // so it never starts in another category, nor in a session whose deactivation was already queued.
+        AudioSessionController.send(.speakerWillSpeak) { _ in self.read(line) }
     }
 
-    /// Nghe stopped while a line is being read: the session stays active, moves to the Speaker's own
-    /// category, and is the Speaker's to end once nothing is left to say (`ended`).
-    func adoptSession() {
-        takeSession()
-    }
-
-    /// The Speaker's category, the one place it is set: mixable and ducking what else plays, heard
-    /// with the Ring/Silent switch on silent. The session is then the Speaker's to end.
-    private func takeSession() {
-        // on the main actor, in order with Nghe's (an exception to contract § 4.2 until Task 4.2)
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-        ownsSession = true
-    }
-
-    /// An utterance ended or was cut off: once nothing is left to say, the music ducked for it
-    /// comes back up (`notifyOthersOnDeactivation`); without this it stays low until the app quits.
-    fileprivate func ended(_ text: String) {
-        // the same line again cuts this one off: still speaking it
-        guard !synth.isSpeaking else { return }
-        if speaking == text {
-            speaking = nil
-            voice.set(false)
+    /// The session work decided for `line` has run (a failed category is logged, and the line read all the
+    /// same): it is read, unless another line was asked for since.
+    private func read(_ line: Int) {
+        guard let w = waiting, w.line == line else {
+            // a newer line was asked for; if it was read and ended already, nothing is left to say
+            settle()
+            return
         }
-        guard ownsSession else { return }
-        ownsSession = false
-        // Nghe may have taken the session over meanwhile: it is Nghe's to end then
-        let session = AVAudioSession.sharedInstance()
-        guard session.category != .playAndRecord else { return }
-        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        waiting = nil
+        synth.speak(w.utterance)
+    }
+
+    /// Nothing is being read and no line waits: the session goes back after a beat (the Speaker's release, in
+    /// `AudioSessionController`), and the music ducked for the lines comes back up.
+    fileprivate func settle() {
+        guard speaking != nil, waiting == nil, !synth.isSpeaking else { return }
+        speaking = nil
+        voice.set(false)
+        AudioSessionController.send(.speakerDone)
     }
 }
 
@@ -601,14 +595,175 @@ nonisolated final class SpeakingFlag: Sendable {
 }
 
 extension Speaker: AVSpeechSynthesizerDelegate {
+    /// An utterance ended, or was cut off by the next line.
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        let text = utterance.speechString
-        Task { @MainActor in self.ended(text) }
+        Task { @MainActor in self.settle() }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        let text = utterance.speechString
-        Task { @MainActor in self.ended(text) }
+        Task { @MainActor in self.settle() }
+    }
+}
+
+// MARK: - Audio session
+
+/// The app's one audio session, shared by the Speaker and Nghe. What to do with it is decided here, on the main
+/// actor and in the order things happen (`AudioSessionPlan`). The session calls run off the main thread, on one
+/// serial queue, in that same order (`AudioSessionQueue`).
+@MainActor enum AudioSessionController {
+    private static var plan = AudioSessionPlan()
+    private static let queue = AudioSessionQueue()
+    /// the wait before the Speaker's release; the plan's generation, not this cancel, makes a stale one harmless
+    private static var release: Task<Void, Never>?
+    /// the system's audio services restarting, watched from the first event on
+    private static var resetWatch: (any NSObjectProtocol)?
+    /// what went wrong with the audio session, in the device log (Console, subsystem tech.delphyra.jp27)
+    private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "audio")
+
+    /// Decides on `event` now and queues its session work at once, behind everything decided before it. `done`
+    /// runs on the main actor once that work has run, even when there was none, with the step that failed.
+    /// Returns the generation the work was decided under: Nghe's ticket after `.listenerStarting`.
+    @discardableResult
+    static func send(_ event: AudioSessionPlan.Event,
+                     done: (@MainActor @Sendable (AudioSessionFailure?) -> Void)? = nil) -> Int {
+        watchReset()
+        let commands = plan.handle(event)
+        let generation = plan.generation
+        run(commands, generation: generation, done: done)
+        return generation
+    }
+
+    private static func run(_ commands: [AudioSessionPlan.Command], generation: Int,
+                            done: (@MainActor @Sendable (AudioSessionFailure?) -> Void)?) {
+        var steps: [AudioSessionPlan.Step] = []
+        for command in commands {
+            switch command {
+            case .session(let step):
+                steps.append(step)
+            case .cancelRelease:
+                release?.cancel()
+                release = nil
+            case .release(let after, let due):
+                release?.cancel()
+                release = Task {
+                    do { try await Task.sleep(for: .milliseconds(after)) } catch { return }
+                    send(.releaseDue(generation: due))
+                }
+            case .retry(let after, let due):
+                // the wait is on the audio queue; whether the retry is still wanted is decided here
+                queue.after(milliseconds: after) {
+                    Task { @MainActor in send(.retryDue(generation: due)) }
+                }
+            }
+        }
+        // a batch with no steps still goes through the queue, so `done` runs after every batch before it
+        queue.run(steps) { failure in
+            Task { @MainActor in
+                // the plan learns of a failure before anyone waiting on the batch goes on
+                if let failure { failed(failure, generation: generation) }
+                done?(failure)
+            }
+        }
+    }
+
+    /// A step failed: never hidden. A deactivation refused as busy is tried once more; anything else is an error.
+    private static func failed(_ failure: AudioSessionFailure, generation: Int) {
+        let commands = plan.handle(.failed(failure.failure, generation: generation))
+        let step = String(describing: failure.failure.step)
+        if commands.contains(where: { if case .retry = $0 { true } else { false } }) {
+            log.notice("audio session \(step, privacy: .public) busy, tried again in \(AudioSessionPlan.busyRetryAfter) ms: \(failure.message, privacy: .public)")
+        } else {
+            log.error("audio session \(step, privacy: .public) failed: \(failure.message, privacy: .public)")
+        }
+        run(commands, generation: plan.generation, done: nil)
+    }
+
+    /// After a media services reset the session's category is the default again: the plan forgets the one it set.
+    private static func watchReset() {
+        guard resetWatch == nil else { return }
+        resetWatch = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.mediaServicesWereResetNotification, object: nil, queue: .main
+        ) { _ in
+            Task { @MainActor in AudioSessionController.send(.mediaServicesReset) }
+        }
+    }
+}
+
+/// A session step that threw: what the plan learns, and what the log says.
+nonisolated struct AudioSessionFailure: Error {
+    let failure: AudioSessionPlan.Failure
+    let message: String
+}
+
+/// The audio session's calls, off the main thread and in order: one serial queue, one block per batch of the
+/// plan's steps. A batch stops at its first failing step: what follows it was decided on it succeeding.
+nonisolated final class AudioSessionQueue: Sendable {
+    private let queue = DispatchQueue(label: "jp27.audio-session")
+    /// the session's setup from before Nghe (`capturePrior`), given back by `restorePrior`; only the queue's
+    /// blocks touch it
+    private let prior = Mutex<Setup?>(nil)
+
+    nonisolated struct Setup: Sendable {
+        let category: AVAudioSession.Category
+        let mode: AVAudioSession.Mode
+        let options: AVAudioSession.CategoryOptions
+    }
+
+    /// `steps` in one block on the queue, then `done` there with the first failure.
+    func run(_ steps: [AudioSessionPlan.Step], done: @escaping @Sendable (AudioSessionFailure?) -> Void) {
+        queue.async { done(self.execute(steps)) }
+    }
+
+    /// `work` on the queue once `milliseconds` have passed.
+    func after(milliseconds: Int, _ work: @escaping @Sendable () -> Void) {
+        queue.asyncAfter(deadline: .now() + .milliseconds(milliseconds), execute: work)
+    }
+
+    private func execute(_ steps: [AudioSessionPlan.Step]) -> AudioSessionFailure? {
+        let session = AVAudioSession.sharedInstance()
+        for step in steps {
+            do {
+                try execute(step, on: session)
+            } catch {
+                // `AVAudioSession.ErrorCode` is no Error type: the code is read from the NSError
+                let busy = (error as NSError).code == AVAudioSession.ErrorCode.isBusy.rawValue
+                return AudioSessionFailure(failure: AudioSessionPlan.Failure(step: step, busy: busy),
+                                           message: error.localizedDescription)
+            }
+        }
+        return nil
+    }
+
+    private func execute(_ step: AudioSessionPlan.Step, on session: AVAudioSession) throws {
+        switch step {
+        case .setCategory(let setup):
+            let values = Self.values(setup)
+            try session.setCategory(values.category, mode: values.mode, options: values.options)
+        case .capturePrior:
+            let now = Setup(category: session.category, mode: session.mode, options: session.categoryOptions)
+            prior.withLock { $0 = now }
+        case .restorePrior:
+            let kept = prior.withLock { value in
+                let kept = value
+                value = nil
+                return kept
+            }
+            if let kept { try session.setCategory(kept.category, mode: kept.mode, options: kept.options) }
+        case .activate:
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+        case .deactivate:
+            // what another app plays comes back up
+            try session.setActive(false, options: .notifyOthersOnDeactivation)
+        }
+    }
+
+    /// The one place each setup's values are written. The Speaker's: mixable and ducking what else plays, heard
+    /// with the Ring/Silent switch on silent. Nghe's: recording through the speaker, ducking what else plays.
+    private static func values(_ setup: AudioSessionPlan.Setup) -> Setup {
+        switch setup {
+        case .speaker: Setup(category: .playback, mode: .spokenAudio, options: [.duckOthers])
+        case .listener: Setup(category: .playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+        }
     }
 }
 
