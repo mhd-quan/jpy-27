@@ -205,7 +205,7 @@ mạng" mà trang dùng giờ chỉ đổi sau khi giữ nguyên 2 giây. Ảnh 
 app, ảnh lâu không dùng đi trước), làm lại được bất cứ lúc nào. Mỗi lần chụp là một event `fuji.snapshot`; mỗi ảnh
 chụp xong hay đọc từ đĩa là một event `fuji.picture` "`<tên> made|disk`"; mỗi lần một bản đồ sống lên màn hình là
 một event `fuji.live`. Cài đặt › Chẩn đoán (bản Debug) có "Fuji: chỉ ảnh địa hình" (không gắn bản đồ sống, không
-giữ qua lần mở app) và "Ảnh địa hình Fuji đã lưu" với nút "Xoá". Bước 1 là spike của chủ dự án. Bước 2, 16, 17, 18 và 22
+giữ qua lần mở app) và "Ảnh địa hình Fuji đã lưu" với nút "Xoá". Bước 1 là spike của chủ dự án. Bước 2, 16, 17, 18, 22 và 23
 là **duyệt thiết kế** (mắt người, không có số); PR ghi "Cần duyệt thiết kế" cho 5.3.
 
 | # | Bước | Mong đợi | Kết quả |
@@ -232,6 +232,7 @@ là **duyệt thiết kế** (mắt người, không có số); PR ghi "Cần du
 | 20 | Network Link Conditioner "100% Loss" (mạng có nhưng không đi). "Xoá" ảnh địa hình, mở trang Fuji, chờ 20 giây; rồi tắt Conditioner, rời trang và mở lại | lần đầu: một `fuji.snapshot`, không có `fuji.picture` (bỏ sau 15 giây), trang không treo; lần mở lại: lại một `fuji.snapshot`, rồi một `fuji.picture` `made` | |
 | 21 | Debug: đọc dòng "Ảnh địa hình Fuji đã lưu" sau bước 6 | ghi lại định dạng máy ghi (`HEIC` hay `JPG`) và dung lượng | |
 | 22 | **Duyệt thiết kế.** Có ảnh của một vùng trên đĩa (đã mở vùng ấy ở lần chạy trước), chưa mở vùng ấy trong lần chạy này. Mở trang Fuji có mạng ở vùng khác, chờ nền mờ đi (bản đồ sống đã lên); bật Chế độ máy bay, chờ hơn 2 giây, chọn vùng ấy | bản đồ sống ở lại và bay tới vùng mới, không đổi sang ảnh hay sơ đồ la bàn; địa hình vùng mới có thể thiếu mảnh (chưa từng tải trong lần chạy này) dù ảnh của vùng ấy có trên đĩa mà không hiện. Ghi lại trông thế nào (trống, xám, mờ) để quyết định có cần đưa ảnh lên lại trên bản đồ sống khi không có mạng không | |
+| 23 | **Duyệt thiết kế** (R-476). Có ảnh của một vùng trên đĩa, chưa mở vùng ấy trong lần chạy này (như bước 22). Mở trang Fuji có mạng ở vùng khác; tắt mạng ngay khi bản đồ sống vừa lên, trong 0,8 giây trước khi nền mờ đi (như bước 12); chờ hơn 2 giây rồi chọn vùng ấy | bản đồ sống đã gắn ở lại và bay tới vùng mới; địa hình vùng mới có thể thiếu mảnh trong khi ảnh của vùng ấy có trên đĩa. Chấp nhận được không? Ghi lại trông thế nào (trống, xám, mờ), và lúc đó ảnh hay nền có còn nằm trên bản đồ sống không | |
 
 ## 5.6
 
@@ -270,7 +271,7 @@ lúc nằm yên mà được chạm khi đang chạy thì không bắt đầu v�
 | # | Bước | Mong đợi | Kết quả |
 | --- | --- | --- | --- |
 | 1 | S1 (Bước 4 của brief): dừng carousel ở một thẻ ngày, chờ 2 s, chạm thẻ đó → trang ngày zoom mở. Đo chạm → khung đầu (`push.today`); quay màn 240 fps nếu cần nhìn từng khung | khung đầu < 50 ms; trang ngày mở ra đã có ảnh (ảnh ghép, không phải ô xám hay ảnh rõ thay chỗ), màu trang và bản đồ ngay ở khung đầu; so với baseline (`a996140`) | |
-| 2 | Khớp khoá (R-456, T1): open a day that rested: no `map.snapshot` and no `photo.ambient made` event after the push; if either shows, the prefetch key differs from the page's (pruning thrash, T1) | sau khi đẩy trang: 0 `map.snapshot`, 0 `photo.ambient … made` | |
+| 2 | Khớp khoá (R-456, T1): mở một ngày đã nạp trước lúc nằm yên: sau khi đẩy trang không có sự kiện `map.snapshot` hay `photo.ambient … made`; có một trong hai thì khoá của lần nạp trước khác khoá của trang (ảnh vừa làm bị dọn rồi làm lại, T1) | sau khi đẩy trang: 0 `map.snapshot`, 0 `photo.ambient … made` | |
 | 3 | Khớp cỡ hero (UNVERIFIED: chiều dài trang chủ đo được có bằng của trang ngày không): mở một ngày chưa nạp trước, so `<rộng>x<cao>` của sự kiện `photo.ambient` với của sự kiện `prefetch` lúc thẻ đó nằm yên. Làm hai lần: thanh tab đầy đủ, và thanh tab đã thu nhỏ (cuộn trang chủ xuống trước) | hai cỡ bằng nhau ở cả hai lần | |
 | 4 | Vuốt nhanh carousel ngày qua khoảng 6 thẻ rồi để nó dừng | nhiều nhất 1 sự kiện `prefetch day:… rest` cho mỗi lần dừng, cho thẻ nó dừng; không có sự kiện cho các thẻ lướt qua. Một sự kiện thứ hai cho cùng thẻ là bình thường khi vị trí đọc (`focus`) đến ngay sau lúc dừng và lần nạp đầu đã xong | |
 | 5 | Chạm một ga trên tuyến metro (thẻ tự cuộn tới) | `prefetch day:… rest` chỉ cho thẻ của ga đó: có thể 2 sự kiện (một khi `focus` đổi lúc carousel đang yên, một khi thẻ dừng, nếu lần đầu đã xong), không bao giờ cho thẻ khác; thẻ di chuyển im lặng (không rung). Mỗi lần chạm thẻ: nhiều nhất 1 `prefetch day:… touch` | |
@@ -281,7 +282,7 @@ lúc nằm yên mà được chạm khi đang chạy thì không bắt đầu v�
 | 10 | Chạm ảnh bìa trên trang chủ | 1 `prefetch place:… touch`; sheet địa điểm mở với màu trang ở khung đầu; ảnh rõ có ngay, ảnh ghép hiện dần sau; khi giữ ngón, ảnh bìa vẽ nguyên như lúc không chạm (kiểu báo chạm `PlainPressStyle`, không mờ đi; xem dòng 13) | |
 | 11 | Tắt mạng (Chế độ máy bay), dừng ở một ngày có ảnh từ xa chưa tải về | không có yêu cầu mạng nào cho ảnh (Instruments › Network); không có `photo.decode` cho ảnh đó; trang mở ra trên nền giấy như trước | |
 | 12 | Bộ nhớ (R-457, T6): dừng lần lượt ở cả 12 thẻ ngày (mỗi thẻ 2 s), rồi cuộn lên ảnh bìa và để nó tự lật một vòng. Track Allocations / Memory | ghi bộ nhớ đỉnh; đếm sự kiện `photo.decode` của ảnh bìa trên trang chủ sau đó (mỗi cái là một ảnh bìa bị đẩy khỏi bộ nhớ, giải mã lại) | |
-| 13 | **Duyệt thiết kế** (R-479): the cover photo under a finger: the system's plain style dimmed it while held; the press-reporting style does not — acceptable? Giữ ngón lên ảnh bìa, so với bản trước 5.7 (`54c2b11`) | chấp nhận được, hay cần một hiệu ứng khi giữ (ghi lại) | |
+| 13 | **Duyệt thiết kế** (R-479): ảnh bìa dưới ngón tay. Kiểu plain của hệ thống làm ảnh mờ đi khi giữ; kiểu báo chạm (`PlainPressStyle`) vẽ ảnh nguyên như cũ. Chấp nhận được không? Giữ ngón lên ảnh bìa, so với bản trước 5.7 (`54c2b11`) | chấp nhận được, hay cần một hiệu ứng khi giữ (ghi lại) | |
 
 ## 5.9
 

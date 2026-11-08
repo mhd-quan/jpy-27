@@ -92,6 +92,9 @@ import TripKit
 /// written to disk (a fetch, a picture kept). `online` is what is drawn (a live map or its offline plot, "không
 /// có mạng"): the first report at once, then a change only once it has held 2 s, and only when it differs.
 /// A flaky signal no longer tears a page's live map down and builds it again (`SteadyValue`).
+/// One exception, drawn yet on `raw` (R-312): the state of a download in progress (Settings › Dùng khi mất sóng: "Đang
+/// tải" or "Chờ mạng", a failure shown, the photos button enabled), so a flaky signal flips its line. That is accepted:
+/// the download itself follows `raw`.
 @Observable final class NetworkStatus {
     /// the path as it is now
     private(set) var raw = true

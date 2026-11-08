@@ -187,7 +187,8 @@ struct PressableStyle: PrimitiveButtonStyle {
     enum Look {
         /// settles a little under the finger
         case settle
-        /// the plain style: drawn as it is, dimmed while held
+        /// the plain style: drawn as it is; the system dims it while held, unless it reports the press
+        /// (`PlainPressStyle`, which draws the label unchanged)
         case plain
         /// text in the tint colour, as a link
         case borderless
