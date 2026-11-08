@@ -195,6 +195,42 @@ danh sách, lướt tới (`Motion.settle`) khi chạm.
 
 ## 5.3
 
+Bản Release, Instruments như `docs/perf/2026-11-baseline.md`: track os_signpost (`tech.delphyra.jp27` / `perf`),
+SwiftUI (View Body), Animation Hitches, Allocations. Địa hình 3D ở đầu trang Fuji và trên thẻ chỗ ngắm (ảnh đầu
+thẻ khi chỗ đó không có ảnh, và mục "Tia ngắm") giờ là một ảnh MapKit chụp sẵn (`MKMapSnapshotter`), với đỉnh, các
+điểm ngắm và tia ngắm vẽ lên trên. Bản đồ sống chỉ được gắn khi trang đã zoom xong và mạng ổn định, nằm dưới ảnh; ảnh
+ở lại thêm 0,8 giây rồi mờ đi. Đã gắn thì bản đồ sống ở lại tới khi rời trang, mạng chập chờn không dựng lại nó. "Có
+mạng" mà trang dùng giờ chỉ đổi sau khi giữ nguyên 2 giây. Ảnh nằm trong `Caches/Fuji` (giữ dưới 40 MB mỗi lần mở
+app, ảnh lâu không dùng đi trước), làm lại được bất cứ lúc nào. Mỗi lần chụp là một event `fuji.snapshot`; mỗi ảnh
+chụp xong hay đọc từ đĩa là một event `fuji.picture` "`<tên> made|disk`"; mỗi lần một bản đồ sống lên màn hình là
+một event `fuji.live`. Cài đặt › Chẩn đoán (bản Debug) có "Fuji: chỉ ảnh địa hình" (không gắn bản đồ sống, không
+giữ qua lần mở app) và "Ảnh địa hình Fuji đã lưu" với nút "Xoá". Bước 1 là spike của chủ dự án. Bước 2, 16, 17 và 18
+là **duyệt thiết kế** (mắt người, không có số); PR ghi "Cần duyệt thiết kế" cho 5.3.
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | **Spike (Step 1).** Bản Debug, bật "Fuji: chỉ ảnh địa hình", có mạng. Mở trang Fuji, chọn lần lượt bốn vùng; mở thẻ một chỗ ngắm không có ảnh và một chỗ có ảnh (mục "Tia ngắm") | ghi lại: ảnh chụp có giữ địa hình 3D (núi nổi khối) và góc nghiêng camera không, hay ra phẳng nhìn từ trên xuống. Có: một task sau bỏ bớt bản đồ sống (ảnh đứng một mình làm đầu trang). Không: giữ như bây giờ | |
+| 2 | **Duyệt thiết kế.** Như bước 1, rồi tắt công tắc, đóng và mở lại trang để thấy bản đồ sống lên dưới ảnh | ghim đỉnh Fuji trên ảnh đứng đúng đỉnh núi như trên bản đồ sống: `Snapshot.point(for:)` có thể bỏ qua độ cao (3.776 m) khi camera nghiêng, ghim khi đó nằm thấp hơn đỉnh. Các điểm ngắm và tia ngắm trùng với bản đồ sống; khi ảnh mờ đi không thấy ghim nhảy chỗ | |
+| 3 | S3 (tab Lịch trình → trang Fuji, `push.plan`), lần đầu mở trong lần chạy này. Đọc hitch, View Body và các event trong khoảng `push.plan` | 0 hitch trong zoom; `fuji.live` chỉ sau khi zoom xong, không bao giờ trong zoom; `fuji.snapshot` (nếu ảnh chưa có) cũng sau zoom | |
+| 4 | S4 (trang Fuji, chạm một chỗ ngắm có ảnh, `sheet.fujiSpot`), rồi một chỗ không có ảnh | 0 hitch trong zoom. Thẻ có ảnh: không có `fuji.live` tới khi cuộn tới mục "Tia ngắm" (nằm trong `LazyVStack`); thẻ không ảnh: `fuji.live` sau khi zoom xong | |
+| 5 | Debug: "Xoá" ảnh địa hình. Có mạng ổn định, mở trang Fuji | trong zoom: nền xanh đêm (chưa có ảnh); sau zoom: bản đồ sống lên dưới nền, 0,8 giây sau nền mờ đi (0,2 giây). Song song: một `fuji.snapshot` và một `fuji.picture` `made`; bản mờ của địa hình tới dưới tên "Fuji" (trước đó chỉ lớp tối 0,55) | |
+| 6 | Sau bước 5: rời trang, mở lại; rồi tắt hẳn app (vuốt khỏi app switcher), mở lại trang Fuji | lần mở lại: ảnh có từ khung đầu, không có `fuji.snapshot` hay `fuji.picture`; sau khi mở lại app: một `fuji.picture` `disk`, không có `made`. Bản mờ dưới tên có ngay khi ảnh hiện | |
+| 7 | Có mạng, bản đồ sống đã lên: chọn vùng khác trên dải vùng, vài lần | camera bay tới vùng mới trong 1,0 giây (trước là 1,2); ghim không trượt từ vùng cũ sang; bản mờ dưới tên giữ của vùng trước tới khi ảnh vùng mới được chụp xong, rồi đổi. Mỗi vùng chưa có ảnh: một `fuji.snapshot` | |
+| 8 | Bật "Fuji: chỉ ảnh địa hình" (hay tắt mạng, với ảnh đã có), chọn vùng khác | ảnh vùng cũ đứng yên với ghim của nó tới khi ảnh vùng mới có, rồi mờ chéo sang (0,2 giây); ghim đi cùng ảnh, không trượt | |
+| 9 | Network Link Conditioner: trang Fuji mở, bản đồ sống đã lên; bật/tắt mạng 10 lần trong 20 giây. Instruments › Allocations, lọc `MKMapView` | không thêm `MKMapView` nào; `fuji.live` không có thêm; bản đồ không chớp sang sơ đồ la bàn; dòng số liệu không chớp "không có mạng" với mỗi lần lật ngắn hơn 2 giây | |
+| 10 | Có ảnh trên đĩa (bước 6). Bật Chế độ máy bay, tắt hẳn app, mở lại trang Fuji và thẻ một chỗ ngắm đã mở trước đó | ảnh địa hình với ghim và tia ngắm (không phải sơ đồ la bàn); dòng số liệu có "không có mạng"; không có `fuji.snapshot`, không có `fuji.live` | |
+| 11 | "Xoá" ảnh địa hình, bật Chế độ máy bay, mở trang Fuji; rồi, trang vẫn mở, tắt Chế độ máy bay | lúc không mạng: sơ đồ la bàn; có mạng lại khoảng 2 giây sau: sơ đồ nhường chỗ cho nền xanh đêm, bản đồ sống lên dưới nó (`fuji.live`), 0,8 giây sau nền mờ đi; một `fuji.snapshot` | |
+| 12 | Như bước 5, nhưng tắt mạng ngay khi bản đồ sống vừa lên (trong 0,8 giây) | nền không bao giờ được gỡ khi không mạng; có mạng lại (giữ 2 giây) thì đếm lại 0,8 giây rồi mới mờ đi | |
+| 13 | Bản đồ 3D (nút "Bản đồ 3D" ở trang Fuji), có mạng, chờ địa hình tải xong; bật Chế độ máy bay một phút, xoay và nghiêng bản đồ; rồi tắt | bản đồ sống ở lại suốt (các mảnh đã tải vẫn hiện), các nút la bàn, nghiêng, vị trí và thước vẫn ở đó; không hiện dòng "Không có mạng…"; Allocations không thêm `MKMapView` | |
+| 14 | Bật Nguồn điện thấp. "Xoá" ảnh địa hình, mở trang Fuji, chọn vài vùng; rồi, trang vẫn mở, tắt Nguồn điện thấp | lúc bật: không có `fuji.snapshot`; bản đồ sống vẫn lên khi có mạng. Tắt đi: đúng một `fuji.snapshot` cho vùng đang chọn. Ảnh đã có trước đó vẫn hiện khi Nguồn điện thấp bật | |
+| 15 | Bật Giảm chuyển động, làm lại bước 5 và 7 | camera nhảy thẳng tới vùng mới, không bay; nền và ảnh vẫn mờ đi hay mờ chéo trong 0,2 giây; không có chuyển động nào khác | |
+| 16 | **Duyệt thiết kế.** Bước 5 và 6, quay chậm màn hình nếu được: lúc ảnh (hay nền) mờ đi để lộ bản đồ sống | ghi lại: ảnh và bản đồ sống có trùng nhau (khung, màu, độ nét) không, chỗ chuyển có thành một cú "giật" không. Nếu có: ghi lại để chỉnh nhịp 0,8 giây hay cách mờ | |
+| 17 | **Duyệt thiết kế.** Đổi vùng với ảnh (bước 8) và với bản đồ sống (bước 7) | mờ chéo giữa hai ảnh trông liền, không chớp sang nền; bản mờ dưới tên đổi vùng không chớp sang lớp tối 0,55 | |
+| 18 | **Duyệt thiết kế.** Chụp màn trước và sau, sáng và tối, ở đầu trang: trang Fuji có mạng, trang Fuji không mạng (có ảnh và không có ảnh), thẻ một chỗ ngắm không có ảnh. Bản "trước" build từ `c1490bc`. Mỗi trang và mỗi chế độ một file trong `docs/perf/screens-5.3/`, trước bên trái, sau bên phải: `fuji-online-light.png`, `fuji-online-dark.png`, `fuji-offline-picture-light.png`, `fuji-offline-picture-dark.png`, `fuji-offline-plot-light.png`, `fuji-offline-plot-dark.png`, `spot-light.png`, `spot-dark.png` | ghi nhận xét: bản mờ địa hình dưới tên và độ đọc được của chữ trắng trên nó; ảnh chụp so với bản đồ sống (màu, độ nét) | |
+| 19 | Đang mở trang Fuji, đổi sáng/tối từ Control Center rồi quay lại app | bản đồ sống sang chế độ mới; ảnh của chế độ đó được chụp (một `fuji.snapshot`) hay đọc lại, không chớp | |
+| 20 | Network Link Conditioner "100% Loss" (mạng có nhưng không đi). "Xoá" ảnh địa hình, mở trang Fuji, chờ 20 giây; rồi tắt Conditioner, rời trang và mở lại | lần đầu: một `fuji.snapshot`, không có `fuji.picture` (bỏ sau 15 giây), trang không treo; lần mở lại: lại một `fuji.snapshot`, rồi một `fuji.picture` `made` | |
+| 21 | Debug: đọc dòng "Ảnh địa hình Fuji đã lưu" sau bước 6 | ghi lại định dạng máy ghi (`HEIC` hay `JPG`) và dung lượng | |
+
 ## 5.6
 
 ## 5.7

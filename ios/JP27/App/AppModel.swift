@@ -374,7 +374,7 @@ enum AppSheet: Identifiable, Hashable {
             if notifications.undetermined { await notifications.requestAuthorization() }
             await HeroExporter.exportIfNeeded(store: store)
             // once per launch, as soon as it is online and gets an answer
-            if !tilesChecked, network.online { tilesChecked = await OfflineMaps.checkPinnedTiles() }
+            if !tilesChecked, network.raw { tilesChecked = await OfflineMaps.checkPinnedTiles() }
         }
         // the colour of the photograph each page opens on, read once in the background (and kept),
         // so no page re-colours itself while it zooms open

@@ -81,7 +81,7 @@ struct FujiFinderView: View {
         .onDisappear { model.location.watchHeading(false) }
         .task {
             model.location.resume(for: model)
-            let hours = await model.forecasts.hours("summit", at: FujiSight.summit, online: model.network.online)
+            let hours = await model.forecasts.hours("summit", at: FujiSight.summit, online: model.network.raw)
             // the forecast's hours are real instants: the real clock, also while rehearsing
             let now = model.now.addingTimeInterval(-model.clockOffset)
             let nearest = hours.min { abs($0.date.timeIntervalSince(now)) < abs($1.date.timeIntervalSince(now)) }?.cloud

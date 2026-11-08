@@ -96,7 +96,7 @@ struct CloudForecast: View {
 
     private func load() async {
         loading = true
-        let online = model.network.online
+        let online = model.network.raw
         let forecasts = model.forecasts
         summit = await forecasts.hours("summit", at: FujiSight.summit, online: online)
         here = await forecasts.hours(key, at: coordinate, online: online)

@@ -99,6 +99,10 @@ private struct DiagnosticsSection: View {
     @State private var mapPictures: String?
     /// how far the photos' tones moved from the 96 px thumbnail, the last time it was asked
     @State private var toneDrift: String?
+    /// `FujiTerrainPictures.pictureOnly`, as the switch shows it
+    @State private var fujiPictureOnly = FujiTerrainPictures.pictureOnly
+    /// what `Caches/Fuji` holds, read on opening the page and after "Xoá"
+    @State private var fujiPictures: String?
     #endif
     /// the location history's rows, counted when the page opens (nil: not counted, or unreadable)
     @State private var history: (visits: Int, traces: Int)?
@@ -294,6 +298,40 @@ private struct DiagnosticsSection: View {
                     SettingsIcon(symbol: "eyedropper", tint: .gray)
                 }
             }
+            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 5.3: what MapKit's snapshotter draws of the terrain,
+            // with no live map coming in under it (not kept)
+            Toggle(isOn: $fujiPictureOnly) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Fuji: chỉ ảnh địa hình")
+                        Text("Trang Fuji và thẻ điểm ngắm chỉ hiện ảnh chụp sẵn, không mở bản đồ thật, tới khi tắt hoặc mở lại app").font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "mountain.2", tint: Palette.fuji)
+                }
+            }
+            .onChange(of: fujiPictureOnly) { _, on in FujiTerrainPictures.pictureOnly = on }
+            .onAppear { fujiPictureOnly = FujiTerrainPictures.pictureOnly }
+            LabeledContent {
+                HStack(spacing: 12) {
+                    Text(fujiPictures ?? "—").monospacedDigit()
+                    // only the folder's own pictures, and those in memory: the next page draws its picture afresh
+                    Button("Xoá", role: .destructive) {
+                        Task {
+                            await FujiTerrainPictures.shared.clear()
+                            fujiPictures = await FujiTerrainPictures.usage()
+                        }
+                    }
+                    .buttonStyle(.borderless)
+                }
+            } label: {
+                Label {
+                    Text("Ảnh địa hình Fuji đã lưu")
+                } icon: {
+                    SettingsIcon(symbol: "photo.on.rectangle", tint: .gray)
+                }
+            }
+            .task { fujiPictures = await FujiTerrainPictures.usage() }
             #endif
         } header: {
             Text("Chẩn đoán")
@@ -957,7 +995,7 @@ private struct OfflineSection: View {
                 }
             }
             Section {
-                PhotosRow(photos: downloads.photos, online: model.network.online, download: { downloads.downloadPhotos() })
+                PhotosRow(photos: downloads.photos, online: model.network.raw, download: { downloads.downloadPhotos() })
             } header: {
                 Text("Ảnh")
             } footer: {
@@ -975,9 +1013,9 @@ private struct OfflineSection: View {
         // asked for, its pack not read yet (or not asked how far it is)
         case .requested?: return .checking
         case .creating?: return .preparing
-        case .downloading?: return model.network.online ? .downloading(p) : .waiting(p)
+        case .downloading?: return model.network.raw ? .downloading(p) : .waiting(p)
         case .waitingForNetwork?:
-            if model.network.online, let problem = o.problems[id] { return .failing(p, problem) }
+            if model.network.raw, let problem = o.problems[id] { return .failing(p, problem) }
             return .waiting(p)
         case .paused?: return .paused(p)
         case .complete?: return .complete

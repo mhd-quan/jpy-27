@@ -331,7 +331,7 @@ final class MapSnapshots {
     private func load(_ request: Request) async -> MapSnapshot? {
         if let saved = await Self.read(request.key, scale: request.scale, dark: request.dark) { return saved }
         guard let made = await render(request) else { return nil }
-        if AppModel.shared.network.online {
+        if AppModel.shared.network.raw {
             let key = request.key
             // nobody waits for the files: the next ask finds them, or draws again
             Task(priority: .utility) { await MapSnapshots.store(made, as: key) }

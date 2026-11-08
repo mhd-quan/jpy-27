@@ -56,6 +56,8 @@ final class JP27AppDelegate: NSObject, UIApplicationDelegate {
         Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20) }
         // the album pages' pictures (Caches/Ambient) likewise, the least recently used going first
         Task(priority: .utility) { await PhotoCache.trimAmbient(toBytes: 40 << 20) }
+        // and the Fuji terrain's (Caches/Fuji), each picture with its points
+        Task(priority: .utility) { await FujiTerrainPictures.trim(toBytes: 40 << 20) }
         return true
     }
 }
