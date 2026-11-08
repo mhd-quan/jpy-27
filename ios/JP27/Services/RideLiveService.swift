@@ -164,7 +164,13 @@ import TripKit
             let canNotify = model.notifications.alertsAuthorized
             switch tracker?.wake(km: s.km, speedKmh: speed, at: fix, notAfter: timetableAlarm?.addingTimeInterval(-model.clockOffset), scheduled: current, now: Date(), canNotify: canNotify) {
             case .alarm(let at)? where current.map({ abs($0.timeIntervalSince(at)) >= 120 }) ?? true:
-                Task { await model.alarms.alight(rideID: ride.id, station: ride.toName, at: at) }
+                let id = ride.id
+                Task {
+                    // another ride picked before this runs has cancelled this one's alarm (`select`): setting it
+                    // now would ring for a station no longer followed
+                    guard self.ride?.id == id else { return }
+                    await model.alarms.alight(rideID: id, station: ride.toName, at: at)
+                }
             case .notice?:
                 if model.alarms.firstNotice(for: ride.id) {
                     // woken by a fix under the lock screen: iOS waits for the notification to be posted

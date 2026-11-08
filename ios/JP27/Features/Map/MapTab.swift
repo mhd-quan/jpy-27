@@ -22,6 +22,9 @@ struct MapTab: View {
     @State private var shown: Int?
     /// the map's flight to the item the reading line comes to rest on (made on first use, `flights()`)
     @State private var flight: Debouncer<MapFlight>?
+    /// the wait for the panel to settle once it comes down from full, then the one flight: a newer stage or day
+    /// cancels it, so a panel back up before it wakes flies nothing, and a second way down makes one flight, not two
+    @State private var settling: Task<Void, Never>?
     /// `active` last came from the list scrolling under the finger: the stop strip follows it without
     /// animation
     @State private var readByScroll = false
@@ -129,14 +132,17 @@ struct MapTab: View {
         // the map does not follow the list behind a full panel; it catches up once the panel is
         // down and has settled
         .onChange(of: stage) { old, new in
+            settling?.cancel()
+            settling = nil
             guard old == .large, new != .large else { return }
             // this is the one flight once the panel is down: a read's flight still waiting would make two
             flight?.cancel()
             let day = self.day
-            Task {
+            settling = Task {
                 try? await Task.sleep(for: .milliseconds(380))
-                // the day is read when it flies, as a read's flight reads it when it lands
-                guard day.key == self.day.key else { return }
+                // the panel still down and the day the same when it flies, as a read's flight reads the day when
+                // it lands
+                guard !Task.isCancelled, stage != .large, day.key == self.day.key else { return }
                 shown = active
                 fly(day, to: active, force: false)
             }
@@ -147,6 +153,8 @@ struct MapTab: View {
         // one may not have
         .onChange(of: day.key) {
             flight?.cancel()
+            settling?.cancel()
+            settling = nil
             active = nil
             shown = nil
             side = nil

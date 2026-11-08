@@ -95,7 +95,8 @@ private struct HomeCover: View {
                         .foregroundStyle(.secondary)
                 }
                 .opacity(risen ? 1 : 0)
-                .offset(y: risen ? 0 : 10)
+                // under Reduce Motion (read at the top of HomeCover) it fades in where it stays, with no rise
+                .offset(y: risen || reduceMotion ? 0 : 10)
             }
             .padding(.horizontal, Metrics.gutter)
             .accessibilityElement(children: .combine)
@@ -306,7 +307,8 @@ private struct HomeSun: View {
         // the unit turning is a choice: `pick`, not the card's press
         .buttonStyle(.pressable(.settle, felt: false))
         .sensoryFeedback(.pick, trigger: taps)
-        .scaleEffect(risen ? 1 : 0.85)
+        // under Reduce Motion (read at the top of HomeSun) the disc fades in at its size, with no growth
+        .scaleEffect(risen || reduceMotion ? 1 : 0.85)
         .opacity(risen ? 1 : 0)
         .accessibilityLabel("Còn \(days) ngày")
         .accessibilityHint("Đổi đơn vị")

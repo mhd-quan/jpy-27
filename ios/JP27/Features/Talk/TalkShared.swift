@@ -257,7 +257,9 @@ private enum TalkShowFit {
             height -= spacing + measure(vi, font: .preferredFont(forTextStyle: .body, compatibleWith: traits),
                                         width: width, lines: viLines)
         }
-        // no room (a first pass before the screen has its size): not remembered, measured again with the real box
+        // no room left for the Japanese: a first pass before the screen has its size, or a real box that the reading
+        // and the meaning fill (a small phone sideways at an accessibility size). The smallest size, not remembered,
+        // so measured again on every pass and with no `phrase.fit`; there the reading and the meaning can still be cut
         guard width >= 1, height >= 1 else { return sizes.lowerBound }
         // SwiftUI draws `.bold` heavier under Bold Text. That it is exactly one step heavier (`.heavy`) is
         // unverified: no documentation says so (device check § 5.6 row 5)
@@ -275,7 +277,9 @@ private enum TalkShowFit {
     /// The Japanese at `font` within `width` × `height`, in at most `jaLines` lines. The text is marked Japanese,
     /// as the card shows it under a ja_JP locale, so that it is measured with the glyph fallback and line breaking
     /// it is drawn with. That `NSString` drawing uses the language attribute to pick the fallback font is unverified:
-    /// its documentation names localized glyphs and line breaking only.
+    /// its documentation names localized glyphs and line breaking only. Lines are counted by the height of one line
+    /// of the same text under the same attributes, not by `font.lineHeight`: kana and kanji are drawn in a fallback
+    /// font, whose lines are not the system font's height.
     private static func fits(_ ja: String, font: UIFont, width: CGFloat, height: CGFloat) -> Bool {
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
@@ -287,7 +291,12 @@ private enum TalkShowFit {
         // fractional, and the width can pass the one asked for (spaces may overhang): rounded up, as Apple says
         let w = r.width.rounded(.up)
         let h = r.height.rounded(.up)
-        return w <= width && h <= height && (h / font.lineHeight).rounded() <= CGFloat(jaLines)
+        guard w <= width, h <= height else { return false }
+        // the same glyphs on one unbroken line: its height is one line's, in whatever font they fall back to
+        let unbroken = ja.components(separatedBy: .newlines).joined(separator: " ") as NSString
+        let one = unbroken.boundingRect(with: CGSize(width: CGFloat.greatestFiniteMagnitude, height: .greatestFiniteMagnitude),
+                                        options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
+        return (h / max(one.height, 1)).rounded() <= CGFloat(jaLines)
     }
 
     /// The height of a line under the Japanese, at most `lines` lines of `font`.

@@ -454,7 +454,7 @@ private struct MetricsSection: View {
                     } header: {
                         Text("Chuyển cảnh")
                     } footer: {
-                        Text("Từ lúc chạm tới khi chuyển cảnh xong: trung vị của mọi ngày còn giữ. Giật: trung bình theo số lần, trong lúc chuyển.")
+                        Text("Từ lúc chạm tới khi lần đo khép lại: trung vị của mọi ngày còn giữ. Mọi cách khép đều được tính: chuyển cảnh xong, bị chuyển cảnh sau thay, hết 1 giây chờ hay quá giờ. Trong Instruments, thông điệp kết thúc của mỗi lần cho biết cách khép. Giật: trung bình theo số lần, trong lúc chuyển.")
                     }
                 }
                 if !stored.payloads.isEmpty {
@@ -501,10 +501,10 @@ private struct MetricsSection: View {
         }
     }
 
-    /// "2,1 ms per s", or "—"
+    /// "2,1 ms/s", or "—": MetricKit gives hitch ratios in ms per s, and its unit's symbol is English, so it is not shown
     private static func ratio(_ r: MetricsDigest.Ratio?) -> String {
         guard let r else { return "—" }
-        return "\(Fmt.decimal(r.value, digits: 1)) \(r.unit)"
+        return "\(Fmt.decimal(r.value, digits: 1)) ms/s"
     }
 
     /// "640 ms", or "—"
