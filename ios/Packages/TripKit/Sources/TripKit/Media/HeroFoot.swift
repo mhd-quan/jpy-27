@@ -20,6 +20,41 @@ public enum HeroFoot {
         backdrop ? 0.42 : 0.55
     }
 
+    /// A photograph's veil and the photograph it is of (its src): one that arrived, or the last one shown.
+    public struct Kept<Image> {
+        public let src: String
+        public let image: Image
+
+        public init(src: String, image: Image) {
+            self.src = src
+            self.image = image
+        }
+    }
+
+    /// What is under the name, in this order: nothing with Reduce Transparency; the page's own picture
+    /// (`backdrop`), which wins; nothing without a photograph (`veil`, its src); the veil that arrived for this
+    /// photograph (`held`); the veil in memory (`cached`); the last veil shown for this photograph (`kept`), so memory
+    /// letting the veil go while the page is open leaves it under the name. A veil of another photograph is never
+    /// shown.
+    public static func under<Image>(reduceTransparency: Bool, backdrop: Image?, veil: String?, held: Kept<Image>?,
+                                    cached: Image?, kept: Kept<Image>?) -> Image? {
+        if reduceTransparency { return nil }
+        if let backdrop { return backdrop }
+        guard let veil else { return nil }
+        if let held, held.src == veil { return held.image }
+        if let cached { return cached }
+        if let kept, kept.src == veil { return kept.image }
+        return nil
+    }
+
+    /// Whether the photograph's veil is derived now (background work): not in Low Power Mode, not with Reduce
+    /// Transparency (none is shown), only for a photograph, not when the page's own picture is under the name, and
+    /// not when memory has it already.
+    public static func derivesVeil(lowPower: Bool, reduceTransparency: Bool, hasVeil: Bool, hasBackdrop: Bool,
+                                   cached: Bool) -> Bool {
+        !lowPower && !reduceTransparency && hasVeil && !hasBackdrop && !cached
+    }
+
     /// The foot's picture: its size in pixels, and where the whole backdrop is drawn in it.
     public struct Layout: Equatable, Sendable {
         /// in pixels; the picture is shown stretched over the foot

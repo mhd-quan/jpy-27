@@ -400,7 +400,8 @@ extension TripPhase {
 /// The blur is not live: it is the photograph's veil (`veil`, the blurred copy `PhotoCache` derives
 /// from the decode the page draws), or a blurred picture of the page's own (`backdrop`, which wins
 /// when both are given), drawn under the name by `HeroBlur`. A veil already in memory is there from
-/// the first frame, and when the photograph changes (a swipe) the next one's takes its place at once;
+/// the first frame and stays while the page shows that photograph, even should memory let it go; when
+/// the photograph changes (a swipe) the next one's takes its place at once;
 /// one that is not is derived from the photograph and fades in (`Motion.arrive`), and until then the
 /// foot is the deeper shade alone. In Low Power Mode none is derived (one in memory still shows), and
 /// with Reduce Transparency there is none.
@@ -419,7 +420,9 @@ struct DetailHero<Background: View, Foot: View>: View {
     /// under the name: tags, page dots, a credit
     let foot: Foot
     /// the veil that arrived: re-renders the hero, and keeps it on screen should memory let it go
-    @State private var held: HeldVeil?
+    @State private var held: HeroFoot.Kept<UIImage>?
+    /// the last veil shown, with its photograph: under the name still should memory let a veil it found there go
+    @State private var lastShown = ShownVeil()
 
     init(title: String, subtitle: String? = nil, height: CGFloat = 440, veil: Photo? = nil, backdrop: UIImage? = nil,
          @ViewBuilder background: () -> Background, @ViewBuilder foot: () -> Foot) {
@@ -432,10 +435,10 @@ struct DetailHero<Background: View, Foot: View>: View {
         self.foot = foot()
     }
 
-    /// A veil and the photograph it is of: shown only while that is the photograph here.
-    private struct HeldVeil {
-        let src: String
-        let image: UIImage
+    /// The last veil shown, kept as it is drawn: a box SwiftUI does not observe, so keeping it writes nothing a view
+    /// reads.
+    private final class ShownVeil {
+        var veil: HeroFoot.Kept<UIImage>?
     }
 
     /// what the task loads: the photograph's veil, and whether it may be derived
@@ -446,7 +449,9 @@ struct DetailHero<Background: View, Foot: View>: View {
 
     var body: some View {
         let under = shown
-        let making = !model.lowPower && !plain
+        let lowPower = model.lowPower
+        let solidOnly = plain
+        let making = !lowPower && !solidOnly
         Color.clear
             .frame(height: height)
             .overlay { background }
@@ -483,27 +488,33 @@ struct DetailHero<Background: View, Foot: View>: View {
             }
             // Low Power Mode in the id: turned off on an open page, the veil is derived then
             .task(id: VeilLoad(src: veil?.src, making: making)) {
-                await loadVeil(making: making)
+                await loadVeil(lowPower: lowPower, reduceTransparency: solidOnly)
             }
     }
 
-    /// What is under the name, read from memory as the hero is drawn: a page turned to a photograph
-    /// whose veil is held shows it in that same frame, with nothing written.
+    /// What is under the name (`HeroFoot.under`), read from memory as the hero is drawn: a page turned to a
+    /// photograph whose veil is held shows it in that same frame, with nothing a view reads written. A veil shown is
+    /// kept with its photograph, so memory letting it go while the page is open leaves it there.
     private var shown: (image: UIImage, name: String)? {
-        guard !plain else { return nil }
-        if let backdrop { return (backdrop, "picture") }
-        guard let veil else { return nil }
-        if let held, held.src == veil.src { return (held.image, veil.src) }
-        return PhotoCache.cachedVeil(veil).map { ($0, veil.src) }
+        let image = HeroFoot.under(reduceTransparency: plain, backdrop: backdrop, veil: veil?.src, held: held,
+                                   cached: veil.flatMap { PhotoCache.cachedVeil($0) }, kept: lastShown.veil)
+        guard let image else { return nil }
+        guard backdrop == nil, let veil else { return (image, "picture") }
+        if lastShown.veil?.image !== image || lastShown.veil?.src != veil.src {
+            lastShown.veil = HeroFoot.Kept(src: veil.src, image: image)
+        }
+        return (image, veil.src)
     }
 
-    /// Only for a veil not in memory: derived from the photograph (the decode the page draws, shared
-    /// with it), and faded in. One in memory is already drawn and writes nothing.
-    private func loadVeil(making: Bool) async {
-        guard let veil, backdrop == nil, making, PhotoCache.cachedVeil(veil) == nil else { return }
+    /// Only for a veil not in memory (`HeroFoot.derivesVeil`): derived from the photograph (the decode the page
+    /// draws, shared with it), and faded in. One in memory is already drawn and writes nothing.
+    private func loadVeil(lowPower: Bool, reduceTransparency: Bool) async {
+        guard HeroFoot.derivesVeil(lowPower: lowPower, reduceTransparency: reduceTransparency, hasVeil: veil != nil,
+                                   hasBackdrop: backdrop != nil, cached: veil.flatMap { PhotoCache.cachedVeil($0) } != nil),
+              let veil else { return }
         let src = veil.src
         guard let made = await PhotoCache.shared.veil(veil), !Task.isCancelled else { return }
-        withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) { held = HeldVeil(src: src, image: made) }
+        withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) { held = HeroFoot.Kept(src: src, image: made) }
     }
 }
 
