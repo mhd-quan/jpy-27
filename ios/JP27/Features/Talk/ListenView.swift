@@ -4,6 +4,7 @@ import TripKit
 /// Hold the phone toward the speaker: Japanese appears as it is said, each finished sentence is
 /// translated to Vietnamese on the phone, and a sentence the phrasebook knows comes with its reply.
 struct ListenView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     @State private var listener: TalkListener?
     @State private var translator = TalkTranslator()
@@ -70,7 +71,7 @@ struct ListenView: View {
             }
             .onChange(of: listener.sentences.count) {
                 if let last = listener.sentences.last?.id {
-                    withAnimation { proxy.scrollTo(last, anchor: .bottom) }
+                    withAnimation(Motion.reduced(Motion.settle, reduceMotion)) { proxy.scrollTo(last, anchor: .bottom) }
                 }
             }
         }

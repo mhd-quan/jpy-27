@@ -28,7 +28,7 @@ struct TodayTab: View {
                         ToolbarItem(placement: .principal) {
                             Wordmark()
                                 .opacity(coverGone ? 1 : 0)
-                                .animation(.smooth, value: coverGone)
+                                .animation(Motion.arrive, value: coverGone)
                         }
                     }
                     // Nghe và dịch lives in Sổ tay only; the morph source is the bar item itself,
@@ -94,6 +94,7 @@ struct TodayTab: View {
 // MARK: - During a trip day
 
 private struct TodayDuring: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     let day: Day
     // haptics kept here rather than on their buttons, which leave in the moment they are pressed:
@@ -172,7 +173,7 @@ private struct TodayDuring: View {
 
             TodayTimeline(day: day)
         }
-        .animation(.smooth, value: model.replan == nil)
+        .animation(Motion.reduced(Motion.settle, reduceMotion), value: model.replan == nil)
         .sensoryFeedback(.warn, trigger: dropped)
         .sensoryFeedback(.done, trigger: arrived)
     }
@@ -193,6 +194,7 @@ private struct TodayDuring: View {
 /// The day's city in kanji, its title, and a strip of segments, one per stop, stamped red as
 /// they are visited; the next one breathes. Tapping it opens the whole day.
 private struct TodayDayHeader: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     let day: Day
 
@@ -235,7 +237,7 @@ private struct TodayDayHeader: View {
                             .frame(height: 5)
                     }
                 }
-                .animation(.smooth, value: model.doneCount(day))
+                .animation(Motion.reduced(Motion.pick, reduceMotion), value: model.doneCount(day))
                 .accessibilityElement()
                 .accessibilityLabel("Đã ghé \(model.doneCount(day)) trên \(stops.count) điểm")
             }
@@ -249,6 +251,7 @@ private struct TodayDayHeader: View {
 
 /// "Trễ 12 phút cho Ginza Line 16:15" and, when it helps, what to drop.
 private struct TodayLateBanner: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     let day: Day
     let plan: Replan
@@ -269,14 +272,14 @@ private struct TodayLateBanner: View {
                 .foregroundStyle(Palette.sun)
                 .monospacedDigit()
                 .contentTransition(.numericText())
-                .animation(.smooth, value: plan.lateBy)
+                .animation(Motion.reduced(Motion.pick, reduceMotion), value: plan.lateBy)
             if let advice = model.advice(plan, day: day) {
                 Text(advice).font(.subheadline)
             }
             if plan.works {
                 Button {
                     // felt only once it is saved; the alert in front says when it is not
-                    if withAnimation(.snappy, { model.apply(plan) }) { dropped += 1 }
+                    if withAnimation(Motion.reduced(Motion.pick, reduceMotion), { model.apply(plan) }) { dropped += 1 }
                 } label: {
                     Text("Bỏ \(model.dropNames(plan, day))")
                         .frame(maxWidth: .infinity)
@@ -386,7 +389,7 @@ private struct TodayNextCard: View {
                         .font(.figure(30))
                         .foregroundStyle(Palette.sun)
                         .contentTransition(.numericText())
-                        .animation(.smooth, value: model.now)
+                        .animation(Motion.arrive, value: model.now)
                     Text("rời đi lúc \(TripTime.clock(next.setOff))")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.secondary)
@@ -508,7 +511,7 @@ private struct TodayNextActions: View {
                 if next.kind != .departure {
                     Button {
                         // felt only once it is saved; the alert in front says when it is not
-                        if withAnimation(.snappy, { model.toggleDone(day, next.index) }) { arrived.toggle() }
+                        if withAnimation(Motion.reduced(Motion.pick, reduceMotion), { model.toggleDone(day, next.index) }) { arrived.toggle() }
                     } label: {
                         Label("Đã tới", systemImage: "checkmark")
                             .labelStyle(.iconOnly)

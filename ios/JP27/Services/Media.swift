@@ -1105,7 +1105,7 @@ struct PlacePhoto: View {
                     return
                 }
                 let loaded = await PhotoCache.shared.image(photo, maxPixel: maxPixel)
-                withAnimation(.easeOut(duration: 0.2)) { image = loaded }
+                withAnimation(Motion.arrive) { image = loaded }
             }
     }
 }

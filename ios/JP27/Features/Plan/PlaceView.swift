@@ -366,6 +366,7 @@ private struct PlanAmbientActions: View {
 
 /// The description, three lines and a THÊM that opens the rest, as an album's notes.
 private struct PlanAmbientNote: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let text: String
     let canvas: Color
     @State private var open = false
@@ -392,7 +393,7 @@ private struct PlanAmbientNote: View {
             .contentShape(.rect)
             .onTapGesture {
                 guard long else { return }
-                withAnimation(.smooth(duration: 0.3)) { open.toggle() }
+                withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { open.toggle() }
             }
             // opening the rest answers; folding it back stays quiet
             .sensoryFeedback(.press, trigger: open) { _, now in now }

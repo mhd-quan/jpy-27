@@ -211,6 +211,7 @@ private struct FujiLegend: View {
 
 /// A day's viewpoints: the planned ones as rows, the places people post from folded underneath.
 private struct FujiSpotSection: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     let area: FujiArea
     @State private var showsPopular = false
@@ -231,7 +232,7 @@ private struct FujiSpotSection: View {
             }
             if !popular.isEmpty {
                 Card(padding: 14) {
-                    DisclosureGroup(isExpanded: $showsPopular.animation(.snappy)) {
+                    DisclosureGroup(isExpanded: $showsPopular.animation(Motion.reduced(Motion.pick, reduceMotion))) {
                         PlanRows(items: popular) { FujiSpotRow(spot: $0, compact: true) }
                             .padding(.top, 12)
                     } label: {

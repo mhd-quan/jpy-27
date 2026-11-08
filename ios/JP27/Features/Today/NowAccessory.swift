@@ -27,7 +27,7 @@ struct NowAccessory: View {
         .sensoryFeedback(.press, trigger: opened)
         // the ride sheet grows out of the accessory, the way Music's player grows out of its own
         .sheetSource("now")
-        .animation(.smooth, value: model.live.ride?.id)
+        .animation(Motion.arrive, value: model.live.ride?.id)
     }
 
     @ViewBuilder

@@ -251,6 +251,7 @@ private struct PressableButton: View {
 }
 
 private struct SettleStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// the button plays `press` as it fires: the finger coming down readies it (`Haptic.prepare`)
     var felt = false
     var onPress: (() -> Void)?
@@ -258,7 +259,7 @@ private struct SettleStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.72), value: configuration.isPressed)
+            .animation(Motion.reduced(Motion.press, reduceMotion), value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { _, down in
                 guard down else { return }
                 if felt { Haptic.prepare(.press) }
@@ -435,7 +436,7 @@ struct FujiScene: View {
             .task {
                 guard image == nil, let photo = FujiPhotograph.photo else { return }
                 let loaded = await PhotoCache.shared.image(photo, maxPixel: 1600)
-                withAnimation(.easeOut(duration: 0.2)) { image = loaded }
+                withAnimation(Motion.arrive) { image = loaded }
             }
             .accessibilityHidden(true)
     }

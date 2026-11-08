@@ -306,4 +306,25 @@ Activity (`Activity.request`, `areActivitiesEnabled`) và vị trí dẫn đư�
 
 ## 5.8b
 
+Bản Release, trên máy thật. Mọi animation của app nay là một token `Motion` đi qua `Motion.reduced`
+(`ios/JP27/Design/Motion.swift`); `.blurReplace` ở trang chủ thành `.opacity`.
+
+**Bước 4 — Giảm chuyển động.** Cài đặt › Trợ năng › Chuyển động › Giảm chuyển động: Bật. Đi qua S1–S8 của
+`docs/perf/2026-11-baseline.md` (cột "Kịch bản"), mỗi kịch bản một dòng.
+
+| # | Kịch bản (Giảm chuyển động bật) | Mong đợi | Kết quả |
+|---|---|---|---|
+| 1 | S1: chạm thẻ ngày giữa carousel → trang ngày | không lò xo nảy; bìa không lật chậm, đổi ảnh bìa và chú thích bìa mờ nhanh, không blur | |
+| 2 | S2: Bản đồ, chạm ghim → sheet địa điểm | camera nhảy thẳng tới ghim (không bay); dải ngày trượt bằng ease 0,2 s, không nảy | |
+| 3 | S3: Lịch trình → trang Fuji | không lò xo; chip vùng và dấu chọn đổi bằng ease ngắn | |
+| 4 | S4: Fuji → thẻ điểm ngắm | camera của bản đồ nhảy, không bay; ảnh chụp bản đồ vẫn mờ vào (`arrive` giữ nguyên) | |
+| 5 | S5: trang địa điểm, vuốt 3 ảnh | chấm trang đổi bằng ease ngắn, không nảy | |
+| 6 | S6: Bản đồ, vuốt nhanh dòng thời gian qua 8 mục | camera nhảy (không bay) mỗi lần dừng; bảng kéo về độ cao bằng ease, không nảy | |
+| 7 | S7: Chi tiêu, "Ghi chi" | chọn danh mục, bàn phím số: ease ngắn, không nảy; số tiền đổi không lò xo | |
+| 8 | S8: Sổ tay, thẻ câu xoay ngang/dọc | đổi hướng không xoay 3D (`TalkTurn` với 0 độ), đổi bằng ease 0,2 s, không nảy | |
+| 9 | Bản đồ: đổi ngày ở chip ngày, rồi chạm một ngôi nhà để tập trung vào nó | camera nhảy tới khung của ngày / tới điểm (R-489: `frame`, `setCenter`, `setContentInset` đều không `animated`) | |
+| 10 | Giảm chuyển động bật: một camera Fuji bay, một sheet / dải trượt | camera nhảy; sheet và dải về chỗ bằng ease 0,2 s (không lò xo) | |
+| 11 | Giảm chuyển động tắt: nút bấm (SettleStyle), phím bàn số, dải ngày, bảng bản đồ | lò xo `press`/`settle` nảy nhẹ như trước, camera bay 1 s | |
+| 12 | Giảm chuyển động tắt: trang chủ, ảnh bìa lật rồi chú thích bìa đổi | chú thích bìa mờ chéo (không blur) khi bìa lật; ảnh bìa trôi 10 s như trước | |
+
 ## 6.2

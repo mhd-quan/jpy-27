@@ -158,19 +158,19 @@ Sang tab khác rung một nhịp `page` (`sensoryFeedback` trên `TabView`, theo
 
 ## Chuyển động
 
-Mọi animation của app đặt tên theo khoảnh khắc nó phục vụ, như bộ `SensoryFeedback` ở mục Rung, và nằm trong `Motion` (`ios/JP27/Design/Motion.swift`). Không viết `.snappy`, `.smooth`, `.spring` rời ở chỗ gọi.
+Mọi animation của app đặt tên theo khoảnh khắc nó phục vụ, như bộ `SensoryFeedback` ở mục Rung, và nằm trong `Motion` (`ios/JP27/Design/Motion.swift`). Không viết `.snappy`, `.smooth`, `.spring`, `.easeOut` rời ở chỗ gọi; `scripts/lint-motion.mjs` bắt điều đó trong CI (job `data`).
 
-| Token | Dùng cho |
-|---|---|
-| `press` | ngón tay đang chạm: nhấn nút, phím, thả một cú kéo |
-| `pick` | chọn một trong vài thứ: chip, dấu chọn, danh mục, vùng sáng, số tiền trên bàn phím |
-| `arrive` | thứ chưa có nay xuất hiện: ảnh, ảnh chụp bản đồ, tiêu đề. Không dùng khi lấy từ cache, không đặt trong `drawingGroup` |
-| `settle` | bảng, dải hay thẻ về chỗ nằm. `settle(velocity:)` là bản nhận vận tốc của ngón tay lúc thả |
-| `travel` | một chuyển động dài mắt phải theo kịp: camera bay, bìa lật, mặt số vẽ dần |
+| Token | Là | Dùng cho |
+|---|---|---|
+| `press` | `.spring(duration: 0.3, bounce: 0.28)` | ngón tay đang chạm: nhấn nút, phím, thả một cú kéo |
+| `pick` | `.snappy(duration: 0.25)` | chọn một trong vài thứ: chip, dấu chọn, danh mục, vùng sáng, số tiền trên bàn phím; cả một con số hay một dải đổi theo lựa chọn |
+| `arrive` | `.easeOut(duration: 0.2)` | thứ chưa có nay xuất hiện: ảnh, ảnh chụp bản đồ, tiêu đề, chú thích bìa. Không dùng khi lấy từ cache, không đặt trong `drawingGroup` |
+| `settle` | `.spring(duration: 0.38, bounce: 0.14)` | bảng, dải hay thẻ về chỗ nằm, `scrollTo`. `settle(velocity:)` là `.interpolatingSpring` cùng thời lượng, nhận vận tốc của ngón tay lúc thả |
+| `travel` | `.smooth(duration: 1.0)` | một chuyển động dài mắt phải theo kịp: camera bay (cả chuyến bay của khám phá Fuji, trước là 1,4 giây), bìa lật, mặt số vẽ dần |
 
-Giảm chuyển động: chỗ gọi đọc `accessibilityReduceMotion` rồi chạy qua `Motion.reduced(token, reduce)`. Khi bật, lò xo (`press`, `settle`) và `pick` thành một cú ease ngắn 0,2 giây, `arrive` giữ nguyên, `travel` thành không animation (nhảy thẳng tới đích). Khi tắt, trả đúng token.
+Giảm chuyển động: chỗ gọi đọc `accessibilityReduceMotion` rồi chạy qua `Motion.reduced(token, reduceMotion)`, và lint không cho `press`, `pick`, `settle`, `settle(velocity:)` hay `travel` đứng ngoài lời gọi đó. Khi bật, lò xo (`press`, `settle`, `settle(velocity:)`) và `pick` thành một cú ease ngắn 0,2 giây, `arrive` giữ nguyên (nên được đứng trần), `travel` thành không animation (nhảy thẳng tới đích). Khi tắt, trả đúng token. Đưa vào `reduced` token trần rồi mới nối `.delay`: `Motion.reduced(Motion.travel, reduceMotion)?.delay(0.1)`, vì `reduced` so khớp token bằng `==` (một token đã `.delay` không còn là `travel`). Các lời gọi `animated:` của MapLibre (`TripMap`) không phải `Animation`: chúng bay hay nhảy theo cùng câu trả lời `Motion.reduced(Motion.travel, …) != nil`.
 
-`scripts/lint-motion.mjs` (task 5.8b) sẽ bắt buộc điều này trong CI; đến lúc đó các chỗ cũ chưa chuyển vẫn còn.
+Ngoại lệ phải ghi lý do ngay tại dòng (hoặc dòng chú thích liền trên): `// motion: one-off <vì sao>`. Hiện có: nhịp trôi 10 giây của ảnh bìa trang chủ (chậm hơn mọi token; Reduce Motion không đổi tỉ lệ nên không trôi), vòng sóng ở nút mặt trời (keyframe riêng, không vẽ khi Reduce Motion), và đường cong của bàn phím hệ thống khi bàn số trượt theo nó (`ExpenseEditor`). `UIView.transition` 0,35 giây khi đổi giao diện sáng/tối (`Theme.swift`) là UIKit, nằm ngoài lint và là chỗ chuyển cảnh UIKit duy nhất.
 
 ## Liquid Glass
 

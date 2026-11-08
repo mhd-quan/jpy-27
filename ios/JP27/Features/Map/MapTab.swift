@@ -69,7 +69,7 @@ struct MapTab: View {
 
                 if let id = side, let place = model.store.place(id), stage != .large {
                     MapSideCard(place: place, side: anchor(day, at: active).flatMap { a in sides[a]?.first { $0.id == id } }, from: anchorPlace(day, at: active)) {
-                        withAnimation(.snappy) { side = nil }
+                        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { side = nil }
                     }
                     .padding(.horizontal, 12)
                     .padding(.bottom, panel + 14)
@@ -97,7 +97,7 @@ struct MapTab: View {
                         onTap: { select($0, day: day, scroll: true, from: "map.row.\($0)") },
                         onOpen: { _ = openCard($0, day: day, from: "map.row.\($0)") },
                         onSide: { pickSide($0, day: day, sides: sides) },
-                        onPullDown: { withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) { stage = .peek } },
+                        onPullDown: { withAnimation(Motion.reduced(Motion.settle, reduceMotion)) { stage = .peek } },
                         // pulled past the end, the pull already ticked as it armed
                         onNextDay: { pulled in if let n = nextDay(after: day) { choose(n.key, byHand: !pulled) } }
                     )
@@ -297,7 +297,7 @@ struct MapTab: View {
         // choosing one ticks; tapping the chosen one again to let it go does not
         if side != id { picks += 1 }
         shown = active
-        withAnimation(.snappy) {
+        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) {
             side = side == id ? nil : id
             if stage == .large { stage = .medium }
         }
@@ -331,7 +331,7 @@ struct MapTab: View {
         if byHand { picks += 1 }
         flight?.cancel()
         shown = nil
-        withAnimation(.smooth(duration: 0.3)) {
+        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) {
             dayKey = key
             active = nil
             side = nil
@@ -352,7 +352,7 @@ struct MapTab: View {
 
     private func frameDay(_ day: Day) {
         shown = nil
-        withAnimation(.snappy) {
+        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) {
             active = nil
             side = nil
         }
@@ -395,7 +395,7 @@ struct MapTab: View {
             activate(i, day: day, scroll: true)
         } else if model.store.place(id) != nil {
             shown = active
-            withAnimation(.snappy) { side = id }
+            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { side = id }
             showSide(day)
         }
     }
@@ -543,6 +543,7 @@ private struct MapGlass<S: Shape>: ViewModifier {
 /// The trip's days as a strip of glass pills over the map, the chosen one red and named.
 /// Slides sideways; a tap chooses; the chosen day stays centred.
 private struct MapDayStrip: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     let current: String
     let choose: (String) -> Void
@@ -570,7 +571,7 @@ private struct MapDayStrip: View {
             .frame(height: Self.height)
             .onAppear { proxy.scrollTo(current, anchor: .center) }
             .onChange(of: current) { _, key in
-                withAnimation(.smooth) { proxy.scrollTo(key, anchor: .center) }
+                withAnimation(Motion.reduced(Motion.settle, reduceMotion)) { proxy.scrollTo(key, anchor: .center) }
             }
         }
     }
@@ -675,6 +676,7 @@ enum MapPanelStage: CaseIterable {
 /// screen's sides while it leaves the map in view, turning opaque and meeting the sides as it rises
 /// to full height, where the map behind is no longer the subject.
 private struct MapPanel<Title: View, Strip: View, Content: View>: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var stage: MapPanelStage
     let containerSize: CGSize
     @Binding var headerHeight: CGFloat
@@ -690,8 +692,6 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
     @GestureState private var dragging = false
     /// let go or tapped into another height; a drag that falls back where it was stays quiet
     @State private var settled = 0
-
-    private static var snap: Animation { .spring(response: 0.38, dampingFraction: 0.86) }
 
     /// how far in from the screen's sides the panel floats while it is glass
     private static var inset: CGFloat { 8 }
@@ -746,11 +746,11 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
         .mapGlass(.regular, in: .rect(cornerRadius: 30, style: .continuous))
         .padding(.horizontal, Self.inset * (1 - solid))
         .padding(.bottom, 6)
-        .animation(.smooth(duration: 0.2), value: stage == .peek && drag > -20)
+        .animation(Motion.arrive, value: stage == .peek && drag > -20)
         .sensoryFeedback(.snap, trigger: settled)
         .onChange(of: dragging) { _, on in
             guard !on, drag != 0 else { return }
-            withAnimation(Self.snap) { drag = 0 }
+            withAnimation(Motion.reduced(Motion.settle, reduceMotion)) { drag = 0 }
         }
     }
 
@@ -792,7 +792,7 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
                 // the finger's speed, as a share of the way left per second (a spring's unit)
                 let left = height(target) - currentHeight
                 let speed = abs(left) > 1 ? -value.velocity.height / left : 0
-                withAnimation(.interpolatingSpring(duration: 0.38, bounce: 0.1, initialVelocity: min(max(speed, -12), 12))) {
+                withAnimation(Motion.reduced(Motion.settle(velocity: min(max(speed, -12), 12)), reduceMotion)) {
                     stage = target
                     drag = 0
                 }
@@ -801,7 +801,7 @@ private struct MapPanel<Title: View, Strip: View, Content: View>: View {
 
     private func cycle() {
         settled += 1
-        withAnimation(Self.snap) {
+        withAnimation(Motion.reduced(Motion.settle, reduceMotion)) {
             stage = switch stage {
             case .peek: .medium
             case .medium: .large
@@ -985,6 +985,7 @@ private struct MapStopStrip: View {
 /// slides to the ends at the ends, so the first and last items can be reached). A row or a stop
 /// tapped is brought under that line, so the next scroll reads on from it.
 private struct MapTimeline: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let day: Day
     let sides: [Int: [MapSide]]
     let active: Int?
@@ -1085,7 +1086,7 @@ private struct MapTimeline: View {
     private func bring(_ i: Int, proxy: ScrollViewProxy, animated: Bool) {
         guard let row = frames.rows[i] else {
             if animated {
-                withAnimation(.smooth(duration: 0.45)) { proxy.scrollTo(i, anchor: .top) }
+                withAnimation(Motion.reduced(Motion.settle, reduceMotion)) { proxy.scrollTo(i, anchor: .top) }
             } else {
                 proxy.scrollTo(i, anchor: .top)
             }
@@ -1093,7 +1094,7 @@ private struct MapTimeline: View {
         }
         let y = MapReading.offset(reading: row, window: window, end: frames.end, height: frames.height)
         if animated {
-            withAnimation(.smooth(duration: 0.45)) { position.scrollTo(y: y) }
+            withAnimation(Motion.reduced(Motion.settle, reduceMotion)) { position.scrollTo(y: y) }
         } else {
             position.scrollTo(y: y)
         }
@@ -1130,7 +1131,7 @@ private struct MapTimeline: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .animation(.snappy, value: armed)
+        .animation(Motion.reduced(Motion.pick, reduceMotion), value: armed)
         .accessibilityLabel("Sang ngày \(next.n), \(next.title)")
     }
 

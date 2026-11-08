@@ -1272,7 +1272,7 @@ private struct ProgressRing: View {
         // a bigger target than the ring, as a button needs
         .frame(width: 44, height: 44)
         .contentShape(Rectangle())
-        .animation(.easeOut(duration: 0.25), value: value)
+        .animation(Motion.arrive, value: value)
         .accessibilityValue(Text("\(Int(value * 100))%"))
     }
 }

@@ -283,7 +283,7 @@ struct ExpenseEditor: View {
                                  padShown: padShown, leaving: leaving.on,
                                  duration: note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double)
         guard case .move(let shown, let duration) = move else { return }
-        // the system keyboard's own curve and duration, not a Motion token: the pad moves with the keyboard
+        // motion: one-off the system keyboard's own curve and duration, not a Motion token: the pad moves with the keyboard
         let curve: Animation? = duration.map { Animation.spring(duration: $0, bounce: 0) }
         withAnimation(curve) { padShown = shown }
     }

@@ -323,6 +323,7 @@ struct FujiSummitPin: View {
 
 /// A viewpoint: violet when the summit shows from it, grey when terrain hides it.
 struct FujiSpotPin: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let visible: Bool
     var major = true
     var selected = false
@@ -336,7 +337,7 @@ struct FujiSpotPin: View {
             .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
             .frame(width: d, height: d)
             .overlay { Circle().strokeBorder(.white, lineWidth: selected ? 3 : 2) }
-            .animation(.snappy, value: selected)
+            .animation(Motion.reduced(Motion.pick, reduceMotion), value: selected)
             .accessibilityHidden(true)
     }
 }
@@ -573,7 +574,7 @@ struct FujiExplorer: View {
     private func fly(to spot: FujiGuide.Spot?) {
         let summit = model.guide.fuji.summit.coordinate
         let camera = spot.map { FujiCamera.spot($0, summit: summit) } ?? FujiCamera.area(area, spots: spots, summit: summit)
-        withAnimation(reduceMotion ? nil : .smooth(duration: 1.4)) {
+        withAnimation(Motion.reduced(Motion.travel, reduceMotion)) {
             position = .camera(camera)
         }
     }
@@ -581,6 +582,7 @@ struct FujiExplorer: View {
 
 /// The area chips: the whole region or one day. Glass over the map, filled capsules on paper.
 struct FujiAreaChips: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var area: FujiArea
     var onMap = false
 
@@ -630,7 +632,7 @@ struct FujiAreaChips: View {
         .contentShape(.capsule)
 
         let button = Button {
-            withAnimation(.snappy) { area = a }
+            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { area = a }
         } label: {
             label
         }

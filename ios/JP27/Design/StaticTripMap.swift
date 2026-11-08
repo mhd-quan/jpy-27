@@ -78,7 +78,7 @@ struct StaticTripMap: View {
 
     private func lift() {
         guard live, !liveReady else { return }
-        withAnimation(.easeOut(duration: 0.2)) { liveReady = true }
+        withAnimation(Motion.arrive) { liveReady = true }
     }
 
     private func picture(size: CGSize) -> some View {
@@ -142,7 +142,7 @@ struct StaticTripMap: View {
         }
         if let saved = await snapshots.stored(request) {
             guard !Task.isCancelled else { return }
-            withAnimation(.easeOut(duration: 0.2)) { image = saved }
+            withAnimation(Motion.arrive) { image = saved }
             return
         }
         if !settled {
@@ -151,7 +151,7 @@ struct StaticTripMap: View {
             guard !Task.isCancelled else { return }
         }
         guard !live, let made = await snapshots.snapshot(for: request), !Task.isCancelled else { return }
-        withAnimation(.easeOut(duration: 0.2)) { image = made }
+        withAnimation(Motion.arrive) { image = made }
     }
 
     /// what the picture's task waits on: a new key loads again, the settle ends the wait

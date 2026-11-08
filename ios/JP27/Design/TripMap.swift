@@ -157,9 +157,11 @@ struct TripMap: UIViewRepresentable {
         c.parent = self
         c.showsReadings(readings, on: map)
         map.showsUserLocation = showsUser
+        // a camera move flies (`travel`) or jumps: one answer for every `animated:` below
+        let flies = Motion.reduced(Motion.travel, reduceMotion) != nil
         let inset = chrome ?? .zero
         if map.contentInset != inset {
-            map.setContentInset(inset, animated: c.loaded, completionHandler: nil)
+            map.setContentInset(inset, animated: c.loaded && flies, completionHandler: nil)
         }
         let dark = scheme == .dark
         if c.dark != dark {
@@ -173,16 +175,16 @@ struct TripMap: UIViewRepresentable {
         c.apply(content, to: map)
         if c.frameID != frameID {
             c.frameID = frameID
-            c.frame(map, animated: true)
+            c.frame(map, animated: flies)
         }
         if let focus, focus != c.focus || focusID != c.focusID {
             c.focus = focus
             c.focusID = focusID
-            map.setCenter(CLLocationCoordinate2D(latitude: focus.lat, longitude: focus.lng), zoomLevel: max(map.zoomLevel, 15), animated: true)
+            map.setCenter(CLLocationCoordinate2D(latitude: focus.lat, longitude: focus.lng), zoomLevel: max(map.zoomLevel, 15), animated: flies)
         }
         if let camera, camera.id != c.cameraID {
             c.cameraID = camera.id
-            c.move(map, camera.move, animated: Motion.reduced(Motion.travel, reduceMotion) != nil)
+            c.move(map, camera.move, animated: flies)
         }
     }
 

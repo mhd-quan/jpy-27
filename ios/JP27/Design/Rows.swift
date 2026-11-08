@@ -9,6 +9,7 @@ import TripKit
 /// rail through a stop takes the colours of the moves either side, so the day reads as one line.
 /// Rows stack with no spacing so the rail runs on unbroken.
 struct ItemRow: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     /// the card the row sits on, which its nodes cut out of the rail with
     @Environment(\.cardSurface) private var surface
@@ -154,7 +155,7 @@ struct ItemRow: View {
             }
             Spacer(minLength: 0)
             if showsCheck, place?.kind != .station {
-                CheckButton(isOn: done) { withAnimation(.snappy) { model.toggleDone(day, index) } }
+                CheckButton(isOn: done) { withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { model.toggleDone(day, index) } }
                     .padding(.top, -10)
             }
         }

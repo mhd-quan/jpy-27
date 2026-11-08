@@ -710,7 +710,7 @@ private struct DetailPage: ViewModifier {
                 let y = geo.contentOffset.y + geo.contentInsets.top
                 return y > 0 && y > hero.height(in: geo) - 130
             } action: { _, now in
-                withAnimation(.smooth(duration: 0.25)) { past = now }
+                withAnimation(Motion.arrive) { past = now }
             }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
@@ -730,6 +730,7 @@ private struct DetailPage: ViewModifier {
 
 /// Small page dots for a hero's photographs.
 struct HeroDots: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let count: Int
     let current: Int
 
@@ -742,7 +743,7 @@ struct HeroDots: View {
                         .frame(width: i == current ? 16 : 6, height: 6)
                 }
             }
-            .animation(.smooth(duration: 0.3), value: current)
+            .animation(Motion.reduced(Motion.pick, reduceMotion), value: current)
             .accessibilityHidden(true)
         }
     }
@@ -938,6 +939,7 @@ private struct AmbientPicture: View {
 
 /// Page dots in the type colour, for a pager over a photograph that may be light or dark.
 struct AmbientDots: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let count: Int
     let current: Int
 
@@ -949,7 +951,7 @@ struct AmbientDots: View {
                     .frame(width: i == current ? 14 : 5, height: 5)
             }
         }
-        .animation(.smooth(duration: 0.3), value: current)
+        .animation(Motion.reduced(Motion.pick, reduceMotion), value: current)
         .accessibilityHidden(true)
     }
 }
