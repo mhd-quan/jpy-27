@@ -79,19 +79,22 @@ Nguồn điện thấp bật/tắt từ Control Center khi app đang mở ở tr
 
 Bước 1: bản Debug (Cài đặt › Chẩn đoán › "So màu ảnh: mới và cũ" chỉ có trong bản Debug). Bước 2–3: bản Release,
 Instruments như `docs/perf/2026-11-baseline.md`, track os_signpost (`tech.delphyra.jp27` / `perf`): mỗi lần ImageIO
-giải mã một ảnh là một event `photo.decode`, mỗi lần ghi file màu là một event `photo.tones`. Lúc mở app, khoảng
+giải mã một ảnh là một event `photo.decode`, kèm tên ảnh và cỡ xin (`commons/….webp @1800`, hay đường dẫn ảnh bìa),
+mỗi lần ghi file màu là một event `photo.tones`. Lúc mở app, khoảng
 2 giây sau, app đọc màu của mọi ảnh bìa một lượt (mỗi ảnh một `photo.decode`, một `photo.tones` khi xong): mở app rồi
-chờ nửa phút trước khi đo. Bước 4–5: bản nào cũng được. Màu đã đọc nằm trong
+chờ nửa phút trước khi đo. Bước 4–5: bản nào cũng được. Bước 6: bản Release, Instruments như
+`docs/perf/2026-11-baseline.md`, track Animation Hitches (không có mã S). Màu đã đọc nằm trong
 `Application Support/Photos/tones-2.json`; file `tones-1.json` của bản cũ không còn được đọc, nên lần đầu sau khi cài
 bản này, trang nào mở trước khi màu của nó được đọc sẽ mở trên nền giấy một lần.
 
 | # | Bước | Mong đợi | Kết quả |
 | --- | --- | --- | --- |
 | 1 | Chẩn đoán › "So màu ảnh: mới và cũ", chờ dòng kết quả (20 ảnh: các ảnh bìa ngày, rồi ảnh địa điểm đóng gói). Ghi cả hai số: "Từ ảnh nguyên" (màu đọc từ ảnh trang vẽ, cách mới) và "Từ nền 160 px" (màu đọc từ nền 160 px của lớp mờ, trước khi làm mờ) | "Từ ảnh nguyên: lệch" ≤ 0,02. Số thứ hai là đường dự phòng: ghi lại dù số đầu đạt | |
-| 2 | S1: trang chủ, để bìa và các thẻ ngày hiện ra, chạm thẻ một ngày chưa mở trong lần chạy này → trang ngày | trong khoảng `push.today` không có `photo.decode` nào cho ảnh của ngày (ảnh lấy từ bản đã giải mã cho trang chủ); cả trang ngày nhiều nhất một `photo.decode` cho mỗi ảnh nó hiện | |
-| 3 | S2 lần đầu sau khi cài bản này (hoặc một địa điểm có nhiều ảnh chưa từng mở): tab Bản đồ, chạm ghim → sheet địa điểm, chờ 2 giây | một `photo.tones` cho cả lượt mở trang (không phải một cho mỗi ảnh), khoảng 1 giây sau màu cuối cùng; không `photo.decode` thứ hai cho cùng một ảnh trong lượt mở | |
+| 2 | S1: trang chủ, để bìa và các thẻ ngày hiện ra. (a) Chạm thẻ của ngày có ảnh bìa đang hiện trên bìa trang chủ → trang ngày. (b) Lần khác, một ngày có ảnh bìa riêng mà bìa trang chủ chưa hiện trong lần chạy này (chỉ thấy trên thẻ). Đọc các `photo.decode` theo tên ảnh trong event | (a) 0 `photo.decode` cho ảnh bìa đó trong khoảng `push.today`: ảnh lấy từ bản bìa trang chủ đã giải mã nguyên ảnh. (b) đúng 1 cho ảnh bìa đó: thẻ giải mã bản thu nhỏ 1200 px, không dùng được cho cỡ 1800 của trang ngày (R-351). Bìa nằm cạnh bìa đang hiện có thể đã được bìa trang chủ dựng sẵn: khi đó 0 cũng đúng, ghi lại | |
+| 3 | S2 lần đầu sau khi cài bản này (hoặc một địa điểm có nhiều ảnh chưa từng mở): tab Bản đồ, chạm ghim → sheet địa điểm, chờ 2 giây | một `photo.tones` cho cả lượt mở trang (không phải một cho mỗi ảnh), khoảng 1 giây sau màu cuối cùng; không có `photo.decode` thứ hai cho cùng một tên ảnh trong lượt mở | |
 | 4 | Có mạng. Mở trang một quán ăn có ảnh chưa từng xem, chưa tải ở Cài đặt (ảnh từ mạng) | trang mở trên nền giấy, không có màu nào hiện dần trong lúc zoom; ảnh tải về rồi hiện như trước. Màu có thể tới ở lần mở sau (hoặc muộn hơn trong chính trang đó, khi trang vẽ lại: ghi lại nếu thấy) | |
 | 5 | Duyệt thiết kế, sáng và tối: lớp mờ dưới ảnh (phần ảnh tan vào nền) của một trang địa điểm và một trang ngày, so với bản trước | lớp mờ trông như cũ: cùng độ mờ, cùng màu, không viền cứng ở mép. Ghi nhận xét | |
+| 6 | Trang chủ đang hiện các bìa; rồi tab Lịch trình, cuộn nhanh danh sách ngày; rồi một trang ngày, cuộn nhanh các dòng địa điểm. Các ô ảnh nhỏ ở đó giờ có thể vẽ từ bản đã giải mã nguyên ảnh (lớn hơn ô nhiều lần) | 0 hitch trong lúc cuộn | |
 
 ## 5.1b
 

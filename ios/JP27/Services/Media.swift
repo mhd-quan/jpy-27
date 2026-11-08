@@ -76,6 +76,13 @@ actor PhotoCache {
         let task: Task<UIImage?, Never>
     }
 
+    /// One decode: the image, and the pixel size of the photo it was read from (nil when ImageIO does
+    /// not say), which tells a copy from the whole photo exactly.
+    nonisolated struct Decode: Sendable {
+        let image: UIImage
+        let source: DecodePlan.Size?
+    }
+
     /// What an album page lays under and around a photograph, derived from one decode of it.
     nonisolated struct Derived: Sendable {
         /// a small, heavily blurred copy, laid under the sharp one where it dissolves into the page
@@ -148,8 +155,8 @@ actor PhotoCache {
         let id = loads
         // kept as soon as it is decoded, before anyone waiting on it goes on
         let task = Task { () -> UIImage? in
-            guard let image = await Self.load(photo, maxPixel: maxPixel, network: network) else { return nil }
-            return Self.keep(image, of: photo, asked: maxPixel)
+            guard let made = await Self.load(photo, maxPixel: maxPixel, network: network) else { return nil }
+            return Self.keep(made, of: photo, asked: maxPixel)
         }
         loading[ask] = Load(id: id, network: network, task: task)
         let image = await task.value
@@ -160,12 +167,14 @@ actor PhotoCache {
     /// Keeps a decode under the size it came out at, and hands back the one kept: a decode the size of
     /// one already held (two asks that both got the whole photo) leaves the held one in place, so a
     /// view drawing it is not handed a new image.
-    private nonisolated static func keep(_ image: UIImage, of photo: Photo, asked maxPixel: CGFloat) -> UIImage {
+    private nonisolated static func keep(_ made: Decode, of photo: Photo, asked maxPixel: CGFloat) -> UIImage {
+        let image = made.image
         guard let cg = image.cgImage else { return image }
         let size = DecodePlan.Size(width: cg.width, height: cg.height)
-        let full = DecodePlan.isFull(decoded: size, asked: Int(maxPixel))
+        let full = DecodePlan.isFull(decoded: size, source: made.source, asked: Int(maxPixel))
         return decodes.withLock { decodes -> UIImage in
-            // the whole photo, once seen to be, stays so: the same pixels can come from an ask at exactly its size
+            // the whole photo, once seen to be, stays so: the same pixels from a decode with no size in its header,
+            // asked at exactly the photo's size, cannot tell
             let wasFull = decodes[photo.src]?[size] ?? false
             decodes[photo.src, default: [:]][size] = full || wasFull
             let name = key(photo, size)
@@ -176,7 +185,7 @@ actor PhotoCache {
     }
 
     /// Reads (from the bundle, the disk, or the network once) and decodes, on a background thread.
-    @concurrent private nonisolated static func load(_ photo: Photo, maxPixel: CGFloat, network: Bool) async -> UIImage? {
+    @concurrent private nonisolated static func load(_ photo: Photo, maxPixel: CGFloat, network: Bool) async -> Decode? {
         var data: Data?
         if photo.isBundled {
             data = bundled(photo.src).flatMap { try? Data(contentsOf: $0) }
@@ -190,8 +199,9 @@ actor PhotoCache {
             }
         }
         guard let data else { return nil }
-        // one per ImageIO decode, for Instruments (os_signpost): a photo on screen is decoded once
-        Perf.signposter.emitEvent("photo.decode")
+        // one per ImageIO decode, for Instruments (os_signpost), named by its photo (a bundle path or a public
+        // URL) and the size asked: a photo on screen is decoded once
+        Perf.signposter.emitEvent("photo.decode", "\(photo.src, privacy: .public) @\(Int(maxPixel), privacy: .public)")
         return downsample(data, maxPixel: maxPixel)
     }
 
@@ -199,7 +209,7 @@ actor PhotoCache {
     /// the background (the widget's photos) that should neither download what nobody asked for nor
     /// push the photos on screen out of memory.
     nonisolated static func decodeLocal(_ photo: Photo, maxPixel: CGFloat) async -> UIImage? {
-        await load(photo, maxPixel: maxPixel, network: false)
+        await load(photo, maxPixel: maxPixel, network: false)?.image
     }
 
     /// Bundled, or downloaded already: read without the network.
@@ -236,7 +246,7 @@ actor PhotoCache {
         var found = 0
         for photo in photos {
             var image = cached(photo, maxPixel: albumPixel)
-            if image == nil { image = await load(photo, maxPixel: albumPixel, network: false) }
+            if image == nil { image = await load(photo, maxPixel: albumPixel, network: false)?.image }
             guard let full = image?.cgImage, let tone = AmbientTone.sample(full) else { continue }
             let new = tones.withLock { tones -> Bool in
                 guard tones[photo.src] == nil else { return false }
@@ -260,16 +270,19 @@ actor PhotoCache {
     }
 
     /// One write of the tones file per round of new tones (a page opening, the launch's warm-up): a
-    /// second after the last new one, and only once the write before it is done, so the file never
-    /// goes back to an older set.
+    /// second after the last new one. Each of these tasks ends only after the one before it, whether it
+    /// writes or was cancelled by a later round, so the writes run one at a time, in the order they were
+    /// asked for, and the file never goes back to an older set.
     private func saveTonesSoon() {
         let previous = saving
         previous?.cancel()
         saving = Task {
+            // cut short when a later round cancels this one
             try? await Task.sleep(for: .seconds(1))
-            guard !Task.isCancelled else { return }
+            // before anything else, cancelled or not: a cancelled task that ended at once would let the
+            // next one write beside a write still running before it
             await previous?.value
-            // a later round took over while the write before was finishing: it writes, with this one's tones
+            // a later round took over: it writes, with this one's tones
             guard !Task.isCancelled else { return }
             Perf.signposter.emitEvent("photo.tones")
             await Self.writeTones(Self.tones.withLock { $0 })
@@ -375,7 +388,9 @@ actor PhotoCache {
         return (try? data.write(to: disk, options: .atomic)) != nil
     }
 
-    nonisolated static func downsample(_ data: Data, maxPixel: CGFloat) -> UIImage? {
+    /// Decoded to `maxPixel` on its longest side, never enlarged; with the photo's own pixel size, from
+    /// its header (as stored: an EXIF turn swaps the sides, the longest stays the longest).
+    nonisolated static func downsample(_ data: Data, maxPixel: CGFloat) -> Decode? {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
@@ -384,7 +399,15 @@ actor PhotoCache {
             kCGImageSourceThumbnailMaxPixelSize: maxPixel,
         ]
         guard let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
-        return UIImage(cgImage: cg)
+        return Decode(image: UIImage(cgImage: cg), source: pixelSize(of: source))
+    }
+
+    /// The photo's pixel size from its header, nil when ImageIO does not give it.
+    private nonisolated static func pixelSize(of source: CGImageSource) -> DecodePlan.Size? {
+        guard let header = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let width = header[kCGImagePropertyPixelWidth] as? Int, let height = header[kCGImagePropertyPixelHeight] as? Int
+        else { return nil }
+        return DecodePlan.Size(width: width, height: height)
     }
 }
 
@@ -398,8 +421,8 @@ extension PhotoCache {
         var whole = Drift(), base = Drift()
         var count = 0
         for photo in photos {
-            guard let thumb = await load(photo, maxPixel: 96, network: false)?.cgImage, let old = AmbientTone.sample(thumb),
-                  let full = await load(photo, maxPixel: albumPixel, network: false)?.cgImage else { continue }
+            guard let thumb = await load(photo, maxPixel: 96, network: false)?.image.cgImage, let old = AmbientTone.sample(thumb),
+                  let full = await load(photo, maxPixel: albumPixel, network: false)?.image.cgImage else { continue }
             count += 1
             if let tone = await derive(full).tone { whole.take(tone, against: old, photo) }
             if let tone = veilBase(full).flatMap(AmbientTone.sample) { base.take(tone, against: old, photo) }

@@ -55,6 +55,34 @@ import Testing
         #expect(!DecodePlan.isFull(decoded: webp, asked: 600))
     }
 
+    @Test func aSourceAsLargeAsTheDecodeIsWhole() {
+        // the 800 px WebP asked at 1800: ImageIO gave all of it
+        #expect(DecodePlan.isFull(decoded: webp, source: webp, asked: 1800))
+        // asked at exactly its size, still all of it: the header says so where the ask alone cannot
+        #expect(DecodePlan.isFull(decoded: webp, source: webp, asked: 800))
+    }
+
+    @Test func aSourceOnePixelLargerIsACopy() {
+        // ImageIO giving one pixel under the ask from a larger source: a copy, never served enlarged
+        let source = DecodePlan.Size(width: 1201, height: 900)
+        let decoded = DecodePlan.Size(width: 1199, height: 899)
+        #expect(!DecodePlan.isFull(decoded: decoded, source: source, asked: 1200))
+        #expect(!DecodePlan.isFull(decoded: DecodePlan.Size(width: 1200, height: 899), source: source, asked: 1201))
+    }
+
+    @Test func aTurnedPhotoIsJudgedOnItsLongestSide() {
+        // the header gives the pixels as stored (landscape); the EXIF turn makes the decode portrait
+        let stored = DecodePlan.Size(width: 1560, height: 1290)
+        let upright = DecodePlan.Size(width: 1290, height: 1560)
+        #expect(DecodePlan.isFull(decoded: upright, source: stored, asked: 2400))
+        #expect(!DecodePlan.isFull(decoded: DecodePlan.Size(width: 992, height: 1200), source: stored, asked: 1200))
+    }
+
+    @Test func anUnknownSourceFallsBackToTheAsk() {
+        #expect(DecodePlan.isFull(decoded: webp, source: nil, asked: 801))
+        #expect(!DecodePlan.isFull(decoded: webp, source: nil, asked: 800))
+    }
+
     @Test func wholeIsJudgedOnTheLongestSide() {
         let portrait = DecodePlan.Size(width: 1290, height: 1560)
         #expect(DecodePlan.isFull(decoded: portrait, asked: 2400))

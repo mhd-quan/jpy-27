@@ -30,4 +30,13 @@ public enum DecodePlan {
     public static func isFull(decoded: Size, asked maxPixel: Int) -> Bool {
         decoded.longest < maxPixel
     }
+
+    /// The same, exactly, when the photo's own pixel size is known (its header): the decode is the whole photo when
+    /// it is as large as the source on the longest side (an EXIF turn swaps the sides, never the longest). A decode a
+    /// pixel under the ask from a larger source stays a copy, so it is never served enlarged to a larger ask. With no
+    /// size from the header, the ask decides (`isFull(decoded:asked:)`).
+    public static func isFull(decoded: Size, source: Size?, asked maxPixel: Int) -> Bool {
+        guard let source else { return isFull(decoded: decoded, asked: maxPixel) }
+        return decoded.longest >= source.longest
+    }
 }
