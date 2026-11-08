@@ -98,6 +98,31 @@ bản này, trang nào mở trước khi màu của nó được đọc sẽ m�
 
 ## 5.1b
 
+Bản Release, Instruments như `docs/perf/2026-11-baseline.md`: track os_signpost (`tech.delphyra.jp27` / `perf`),
+SwiftUI (View Body) và Animation Hitches. Mỗi ảnh đầu trang album được ghép sẵn một lần (bản mờ và ảnh nét tan dần
+thành một ảnh): mỗi lần ghép xong hay đọc từ đĩa là một event `photo.ambient` "`<ảnh> <rộng>x<cao> made|disk`", cỡ
+khung tính bằng điểm. Ảnh ghép nằm trong `Caches/Ambient` (giữ dưới 40 MB mỗi lần mở app, ảnh lâu không dùng đi
+trước), làm lại được bất cứ lúc nào. Màu trang lấy từ ảnh đầu và giữ suốt lúc trang mở: vuốt sang ảnh khác không đổi
+nền nữa. Bước 9, 10 và 14 là **duyệt thiết kế** (mắt người, không có số).
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1a | S1, lần đầu mở ngày đó trong lần chạy này: trang chủ, để bìa hiện ra, chạm thẻ của ngày có ảnh bìa đang hiện → trang ngày. Đọc View Body và hitch trong khoảng `push.today`; quay chậm màn hình nếu được | `PlanDayContent` ≤ 2 lần body; 0 hitch. Khung đầu: ảnh bìa nét phủ kín khung (đã giải mã ở trang chủ), chưa có bản mờ dưới phần tan, chân ảnh do lớp tan che; rồi ảnh ghép mờ dần lên trên trong 0,2 giây. Ghi lại khung đầu trông thế nào so với lúc ảnh ghép đã lên (một event `photo.ambient` `made`) | |
+| 1b | S1 lần hai cho cùng ngày đó | `PlanDayContent` ≤ 2 lần body; 0 hitch; ảnh ghép có từ khung đầu, không mờ dần; không có `photo.ambient` | |
+| 2 | S2: tab Bản đồ, chạm ghim một địa điểm kiểu album → sheet địa điểm (`sheet.place`) | `PlanAmbientPage` ≤ 2 lần body; 0 hitch | |
+| 3 | S3: tab Lịch trình → trang Fuji (`push.plan`) | 0 hitch (phép đọc tiêu đề của `detailPage` đã đổi) | |
+| 4 | S4: trang Fuji, chạm một chỗ ngắm có ảnh (`sheet.fujiSpot`) | `FujiSpotCard` ≤ 2 lần body; 0 hitch | |
+| 5 | S5: trang một địa điểm nhiều ảnh, vuốt qua vài ảnh rồi dừng | 0 khung rơi khi dừng vuốt; màu nền, thẻ và chữ của trang không đổi khi vuốt | |
+| 6 | Một trang album chưa từng mở: mở, vuốt qua mọi ảnh, đóng; mở lại; rồi tắt hẳn app (vuốt khỏi app switcher), mở lại cùng trang và vuốt qua mọi ảnh. Đọc các `photo.ambient` | lần đầu: một `made` cho mỗi ảnh đã hiện, mọi event của trang cùng một cỡ khung; lần hai: không có; sau khi mở lại app: một `disk` cho mỗi ảnh, không có `made`. Nếu một ảnh có hai cỡ khung trong cùng một lần mở, ghi lại | |
+| 7 | Có mạng. Trang một quán có ảnh từ mạng chưa từng tải (chưa tải ở Cài đặt): mở, chờ ảnh tải xong, vuốt và cuộn; đóng rồi mở lại | lần đầu: nền giấy suốt đời trang, kể cả sau khi ảnh đã tải, khi vuốt và khi cuộn (ảnh tải xong trước khi zoom dừng thì màu có thể tới một lần, ngay khi zoom xong: ghi lại); lần mở lại: màu có từ khung đầu | |
+| 8 | Xoá app, cài lại; mở app rồi mở ngay một trang địa điểm kiểu album có ảnh trong app (trong vài giây đầu, trước khi app đọc trước màu) | nền giấy suốt lần zoom; zoom xong màu tới một lần (mờ dần 0,2 giây), rồi không đổi nữa khi vuốt hay cuộn | |
+| 9 | **Duyệt thiết kế.** Tiêu đề trên thanh: sheet địa điểm, trang ngày đẩy trong Hôm nay, trang khách sạn, thẻ chỗ ngắm Fuji; trên hai cỡ máy (ví dụ một máy Pro và một máy Pro Max), cuộn chậm qua ảnh | tên nhỏ và mép mềm hiện khi ảnh gần cuộn hết (đáy ảnh còn khoảng 130 pt dưới thanh) như bản trước; ở đầu trang và lúc vừa mở xong chưa cuộn thì không có | |
+| 10 | **Duyệt thiết kế.** Mở một trang album, chụp màn (ảnh ghép vừa làm, từ bộ nhớ); tắt hẳn app, mở lại đúng trang đó, chụp màn (ảnh ghép đọc từ đĩa, JPEG). Phóng to phần tan | hai ảnh như nhau: không có khối JPEG, không có dải màu trong phần mờ | |
+| 11 | Bật Giảm độ trong suốt (Cài đặt › Trợ năng › Màn hình & cỡ chữ), mở một trang địa điểm và một trang ngày | không có bản mờ dưới ảnh, ảnh nét tan vào màu trang như bản trước với Giảm độ trong suốt; không có `photo.ambient` | |
+| 12 | Bật Giảm chuyển động, làm lại bước 1a và 8 | ảnh ghép vẫn mờ dần lên, màu trang vẫn mờ dần sang (cùng 0,2 giây); không có chuyển động nào khác | |
+| 13 | Đang mở một trang album, đổi sáng/tối từ Control Center rồi quay lại app | trang sang bản sáng/tối của cùng màu, không chớp; không có `photo.ambient` mới | |
+| 14 | **Duyệt thiết kế.** Chụp màn trước và sau, sáng và tối: trang địa điểm, trang ngày, trang khách sạn, thẻ chỗ ngắm Fuji, ở đầu trang. Bản "trước" build từ `866f093` | giống nhau; khác biệt duy nhất được chấp nhận: màu nền không theo ảnh khi vuốt (ảnh thứ hai trở đi nằm trên màu của ảnh đầu). Ghi nhận xét về độ nét của ảnh và độ mờ | |
+
 ## 5.2
 
 ## 5.5

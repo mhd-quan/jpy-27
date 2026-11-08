@@ -54,6 +54,8 @@ final class JP27AppDelegate: NSObject, UIApplicationDelegate {
         MXMetricManager.shared.add(MetricsInbox.shared)
         // the maps' pictures held to 40 MB, the old format's gone; off the main thread, and nothing waits for it
         Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20) }
+        // the album pages' pictures (Caches/Ambient) likewise, the least recently used going first
+        Task(priority: .utility) { await PhotoCache.trimAmbient(toBytes: 40 << 20) }
         return true
     }
 }

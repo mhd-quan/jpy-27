@@ -21,7 +21,8 @@ import UIKit
 /// A photo is decoded once where once will do: a decode is kept under the size it came out at
 /// (`DecodePlan`), so the 800 px of a Commons WebP that the home's day card asked for at 1200 also
 /// serve the day page's 1800; and an album page's veil and tone are derived from the very decode its
-/// photograph is drawn from (`derive`), off this actor.
+/// photograph is drawn from (`derive`), off this actor. The album page then draws one picture made
+/// from the two (`ambient`), kept in memory and on disk.
 actor PhotoCache {
     static let shared = PhotoCache()
 
@@ -48,6 +49,8 @@ actor PhotoCache {
     private var loads = 0
     /// derivations in flight, by photo: a veil and a tone asked for together share one
     private var deriving: [String: Task<(held: Derived, newTone: Bool), Never>] = [:]
+    /// album pictures being made, by key (`AmbientFrame.key`): the page and a prefetch of it share one
+    private var composing: [String: Task<UIImage?, Never>] = [:]
     /// the latest write of the tones file: waiting out its second, or writing
     private var saving: Task<Void, Never>?
     /// photo src → the average of its lower band, kept on disk: a page opened before (or read at
@@ -66,6 +69,13 @@ actor PhotoCache {
         var values = URLResourceValues()
         values.isExcludedFromBackup = true
         try? url.setResourceValues(values)
+        return url
+    }()
+    /// The album pictures on disk (`ambient`): one JPEG per photo and hero size, named by `AmbientFrame.fileName`. A
+    /// cache, made again from the photos at any time: in Caches, held to 40 MB at launch (`trimAmbient`).
+    private nonisolated static let ambientFolder: URL = {
+        let url = URL.cachesDirectory.appending(path: "Ambient", directoryHint: .isDirectory)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }()
 
@@ -373,6 +383,152 @@ actor PhotoCache {
         return filters.createCGImage(soft, from: input.extent)
     }
 
+    // MARK: Album pictures
+
+    /// An album page's photograph as one picture, made once: its veil filling the hero and the sharp photo over it,
+    /// fading out from the middle down (`AmbientFrame`), in the hero's shape at the photo's own pixels. The zoom, a
+    /// swipe and a scroll then move a finished picture: no mask, no flattening, nothing drawn again on the way. From
+    /// memory; else from `Caches/Ambient` (made on an earlier launch); else made now from the decode the page draws
+    /// (`albumPixel`, downloaded if need be, as the photo itself is) and its veil, off this actor, and kept in both.
+    /// One making per picture at a time: the page and a prefetch of it share it. A making runs to its end and is
+    /// kept, whoever stopped waiting for it, so a swipe back finds it.
+    func ambient(_ photo: Photo, size: CGSize) async -> UIImage? {
+        guard let frame = Self.frame(size) else { return nil }
+        let key = AmbientFrame.key(src: photo.src, frame: frame)
+        if let hit = Self.memory.object(forKey: key as NSString) { return hit }
+        if let running = composing[key] { return await running.value }
+        let task = Task { await self.composed(photo, frame: frame, key: key) }
+        composing[key] = task
+        let image = await task.value
+        composing[key] = nil
+        return image
+    }
+
+    /// The album picture, if memory has it: for a view's first frame.
+    nonisolated static func cachedAmbient(_ photo: Photo, size: CGSize) -> UIImage? {
+        guard let key = ambientKey(photo, size: size) else { return nil }
+        return memory.object(forKey: key as NSString)
+    }
+
+    /// The album picture's name (`AmbientFrame.key`): the photo and its hero in whole points; nil for an empty hero.
+    nonisolated static func ambientKey(_ photo: Photo, size: CGSize) -> String? {
+        frame(size).map { AmbientFrame.key(src: photo.src, frame: $0) }
+    }
+
+    private nonisolated static func frame(_ size: CGSize) -> AmbientFrame.Frame? {
+        AmbientFrame.Frame(width: Double(size.width), height: Double(size.height))
+    }
+
+    /// From the disk, else made from the photo, and kept on disk when it is whole (opaque).
+    private func composed(_ photo: Photo, frame: AmbientFrame.Frame, key: String) async -> UIImage? {
+        let name = AmbientFrame.fileName(key: key)
+        if let saved = await Self.readAmbient(name) {
+            Self.markAmbient(photo, frame, "disk")
+            return Self.keepAmbient(saved, as: key)
+        }
+        guard let full = await decoded(photo, maxPixel: Self.albumPixel, network: true)?.cgImage else { return nil }
+        // the veil from that same decode (and its tone, kept as it is read)
+        let veil = await derived(photo, network: true)?.veil?.cgImage
+        guard let made = await Self.compose(full, veil: veil, frame: frame) else { return nil }
+        Self.markAmbient(photo, frame, "made")
+        let kept = Self.keepAmbient(made.image, as: key)
+        // nobody waits for the file: the next launch reads it, or makes the picture again
+        if made.opaque { Task(priority: .utility) { await Self.storeAmbient(kept, as: name) } }
+        return kept
+    }
+
+    private nonisolated static func keepAmbient(_ image: UIImage, as key: String) -> UIImage {
+        memory.setObject(image, forKey: key as NSString,
+                         cost: Int(image.size.width * image.scale * image.size.height * image.scale) * 4)
+        return image
+    }
+
+    /// One `photo.ambient` event per album picture made or read from the disk, for Instruments (os_signpost):
+    /// "<src> <width>x<height> made|disk", the hero in points. A page seen before makes none.
+    private nonisolated static func markAmbient(_ photo: Photo, _ frame: AmbientFrame.Frame, _ how: String) {
+        Perf.signposter.emitEvent("photo.ambient", "\(photo.src, privacy: .public) \(frame.width, privacy: .public)x\(frame.height, privacy: .public) \(how, privacy: .public)")
+    }
+
+    /// A picture and whether it is whole: opaque when the veil fills it, the only kind kept on disk (a JPEG has no
+    /// transparency).
+    private nonisolated struct Composite: Sendable {
+        let image: UIImage
+        let opaque: Bool
+    }
+
+    /// The veil filling the frame and the sharp photo over it, fading out under `AmbientFrame.fade`, drawn once into a
+    /// picture of the frame's shape at the photo's own pixels (`AmbientFrame.canvas`), off any actor. The sharp photo
+    /// is drawn at its own size, so the screen samples it as it did when the layers were drawn live. With no veil (its
+    /// blur failed), the faded part is left transparent, over the page's colour.
+    @concurrent private nonisolated static func compose(_ full: CGImage, veil: CGImage?, frame: AmbientFrame.Frame) async -> Composite? {
+        let source = DecodePlan.Size(width: full.width, height: full.height)
+        guard let canvas = AmbientFrame.canvas(source: source, frame: frame),
+              let space = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+        let opaque = veil != nil
+        let alpha = opaque ? CGImageAlphaInfo.noneSkipLast : CGImageAlphaInfo.premultipliedLast
+        guard let context = CGContext(data: nil, width: canvas.width, height: canvas.height, bitsPerComponent: 8,
+                                      bytesPerRow: canvas.width * 4, space: space, bitmapInfo: alpha.rawValue),
+              let fade = fadeGradient(in: space) else { return nil }
+        context.interpolationQuality = .high
+        if let veil {
+            context.draw(veil, in: rect(AmbientFrame.fill(DecodePlan.Size(width: veil.width, height: veil.height), into: canvas)))
+        }
+        let whole = CGRect(x: 0, y: 0, width: canvas.width, height: canvas.height)
+        // the sharp photo on a layer of its own, its alpha multiplied by the fade's (destination-in), then laid over
+        // the veil
+        context.beginTransparencyLayer(in: whole, auxiliaryInfo: nil)
+        context.draw(full, in: rect(AmbientFrame.fill(source, into: canvas)))
+        context.setBlendMode(.destinationIn)
+        // from the picture's top, which a bitmap context puts at y = height, to its bottom at y = 0
+        context.drawLinearGradient(fade, start: CGPoint(x: 0, y: whole.height), end: .zero,
+                                   options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+        context.endTransparencyLayer()
+        guard let picture = context.makeImage() else { return nil }
+        return Composite(image: UIImage(cgImage: picture), opaque: opaque)
+    }
+
+    /// `AmbientFrame.fade` as black at each stop's strength: only its alpha counts
+    private nonisolated static func fadeGradient(in space: CGColorSpace) -> CGGradient? {
+        let stops = AmbientFrame.fade
+        let components: [CGFloat] = stops.flatMap { [0, 0, 0, CGFloat($0.shown)] }
+        let locations: [CGFloat] = stops.map { CGFloat($0.at) }
+        return CGGradient(colorSpace: space, colorComponents: components, locations: locations, count: stops.count)
+    }
+
+    private nonisolated static func rect(_ r: AmbientFrame.Rect) -> CGRect {
+        CGRect(x: r.x, y: r.y, width: r.width, height: r.height)
+    }
+
+    /// Read and decoded off any actor; the read is its last use, for the trim.
+    @concurrent private nonisolated static func readAmbient(_ name: String) async -> UIImage? {
+        let file = ambientFolder.appendingPathComponent(name, isDirectory: false)
+        guard let data = try? Data(contentsOf: file), let image = UIImage(data: data) else { return nil }
+        try? FileManager.default.setAttributes([.modificationDate: Date()], ofItemAtPath: file.path(percentEncoded: false))
+        return image.preparingForDisplay() ?? image
+    }
+
+    /// Encoded and written off any actor, whole or not at all; a cache, so a failed write is made again next time.
+    @concurrent private nonisolated static func storeAmbient(_ image: UIImage, as name: String) async {
+        guard let jpeg = image.jpegData(compressionQuality: 0.9) else { return }
+        try? jpeg.write(to: ambientFolder.appendingPathComponent(name, isDirectory: false), options: .atomic)
+    }
+
+    /// At launch: the least recently used pictures go until the folder's pictures fit in `budget` bytes
+    /// (`AmbientFrame.evicted`). In this folder only, and only the pictures' own names from its listing.
+    @concurrent nonisolated static func trimAmbient(toBytes budget: Int) async {
+        let files = FileManager.default
+        let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
+        guard let urls = try? files.contentsOfDirectory(at: ambientFolder, includingPropertiesForKeys: keys) else { return }
+        let listed = urls.compactMap { url -> AmbientFrame.StoredFile? in
+            guard let values = try? url.resourceValues(forKeys: Set(keys)) else { return nil }
+            return AmbientFrame.StoredFile(name: url.lastPathComponent, bytes: values.fileSize ?? 0,
+                                           used: values.contentModificationDate ?? .distantPast)
+        }
+        for name in AmbientFrame.evicted(listed, toBytes: budget) {
+            try? files.removeItem(at: ambientFolder.appendingPathComponent(name, isDirectory: false))
+        }
+    }
+
     /// The remote photos not on disk yet.
     @concurrent nonisolated static func missing(_ urls: [URL]) async -> [URL] {
         urls.filter { !FileManager.default.fileExists(atPath: file(for: $0).path) }
@@ -573,17 +729,6 @@ nonisolated struct AmbientTone: Sendable, Equatable {
         }
         guard total > 0 else { return nil }
         return AmbientTone(red: r / total / 255, green: g / total / 255, blue: b / total / 255)
-    }
-
-    /// An ambient page's colour: the first photograph decides light or dark for the whole page, the
-    /// one on screen moves the hue. A tone read before comes straight from the cache, so a page is
-    /// laid on its colour from its first frame instead of re-colouring itself mid-zoom.
-    static func canvas(_ tones: [Int: AmbientTone], photos: [Photo], page: Int, dim: Bool) -> AmbientCanvas? {
-        func tone(_ i: Int) -> AmbientTone? {
-            tones[i] ?? (photos.indices.contains(i) ? PhotoCache.knownTone(photos[i]) : nil)
-        }
-        guard let first = tone(0) else { return nil }
-        return (tone(page) ?? first).canvas(light: first.prefersLight, dim: dim)
     }
 
     /// Light enough that a page in this colour wants dark type.

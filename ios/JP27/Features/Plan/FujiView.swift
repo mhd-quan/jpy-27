@@ -319,18 +319,13 @@ private struct FujiKawaguchikoLink: View {
 /// clouds there.
 struct FujiSpotPage: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.colorScheme) private var system
     let id: String
     /// opened over the 3D map, which the map button then goes back to
     var fromMap = false
-    @State private var page = 0
-    /// photo index → the colour of its foot
-    @State private var tones: [Int: AmbientTone] = [:]
-    @State private var heroHeight: CGFloat = 480
 
     var body: some View {
         if let spot = model.guide.fuji.spots.first(where: { $0.id == id }) {
-            content(spot)
+            FujiSpotCard(spot: spot, photos: photos(spot), fromMap: fromMap)
         } else {
             ContentUnavailableView("Không có chỗ ngắm này", systemImage: "mountain.2")
                 .toolbar { CloseButton() }
@@ -347,20 +342,41 @@ struct FujiSpotPage: View {
         let scenery = (spot.images + all.filter(isView)).filter { seen.insert($0.src).inserted }
         return scenery.isEmpty ? all : scenery
     }
+}
 
-    /// The first photograph decides light or dark for the whole card; the others only move the hue.
-    private func canvas(_ photos: [Photo]) -> AmbientCanvas? {
-        guard !photos.isEmpty else { return .dusk }
-        return AmbientTone.canvas(tones, photos: photos, page: page, dim: system == .dark)
+/// `FujiSpotPage` for a viewpoint found, with its photographs.
+private struct FujiSpotCard: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.colorScheme) private var system
+    let spot: FujiGuide.Spot
+    /// `FujiSpotPage.photos`
+    let photos: [Photo]
+    let fromMap: Bool
+    @State private var page = 0
+    /// the card's colour, from its first photograph, held while the card lives
+    @State private var held: PageTone
+
+    /// the hero's share of the card's height
+    static let heroFraction: CGFloat = 0.56
+
+    init(spot: FujiGuide.Spot, photos: [Photo], fromMap: Bool) {
+        self.spot = spot
+        self.photos = photos
+        self.fromMap = fromMap
+        _held = State(initialValue: PageTone(photos.first))
     }
 
-    private func content(_ spot: FujiGuide.Spot) -> some View {
+    /// The first photograph decides light or dark and the hue for the whole card; with none, Fuji's dusk.
+    private var canvas: AmbientCanvas? {
+        photos.isEmpty ? .dusk : held.canvas(dim: system == .dark)
+    }
+
+    var body: some View {
         let research = model.fujiResearch(spot.id)
         let name = model.fujiName(spot)
         let place = model.store.place(spot.id)
-        let photos = self.photos(spot)
-        let canvas = self.canvas(photos)
-        return ScrollView {
+        let canvas = self.canvas
+        ScrollView {
             VStack(spacing: 0) {
                 Group {
                     if photos.isEmpty {
@@ -370,8 +386,7 @@ struct FujiSpotPage: View {
                         AmbientHero(photos: photos, page: $page)
                     }
                 }
-                .containerRelativeFrame(.vertical) { length, _ in (length * 0.56).rounded() }
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                .heroFrame(fraction: Self.heroFraction)
                 .overlay(alignment: .bottom) {
                     FujiSpotHeadline(spot: spot, name: name, ja: FujiWords.ja(spot, store: model.store, research: research),
                                      count: photos.count, page: page, fill: (canvas ?? .dusk).color, fromMap: fromMap)
@@ -422,18 +437,9 @@ struct FujiSpotPage: View {
             }
             .padding(.bottom, 32)
         }
-        .ambientPage(canvas, title: name, heroHeight: heroHeight)
+        .ambientPage(canvas, title: name, heroFraction: Self.heroFraction)
+        .decidesTone($held, of: photos.first)
         .toolbar { CloseButton() }
-        .task(id: spot.id) {
-            guard let first = photos.first else { return }
-            // the first one now, for the card to settle on; the rest in one go after
-            if let tone = await PhotoCache.shared.tone(first) { tones[0] = tone }
-            var rest: [Int: AmbientTone] = [:]
-            for i in photos.indices.dropFirst() {
-                if let tone = await PhotoCache.shared.tone(photos[i]) { rest[i] = tone }
-            }
-            tones.merge(rest) { a, _ in a }
-        }
     }
 }
 
