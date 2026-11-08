@@ -50,7 +50,7 @@ struct FujiFinderView: View {
         .overlay {
             if let sight, arSupported, !onScreen {
                 FujiHeading { FujiTurnHint(sight: sight, heading: $0) }
-                    .transition(.scale(scale: 0.85).combined(with: .opacity))
+                    .transition(reduceMotion ? AnyTransition.opacity : .scale(scale: 0.85).combined(with: .opacity))
             }
         }
         .animation(Motion.arrive, value: onScreen)

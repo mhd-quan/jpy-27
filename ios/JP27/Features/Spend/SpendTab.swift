@@ -449,7 +449,7 @@ private struct SpendDial: View {
             }
         }
         .animation(Motion.reduced(Motion.pick, reduceMotion), value: selected)
-        .animation(Motion.reduced(Motion.settle, reduceMotion), value: Yen.total(arcs.map(\.spent)))
+        .animation(Motion.reduced(Motion.travel, reduceMotion), value: Yen.total(arcs.map(\.spent)))
     }
 
     private func centre(_ arc: SpendArc?, planned: Int, spent: Int, planning: Bool) -> some View {

@@ -7,39 +7,55 @@
 // vocabulary that Reduce Motion cannot see. This fails on any line of Swift with one, unless the line (or the
 // comment-only line directly above it) says why it may: `// motion: one-off <reason>`, the reason required.
 //
-// Not flagged: comments and string contents; `.symbolEffect` / `.contentTransition` arguments (`.bounce`,
-// `.variableColor`); `.soft` scroll edge effects; gradients; `Motion.arrive`, which may be bare (a short ease
-// that Reduce Motion keeps); `.default`, which only means an animation as an argument and cannot be told from
-// the other `.default`s without parsing. UIKit's `UIView.transition` is outside it too.
+// Also flagged: a modifier chained on a token (`Motion.travel.delay(…)`, even inside `reduced(`; chain after it:
+// `Motion.reduced(Motion.travel, r)?.delay(…)`), `.linear` whatever follows it, `.blurReplace` (an offscreen filter),
+// and the spellings of the default animation: `withAnimation()`, `withAnimation({`, `withAnimation(completionCriteria:`,
+// `withAnimation(.default`, `.animation(.default`, `.animation()`.
+//
+// Not flagged: comments and string contents (a marker inside a string is not a marker); `.symbolEffect` /
+// `.contentTransition` arguments (`.bounce`, `.variableColor`); `.soft` scroll edge effects; gradients, and the
+// Charts `.linear` of `interpolationMethod(` and `type:`; `Motion.arrive`, which may be bare (a short ease that
+// Reduce Motion keeps); a `.default` that is not the argument of `withAnimation(` or `.animation(`. Not seen:
+// `.phaseAnimator(`, whose animation lives in a trailing closure that a line-local scan cannot read (the tree has
+// none). UIKit's `UIView.transition` is outside the lint too.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { blanked } from './lint-saves.mjs';
 
 /** a curve named at the call site */
-const CURVE = /\.(?:snappy|smooth|easeOut|easeInOut|easeIn|bouncy|spring|interpolatingSpring|timingCurve)\b|\.linear\b(?=\s*[(),])/g;
-/** `withAnimation { … }`: the default curve, named nowhere */
-const BARE_WITH = /\bwithAnimation\s*\{/g;
+const CURVE = /\.(?:snappy|smooth|easeOut|easeInOut|easeIn|bouncy|spring|interpolatingSpring|timingCurve)\b|(?<!interpolationMethod\(\s*)(?<!type:\s*)\.linear\b|\.blurReplace\b/g;
+/** the default curve, named nowhere: `withAnimation { }`, `withAnimation()`, `withAnimation({`, `withAnimation(completionCriteria:`,
+ *  `withAnimation(.default`, `.animation(.default`, `.animation()` (both `.default` only ever mean an Animation here) */
+const BARE_WITH = /\bwithAnimation\s*(?:\{|\(\s*(?:\)|\{|\.default\b|completionCriteria:))|\.animation\s*\(\s*(?:\)|\.default\b)/g;
 /** a keyframe: its own timing */
 const KEYFRAME = /\b(?:Linear|Cubic|Spring|Move)Keyframe\s*\(/g;
 /** a token that Reduce Motion should change, not the first argument of `Motion.reduced(` */
 const BARE_TOKEN = /(?<!Motion\.reduced\(\s*)\bMotion\.(?:press|pick|settle|travel)\b/g;
+/** a modifier chained on the token itself, even inside `reduced(`: it no longer matches by `==`, so a jump would become an ease */
+const CHAINED_TOKEN = /\bMotion\.(?:press|pick|settle|travel)\b(?!\s*\()\s*\./g;
 /** what a line says to be let through: the marker and a reason */
 const ONE_OFF = /\/\/\s*motion:\s*one-off\s+\S/;
 /** the file that defines the curves */
 export const DEFINITION = 'Design/Motion.swift';
+
+/** Whether `line` carries the marker as a comment: not inside a string literal (an odd number of quotes before it). */
+function marked(line) {
+  const m = ONE_OFF.exec(line);
+  return m !== null && (line.slice(0, m.index).replaceAll('\\"', '').match(/"/g) ?? []).length % 2 === 0;
+}
 
 /** The lines of `text` with a curve, a bare animation or a bare token, numbered from 1, once each. */
 export function motionHits(text) {
   const raw = text.split('\n');
   const code = blanked(text);
   const lines = new Set();
-  for (const re of [CURVE, BARE_WITH, KEYFRAME, BARE_TOKEN]) {
+  for (const re of [CURVE, BARE_WITH, KEYFRAME, BARE_TOKEN, CHAINED_TOKEN]) {
     for (const m of code.matchAll(re)) lines.add(code.slice(0, m.index).split('\n').length);
   }
   return [...lines].sort((a, b) => a - b).flatMap((n) => {
     const above = raw[n - 2]?.trim() ?? '';
-    const said = ONE_OFF.test(raw[n - 1]) || (above.startsWith('//') && ONE_OFF.test(above));
+    const said = marked(raw[n - 1]) || (above.startsWith('//') && ONE_OFF.test(above));
     return said ? [] : [{ line: n, text: raw[n - 1].trim() }];
   });
 }

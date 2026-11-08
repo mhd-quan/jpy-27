@@ -37,6 +37,26 @@ const flagged = [
   'withAnimation(Motion.settle(velocity: v)) { a = 1 }',
   'withAnimation(Motion.press) { a = 1 }',
   '.animation(Motion.travel.delay(0.1), value: x)',
+  // a modifier on the token, even inside reduced: the token no longer matches by == (R-349)
+  'withAnimation(Motion.reduced(Motion.travel.delay(0.1), reduceMotion)) { a = 1 }',
+  'withAnimation(Motion.reduced(Motion.settle.speed(2), reduceMotion)) { a = 1 }',
+  'withAnimation(Motion.reduced(Motion.pick\n    .delay(0.1), reduceMotion)) { a = 1 }'.replace('\n', ' '),
+  // .linear whatever follows it
+  '.animation(.linear.delay(0.1), value: x)',
+  'withAnimation(.linear.repeatForever()) { a = 1 }',
+  '.animation(flag ? .linear : nil, value: x)',
+  // a filter blur rendered offscreen (R-498)
+  '.transition(.blurReplace)',
+  '.transition(.blurReplace(.downUp))',
+  // spellings of the default animation (R-499)
+  'withAnimation() { a = 1 }',
+  'withAnimation({ a = 1 })',
+  'withAnimation(completionCriteria: .removed) { a = 1 } completion: { }',
+  'withAnimation(.default) { a = 1 }',
+  '.animation(.default, value: x)',
+  '$open.animation()',
+  // a marker inside a string is not a comment (R-500)
+  'let s = "// motion: one-off x"; withAnimation(.snappy) { a = 1 }',
 ];
 /** code that is not a curve, goes through `reduced`, or says why it is one */
 const allowed = [
@@ -57,6 +77,17 @@ const allowed = [
   'LinearGradient(colors: [a, b], startPoint: .top, endPoint: .bottom)',
   'Gradient.Stop(color: .clear, location: 0)',
   '.smoothed(x)',
+  // Charts and gradients have a .linear of their own
+  '.interpolationMethod(.linear)',
+  '.chartXScale(type: .linear)',
+  '.chartYScale(domain: 0...9, type: .linear)',
+  'Rectangle().fill(.linearGradient(colors: [a, b], startPoint: .top, endPoint: .bottom))',
+  // a .default that is not an animation
+  'let m = FileManager.default',
+  'content.sound = .default',
+  'let f = UIGraphicsImageRendererFormat.default()',
+  'withAnimation(nil) { a = 1 }',
+  'withAnimation(Motion.reduced(Motion.settle(velocity: v), reduceMotion)?.delay(0.1)) { a = 1 }',
   'let spring = 3',
   'springs.count',
   'self.settle(velocity: v)',

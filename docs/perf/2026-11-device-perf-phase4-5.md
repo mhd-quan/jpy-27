@@ -326,5 +326,7 @@ Bản Release, trên máy thật. Mọi animation của app nay là một token 
 | 10 | Giảm chuyển động bật: một camera Fuji bay, một sheet / dải trượt | camera nhảy; sheet và dải về chỗ bằng ease 0,2 s (không lò xo) | |
 | 11 | Giảm chuyển động tắt: nút bấm (SettleStyle), phím bàn số, dải ngày, bảng bản đồ | lò xo `press`/`settle` nảy nhẹ như trước, camera bay 1 s | |
 | 12 | Giảm chuyển động tắt: trang chủ, ảnh bìa lật rồi chú thích bìa đổi | chú thích bìa mờ chéo (không blur) khi bìa lật; ảnh bìa trôi 10 s như trước | |
+| 13 | Duyệt thiết kế (R-501): trang chủ mở lần đầu, tiêu đề bìa và mặt trời hiện lên | tiêu đề và mặt trời hiện trong 0,2 s (trước là 0,7 s); có quá nhanh không? Với Giảm chuyển động bật vẫn mờ vào, không bật ra | |
+| 14 | Giảm chuyển động bật: Fuji, hướng dẫn quay về chỗ ngắm hiện ra | chỉ mờ vào, không phóng từ 0,85 (R-505) | |
 
 ## 6.2

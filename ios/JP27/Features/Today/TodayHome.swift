@@ -101,7 +101,7 @@ private struct HomeCover: View {
             .accessibilityElement(children: .combine)
         }
         .onAppear {
-            withAnimation(Motion.reduced(Motion.travel, reduceMotion)?.delay(0.1)) { risen = true }
+            withAnimation(Motion.arrive.delay(0.1)) { risen = true }
         }
         // a new photograph every few seconds while the cover is in view; a swipe restarts the wait.
         // Under a sheet or behind another tab it waits: nothing turns while you look at something
@@ -229,7 +229,7 @@ private struct HomeCoverPhoto: View {
                     // over-scan for a light parallax (4% each side), and a slow drift a little closer
                     .scaleEffect(current && !reduceMotion ? 1.12 : 1.08)
                     // motion: one-off the cover's 10 s drift is slower than any token; under Reduce Motion the scale does not change
-                    .animation(current ? .easeInOut(duration: 10) : Motion.arrive, value: current)
+                    .animation(current ? Animation.easeInOut(duration: 10) : Motion.reduced(Motion.travel, reduceMotion), value: current)
                     .visualEffect { content, proxy in
                         content.offset(x: -proxy.frame(in: .scrollView(axis: .horizontal)).minX * 0.04)
                     }
@@ -377,7 +377,7 @@ private struct HomeChapters: View {
                         .accessibilityAddTraits(on ? .isSelected : [])
                     }
                 }
-                .animation(Motion.arrive, value: current?.id)
+                .animation(Motion.reduced(Motion.pick, reduceMotion), value: current?.id)
             }
             .frame(height: 50)
             .sensoryFeedback(.pick, trigger: taps)
