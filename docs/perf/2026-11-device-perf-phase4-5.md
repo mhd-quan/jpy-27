@@ -284,6 +284,26 @@ lúc nằm yên mà được chạm khi đang chạy thì không bắt đầu v�
 
 ## 5.9
 
+Bản Release, Instruments như `docs/perf/2026-11-baseline.md`: Time Profiler, track os_signpost (`tech.delphyra.jp27` /
+`perf`) và Animation Hitches. Nút "Theo dõi chuyến" giờ chỉ chọn chuyến trong lần bấm (event `ride.select`): nút đổi
+thành "Đang theo dõi" (Hôm nay) hay thẻ theo dõi hiện ra (trang chuyến) cùng vị trí trên tuyến, với `Motion.pick`. Live
+Activity (`Activity.request`, `areActivitiesEnabled`) và vị trí dẫn đường (`LocationService.startLive`) được xin sau một
+`Task.yield()`, trong khoảng `ride.begin`. Dòng dịch trên ảnh thực đơn có nền thẻ đục (`Palette.card` 0,9) thay cho
+`thinMaterial`. Bàn số của "Ghi chi" nhường chỗ cho bàn phím hệ thống theo thông báo của bàn phím, cùng thời lượng
+(lò xo không nảy). Rung `press`, `snap`, `page`, `done` dùng bộ phát giữ sẵn và được đánh thức trước. Bước 4, 5, 7 là
+**duyệt thiết kế** (mắt người, không có số).
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | Hôm nay, trong một ngày có chuyến (chạy thử được: Cài đặt › Chạy thử), lúc thẻ "Tiếp theo" là một chuyến: Time Profiler đang ghi, chạm "Theo dõi chuyến". Đọc main thread từ lần chạm tới khung đầu (commit Core Animation đầu tiên sau `ride.select`) | trong khung đó không có `Activity.request`, `ActivityAuthorizationInfo` hay `startLive`; chúng nằm trong khoảng `ride.begin`, và `ride.begin` bắt đầu sau commit có nút "Đang theo dõi". Ghi thời gian chạm → khung đầu (ms) và độ dài `ride.begin`. Nếu `ride.begin` nằm trước commit đó (một `Task.yield()` không đủ): ghi lại | |
+| 2 | Như bước 1, từ trang một chuyến tàu (Lịch trình › một chuyến, nút "Theo dõi chuyến") | như bước 1; thẻ theo dõi có ngay dòng ga tới nếu máy đang ở gần tuyến | |
+| 3 | Màn hình khoá và Dynamic Island: theo dõi một chuyến, bấm "Kết thúc", theo dõi lại ngay; rồi theo dõi chuyến A rồi chuyến B (Lịch trình › Chuyến tàu); rồi bật Chạy thử trong lúc đang theo dõi, và tắt | lúc nào cũng nhiều nhất một Live Activity; đổi sang B thì A biến mất ngay; bật hay tắt Chạy thử kết thúc chuyến đang theo dõi và không để lại Live Activity nào | |
+| 4 | **Duyệt thiết kế.** Trang chuyến, máy ở gần tuyến: chạm "Theo dõi chuyến", quay màn hình chậm nếu được | khung đầu đã có ga tới và số ga còn lại (không có "Đang chờ vị trí trên tuyến" chớp qua); giờ tới hiện ở khung sau, không hoạt ảnh. Ghi lại cú hiện đó có thành một cú "giật" không | |
+| 5 | **Duyệt thiết kế.** Sổ tay › chụp thực đơn: một ảnh sáng và một ảnh tối, chế độ sáng và tối | dòng dịch đọc được, ảnh vẫn thấy quanh dòng; so với bản trước (kính mờ). Ghi nhận xét | |
+| 6 | "Ghi chi": chạm ô Ghi chú (bàn phím lên), rồi chạm số tiền (bàn phím xuống); rồi lại chạm Ghi chú và vuốt danh sách xuống để thu bàn phím. Với bàn phím đang lên: bấm Lưu; lần khác bấm Huỷ; lần khác vuốt sheet xuống, một lần thả cho đóng, một lần kéo rồi thôi | bàn số rời đi và quay lại cùng lúc với bàn phím, một chuyển động, không trước không sau. Lưu, Huỷ, vuốt đóng: không có bàn số chớp lên trong sheet đang đi. Kéo rồi thôi: bàn số quay lại khi bàn phím xuống (nếu bàn phím vẫn lên thì bàn số vẫn vắng) | |
+| 7 | **Duyệt thiết kế.** Rung: bấm vài thẻ và nút kiểu `.settle` (thẻ ngày, chip), vuốt carousel trang chủ qua vài thẻ, kéo danh sách bảng bản đồ xuống đủ để thu bảng, chạm hai máy đã ghép | mỗi nhịp tới ngay lúc chạm hay vuốt, không yếu hơn bản trước, không thừa nhịp nào | |
+| 8 | Bật Giảm chuyển động (Cài đặt › Trợ năng › Chuyển động): chạm "Theo dõi chuyến"; trên bàn số gõ vài phím | nút và thẻ đổi bằng một cú ease ngắn (0,2 giây), không lò xo; số tiền cũng vậy. Bàn số vẫn theo bàn phím như bước 6 | |
+
 ## 5.8b
 
 ## 6.2

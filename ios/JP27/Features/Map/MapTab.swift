@@ -1053,7 +1053,10 @@ private struct MapTimeline: View {
             // the window comes with the margins: both change with the panel's height, in one update
             .onScrollGeometryChange(for: MapReading.self) { [window] in MapReading($0, window: window) } action: { _, r in reading(r) }
             .onScrollPhaseChange { old, new in
-                frames.touching = new == .tracking || new == .interacting
+                let touching = new == .tracking || new == .interacting
+                // a finger on the list: a pull past its top (`snap`) may follow, so the engine is readied now
+                if touching, !frames.touching { Haptic.prepare(.snap) }
+                frames.touching = touching
                 frames.moving = new != .idle
                 guard old == .interacting, new != .interacting else { return }
                 released()

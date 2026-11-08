@@ -432,6 +432,7 @@ private struct TodayNextCard: View {
 
 private struct TodayNextActions: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let day: Day
     let next: Waypoint
     let place: Place?
@@ -476,7 +477,14 @@ private struct TodayNextActions: View {
                     } else {
                         Button {
                             followed += 1
-                            withAnimation(.bouncy) { model.live.start(ride, model: model) }
+                            // the button turns into the tracking one in this frame; the Live Activity and the
+                            // navigation positions are asked for after it (`RideLiveService.begin`)
+                            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { model.live.select(ride, model: model) }
+                            let id = ride.id
+                            Task { @MainActor in
+                                await Task.yield()
+                                model.live.begin(id, model: model)
+                            }
                         } label: {
                             Label("Theo dõi chuyến", systemImage: "train.side.front.car")
                                 .frame(maxWidth: .infinity)

@@ -188,6 +188,7 @@ struct SpendAmountDisplay: View {
 /// The amount is capped below ten million yen (`Yen.maxEntry`); delete always takes a digit off, so
 /// an amount above the cap can still be brought down.
 struct SpendKeypad: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var amount: Int
     var limit = Yen.maxEntry
     @State private var keys = 0
@@ -244,7 +245,7 @@ struct SpendKeypad: View {
     private func press(_ key: Yen.Key) {
         guard let next = Yen.keyed(amount, key, limit: limit) else { return }
         keys += 1
-        withAnimation(.snappy(duration: 0.25)) { amount = next }
+        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { amount = next }
     }
 }
 

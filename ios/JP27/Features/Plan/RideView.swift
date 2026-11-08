@@ -122,6 +122,7 @@ private struct PlanRideSeat: View {
 
 private struct PlanRideLive: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let ride: Ride
     @Binding var followed: Int
     @Binding var ended: Int
@@ -175,7 +176,14 @@ private struct PlanRideLive: View {
             VStack(spacing: 12) {
                 Button {
                     followed += 1
-                    withAnimation(.smooth) { model.live.start(ride, model: model) }
+                    // the card is there in this frame; the Live Activity and the navigation positions are
+                    // asked for after it (`RideLiveService.begin`)
+                    withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { model.live.select(ride, model: model) }
+                    let id = ride.id
+                    Task { @MainActor in
+                        await Task.yield()
+                        model.live.begin(id, model: model)
+                    }
                 } label: {
                     Label("Theo dõi chuyến", systemImage: "dot.radiowaves.left.and.right")
                         .font(.body.weight(.semibold))

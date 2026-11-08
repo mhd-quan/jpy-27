@@ -55,15 +55,38 @@ extension SensoryFeedback {
     nonisolated static var notch: SensoryFeedback { .levelChange }
 }
 
-/// The same feel as `press`, `snap` and `page`, played the moment an action runs. For a press
-/// whose view leaves with it (a button that closes its sheet, a row that opens a page over
+/// The same feel as `press`, `snap`, `page` and `done`, played the moment an action runs. For a
+/// press whose view leaves with it (a button that closes its sheet, a row that opens a page over
 /// itself) and for moments that come from a callback rather than a state the view shows:
 /// `sensoryFeedback` plays on the view's next update, which a view on its way out never gets,
 /// and a state added only to trigger it redraws the view that holds it.
+///
+/// The generators are kept, not made for each tap, and `prepare` wakes the Taptic Engine for the
+/// next few seconds when a tap is likely: a finger down on a button, on a carousel, on the map's
+/// list, a paired phone coming close. A prepare right before the tap gains nothing, so it goes at
+/// the moment the hand starts, not at the one it lands.
 enum Haptic {
-    static func press() { UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 1) }
-    static func snap() { UIImpactFeedbackGenerator(style: .medium).impactOccurred(intensity: 0.8) }
-    static func page() { UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.7) }
+    /// what is about to be felt
+    enum Kind {
+        case press, snap, page, done
+    }
+
+    private static let light = UIImpactFeedbackGenerator(style: .light)
+    private static let medium = UIImpactFeedbackGenerator(style: .medium)
+    private static let notify = UINotificationFeedbackGenerator()
+
+    static func press() { light.impactOccurred(intensity: 1) }
+    static func snap() { medium.impactOccurred(intensity: 0.8) }
+    static func page() { light.impactOccurred(intensity: 0.7) }
+    static func done() { notify.notificationOccurred(.success) }
+
+    static func prepare(_ kind: Kind) {
+        switch kind {
+        case .press, .page: light.prepare()
+        case .snap: medium.prepare()
+        case .done: notify.prepare()
+        }
+    }
 }
 
 extension View {
@@ -97,10 +120,16 @@ private struct SettlePick<Position: Equatable>: ViewModifier {
                 // animating is a scroll the code started; idle is at rest
                 hand.on = phase == .tracking || phase == .interacting || phase == .decelerating
                 hand.idle = phase == .idle
+                // the finger is down: the first card's tick may come within the next moment
+                if phase == .tracking { Haptic.prepare(.page) }
                 if phase == .idle { rested?() }
             }
             .onChange(of: position) {
-                if hand.on { Haptic.page() }
+                if hand.on {
+                    Haptic.page()
+                    // a swipe ticks card after card: kept ready for the next
+                    Haptic.prepare(.page)
+                }
                 if hand.idle { rested?() }
             }
     }

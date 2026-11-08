@@ -235,7 +235,7 @@ private struct PressableButton: View {
         }
         Group {
             switch look {
-            case .settle: button.buttonStyle(SettleStyle(onPress: onPress))
+            case .settle: button.buttonStyle(SettleStyle(felt: felt, onPress: onPress))
             case .plain:
                 if let onPress {
                     button.buttonStyle(PlainPressStyle(onPress: onPress))
@@ -251,13 +251,19 @@ private struct PressableButton: View {
 }
 
 private struct SettleStyle: ButtonStyle {
+    /// the button plays `press` as it fires: the finger coming down readies it (`Haptic.prepare`)
+    var felt = false
     var onPress: (() -> Void)?
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.72), value: configuration.isPressed)
-            .onChange(of: configuration.isPressed) { _, down in if down { onPress?() } }
+            .onChange(of: configuration.isPressed) { _, down in
+                guard down else { return }
+                if felt { Haptic.prepare(.press) }
+                onPress?()
+            }
     }
 }
 

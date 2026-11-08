@@ -1,5 +1,7 @@
+import Combine
 import SwiftUI
 import TripKit
+import UIKit
 
 /// Log what was really spent, in a few taps: the amount first, on the sheet's own keypad, so the
 /// sheet grows out of its button with nothing rising into the zoom; everything else guessed from
@@ -24,6 +26,16 @@ struct ExpenseEditor: View {
     /// places chosen in the list under "Ở đâu"; the place set up on opening stays quiet
     @State private var placePicks = 0
     @FocusState private var writing: Bool
+    /// the pad, out of the way while the system keyboard is up: it leaves and comes back with the keyboard,
+    /// on the keyboard's own timing (`keyboard(_:shows:)`)
+    @State private var padShown = true
+    /// the sheet is being closed by its own buttons: the keyboard going down with it brings no pad back
+    @State private var leaving = Leaving()
+
+    /// not observed: set on the way out, read only by the keyboard's notifications
+    final class Leaving {
+        var on = false
+    }
 
     /// `model` is the app's one model, the one the sheet also reads from its environment.
     init(placeID: String?, yen: Int?, editing: Expense? = nil, model: AppModel = .shared) {
@@ -52,8 +64,8 @@ struct ExpenseEditor: View {
                 }
                 .scrollBounceBehavior(.basedOnSize)
                 .scrollDismissesKeyboard(.interactively)
-                // the pad steps aside while the note is being typed
-                if !writing {
+                // the pad steps aside while the system keyboard is up (the note being typed)
+                if padShown {
                     SpendKeypad(amount: $draft.value)
                         .padding(.horizontal, Metrics.gutter)
                         .padding(.top, 8)
@@ -61,14 +73,15 @@ struct ExpenseEditor: View {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
-            .animation(.snappy, value: writing)
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { keyboard($0, shows: true) }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { keyboard($0, shows: false) }
             .background(Palette.paper)
             .progressiveEdges()
             .navigationTitle(editing == nil ? "Ghi chi" : "Sửa khoản chi")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Huỷ", role: .cancel) { dismiss() }
+                    Button("Huỷ", role: .cancel) { leave() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) { save() }
@@ -243,17 +256,35 @@ struct ExpenseEditor: View {
             e.note = text
             e.touch()
             // a failed write takes the edit back on the row; what was typed stays here
-            if model.persist("Khoản chi") { saved.toggle(); dismiss() } else { fail() }
+            if model.persist("Khoản chi") { saved.toggle(); leave() } else { fail() }
             return
         }
         if model.logExpense(yen: draft.value, category: draft.category, method: draft.method, placeID: draft.place,
                             placeName: draft.place == nil && !name.isEmpty ? name : nil, day: draft.dayKey,
                             note: text) != nil {
             saved.toggle()
-            dismiss()
+            leave()
         } else {
             fail()
         }
+    }
+
+    /// Closes the sheet from its own buttons, the keyboard perhaps still up: the pad stays out while the sheet goes.
+    private func leave() {
+        leaving.on = true
+        dismiss()
+    }
+
+    /// The system keyboard rising or going down: the pad goes the other way, in the same motion. A keyboard of
+    /// another app (on iPad) moves nothing here; one going down as the sheet closes brings no pad back.
+    private func keyboard(_ note: Notification, shows: Bool) {
+        if let local = note.userInfo?[UIResponder.keyboardIsLocalUserInfoKey] as? Bool, !local { return }
+        let pad = !shows
+        guard pad != padShown, !(pad && leaving.on) else { return }
+        let duration = note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0
+        // the system keyboard's own curve and duration, not a Motion token: the pad moves with the keyboard
+        let curve: Animation? = duration > 0 ? .spring(duration: duration, bounce: 0) : nil
+        withAnimation(curve) { padShown = pad }
     }
 
     /// Not saved: said here, over the editor, not behind it.
