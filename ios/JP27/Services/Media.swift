@@ -720,20 +720,25 @@ enum Prefetch {
 
     private static var slots = NewestFew<String>(limit: 3)
     private static var tasks: [NewestFew<String>.Ticket: Task<Void, Never>] = [:]
+    /// runs a touch asked for again while they ran (started at a rest): from then on they draw no map, as a touch
+    /// does not (the page is about to open; a draw already under way is left to finish, the page waits for it)
+    private static var touched: Set<NewestFew<String>.Ticket> = []
 
     /// The day's page: its photograph's colour, then its map, then its hero. `page` nil (not measured yet): only the
     /// colour and the decode, no album picture and no map, whose keys need the page's size.
     static func day(_ key: String, model: AppModel, at moment: Moment, page: Page?) {
         if moment == .rest, model.lowPower { return }
         let size = page.map { "\(Int(heroSize($0).width))x\(Int(heroSize($0).height))" } ?? "-"
-        run("day:\(key)", moment, size) { await Prefetch.loadDay(key, model: model, moment: moment, page: page) }
+        run("day:\(key)", moment, size) { ticket in
+            await Prefetch.loadDay(key, model: model, moment: moment, page: page, ticket: ticket)
+        }
     }
 
     /// The place's page, opened as a sheet: the colour, the decode and the veil of its first photograph, none of which
     /// depends on the sheet's size; its album picture is made when the sheet is up (its size is not known before).
     static func place(_ id: String, model: AppModel, at moment: Moment) {
         if moment == .rest, model.lowPower { return }
-        run("place:\(id)", moment, "-") { await Prefetch.loadPlace(id, model: model) }
+        run("place:\(id)", moment, "-") { _ in await Prefetch.loadPlace(id, model: model) }
     }
 
     /// Low Power Mode came on: everything under way stops (a touch then loads again).
@@ -741,20 +746,26 @@ enum Prefetch {
         for ticket in slots.removeAll() {
             tasks.removeValue(forKey: ticket)?.cancel()
         }
+        touched.removeAll()
     }
 
     /// Started, unless it runs already (then raised to this priority); the oldest of three cancelled to make room.
-    private static func run(_ key: String, _ moment: Moment, _ size: String, _ work: @escaping @MainActor () async -> Void) {
+    private static func run(_ key: String, _ moment: Moment, _ size: String,
+                            _ work: @escaping @MainActor (NewestFew<String>.Ticket) async -> Void) {
         switch slots.admit(key) {
         case .running(let ticket):
+            if moment == .touch { touched.insert(ticket) }
             tasks[ticket]?.escalatePriority(to: moment.priority)
         case .start(let ticket, let cancelling):
-            if let cancelling { tasks.removeValue(forKey: cancelling)?.cancel() }
+            if let cancelling {
+                tasks.removeValue(forKey: cancelling)?.cancel()
+                touched.remove(cancelling)
+            }
             // one per prefetch started, for Instruments (os_signpost): "<key> rest|touch <hero w>x<h>"
             Perf.signposter.emitEvent("prefetch", "\(key, privacy: .public) \(moment.rawValue, privacy: .public) \(size, privacy: .public)")
             // on the main actor, as this is: stored before it can run, so its finish always finds it
             tasks[ticket] = Task(priority: moment.priority) {
-                await work()
+                await work(ticket)
                 Prefetch.finished(ticket)
             }
         }
@@ -763,9 +774,10 @@ enum Prefetch {
     private static func finished(_ ticket: NewestFew<String>.Ticket) {
         slots.finished(ticket)
         tasks[ticket] = nil
+        touched.remove(ticket)
     }
 
-    private static func loadDay(_ key: String, model: AppModel, moment: Moment, page: Page?) async {
+    private static func loadDay(_ key: String, model: AppModel, moment: Moment, page: Page?, ticket: NewestFew<String>.Ticket) async {
         guard let day = model.store.day(key) else { return }
         // the page's own photograph (`DayView`)
         let photo = HomePicks.photo(for: day, store: model.store)
@@ -775,15 +787,17 @@ enum Prefetch {
         // phone only, never the network (`tone`), which also decodes the photo at the page's size and blurs its veil
         if let photo, local { _ = await PhotoCache.shared.tone(photo) }
         guard !Task.isCancelled else { return }
-        if let page { await dayMap(day, photo: photo, model: model, moment: moment, page: page) }
+        if let page { await dayMap(day, photo: photo, model: model, moment: moment, page: page, ticket: ticket) }
         guard !Task.isCancelled, let photo, local else { return }
         await dayHero(photo, page: page, lowPower: model.lowPower)
     }
 
     /// The map's picture under the key the page will ask (`StaticTripMap` in `PlanDayHeader`): from memory or the disk,
-    /// and drawn only at a rest, and only when the scheme is known (no photograph, or its colour read). A picture
-    /// drawn under another key than the page's would prune the page's own from the disk (`MapSnapshots.store`).
-    private static func dayMap(_ day: Day, photo: Photo?, model: AppModel, moment: Moment, page: Page) async {
+    /// and drawn only at a rest, only when the scheme is known (no photograph, or its colour read), and not once a
+    /// touch has asked for the run (`touched`). A picture drawn under another key than the page's would prune the
+    /// page's own from the disk (`MapSnapshots.store`).
+    private static func dayMap(_ day: Day, photo: Photo?, model: AppModel, moment: Moment, page: Page,
+                               ticket: NewestFew<String>.Ticket) async {
         let size = mapSize(page)
         guard size.width >= 1 else { return }
         let system: ColorScheme = page.dark ? .dark : .light
@@ -795,7 +809,9 @@ enum Prefetch {
         guard !Task.isCancelled else { return }
         let request = MapSnapshots.Request(printed, frameID: day.key, insets: DayPage.mapInsets, size: size,
                                            scale: page.scale, dark: scheme == .dark)
-        if moment == .rest, known {
+        // read here, after the last wait and just before the draw: a touch that came during the colour or the
+        // fingerprint keeps this run from drawing
+        if moment == .rest, known, !touched.contains(ticket) {
             _ = await MapSnapshots.shared.snapshot(for: request)
         } else {
             _ = await MapSnapshots.shared.stored(request)

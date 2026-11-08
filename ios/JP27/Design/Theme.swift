@@ -261,12 +261,14 @@ private struct SettleStyle: ButtonStyle {
     }
 }
 
-/// The system's plain style, drawn by the system itself, that also says when a finger comes down.
+/// The plain look for a button that says when a finger comes down: the label drawn as it is, with no effect while
+/// held. The system's plain style cannot be wrapped for this (it is a primitive style, whose configuration has no
+/// `isPressed`), so its dimming under the finger is not there.
 private struct PlainPressStyle: ButtonStyle {
     let onPress: () -> Void
 
     func makeBody(configuration: Configuration) -> some View {
-        PlainButtonStyle().makeBody(configuration: configuration)
+        configuration.label
             .onChange(of: configuration.isPressed) { _, down in if down { onPress() } }
     }
 }
