@@ -278,13 +278,14 @@ struct ExpenseEditor: View {
     /// The system keyboard rising or going down: the pad goes the other way, in the same motion. A keyboard of
     /// another app (on iPad) moves nothing here; one going down as the sheet closes brings no pad back.
     private func keyboard(_ note: Notification, shows: Bool) {
-        if let local = note.userInfo?[UIResponder.keyboardIsLocalUserInfoKey] as? Bool, !local { return }
-        let pad = !shows
-        guard pad != padShown, !(pad && leaving.on) else { return }
-        let duration = note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0
+        let move = KeypadMove.on(keyboardShows: shows,
+                                 isLocal: note.userInfo?[UIResponder.keyboardIsLocalUserInfoKey] as? Bool,
+                                 padShown: padShown, leaving: leaving.on,
+                                 duration: note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double)
+        guard case .move(let shown, let duration) = move else { return }
         // the system keyboard's own curve and duration, not a Motion token: the pad moves with the keyboard
-        let curve: Animation? = duration > 0 ? .spring(duration: duration, bounce: 0) : nil
-        withAnimation(curve) { padShown = pad }
+        let curve: Animation? = duration.map { Animation.spring(duration: $0, bounce: 0) }
+        withAnimation(curve) { padShown = shown }
     }
 
     /// Not saved: said here, over the editor, not behind it.

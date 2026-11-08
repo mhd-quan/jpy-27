@@ -127,4 +127,24 @@ import Testing
         #expect(gate.isClosing("B"))
         #expect(!gate.begin("B"))
     }
+
+    /// a new selection re-arms the begin: after A began, B begins (once)
+    @Test func aNewSelectionBeginsAfterAnEarlierOneBegan() {
+        let gate = Gate()
+        gate.select("A")
+        #expect(gate.begin("A"))
+        #expect(gate.select("B"))
+        #expect(gate.begin("B"))
+        #expect(!gate.begin("B"))
+    }
+
+    /// the same with the earlier ride's end arriving after the new selection: A's claim is refused, B begins
+    @Test func anEarlierRidesLateEndLeavesTheNewBegin() {
+        let gate = Gate()
+        gate.select("A")
+        #expect(gate.begin("A"))
+        gate.select("B")
+        #expect(!gate.claim("A"))
+        #expect(gate.begin("B"))
+    }
 }
