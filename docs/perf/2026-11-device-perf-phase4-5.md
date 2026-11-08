@@ -188,9 +188,10 @@ danh sách, lướt tới (`Motion.settle`) khi chạm.
 | 4 | Vuốt nhanh rồi chạm ngay một dòng khác trong vòng 150 ms sau khi dừng (hay chạm một điểm trên dải) | bản đồ bay tới mục vừa chạm và ở đó; không bay ngược về mục cú vuốt dừng | |
 | 5 | Vuốt rồi ngay lập tức chọn ngày khác trên dải ngày | bản đồ khung cả ngày mới; không bay tới một điểm của ngày cũ | |
 | 6 | Kéo bảng lên toàn màn hình, cuộn qua vài mục, rồi hạ bảng xuống | khi bảng che bản đồ không có `map.fly`; khi hạ xuống, bản đồ bay một lần tới mục đang đọc, đã có quầng và đường đậm | |
-| 7 | Bật Giảm chuyển động (Cài đặt › Trợ năng › Chuyển động), chạm một dòng rồi cuộn | camera nhảy thẳng tới chỗ mới, không bay; mục chạm sáng lên với hoạt ảnh ngắn (mờ dần); dải điểm cuộn không lướt | |
+| 7 | Bật Giảm chuyển động (Cài đặt › Trợ năng › Chuyển động), chạm một dòng rồi cuộn | camera nhảy thẳng tới chỗ mới, không bay; mục chạm sáng lên với hoạt ảnh ngắn (mờ dần); dải điểm không lướt khi đang cuộn danh sách, còn khi chạm thì cuộn tới chỗ mới bằng một nhịp chậm dần ngắn 0,2 s | |
 | 8 | Cuộn danh sách qua vài điểm dừng, nhìn dải điểm trong phần đầu bảng | dải theo kịp, không có hoạt ảnh lướt dưới ngón tay; khi đi qua một đoạn đường (mục di chuyển) điểm ở giữa dải không đổi thì dải không cuộn | |
 | 9 | Kéo bản đồ bằng tay, rồi trong vòng 4 giây cuộn danh sách qua một mục và dừng | bản đồ không bay (để yên chỗ người dùng kéo tới); quầng và đường đậm vẫn đổi theo mục đã dừng | |
+| 10 | Vuốt nhanh qua vài mục rồi chạm nút Vị trí ngay (trong vòng 150 ms sau mục cuối) | bản đồ bay tới vị trí của mình; quầng, đường đậm và chỗ ghé bên cạnh khớp với dòng đang sáng, không ở lại mục cũ | |
 
 ## 5.3
 

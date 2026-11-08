@@ -99,6 +99,67 @@ import Testing
         #expect(fired == [true, true])
     }
 
+    @Test func theSameValueAgainFiresAgain() async {
+        let clock = ManualSleep()
+        var fired: [Int] = []
+        let d = Debouncer<Int>(delay: .milliseconds(150), sleep: clock.sleep) { fired.append($0) }
+        // after a rest, the same value is handed on again: nothing is compared (R-416)
+        d.send(7)
+        await clock.advance(.milliseconds(200))
+        d.send(7)
+        await clock.advance(.milliseconds(200))
+        #expect(fired == [7, 7])
+        // within the delay, the second send puts the first off, and the two are handed on once
+        d.send(7)
+        await clock.advance(.milliseconds(100))
+        d.send(7)
+        await clock.advance(.milliseconds(149))
+        #expect(fired == [7, 7])
+        await clock.advance(.milliseconds(1))
+        #expect(fired == [7, 7, 7])
+        await clock.advance(.seconds(1))
+        #expect(fired == [7, 7, 7])
+    }
+
+    @Test func aStaleWakeNeverClearsTheNewerWait() async {
+        let late = LateSleep()
+        var fired: [Int] = []
+        let d = Debouncer<Int>(delay: .milliseconds(150), sleep: late.sleep) { fired.append($0) }
+        d.send(1)
+        await CoalescerTests.settle()
+        d.send(2)
+        await CoalescerTests.settle()
+        #expect(late.waiting == 2)
+        // the first wait, stopped by the second send, wakes anyway: it must leave the second's alone
+        late.wake(0)
+        await CoalescerTests.settle()
+        #expect(fired.isEmpty)
+        // so a cancel still reaches the second
+        d.cancel()
+        late.wake(0)
+        await CoalescerTests.settle()
+        #expect(fired.isEmpty)
+    }
+
+    @Test func aSleepThatFailsDropsTheValue() async {
+        let clock = ManualSleep()
+        let failing = CoalescerTests.FailsWhenTold(clock)
+        var fired: [Int] = []
+        let d = Debouncer<Int>(delay: .milliseconds(150), sleep: failing.sleep) { fired.append($0) }
+        d.send(1)
+        await clock.settle()
+        // an error of the sleep's own, not a stop
+        failing.fail(with: CoalescerTests.FailsWhenTold.Broken())
+        await clock.settle()
+        #expect(fired.isEmpty)
+        await clock.advance(.seconds(1))
+        #expect(fired.isEmpty)
+        // the next send is served as usual
+        d.send(2)
+        await clock.advance(.milliseconds(150))
+        #expect(fired == [2])
+    }
+
     @Test func aDebouncerLetGoFiresNothing() async {
         let clock = ManualSleep()
         var fired: [Int] = []

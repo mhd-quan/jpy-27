@@ -130,9 +130,13 @@ struct MapTab: View {
         // down and has settled
         .onChange(of: stage) { old, new in
             guard old == .large, new != .large else { return }
+            // this is the one flight once the panel is down: a read's flight still waiting would make two
+            flight?.cancel()
             let day = self.day
             Task {
                 try? await Task.sleep(for: .milliseconds(380))
+                // the day is read when it flies, as a read's flight reads it when it lands
+                guard day.key == self.day.key else { return }
                 shown = active
                 fly(day, to: active, force: false)
             }
@@ -362,6 +366,8 @@ struct MapTab: View {
             return
         }
         touch.movedAt = .now
+        // the flight this move drops would have brought the map's emphasis up to the list
+        shown = active
         move(.center(p, zoom: 15.5))
     }
 

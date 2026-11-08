@@ -79,6 +79,11 @@ import Testing
             sleepers = []
             for s in woken { s.resume() }
         }
+
+        /// Wakes one sleeper: the `i`-th of those still asleep, in the order they began.
+        func wake(_ i: Int) {
+            sleepers.remove(at: i).resume()
+        }
     }
 
     /// The first sleep waits until the test makes it fail, with the error the test gives; the rest
