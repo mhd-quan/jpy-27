@@ -234,6 +234,27 @@ là **duyệt thiết kế** (mắt người, không có số); PR ghi "Cần du
 
 ## 5.6
 
+Bản Release, Instruments như `docs/perf/2026-11-baseline.md`: track os_signpost (`tech.delphyra.jp27` / `perf`),
+instrument SwiftUI (View Body và cập nhật layout) và Animation Hitches. Thẻ câu toàn màn hình (`TalkShowCard`, mở
+bằng cách chạm một câu trong Sổ tay, Nghe, thẻ tại quán hay trang chủ) giờ có hai bản dựng sẵn, dọc và ngang
+(`TalkShowLayout`), mỗi bản dựng một lần trong khung cố định của nó. Cỡ chữ tiếng Nhật của mỗi bản được đo một lần
+bằng UIKit và được nhớ theo câu, hướng, khung, cỡ chữ Trợ năng và Chữ đậm. Mỗi lần đo (không có trong bộ nhớ) có một
+sự kiện signpost `phrase.fit` "upright|sideways <rộng>x<cao>". Nút xoay đổi bản bằng `TalkTurn`, chỉ có phép xoay và
+độ mờ, với `Motion.settle` (một nhịp lò xo nhẹ khi thẻ nằm yên). Bật Giảm chuyển động thì chỉ mờ chéo trong 0,2 giây.
+Bước 3 là **duyệt thiết kế** (mắt người, không có số).
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | S8 (Sổ tay: mở thẻ một câu dài, ví dụ một câu nghe được trong Nghe dài 3 dòng trở lên, rồi chạm nút xoay; sau đó xoay lại dọc), instrument SwiftUI và track Hitches, từ lúc chạm nút xoay tới khi thẻ đứng yên. Làm thêm với một câu ngắn | body và layout của `TalkShowLayout` chạy một lần ở khung đầu (bản mới vào); giữa khung đầu và khung cuối của lần xoay không có cập nhật layout nào của `Text`; 0 hitch; không có `phrase.fit` lúc chạm (cả hai hướng đã đo lúc mở thẻ); so với baseline (`a996140`) | |
+| 2 | Nhìn chậm (quay màn hình rồi xem từng khung) lần xoay ở bước 1, cả hai chiều | chữ không bao giờ nhảy sang cách ngắt dòng khác giữa chừng: mỗi bản giữ đúng cách ngắt dòng của nó từ khung đầu tới khung cuối | |
+| 3 | **Duyệt thiết kế.** Cùng lần xoay đó, nhìn bằng mắt ở tốc độ thật | trong lúc xoay, hai bản cố định (dọc và ngang) vừa cùng xoay vừa mờ chéo vào nhau, chỗ trước đây là một khối chữ xoay; thẻ dừng ở hướng mới với một nhịp lò xo nhẹ. Ghi: chấp nhận được hay không, và vì sao | |
+| 4 | Cỡ chữ Trợ năng lớn nhất (Cài đặt › Trợ năng › Màn hình & cỡ chữ › Chữ lớn hơn), mở thẻ một câu có cả romaji và nghĩa tiếng Việt, xem cả dọc và ngang | romaji và nghĩa không bị cắt; chữ Nhật không có dấu "…"; chữ Nhật ở cỡ lớn nhất vừa chỗ còn lại, không bị thu nhỏ thêm (lưới 0,5): nếu thấy chữ Nhật nhỏ hẳn đi so với chỗ trống còn lại thì phép đo và SwiftUI lệch nhau, ghi lại câu và hướng | |
+| 5 | Bật Chữ đậm (Cài đặt › Trợ năng › Màn hình & cỡ chữ › Chữ đậm), cùng câu, cả dọc và ngang | chữ Nhật không có dấu "…" và không vượt khung; ở cỡ lớn nhất vừa chỗ, không bị lưới 0,5 thu nhỏ thêm. App đo chữ Nhật dưới Chữ đậm ở độ đậm `.heavy`, một bậc trên `.bold`; việc SwiftUI vẽ đúng một bậc như vậy chưa được kiểm, bước này kiểm nó. Ghi lại nếu chữ nhỏ hơn chỗ trống rõ rệt hay bị cắt | |
+| 6 | Bật Giảm chuyển động (Cài đặt › Trợ năng › Chuyển động), chạm nút xoay hai lần (ngang rồi dọc) | không có phép xoay: bản cũ mờ đi, bản mới (đã nằm ngang hay đã dựng thẳng) mờ hiện lên trong khoảng 0,2 giây | |
+| 7 | Mở thẻ từ một dòng câu (zoom ra), rồi đóng bằng cách kéo xuống (kéo chậm, thả giữa chừng để thẻ quay lại, rồi kéo đóng hẳn). Track os_signpost | chữ ở cỡ cuối ngay khung đầu, không thu nhỏ sau khi mở; trong lúc mở có đúng 2 sự kiện `phrase.fit` (một cho mỗi hướng; nhiều hơn nghĩa là khung đổi cỡ theo từng khung hình của lần zoom); trong lúc kéo đóng: 0 `phrase.fit`; mở lại cùng câu: 0 `phrase.fit`; chạm → khung đầu so với baseline (`a996140`) | |
+| 8 | Chạm nút xoay hai lần thật nhanh (lần hai khi lần một chưa xong), rồi làm lại ba lần | thẻ dừng ở hướng của lần chạm cuối; không có bản thứ ba hay bản mờ nào ở lại; chữ không nhảy | |
+| 9 | Rung: chạm nút xoay (sang ngang), xoay lại (dọc), chạm Phát âm, Đóng | một tiếng `press` khi sang ngang và khi phát âm; dựng thẳng và đóng thì không rung (như trước) | |
+
 ## 5.7
 
 ## 5.9
