@@ -174,6 +174,13 @@ private struct DiagnosticsSection: View {
             } label: {
                 SettingsLabel(title: "So khung bản đồ", symbol: "map", tint: .gray)
             }
+            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 5.1: how far a photograph's colour
+            // read from the hero's decode lies from the one read off a 96 px thumbnail before
+            NavigationLink {
+                ToneCheck()
+            } label: {
+                SettingsLabel(title: "Lệch màu ảnh", symbol: "eyedropper", tint: .gray)
+            }
             testAlarm(minutes: 2)
             testAlarm(minutes: 5)
             Button {

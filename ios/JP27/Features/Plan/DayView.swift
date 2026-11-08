@@ -8,7 +8,7 @@ struct DayView: View {
 
     var body: some View {
         if let day = model.store.day(key) {
-            PlanDayContent(day: day)
+            PlanDayContent(day: day, photo: HomePicks.photo(for: day, store: model.store))
         } else {
             ContentUnavailableView("Không có ngày này", systemImage: "calendar.badge.exclamationmark")
         }
@@ -19,19 +19,27 @@ private struct PlanDayContent: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var system
     let day: Day
-    /// the colour of the photograph's foot, once read
+    /// the day's photograph (`HomePicks`): its cover, or a sight's
+    let photo: Photo?
+    /// the colour of the photograph's foot: the page's for as long as it is open
     @State private var tone: AmbientTone?
-    @State private var heroHeight: CGFloat = 480
+    /// the share of the page's height the photograph takes
+    private static let heroFraction: CGFloat = 0.56
+
+    init(day: Day, photo: Photo?) {
+        self.day = day
+        self.photo = photo
+        // read before (or at launch): the page opens on its colour instead of fading into it
+        _tone = State(initialValue: photo.flatMap { PhotoCache.knownTone($0) })
+    }
 
     var body: some View {
-        let photo = HomePicks.photo(for: day, store: model.store)
         let label = day.isAlternative ? "Kawaguchiko" : "Ngày \(day.n)"
         let page = ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 if let photo {
                     AmbientHero(photos: [photo], page: .constant(0))
-                        .containerRelativeFrame(.vertical) { length, _ in (length * 0.56).rounded() }
-                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                        .containerRelativeFrame(.vertical) { length, _ in (length * Self.heroFraction).rounded() }
                         .overlay(alignment: .bottom) { PlanDayHeadline(day: day, label: label) }
                 }
                 LazyVStack(alignment: .leading, spacing: Metrics.stack) {
@@ -68,8 +76,8 @@ private struct PlanDayContent: View {
                 // the album page: the photograph dissolves into its own colour, which the whole
                 // page is then laid on
                 page
-                    .ambientPage(canvas, title: label, heroHeight: heroHeight)
-                    .task(id: photo.src) { tone = await PhotoCache.shared.tone(photo) }
+                    .ambientPage(canvas, title: label, heroFraction: Self.heroFraction)
+                    .firstTone($tone, of: photo)
             } else {
                 page.screen().navigationTitle(label)
             }
@@ -90,9 +98,7 @@ private struct PlanDayContent: View {
     }
 
     private var canvas: AmbientCanvas? {
-        // read before (or at launch): the page opens on its colour instead of fading into it
-        (tone ?? HomePicks.photo(for: day, store: model.store).flatMap { PhotoCache.knownTone($0) })
-            .map { $0.canvas(light: $0.prefersLight, dim: system == .dark) }
+        AmbientTone.canvas(tone, dim: system == .dark)
     }
 }
 

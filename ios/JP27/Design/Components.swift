@@ -462,37 +462,53 @@ extension View {
     /// A scroll view whose first child is a `DetailHero`: it runs under the bar, the bar shows no
     /// edge and no title over the photograph, and the name comes into the bar (with the system's
     /// soft edge) once the photograph has scrolled away.
-    /// `scheme` is the bar's once the photograph has gone: nil follows the system, a page laid on a
-    /// colour of its own passes that colour's.
+    /// `heroHeight` is the photograph's fixed height. `scheme` is the bar's once the photograph has
+    /// gone: nil follows the system, a page laid on a colour of its own passes that colour's.
     func detailPage(title: String, heroHeight: CGFloat = 440, scheme: ColorScheme? = nil) -> some View {
-        modifier(DetailPage(title: title, heroHeight: heroHeight, scheme: scheme))
+        modifier(DetailPage(title: title, hero: .height(heroHeight), scheme: scheme))
     }
+
+    /// The same, for a photograph that takes `heroFraction` of the page's height
+    /// (`containerRelativeFrame`, as the album pages lay theirs out).
+    func detailPage(title: String, heroFraction: CGFloat, scheme: ColorScheme? = nil) -> some View {
+        modifier(DetailPage(title: title, hero: .fraction(heroFraction), scheme: scheme))
+    }
+}
+
+/// How tall a detail page's photograph is: fixed, or a share of the page's height.
+private nonisolated enum DetailHeroExtent: Sendable {
+    case height(CGFloat)
+    case fraction(CGFloat)
 }
 
 private struct DetailPage: ViewModifier {
     let title: String
-    let heroHeight: CGFloat
+    let hero: DetailHeroExtent
     let scheme: ColorScheme?
     @State private var past = false
-    /// how far the page has scrolled, as last read; kept out of the view's state
-    @State private var scrolled = DetailScroll()
 
     func body(content: Content) -> some View {
         content
             .ignoresSafeArea(edges: .top)
             .scrollEdgeEffectHidden(!past, for: .top)
-            // The distance alone, in 8 pt steps up to where any photograph ends; the photograph's
-            // height is applied when it is read, below. Folded into the reading, the height was the
-            // one the closure was made with, and the reading runs again only when the page scrolls:
-            // a card that measured its photograph while it was still zooming open kept the bar's
-            // title and soft edge over the photograph once it landed, until the first scroll.
-            .onScrollGeometryChange(for: Int.self) { geo in
-                Int(min(max(geo.contentOffset.y + geo.contentInsets.top, 0), 1200) / 8)
-            } action: { _, step in
-                scrolled.y = CGFloat(step) * 8
-                settle()
+            // Judged whole from the scroll view's own geometry, on every reading: the distance
+            // scrolled against where the photograph ends. A photograph sized as a share of the page
+            // is measured from the same geometry, the way `containerRelativeFrame` sizes it (the
+            // page's height less its safe-area insets), so a page that grows while it zooms open is
+            // judged on the height it lands at, and nothing is written while it zooms. The build
+            // before read the photograph's height into the page's state as it zoomed, and redrew the
+            // whole page for it.
+            .onScrollGeometryChange(for: Bool.self) { [hero] geo in
+                let scrolled = geo.contentOffset.y + geo.contentInsets.top
+                let height = switch hero {
+                case .height(let fixed): fixed
+                case .fraction(let share): ((geo.containerSize.height - geo.contentInsets.top - geo.contentInsets.bottom) * share).rounded()
+                }
+                // the bar takes the title and its edge once the photograph is nearly gone; at the top, never
+                return scrolled > 0 && scrolled > height - 130
+            } action: { _, now in
+                withAnimation(.smooth(duration: 0.25)) { past = now }
             }
-            .onChange(of: heroHeight) { settle() }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -507,17 +523,6 @@ private struct DetailPage: ViewModifier {
             // light status bar and bar glyphs over the photograph
             .toolbarColorScheme(past ? scheme : .dark, for: .navigationBar)
     }
-
-    /// The bar takes the title and its edge once the photograph is nearly gone; at the top, never.
-    private func settle() {
-        let now = scrolled.y > 0 && scrolled.y > heroHeight - 130
-        guard now != past else { return }
-        withAnimation(.smooth(duration: 0.25)) { past = now }
-    }
-}
-
-private final class DetailScroll {
-    var y: CGFloat = 0
 }
 
 /// Small page dots for a hero's photographs.
@@ -547,9 +552,10 @@ struct HeroDots: View {
 // are tints of it and its type takes the colour's side. The place page, the day page and a Fuji
 // viewpoint's card are built this way.
 
-/// The photographs, paged, each laid on its own blurred copy and fading out: sharp at the top,
-/// soft where the type sits, gone into the page's colour at the bottom. A shade at the very top
-/// keeps the status bar and the bar's buttons readable over a white sky.
+/// The photographs, paged, each one finished picture of the photograph over its own blurred copy,
+/// fading out (`AmbientPhoto`): sharp at the top, soft where the type sits, gone into the page's
+/// colour at the bottom. A shade at the very top keeps the status bar and the bar's buttons
+/// readable over a white sky.
 struct AmbientHero: View {
     let photos: [Photo]
     @Binding var page: Int
@@ -572,53 +578,114 @@ struct AmbientHero: View {
     }
 }
 
-/// One photograph: the sharp image over its pre-blurred copy, the sharp one fading out from the
-/// middle down so the blur takes over (no live blur: the copy is small and blurred once).
+/// One photograph as one finished picture (`PhotoCache.ambient`): the sharp image over its
+/// pre-blurred copy, the sharp one fading out from the middle down so the blur takes over, composed
+/// once off the main thread for the box it fills. Nothing is masked, flattened or blurred while the
+/// zoom, the swipe or the scroll moves it.
 struct AmbientPhoto: View {
     @Environment(\.accessibilityReduceTransparency) private var plain
     let photo: Photo
-    @State private var veil: UIImage?
 
-    init(photo: Photo) {
+    var body: some View {
+        GeometryReader { geo in
+            Group {
+                if plain {
+                    AmbientPlainPhoto(photo: photo)
+                } else {
+                    // whole points, as the picture is named: a box a fraction off draws the same picture
+                    AmbientPicture(photo: photo, size: CGSize(width: geo.size.width.rounded(), height: geo.size.height.rounded()))
+                }
+            }
+            .frame(width: geo.size.width, height: geo.size.height)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(photo.caption ?? "")
+        .accessibilityAddTraits(.isImage)
+    }
+}
+
+/// The composed picture. One that was in memory is there in the first frame; one that was not
+/// fades in once it arrives (`Motion.arrive`), outside any flattened layer. A picture for another
+/// size (the box moved) replaces the one shown without a fade, the old one cropped meanwhile.
+private struct AmbientPicture: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let photo: Photo
+    let size: CGSize
+    @State private var picture: UIImage?
+
+    init(photo: Photo, size: CGSize) {
         self.photo = photo
-        _veil = State(initialValue: PhotoCache.cachedVeil(photo))
+        self.size = size
+        _picture = State(initialValue: PhotoCache.cachedAmbient(photo, size: size))
     }
 
     var body: some View {
         Color.clear
             .overlay {
-                if let veil, !plain {
-                    Image(uiImage: veil)
+                if let picture {
+                    Image(uiImage: picture)
                         .resizable()
                         .scaledToFill()
                         .transition(.opacity)
                 }
             }
-            .overlay {
-                PlacePhoto(photo: photo, maxPixel: 1800)
-                    .mask {
-                        LinearGradient(stops: [
-                            .init(color: .black, location: 0),
-                            .init(color: .black, location: 0.48),
-                            .init(color: .black.opacity(0.65), location: 0.62),
-                            .init(color: .black.opacity(0.2), location: 0.76),
-                            .init(color: .clear, location: 0.86),
-                        ], startPoint: .top, endPoint: .bottom)
-                    }
-            }
             .clipped()
-            // flattened into one texture, drawn again only when a photo or the veil arrives: the
-            // zoom, the page swipe and the scroll then move a finished picture instead of masking
-            // the sharp photo over its veil on every frame (the photos are sRGB, which this keeps)
-            .drawingGroup()
-            .task(id: photo.src) {
-                guard !plain else { return }
-                if let hit = PhotoCache.cachedVeil(photo) {
-                    if veil !== hit { veil = hit }
+            .task(id: PhotoCache.ambientKey(photo, size: size)) {
+                guard size.width > 0, size.height > 0 else { return }
+                if let hit = PhotoCache.cachedAmbient(photo, size: size) {
+                    if picture !== hit { picture = hit }
                     return
                 }
-                let loaded = await PhotoCache.shared.veil(photo)
-                withAnimation(.easeOut(duration: 0.25)) { veil = loaded }
+                guard let made = await PhotoCache.shared.ambient(photo, size: size), !Task.isCancelled else { return }
+                if picture == nil {
+                    withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) { picture = made }
+                } else {
+                    picture = made
+                }
+            }
+    }
+}
+
+/// Under Reduce Transparency: the sharp photograph alone, no blurred copy under it, fading out into
+/// the page (`PhotoCache.heroFade`), flattened once. It fades in as a whole when it arrives: the
+/// fade is on the flattened layer, never inside it.
+private struct AmbientPlainPhoto: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let photo: Photo
+    @State private var image: UIImage?
+
+    init(photo: Photo) {
+        self.photo = photo
+        _image = State(initialValue: PhotoCache.cached(photo, maxPixel: PhotoCache.heroPixel))
+    }
+
+    var body: some View {
+        Color.clear
+            .overlay {
+                if let image {
+                    Color.clear
+                        .overlay {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                        }
+                        .clipped()
+                        .mask {
+                            LinearGradient(stops: PhotoCache.heroFade.map { .init(color: .black.opacity($0.shown), location: CGFloat($0.at)) },
+                                           startPoint: .top, endPoint: .bottom)
+                        }
+                        // the photos are sRGB, which this keeps
+                        .drawingGroup()
+                        .transition(.opacity)
+                }
+            }
+            .task(id: photo.src) {
+                if let hit = PhotoCache.cached(photo, maxPixel: PhotoCache.heroPixel) {
+                    if image !== hit { image = hit }
+                    return
+                }
+                guard let loaded = await PhotoCache.shared.image(photo, maxPixel: PhotoCache.heroPixel), !Task.isCancelled else { return }
+                withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) { image = loaded }
             }
     }
 }
@@ -684,10 +751,12 @@ extension View {
     /// Lays a scroll view whose first child is an `AmbientHero` on the photograph's colour: the
     /// page's fill, cards as lifted tints of it (opaque, so a rail can knock itself out of them),
     /// controls in the type colour, light or dark type throughout. Until the colour is read the
-    /// page stays on paper. Includes `detailPage`, so the bar shows the title once the photograph
-    /// has gone.
-    func ambientPage(_ canvas: AmbientCanvas?, title: String, heroHeight: CGFloat) -> some View {
-        modifier(AmbientPageStyle(canvas: canvas, title: title, heroHeight: heroHeight))
+    /// page stays on paper. The colour is the first photograph's for the whole page
+    /// (`AmbientTone.canvas`) and nothing animates it: the one change, a colour read after the page
+    /// opened, is faded by `firstTone`. Includes `detailPage`, so the bar shows the title once the
+    /// photograph has gone.
+    func ambientPage(_ canvas: AmbientCanvas?, title: String, heroFraction: CGFloat) -> some View {
+        modifier(AmbientPageStyle(canvas: canvas, title: title, heroFraction: heroFraction))
     }
 }
 
@@ -695,7 +764,8 @@ private struct AmbientPageStyle: ViewModifier {
     @Environment(\.colorScheme) private var system
     let canvas: AmbientCanvas?
     let title: String
-    let heroHeight: CGFloat
+    /// the share of the page's height its `AmbientHero` takes (`containerRelativeFrame`)
+    let heroFraction: CGFloat
 
     func body(content: Content) -> some View {
         content
@@ -705,7 +775,41 @@ private struct AmbientPageStyle: ViewModifier {
             .environment(\.cardSurface, canvas?.surface)
             .tint(canvas == nil ? nil : Color.primary)
             .environment(\.colorScheme, canvas?.scheme ?? system)
-            .animation(.easeInOut(duration: 0.45), value: canvas)
-            .detailPage(title: title, heroHeight: heroHeight, scheme: canvas?.scheme)
+            .detailPage(title: title, heroFraction: heroFraction, scheme: canvas?.scheme)
     }
+}
+
+extension View {
+    /// The colour of an album page's first photograph, for a page that opened without it (`tone`
+    /// nil: never read before, nor at launch). Read once, at open, from what is on this phone (a
+    /// photograph not here yet keeps the page on paper for this visit, even once its hero has
+    /// downloaded it), and laid on the page only once the page has settled (`transitionSettled`),
+    /// with one short fade: nothing re-colours the page while it zooms open.
+    func firstTone(_ tone: Binding<AmbientTone?>, of photo: Photo?) -> some View {
+        modifier(FirstTone(tone: tone, photo: photo))
+    }
+}
+
+private struct FirstTone: ViewModifier {
+    @Environment(\.transitionSettled) private var settled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Binding var tone: AmbientTone?
+    let photo: Photo?
+    @State private var reading = FirstToneReading()
+
+    func body(content: Content) -> some View {
+        content.task(id: settled) {
+            guard tone == nil, let photo else { return }
+            let task = reading.task ?? Task { await PhotoCache.shared.tone(photo) }
+            reading.task = task
+            guard settled, let read = await task.value, tone == nil, !Task.isCancelled else { return }
+            withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) { tone = read }
+        }
+    }
+}
+
+/// The one reading of a page's first colour, begun at open and awaited once the page has settled:
+/// a reference, so nothing is written to the page's state for it.
+private final class FirstToneReading {
+    var task: Task<AmbientTone?, Never>?
 }

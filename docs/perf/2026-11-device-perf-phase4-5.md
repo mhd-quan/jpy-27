@@ -97,3 +97,28 @@ Bản Release ở commit của Task 4.3. `AppModel.lowPower` đọc lại `Proce
 | 3 | Mở app khi Nguồn điện thấp đang bật từ trước (S1). | Bìa đứng yên từ khung đầu. Tắt Nguồn điện thấp: bìa lật lại. | | |
 | 4 | Mở app (Release), sau đó mở Cài đặt › Chẩn đoán, đọc dòng số lần đặt lại nhắc giờ. Chạm một dấu tích điểm dừng rồi đọc lại. | Mở app: 1 lần. Chạm dấu tích: tăng đúng 1. (B3.) Điều kiện của B4: trước chuyến, định vị đang được cho phép (khi đó mỗi lần mở app có một `requestLocation()`, và kết quả của nó không được gây lần đặt lại thứ hai). | | |
 | 5 | Trước chuyến, mở app có định vị bật; Time Profiler (Main Thread) trong khung của một chạm dấu tích. | Không có công việc CoreLocation (`requestLocation`) và không có công việc đặt lại (`AppModel.reschedule()`: nhắc giờ, geofence, báo thức) chạy trong khung của lần chạm: nó chạy sau 300 ms, qua `Coalescer`. (B3, B4.) | | |
+
+## Task 5.1 — Trang album: một lần giải mã mỗi ảnh, ảnh ghép sẵn, không gì chuyển động trong lớp đã gộp
+
+Bản Release ở commit của Task 5.1, trừ bước 1: trang **Cài đặt › Chẩn đoán › Lệch màu ảnh** chỉ có trong bản Debug
+(chạy từ Xcode). Instruments: Animation Hitches + os_signpost như Bước 1, thêm SwiftUI (đếm body) ở bước 2–4. Ảnh ở
+đầu trang album (địa điểm, ngày, khách sạn, điểm trên vòng đi bộ, điểm ngắm Fuji) giờ là một ảnh ghép sẵn ngoài luồng
+chính (`PhotoCache.ambient`), giữ trong bộ nhớ và trong `Caches/Ambient`. Màu trang lấy từ ảnh đầu và giữ suốt trang.
+"Lần thứ hai" là trang đã mở một lần trước đó, app còn mở.
+
+| # | Bước | Đạt khi | Kết quả | Ghi chú |
+| --- | --- | --- | --- | --- |
+| 1 | Bản Debug: Cài đặt › Chẩn đoán › Lệch màu ảnh. Chờ hai nhóm tính xong (ảnh bìa, 20 ảnh Commons đầu). | Dòng "Lớn nhất" của mỗi nhóm và dòng tổng không quá 0,02 (độ lệch lớn nhất của một kênh, màu đọc từ lần giải mã của ảnh đầu trang so với màu bản trước đọc từ ảnh nhỏ 96 px). Ghi số lớn nhất của từng nhóm và ảnh lệch nhiều nhất. | | |
+| 2 | S1, lần thứ hai với cùng một ngày. Instrument SwiftUI, đếm body của `PlanDayContent` trong khoảng `today → day`. | ≤ 2. | | |
+| 3 | S2 với một địa điểm kiểu album (điểm tham quan có từ 2 ảnh), lần thứ hai. Đếm body của `PlanAmbientPage` trong khoảng `map → place`. | ≤ 2. | | |
+| 4 | S4, lần thứ hai với cùng một điểm ngắm có ảnh. Đếm body của `FujiSpotContent` trong khoảng `fuji → fujiSpot`. | ≤ 2. | | |
+| 5 | S1, S2, S4, đo như `2026-11-baseline.md` (5 lần, trung vị), Animation Hitches. | 0 hitch trong khoảng zoom của cả ba. Ghi trung vị và so với nền. | | |
+| 6 | S5: trang một địa điểm có từ 4 ảnh, vuốt 3 ảnh, dừng. | 0 khung rớt khi cú vuốt dừng. Màu trang không đổi khi vuốt sang ảnh khác. | | |
+| 7 | S1 với Time Profiler: ở trang chủ để thẻ ngày hiện ảnh bìa của ngày đó, rồi chạm thẻ. | Trong khoảng `today → day` không có `CGImageSourceCreateThumbnailAtIndex` nào cho ảnh bìa ngày đó: thẻ, bìa trang chủ và trang ngày dùng chung một lần giải mã nguyên ảnh. | | |
+| 8 | Duyệt thiết kế. Chụp màn bản 1b89170 và bản này, cùng máy: một trang địa điểm kiểu album, một trang ngày, một khách sạn, một điểm ngắm Fuji; mỗi trang ở giao diện Sáng và Tối (8 cặp, trang đã mở một lần để ảnh đã có). Đặt cạnh nhau trong `docs/perf/2026-11-task-5.1/`. | Từng cặp giống nhau: ảnh, bản mờ, chỗ tan, chữ. Màu ảnh không lệch sắc giữa hai bản (cùng sRGB). Khác được chấp nhận: màu trang không đổi theo ảnh khi vuốt; khi ảnh chưa tới (lần mở đầu), khung ảnh là màu trang thay vì ô xám. | | |
+| 9 | Tên vào thanh. Ở bản 1b89170 và bản này, cuộn chậm từng trang: địa điểm kiểu album (mở từ bản đồ, là sheet), trang ngày (mở từ trang chủ, là trang đẩy), khách sạn, điểm ngắm, và ba trang có ảnh cao cố định (địa điểm thường, Đang ở quán, Fuji). Ghi phần ảnh còn thấy khi tên hiện vào giữa thanh. | Ở mỗi trang, tên hiện vào thanh ở cùng chỗ ở cả hai bản (lệch không quá khoảng 8 pt). Ở đầu trang tên không bao giờ hiện. | | |
+| 10 | Xoá app, cài lại bản này (hay lần mở đầu sau khi cập nhật), có mạng. Trong 2 giây đầu, mở một trang ngày. | Trang phóng ra trên nền giấy, không đổi màu lúc đang phóng. Màu tới một lần, mờ dần ngắn, sau khi trang phóng xong. Mở lại trang đó: màu có từ khung đầu. | | |
+| 11 | Có mạng, chưa tải ảnh ngoại tuyến. Mở lần đầu trang một quán kiểu album (đã đặt bàn) có ảnh từ mạng. | Ảnh tải về và mờ dần vào. Trang nằm trên nền giấy suốt lượt này, kể cả sau khi ảnh đã tới. Đóng, mở lại: màu có từ khung đầu. | | |
+| 12 | Tắt hẳn app (vuốt khỏi đa nhiệm), bật Chế độ máy bay, mở lại trang của bước 11. | Ảnh hiện (từ `Caches/Ambient`), mờ dần vào. Không có ô trống hay ô xám. | | |
+| 13 | Bật Cài đặt › Trợ năng › Màn hình & cỡ chữ › Giảm độ trong suốt. Mở một trang địa điểm kiểu album, vuốt qua các ảnh. | Ảnh tan thẳng vào màu trang, không có bản mờ dưới ảnh, như bản 1b89170 với cùng cài đặt. Ảnh tới thì mờ dần vào cả khối. Vuốt êm. | | |
+| 14 | S2 và S4, quay màn hình, xem từng khung lúc zoom vừa dừng. | Ảnh đầu trang không nhảy khung (không bị cắt lại hay đổi cỡ) lúc zoom dừng. Nếu có, ghi trang nào. | | |

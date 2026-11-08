@@ -180,13 +180,21 @@ private struct PlanAmbientPage: View {
     let place: Place
     let sources: [(title: String, url: String)]
     @State private var page = 0
-    /// photo index → the colour of its foot
-    @State private var tones: [Int: AmbientTone] = [:]
-    @State private var heroHeight: CGFloat = 520
+    /// the colour of the first photograph's foot: the page's for as long as it is open
+    @State private var tone: AmbientTone?
+    /// the share of the page's height the photographs take
+    private static let heroFraction: CGFloat = 0.6
 
-    /// The first photograph decides light or dark for the whole page; the others only move the hue.
+    init(place: Place, sources: [(title: String, url: String)]) {
+        self.place = place
+        self.sources = sources
+        // read before (or at launch): the page opens on its colour
+        _tone = State(initialValue: place.images.first.flatMap { PhotoCache.knownTone($0) })
+    }
+
+    /// The first photograph's colour, for the whole page: swiping does not re-colour it.
     private var canvas: AmbientCanvas? {
-        AmbientTone.canvas(tones, photos: place.images, page: page, dim: system == .dark)
+        AmbientTone.canvas(tone, dim: system == .dark)
     }
 
     var body: some View {
@@ -197,8 +205,7 @@ private struct PlanAmbientPage: View {
             VStack(spacing: 0) {
                 AmbientHero(photos: place.images, page: $page)
                     .onChange(of: page) { Perf.mark("place.photo") }
-                    .containerRelativeFrame(.vertical) { length, _ in (length * 0.6).rounded() }
-                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                    .containerRelativeFrame(.vertical) { length, _ in (length * Self.heroFraction).rounded() }
                     .overlay(alignment: .bottom) {
                         PlanAmbientHeadline(place: place, count: place.images.count, page: page, canvas: fill)
                     }
@@ -237,19 +244,8 @@ private struct PlanAmbientPage: View {
         .environment(\.cardSurface, canvas.map { $0.light ? Color.white.opacity(0.4) : Color.white.opacity(0.09) })
         .tint(canvas == nil ? nil : Color.primary)
         .environment(\.colorScheme, scheme)
-        .animation(.easeInOut(duration: 0.45), value: canvas)
-        .detailPage(title: place.name, heroHeight: heroHeight, scheme: canvas?.scheme)
-        .task(id: place.id) {
-            let photos = place.images
-            guard let first = photos.first else { return }
-            // the first one now, for the page to settle on; the rest in one go after
-            if let tone = await PhotoCache.shared.tone(first) { tones[0] = tone }
-            var rest: [Int: AmbientTone] = [:]
-            for i in photos.indices.dropFirst() {
-                if let tone = await PhotoCache.shared.tone(photos[i]) { rest[i] = tone }
-            }
-            tones.merge(rest) { a, _ in a }
-        }
+        .detailPage(title: place.name, heroFraction: Self.heroFraction, scheme: canvas?.scheme)
+        .firstTone($tone, of: place.images.first)
     }
 }
 

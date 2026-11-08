@@ -76,7 +76,7 @@ struct StayView: View {
 
     var body: some View {
         if let stay = model.guide.stays.first(where: { $0.id == id }) {
-            PlanStayContent(stay: stay)
+            PlanStayContent(stay: stay, photos: planStayPhotos(stay, store: model.store))
         } else {
             ContentUnavailableView("Không có chỗ ở này", systemImage: "bed.double")
         }
@@ -85,6 +85,13 @@ struct StayView: View {
 
 private let planWalkColors = ["#2F7DE1", "#E9792B", "#1E8A55", "#8A5CD0"]
 
+/// A hotel's album: its own photographs first, then the walks' and the neighbourhood's.
+private func planStayPhotos(_ stay: StayPlan, store: TripStore) -> [Photo] {
+    var seen = Set<String>()
+    let own = store.place(stay.id)?.images ?? []
+    return (own + (stay.around?.photos ?? [])).filter { seen.insert($0.src).inserted }
+}
+
 /// The hotel as an album page: its own photographs and then the neighbourhood's fill the top and
 /// dissolve into one colour taken from them, which the page is laid on; the name, the nights and
 /// the hotel's actions sit centred where the photograph dissolves.
@@ -92,33 +99,34 @@ private struct PlanStayContent: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var system
     let stay: StayPlan
+    /// the hotel's own photographs first, then the walks' and the neighbourhood's (`planStayPhotos`)
+    let photos: [Photo]
     @State private var page = 0
-    /// photo index → the colour of its foot
-    @State private var tones: [Int: AmbientTone] = [:]
-    @State private var heroHeight: CGFloat = 520
+    /// the colour of the first photograph's foot: the page's for as long as it is open
+    @State private var tone: AmbientTone?
+    /// the share of the page's height the photographs take
+    private static let heroFraction: CGFloat = 0.6
 
-    /// the hotel's own photographs first, then the walks' and the neighbourhood's
-    private var photos: [Photo] {
-        var seen = Set<String>()
-        let own = model.store.place(stay.id)?.images ?? []
-        return (own + (stay.around?.photos ?? [])).filter { seen.insert($0.src).inserted }
+    init(stay: StayPlan, photos: [Photo]) {
+        self.stay = stay
+        self.photos = photos
+        // read before (or at launch): the page opens on its colour
+        _tone = State(initialValue: photos.first.flatMap { PhotoCache.knownTone($0) })
     }
 
-    /// The first photograph decides light or dark for the whole page; the others only move the hue.
+    /// The first photograph's colour, for the whole page: swiping does not re-colour it.
     private var canvas: AmbientCanvas? {
-        AmbientTone.canvas(tones, photos: photos, page: page, dim: system == .dark)
+        AmbientTone.canvas(tone, dim: system == .dark)
     }
 
     var body: some View {
         let place = model.store.place(stay.id)
-        let photos = self.photos
         let title = place?.name ?? "Chỗ ở"
         let scroll = ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 if !photos.isEmpty {
                     AmbientHero(photos: photos, page: $page)
-                        .containerRelativeFrame(.vertical) { length, _ in (length * 0.6).rounded() }
-                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                        .containerRelativeFrame(.vertical) { length, _ in (length * Self.heroFraction).rounded() }
                         .overlay(alignment: .bottom) {
                             PlanStayHeadline(stay: stay, place: place, count: photos.count, page: page, canvas: canvas?.color ?? Palette.paper)
                         }
@@ -160,8 +168,8 @@ private struct PlanStayContent: View {
         Group {
             if !photos.isEmpty {
                 scroll
-                    .ambientPage(canvas, title: title, heroHeight: heroHeight)
-                    .task(id: stay.id) { await loadTones(photos) }
+                    .ambientPage(canvas, title: title, heroFraction: Self.heroFraction)
+                    .firstTone($tone, of: photos.first)
             } else {
                 scroll
                     .screen()
@@ -170,17 +178,6 @@ private struct PlanStayContent: View {
             }
         }
         .toolbar { CloseButton() }
-    }
-
-    /// the first one now, for the page to settle on; the rest in one go after
-    private func loadTones(_ photos: [Photo]) async {
-        guard let first = photos.first else { return }
-        if let tone = await PhotoCache.shared.tone(first) { tones[0] = tone }
-        var rest: [Int: AmbientTone] = [:]
-        for i in photos.indices.dropFirst() {
-            if let tone = await PhotoCache.shared.tone(photos[i]) { rest[i] = tone }
-        }
-        tones.merge(rest) { a, _ in a }
     }
 }
 
@@ -475,13 +472,24 @@ private struct PlanHighlightContent: View {
     let walk: StayAround.Walk
     let index: Int
     @State private var page = 0
-    @State private var tones: [Int: AmbientTone] = [:]
-    @State private var heroHeight: CGFloat = 520
+    /// the colour of the first photograph's foot: the page's for as long as it is open
+    @State private var tone: AmbientTone?
+    /// the share of the page's height the photographs take
+    private static let heroFraction: CGFloat = 0.58
+
+    init(stay: StayPlan, walk: StayAround.Walk, index: Int) {
+        self.stay = stay
+        self.walk = walk
+        self.index = index
+        // read before (or at launch): the page opens on its colour
+        _tone = State(initialValue: walk.highlights[index].images.first.flatMap { PhotoCache.knownTone($0) })
+    }
 
     private var highlight: StayAround.Walk.Highlight { walk.highlights[index] }
 
+    /// The first photograph's colour, for the whole page: swiping does not re-colour it.
     private var canvas: AmbientCanvas? {
-        AmbientTone.canvas(tones, photos: highlight.images, page: page, dim: system == .dark)
+        AmbientTone.canvas(tone, dim: system == .dark)
     }
 
     var body: some View {
@@ -491,8 +499,7 @@ private struct PlanHighlightContent: View {
             VStack(alignment: .leading, spacing: 0) {
                 if !photos.isEmpty {
                     AmbientHero(photos: photos, page: $page)
-                        .containerRelativeFrame(.vertical) { length, _ in (length * 0.58).rounded() }
-                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                        .containerRelativeFrame(.vertical) { length, _ in (length * Self.heroFraction).rounded() }
                         .overlay(alignment: .bottom) {
                             PlanHighlightHeadline(highlight: h, walk: walk, count: photos.count, page: page, canvas: canvas?.color ?? Palette.paper)
                         }
@@ -541,16 +548,8 @@ private struct PlanHighlightContent: View {
         Group {
             if !photos.isEmpty {
                 scroll
-                    .ambientPage(canvas, title: h.name, heroHeight: heroHeight)
-                    .task(id: "\(walk.id)-\(index)") {
-                        guard let first = photos.first else { return }
-                        if let tone = await PhotoCache.shared.tone(first) { tones[0] = tone }
-                        var rest: [Int: AmbientTone] = [:]
-                        for i in photos.indices.dropFirst() {
-                            if let tone = await PhotoCache.shared.tone(photos[i]) { rest[i] = tone }
-                        }
-                        tones.merge(rest) { a, _ in a }
-                    }
+                    .ambientPage(canvas, title: h.name, heroFraction: Self.heroFraction)
+                    .firstTone($tone, of: photos.first)
             } else {
                 scroll
                     .screen()

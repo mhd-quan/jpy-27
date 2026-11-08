@@ -851,9 +851,9 @@ struct StaticTripMap: View {
     /// what the picture draws, folded once here rather than on every body (`MapSnapshots.prints`)
     private let prints: MapSnapshots.Prints
 
-    /// Under `ambientPage` this is the page's canvas scheme (`canvas?.scheme ?? system`,
-    /// Components.swift:707), which the page reads from `PhotoCache.knownTone` in its first frame when
-    /// the photograph's colour was read before; elsewhere the system's. The picture, its key, its stops
+    /// Under `ambientPage` this is the page's canvas scheme (`canvas?.scheme ?? system`, in
+    /// `AmbientPageStyle`), which the page seeds from `PhotoCache.knownTone` when it is made, so its
+    /// first frame has it when the photograph's colour was read before; elsewhere the system's. The picture, its key, its stops
     /// and the live map all take it.
     @Environment(\.colorScheme) private var scheme
     @Environment(\.displayScale) private var displayScale

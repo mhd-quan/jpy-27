@@ -449,7 +449,9 @@ private struct HomeDayCard: View {
         let photo = HomePicks.photo(for: day, store: model.store)
         ZStack(alignment: .bottomLeading) {
             if let photo {
-                PlacePhoto(photo: photo, maxPixel: 1200)
+                // the day page's ask (`PhotoCache.heroPixel`): the cover decoded whole once serves
+                // this card, the home's cover and the day page it opens (`DecodePlan`)
+                PlacePhoto(photo: photo, maxPixel: PhotoCache.heroPixel)
             } else {
                 // no photograph for this day: its city in kanji on the chapter's colour
                 LinearGradient(colors: [tint, tint.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing)
