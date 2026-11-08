@@ -7,8 +7,9 @@ Khuôn: hợp đồng Phase 1–3 (`docs/superpowers/plans/2026-11-03-execution-
 Tài liệu này quy định **ai làm, với năng lực nào, biết gì, và phải chứng minh gì** trước khi một task được
 tính là xong. Mọi agent implementer và reviewer đọc file này trước brief của mình. Chỗ nào file này và brief
 khác nhau thì file này thắng ở phần quy trình, brief thắng ở phần giá trị (số, chuỗi, chữ ký hàm, test case).
-Ruling của lượt này đánh số từ R-200 và nằm trong ledger của controller; brief nào chịu ảnh hưởng thì
-nhận nguyên văn ruling đó.
+Ruling của lượt Bước 0 (4/11) đánh số từ R-200 (liệt kê trong PR #9); lượt Phase 4–5 (từ 8/11) đánh số từ
+R-300. Ruling nằm trong ledger của controller và được chép nguyên văn vào báo cáo cuối; brief nào chịu ảnh
+hưởng thì nhận nguyên văn ruling đó.
 
 ## 1. Môi trường: cái gì kiểm được ở đâu
 
@@ -92,7 +93,7 @@ Nền: Swift 6.2.3 / Xcode 26.2 (bản thấp nhất được hỗ trợ, bản 
 - Việc chặn hay nặng gọi từ main (giải mã/ghép ảnh, đọc/ghi file cache, `AVAudioSession.setActive/
   setCategory`, style snapshot, băm toạ độ) nằm trong `@concurrent nonisolated static func … async` nhận và
   trả giá trị `Sendable`, theo mẫu `Media.swift` (`load(_:maxPixel:network:)`) và `TripMap.swift` (`read`).
-  Việc cần thứ tự (session âm thanh) đi qua một executor tuần tự (ruling P4b).
+  Việc cần thứ tự (session âm thanh) đi qua một hàng đợi tuần tự riêng (R-305).
 - Kiểu giá trị app dùng ngoài main khai báo `nonisolated`.
 - Code mới không dùng `Task.detached`, `DispatchQueue.global().async`, `@unchecked Sendable`,
   `nonisolated(unsafe)`, `MainActor.assumeIsolated` — trừ khi report nêu lý do và chỗ thay thế không có.
@@ -118,8 +119,8 @@ từ header, không đoán.
   chi bằng `try? …fetch` (`lint-saves` chặn cả hai).
 - Đổi dạng dữ liệu đã lưu (`UserDefaults`, SwiftData, file cache có người đọc lại) phải đọc được dạng cũ,
   hoặc report nêu vì sao dạng cũ bỏ được (ví dụ một cache tái tạo được).
-- Xoá file chỉ trong thư mục cache mà task sở hữu (`Caches/Snapshots`, `Caches/Ambient`, `Caches/Fuji`,
-  `Caches/metrics`), không bao giờ ngoài nó.
+- Xoá file chỉ trong thư mục cache mà task sở hữu (`Caches/MapSnapshots` — thư mục đang có, R-315;
+  `Caches/Ambient`, `Caches/Fuji`, `Caches/metrics`), không bao giờ ngoài nó.
 - Chạy thử (`Shared.rehearsing`) không đặt báo thức thật, không ghi nhật ký thật, không gửi/ack sổ chi;
   R-153: chuyến chạy thử không đụng báo thức thật.
 
@@ -131,7 +132,7 @@ Haptic dùng đúng bộ tên trong `ios/README.md` § Rung. Animation mới dù
 
 ### 4.6 Git
 
-- Chỉ commit trên nhánh hiện tại (`claude/ios-phases-4-5`). Không push, không đổi nhánh, không rebase,
+- Chỉ commit trên nhánh hiện tại (Bước 0: `claude/ios-phases-4-5`; Phase 4–5: `local/loving-feynman-6wu9ru`). Không push, không đổi nhánh, không rebase,
   không tạo PR — controller push sau khi task qua review.
 - Commit message tiếng Anh theo giọng lịch sử (`git log --oneline -20`), kết thúc bằng các dòng
   attribution mà phiên làm việc quy định (controller chép nguyên văn vào dispatch).
@@ -153,26 +154,27 @@ Implementer và reviewer làm hết phần việc của mình; không tạo suba
 
 ## 5. Thứ tự, tách task, bậc
 
-Bước 0 đi PR riêng và merge trước (plan cấm trộn đúng/sai với làm mượt). Bước 1 (phần code của 0.2) đi
-trước mọi task Phase 4 (P3); commit của nó là **baseline commit** để người dùng đo. 5.8 tách đôi (P1);
-5.5 trước 5.3 (P2); 5.4 trước 5.3 (P12).
+Bước 0 đã đi PR riêng và đã merge (PR #9, `0d7abf7`). Bước 1 (phần code của 0.2) đi trước mọi task Phase 4
+(R-303); commit cuối đã qua review của nó là **baseline commit** để người dùng đo. 5.8 tách đôi (R-301);
+5.1 tách đôi (R-319); 5.5 trước 5.3 (R-302); 5.4 trước 5.3 (R-312).
 
 | # | Dispatch | Bậc | Implementer | Reviewer | Mutation probe |
 | --- | --- | --- | --- | --- | --- |
-| 0 | Bước 0: New-1 (`ended` theo đồng hồ), New-2 (`Presence.takes` khi đồng hồ lùi), M3 (formatter với số hữu hạn cực lớn); New-3, nit `.ack` nếu rẻ | T2 | high | high | có (`RideClock`, `Presence`) |
-| 0.2 | Perf: signpost, `transitionSettled`, Chẩn đoán › Số đo, MetricKit; `docs/perf/2026-11-baseline.md` | T2 | high | high | — |
-| 4.1 | `StaticTripMap`, `SnapshotKey` | T1 | xhigh | xhigh | có (`SnapshotKey`) |
-| 4.2 | Audio session ngoài main, nhả có hẹn, máy trạng thái session (P4, P4b) | T1 | xhigh | xhigh | có |
+| 0 | Bước 0 — xong (PR #9) | T2 | high | high | có |
+| 0.2 | Perf: signpost, `transitionSettled` (R-317, R-318), Chẩn đoán › Số đo, MetricKit; `docs/perf/2026-11-baseline.md`, khung `docs/perf/2026-11-device-perf-phase4-5.md` | T2 | high | high | — |
+| 4.1 | `StaticTripMap`, `SnapshotKey` (R-310, R-314, R-315, R-321) | T1 | xhigh | xhigh | có (`SnapshotKey`) |
+| 4.2 | Audio session ngoài main, nhả có hẹn, máy trạng thái session (R-304, R-305) | T1 | xhigh | xhigh | có |
 | 4.3 | Low Power Mode quan sát được | T3 | medium | high | — |
 | 5.8a | `Motion.swift` + README | T3 | medium | high | — |
-| 5.1 | `HeroPipeline`, `DecodePlan` | T1 | xhigh | xhigh | có (`DecodePlan`) |
+| 5.1a | `DecodePlan`, cache theo cỡ giải mã, `derive`, tone-2 | T1 | xhigh | xhigh | có (`DecodePlan`) |
+| 5.1b | `ambient`, `AmbientPhoto`, không ghi state trong transition | T1 | xhigh | xhigh | — |
 | 5.2 | `DetailHero` không blur thật | T2 | high | high | — |
-| 5.5 | Khung đầu là khung cuối (P6) | T2 | high | high | — |
+| 5.5 | Khung đầu là khung cuối (R-307) | T2 | high | high | — |
 | 5.4 | Tab Bản đồ, `Debouncer` | T2 | high | high | có (`Debouncer`) |
-| 5.3 | Fuji 3D theo phương án dự phòng (P7, P11, P12) | T1 | xhigh | xhigh | có, nếu có logic thuần mới |
+| 5.3 | Fuji 3D theo phương án dự phòng (R-308, R-311, R-312) | T1 | xhigh | xhigh | có, nếu có logic thuần mới |
 | 5.6 | Thẻ câu | T2 | high | high | — |
-| 5.7 | Nạp trước, chính sách "≤ 3 đang chạy" trong TripKit (P16) | T2 | high | high | có |
-| 5.9 | Việc nhỏ (P5, P13) | T2 | high | high | — |
+| 5.7 | Nạp trước, chính sách "≤ 3 đang chạy" trong TripKit (R-316) | T2 | high | high | có |
+| 5.9 | Việc nhỏ (R-306, R-313) | T2 | high | high | — |
 | 5.8b | Ánh xạ token, `lint-motion.mjs`, bước CI | T3 | medium | high | — |
 | — | Review toàn nhánh | — | — | max | — |
 
