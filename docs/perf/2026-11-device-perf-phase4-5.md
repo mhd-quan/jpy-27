@@ -149,6 +149,27 @@ Bước 5, 6, 9 và 10 là **duyệt thiết kế** (mắt người, không có 
 
 ## 5.5
 
+Bản Release, Instruments như `docs/perf/2026-11-baseline.md`: track os_signpost (`tech.delphyra.jp27` / `perf`),
+SwiftUI (View Body) và Animation Hitches. Sheet "Ghi chi" (`ExpenseEditor`) giờ có đủ số tiền, loại, cách trả, ngày và
+chỗ ngay từ lúc tạo, trước khung đầu: không còn `onAppear` ghi lại các ô, không còn lượt body thứ hai, và loại/cách trả
+chỉ đổi (có hoạt ảnh `Motion.pick`) khi người dùng chọn một chỗ trong danh sách "Ở đâu". Phần dưới ảnh đầu trang của
+trang địa điểm (trang thường và trang album), trang Fuji và thẻ điểm ngắm, và cả trang một chuyến tàu, là `LazyVStack`:
+mục nào cuộn tới mới được dựng. Trên trang chuyến tàu chỉ thẻ đang theo dõi (`PlanRideLive`) và dải ga
+(`PlanStationStrip`) đọc vị trí trực tiếp; mỗi ga chỉ nhận "đã qua" và "ga tới", nên một điểm GPS chỉ vẽ lại các ga đổi.
+Bước 6 là **duyệt thiết kế** (mắt người, không có số).
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | S7 (Chi tiêu: chạm "Ghi chi", `sheet.expense`): số lần body của `ExpenseEditor` trong khoảng signpost; làm thêm một lần từ trang một địa điểm (nút "Ghi chi" trên thanh, chỗ có sẵn) và một lần sửa một khoản đã ghi (chạm một dòng ở tab Chi tiêu) | 1 lần body mỗi lần mở; loại và cách trả không đổi hay chạy hoạt ảnh sau khung đầu; so với baseline (`a996140`) | |
+| 2 | Sheet "Ghi chi" mở, trong một ngày của chuyến (chạy thử được: Cài đặt › Chạy thử), rồi đi bộ vài phút để có nhiều điểm GPS | View Body của `ExpenseEditor` vẫn 1 suốt lúc đi (sheet bên ngoài có thể chạy lại body mỗi điểm GPS; ô nào cũng không đổi) | |
+| 3 | Mở "Ghi chi" cho chỗ A, chọn chỗ B trong "Ở đâu", rồi chọn lại A | loại và cách trả theo B, rồi theo lại A; mỗi lần chọn một tiếng `pick`; lúc mở không có tiếng nào | |
+| 4 | Sửa một khoản có ghi chú dài hơn 500 ký tự (nếu có; khoản cũ từ máy kia hay file CSV) | ô ghi chú hiện 500 ký tự đầu ngay từ khung đầu, có dòng "Ghi chú dài hơn 500 ký tự…"; lưu giữ 500 ký tự đầu như trước | |
+| 5 | S2 (tab Bản đồ: chạm ghim → sheet địa điểm, `sheet.place`) với địa điểm có nhiều mục nhất (nhiều section nhất: thực đơn, cửa hàng, Fuji, lịch); ghi tên địa điểm; làm cả một trang thường (không phải kiểu album) | chạm → khung đầu và số lần body của `PlaceView` giảm so baseline (`a996140`) | |
+| 6 | **Duyệt thiết kế.** Cỡ chữ Trợ năng lớn nhất (Cài đặt › Trợ năng › Màn hình & cỡ chữ › Chữ lớn hơn). Cuộn chậm từ đầu tới cuối: trang địa điểm của bước 5, trang Fuji (S3), một thẻ điểm ngắm có ảnh (S4, chỗ có "Đường chân trời"), trang một chuyến tàu nhiều ga | không có cú nhảy dưới ngón tay khi một mục được dựng (thẻ số "tới đỉnh · hướng nhìn · độ cao" của điểm ngắm đổi sang xếp dọc mà không đẩy trang); thanh cuộn có thể đổi dài một chút; ghi lại chỗ nào nhảy | |
+| 7 | S4 (trang Fuji → chạm một điểm ngắm, `sheet.fujiSpot`) và S3 (`push.plan`, trang Fuji): chạm → khung đầu, số lần body | giảm so baseline (`a996140`) | |
+| 8 | Thẻ điểm ngắm có ảnh, có mạng: cuộn xuống "Tia ngắm" (bản đồ 3D thứ hai), lên lại đầu trang, rồi xuống lại; xem "Mây ở đây" | bản đồ "Tia ngắm" được dựng khi cuộn tới, không lúc mở; khi quay lại thì ghi xem nó có dựng lại (nháy trắng, bay lại camera) không — Task 5.3 thay bản đồ này; "Mây ở đây" không hiện lại "Đang tải dự báo…" khi đã có số | |
+| 9 | Một chuyến đang theo dõi (nút "Theo dõi chuyến"; trên tàu thật, hay chạy thử), trang chuyến tàu mở: View Body qua vài điểm GPS | `PlanRideContent` không chạy lại body theo điểm GPS; `PlanStationStrip` và `PlanRideLive` chạy lại; trong `PlanStationRow` chỉ ga vừa qua và ga tới chạy lại | |
+
 ## 5.4
 
 ## 5.3

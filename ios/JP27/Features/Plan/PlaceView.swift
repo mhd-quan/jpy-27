@@ -47,7 +47,8 @@ private struct PlanPlaceContent: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Metrics.stack) {
                 if hero { PlanPlaceHero(place: place) }
-                VStack(alignment: .leading, spacing: Metrics.stack) {
+                // laid out as it scrolls in; the hero above stays in the plain stack
+                LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                     if hero {
                         PlanPlaceBadges(place: place)
                     } else {
@@ -207,7 +208,8 @@ private struct PlanAmbientPage: View {
                     .overlay(alignment: .bottom) {
                         PlanAmbientHeadline(place: place, count: place.images.count, page: page, canvas: fill)
                     }
-                VStack(alignment: .leading, spacing: Metrics.stack) {
+                // laid out as it scrolls in; the hero above stays in the plain stack
+                LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                     if let note = place.note {
                         PlanAmbientNote(text: note, canvas: fill)
                     }

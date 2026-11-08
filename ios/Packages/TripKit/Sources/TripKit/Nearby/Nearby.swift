@@ -31,6 +31,19 @@ public enum Nearby {
         }
         return Array(out.sorted { $0.km < $1.km }.prefix(limit))
     }
+
+    /// How close a planned stop has to be to count as where you are (`plannedStop`).
+    public static let plannedStopKm = 0.15
+
+    /// The day's planned place you are standing at: the nearest of its stops within `plannedStopKm`
+    /// of you, stations left out (the place a new expense starts on).
+    public static func plannedStop(near position: Coordinate, day: Day, store: TripStore) -> String? {
+        let near = day.stops.compactMap { store.place($0.stop.place) }
+            .filter { $0.kind != .station }
+            .map { ($0, Geo.km($0.coordinate, position)) }
+            .min { $0.1 < $1.1 }
+        return near.flatMap { $0.1 <= plannedStopKm ? $0.0.id : nil }
+    }
 }
 
 /// Mount Fuji from where you stand: distance, bearing, and how high the summit sits above level.

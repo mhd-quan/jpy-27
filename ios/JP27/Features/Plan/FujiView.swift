@@ -23,7 +23,8 @@ struct FujiView: View {
                         FujiLegend()
                             .padding(.horizontal, Metrics.gutter)
                     }
-                    VStack(alignment: .leading, spacing: Metrics.stack) {
+                    // the viewpoints, the clouds and the rest, laid out as they scroll in
+                    LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                         ForEach(area == .all ? FujiArea.days : [area]) { a in
                             FujiSpotSection(area: a)
                         }
@@ -392,7 +393,8 @@ private struct FujiSpotAlbum: View {
                     FujiSpotHeadline(spot: spot, name: name, ja: FujiWords.ja(spot, store: model.store, research: research),
                                      count: photos.count, page: page, fill: (canvas ?? .dusk).color, fromMap: fromMap)
                 }
-                VStack(alignment: .leading, spacing: Metrics.stack) {
+                // laid out as it scrolls in; the hero above stays in the plain stack
+                LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                     FujiSpotVerdict(spot: spot)
                     FujiSpotNumbers(spot: spot)
                     if let pano = model.guide.fuji.panoramas[spot.id] {

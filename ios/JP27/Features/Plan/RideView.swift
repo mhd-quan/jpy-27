@@ -16,19 +16,18 @@ struct RideView: View {
     }
 }
 
+/// Reads nothing of the followed ride itself: the live card and the station strip do, so a GPS fix
+/// redraws those two, not the page.
 private struct PlanRideContent: View {
-    @Environment(AppModel.self) private var model
     let ride: Ride
     // counted here around the live card, whose start and end buttons are gone once pressed; a ride
     // that starts or ends by itself (at the station, on arrival) stays quiet
     @State private var followed = 0
     @State private var ended = 0
 
-    private var isLive: Bool { model.live.ride?.id == ride.id }
-
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Metrics.stack) {
+            LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                 PlanRideHeader(ride: ride)
                 PlanRideLive(ride: ride, followed: $followed, ended: $ended)
                     .sensoryFeedback(.start, trigger: followed)
@@ -37,7 +36,7 @@ private struct PlanRideContent: View {
                 VStack(alignment: .leading, spacing: 10) {
                     SectionTitle("Các ga", trailing: ride.hidden > 0 ? "bỏ qua \(ride.hidden) ga tàu chạy suốt" : nil)
                     Card(padding: 14) {
-                        PlanStationStrip(ride: ride, status: isLive ? model.live.status : nil)
+                        PlanStationStrip(ride: ride)
                     }
                 }
                 if !ride.transfers.isEmpty {
@@ -225,14 +224,20 @@ private struct PlanRideLive: View {
 // MARK: - Station strip
 
 /// Stations top to bottom on a rail in the line's colour; what to see beside the stretch it covers.
+/// On the ride being followed, the stations passed and the next stop. It reads the live position
+/// itself (as the live card does), and each row takes only what it draws, so a fix redraws the rows
+/// that change.
 private struct PlanStationStrip: View {
+    @Environment(AppModel.self) private var model
     let ride: Ride
-    let status: RideTracker.Status?
 
     var body: some View {
+        let status = model.live.ride?.id == ride.id ? model.live.status : nil
         VStack(alignment: .leading, spacing: 0) {
             ForEach(ride.stations.indices, id: \.self) { i in
-                PlanStationRow(ride: ride, index: i, status: status)
+                PlanStationRow(ride: ride, index: i,
+                               passed: status.map { ride.stations[i].km <= $0.km + 0.15 } ?? false,
+                               isNext: status?.nextStop == i)
                 ForEach(ride.events.indices.filter { ride.events[$0].from == i }, id: \.self) { e in
                     PlanEventRow(ride: ride, event: ride.events[e], last: i == ride.stations.count - 1)
                 }
@@ -244,14 +249,15 @@ private struct PlanStationStrip: View {
 private struct PlanStationRow: View {
     let ride: Ride
     let index: Int
-    let status: RideTracker.Status?
+    /// behind the train being followed
+    let passed: Bool
+    /// the next station the followed train stops at
+    let isNext: Bool
 
     private var station: Ride.Station { ride.stations[index] }
     private var color: Color { Color(hex: ride.color) }
     private var isFirst: Bool { index == 0 }
     private var isLast: Bool { index == ride.stations.count - 1 }
-    private var passed: Bool { status.map { station.km <= $0.km + 0.15 } ?? false }
-    private var isNext: Bool { status?.nextStop == index }
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
