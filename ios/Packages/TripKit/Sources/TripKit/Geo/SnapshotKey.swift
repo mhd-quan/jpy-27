@@ -227,18 +227,27 @@ public struct SnapshotKey: Hashable, Sendable {
     /// format (`.png`), then whole pictures (the jpg and its json together), least recently used first. A
     /// name the cache did not make is neither counted nor deleted.
     public static func evicted(_ files: [StoredFile], toBytes budget: Int) -> [String] {
-        var out = files.filter { $0.name.hasSuffix(".png") }.map(\.name)
+        let old = files.filter { $0.name.hasSuffix(".png") }.map(\.name)
+        let pictures = evictedPairs(files, toBytes: budget) { name in parse(name).map { "\($0.frameID)-\($0.hash)" } }
+        return (old + pictures).sorted()
+    }
+
+    /// The one pair-eviction rule of the folder trims (`evicted` here, `TerrainPicture.evicted`). Files are grouped by
+    /// the stem `stem` reads from each name; nil is a name the cache did not make, neither counted nor deleted. A group
+    /// is as large as its files together and as recent as its newest one. Whole groups go, the least recently used
+    /// first and ties by stem, while the total is over `budget`. The names, sorted.
+    static func evictedPairs(_ files: [StoredFile], toBytes budget: Int, stem: (String) -> String?) -> [String] {
         var pictures: [String: (bytes: Int, used: Date, names: [String])] = [:]
         for f in files {
-            guard let file = parse(f.name) else { continue }
-            let stem = "\(file.frameID)-\(file.hash)"
-            var p = pictures[stem] ?? (0, .distantPast, [])
+            guard let key = stem(f.name) else { continue }
+            var p = pictures[key] ?? (0, .distantPast, [])
             p.bytes += f.bytes
             p.used = max(p.used, f.used)
             p.names.append(f.name)
-            pictures[stem] = p
+            pictures[key] = p
         }
         var total = pictures.values.reduce(0) { $0 + $1.bytes }
+        var out: [String] = []
         let oldestFirst = pictures.sorted { ($0.value.used, $0.key) < ($1.value.used, $1.key) }
         for (_, p) in oldestFirst where total > budget {
             out += p.names

@@ -73,6 +73,7 @@ struct FujiTerrainSnapshot: View {
 private struct TerrainLayers: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     let camera: FujiCamera.Shot
     let spots: [FujiGuide.Spot]
     let selection: String?
@@ -86,6 +87,9 @@ private struct TerrainLayers: View {
     /// the live map has been mounted (`TerrainPicture.mounts`): never cleared while the view lives. Seeded as the view
     /// is made, so one made on a page already settled (a card scrolled to) writes nothing as it appears
     @State private var mounted: Bool
+    /// a picture was the cover as the live map was mounted (`TerrainPicture.cover`): one finished during the beat is
+    /// not laid over it
+    @State private var pictureAtMount: Bool
     /// the beat over the live map has passed: the cover is gone for good
     @State private var lifted = false
     @State private var position: MapCameraPosition
@@ -112,6 +116,7 @@ private struct TerrainLayers: View {
         let request = FujiTerrainPictures.Request(camera: camera, spots: spots, summit: summit, size: size, scale: scale, dark: dark)
         let hit = request.flatMap { FujiTerrainPictures.shared.cached($0) }
         _shown = State(initialValue: request.flatMap { r in hit.map { Shown(stem: r.stem, picture: $0, spots: spots, selection: selection) } })
+        _pictureAtMount = State(initialValue: hit != nil)
     }
 
     private var request: FujiTerrainPictures.Request? {
@@ -128,23 +133,34 @@ private struct TerrainLayers: View {
         let displayed = request.flatMap { r in
             FujiTerrainPictures.shared.cached(r).map { Shown(stem: r.stem, picture: $0, spots: spots, selection: selection) }
         } ?? shown
-        let cover = TerrainPicture.cover(picture: displayed != nil, mounted: live, lifted: lifted, online: online)
-        let draws = TerrainPicture.draws(settled: settled, online: online, lowPower: model.lowPower)
+        // the live map goes in under what covers it now (latched below as it is mounted)
+        let atMount = mounted ? pictureAtMount : displayed != nil
+        let cover = TerrainPicture.cover(picture: displayed != nil, pictureAtMount: atMount, mounted: live, lifted: lifted,
+                                         online: online)
+        let lowPower = model.lowPower
+        let draws = TerrainPicture.draws(settled: settled, online: online, lowPower: lowPower)
+        let reduceTransparency = self.reduceTransparency
         ZStack {
             if live {
                 FujiTerrainMap(spots: spots, position: $position, selection: .constant(selection))
                     .environment(\.colorScheme, dark ? .dark : .light)
                     // one per live map put on screen (and again when its page is come back to): a flaky network adds none
                     .onAppear { Perf.mark("fuji.live") }
+                    // while a cover is up, it alone speaks: both carry the map's label
+                    .accessibilityHidden(cover != nil)
             }
             // a cover's change fades, whatever the transaction it comes in (an area chip's own)
             coverLayer(cover, displayed)
-                .animation(Motion.reduced(Motion.arrive, reduceMotion), value: CoverKey(cover: cover, stem: displayed?.stem))
+                .animation(Motion.reduced(Motion.arrive, reduceMotion),
+                           value: CoverKey(cover: cover, stem: cover == .picture ? displayed?.stem : nil))
         }
         .frame(width: size.width, height: size.height)
         .clipped()
         .onChange(of: settled && online) { _, now in
-            if now, !mounted, !pictureOnly { mounted = true }
+            if now, !mounted, !pictureOnly {
+                pictureAtMount = displayed != nil
+                mounted = true
+            }
         }
         .onChange(of: camera) { _, next in
             if live {
@@ -155,7 +171,10 @@ private struct TerrainLayers: View {
             }
         }
         .task(id: Beat(live: live, lifted: lifted, online: online)) { await beat(live: live, online: online) }
-        .task(id: Load(stem: request?.stem, fingerprint: request?.fingerprint, draws: draws)) { await load(request, draws: draws) }
+        .task(id: Load(stem: request?.stem, fingerprint: request?.fingerprint, draws: draws,
+                       blurring: !lowPower && !reduceTransparency)) {
+            await load(request, draws: draws, lowPower: lowPower, reduceTransparency: reduceTransparency)
+        }
     }
 
     @ViewBuilder
@@ -192,31 +211,37 @@ private struct TerrainLayers: View {
     }
 
     /// From memory (already drawn); else read from the disk, or drawn when it may be (`TerrainPicture.draws`), and
-    /// faded in. Cancelled with the view, or when the camera, size or scheme changes; a draw nobody else waits for
-    /// stops with it.
-    private func load(_ request: FujiTerrainPictures.Request?, draws: Bool) async {
+    /// faded in; then its blurred copy for the hero's name, when it may be made (`FujiTerrainPictures.blur`). Cancelled
+    /// with the view, or when the camera, size, scheme or a gate changes; a draw nobody else waits for stops with it.
+    private func load(_ request: FujiTerrainPictures.Request?, draws: Bool, lowPower: Bool, reduceTransparency: Bool) async {
         guard let request else { return }
         let pictures = FujiTerrainPictures.shared
+        let picture: FujiTerrainPicture
         if let hit = pictures.cached(request) {
             // held, should memory let it go while it is on screen; never faded: it was drawn from memory
             if shown?.picture.image !== hit.image { shown = Shown(stem: request.stem, picture: hit, spots: spots, selection: selection) }
-            return
-        }
-        let found: FujiTerrainPicture?
-        if draws {
-            found = await pictures.picture(for: request)
+            picture = hit
         } else {
-            found = await pictures.stored(request)
-        }
-        guard !Task.isCancelled else { return }
-        if let found {
+            let found: FujiTerrainPicture?
+            if draws {
+                found = await pictures.picture(for: request)
+            } else {
+                found = await pictures.stored(request)
+            }
+            guard !Task.isCancelled else { return }
+            guard let found else {
+                if shown != nil, shown?.stem != request.stem {
+                    // nothing for this camera now: the last one's picture goes, the plot or the plain ground stands in
+                    withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) { shown = nil }
+                }
+                return
+            }
             withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) {
                 shown = Shown(stem: request.stem, picture: found, spots: spots, selection: selection)
             }
-        } else if shown != nil, shown?.stem != request.stem {
-            // nothing for this camera now: the last one's picture goes, the plot or the plain ground stands in
-            withAnimation(Motion.reduced(Motion.arrive, reduceMotion)) { shown = nil }
+            picture = found
         }
+        await pictures.blur(picture, for: request, lowPower: lowPower, reduceTransparency: reduceTransparency)
     }
 
     /// what the beat waits on: mounting starts it, going offline stops it (coming back starts it afresh)
@@ -226,11 +251,13 @@ private struct TerrainLayers: View {
         let online: Bool
     }
 
-    /// what the picture's task loads: a new name or fingerprint loads again; leave to draw starts the drawing
+    /// what the picture's task loads: a new name or fingerprint loads again; leave to draw starts the drawing, and
+    /// leave to blur (out of Low Power Mode, without Reduce Transparency) makes the blurred copy then, as 5.2's veil
     private nonisolated struct Load: Equatable, Sendable {
         let stem: String?
         let fingerprint: String?
         let draws: Bool
+        let blurring: Bool
     }
 
     /// what the cover's fade follows
@@ -312,9 +339,6 @@ nonisolated struct FujiTerrainPicture: Sendable {
     let summit: CGPoint?
     /// by viewpoint id
     let points: [String: CGPoint]
-    /// the picture as a 160 px blurred copy, for the name over the Fuji page's hero (`DetailHero(backdrop:)`):
-    /// `PhotoCache.derive`'s veil, the one the photographs' heroes have. Nil for a viewpoint's, or when the blur failed
-    let backdrop: UIImage?
 }
 
 /// The terrain's pictures (`FujiTerrainSnapshot`). They are drawn by MapKit's snapshotter
@@ -328,8 +352,8 @@ nonisolated struct FujiTerrainPicture: Sendable {
 /// - a picture read back with another fingerprint is a miss, drawn again under the same name;
 /// - the folder is held to 40 MB at launch (`trim`). They can always be drawn again.
 ///
-/// One drawing per name at a time, shared by whoever asks. It is cancelled when the last of them stops waiting,
-/// or after 15 s. One drawn with no signal is not kept on disk: its tiles may be missing.
+/// One drawing per picture (name and fingerprint) at a time, shared by whoever asks. It is cancelled when the last of
+/// them stops waiting, or after 15 s. One drawn with no signal is not kept on disk: its tiles may be missing.
 /// Reading, encoding, writing and deleting run off the main thread.
 @Observable final class FujiTerrainPictures {
     static let shared = FujiTerrainPictures()
@@ -361,6 +385,9 @@ nonisolated struct FujiTerrainPicture: Sendable {
         /// no such foot
         var blurs: Bool { camera.kind == .area }
 
+        /// the picture asked for, whole: its name and its fingerprint (a trip data update keeps the name)
+        var key: String { "\(stem) \(fingerprint)" }
+
         /// Nil for a size under a point.
         init?(camera: FujiCamera.Shot, spots: [FujiGuide.Spot], summit: Coordinate, size: CGSize, scale: CGFloat, dark: Bool) {
             guard let stem = TerrainPicture.stem(kind: camera.kind, id: camera.id, width: Double(size.width),
@@ -377,7 +404,7 @@ nonisolated struct FujiTerrainPicture: Sendable {
         }
     }
 
-    /// the blurred copy under a hero's name, by camera (`FujiCamera.Shot.name`): the last one read or drawn. Observed,
+    /// the blurred copy under a hero's name, by camera (`FujiCamera.Shot.name`): the last one made (`blur`). Observed,
     /// so a hero redraws its foot when its camera's arrives
     private(set) var backdrops: [String: UIImage] = [:]
 
@@ -417,8 +444,11 @@ nonisolated struct FujiTerrainPicture: Sendable {
         let points: [String: CGPoint]
     }
 
-    /// the pictures being made, by name: a second ask waits for the first
+    /// the pictures being made, by name and fingerprint (`Request.key`): a second ask for the same picture waits for
+    /// the first; one with another fingerprint makes its own
     @ObservationIgnored private var makings: [String: Making] = [:]
+    /// the picture each blurred copy in `backdrops` was made from (`Request.key`), by camera
+    @ObservationIgnored private var blurred: [String: String] = [:]
     /// the snapshotters drawing, by number: whichever of its answer, its stop and its cap comes first resumes it
     @ObservationIgnored private var drawing: [Int: Drawing] = [:]
     /// numbers the makings and the drawings
@@ -433,19 +463,37 @@ nonisolated struct FujiTerrainPicture: Sendable {
         return entry.picture
     }
 
-    /// The blurred copy for `camera`, the last one read or drawn.
+    /// The blurred copy for `camera`, the last one made.
     func backdrop(for camera: FujiCamera.Shot) -> UIImage? {
         backdrops[camera.name]
     }
 
-    /// The picture from memory or the disk; never drawn.
+    /// The picture from memory or the disk; never drawn. Cancelled while the disk is read, it keeps nothing.
     func stored(_ request: Request) async -> FujiTerrainPicture? {
         if let hit = cached(request) { return hit }
-        guard let saved = await Self.read(request.stem, fingerprint: request.fingerprint, scale: request.scale,
-                                          blurs: request.blurs) else { return nil }
+        guard let saved = await Self.read(request.stem, fingerprint: request.fingerprint, scale: request.scale),
+              !Task.isCancelled else { return nil }
         keep(saved, for: request)
         Self.mark(request.stem, "disk")
         return saved
+    }
+
+    /// The blurred copy under the Fuji page hero's name (`DetailHero(backdrop:)`), made from `picture` when there is
+    /// none of it yet: `PhotoCache.derive`'s 160 px veil, off the main thread (the tone it also samples is not used).
+    /// It is made by the rule of 5.2's photograph veil, `HeroFoot.derivesVeil`, whose inputs this fits. The terrain's
+    /// picture plays the photograph's part (`hasVeil`: an area's, the one with a foot), and no picture of the page's
+    /// own is laid under the name instead of it (`hasBackdrop`). So it is not made in Low Power Mode, nor with
+    /// Reduce Transparency, where none is shown; the load's task id holds both, so it is made once they end.
+    /// Cancelled, it writes nothing.
+    func blur(_ picture: FujiTerrainPicture, for request: Request, lowPower: Bool, reduceTransparency: Bool) async {
+        let name = request.camera.name, key = request.key
+        guard HeroFoot.derivesVeil(lowPower: lowPower, reduceTransparency: reduceTransparency, hasVeil: request.blurs,
+                                   hasBackdrop: false, cached: blurred[name] == key),
+              let full = picture.image.cgImage else { return }
+        let veil = await PhotoCache.derive(full).veil
+        guard !Task.isCancelled, let veil else { return }
+        blurred[name] = key
+        backdrops[name] = veil
     }
 
     /// The picture from memory, the disk, or drawn now. Background work (contract § 4.2): it stops when the last of
@@ -453,50 +501,46 @@ nonisolated struct FujiTerrainPicture: Sendable {
     func picture(for request: Request) async -> FujiTerrainPicture? {
         if let hit = cached(request) { return hit }
         guard !Task.isCancelled else { return nil }
-        let stem = request.stem
+        let key = request.key
         let making: Making
-        if var running = makings[stem] {
+        if var running = makings[key] {
             running.waiters += 1
-            makings[stem] = running
+            makings[key] = running
             making = running
         } else {
             serial += 1
             making = Making(id: serial, task: Task { await self.make(request) }, waiters: 1)
-            makings[stem] = making
+            makings[key] = making
         }
         let id = making.id
         let picture = await withTaskCancellationHandler {
             await making.task.value
         } onCancel: {
             // called off the main actor, at once: the count is kept on it
-            Task { @MainActor [weak self] in self?.leave(stem, making: id) }
+            Task { @MainActor [weak self] in self?.leave(key, making: id) }
         }
-        if makings[stem]?.id == id { makings[stem] = nil }
+        if makings[key]?.id == id { makings[key] = nil }
         return picture
     }
 
     /// A waiter stopped waiting: the making goes on for the others; with none left it is cancelled.
-    private func leave(_ stem: String, making id: Int) {
-        guard var making = makings[stem], making.id == id else { return }
+    private func leave(_ key: String, making id: Int) {
+        guard var making = makings[key], making.id == id else { return }
         making.waiters -= 1
         if making.waiters > 0 {
-            makings[stem] = making
+            makings[key] = making
         } else {
             making.task.cancel()
-            makings[stem] = nil
+            makings[key] = nil
         }
     }
 
-    /// From the disk, else drawn; kept in memory, and on disk when the signal was there as it finished. Cancelled, it
-    /// keeps and writes nothing.
+    /// From the disk, else drawn; kept in memory, and on disk when the signal was there as it finished. Cancelled
+    /// (`leave`) at any point, it keeps and writes nothing: `stored` checks after its read, this after its draw.
     private func make(_ request: Request) async -> FujiTerrainPicture? {
         if let saved = await stored(request) { return saved }
         guard !Task.isCancelled, let drawn = await draw(request), !Task.isCancelled else { return nil }
-        // the photographs' heroes' 160 px veil, from the picture (the tone `derive` also samples is not used)
-        var backdrop: UIImage?
-        if request.blurs, let full = drawn.image.cgImage { backdrop = await PhotoCache.derive(full).veil }
-        guard !Task.isCancelled else { return nil }
-        let picture = FujiTerrainPicture(image: drawn.image, summit: drawn.summit, points: drawn.points, backdrop: backdrop)
+        let picture = FujiTerrainPicture(image: drawn.image, summit: drawn.summit, points: drawn.points)
         keep(picture, for: request)
         Self.mark(request.stem, "made")
         if AppModel.shared.network.raw {
@@ -511,8 +555,6 @@ nonisolated struct FujiTerrainPicture: Sendable {
         let image = picture.image
         memory.setObject(Entry(fingerprint: request.fingerprint, picture: picture), forKey: request.stem as NSString,
                          cost: Int(image.size.width * image.scale * image.size.height * image.scale * 4))
-        let name = request.camera.name
-        if let backdrop = picture.backdrop, backdrops[name] !== backdrop { backdrops[name] = backdrop }
     }
 
     /// MapKit's snapshotter, started on the main thread and answering there (`start(completionHandler:)`). Whichever
@@ -608,19 +650,15 @@ nonisolated struct FujiTerrainPicture: Sendable {
     }
 
     /// The picture and its points, read and decoded off the main thread, only with the fingerprint asked for (else a
-    /// miss); its blurred copy made from it when it `blurs`. The read is the picture's last use, for `trim`.
-    @concurrent private nonisolated static func read(_ stem: String, fingerprint: String, scale: CGFloat,
-                                                     blurs: Bool) async -> FujiTerrainPicture? {
+    /// miss). The read is the picture's last use, for `trim`.
+    @concurrent private nonisolated static func read(_ stem: String, fingerprint: String, scale: CGFloat) async -> FujiTerrainPicture? {
         let file = folder.appendingPathComponent("\(stem).\(format.ext)")
         guard let json = try? Data(contentsOf: folder.appendingPathComponent("\(stem).json")),
               let stored = try? JSONDecoder().decode(StoredPoints.self, from: json), stored.fingerprint == fingerprint,
               let data = try? Data(contentsOf: file), let image = UIImage(data: data, scale: scale) else { return nil }
         try? FileManager.default.setAttributes([.modificationDate: Date()], ofItemAtPath: file.path(percentEncoded: false))
         let shown = image.preparingForDisplay() ?? image
-        var backdrop: UIImage?
-        if blurs, let full = shown.cgImage { backdrop = await PhotoCache.derive(full).veil }
-        return FujiTerrainPicture(image: shown, summit: point(stored.summit), points: stored.spots.compactMapValues { Self.point($0) },
-                                  backdrop: backdrop)
+        return FujiTerrainPicture(image: shown, summit: point(stored.summit), points: stored.spots.compactMapValues { Self.point($0) })
     }
 
     private nonisolated static func point(_ xy: [Double]?) -> CGPoint? {
@@ -684,6 +722,7 @@ nonisolated struct FujiTerrainPicture: Sendable {
     func clear() async {
         memory.removeAllObjects()
         backdrops = [:]
+        blurred = [:]
         await Self.removeOwnFiles()
     }
 

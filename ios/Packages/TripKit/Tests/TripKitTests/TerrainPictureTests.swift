@@ -176,24 +176,37 @@ import Testing
     }
 
     @Test func theCoverIsThePictureElseThePlotOfflineElseThePlaceholder() {
-        // a picture, online or not, mounted or not
-        for mounted in [false, true] {
-            for online in [false, true] {
-                #expect(TerrainPicture.cover(picture: true, mounted: mounted, lifted: false, online: online) == .picture)
+        // a picture, online or not, mounted under it or not mounted yet
+        for online in [false, true] {
+            for atMount in [false, true] {
+                #expect(TerrainPicture.cover(picture: true, pictureAtMount: atMount, mounted: false, lifted: false, online: online) == .picture)
             }
+            #expect(TerrainPicture.cover(picture: true, pictureAtMount: true, mounted: true, lifted: false, online: online) == .picture)
         }
         // no picture: never live and offline, the plot; anything else, the placeholder until the beat lifts it
-        #expect(TerrainPicture.cover(picture: false, mounted: false, lifted: false, online: false) == .plot)
-        #expect(TerrainPicture.cover(picture: false, mounted: false, lifted: false, online: true) == .placeholder)
-        #expect(TerrainPicture.cover(picture: false, mounted: true, lifted: false, online: true) == .placeholder)
-        #expect(TerrainPicture.cover(picture: false, mounted: true, lifted: false, online: false) == .placeholder)
+        for atMount in [false, true] {
+            #expect(TerrainPicture.cover(picture: false, pictureAtMount: atMount, mounted: false, lifted: false, online: false) == .plot)
+            #expect(TerrainPicture.cover(picture: false, pictureAtMount: atMount, mounted: false, lifted: false, online: true) == .placeholder)
+            #expect(TerrainPicture.cover(picture: false, pictureAtMount: atMount, mounted: true, lifted: false, online: true) == .placeholder)
+            #expect(TerrainPicture.cover(picture: false, pictureAtMount: atMount, mounted: true, lifted: false, online: false) == .placeholder)
+        }
+    }
+
+    @Test func aPictureFinishedDuringTheBeatLeavesThePlaceholderOverTheLiveMap() {
+        // a first visit online: the live map mounted under the placeholder, and the picture drawn alongside it lands
+        // during the beat. One fade, not two: the placeholder stays until the lift; the picture waits for the next visit
+        #expect(TerrainPicture.cover(picture: true, pictureAtMount: false, mounted: true, lifted: false, online: true) == .placeholder)
+        // and stays so if the network goes during the beat
+        #expect(TerrainPicture.cover(picture: true, pictureAtMount: false, mounted: true, lifted: false, online: false) == .placeholder)
     }
 
     @Test func onceLiftedNothingCoversTheLiveMap() {
         for picture in [false, true] {
-            for online in [false, true] {
-                // a picture made after the lift is kept for the next visit, never laid over the live map
-                #expect(TerrainPicture.cover(picture: picture, mounted: true, lifted: true, online: online) == nil)
+            for atMount in [false, true] {
+                for online in [false, true] {
+                    // a picture made after the lift is kept for the next visit, never laid over the live map
+                    #expect(TerrainPicture.cover(picture: picture, pictureAtMount: atMount, mounted: true, lifted: true, online: online) == nil)
+                }
             }
         }
     }

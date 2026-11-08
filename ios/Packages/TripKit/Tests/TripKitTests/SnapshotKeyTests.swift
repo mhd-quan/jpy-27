@@ -215,4 +215,21 @@ import Testing
             #expect(SnapshotKey.evicted(listing, toBytes: 440) == expected)
         }
     }
+
+    /// The one pair-eviction loop of the folder trims (`SnapshotKey.evicted`, `TerrainPicture.evicted`): files grouped
+    /// by the stem the cache's rule reads from each name, a name it rejects neither counted nor deleted.
+    @Test func pairEvictionGroupsFilesByTheStemItIsGiven() {
+        let t = Date(timeIntervalSince1970: 1_000)
+        let files = [
+            SnapshotKey.StoredFile(name: "a.one", bytes: 100, used: t),
+            SnapshotKey.StoredFile(name: "a.two", bytes: 50, used: t.addingTimeInterval(30)),
+            SnapshotKey.StoredFile(name: "b.one", bytes: 100, used: t.addingTimeInterval(10)),
+            SnapshotKey.StoredFile(name: "notes", bytes: 1_000, used: .distantPast),
+        ]
+        let stem: (String) -> String? = { name in name.contains(".") ? String(name.prefix { $0 != "." }) : nil }
+        // a is as recent as its newer file (+30 s), so b (+10 s) goes first; "notes" counts for nothing
+        #expect(SnapshotKey.evictedPairs(files.shuffled(), toBytes: 200, stem: stem) == ["b.one"])
+        #expect(SnapshotKey.evictedPairs(files, toBytes: 250, stem: stem).isEmpty)
+        #expect(SnapshotKey.evictedPairs(files.reversed(), toBytes: 0, stem: stem) == ["a.one", "a.two", "b.one"])
+    }
 }

@@ -149,22 +149,8 @@ public enum TerrainPicture {
     /// together, counted as one, its use the newer of the two; the least recently used first, ties by stem, while
     /// over the budget. A name the cache did not make (`parse`) is neither counted nor deleted.
     public static func evicted(_ files: [StoredFile], toBytes budget: Int) -> [String] {
-        var pictures: [String: (bytes: Int, used: Date, names: [String])] = [:]
-        for f in files {
-            guard let file = parse(f.name) else { continue }
-            var p = pictures[file.stem] ?? (0, .distantPast, [])
-            p.bytes += f.bytes
-            p.used = max(p.used, f.used)
-            p.names.append(f.name)
-            pictures[file.stem] = p
-        }
-        var total = pictures.values.reduce(0) { $0 + $1.bytes }
-        var out: [String] = []
-        for (_, p) in pictures.sorted(by: { ($0.value.used, $0.key) < ($1.value.used, $1.key) }) where total > budget {
-            out += p.names
-            total -= p.bytes
-        }
-        return out.sorted()
+        // the rule `MapSnapshots` trims by, with this cache's names
+        SnapshotKey.evictedPairs(files, toBytes: budget) { parse($0)?.stem }
     }
 
     // MARK: Picture and live map
@@ -189,11 +175,13 @@ public enum TerrainPicture {
         mounted || (settled && online)
     }
 
-    /// The cover: none once lifted; else the picture; else, with no live map and no network, the plot; else the
-    /// placeholder, until the beat lifts it.
-    public static func cover(picture: Bool, mounted: Bool, lifted: Bool, online: Bool) -> Cover? {
+    /// The cover: none once lifted; else the picture, but over a live map only if a picture was the cover when it was
+    /// mounted (`pictureAtMount`; any value while not mounted); else, with no live map and no network, the plot; else
+    /// the placeholder, until the beat lifts it. A picture finished in the background during the beat (a first visit
+    /// online) waits for the next visit: one fade, the placeholder's at the lift, not the picture's and then its own.
+    public static func cover(picture: Bool, pictureAtMount: Bool, mounted: Bool, lifted: Bool, online: Bool) -> Cover? {
         if lifted { return nil }
-        if picture { return .picture }
+        if picture && (!mounted || pictureAtMount) { return .picture }
         if !mounted && !online { return .plot }
         return .placeholder
     }
