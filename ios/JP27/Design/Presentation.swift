@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // How things come on screen. A sheet grows out of the control that opened it (a navigation zoom
 // transition, as the system does for its own toolbar buttons) and shrinks back into it; a sheet
@@ -18,6 +19,10 @@ private nonisolated struct ZoomSpaceKey: EnvironmentKey {
 
 private nonisolated struct CloseSheetKey: EnvironmentKey {
     static var defaultValue: SheetCloser? { nil }
+}
+
+private nonisolated struct TransitionSettledKey: EnvironmentKey {
+    static var defaultValue: Bool { true }
 }
 
 /// Closes the sheet a view is in (and anything stacked on it), from its root or from a page
@@ -42,6 +47,15 @@ extension EnvironmentValues {
     nonisolated var closeSheet: SheetCloser? {
         get { self[CloseSheetKey.self] }
         set { self[CloseSheetKey.self] = newValue }
+    }
+
+    /// False while the page is still coming on screen (a sheet's zoom, a push, the phrase card), from
+    /// its first appearance until its transition ends (`settlesTransition`); true everywhere else,
+    /// the tabs' own pages included. Work that would cost a frame in the animation waits for it:
+    /// `.task(id: transitionSettled) { guard transitionSettled else { return } … }`.
+    nonisolated var transitionSettled: Bool {
+        get { self[TransitionSettledKey.self] }
+        set { self[TransitionSettledKey.self] = newValue }
     }
 }
 
@@ -109,6 +123,14 @@ extension View {
         }
     }
 
+    /// Marks a page that comes on screen by a transition (a sheet, a pushed page, the phrase card):
+    /// `transitionSettled` is false inside it until the transition has ended, and the transition
+    /// being measured (`Perf.current`) gets its first frame and its end here. Put it on the page
+    /// itself, inside any `zoomed(from:in:)`, which stays on the presented root.
+    func settlesTransition() -> some View {
+        modifier(TransitionSettle())
+    }
+
     /// Presents `AppModel.sheets[level]`, and inside it the level above.
     func presentsSheets(level: Int = 0) -> some View {
         modifier(SheetLayer(level: level))
@@ -152,6 +174,7 @@ private struct SheetLayer: ViewModifier {
     func body(content: Content) -> some View {
         content.sheet(item: presented) { top in
             SheetHost(sheet: top.sheet)
+                .settlesTransition()
                 .modifier(SheetLayer(level: level + 1))
                 // a failed write, said on the top sheet (the tabs say it when no sheet is up)
                 .saveIssueAlert(level: level + 1)
@@ -175,5 +198,96 @@ private struct SheetLayer: ViewModifier {
                 }
             }
         )
+    }
+}
+
+/// `settlesTransition()`. The page's first appearance takes the transition being measured and marks
+/// its first frame; the end comes from the probe (the end of the hosting controller's appearance
+/// transition), or 1 s after the first appearance at the latest, so the page never stays unsettled.
+private struct TransitionSettle: ViewModifier {
+    @State private var settled = false
+    @State private var appeared = false
+    @State private var mark: TransitionMark?
+
+    func body(content: Content) -> some View {
+        content
+            .environment(\.transitionSettled, settled)
+            .background {
+                TransitionProbe { settle(.settled) }
+                    .frame(width: 0, height: 0)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            .onAppear {
+                guard !appeared else { return }
+                appeared = true
+                mark = Perf.current
+                mark?.firstFrame()
+                // the probe can report before SwiftUI calls this
+                if settled { mark?.settled() }
+            }
+            // the cap; again on each appearance, a no-op once settled
+            .task {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled else { return }
+                settle(.cap)
+            }
+    }
+
+    private func settle(_ how: Perf.End) {
+        guard !settled else { return }
+        settled = true
+        mark?.settled(how)
+    }
+}
+
+/// A zero-size controller inside the page: UIKit forwards the page's appearance to it, and its
+/// `transitionCoordinator` is the one of the push or presentation it is part of (UIKit looks up the
+/// parents). Reports once, when that transition completes, or when the page has appeared if
+/// there is none.
+private struct TransitionProbe: UIViewControllerRepresentable {
+    let done: () -> Void
+
+    func makeUIViewController(context: Context) -> ProbeController {
+        let controller = ProbeController()
+        controller.done = done
+        return controller
+    }
+
+    func updateUIViewController(_ controller: ProbeController, context: Context) {
+        controller.done = done
+    }
+
+    final class ProbeController: UIViewController {
+        var done: (() -> Void)?
+        private var waiting = false
+        private var reported = false
+
+        override func loadView() {
+            let view = UIView()
+            view.isUserInteractionEnabled = false
+            view.isAccessibilityElement = false
+            self.view = view
+        }
+
+        override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+            guard !reported, !waiting, let coordinator = transitionCoordinator else { return }
+            waiting = coordinator.animate(alongsideTransition: nil) { [weak self] _ in
+                self?.waiting = false
+                self?.report()
+            }
+        }
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            if !waiting { report() }
+        }
+
+        private func report() {
+            guard !reported else { return }
+            reported = true
+            done?()
+        }
     }
 }

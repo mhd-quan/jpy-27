@@ -1,4 +1,5 @@
 import BackgroundTasks
+import MetricKit
 import SwiftData
 import SwiftUI
 import TripKit
@@ -49,6 +50,8 @@ struct JP27App: App {
 final class JP27AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         AppModel.shared.location.start()
+        // the day's hitches, launch times and transitions, delivered once a day (Chẩn đoán › Số đo)
+        MXMetricManager.shared.add(MetricsInbox.shared)
         return true
     }
 }
@@ -182,6 +185,11 @@ struct RouteHost: View {
     let route: Route
 
     var body: some View {
+        page.settlesTransition()
+    }
+
+    @ViewBuilder
+    private var page: some View {
         switch route {
         case .day(let key): DayView(key: key)
         case .place(let id): PlaceView(id: id)

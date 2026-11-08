@@ -59,12 +59,15 @@ struct FujiPageHost: View {
     let page: FujiPage
 
     var body: some View {
-        switch page {
-        case .map(let area, let focus):
-            FujiExplorer(area: area, focus: focus, spots: model.guide.fuji.spots, summit: model.guide.fuji.summit.coordinate)
-        case .kawaguchiko:
-            FujiKawaguchikoPage()
+        Group {
+            switch page {
+            case .map(let area, let focus):
+                FujiExplorer(area: area, focus: focus, spots: model.guide.fuji.spots, summit: model.guide.fuji.summit.coordinate)
+            case .kawaguchiko:
+                FujiKawaguchikoPage()
+            }
         }
+        .settlesTransition()
     }
 }
 

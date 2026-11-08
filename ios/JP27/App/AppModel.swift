@@ -60,6 +60,22 @@ enum AppSheet: Identifiable, Hashable {
         case .settings: "settings"
         }
     }
+
+    /// The name its opening is measured under (`Perf.transition`), one per kind.
+    var signpost: StaticString {
+        switch self {
+        case .place: "sheet.place"
+        case .ride: "sheet.ride"
+        case .expense: "sheet.expense"
+        case .atPlace: "sheet.atPlace"
+        case .menuScan: "sheet.menuScan"
+        case .listen: "sheet.listen"
+        case .fujiFinder: "sheet.fujiFinder"
+        case .fujiSpot: "sheet.fujiSpot"
+        case .journal: "sheet.journal"
+        case .settings: "sheet.settings"
+        }
+    }
 }
 
 /// The app's state: the plan, the clock, where you are in today, and what was recorded.
@@ -109,10 +125,20 @@ enum AppSheet: Identifiable, Hashable {
     var tab: AppTab = .today
     /// sheets on screen, bottom first; see `present(_:from:)`
     var sheets: [Presented] = []
-    var todayPath = NavigationPath()
-    var planPath = NavigationPath()
-    var talkPath = NavigationPath()
-    var spendPath = NavigationPath()
+    // a push is measured from where its path grows (`NavigationLink(value:)` has no tap hook); the
+    // path cannot say which page was pushed, so the name is the tab's
+    var todayPath = NavigationPath() {
+        didSet { if todayPath.count > oldValue.count { Perf.transition("push.today") } }
+    }
+    var planPath = NavigationPath() {
+        didSet { if planPath.count > oldValue.count { Perf.transition("push.plan") } }
+    }
+    var talkPath = NavigationPath() {
+        didSet { if talkPath.count > oldValue.count { Perf.transition("push.talk") } }
+    }
+    var spendPath = NavigationPath() {
+        didSet { if spendPath.count > oldValue.count { Perf.transition("push.spend") } }
+    }
     /// a place the map should frame next time it shows
     var mapFocus: String?
     /// a day the map should show next time it shows
@@ -1346,11 +1372,14 @@ enum AppSheet: Identifiable, Hashable {
             sheets.removeSubrange((i + 1)...)
             return
         }
+        Perf.transition(sheet.signpost)
         sheets.append(Presented(sheet: sheet, source: source))
     }
 
     /// From a link or a notification: this sheet alone, over whatever tab is showing.
     func show(_ sheet: AppSheet) {
+        // already at the bottom: the sheets above it close, nothing opens
+        if sheets.first?.id != sheet.id { Perf.transition(sheet.signpost) }
         sheets = [Presented(sheet: sheet, source: nil)]
     }
 

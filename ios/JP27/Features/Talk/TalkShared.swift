@@ -47,6 +47,7 @@ private struct TalkPhraseCover: ViewModifier {
     func body(content: Content) -> some View {
         content.fullScreenCover(item: $item) { shown in
             TalkShowCard(item: shown)
+                .settlesTransition()
                 .zoomed(from: shown.source, in: space)
         }
     }

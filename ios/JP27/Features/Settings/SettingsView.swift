@@ -101,6 +101,11 @@ private struct DiagnosticsSection: View {
 
     var body: some View {
         Section {
+            NavigationLink {
+                SettingsPage(title: "Số đo") { MetricsSection() }
+            } label: {
+                SettingsLabel(title: "Số đo", symbol: "chart.bar.xaxis", tint: .indigo)
+            }
             Toggle(isOn: $readings) {
                 Label {
                     Text("Đo khung hình bản đồ")
@@ -306,6 +311,123 @@ private struct DiagnosticsSection: View {
         }
     }
     #endif
+}
+
+/// What MetricKit reported about the app on this phone, a day at a time, as kept in
+/// `Caches/metrics` (`MetricsInbox`): hitches, launch time, and each measured transition from the tap
+/// to its end (`Perf`). The payloads' own JSON can be shared, for a closer look on a computer.
+private struct MetricsSection: View {
+    @State private var stored: (digests: [MetricsDigest], payloads: [URL])?
+
+    var body: some View {
+        Group {
+            if let stored {
+                if stored.digests.isEmpty {
+                    Section {
+                        Text("Chưa có số đo. iOS gửi số đo của ngày trước mỗi ngày một lần, sau khi app được dùng.")
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Section {
+                        ForEach(stored.digests, id: \.end) { day in
+                            LabeledContent {
+                                VStack(alignment: .trailing, spacing: 2) {
+                                    Text("cuộn \(Self.ratio(day.scrollHitches)) · mọi lúc \(Self.ratio(day.hitches))")
+                                    Text("mở app \(Self.ms(PerfStats.median(day.launch)))")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .monospacedDigit()
+                            } label: {
+                                Text(Self.day(day.begin))
+                            }
+                        }
+                    } header: {
+                        Text("Theo ngày")
+                    } footer: {
+                        Text("Giật khi cuộn và giật trong mọi chuyển động, tính bằng ms mỗi giây chuyển động. Mở app: trung vị tới khung đầu tiên.")
+                    }
+                    Section {
+                        ForEach(Self.transitions(stored.digests), id: \.name) { t in
+                            LabeledContent {
+                                VStack(alignment: .trailing, spacing: 2) {
+                                    Text(Self.ms(PerfStats.median(t.buckets)))
+                                    Text("\(t.count) lần · giật \(Self.ratio(t.hitches))")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .monospacedDigit()
+                            } label: {
+                                Text(t.name).font(.subheadline.monospaced())
+                            }
+                        }
+                    } header: {
+                        Text("Chuyển cảnh")
+                    } footer: {
+                        Text("Từ lúc chạm tới khi chuyển cảnh xong: trung vị của mọi ngày còn giữ. Giật: trung bình theo số lần, trong lúc chuyển.")
+                    }
+                }
+                if !stored.payloads.isEmpty {
+                    Section {
+                        ShareLink(items: stored.payloads) {
+                            Label("Chia sẻ JSON", systemImage: "square.and.arrow.up")
+                        }
+                    } footer: {
+                        Text("Bản gốc MetricKit gửi, \(stored.payloads.count) ngày gần nhất.")
+                    }
+                }
+            } else {
+                Section {
+                    ProgressView()
+                }
+            }
+        }
+        .task { stored = await MetricsInbox.stored() }
+    }
+
+    /// one transition name over every day kept
+    private struct Measured {
+        let name: String
+        let count: Int
+        let buckets: [PerfStats.Bucket]
+        let hitches: MetricsDigest.Ratio?
+    }
+
+    /// The days merged per name, names in order: the buckets put together (`PerfStats.median` merges
+    /// equal ones), the hitch ratio averaged by count.
+    private static func transitions(_ digests: [MetricsDigest]) -> [Measured] {
+        let byName = Dictionary(grouping: digests.flatMap(\.signposts), by: \.name)
+        return byName.keys.sorted().map { name -> Measured in
+            let days = byName[name] ?? []
+            let rated = days.filter { $0.hitches != nil && $0.count > 0 }
+            let weight = rated.reduce(0) { $0 + $1.count }
+            let hitches = rated.first.map { first in
+                MetricsDigest.Ratio(
+                    value: rated.reduce(0.0) { $0 + ($1.hitches?.value ?? 0) * Double($1.count) } / Double(max(weight, 1)),
+                    unit: first.hitches?.unit ?? ""
+                )
+            }
+            return Measured(name: name, count: days.reduce(0) { $0 + $1.count }, buckets: days.flatMap(\.buckets), hitches: hitches)
+        }
+    }
+
+    /// "2,1 ms per s", or "—"
+    private static func ratio(_ r: MetricsDigest.Ratio?) -> String {
+        guard let r else { return "—" }
+        return "\(Fmt.decimal(r.value, digits: 1)) \(r.unit)"
+    }
+
+    /// "640 ms", or "—"
+    private static func ms(_ value: Double?) -> String {
+        guard let value else { return "—" }
+        return "\(Fmt.decimal(value, digits: 0)) ms"
+    }
+
+    /// "7/11"
+    private static func day(_ date: Date) -> String {
+        let c = Calendar.current.dateComponents([.day, .month], from: date)
+        return "\(c.day ?? 0)/\(c.month ?? 0)"
+    }
 }
 
 // MARK: - Building blocks
