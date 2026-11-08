@@ -42,7 +42,7 @@ Cài đặt › Chẩn đoán › "Ảnh bản đồ đã lưu" và "So khung b�
 ## 4.2
 
 Bước 1: bản Release, Instruments template **Time Profiler** (không phải template của
-`docs/perf/2026-11-baseline.md`). Bước 2–7: bản nào cũng được, mở Apple Music (hay Spotify), phát một bài rồi
+`docs/perf/2026-11-baseline.md`). Bước 2–8: bản nào cũng được, mở Apple Music (hay Spotify), phát một bài rồi
 quay lại JP27, loa ngoài, không tai nghe. Bước 7 cần Console trên máy Mac (subsystem `tech.delphyra.jp27`,
 category `audio`). Không có mã S: không kịch bản nào trong `docs/perf/2026-11-baseline.md` đọc câu. Việc của
 session âm thanh chạy trên hàng đợi `jp27.audio-session`; nhạc to lại khoảng nửa giây sau câu đọc cuối (lúc
@@ -57,6 +57,7 @@ app nhả session).
 | 5 | Một câu rồi Nghe: bấm đọc một câu, ngay khi câu xong (trong nửa giây) mở Nghe và bấm nghe, nói một câu tiếng Nhật, bấm dừng | Nghe chép được câu nói (micro không bị tắt); bấm dừng thì nhạc to lại trong vòng 1 giây | |
 | 6 | Dừng Nghe giữa câu (như bước 7 của Task 3.4b): đang nghe, bấm đọc một câu dài (đọc chậm), bấm dừng Nghe khi câu mới đọc được nửa; rồi bấm nghe lần nữa | câu đọc tiếp tới hết, không bị cắt; nhạc to lại chậm nhất 1 giây sau khi câu đọc xong; lần nghe sau chép được | |
 | 7 | Console, lọc category `audio`, trong lúc làm bước 2–6 | không có dòng "… failed: …". Một dòng "… busy, tried again in 150 ms …" được phép nếu nhạc vẫn to lại; ghi lại nếu có | |
+| 8 | Nghe một câu (Sổ tay, bấm đọc) với nhạc của app khác đang phát, rồi về màn hình chính ngay khi câu vừa dứt. Không đang theo một chuyến tàu (lúc đó app chạy tiếp ở nền) | nhạc lên lại trong 1 giây. Nếu nhạc chỉ lên lại khi mở lại JP27, ghi lại | |
 
 ## 4.3
 

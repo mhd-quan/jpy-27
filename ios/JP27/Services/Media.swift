@@ -635,6 +635,12 @@ extension Speaker: AVSpeechSynthesizerDelegate {
 
     private static func run(_ commands: [AudioSessionPlan.Command], generation: Int,
                             done: (@MainActor @Sendable (AudioSessionFailure?) -> Void)?) {
+        // a batch with no steps still goes through the queue, so `done` runs after every batch before it
+        enqueue(schedule(commands), generation: generation, done: done)
+    }
+
+    /// The waits a decision asks for, started or cancelled here; returns its session steps, in order.
+    private static func schedule(_ commands: [AudioSessionPlan.Command]) -> [AudioSessionPlan.Step] {
         var steps: [AudioSessionPlan.Step] = []
         for command in commands {
             switch command {
@@ -656,7 +662,11 @@ extension Speaker: AVSpeechSynthesizerDelegate {
                 }
             }
         }
-        // a batch with no steps still goes through the queue, so `done` runs after every batch before it
+        return steps
+    }
+
+    private static func enqueue(_ steps: [AudioSessionPlan.Step], generation: Int,
+                                done: (@MainActor @Sendable (AudioSessionFailure?) -> Void)?) {
         queue.run(steps) { failure in
             Task { @MainActor in
                 // the plan learns of a failure before anyone waiting on the batch goes on
@@ -675,7 +685,9 @@ extension Speaker: AVSpeechSynthesizerDelegate {
         } else {
             log.error("audio session \(step, privacy: .public) failed: \(failure.message, privacy: .public)")
         }
-        run(commands, generation: plan.generation, done: nil)
+        // the plan answers a failure with a retry's wait or nothing: no step, and nobody waits on it, so no batch
+        let steps = schedule(commands)
+        if !steps.isEmpty { enqueue(steps, generation: plan.generation, done: nil) }
     }
 
     /// After a media services reset the session's category is the default again: the plan forgets the one it set.
