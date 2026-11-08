@@ -16,6 +16,15 @@ struct MapTab: View {
     @State private var header: CGFloat = 132
     /// the item of the day the timeline is on (a stop or a move), by index
     @State private var active: Int?
+    /// the item the map shows (its route in focus, the halo, the side trips around it): `active` once
+    /// the reading line has rested on it (`flight`), at once on a choice by hand. A fast swipe changes
+    /// nothing on the map until it stops, and then the emphasis and the camera move together.
+    @State private var shown: Int?
+    /// the map's flight to the item the reading line comes to rest on (made on first use, `flights()`)
+    @State private var flight: Debouncer<MapFlight>?
+    /// `active` last came from the list scrolling under the finger: the stop strip follows it without
+    /// animation
+    @State private var readByScroll = false
     /// a place tapped off the plan: shown with the way to it from the stop being read
     @State private var side: String?
     @State private var camera: TripMapCamera?
@@ -33,6 +42,7 @@ struct MapTab: View {
     /// Settings › Chẩn đoán: with the frame readings on, the overlays can be drawn without glass
     @AppStorage(MapPacer.readingsKey) private var readings = false
     @AppStorage(MapPacer.glassKey) private var glass = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var day: Day { dayKey.flatMap { model.store.day($0) } ?? model.focusDay }
 
@@ -58,7 +68,7 @@ struct MapTab: View {
                 .ignoresSafeArea()
 
                 if let id = side, let place = model.store.place(id), stage != .large {
-                    MapSideCard(place: place, side: anchor(day).flatMap { a in sides[a]?.first { $0.id == id } }, from: anchorPlace(day)) {
+                    MapSideCard(place: place, side: anchor(day, at: active).flatMap { a in sides[a]?.first { $0.id == id } }, from: anchorPlace(day, at: active)) {
                         withAnimation(.snappy) { side = nil }
                     }
                     .padding(.horizontal, 12)
@@ -70,7 +80,7 @@ struct MapTab: View {
                 MapPanel(stage: $stage, containerSize: geo.size, headerHeight: $header) {
                     MapPanelTitle(day: day)
                 } strip: {
-                    MapStopStrip(day: day, active: active) { i in select(i, day: day, scroll: true, from: "map.stop.\(i)") }
+                    MapStopStrip(day: day, active: active, glides: !readByScroll) { i in select(i, day: day, scroll: true, from: "map.stop.\(i)") }
                 } content: {
                     MapTimeline(
                         day: day,
@@ -82,7 +92,7 @@ struct MapTab: View {
                         jump: jump,
                         stage: stage,
                         next: nextDay(after: day),
-                        onRead: { read($0, day: day) },
+                        onRead: { read($0, scrolling: $1, day: day) },
                         // a tapped row comes under the reading line too, so a scroll reads on from it
                         onTap: { select($0, day: day, scroll: true, from: "map.row.\($0)") },
                         onOpen: { _ = openCard($0, day: day, from: "map.row.\($0)") },
@@ -123,6 +133,7 @@ struct MapTab: View {
             let day = self.day
             Task {
                 try? await Task.sleep(for: .milliseconds(380))
+                shown = active
                 fly(day, to: active, force: false)
             }
         }
@@ -131,7 +142,9 @@ struct MapTab: View {
         // rehearsal starts or ends): what was picked belongs to the old day, whose indices the new
         // one may not have
         .onChange(of: day.key) {
+            flight?.cancel()
             active = nil
+            shown = nil
             side = nil
             jump = nil
         }
@@ -143,11 +156,11 @@ struct MapTab: View {
 
     private func content(_ day: Day, sides: [Int: [MapSide]]) -> MapContent {
         var c = MapContent.day(day, model: model, along: false)
-        if let i = active, day.items.indices.contains(i), case .move(let m) = day.items[i] {
+        if let i = shown, day.items.indices.contains(i), case .move(let m) = day.items[i] {
             c.focus = m.leg.id
         }
-        let from = anchorPlace(day)
-        if let a = anchor(day), let place = from {
+        let from = anchorPlace(day, at: shown)
+        if let a = anchor(day, at: shown), let place = from {
             c.pins.insert(MapPin(id: "halo-\(place.id)", coordinate: place.coordinate, kind: .halo), at: 0)
             for s in sides[a] ?? [] {
                 c.pins.append(MapPin(id: s.id, coordinate: s.place.coordinate, kind: s.isFood ? .snack : .along, label: s.place.name, titled: true))
@@ -159,35 +172,62 @@ struct MapTab: View {
                 c.pins.append(MapPin(id: id, coordinate: p.coordinate, kind: p.kind == .food ? .snack : .along, label: p.name, titled: true))
             }
             if let from, from.id != id {
-                let s = anchor(day).flatMap { a in sides[a]?.first { $0.id == id } }
+                let s = anchor(day, at: shown).flatMap { a in sides[a]?.first { $0.id == id } }
                 c.routes.append(MapGuide.way(from: from, to: p, along: s?.along))
             }
         }
         return c
     }
 
-    /// The stop whose surroundings are shown: the stop being read, or the one a move leads to.
-    private func anchor(_ day: Day) -> Int? {
-        guard let i = active, day.items.indices.contains(i) else { return nil }
+    /// The stop whose surroundings go with item `i` (`active` in the list, `shown` on the map): the
+    /// stop itself, or the one a move leads to.
+    private func anchor(_ day: Day, at i: Int?) -> Int? {
+        guard let i, day.items.indices.contains(i) else { return nil }
         if case .stop = day.items[i] { return i }
         return day.stops.first { $0.index > i }?.index
     }
 
-    private func anchorPlace(_ day: Day) -> Place? {
-        anchor(day).flatMap { model.store.place(day.items[$0].stop?.place) }
+    private func anchorPlace(_ day: Day, at i: Int?) -> Place? {
+        anchor(day, at: i).flatMap { model.store.place(day.items[$0].stop?.place) }
     }
 
     // MARK: Following the timeline
 
-    /// The reading line moved onto another item: show it, and drop the way to a place off the
-    /// plan that belonged to the stop before.
-    private func read(_ i: Int?, day: Day) {
+    /// The reading line moved onto another item: light it at once (with no animation under the
+    /// finger, a short one when the list moved by itself), and drop the way to a place off the plan
+    /// that belonged to the stop before. The map follows once the line rests (`landed`).
+    private func read(_ i: Int?, scrolling: Bool, day: Day) {
         guard i != active else { return }
-        withAnimation(.smooth(duration: 0.25)) {
+        if scrolling {
             active = i
-            side = nil
+        } else {
+            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { active = i }
         }
-        if stage != .large { fly(day, to: i, force: false) }
+        if readByScroll != scrolling { readByScroll = scrolling }
+        if side != nil {
+            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { side = nil }
+        }
+        flights().send(MapFlight(day: day.key, index: i))
+    }
+
+    /// Made on first use: the first read can come before the tab's own onAppear. Its `fire` holds this
+    /// view's value, whose state holds the debouncer: a cycle, for as long as the tab lives (one, made
+    /// by RootView for the app's life). The debouncer's wait holds it only weakly.
+    private func flights() -> Debouncer<MapFlight> {
+        if let flight { return flight }
+        let made = Debouncer<MapFlight>(delay: .milliseconds(150)) { landed($0) }
+        flight = made
+        return made
+    }
+
+    /// The reading line has rested on an item: the map shows it, and flies to it unless the panel
+    /// covers the map or the map was moved by hand a moment ago. Day, panel and touch are read now,
+    /// not when the line crossed.
+    private func landed(_ f: MapFlight) {
+        let day = self.day
+        guard f.day == day.key else { return }
+        shown = f.index
+        if stage != .large { fly(day, to: f.index, force: false) }
     }
 
     /// A stop, its row or its pin tapped by hand. The one already on show opens its card (the place
@@ -209,7 +249,11 @@ struct MapTab: View {
     private func activate(_ i: Int, day: Day, scroll: Bool, byHand: Bool = false) {
         if byHand, i != active { picks += 1 }
         touch.movedAt = .distantPast
-        withAnimation(.smooth(duration: 0.25)) {
+        // a read's flight still waiting would take the map back from the item chosen
+        flight?.cancel()
+        if readByScroll { readByScroll = false }
+        shown = i
+        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) {
             active = i
             side = nil
             if scroll { jump = MapJump(seq: (jump?.seq ?? 0) + 1, index: i) }
@@ -234,7 +278,11 @@ struct MapTab: View {
         }
     }
 
+    /// Every camera move the tab asks for. Whatever asked for it (a tap, Vị trí, Cả ngày, a place off
+    /// the plan, the panel coming down) wins over a read's flight still waiting.
     private func move(_ m: TripMapCamera.Move) {
+        flight?.cancel()
+        Perf.mark("map.fly")
         cameraSeq += 1
         camera = TripMapCamera(id: cameraSeq, move: m)
     }
@@ -244,6 +292,7 @@ struct MapTab: View {
     private func pickSide(_ id: String, day: Day, sides: [Int: [MapSide]]) {
         // choosing one ticks; tapping the chosen one again to let it go does not
         if side != id { picks += 1 }
+        shown = active
         withAnimation(.snappy) {
             side = side == id ? nil : id
             if stage == .large { stage = .medium }
@@ -255,7 +304,7 @@ struct MapTab: View {
     private func showSide(_ day: Day) {
         guard let id = side, let p = model.store.place(id) else { return }
         touch.movedAt = .distantPast
-        if let from = anchorPlace(day), from.id != id {
+        if let from = anchorPlace(day, at: active), from.id != id {
             move(.fit([from.coordinate, p.coordinate]))
         } else {
             move(.center(p.coordinate, zoom: 16))
@@ -276,6 +325,8 @@ struct MapTab: View {
     private func choose(_ key: String, byHand: Bool = false) {
         guard key != day.key else { return }
         if byHand { picks += 1 }
+        flight?.cancel()
+        shown = nil
         withAnimation(.smooth(duration: 0.3)) {
             dayKey = key
             active = nil
@@ -296,6 +347,7 @@ struct MapTab: View {
     }
 
     private func frameDay(_ day: Day) {
+        shown = nil
         withAnimation(.snappy) {
             active = nil
             side = nil
@@ -336,10 +388,18 @@ struct MapTab: View {
         if let i = day.stops.first(where: { $0.stop.place == id })?.index {
             activate(i, day: day, scroll: true)
         } else if model.store.place(id) != nil {
+            shown = active
             withAnimation(.snappy) { side = id }
             showSide(day)
         }
     }
+}
+
+/// Where the map is to fly once the reading line rests: an item of a day (nil, the whole day). The day
+/// goes with it, so a flight asked for on one day never lands on the next.
+nonisolated struct MapFlight: Equatable, Sendable {
+    let day: String
+    let index: Int?
 }
 
 /// When the map was last moved by hand.
@@ -808,8 +868,12 @@ private struct MapStop: Identifiable {
 /// is what the panel shows when it is down.
 private struct MapStopStrip: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let day: Day
     let active: Int?
+    /// the strip glides to the stop chosen; under a finger scrolling the list it keeps up without
+    /// animation
+    let glides: Bool
     let pick: (Int) -> Void
 
     private var stops: [MapStop] {
@@ -822,6 +886,8 @@ private struct MapStopStrip: View {
     var body: some View {
         let stops = self.stops
         let live = model.today?.key == day.key
+        // the stop kept in the middle: the one on show, or the last before the way being read
+        let target = active.flatMap { i in stops.last { $0.index <= i }?.index ?? stops.first?.index }
         ScrollViewReader { proxy in
             ScrollView(.horizontal) {
                 HStack(spacing: 6) {
@@ -837,10 +903,14 @@ private struct MapStopStrip: View {
             }
             .scrollIndicators(.hidden)
             .contentMargins(.horizontal, 14, for: .scrollContent)
-            .onChange(of: active) { _, i in
-                guard let i else { return }
-                let target = stops.last { $0.index <= i }?.index ?? stops.first?.index
-                withAnimation(.smooth) { proxy.scrollTo(target, anchor: .center) }
+            // only when that stop changes, not for each item read
+            .onChange(of: target) { _, t in
+                guard let t else { return }
+                if glides {
+                    withAnimation(Motion.reduced(Motion.settle, reduceMotion)) { proxy.scrollTo(t, anchor: .center) }
+                } else {
+                    proxy.scrollTo(t, anchor: .center)
+                }
             }
         }
     }
@@ -922,7 +992,9 @@ private struct MapTimeline: View {
     let jump: MapJump?
     let stage: MapPanelStage
     let next: Day?
-    let onRead: (Int?) -> Void
+    /// the item under the reading line, and whether the list is scrolling (a finger on it, or a
+    /// fling still going)
+    let onRead: (Int?, _ scrolling: Bool) -> Void
     let onTap: (Int) -> Void
     /// a stop's card, straight away (VoiceOver's Chi tiết)
     let onOpen: (Int) -> Void
@@ -976,6 +1048,7 @@ private struct MapTimeline: View {
             .onScrollGeometryChange(for: MapReading.self) { [window] in MapReading($0, window: window) } action: { _, r in reading(r) }
             .onScrollPhaseChange { old, new in
                 frames.touching = new == .tracking || new == .interacting
+                frames.moving = new != .idle
                 guard old == .interacting, new != .interacting else { return }
                 released()
             }
@@ -1069,7 +1142,7 @@ private struct MapTimeline: View {
         let i = r.atTop ? nil : frames.item(at: r.line, count: day.items.count)
         guard i != frames.last else { return }
         frames.last = i
-        onRead(i)
+        onRead(i, frames.touching || frames.moving)
     }
 
     private func released() {
@@ -1091,6 +1164,8 @@ private final class RowFrames {
     var pausedUntil = Date.distantPast
     /// a finger on the list
     var touching = false
+    /// the list scrolling in any way (a finger, a fling, a scroll asked for)
+    var moving = false
     /// pulled past the top far enough to fold the panel on letting go
     var pulled = false
     /// how far the list scrolls and how tall its content is, as last read (unknown before the

@@ -172,6 +172,26 @@ Bước 6 là **duyệt thiết kế** (mắt người, không có số).
 
 ## 5.4
 
+Bản Release, Instruments như `docs/perf/2026-11-baseline.md`: track os_signpost (`tech.delphyra.jp27` / `perf`),
+SwiftUI (View Body) và Animation Hitches. Trên tab Bản đồ, mục dưới đường đọc giữa danh sách sáng lên ngay, không có
+hoạt ảnh khi ngón tay đang cuộn. Bản đồ (đường đang đọc đậm lên, quầng quanh điểm dừng, các chỗ ghé bên cạnh) và
+camera chỉ theo khi đường đọc đứng yên 150 ms, cùng một lúc. Mỗi lần camera được yêu cầu di chuyển có một sự kiện
+signpost `map.fly` (`MapTab.move`: cuộn, chạm, Vị trí, Cả ngày, chỗ ghé bên cạnh). Chạm một mục thì bản đồ bay ngay,
+và mục sáng lên với `Motion.pick`. Dải điểm dừng chỉ cuộn khi điểm ở giữa thật sự đổi: không hoạt ảnh khi đang cuộn
+danh sách, lướt tới (`Motion.settle`) khi chạm.
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | S6 (tab Bản đồ, bảng ở giữa: vuốt nhanh dòng thời gian qua 8 mục rồi dừng): đếm sự kiện `map.fly` trong cả cú vuốt; track Hitches trong lúc vuốt | `map.fly` = 1, sau khi dừng; 0 hitch trên dòng thời gian; so với baseline (`a996140`) | |
+| 2 | Cùng cú vuốt nhanh, nhìn bản đồ | trong lúc vuốt bản đồ đứng yên: đường đậm, quầng và chỗ ghé không nhảy theo từng mục; khi dừng, chúng đổi cùng lúc với camera bay | |
+| 3 | Cuộn chậm, dừng một chút (khoảng nửa giây) ở mỗi mục, qua 3 mục | `map.fly` = 3, mỗi lần sau một lần dừng | |
+| 4 | Vuốt nhanh rồi chạm ngay một dòng khác trong vòng 150 ms sau khi dừng (hay chạm một điểm trên dải) | bản đồ bay tới mục vừa chạm và ở đó; không bay ngược về mục cú vuốt dừng | |
+| 5 | Vuốt rồi ngay lập tức chọn ngày khác trên dải ngày | bản đồ khung cả ngày mới; không bay tới một điểm của ngày cũ | |
+| 6 | Kéo bảng lên toàn màn hình, cuộn qua vài mục, rồi hạ bảng xuống | khi bảng che bản đồ không có `map.fly`; khi hạ xuống, bản đồ bay một lần tới mục đang đọc, đã có quầng và đường đậm | |
+| 7 | Bật Giảm chuyển động (Cài đặt › Trợ năng › Chuyển động), chạm một dòng rồi cuộn | camera nhảy thẳng tới chỗ mới, không bay; mục chạm sáng lên với hoạt ảnh ngắn (mờ dần); dải điểm cuộn không lướt | |
+| 8 | Cuộn danh sách qua vài điểm dừng, nhìn dải điểm trong phần đầu bảng | dải theo kịp, không có hoạt ảnh lướt dưới ngón tay; khi đi qua một đoạn đường (mục di chuyển) điểm ở giữa dải không đổi thì dải không cuộn | |
+| 9 | Kéo bản đồ bằng tay, rồi trong vòng 4 giây cuộn danh sách qua một mục và dừng | bản đồ không bay (để yên chỗ người dùng kéo tới); quầng và đường đậm vẫn đổi theo mục đã dừng | |
+
 ## 5.3
 
 ## 5.6

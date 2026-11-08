@@ -107,6 +107,9 @@ struct TripMap: UIViewRepresentable {
     var onReady: (() -> Void)?
 
     @Environment(\.colorScheme) private var scheme
+    /// a camera move asked for (`camera`) is a flight the eye follows (`Motion.travel`): under Reduce
+    /// Motion it jumps. MapLibre keeps its own flight time; travel's 1.0 s does not set it.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// Settings › Đo khung hình bản đồ: the map's own frame readings, over the map
     @AppStorage(MapPacer.readingsKey) private var readings = false
     /// Settings › Chẩn đoán › Bóng địa hình, only while measuring
@@ -179,7 +182,7 @@ struct TripMap: UIViewRepresentable {
         }
         if let camera, camera.id != c.cameraID {
             c.cameraID = camera.id
-            c.move(map, camera.move)
+            c.move(map, camera.move, animated: Motion.reduced(Motion.travel, reduceMotion) != nil)
         }
     }
 
@@ -387,6 +390,7 @@ struct TripMap: UIViewRepresentable {
 
         /// The same into a style: a map's, or a snapshot's (`MapSnapshots`), drawn once.
         func apply(_ content: MapContent, in style: MLNStyle) {
+            // all this reads is the content (routes, pins with their visits, heat, focus): the same, nothing to do
             guard content != applied else { return }
             if !built { build(style) }
             let old = applied
