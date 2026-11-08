@@ -226,6 +226,21 @@ private func broken(_ step: Plan.Step) -> Plan.Failure { Plan.Failure(step: step
         #expect(plan.holder == .nobody)
     }
 
+    /// The app never sends this sequence: the queue stops a batch at its first failure, and a retry's batch is
+    /// queued only by `retryDue`, so no second failure can come while the retry waits. The plan still gives at most
+    /// one retry, and the second failure ends the deactivation.
+    @Test func aSecondBusyFailureWhileTheRetryWaitsIsNeverASecondRetry() {
+        var plan = Plan()
+        _ = plan.handle(.speakerWillSpeak)
+        _ = plan.handle(.speakerDone)
+        let g = plan.generation
+        #expect(plan.handle(.releaseDue(generation: g)) == [deactivate])
+        #expect(plan.handle(.failed(busy(.deactivate), generation: g)) == [.retry(afterMilliseconds: 150, generation: g)])
+        #expect(plan.handle(.failed(busy(.deactivate), generation: g)) == [])
+        #expect(plan.handle(.retryDue(generation: g)) == [])
+        #expect(plan.holder == .nobody)
+    }
+
     @Test func ngheRetriesItsRestoreWithTheDeactivation() {
         var plan = Plan()
         _ = plan.handle(.listenerStarting)
@@ -291,6 +306,23 @@ private func broken(_ step: Plan.Step) -> Plan.Failure { Plan.Failure(step: step
         #expect(plan.priorCaptured == before.priorCaptured)
         #expect(plan.lastSet == nil)
         #expect(plan.handle(.speakerWillSpeak) == [setSpeaker])
+    }
+
+    @Test func aMediaServicesResetLeavesAPendingReleaseAndACapturedPrior() {
+        // a release pending across the reset still comes due
+        var plan = Plan()
+        _ = plan.handle(.speakerWillSpeak)
+        _ = plan.handle(.speakerDone)
+        let g = plan.generation
+        #expect(plan.handle(.mediaServicesReset) == [])
+        #expect(plan.handle(.releaseDue(generation: g)) == [deactivate])
+
+        // a prior captured before the reset is still given back
+        var listening = Plan()
+        _ = listening.handle(.listenerStarting)
+        let ticket = listening.generation
+        #expect(listening.handle(.mediaServicesReset) == [])
+        #expect(listening.handle(.listenerStopped(ticket: ticket, lineBeingRead: false)) == [deactivate, restore])
     }
 
     @Test func everyTakeIsANewGeneration() {
