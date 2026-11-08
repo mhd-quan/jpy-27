@@ -15,6 +15,19 @@ public nonisolated enum Yen {
         yen >= 1 && yen <= maxEntry
     }
 
+    /// What the editor starts on when it changes an expense: its amount, or nothing (0) when the
+    /// keypad could not have typed it (a row saved before the cap held everywhere).
+    public static func seed(editing yen: Int) -> Int {
+        isValidEntry(yen) ? yen : 0
+    }
+
+    /// What the editor starts on when it is opened with an amount (a scanned price, an estimate):
+    /// nothing for none or for nothing above 0, else the amount held to `maxEntry`.
+    public static func seed(asked yen: Int?) -> Int {
+        guard let yen, yen > 0 else { return 0 }
+        return min(yen, maxEntry)
+    }
+
     /// The sum, held at `Int.max` or `Int.min` where it would overflow.
     public static func total<S: Sequence>(_ values: S) -> Int where S.Element == Int {
         var sum = 0

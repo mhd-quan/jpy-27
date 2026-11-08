@@ -282,10 +282,10 @@ extension ExpenseDraft {
         if let e = editing {
             // an amount the keypad could not have typed starts again from nothing; a note too long
             // shows (and saves) its start, and says so
-            return ExpenseDraft(value: Yen.isValidEntry(e.yen) ? e.yen : 0, category: e.spendCategory, method: e.payMethod,
+            let note = LedgerValidation.seed(note: e.note)
+            return ExpenseDraft(value: Yen.seed(editing: e.yen), category: e.spendCategory, method: e.payMethod,
                                 dayKey: e.day, place: e.placeID, placeName: e.placeName ?? "",
-                                note: String(e.note.prefix(LedgerValidation.maxText)),
-                                longNote: e.note.count > LedgerValidation.maxText)
+                                note: note.text, longNote: note.long)
         }
         // the place: the one it was opened from, else today's planned place within 150 m of you
         let place = placeID ?? model.position.flatMap { here in
@@ -294,7 +294,7 @@ extension ExpenseDraft {
         let p = model.store.place(place)
         // the day it counts toward: today on the trip; else the day the place is planned for
         let dayKey = model.today?.key ?? p?.uses.first { use in model.days.contains { $0.key == use.day } }?.day
-        return ExpenseDraft(value: yen.map { $0 > 0 ? min($0, Yen.maxEntry) : 0 } ?? 0,
+        return ExpenseDraft(value: Yen.seed(asked: yen),
                             category: p.map { SpendCategory.of($0) } ?? .food,
                             method: p.map { method(for: $0) } ?? .cash,
                             dayKey: dayKey, place: place, placeName: "", note: "", longNote: false)

@@ -144,6 +144,13 @@ public nonisolated enum LedgerValidation {
     /// the longest note or typed place name, in characters
     public static let maxText = 500
 
+    /// The note the editor starts on when it changes an expense: its first `maxText` characters (a
+    /// character as a person sees it, a flag or an accented letter whole), and whether it was longer,
+    /// which the editor says, since saving keeps only that start.
+    public static func seed(note: String) -> (text: String, long: Bool) {
+        (String(note.prefix(maxText)), note.count > maxText)
+    }
+
     public static func problems(_ r: LedgerRecord, now: Date) -> Set<Problem> {
         var p = contentProblems(r)
         let limit = now.addingTimeInterval(LedgerMerge.clockSlack)
