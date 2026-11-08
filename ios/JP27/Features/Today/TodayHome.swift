@@ -91,7 +91,7 @@ private struct HomeCover: View {
         // else, and no page turn lands in the middle of a sheet's zoom. (Read here, not in the
         // body, so opening a sheet does not re-run the cover.)
         .task(id: "\(page ?? 0)-\(visible)-\(model.lowPower)") {
-            guard visible, !reduceMotion, shots.count > 1, toured < shots.count - 1 else { return }
+            guard visible, !reduceMotion, !model.lowPower, shots.count > 1, toured < shots.count - 1 else { return }
             repeat {
                 try? await Task.sleep(for: .seconds(6))
             } while !Task.isCancelled && !(model.sheets.isEmpty && model.tab == .today)
