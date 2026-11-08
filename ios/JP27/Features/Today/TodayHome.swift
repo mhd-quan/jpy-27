@@ -13,6 +13,8 @@ struct TodayHome: View {
     /// the day card the carousel rests on; the metro line follows it and moves it
     @State private var focus: String?
     @State private var shown: TalkShowItem?
+    /// the page a day card opens into, measured here (`HomePageProbe`)
+    @State private var probe = HomePageProbe()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 36) {
@@ -21,7 +23,7 @@ struct TodayHome: View {
             VStack(alignment: .leading, spacing: 18) {
                 HomeChapters(focus: $focus)
                     .padding(.horizontal, Metrics.gutter)
-                HomeDays(focus: $focus)
+                HomeDays(focus: $focus, probe: probe)
             }
             HomeTickets()
             HomeMeals()
@@ -35,8 +37,23 @@ struct TodayHome: View {
                 .padding(.horizontal, Metrics.gutter)
         }
         .padding(.bottom, 40)
+        // the size of the page a day card pushes (`heroFrame`'s rule, in the same stack under the same bars), for
+        // the day's prefetch; kept where nothing is drawn from it, so measuring re-renders nothing
+        .background {
+            Color.clear
+                .containerRelativeFrame([.horizontal, .vertical])
+                .onGeometryChange(for: CGSize.self) { $0.size } action: { probe.size = $0 }
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
         .phraseCover($shown)
     }
+}
+
+/// The home's scroll view less its safe area, as `containerRelativeFrame` measures it: the width and length of the
+/// day page a card pushes, which sits in the same navigation stack with the same top edge ignored. Not observed.
+final class HomePageProbe {
+    var size: CGSize?
 }
 
 // MARK: - Cover
@@ -116,7 +133,8 @@ private struct HomeCover: View {
                             // the slow drift is drawn every frame: not in Low Power Mode
                             HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible && !model.lowPower)
                         }
-                        .buttonStyle(.pressable(.plain))
+                        // the place's page starts loading as the finger comes down
+                        .buttonStyle(.pressable(.plain, onPress: { Prefetch.place(shots[i].place.id, model: model, at: .touch) }))
                         .containerRelativeFrame(.horizontal)
                         .sheetSource("home.cover.\(i)")
                         .accessibilityLabel(shots[i].place.name)
@@ -408,7 +426,10 @@ private struct HomeChapters: View {
 /// day's real path drawn small in the corner. A card opens its day, growing into it.
 private struct HomeDays: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.displayScale) private var scale
+    @Environment(\.colorScheme) private var scheme
     @Binding var focus: String?
+    let probe: HomePageProbe
 
     var body: some View {
         ScrollView(.horizontal) {
@@ -417,7 +438,8 @@ private struct HomeDays: View {
                         NavigationLink(value: Route.day(day.key)) {
                             HomeDayCard(day: day)
                         }
-                        .buttonStyle(.pressable)
+                        // the day's page starts loading as the finger comes down, ahead of anything at rest
+                        .buttonStyle(.pressable(.settle, onPress: { prefetch(day.key, at: .touch) }))
                         .sheetSource("home.day.\(day.key)")
                         // off centre a card shrinks a little and the paper shows through it
                         // (that part is drawn inside the card, see HomeDayCard)
@@ -431,10 +453,22 @@ private struct HomeDays: View {
             }
             .scrollTargetBehavior(.viewAligned)
             .scrollPosition(id: $focus, anchor: .leading)
-            // a station tapped moves the cards quietly: the station has ticked
-            .feelsPages(focus)
+            // a station tapped moves the cards quietly: the station has ticked. At rest, the card the row rests on
+            // starts loading its page: once per rest, not per card a fling passes (not in Low Power Mode, `Prefetch`)
+            .feelsPages(focus) {
+                if let key = focus { prefetch(key, at: .rest) }
+            }
             .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
             .scrollIndicators(.hidden)
+            // Low Power Mode: what loads ahead stops; a touch still loads the page it opens
+            .onChange(of: model.lowPower) { _, on in
+                if on { Prefetch.cancelAll() }
+            }
+    }
+
+    private func prefetch(_ key: String, at moment: Prefetch.Moment) {
+        let page = probe.size.map { Prefetch.Page(width: $0.width, length: $0.height, scale: scale, dark: scheme == .dark) }
+        Prefetch.day(key, model: model, at: moment, page: page)
     }
 }
 

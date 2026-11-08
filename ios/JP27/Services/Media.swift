@@ -232,6 +232,11 @@ actor PhotoCache {
         return FileManager.default.fileExists(atPath: file(for: url).path)
     }
 
+    /// `onPhone`, looked up off the main thread: what a prefetch (`Prefetch`) may load without the network.
+    @concurrent nonisolated static func isOnPhone(_ photo: Photo) async -> Bool {
+        onPhone(photo)
+    }
+
     /// The average colour of the photograph's lower band, read once and kept: what an ambient page is
     /// tinted with, so the photograph dissolves into its own colour. Read from the decode the page
     /// draws, with the veil; never downloaded for, nor waited on: a photo not on the phone yet leaves
@@ -661,6 +666,170 @@ extension PhotoCache {
     }
 }
 #endif
+
+// MARK: - Prefetch
+
+/// A page loaded before it opens, so it opens with its photograph, its colour and its map in the first frame: a
+/// day's page as its card comes to rest in the home's carousel, or as a finger comes down on the card; a place's
+/// page as a finger comes down on the home's cover photo. It asks exactly what the page asks (`DayPage`, the
+/// page's own photo and decode size, its hero's size and its map's key), so what it makes is what the page finds.
+///
+/// Background work (contract § 4.2): at most three at once, the newest winning (`NewestFew`), each a task that can
+/// be cancelled; never the network for a photograph (the page downloads its own when it opens); in Low Power Mode
+/// only on a touch, and no album picture is made (`AmbientPicture` makes none either).
+///
+/// What a cancel reaches: the album picture's making stops once nobody else waits for it (`PhotoCache.ambient`),
+/// and nothing after the step under way starts. A photo's veil and tone, once begun, finish (they are shared, and
+/// kept), and so does a map's picture once drawing (`MapSnapshots.snapshot`, one per key).
+enum Prefetch {
+    /// When it is asked for.
+    enum Moment: String {
+        /// the card came to rest in the middle: the map may be drawn, there is time before a touch
+        case rest
+        /// a finger came down on it: the page is about to open, so nothing is drawn on the main thread now (the map
+        /// only from memory or the disk), and it goes first
+        case touch
+
+        var priority: TaskPriority {
+            switch self {
+            case .rest: .utility
+            case .touch: .userInitiated
+            }
+        }
+    }
+
+    /// The page a day opens into, measured on the home (`TodayHome`), which sits in the same navigation stack, under
+    /// the same bars, as the day page it pushes: the width, the length `heroFrame` measures
+    /// (`containerRelativeFrame`, the scroll view less its safe area), the screen's scale, the system's dark.
+    nonisolated struct Page: Sendable {
+        let width: CGFloat
+        let length: CGFloat
+        let scale: CGFloat
+        let dark: Bool
+    }
+
+    /// the day page's hero on `page` (`heroFrame(fraction: DayPage.heroFraction)`)
+    private static func heroSize(_ page: Page) -> CGSize {
+        CGSize(width: page.width, height: CGFloat(AmbientFrame.heroHeight(length: Double(page.length), fraction: Double(DayPage.heroFraction))))
+    }
+
+    /// the day page's map on `page`: the page less its gutters, `DayPage.mapHeight` tall
+    private static func mapSize(_ page: Page) -> CGSize {
+        CGSize(width: page.width - 2 * Metrics.gutter, height: DayPage.mapHeight)
+    }
+
+    private static var slots = NewestFew<String>(limit: 3)
+    private static var tasks: [NewestFew<String>.Ticket: Task<Void, Never>] = [:]
+
+    /// The day's page: its photograph's colour, then its map, then its hero. `page` nil (not measured yet): only the
+    /// colour and the decode, no album picture and no map, whose keys need the page's size.
+    static func day(_ key: String, model: AppModel, at moment: Moment, page: Page?) {
+        if moment == .rest, model.lowPower { return }
+        let size = page.map { "\(Int(heroSize($0).width))x\(Int(heroSize($0).height))" } ?? "-"
+        run("day:\(key)", moment, size) { await Prefetch.loadDay(key, model: model, moment: moment, page: page) }
+    }
+
+    /// The place's page, opened as a sheet: the colour, the decode and the veil of its first photograph, none of which
+    /// depends on the sheet's size; its album picture is made when the sheet is up (its size is not known before).
+    static func place(_ id: String, model: AppModel, at moment: Moment) {
+        if moment == .rest, model.lowPower { return }
+        run("place:\(id)", moment, "-") { await Prefetch.loadPlace(id, model: model) }
+    }
+
+    /// Low Power Mode came on: everything under way stops (a touch then loads again).
+    static func cancelAll() {
+        for ticket in slots.removeAll() {
+            tasks.removeValue(forKey: ticket)?.cancel()
+        }
+    }
+
+    /// Started, unless it runs already (then raised to this priority); the oldest of three cancelled to make room.
+    private static func run(_ key: String, _ moment: Moment, _ size: String, _ work: @escaping @MainActor () async -> Void) {
+        switch slots.admit(key) {
+        case .running(let ticket):
+            tasks[ticket]?.escalatePriority(to: moment.priority)
+        case .start(let ticket, let cancelling):
+            if let cancelling { tasks.removeValue(forKey: cancelling)?.cancel() }
+            // one per prefetch started, for Instruments (os_signpost): "<key> rest|touch <hero w>x<h>"
+            Perf.signposter.emitEvent("prefetch", "\(key, privacy: .public) \(moment.rawValue, privacy: .public) \(size, privacy: .public)")
+            // on the main actor, as this is: stored before it can run, so its finish always finds it
+            tasks[ticket] = Task(priority: moment.priority) {
+                await work()
+                Prefetch.finished(ticket)
+            }
+        }
+    }
+
+    private static func finished(_ ticket: NewestFew<String>.Ticket) {
+        slots.finished(ticket)
+        tasks[ticket] = nil
+    }
+
+    private static func loadDay(_ key: String, model: AppModel, moment: Moment, page: Page?) async {
+        guard let day = model.store.day(key) else { return }
+        // the page's own photograph (`DayView`)
+        let photo = HomePicks.photo(for: day, store: model.store)
+        var local = false
+        if let photo { local = await PhotoCache.isOnPhone(photo) }
+        // the colour first: the page reads it as it is made (`PageTone`), and the map's scheme follows it. From the
+        // phone only, never the network (`tone`), which also decodes the photo at the page's size and blurs its veil
+        if let photo, local { _ = await PhotoCache.shared.tone(photo) }
+        guard !Task.isCancelled else { return }
+        if let page { await dayMap(day, photo: photo, model: model, moment: moment, page: page) }
+        guard !Task.isCancelled, let photo, local else { return }
+        await dayHero(photo, page: page, lowPower: model.lowPower)
+    }
+
+    /// The map's picture under the key the page will ask (`StaticTripMap` in `PlanDayHeader`): from memory or the disk,
+    /// and drawn only at a rest, and only when the scheme is known (no photograph, or its colour read). A picture
+    /// drawn under another key than the page's would prune the page's own from the disk (`MapSnapshots.store`).
+    private static func dayMap(_ day: Day, photo: Photo?, model: AppModel, moment: Moment, page: Page) async {
+        let size = mapSize(page)
+        guard size.width >= 1 else { return }
+        let system: ColorScheme = page.dark ? .dark : .light
+        // the colour the page will be made with: read when it is made, as here (`PageTone.init`)
+        let canvas = PageTone(photo).canvas(dim: page.dark)
+        let known = photo == nil || canvas != nil
+        let scheme = DayPage.mapScheme(photo: photo, canvas: canvas, system: system) ?? system
+        let printed = await fingerprinted(.day(day, model: model))
+        guard !Task.isCancelled else { return }
+        let request = MapSnapshots.Request(printed, frameID: day.key, insets: DayPage.mapInsets, size: size,
+                                           scale: page.scale, dark: scheme == .dark)
+        if moment == .rest, known {
+            _ = await MapSnapshots.shared.snapshot(for: request)
+        } else {
+            _ = await MapSnapshots.shared.stored(request)
+        }
+    }
+
+    /// The day's hero: its album picture at the page's hero size; in Low Power Mode, or with no page measured, the
+    /// picture made before if any, else the decode the page shows in its place.
+    private static func dayHero(_ photo: Photo, page: Page?, lowPower: Bool) async {
+        if let page, !lowPower {
+            _ = await PhotoCache.shared.ambient(photo, size: heroSize(page))
+            return
+        }
+        if let page, await PhotoCache.shared.savedAmbient(photo, size: heroSize(page)) != nil { return }
+        guard !Task.isCancelled else { return }
+        _ = await PhotoCache.shared.image(photo, maxPixel: PhotoCache.albumPixel)
+    }
+
+    private static func loadPlace(_ id: String, model: AppModel) async {
+        // the page's first photograph: the one its colour is taken from (`PlanAmbientPage`), and its hero's first page
+        guard let photo = model.store.place(id)?.images.first, await PhotoCache.isOnPhone(photo),
+              !Task.isCancelled else { return }
+        // the decode at the page's size, its veil and its colour, in one derivation; on the phone, so nothing downloads
+        _ = await PhotoCache.shared.veil(photo)
+        guard !Task.isCancelled else { return }
+        // the decode, if a veil and a colour read before left it out of memory
+        _ = await PhotoCache.shared.image(photo, maxPixel: PhotoCache.albumPixel)
+    }
+
+    /// The map's content with its fingerprint, which reads every point: off the main thread.
+    @concurrent private nonisolated static func fingerprinted(_ content: MapContent) async -> FingerprintedContent {
+        FingerprintedContent(content)
+    }
+}
 
 // MARK: - Photos kept for no signal
 

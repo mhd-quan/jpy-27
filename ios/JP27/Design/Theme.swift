@@ -198,9 +198,12 @@ struct PressableStyle: PrimitiveButtonStyle {
     var look: Look = .settle
     /// false for a button whose action plays a haptic of its own (a choice that ticks `pick`)
     var felt = true
+    /// called as a finger comes down on it (`isPressed` turning true), before it fires: the page it opens starts
+    /// loading (`Prefetch`). Only the `.settle` and `.plain` looks report it.
+    var onPress: (() -> Void)?
 
     func makeBody(configuration: Configuration) -> some View {
-        PressableButton(configuration: configuration, look: look, felt: felt)
+        PressableButton(configuration: configuration, look: look, felt: felt, onPress: onPress)
     }
 }
 
@@ -209,8 +212,8 @@ extension PrimitiveButtonStyle where Self == PressableStyle {
 
     /// `press` in another look: `.pressable(.plain)` for a card that keeps the plain style,
     /// `.pressable(.bordered)` for a NavigationLink drawn as a bordered button.
-    static func pressable(_ look: PressableStyle.Look, felt: Bool = true) -> PressableStyle {
-        PressableStyle(look: look, felt: felt)
+    static func pressable(_ look: PressableStyle.Look, felt: Bool = true, onPress: (() -> Void)? = nil) -> PressableStyle {
+        PressableStyle(look: look, felt: felt, onPress: onPress)
     }
 }
 
@@ -221,6 +224,7 @@ private struct PressableButton: View {
     let configuration: PrimitiveButtonStyleConfiguration
     let look: PressableStyle.Look
     let felt: Bool
+    let onPress: (() -> Void)?
 
     var body: some View {
         let button = Button(role: configuration.role) {
@@ -231,8 +235,13 @@ private struct PressableButton: View {
         }
         Group {
             switch look {
-            case .settle: button.buttonStyle(SettleStyle())
-            case .plain: button.buttonStyle(.plain)
+            case .settle: button.buttonStyle(SettleStyle(onPress: onPress))
+            case .plain:
+                if let onPress {
+                    button.buttonStyle(PlainPressStyle(onPress: onPress))
+                } else {
+                    button.buttonStyle(.plain)
+                }
             case .borderless: button.buttonStyle(.borderless)
             case .bordered: button.buttonStyle(.bordered)
             case .glass: button.buttonStyle(.glass)
@@ -242,10 +251,23 @@ private struct PressableButton: View {
 }
 
 private struct SettleStyle: ButtonStyle {
+    var onPress: (() -> Void)?
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.72), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, down in if down { onPress?() } }
+    }
+}
+
+/// The system's plain style, drawn by the system itself, that also says when a finger comes down.
+private struct PlainPressStyle: ButtonStyle {
+    let onPress: () -> Void
+
+    func makeBody(configuration: Configuration) -> some View {
+        PlainButtonStyle().makeBody(configuration: configuration)
+            .onChange(of: configuration.isPressed) { _, down in if down { onPress() } }
     }
 }
 

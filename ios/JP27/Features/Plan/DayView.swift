@@ -15,6 +15,21 @@ struct DayView: View {
     }
 }
 
+/// What the day page is laid out with, read by the page and by its prefetch (`Prefetch.day`), so the two name
+/// the same pictures: the hero's share of the page, the map's insets and height, the map's light or dark.
+enum DayPage {
+    /// the hero's share of the page's height
+    static let heroFraction: CGFloat = 0.56
+    static let mapInsets = UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 28)
+    static let mapHeight: CGFloat = 240
+
+    /// The map's scheme: with a photograph, the page colour's (`canvas`), the system's until it is known; nil on a
+    /// plain page, where the map takes the environment's.
+    static func mapScheme(photo: Photo?, canvas: AmbientCanvas?, system: ColorScheme) -> ColorScheme? {
+        photo == nil ? nil : (canvas?.scheme ?? system)
+    }
+}
+
 private struct PlanDayContent: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var system
@@ -23,9 +38,6 @@ private struct PlanDayContent: View {
     let photo: Photo?
     /// the page's colour, from the photograph, held while the page lives
     @State private var held: PageTone
-
-    /// the hero's share of the page's height
-    static let heroFraction: CGFloat = 0.56
 
     init(day: Day, photo: Photo?) {
         self.day = day
@@ -39,11 +51,11 @@ private struct PlanDayContent: View {
             VStack(alignment: .leading, spacing: 0) {
                 if let photo {
                     AmbientHero(photos: [photo], page: .constant(0))
-                        .heroFrame(fraction: Self.heroFraction)
+                        .heroFrame(fraction: DayPage.heroFraction)
                         .overlay(alignment: .bottom) { PlanDayHeadline(day: day, label: label) }
                 }
                 LazyVStack(alignment: .leading, spacing: Metrics.stack) {
-                    PlanDayHeader(day: day, titled: photo == nil, mapScheme: photo == nil ? nil : (canvas?.scheme ?? system))
+                    PlanDayHeader(day: day, titled: photo == nil, mapScheme: DayPage.mapScheme(photo: photo, canvas: canvas, system: system))
                     PlanDayTimeline(day: day)
                     if !day.along.isEmpty { PlanDayAlong(day: day) }
                     if !day.trims.isEmpty {
@@ -76,7 +88,7 @@ private struct PlanDayContent: View {
                 // the album page: the photograph dissolves into its own colour, which the whole
                 // page is then laid on
                 page
-                    .ambientPage(canvas, title: label, heroFraction: Self.heroFraction)
+                    .ambientPage(canvas, title: label, heroFraction: DayPage.heroFraction)
                     .decidesTone($held, of: photo)
             } else {
                 page.screen().navigationTitle(label)
@@ -155,9 +167,10 @@ private struct PlanDayHeader: View {
                 .accessibilityElement(children: .combine)
             }
             // a picture of the map, not a live one: a tap opens the Map tab on the day
-            StaticTripMap(content: .day(day, model: model), insets: UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 28),
+            // its picture is the one `Prefetch.day` asks for: the same content, frame, insets, size and scheme
+            StaticTripMap(content: .day(day, model: model), insets: DayPage.mapInsets,
                           frameID: day.key, tapToInteract: false, scheme: mapScheme)
-                .frame(height: 240)
+                .frame(height: DayPage.mapHeight)
                 .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                 // the map is still; a tap opens the live map tab
                 .overlay {

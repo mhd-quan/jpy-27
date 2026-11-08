@@ -257,6 +257,29 @@ Bước 3 là **duyệt thiết kế** (mắt người, không có số).
 
 ## 5.7
 
+Bản Release, Instruments như `docs/perf/2026-11-baseline.md`: track os_signpost (`tech.delphyra.jp27` / `perf`),
+SwiftUI (View Body), Animation Hitches, Allocations. Trang chủ (trước chuyến) nạp trước trang ngày khi thẻ ngày
+nằm yên giữa carousel (`Prefetch.day`, lúc cuộn về `idle`) hoặc khi ngón tay chạm xuống thẻ; chạm xuống ảnh bìa
+thì nạp trước trang địa điểm (`Prefetch.place`: màu, ảnh giải mã 1800, veil; không ghép ảnh vì chưa biết cỡ sheet).
+Mỗi lần nạp bắt đầu có một sự kiện signpost `prefetch` "<day:khoá|place:id> <rest|touch> <rộng>x<cao của hero>"
+(`-` khi chưa đo được trang). Tối đa 3 lần nạp cùng lúc, lần mới huỷ lần cũ nhất. Không bao giờ tải ảnh qua mạng.
+Bản đồ chỉ được vẽ khi nạp lúc nằm yên và đã biết màu trang; khi chạm chỉ đọc từ bộ nhớ hay đĩa.
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | S1 (Bước 4 của brief): dừng carousel ở một thẻ ngày, chờ 2 s, chạm thẻ đó → trang ngày zoom mở. Đo chạm → khung đầu (`push.today`); quay màn 240 fps nếu cần nhìn từng khung | khung đầu < 50 ms; trang ngày mở ra đã có ảnh (ảnh ghép, không phải ô xám hay ảnh rõ thay chỗ), màu trang và bản đồ ngay ở khung đầu; so với baseline (`a996140`) | |
+| 2 | Khớp khoá (R-456, T1): open a day that rested: no `map.snapshot` and no `photo.ambient made` event after the push; if either shows, the prefetch key differs from the page's (pruning thrash, T1) | sau khi đẩy trang: 0 `map.snapshot`, 0 `photo.ambient … made` | |
+| 3 | Khớp cỡ hero (UNVERIFIED: chiều dài trang chủ đo được có bằng của trang ngày không): mở một ngày chưa nạp trước, so `<rộng>x<cao>` của sự kiện `photo.ambient` với của sự kiện `prefetch` lúc thẻ đó nằm yên. Làm hai lần: thanh tab đầy đủ, và thanh tab đã thu nhỏ (cuộn trang chủ xuống trước) | hai cỡ bằng nhau ở cả hai lần | |
+| 4 | Vuốt nhanh carousel ngày qua khoảng 6 thẻ rồi để nó dừng | đúng 1 sự kiện `prefetch day:… rest`, cho thẻ nó dừng; không có sự kiện cho các thẻ lướt qua | |
+| 5 | Chạm một ga trên tuyến metro (thẻ tự cuộn tới) | khi thẻ dừng: 1 `prefetch day:… rest` cho thẻ của ga đó; thẻ di chuyển im lặng (không rung) | |
+| 6 | Vuốt tay chậm qua từng thẻ | vẫn rung `page` mỗi thẻ như trước (feelsPages chung một bộ theo dõi pha cuộn với việc nạp trước) | |
+| 7 | Đặt ngón lên một thẻ, giữ một chút rồi kéo carousel đi (chạm biến thành cuộn), làm qua vài thẻ | có thể có `prefetch day:… touch` cho thẻ đã chạm; không bao giờ quá 3 lần nạp đang chạy (lần thứ tư huỷ lần cũ nhất); không hitch | |
+| 8 | Bật Chế độ nguồn điện thấp. Dừng carousel ở một thẻ; rồi chạm thẻ đó | lúc dừng: không có `prefetch`; lúc chạm: 1 `prefetch day:… touch`; trang mở với ảnh rõ thay chỗ (không ghép ảnh mới, như 5.1b) và màu trang | |
+| 9 | Đang có lần nạp chạy (vừa dừng ở thẻ), bật Chế độ nguồn điện thấp | lần nạp dừng; không có `photo.ambient … made` sau đó cho đến khi chạm | |
+| 10 | Chạm ảnh bìa trên trang chủ | 1 `prefetch place:… touch`; sheet địa điểm mở với màu trang ở khung đầu; ảnh rõ có ngay, ảnh ghép hiện dần sau; khi giữ ngón, ảnh bìa trông như trước (kiểu plain của hệ thống, `PlainButtonStyle().makeBody`) | |
+| 11 | Tắt mạng (Chế độ máy bay), dừng ở một ngày có ảnh từ xa chưa tải về | không có yêu cầu mạng nào cho ảnh (Instruments › Network); không có `photo.decode` cho ảnh đó; trang mở ra trên nền giấy như trước | |
+| 12 | Bộ nhớ (R-457, T6): dừng lần lượt ở cả 12 thẻ ngày (mỗi thẻ 2 s), rồi cuộn lên ảnh bìa và để nó tự lật một vòng. Track Allocations / Memory | ghi bộ nhớ đỉnh; đếm sự kiện `photo.decode` của ảnh bìa trên trang chủ sau đó (mỗi cái là một ảnh bìa bị đẩy khỏi bộ nhớ, giải mã lại) | |
+
 ## 5.9
 
 ## 5.8b

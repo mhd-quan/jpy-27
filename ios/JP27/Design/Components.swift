@@ -71,18 +71,24 @@ extension View {
     /// position it is bound to, the way a wheel clicks through its rows. A scroll the code makes
     /// (a cover that turns by itself, cards that follow another control) is quiet. Goes on the
     /// scroll view; `position` is what its scroll position is bound to.
-    func feelsPages<Position: Equatable>(_ position: Position) -> some View {
-        modifier(SettlePick(position: position))
+    /// `rested` is called as the scroll comes to rest, and when `position` changes while it is at rest (the
+    /// position may land just after the rest): a carousel that loads what it rests on (`Prefetch`) reads the
+    /// position there. One phase handler for both, so the scroll view carries a single `onScrollPhaseChange`.
+    func feelsPages<Position: Equatable>(_ position: Position, rested: (() -> Void)? = nil) -> some View {
+        modifier(SettlePick(position: position, rested: rested))
     }
 }
 
 private struct SettlePick<Position: Equatable>: ViewModifier {
     let position: Position
-    /// whether the hand is in the scroll: dragging, or the fling it let go of
+    let rested: (() -> Void)?
+    /// whether the hand is in the scroll: dragging, or the fling it let go of; and whether the scroll is at rest
     @State private var hand = Hand()
 
+    /// not observed: the phase changes many times a second and nothing is drawn from it
     final class Hand {
         var on = false
+        var idle = true
     }
 
     func body(content: Content) -> some View {
@@ -90,9 +96,12 @@ private struct SettlePick<Position: Equatable>: ViewModifier {
             .onScrollPhaseChange { _, phase in
                 // animating is a scroll the code started; idle is at rest
                 hand.on = phase == .tracking || phase == .interacting || phase == .decelerating
+                hand.idle = phase == .idle
+                if phase == .idle { rested?() }
             }
             .onChange(of: position) {
                 if hand.on { Haptic.page() }
+                if hand.idle { rested?() }
             }
     }
 }
