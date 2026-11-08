@@ -88,6 +88,16 @@ jobs:
       - run: brew install xcodegen
       - run: xcodegen generate
         working-directory: ios
+      # SwiftPM's artifact cache can refuse the MapLibre zip at resolution ("…MapLibre.dynamic.xcframework.zip
+      # already exists in file system"): 4 of the early runs, once on a re-run of the same job. The pin cannot
+      # change that, so on a failure the cached artifacts are cleared and the packages resolved once more
+      - name: Resolve packages
+        working-directory: ios
+        run: |
+          xcodebuild -resolvePackageDependencies -project JP27.xcodeproj -scheme JP27 || {
+            rm -rf ~/Library/Caches/org.swift.swiftpm/artifacts
+            xcodebuild -resolvePackageDependencies -project JP27.xcodeproj -scheme JP27
+          }
       - name: Build
         working-directory: ios
         run: |
