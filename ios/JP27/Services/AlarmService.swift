@@ -24,8 +24,15 @@ final class AlarmKitScheduler: AlarmScheduling {
             let granted: Bool
             do {
                 granted = try await AlarmManager.shared.requestAuthorization() == .authorized
+                authFailure = nil
             } catch {
-                AppLog.error(.alarm, "Không xin được quyền báo thức", ["error": error.localizedDescription])
+                // a followed ride asks again at every fix while the state stays undetermined: the same
+                // failure is said once, until the system answers
+                let reason = error.localizedDescription
+                if authFailure != reason {
+                    authFailure = reason
+                    AppLog.error(.alarm, "Không xin được quyền báo thức", ["error": reason])
+                }
                 throw error
             }
             if !granted { saidDenied() }
@@ -35,6 +42,8 @@ final class AlarmKitScheduler: AlarmScheduling {
 
     /// once a launch: a followed ride asks again at every fix that moves its alarm
     private var deniedSaid = false
+    /// the last failure of asking for permission said, until the system answers
+    private var authFailure: String?
 
     private func saidDenied() {
         guard !deniedSaid else { return }

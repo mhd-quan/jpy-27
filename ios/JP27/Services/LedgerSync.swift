@@ -121,6 +121,8 @@ import UIKit
     @ObservationIgnored private var lastTouch = Date.distantPast
     /// keys said "not now" to, until the app opens again
     @ObservationIgnored private var declined: Set<Data> = []
+    /// what each repeating line last said, by line and peer (`once`)
+    @ObservationIgnored private var said: [String: String] = [:]
 
     /// A phone on the other end of a connection, as its greeting said, and the key the two share.
     private struct Peer {
@@ -199,7 +201,7 @@ import UIKit
     func setPaused(_ on: Bool) {
         guard on != paused else { return }
         paused = on
-        AppLog.info(.sync, "Đồng bộ tạm dừng khi chạy thử", ["paused": "\(on)"])
+        if on { AppLog.info(.sync, "Đồng bộ tạm dừng khi chạy thử", ["paused": "true"]) } else { AppLog.info(.sync, "Đồng bộ chạy lại sau khi chạy thử", ["paused": "false"]) }
         for k in peers.keys { peers[k]?.session.paused = on }
         if on { end() }
     }
@@ -271,6 +273,8 @@ import UIKit
     private func connected(_ k: Int) {
         guard let peer = peers[k], let p = partner(peer) else { return }
         AppLog.info(.sync, "Kết nối máy kia", ["peer": Self.peerTag(peer.key)])
+        // a new connection: what repeats on it is said afresh
+        unsay(peer: Self.peerTag(peer.key))
         nearby = p
         distance = closeness[k]
         seal(.intro(install: SpendLedgerFile.installID), to: k)
@@ -283,6 +287,30 @@ import UIKit
     private static func peerTag(_ key: Data?) -> String {
         guard let key else { return "none" }
         return String(SyncIdentity.fingerprint(key).map { String(format: "%02x", $0) }.joined().prefix(8))
+    }
+
+    /// Whether to log a line about one peer that a failing write would repeat at every heartbeat (15 s), on
+    /// both phones: said again only when `value` (a reason, a row count) is not the one said last for that
+    /// line and peer. Cleared by a success (`unsay`): the written ledger, the other phone's ack, a new connection.
+    private func once(_ line: Repeated, peer: String, _ value: String) -> Bool {
+        let key = "\(line) \(peer)"
+        guard said[key] != value else { return false }
+        said[key] = value
+        return true
+    }
+
+    private func unsay(_ lines: [Repeated] = Repeated.allCases, peer: String) {
+        for line in lines { said["\(line) \(peer)"] = nil }
+    }
+
+    /// The lines `once` holds back.
+    private enum Repeated: CaseIterable {
+        /// "Không lưu được sổ chi máy kia gửi", by reason
+        case unsaved
+        /// "Máy kia không lưu được sổ chi", by reason
+        case refused
+        /// "Gửi sổ chi", by the number of rows sent
+        case sent
     }
 
     private func savePaired() {
@@ -453,12 +481,15 @@ import UIKit
                 // counts only: never a row's note or place name, never the phone's name
                 let fields = ["peer": Self.peerTag(peer.key), "rows": "\(remote.records.count)", "rejected": "\(left.count)", "changed": "\(changes.upserts.count + changes.deletions.count)"]
                 if left.isEmpty { AppLog.info(.sync, "Nhận sổ chi", fields) } else { AppLog.warning(.sync, "Nhận sổ chi", fields) }
+                unsay([.unsaved], peer: Self.peerTag(peer.key))
             } catch {
                 // not written, so not synced: nothing stamped, the records as they were; the other
                 // phone is told why (`.nack`) and sends it again at its next heartbeat
                 let reason = error.localizedDescription
                 failure = reason
-                AppLog.error(.sync, "Không lưu được sổ chi máy kia gửi", ["peer": Self.peerTag(peer.key), "error": reason])
+                // the other phone sends it again at every heartbeat: the same reason is said once
+                let tag = Self.peerTag(peer.key)
+                if once(.unsaved, peer: tag, reason) { AppLog.error(.sync, "Không lưu được sổ chi máy kia gửi", ["peer": tag, "error": reason]) }
             }
             // their ledger, held there, ends a failure of theirs only when it is this phone's as it is now
             // (`cached`: dropped by a merge that changed something)
@@ -477,6 +508,8 @@ import UIKit
             // an ack landing in that moment would never stamp
             _ = await snapshot()
             AppLog.info(.sync, "Máy kia đã lưu sổ chi", ["peer": Self.peerTag(peer.key)])
+            // written there: its failure is over, and the next ledger sent is said again
+            unsay([.refused, .sent], peer: Self.peerTag(peer.key))
             peers[k]?.session.peerHas(LedgerDigest(digest), current: cached?.digest)
             confirm(k)
         case .nack(let digest, let reason):
@@ -485,14 +518,18 @@ import UIKit
             // ledger every 15 s, not a loop
             peers[k]?.session.peerFailed(LedgerDigest(digest), reason: reason)
             // the other phone's `localizedDescription` of its failed write, nothing else (`.state` above), cut short
-            AppLog.error(.sync, "Máy kia không lưu được sổ chi", ["peer": Self.peerTag(peer.key), "error": String(reason.prefix(200))])
+            // and once for each reason: this phone sends again at every heartbeat
+            let tag = Self.peerTag(peer.key)
+            let text = String(reason.prefix(200))
+            if once(.refused, peer: tag, text) { AppLog.error(.sync, "Máy kia không lưu được sổ chi", ["peer": tag, "error": text]) }
         case .touched:
-            AppLog.info(.sync, "Chạm hai máy", ["peer": Self.peerTag(peer.key)])
             if partner(peer) != nil {
+                AppLog.info(.sync, "Chạm hai máy", ["peer": Self.peerTag(peer.key)])
                 felt()
                 await push(to: k, force: true)
             } else if let d = closeness[k], d < 0.3 {
                 // the touch is the yes, on this side too, when this side measured it as well
+                AppLog.info(.sync, "Chạm hai máy", ["peer": Self.peerTag(peer.key)])
                 felt()
                 pair(peer.key)
             }
@@ -562,7 +599,13 @@ import UIKit
     /// The ledger and its digest, from one snapshot; noted as sent only once the radio took it.
     private func sendLedger(_ mine: Snapshot, to k: Int) {
         if seal(.state(mine.state, digest: mine.digest.value), to: k) {
-            if let peer = peers[k] { AppLog.info(.sync, "Gửi sổ chi", ["peer": Self.peerTag(peer.key), "rows": "\(mine.state.records.count)"]) }
+            // said once for each number of rows until the other phone acks (`unsay`): a write that keeps
+            // failing there brings the same ledger back every 15 s
+            if let peer = peers[k] {
+                let tag = Self.peerTag(peer.key)
+                let rows = "\(mine.state.records.count)"
+                if once(.sent, peer: tag, rows) { AppLog.info(.sync, "Gửi sổ chi", ["peer": tag, "rows": rows]) }
+            }
             peers[k]?.session.didSend(mine.digest, at: Date())
         }
     }
