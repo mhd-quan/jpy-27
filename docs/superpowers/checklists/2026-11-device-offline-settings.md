@@ -79,14 +79,14 @@ Cài đặt › Dùng khi mất sóng mở đầu bằng nhóm "Sẵn sàng khi 
 sạn, Ảnh địa hình Fuji, Dự báo mây, Gói dịch Nhật–Việt, Gói nghe tiếng Nhật. Danh sách vùng nay ở trang con "Bản đồ
 offline" (chạm dòng Bản đồ). Dòng "Dùng khi mất sóng" ở trang chính ghi "Sẵn sàng", "Thiếu N mục", "Đang tải 42%"
 hoặc "Cần tải lại". Ảnh bản đồ các ngày, Fuji và dự báo chỉ tải được bằng "Tải tất cả" (Task 6); ở đây chỉ kiểm
-trạng thái của chúng. Ảnh Fuji được đếm cả sáng lẫn tối cho mỗi thẻ chỗ ngắm và mỗi khu (khoảng 70 ảnh).
+trạng thái của chúng. Ảnh Fuji được đếm cả sáng lẫn tối cho mỗi khu và mỗi thẻ chỗ ngắm có ảnh chụp; thẻ không có ảnh chụp luôn trên nền xanh hoàng hôn nên chỉ đếm ảnh tối (hiện là 69 ảnh).
 
 Làm trên bản cài mới (xoá app JP27 trước bước 1), Wi‑Fi, trừ khi bước ghi khác.
 
 | # | Bước | Mong đợi | Kết quả |
 | --- | --- | --- | --- |
 | 1 | Bản cài mới, **chưa mở** trang Fuji hay thẻ chỗ ngắm nào. Mở Cài đặt › Dùng khi mất sóng. | Trong chốc lát các dòng ghi "Đang kiểm tra…", rồi: Ảnh bản đồ các ngày ghi "x/y ngày" (trang Hôm nay đã hiện lúc mở app) hoặc "Mở trang Hôm nay một lần"; Ảnh địa hình Fuji ghi "Mở trang Fuji một lần"; Dự báo mây ghi "Chưa mới · 0/32 nơi"; trang chính ghi "Thiếu N mục". | |
-| 2 | Mở trang Fuji (tab Lịch trình › Fuji), quay lại trang Dùng khi mất sóng. Rồi mở thẻ chỗ ngắm **không có ảnh chụp**: hiện chỉ có Fujisan Yume no Ōhashi (ngày 5; đầu thẻ là địa hình), quay lại. Rồi mở thẻ một chỗ ngắm **có ảnh chụp** (ví dụ Tháp Chūreitō: có mục "Tia ngắm"), quay lại. | Sau trang Fuji: "Mở một chỗ ngắm chưa có ảnh chụp". Sau thẻ không ảnh: "Mở một chỗ ngắm có ảnh chụp". Sau thẻ có ảnh: "x/70 ảnh" (x nhỏ: chỉ những ảnh đã vẽ khi mở). | |
+| 2 | Mở trang Fuji (tab Lịch trình › Fuji), quay lại trang Dùng khi mất sóng. Rồi mở thẻ chỗ ngắm **không có ảnh chụp**: hiện chỉ có Fujisan Yume no Ōhashi (ngày 5; đầu thẻ là địa hình), quay lại. Rồi mở thẻ một chỗ ngắm **có ảnh chụp** (ví dụ Tháp Chūreitō: có mục "Tia ngắm"), quay lại. | Sau trang Fuji: "Mở một chỗ ngắm chưa có ảnh chụp". Sau thẻ không ảnh: "Mở một chỗ ngắm có ảnh chụp". Sau thẻ có ảnh: "x/69 ảnh" (x nhỏ: chỉ những ảnh đã vẽ khi mở). | |
 | 3 | Dòng Bản đồ: chạm vào. Trên "Bản đồ offline", tải "Toàn tuyến" và một vùng nhỏ (Nara). Vuốt trái một vùng đã tải. Quay lại trong lúc đang tải. | Trang con có đủ vùng như trước, "Toàn tuyến" đầu tiên; vuốt trái hiện "Xoá", giữ lâu hiện menu "Xoá", chạm "Tải" và vòng có rung như trước. Ở trang Dùng khi mất sóng, dòng Bản đồ ghi "Đang tải x%" rồi "2/11 vùng · <dung lượng>"; trang chính ghi "Đang tải x%" khi đang tải. | |
 | 4 | Dòng Ảnh quán, khách sạn: chạm "Tải" (hay vòng). Đợi xong. | Dòng tới "Đã lưu đủ N ảnh"; trước đó vòng chạy và dừng được như trước. | |
 | 5 | Dòng Gói dịch Nhật–Việt (nếu ghi "Chưa tải"): chạm "Tải". | iOS hiện **hộp xác nhận của nó** đúng một lần (không hai hộp chồng nhau), phủ trên trang này. Xác nhận, đợi: dòng tới "Sẵn sàng" (có thể cần ra vào trang một lần). Nếu gói đã có từ trước: dòng ghi "Sẵn sàng", không có nút. Máy không dịch được: "Máy này chưa dịch được Nhật sang Việt". | |

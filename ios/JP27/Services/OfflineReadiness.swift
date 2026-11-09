@@ -30,6 +30,8 @@ import TripKit
     private var speechFraction: Double?
     /// why the last install of the speech pack failed: said until the next one, or until the pack is there
     private var speechError: String?
+    /// `installSpeech` is running, from its first line to its last
+    @ObservationIgnored private var installing = false
     @ObservationIgnored private lazy var refresher = Coalescer { [weak self] in await self?.readAll() }
     /// each item's state as last logged, by kind ("ready", "missing", …): the log hears of a change of kind only
     @ObservationIgnored private var logged: [ReadyItem: String] = [:]
@@ -184,7 +186,10 @@ import TripKit
     /// once a second; a failure is said on the row (`failed`) until the next try. A second tap while one runs does
     /// nothing.
     func installSpeech() async {
-        guard speechFraction == nil else { return }
+        // set before the first wait, so a second tap during the locale check finds it; cleared on every way out
+        guard !installing else { return }
+        installing = true
+        defer { installing = false }
         speechError = nil
         guard SpeechTranscriber.isAvailable,
               let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "ja-JP")) else {

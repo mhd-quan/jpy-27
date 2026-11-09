@@ -578,8 +578,8 @@ nonisolated struct FujiTerrainPicture: Sendable {
     }
 
     /// The pictures the pages draw, for use without signal: every area's hero (`FujiHero`) and every viewpoint's card
-    /// (`FujiSightMap`), each light and dark (R-600: a card's scheme follows its photograph's colour, not the
-    /// Appearance setting), at the sizes kept. The cameras, viewpoints and summits are the views' own:
+    /// (`FujiSightMap`), light and dark (R-600: a card's scheme follows its photograph's colour, not the Appearance
+    /// setting), except a card with no photograph, which is always on Fuji's dusk (`schemes(of:)`), at the sizes kept. The cameras, viewpoints and summits are the views' own:
     /// - a hero: `Shot.area(area, spots: the area's, summit: guide's summit)`, drawn with the area's viewpoints;
     /// - a card: `.spot(spot, summit: FujiSight.summit)`, drawn with that viewpoint alone;
     /// - both named with the guide's summit (`TerrainLayers`).
@@ -593,20 +593,33 @@ nonisolated struct FujiTerrainPicture: Sendable {
         if let first = Slot.allCases.first(where: { used.contains($0) && measured[$0] == nil }) { return .needs(first) }
         guard let scale = sizes.scale else { return .needs(.area) }
         var out: [Request] = []
-        for dark in [false, true] {
-            for area in FujiArea.allCases {
-                let shown = guide.spots.filter { area.contains($0) }
-                let shot = FujiCamera.Shot.area(area, spots: shown, summit: summit)
+        for area in FujiArea.allCases {
+            let shown = guide.spots.filter { area.contains($0) }
+            let shot = FujiCamera.Shot.area(area, spots: shown, summit: summit)
+            for dark in [false, true] {
                 if let size = measured[.area],
                    let r = Request(camera: shot, spots: shown, summit: summit, size: size, scale: scale, dark: dark) { out.append(r) }
             }
-            for spot in guide.spots {
-                let shot = FujiCamera.Shot.spot(spot, summit: FujiSight.summit)
-                if let size = measured[slot(of: spot, store: store)],
+        }
+        for spot in guide.spots {
+            let shot = FujiCamera.Shot.spot(spot, summit: FujiSight.summit)
+            let card = slot(of: spot, store: store)
+            for dark in schemes(of: card) {
+                if let size = measured[card],
                    let r = Request(camera: shot, spots: [spot], summit: summit, size: size, scale: scale, dark: dark) { out.append(r) }
             }
         }
         return .pictures(out)
+    }
+
+    /// The schemes a slot is ever shown in, as dark or not. An area's hero follows the Appearance; a card with photographs
+    /// follows its first photograph's colour: both. A card with none is laid on Fuji's dusk (`FujiSpotAlbum.canvas`), so
+    /// only that one.
+    private static func schemes(of slot: Slot) -> [Bool] {
+        switch slot {
+        case .area, .sight: [false, true]
+        case .spot: [AmbientCanvas.dusk.scheme == .dark]
+        }
     }
 
     /// `wanted`'s answer.

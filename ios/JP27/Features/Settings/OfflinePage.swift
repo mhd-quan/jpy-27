@@ -214,6 +214,12 @@ struct OfflineMapsPage: View {
         let offline = model.offline
         let downloads = model.downloads
         SettingsPage(title: "Bản đồ offline") {
+            // the download under way, as on the page above: the areas' downloads start here (it only reads)
+            if downloads.busy || downloads.ended != nil {
+                Section {
+                    JobRow(downloads: downloads)
+                }
+            }
             Section {
                 if !offline.stale.isEmpty {
                     Label("Nguồn bản đồ đã đổi, nên \(offline.stale.count) vùng đã tải không còn dùng được khi mất sóng. Tải lại khi có Wi‑Fi.", systemImage: "exclamationmark.triangle.fill")
