@@ -181,8 +181,18 @@ public enum AreaPhase: Sendable, Hashable {
 
 public enum OfflineArea {
     static let broken = "Vùng tải đã hỏng, tải lại"
-    /// The site has no style of the app's build, or its tiles are another build's.
-    public static let otherBuild = "Bản đồ trên web khác bản trong app — cập nhật app hoặc thử lại sau"
+    /// The style stored for the pack holds another build than the map reads (the app's own style: no site
+    /// in the way any more). A new launch reads the build again and stores the style for it.
+    public static let otherBuild = "Style của bản đồ không khớp bản đang dùng — mở lại app rồi thử lại"
+
+    /// The area of the whole route ("Toàn tuyến"): zoomed out, over every other area.
+    public static let overviewID = "overview"
+
+    /// The box around every box, with `pad` degrees more on each side. Nil with no box.
+    public static func overview(of boxes: [(sw: Coordinate, ne: Coordinate)], pad: Double = 0.1) -> (sw: Coordinate, ne: Coordinate)? {
+        guard let b = Geo.bounds(boxes.flatMap { [$0.sw, $0.ne] }) else { return nil }
+        return (Coordinate(b.sw.lat - pad, b.sw.lng - pad), Coordinate(b.ne.lat + pad, b.ne.lng + pad))
+    }
 
     /// Where a pack is, from what MapLibre says of it.
     ///
@@ -255,11 +265,12 @@ public enum OfflineArea {
         return build == mapBuild ? build : nil
     }
 
-    /// The map moved to another tile build while an area's pack was being made: neither the site nor the app is
-    /// at fault, and a second try reads the style for the build the map reads now.
+    /// The map moved to another tile build while an area's pack was being made: nothing is at fault, and a second
+    /// try stores the style for the build the map reads now.
     public static let moved = "Nguồn bản đồ vừa đổi — thử lại"
 
-    /// What a make does once it has read the style (`served`) for an area's pack.
+    /// What a make does once it has the style (`served`) for an area's pack: the one the app stored for it
+    /// (`PackStyle`), or why it has none.
     ///
     /// - `mapBuild`: the build the map reads now; `askedOn`: the one it read when the style was asked for.
     /// - `again`: this is the second read.
@@ -267,7 +278,7 @@ public enum OfflineArea {
     /// A style holding the map's build makes the pack, of that build. A move of the map's build during the read
     /// reads the style once more; a second move fails the area with `moved`. So does a TileJSON naming a build the
     /// map does not read yet: OpenFreeMap moved on, and the map follows once the app has looked at this launch
-    /// (`checkPinnedTiles`), so updating the app would not help. Otherwise the area fails with the site's reason,
+    /// (`checkPinnedTiles`), so updating the app would not help. Otherwise the area fails with the reason given,
     /// or `otherBuild` for a style of another build.
     public static func step(_ served: ServedStyle, mapBuild: TileBuild, askedOn: TileBuild, again: Bool) -> MakeStep {
         if case .files(let style, let tileJSON) = served, let build = packBuild(style: style, tileJSON: tileJSON, mapBuild: mapBuild) {
@@ -287,8 +298,8 @@ public enum OfflineArea {
     }
 }
 
-/// What the site serves for a pack's style: the style and, for one on a TileJSON (the `-current` ones), the
-/// TileJSON that names its build; or why it served nothing usable.
+/// The style a pack is made from: the style and, for one on a TileJSON (the `-current` styles of earlier
+/// builds), the TileJSON that names its build; or why there is none.
 public enum ServedStyle: Sendable, Equatable {
     case files(style: Data, tileJSON: Data?)
     case refused(String)

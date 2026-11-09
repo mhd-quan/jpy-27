@@ -326,10 +326,10 @@ import Testing
 
     @Test func aMoveOfTheMapDuringTheReadReadsTheStyleOnceMore() {
         // the map moved to another build while the style was read (the pinned one gone, or OpenFreeMap's moved on):
-        // no fault of the site's or the app's, so the style is read again for the build the map reads now
+        // nothing is at fault, so the style is stored again for the build the map reads now
         let served: [ServedStyle] = [.files(style: pinnedStyle(other), tileJSON: nil), .files(style: currentStyle, tileJSON: tileJSON(other)),
                                      .files(style: currentStyle, tileJSON: nil), .refused(OfflineArea.otherBuild),
-                                     .refused("Không kết nối được máy chủ bản đồ")]
+                                     .refused("Không nạp được style của bản đồ")]
         for s in served {
             #expect(OfflineArea.step(s, mapBuild: build, askedOn: other, again: false) == .again)
             // moved again during the second read: it fails, saying so, and "Thử lại" reads it once more
@@ -337,14 +337,14 @@ import Testing
         }
     }
 
-    @Test func aStyleOfAnotherBuildOrNoneFailsWithTheSitesReason() {
+    @Test func aStyleOfAnotherBuildOrNoneFailsWithTheReasonGiven() {
         for again in [false, true] {
             #expect(OfflineArea.step(.files(style: pinnedStyle(other), tileJSON: nil), mapBuild: build, askedOn: build, again: again)
                     == .fail(OfflineArea.otherBuild))
             #expect(OfflineArea.step(.files(style: Data("<html>".utf8), tileJSON: nil), mapBuild: build, askedOn: build, again: again)
                     == .fail(OfflineArea.otherBuild))
-            #expect(OfflineArea.step(.refused("Máy chủ bản đồ đang lỗi"), mapBuild: build, askedOn: build, again: again)
-                    == .fail("Máy chủ bản đồ đang lỗi"))
+            #expect(OfflineArea.step(.refused("Không nạp được style của bản đồ"), mapBuild: build, askedOn: build, again: again)
+                    == .fail("Không nạp được style của bản đồ"))
         }
     }
 
@@ -398,6 +398,34 @@ import Testing
         for junk in [Data("<html>".utf8), Data(#"{"sources":{}}"#.utf8), Data(#"{"version":8}"#.utf8), Data(#"{"sources":{"omt":1}}"#.utf8)] {
             #expect(StyleInfo.pointing(style: junk, at: build.template) == nil)
         }
+    }
+
+    // MARK: The overview pack
+
+    @Test func overviewBoundsEveryBoxWithPad() throws {
+        let boxes = [(sw: Coordinate(35.0, 139.0), ne: Coordinate(35.5, 139.5)), (sw: Coordinate(34.5, 135.5), ne: Coordinate(35.1, 136.0))]
+        let o = try #require(OfflineArea.overview(of: boxes, pad: 0.1))
+        #expect(abs(o.sw.lat - 34.4) < 1e-9); #expect(abs(o.sw.lng - 135.4) < 1e-9)
+        #expect(abs(o.ne.lat - 35.6) < 1e-9); #expect(abs(o.ne.lng - 139.6) < 1e-9)
+        // the order of the boxes does not matter, and the pad is 0.1 unless said
+        let reversed = try #require(OfflineArea.overview(of: boxes.reversed()))
+        #expect(reversed.sw == o.sw); #expect(reversed.ne == o.ne)
+        // one box: that box, padded on every side
+        let one = try #require(OfflineArea.overview(of: [(sw: Coordinate(34.5, 135.5), ne: Coordinate(35.1, 136.0))], pad: 0.25))
+        #expect(abs(one.sw.lat - 34.25) < 1e-9); #expect(abs(one.sw.lng - 135.25) < 1e-9)
+        #expect(abs(one.ne.lat - 35.35) < 1e-9); #expect(abs(one.ne.lng - 136.25) < 1e-9)
+        // a box inside another adds nothing; the north and the east may come from different boxes
+        let mixed = try #require(OfflineArea.overview(of: [(sw: Coordinate(34.0, 135.0), ne: Coordinate(36.0, 136.0)),
+                                                          (sw: Coordinate(34.5, 135.2), ne: Coordinate(35.0, 135.8)),
+                                                          (sw: Coordinate(34.2, 137.0), ne: Coordinate(34.8, 140.0))], pad: 0))
+        #expect(mixed.sw == Coordinate(34.0, 135.0)); #expect(mixed.ne == Coordinate(36.0, 140.0))
+    }
+
+    @Test func overviewOfNothingIsNil() {
+        #expect(OfflineArea.overview(of: []) == nil)
+        #expect(OfflineArea.overviewID == "overview")
+        // an id an older pack's plain context could carry too
+        #expect(PackTag.area(of: Data(OfflineArea.overviewID.utf8)) == OfflineArea.overviewID)
     }
 
     // MARK: The pack's context

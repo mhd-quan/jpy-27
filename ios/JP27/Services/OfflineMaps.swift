@@ -7,8 +7,10 @@ import TripKit
 import UIKit
 
 /// The basemap and its offline packs. The style is the site's own (src/lib/mapStyle.ts, exported to
-/// public/map/), on OpenFreeMap vector tiles; packs cover each area of the trip so the map works
-/// with no signal. Tiles are shared between styles, so the dark style reads the same packs.
+/// public/map/ and bundled), on OpenFreeMap vector tiles; packs cover each area of the trip, and the whole
+/// route zoomed out, so the map works with no signal. Tiles are shared between styles, so the dark style
+/// reads the same packs. A pack's style is the bundled one, which the app stores in MapLibre's database
+/// under the URL the pack names (`PackStyle`): no site has to serve it.
 ///
 /// A pack holds the tiles of one build, and is tagged with the build its style really held when it was
 /// made (`PackTag`). Where each area is (`phases`) is decided in TripKit, from what MapLibre says of its
@@ -22,6 +24,8 @@ import UIKit
         let name: String
         let sw: Coordinate
         let ne: Coordinate
+        /// the zoom levels its pack holds: 9–16 for an area, 5–10 for the whole route
+        let zoom: ClosedRange<Double>
     }
 
     /// Bundled copy, used by the map view: no network needed to read the style itself. If the tile
@@ -42,14 +46,13 @@ import UIKit
         return pinned ?? TileBuild(template: "pinned")
     }
 
-    /// The bundled style's tile build, and its name (`metadata["jp27:build"]`), which the site keeps that
-    /// very style under for good. Read once, for both (every pack report asks).
+    /// The bundled style's tile build, and its name (`metadata["jp27:build"]`), which a pack of the pinned
+    /// build names its style by (`PackStyle`). Read once, for both (every pack report asks).
     private nonisolated static let bundled: (build: TileBuild?, name: String?) = {
         let style = bundledStyle()
         return (style.flatMap { StyleInfo.build(style: $0) }, style.flatMap { StyleInfo.styleBuild(style: $0) })
     }()
     private static var pinned: TileBuild? { bundled.build }
-    private static var pinnedName: String? { bundled.name }
 
     /// Reads a file: needs no actor. Left on the main actor (the module's default), it could not be
     /// called from `bundled`'s initializer, which runs on none.
@@ -105,7 +108,7 @@ import UIKit
         NotificationCenter.default.post(name: tilesChanged, object: nil)
     }
 
-    /// A small file as it is served now (not from a cache: what a pack made now would get). Nil with no answer.
+    /// A small file as it is served now (not from a cache: what the server says today). Nil with no answer.
     private static func fetch(_ url: URL, timeout: TimeInterval) async -> (status: Int, data: Data)? {
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: timeout)
         guard let (data, response) = try? await URLSession.shared.data(for: request),
@@ -125,30 +128,24 @@ import UIKit
         return out
     }
 
-    /// Served by the site: a theme's style, pinned to the bundled build, or on OpenFreeMap's current one.
-    static func remoteStyle(dark: Bool, current: Bool = false) -> URL {
-        URL(string: "https://jpy27.delphyra.tech/map/jp27-\(dark ? "dark" : "light")\(current ? "-current" : "").json")!
+    /// Served by the site: a theme's style, pinned to the bundled build. Only for a bundle without its style
+    /// (`style(dark:)`); the packs never ask the site.
+    static func remoteStyle(dark: Bool) -> URL {
+        URL(string: "https://jpy27.delphyra.tech/map/jp27-\(dark ? "dark" : "light").json")!
     }
 
-    /// What a pack downloads its style from: the very style the app was built with, which the site keeps
-    /// for good under its name (scripts/export-ios.mjs), or, while the map reads OpenFreeMap's current
-    /// build, the site's `-current` style (its TileJSON names the build; it has no lasting copy).
-    private static func packStyle(current: Bool) -> URL {
-        #if DEBUG
-        // Settings › Chẩn đoán › Giả style khác bản: a name the site does not have, as when the app is newer
-        if fakeOtherStyle, !current, let fake = URL(string: "https://jpy27.delphyra.tech/map/jp27-light@debug-00000000.json") { return fake }
-        #endif
-        guard !current, let pinnedName, let url = URL(string: "https://jpy27.delphyra.tech/map/jp27-light@\(pinnedName).json") else {
-            return remoteStyle(dark: false, current: current)
-        }
-        return url
-    }
+    // MARK: The packs' style
 
-    #if DEBUG
-    /// For the device checklist: the next packs are made from a style the site does not have. Not kept
-    /// across launches.
-    static var fakeOtherStyle = false
-    #endif
+    /// Kept until then and never asked again (`mustRevalidate: false`): nothing answers its URL.
+    private static let packStyleExpiry = Date(timeIntervalSince1970: 1_893_456_000) // 2030-01-01 00:00 UTC
+    private static let unstored = "Không nạp được style của bản đồ"
+
+    /// The style a pack is made from, for the pinned build (`currentTemplate` nil) or OpenFreeMap's current
+    /// one. Reads a file and parses JSON: off the main actor.
+    @concurrent private nonisolated static func preparedStyle(currentTemplate: String?) async -> PackStyle.Prepared? {
+        guard let data = bundledStyle() else { return nil }
+        return PackStyle.prepare(bundled: data, pinnedName: bundled.name, currentTemplate: currentTemplate)
+    }
 
     // MARK: The areas
 
@@ -225,6 +222,13 @@ import UIKit
     /// the resources each area's pack had at its last report: one more is the network working again
     @ObservationIgnored private var counted: [String: UInt64] = [:]
     @ObservationIgnored private var watch: NSKeyValueObservation?
+    /// `watch` is being set up: its style stored first (`configure`), so a second call waits for that one
+    @ObservationIgnored private var preparing = false
+    /// The last style stored (`preloadStyle`): put back under a pack's own URL just before the pack resumes
+    /// (`record`). MapLibre links the style to a pack only once the pack is complete (or has found 200
+    /// resources already stored); until then it is a row of the ambient cache, which browsing the map can
+    /// push out, and a pack resumed without it would ask the network for it.
+    @ObservationIgnored private var lastStyle: PackStyle.Prepared?
     /// Each area whose pack is being made, and the number of the make that makes it: from `download` until the
     /// pack is added, or the area fails or is removed. A make that finds another number there (Xoá, then Tải,
     /// during "Đang chuẩn bị…") or none leaves the area alone, so no area gets two packs of one build.
@@ -240,16 +244,24 @@ import UIKit
         NotificationCenter.default.addObserver(self, selector: #selector(tilesMoved(_:)), name: Self.tilesChanged, object: nil)
     }
 
-    /// One area per region of the plan, framed on its places with a margin.
+    /// One area per region of the plan, framed on its places with a margin, and first the whole route
+    /// zoomed out ("Toàn tuyến"), so the map zoomed out and the picture of a day across areas draw with no
+    /// signal. Set at once: the caller reads them next (`Downloads.back`). The packs are read once the style
+    /// they are made from is stored; each later call (every return to the app) stores it again.
     func configure(store: TripStore) {
         if areas.isEmpty {
             let names = ["tokyo": "Tokyo", "hakone": "Hakone", "kawaguchiko": "Kawaguchiko", "tokaido": "Shizuoka", "ise": "Ise", "toba": "Toba, Tōshijima", "shima": "Shima", "kyoto": "Kyoto, Uji", "nara": "Nara", "osaka": "Osaka, KIX"]
             let grouped = Dictionary(grouping: store.trip.places.filter { $0.role != "alt" || $0.area == "kawaguchiko" }, by: \.area)
-            areas = names.compactMap { id, name in
+            var all: [Area] = names.compactMap { id, name in
                 guard let pts = grouped[id]?.map(\.coordinate), let b = Geo.bounds(pts) else { return nil }
                 let pad = 0.012
-                return Area(id: id, name: name, sw: Coordinate(b.sw.lat - pad, b.sw.lng - pad), ne: Coordinate(b.ne.lat + pad, b.ne.lng + pad))
+                return Area(id: id, name: name, sw: Coordinate(b.sw.lat - pad, b.sw.lng - pad), ne: Coordinate(b.ne.lat + pad, b.ne.lng + pad),
+                            zoom: 9...16)
             }.sorted { $0.name < $1.name }
+            if let whole = OfflineArea.overview(of: all.map { (sw: $0.sw, ne: $0.ne) }) {
+                all.insert(Area(id: OfflineArea.overviewID, name: "Toàn tuyến", sw: whole.sw, ne: whole.ne, zoom: 5...10), at: 0)
+            }
+            areas = all
             // asked for by an earlier build, of an area this one does not have: it could never be made, and
             // would keep a download under way for ever
             let known = Set(areas.map(\.id))
@@ -260,16 +272,56 @@ import UIKit
             }
             for id in Set(phases.keys).subtracting(known) { phases[id] = nil }
         }
-        guard watch == nil else { return }
-        // `packs` is nil until MapLibre has read its database, a moment after it is first asked;
-        // it changes again whenever a pack is added or removed. The handler is @Sendable (on no
-        // actor), and KVO calls it synchronously inside MapLibre's own add and remove, which this
-        // object calls from `download`: so `refresh` runs on the next turn of the main actor, never
-        // in the middle of a download it would start again.
-        watch = MLNOfflineStorage.shared.observe(\.packs, options: [.initial]) { @Sendable [weak self] _, _ in
-            guard let self else { return }
-            Task { @MainActor in self.refresh() }
+        guard watch == nil else {
+            // back in the app: stored again, in case the cache let it go meanwhile (nobody waits for it)
+            Task { _ = await preloadStyle(currentTemplate: Self.currentTemplate) }
+            return
         }
+        guard !preparing else { return }
+        preparing = true
+        Task {
+            // Stored before the packs are read, so a pack resumed at launch (`record`) never asks the
+            // network for its style. Not stored (no bundled style), the packs are still read: an area made
+            // later says why it fails.
+            _ = await preloadStyle(currentTemplate: Self.currentTemplate)
+            // `packs` is nil until MapLibre has read its database, a moment after it is first asked;
+            // it changes again whenever a pack is added or removed. The handler is @Sendable (on no
+            // actor), and KVO calls it synchronously inside MapLibre's own add and remove, which this
+            // object calls from `download`: so `refresh` runs on the next turn of the main actor, never
+            // in the middle of a download it would start again.
+            watch = MLNOfflineStorage.shared.observe(\.packs, options: [.initial]) { @Sendable [weak self] _, _ in
+                guard let self else { return }
+                Task { @MainActor in self.refresh() }
+            }
+        }
+    }
+
+    /// Stores the style a pack of this build is made from (`currentTemplate` nil: the pinned build) in
+    /// MapLibre's database, under the URL the pack will name, and returns it once MapLibre says it is there:
+    /// a pack made or resumed after this reads it from the database. Nil when the app has no style to store,
+    /// or MapLibre said it could not store it.
+    private func preloadStyle(currentTemplate: String?) async -> PackStyle.Prepared? {
+        guard let prepared = await Self.preparedStyle(currentTemplate: currentTemplate), let url = URL(string: prepared.url) else { return nil }
+        // The handler is @Sendable (on no actor) and MapLibre calls it on the main queue
+        // (MLNOfflineStorage.h): it only hands the answer over. MapLibre 7.0.0 always calls it, once.
+        let stored = await withCheckedContinuation { (answer: CheckedContinuation<Bool, Never>) in
+            MLNOfflineStorage.shared.preload(prepared.style, for: url, modificationDate: nil, expirationDate: Self.packStyleExpiry,
+                                             eTag: nil, mustRevalidate: false) { _, error in
+                answer.resume(returning: error == nil)
+            }
+        }
+        guard stored else { return nil }
+        lastStyle = prepared
+        return prepared
+    }
+
+    /// Puts the last style stored back under the URL this pack names, when it holds the pack's build: the
+    /// pack resumed next finds it. No completion to wait for: MapLibre stores it and resumes the pack on one
+    /// queue, in that order. No style stored yet (a resume in the first moments of a launch): nothing put
+    /// back, and the store already asked for is ahead of the resume in that queue.
+    private func restoreStyle(for tag: PackTag) {
+        guard let last = lastStyle, last.build == tag.build, let url = URL(string: tag.styleURL) else { return }
+        MLNOfflineStorage.shared.preload(last.style, for: url, modifiedOn: nil, expiresOn: Self.packStyleExpiry, eTag: nil, mustRevalidate: false)
     }
 
     /// Looks at every pack: where each area is (`OfflineArea.settle`), the older packs of an area complete
@@ -362,38 +414,48 @@ import UIKit
         return Set(missing.map(\.id))
     }
 
-    /// Makes the areas' packs (each under its number in `making`), after a look at the style they will
-    /// download: it must be served, and hold the build the map reads, or the pack would hold tiles the map
-    /// never asks for. The map moving to another build during the look reads the style once more
-    /// (`OfflineArea.step`).
+    /// Makes the areas' packs (each under its number in `making`), after storing the style they are made
+    /// from, for the build the map read when asked (`preloadStyle`): the pack then reads it from MapLibre's
+    /// database, never from the network. It must hold the build the map reads, or the pack would hold tiles
+    /// the map never asks for; the map moving to another build during the store stores the style of that
+    /// one (`OfflineArea.step`).
     private func make(_ asked: [(area: Area, number: Int)]) async {
         var left = asked
         var again = false
         while true {
             let askedOn = mapBuild
-            let current = Self.currentTemplate != nil
-            let style = Self.packStyle(current: current)
-            let served = await Self.served(style, current: current)
+            let prepared = await preloadStyle(currentTemplate: askedOn == Self.pinned ? nil : askedOn.template)
+            let served: ServedStyle = prepared.map { .files(style: $0.style, tileJSON: nil) } ?? .refused(Self.unstored)
             // after the wait: removed or made again by a later tap meanwhile, nothing to make here
             left = left.filter { still($0.area.id, $0.number) }
             guard !left.isEmpty else { return }
             // `mapBuild` read after the wait: the map may have moved to another build meanwhile (`refresh`)
             switch OfflineArea.step(served, mapBuild: mapBuild, askedOn: askedOn, again: again) {
             case .add(let build):
+                // a build comes only from a style stored: one URL for the region, its tag and the stored style
+                guard let prepared, let style = URL(string: prepared.url) else {
+                    abandon(left, because: Self.unstored)
+                    return
+                }
                 for (area, number) in left {
-                    add(area, tag: PackTag(area: area.id, build: build, styleURL: style.absoluteString), style: style, number: number)
+                    add(area, tag: PackTag(area: area.id, build: build, styleURL: prepared.url), style: style, number: number)
                 }
                 return
             case .again:
                 again = true
             case .fail(let reason):
-                for (area, _) in left {
-                    making[area.id] = nil
-                    // paused meanwhile: it stays paused, not failed (and, asked for no more, is not tried again)
-                    if phases[area.id] == .creating { set(area.id, .failed(reason)) }
-                }
+                abandon(left, because: reason)
                 return
             }
+        }
+    }
+
+    /// The make is over for these areas, and they fail. One paused meanwhile stays paused, not failed (and,
+    /// asked for no more, is not tried again).
+    private func abandon(_ left: [(area: Area, number: Int)], because reason: String) {
+        for (area, _) in left {
+            making[area.id] = nil
+            if phases[area.id] == .creating { set(area.id, .failed(reason)) }
         }
     }
 
@@ -414,24 +476,10 @@ import UIKit
         return true
     }
 
-    private static func served(_ style: URL, current: Bool) async -> ServedStyle {
-        let unreachable = "Không kết nối được máy chủ bản đồ"
-        let failing = "Máy chủ bản đồ đang lỗi"
-        guard let answer = await fetch(style, timeout: 20) else { return .refused(unreachable) }
-        // no such style: the site has not been deployed with this build's yet
-        if answer.status == 404 { return .refused(OfflineArea.otherBuild) }
-        guard answer.status == 200 else { return .refused(failing) }
-        guard current else { return .files(style: answer.data, tileJSON: nil) }
-        // a `-current` pack holds the build OpenFreeMap's TileJSON names when it downloads
-        guard let tiles = await fetch(currentTileJSON, timeout: 20) else { return .refused(unreachable) }
-        guard tiles.status == 200 else { return .refused(failing) }
-        return .files(style: answer.data, tileJSON: tiles.data)
-    }
-
     private func add(_ area: Area, tag: PackTag, style: URL, number: Int) {
         let bounds = MLNCoordinateBounds(sw: CLLocationCoordinate2D(latitude: area.sw.lat, longitude: area.sw.lng),
                                          ne: CLLocationCoordinate2D(latitude: area.ne.lat, longitude: area.ne.lng))
-        let region = MLNTilePyramidOfflineRegion(styleURL: style, bounds: bounds, fromZoomLevel: 9, toZoomLevel: 16)
+        let region = MLNTilePyramidOfflineRegion(styleURL: style, bounds: bounds, fromZoomLevel: area.zoom.lowerBound, toZoomLevel: area.zoom.upperBound)
         let id = area.id
         // Swift imports an Objective-C completion handler as @Sendable, so this closure is on no
         // actor. MapLibre calls it on the main queue (MLNOfflineStorage.mm dispatches it there),
@@ -553,9 +601,13 @@ import UIKit
         set(tag.area, record(pack, tag: tag, force: true).phase)
     }
 
-    /// The map moved to another tile build (posted on the main queue by `checkPinnedTiles`).
+    /// The map moved to another tile build (posted on the main queue by `checkPinnedTiles`): the style of
+    /// that build stored first, so the packs looked at anew (`refresh`) and resumed have it.
     @objc private func tilesMoved(_ note: Notification) {
-        refresh()
+        Task {
+            _ = await preloadStyle(currentTemplate: Self.currentTemplate)
+            refresh()
+        }
     }
 
     /// Where an area is, from its pack for the map's build (`OfflineArea.phase`). Starts the pack when the
@@ -569,7 +621,8 @@ import UIKit
         var state = PackState(rawValue: pack.state.rawValue) ?? .unknown
         if state == .inactive, requested {
             // asked for and not running: a pack just made (MapLibre hands it over inactive), or one
-            // stopped by a relaunch (packs come back inactive). On.
+            // stopped by a relaunch (packs come back inactive). On, its style put back first.
+            restoreStyle(for: tag)
             pack.resume()
             state = .active
         } else if state == .active, !requested {

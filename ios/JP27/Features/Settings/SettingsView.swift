@@ -91,8 +91,6 @@ private struct DiagnosticsSection: View {
     @State private var failReads = Records.failReads
     /// what the last `uniqueProbe` found
     @State private var unique: String?
-    /// `OfflineMaps.fakeOtherStyle`, as the switch shows it
-    @State private var fakeStyle = OfflineMaps.fakeOtherStyle
     /// the latest fix taken (`LocationService.fixedAt`), read on opening the page and on a tap
     @State private var lastFix: String?
     /// what `Caches/MapSnapshots` holds, read on opening the page
@@ -231,19 +229,6 @@ private struct DiagnosticsSection: View {
             // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 2.1c
             testArrived(asBeforeIDs: false)
             testArrived(asBeforeIDs: true)
-            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 3.1b
-            Toggle(isOn: $fakeStyle) {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Giả style khác bản")
-                        Text("Vùng tải mới xin một style site không có, như khi app mới hơn site").font(.footnote).foregroundStyle(.secondary)
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "map", tint: .red)
-                }
-            }
-            .onChange(of: fakeStyle) { _, on in OfflineMaps.fakeOtherStyle = on }
-            .onAppear { fakeStyle = OfflineMaps.fakeOtherStyle }
             // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Bước 0: fixes still taken after
             // the phone's clock was set back (`Presence.takes`)
             Button {

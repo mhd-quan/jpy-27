@@ -437,6 +437,7 @@ lần tải: đang chạy thì "Bản đồ 0/1 vùng · 42%", xong thì "Xong",
      Activity (nếu đã rời app) vẫn chạy.
    - Tắt Chế độ máy bay. **Đạt** khi Tokyo tải tiếp tới "Đã tải" và dòng lần tải ghi "Xong".
 3. **Site không có style của app** (bản Debug). Cài đặt › Chẩn đoán › Giả style khác bản: bật. Tải một vùng chưa có.
+   - *Không còn áp dụng:* công tắc "Giả style khác bản" đã bỏ ở Task 1 của kế hoạch 9/11/2026 (style của gói nằm trong app, không hỏi site nữa).
    - **Đạt** khi dòng vùng ghi "Bản đồ trên web khác bản trong app — cập nhật app hoặc thử lại sau" với "Thử lại", và
      dòng lần tải ghi "Bản đồ 0/1 vùng · 1 lỗi".
    - Tắt công tắc, bấm "Thử lại". **Đạt** khi vùng tải xong.
