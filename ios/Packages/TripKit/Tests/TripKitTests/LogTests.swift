@@ -278,6 +278,23 @@ import Testing
         #expect(LogRetention.diagnosticsToDelete(names + [later], keeping: 2) == ["20270115T080000Z.json", "20270115T080000Z-1.json", "20270115T080000Z-2.json"])
     }
 
+    @Test func aReportOfASecondAlreadyOnDiskTakesTheNextIndex() {
+        let end = Date(timeIntervalSince1970: 1_800_000_000.75)
+        #expect(LogRetention.diagnosticName(end, after: []) == "20270115T080000Z.json")
+        // index 0 is "…Z.json": a report of that second on disk from an earlier delivery makes the next "…Z-1.json"
+        #expect(LogRetention.diagnosticName(end, after: ["20270115T080000Z.json"]) == "20270115T080000Z-1.json")
+        #expect(LogRetention.diagnosticName(end, after: ["20270115T080000Z-1.json", "20270115T080000Z.json"]) == "20270115T080000Z-2.json")
+        // after the highest, never into a gap below it
+        #expect(LogRetention.diagnosticName(end, after: ["20270115T080000Z-3.json"]) == "20270115T080000Z-4.json")
+    }
+
+    @Test func otherSecondsAndOtherNamesLeaveTheIndexAlone() {
+        let end = Date(timeIntervalSince1970: 1_800_000_000)
+        let listed = ["20270115T080001Z.json", "20270115T075959Z-4.json", "notes.txt", "20270115T080000Z-01.json",
+                      "20270115T080000Z-0.json", "20270115T080000Z.json.tmp"]
+        #expect(LogRetention.diagnosticName(end, after: listed) == "20270115T080000Z.json")
+    }
+
     @Test func exportNameUsesTheGivenZone() {
         let morning = Date(timeIntervalSince1970: 1_800_000_000)
         #expect(LogRetention.exportName(morning, in: Self.tokyo) == "JP27-log-20270115-1700")

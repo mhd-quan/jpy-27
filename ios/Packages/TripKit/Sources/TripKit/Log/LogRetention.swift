@@ -93,6 +93,15 @@ public enum LogRetention {
         return stamp + (index > 0 ? "-\(index)" : "") + ".json"
     }
 
+    /// The name for a report ending at `end` that overwrites none of `taken` (the `diagnostics` folder's listing, and
+    /// the names given before in the same delivery): index 0 while no report of that second is there, else one past
+    /// the highest index of that second. A name `diagnosticName` did not make is not counted.
+    public static func diagnosticName(_ end: Date, after taken: [String]) -> String {
+        let stamp = diagnosticOrder(diagnosticName(end, index: 0))?.stamp
+        let used = taken.compactMap { name in diagnosticOrder(name).flatMap { $0.stamp == stamp ? $0.index : nil } }
+        return diagnosticName(end, index: used.max().map { $0 + 1 } ?? 0)
+    }
+
     /// The reports of `names` (the `diagnostics` folder's listing) to delete: all but the `keeping`
     /// newest, oldest first. A name `diagnosticName` did not make is never returned.
     public static func diagnosticsToDelete(_ names: [String], keeping: Int = LogRetention.keptDiagnostics) -> [String] {

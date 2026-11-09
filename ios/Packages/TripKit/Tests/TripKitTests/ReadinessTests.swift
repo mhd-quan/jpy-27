@@ -128,6 +128,23 @@ import Testing
         #expect(Readiness.forecasts(fetched: [nil, now.addingTimeInterval(-90_000)], now: now) == .missing(done: 0, total: 2))
     }
 
+    // MARK: A day's map picture (R-640)
+
+    @Test func aDayFollowingTheSystemIsReadyWithEitherScheme() {
+        // no photograph, Giao diện on "Tự động": the picture of the scheme it was drawn in before sunset still counts
+        #expect(Readiness.dayMapReady(own: false, other: true, followsSystem: true))
+        #expect(Readiness.dayMapReady(own: true, other: false, followsSystem: true))
+        #expect(Readiness.dayMapReady(own: true, other: true, followsSystem: true))
+        #expect(!Readiness.dayMapReady(own: false, other: false, followsSystem: true))
+    }
+
+    @Test func aDayWithItsOwnSchemeNeedsThatPicture() {
+        // a photograph's colour, or Giao diện on Sáng or Tối: the exact scheme, as before
+        #expect(!Readiness.dayMapReady(own: false, other: true, followsSystem: false))
+        #expect(Readiness.dayMapReady(own: true, other: false, followsSystem: false))
+        #expect(!Readiness.dayMapReady(own: false, other: false, followsSystem: false))
+    }
+
     // MARK: When "Cần xem" speaks
 
     @Test func watchStartsFourteenDaysBeforeTheTrip() {

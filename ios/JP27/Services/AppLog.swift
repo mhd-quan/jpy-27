@@ -570,8 +570,9 @@ private actor LogWriter {
         try FileManager.default.copyItem(at: folder, to: work.appending(path: "Logs", directoryHint: .isDirectory))
     }
 
-    /// MetricKit's reports, each as its JSON in `diagnostics/` (`LogRetention.diagnosticName`), then
-    /// the 20 newest kept.
+    /// MetricKit's reports, each as its JSON in `diagnostics/` under a name none there has
+    /// (`LogRetention.diagnosticName(_:after:)`: a later delivery with the same end second takes the next index, never
+    /// an earlier report's name), then the 20 newest kept.
     func keep(_ payloads: [(end: Date, json: Data)]) {
         let files = FileManager.default
         do {
@@ -581,24 +582,22 @@ private actor LogWriter {
             fail("Không tạo được thư mục báo cáo chẩn đoán: \(error.localizedDescription)")
             return
         }
-        var used: [String: Int] = [:]
-        for payload in payloads {
-            let first = LogRetention.diagnosticName(payload.end, index: 0)
-            let index = used[first, default: 0]
-            used[first] = index + 1
-            let name = LogRetention.diagnosticName(payload.end, index: index)
-            do {
-                try payload.json.write(to: reports.appending(path: name, directoryHint: .notDirectory), options: .atomic)
-            } catch {
-                fail("Không lưu được báo cáo chẩn đoán \(name): \(error.localizedDescription)")
-            }
-        }
-        let names: [String]
+        // read before the first write: what is there, and then what this delivery writes, is never written over
+        var names: [String]
         do {
             names = try regularFiles(in: reports).map(\.name)
         } catch {
             fail("Không đọc được thư mục báo cáo chẩn đoán: \(error.localizedDescription)")
             return
+        }
+        for payload in payloads {
+            let name = LogRetention.diagnosticName(payload.end, after: names)
+            do {
+                try payload.json.write(to: reports.appending(path: name, directoryHint: .notDirectory), options: .atomic)
+                names.append(name)
+            } catch {
+                fail("Không lưu được báo cáo chẩn đoán \(name): \(error.localizedDescription)")
+            }
         }
         for name in LogRetention.diagnosticsToDelete(names) {
             remove(reports.appending(path: name, directoryHint: .notDirectory))

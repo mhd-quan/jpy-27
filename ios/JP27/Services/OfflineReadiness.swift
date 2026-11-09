@@ -101,7 +101,8 @@ import TripKit
     }
 
     /// Every day, the alternative ones with them (one may be swapped in with no signal), with its map's picture on disk
-    /// at the page size the home measured last.
+    /// at the page size the home measured last; for a day whose scheme follows the system's, a picture of either scheme
+    /// (`Prefetch.DayMapPicture`).
     private func dayMaps(_ model: AppModel) async -> ReadyState {
         guard let page = Prefetch.lastPage else { return .needsSetup("Mở trang Hôm nay một lần") }
         let store = model.store
@@ -110,9 +111,9 @@ import TripKit
         var done = 0
         for day in days {
             // nil: the page's light or dark cannot be told yet (its photograph's colour is not read), so not ready
-            guard let request = await Prefetch.dayMapRequest(day, photo: HomePicks.photo(for: day, store: store), model: model, page: page)
+            guard let picture = await Prefetch.dayMapRequest(day, photo: HomePicks.photo(for: day, store: store), model: model, page: page)
             else { continue }
-            if await MapSnapshots.shared.isOnDisk(request) { done += 1 }
+            if await picture.isOnDisk() { done += 1 }
         }
         return done == days.count ? .ready : .missing(done: done, total: days.count)
     }

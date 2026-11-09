@@ -48,9 +48,16 @@ import WeatherKit
 
     private var folder: URL { Self.folder }
 
-    private nonisolated static var folder: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("Forecast", isDirectory: true)
-    }
+    /// `Application Support/Forecast`: kept for no signal, where iOS does not purge as it does Caches (a forecast cannot
+    /// be fetched again offline), but out of the iCloud backup (fetched again).
+    private nonisolated static let folder: URL = {
+        var url = URL.applicationSupportDirectory.appending(path: "Forecast", directoryHint: .isDirectory)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? url.setResourceValues(values)
+        return url
+    }()
 
     /// When the forecast kept for `key` was fetched (the real clock): from memory, else from its file on disk, read
     /// off the main thread for its date only. Nil when there is none. It loads nothing into `series`, so no forecast

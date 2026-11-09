@@ -261,7 +261,8 @@ import UIKit
     // MARK: The parts
 
     /// Every day, the alternative ones with them, its map's picture on disk at the page size the home measured last:
-    /// the same days, and the same pictures, the readiness list counts.
+    /// the same days, and the same pictures, the readiness list counts. A day whose scheme follows the system's, with a
+    /// picture of either scheme on disk, draws nothing (`Prefetch.DayMapPicture`).
     private func dayMaps() async -> ExtrasRun.Count? {
         guard let page = Prefetch.lastPage else {
             starting(.dayMaps, total: nil)
@@ -270,13 +271,14 @@ import UIKit
         }
         let model = AppModel.shared
         let requests = await dayRequests(model, page: page)
-        MapSnapshots.offlineKeep = Set(requests.wanted.map(\.key.stem))
+        MapSnapshots.offlineKeep = Set(requests.wanted.flatMap { $0.stems })
         starting(.dayMaps, total: requests.days)
         if run.progress(.dayMaps) == nil { run.counted(.dayMaps, done: 0, total: requests.days) }
         var done = 0
-        for request in requests.wanted {
+        for picture in requests.wanted {
             guard goingOn(.dayMaps) else { break }
-            if await MapSnapshots.shared.isOnDisk(request) {
+            let request = picture.request
+            if await picture.isOnDisk() {
                 done += 1
             } else if await draw(.dayMaps, { keep in await MapSnapshots.shared.drawForKeeping(request, keep: keep) }) {
                 done += 1
@@ -286,10 +288,10 @@ import UIKit
         // counted again from the disk: a new page size or tile build renames them, a page drawing the same frame at
         // another size prunes one
         let now = await dayRequests(model, page: Prefetch.lastPage ?? page)
-        MapSnapshots.offlineKeep = Set(now.wanted.map(\.key.stem))
+        MapSnapshots.offlineKeep = Set(now.wanted.flatMap { $0.stems })
         var onDisk = 0
-        for request in now.wanted {
-            if await MapSnapshots.shared.isOnDisk(request) { onDisk += 1 }
+        for picture in now.wanted {
+            if await picture.isOnDisk() { onDisk += 1 }
         }
         return ExtrasRun.Count(done: onDisk, total: now.days)
     }
@@ -297,15 +299,15 @@ import UIKit
     /// The day maps' pictures and how many days there are. A day whose photograph's colour is not known yet has it
     /// read from the phone first (nothing is downloaded for it); one still unknown has no picture to draw, and counts
     /// as missing.
-    private func dayRequests(_ model: AppModel, page: Prefetch.Page) async -> (wanted: [MapSnapshots.Request], days: Int) {
+    private func dayRequests(_ model: AppModel, page: Prefetch.Page) async -> (wanted: [Prefetch.DayMapPicture], days: Int) {
         let store = model.store
         var seen = Set<String>()
         let days = (store.trip.days + store.trip.altDays).filter { seen.insert($0.key).inserted }
-        var wanted: [MapSnapshots.Request] = []
+        var wanted: [Prefetch.DayMapPicture] = []
         for day in days {
             let photo = HomePicks.photo(for: day, store: store)
             if let photo, PhotoCache.knownTone(photo) == nil { _ = await PhotoCache.shared.tone(photo) }
-            if let request = await Prefetch.dayMapRequest(day, photo: photo, model: model, page: page) { wanted.append(request) }
+            if let picture = await Prefetch.dayMapRequest(day, photo: photo, model: model, page: page) { wanted.append(picture) }
         }
         return (wanted, days.count)
     }

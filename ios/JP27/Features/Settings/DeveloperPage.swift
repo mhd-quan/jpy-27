@@ -26,7 +26,7 @@ struct DeveloperSection: View {
     @State private var toneDrift: String?
     /// `FujiTerrainPictures.pictureOnly`, as the switch shows it (a static: not observed)
     @State private var fujiPictureOnly = FujiTerrainPictures.pictureOnly
-    /// what `Caches/Fuji` holds, read on opening the page and after "Xoá"
+    /// what `Application Support/Fuji` holds, read on opening the page and after "Xoá"
     @State private var fujiPictures: String?
     /// a pretend failure asked for, waiting for "Bật"
     @State private var pending: Pending?

@@ -893,8 +893,11 @@ import UIKit
         let plan = Readiness.plan(readiness.states)
         let areas = maps.downloadAll()
         photos.download()
-        // the pictures that read ready with them: their pass only checks the disk, counts them and writes their keep list
-        let more = OfflineExtra.forEverything(readiness.states)
+        // the pictures that read ready with them: their pass only checks the disk, counts them and writes their keep list;
+        // and every part a stop still holds (`ExtrasRun.held`, always parts of this job), the ones already fresh with
+        // them, so none is left stopped under a job that then ends "Đã dừng" with every row ready (R-638); forecasts
+        // run again only where older than an hour (`ForecastService.hours`)
+        let more = OfflineExtra.forEverything(readiness.states).union(extras.run.held)
         AppLog.info(.offline, "Tải tất cả", ["plan": plan.map(\.rawValue).joined(separator: ","),
                                              "expensive": "\(AppModel.shared.network.expensive)"])
         start(areas: areas, photos: photos.running, extras: more, everything: true)

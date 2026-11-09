@@ -833,30 +833,66 @@ enum Prefetch {
         }
     }
 
+    /// A day's map picture as the offline readiness and Tải tất cả count it. A day whose page sets its own scheme (a
+    /// photograph's colour, or Giao diện on Sáng or Tối) needs the picture in that scheme. One whose page follows the
+    /// system's light and dark (no photograph, Giao diện on "Tự động": day 12 today) turns with sunrise and sunset, and
+    /// a picture of either scheme counts for it (`Readiness.dayMapReady`, R-640). The pruning of a frame's other
+    /// pictures is left as it is (`SnapshotKey.stale`): one picture of the day stays on disk.
+    struct DayMapPicture {
+        /// the picture the day page asks for now: the one drawn when none that counts is on disk
+        let request: MapSnapshots.Request
+        /// the same picture in the other scheme, for a day that follows the system's; nil for any other day
+        let other: MapSnapshots.Request?
+
+        /// Whether a picture that counts is on disk (memory is not asked). The other scheme is looked for only where
+        /// it counts, and only when the page's own is not there.
+        func isOnDisk() async -> Bool {
+            let own = await MapSnapshots.shared.isOnDisk(request)
+            var otherOnDisk = false
+            if !own, let other { otherOnDisk = await MapSnapshots.shared.isOnDisk(other) }
+            return Readiness.dayMapReady(own: own, other: otherOnDisk, followsSystem: other != nil)
+        }
+
+        /// What the launch trim spares for no signal (`MapSnapshots.offlineKeep`): every picture that counts.
+        var stems: [String] {
+            [request.key.stem] + (other.map { [$0.key.stem] } ?? [])
+        }
+    }
+
     /// The picture of a day's map the day page will ask for on `page` (`PlanDayHeader`'s `StaticTripMap`), for the
-    /// offline readiness count and for drawing it ahead (Task 6). Nil when the page's light or dark cannot be told
-    /// yet: the day has a photograph whose colour has not been read (`PhotoCache.knownTone`), and a picture asked
-    /// for in the system's scheme then would be the wrong one, and would prune the right one once drawn.
-    static func dayMapRequest(_ day: Day, photo: Photo?, model: AppModel, page: Page) async -> MapSnapshots.Request? {
+    /// offline readiness count and for drawing it ahead (Task 6), with the other scheme's where it counts too. Nil when
+    /// the page's light or dark cannot be told yet: the day has a photograph whose colour has not been read
+    /// (`PhotoCache.knownTone`), and a picture asked for in the system's scheme then would be the wrong one, and would
+    /// prune the right one once drawn.
+    static func dayMapRequest(_ day: Day, photo: Photo?, model: AppModel, page: Page) async -> DayMapPicture? {
         guard let ask = await dayMapAsk(day, photo: photo, model: model, page: page), ask.known else { return nil }
-        return ask.request
+        return DayMapPicture(request: ask.request, other: ask.other)
     }
 
     /// What `dayMap` and `dayMapRequest` both ask, made in one place so the two never name different pictures: the
     /// content, the frame, the insets, the size, the scale and the scheme of the day page's map, and whether that
-    /// scheme is known (no photograph, or its colour read). Nil for a page too narrow for a map.
-    private static func dayMapAsk(_ day: Day, photo: Photo?, model: AppModel, page: Page) async -> (request: MapSnapshots.Request, known: Bool)? {
+    /// scheme is known (no photograph, or its colour read); for a day whose scheme follows the system's, the same
+    /// picture in the other scheme. Nil for a page too narrow for a map.
+    private static func dayMapAsk(_ day: Day, photo: Photo?, model: AppModel, page: Page) async
+        -> (request: MapSnapshots.Request, known: Bool, other: MapSnapshots.Request?)? {
         let size = mapSize(page)
         guard size.width >= 1 else { return nil }
         let system: ColorScheme = page.dark ? .dark : .light
         // the colour the page will be made with: read when it is made, as here (`PageTone.init`)
         let canvas = PageTone(photo).canvas(dim: page.dark)
         let known = photo == nil || canvas != nil
-        let scheme = DayPage.mapScheme(photo: photo, canvas: canvas, system: system) ?? system
+        let own = DayPage.mapScheme(photo: photo, canvas: canvas, system: system)
+        let scheme = own ?? system
+        // the system's own light and dark, not one Giao diện sets (what `RootView` applies, read as it stores it)
+        let automatic = (Appearance(rawValue: UserDefaults.standard.string(forKey: Appearance.key) ?? "") ?? .system) == .system
         let printed = await fingerprinted(.day(day, model: model))
         let request = MapSnapshots.Request(printed, frameID: day.key, insets: DayPage.mapInsets, size: size,
                                            scale: page.scale, dark: scheme == .dark)
-        return (request, known)
+        let other = own == nil && automatic
+            ? MapSnapshots.Request(printed, frameID: day.key, insets: DayPage.mapInsets, size: size, scale: page.scale,
+                                   dark: scheme != .dark)
+            : nil
+        return (request, known, other)
     }
 
     /// The day's hero: its album picture at the page's hero size; in Low Power Mode, or with no page measured, the

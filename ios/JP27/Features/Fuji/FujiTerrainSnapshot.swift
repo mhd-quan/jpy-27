@@ -10,7 +10,7 @@ import UniformTypeIdentifiers
 /// The terrain from `camera`, with the viewpoints' pins and lines of sight to the summit, as a page shows it.
 ///
 /// The picture (`FujiTerrainPictures`):
-/// - comes from memory in the first frame, from `Caches/Fuji` when read;
+/// - comes from memory in the first frame, from `Application Support/Fuji` when read;
 /// - is otherwise drawn once the page has come on screen, with a steady network, out of Low Power Mode.
 ///
 /// The live map (`FujiTerrainMap`):
@@ -357,10 +357,12 @@ nonisolated struct FujiTerrainPicture: Sendable {
 ///
 /// Where they are kept:
 /// - in memory, 32 MB;
-/// - on disk in `Caches/Fuji`: `<stem>.heic` (JPEG where the encoder has no HEIC), and beside it `<stem>.json`,
-///   which holds the projected points and the fingerprint (`TerrainPicture`);
+/// - on disk in `Application Support/Fuji`, which iOS does not purge (kept for no signal), out of the iCloud backup:
+///   `<stem>.heic` (JPEG where the encoder has no HEIC), and beside it `<stem>.json`, which holds the projected points
+///   and the fingerprint (`TerrainPicture`);
 /// - a picture read back with another fingerprint is a miss, drawn again under the same name;
-/// - the folder is held to 40 MB at launch (`trim`). They can always be drawn again.
+/// - the folder is held to 40 MB at launch (`trim`), never the pictures Tải tất cả kept for no signal. With a signal
+///   they can always be drawn again.
 ///
 /// One drawing per picture (name and fingerprint) at a time, shared by whoever asks. It is cancelled when the last of
 /// them stops waiting, or after 15 s. One drawn with no signal is not kept on disk: its tiles may be missing.
@@ -820,10 +822,14 @@ nonisolated struct FujiTerrainPicture: Sendable {
 
     // MARK: On disk, off the main thread
 
-    /// `Caches/Fuji`: this cache's own folder, the only place it writes or deletes.
+    /// `Application Support/Fuji`, the only place it writes or deletes: kept for no signal, where iOS does not purge
+    /// as it does Caches (a MapKit snapshot cannot be drawn again offline), but out of the iCloud backup (drawn again).
     private nonisolated static let folder: URL = {
-        let url = URL.cachesDirectory.appending(path: "Fuji", directoryHint: .isDirectory)
+        var url = URL.applicationSupportDirectory.appending(path: "Fuji", directoryHint: .isDirectory)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? url.setResourceValues(values)
         return url
     }()
 
@@ -916,8 +922,8 @@ nonisolated struct FujiTerrainPicture: Sendable {
         return "\(pictures) ảnh \(format.ext.uppercased()) · " + ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
     }
 
-    /// Cài đặt › Hỗ trợ › Nhà phát triển › Xoá: every picture, in memory and in `Caches/Fuji` (the cache's own files only),
-    /// so the next page draws its picture afresh.
+    /// Cài đặt › Hỗ trợ › Nhà phát triển › Xoá: every picture, in memory and in `Application Support/Fuji` (the cache's
+    /// own files only), so the next page draws its picture afresh.
     func clear() async {
         memory.removeAllObjects()
         backdrops = [:]

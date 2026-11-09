@@ -1,7 +1,7 @@
 import Foundation
 
 /// A picture of the 3D terrain round Fuji: `FujiTerrainSnapshot` in the app, drawn once by MapKit's
-/// snapshotter and kept in `Caches/Fuji`. This file holds four things.
+/// snapshotter and kept in `Application Support/Fuji`. This file holds four things.
 ///
 /// - Its name: the kind of shot (a day's area or one viewpoint), the size, the scale and the scheme.
 /// - The fingerprint stored beside it: the camera and the points it projects. A picture whose fingerprint

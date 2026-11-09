@@ -8,7 +8,8 @@ code thật; chưa bước nào được làm. Bản build: Release, mở từ m
 ## § 1 — Task 1: style của gói nằm trong app; gói Toàn tuyến
 
 Trước khi tạo một gói, và mỗi lần mở app, app nạp style đóng trong app vào cơ sở dữ liệu của MapLibre dưới URL mà
-gói ghi (`https://jpy27.delphyra.tech/map/jp27-light@<tên build>.json`); tên miền đó không cần trả lời. Nếu MapLibre
+gói ghi (`https://jpy27.delphyra.tech/map/jp27-light@<tên build>.json` với build đã ghim; khi bản đồ đã chuyển sang
+build hiện hành của OpenFreeMap thì là `jp27-light@current-<16 chữ số hex>.json`); tên miền đó không cần trả lời. Nếu MapLibre
 không đọc style đã nạp, gói sẽ hỏi tên miền đó và không bao giờ tải được: vùng ghi "Không kết nối được, đang thử
 lại" dù có mạng. Khi đó cần phương án khác; đường lui là gắn lại tên miền cho Worker của site.
 
@@ -27,9 +28,9 @@ Làm trên bản cài mới (xoá app JP27 trước bước 1), để bước 5 
 
 Mỗi dòng log đi vào `Application Support/Logs/<yyyy-MM-dd>.jsonl` (ngày theo đồng hồ của máy, giờ trong dòng là giờ
 thật kể cả khi đang chạy thử) và tới Console (subsystem `tech.delphyra.jp27`, nhóm là category). Khi app ở trước mặt,
-dòng chờ tối đa 2 giây rồi mới ghi; khi app đã rời màn hình, và với mọi dòng lỗi, dòng được ghi ngay. Trang
-Cài đặt › Hỗ trợ › Log có từ Task 7; trước đó, đọc các dòng bằng Console trên máy Mac (cắm cáp, chọn iPhone, lọc
-subsystem `tech.delphyra.jp27`).
+dòng chờ tối đa 2 giây rồi mới ghi; khi app đã rời màn hình, và với mọi dòng lỗi, dòng được ghi ngay. Đọc các dòng ở
+Cài đặt › Hỗ trợ › Log, có trong mọi bản build (cả Release); Console trên máy Mac (cắm cáp, chọn iPhone, lọc subsystem
+`tech.delphyra.jp27`) cũng được.
 
 | # | Bước | Mong đợi | Kết quả |
 | --- | --- | --- | --- |
@@ -41,15 +42,15 @@ subsystem `tech.delphyra.jp27`).
 
 ## § 3 — Task 3: dòng log của từng việc
 
-Các dòng đọc ở trang Log (Task 7), hoặc trước đó bằng Console trên máy Mac (subsystem `tech.delphyra.jp27`). Không
-dòng nào được mang tên máy, chữ người dùng gõ hay nói, hay toạ độ chưa làm tròn: máy kia hiện bằng `peer`, 8 chữ số
-hex đầu của dấu vân tay khoá của nó. Báo thức thử nằm ở Cài đặt › Nhà phát triển (Task 4), chỉ có ở bản Debug cho tới
-Task 7 (từ đó có ở mọi bản), nên bước 2 làm trên bản Debug.
+Các dòng đọc ở trang Log (Cài đặt › Hỗ trợ › Log), hoặc bằng Console trên máy Mac (subsystem `tech.delphyra.jp27`).
+Không dòng nào được mang tên máy, chữ người dùng gõ hay nói, hay toạ độ chưa làm tròn: máy kia hiện bằng `peer`, 8 chữ
+số hex đầu của dấu vân tay khoá của nó. Trang Log và báo thức thử (Cài đặt › Hỗ trợ › Nhà phát triển) có trong mọi bản
+build, nên mọi bước, cả bước 2, làm trên bản Release như mặc định: kiểm đúng bản sẽ dùng.
 
 | # | Bước | Mong đợi | Kết quả |
 | --- | --- | --- | --- |
-| 1 | Có mạng. Cài đặt › Dùng khi mất sóng › tải một vùng chưa có (ví dụ Nara), đợi tới "Đã tải". Vào trang Log. | Theo thứ tự: "Bắt đầu tải" (`areas` = `nara`, `photos` = `false`), "Nạp style" (`build`, `url`), "Vùng xong" (`area` = `nara`, `bytes`), "Kết thúc tải" (`subtitle` = `Xong`). Không có dòng "Vùng xong" cho những vùng đã tải từ trước. | |
-| 2 | Bản Debug. Cài đặt › Nhà phát triển › "Báo thức thử sau 2 phút", rồi ngay "Báo thức thử sau 5 phút". Để báo thức reo, tắt nó, rời app rồi mở lại. Vào trang Log. | "Đặt báo thức" (`ride` = `debug.wake`, `at` là giờ UTC dạng `…T…Z`, `source` = `ride`), rồi "Đổi báo thức" với `at` muộn hơn 3 phút; sau khi mở lại: "Bỏ báo thức đã qua" cho `debug.wake`. Không dòng nào có "Ga thử". | |
+| 1 | Có mạng. Cài đặt › Dùng khi mất sóng › tải một vùng chưa có (ví dụ Nara), đợi tới "Đã tải". Vào trang Log. | Theo thứ tự: "Bắt đầu tải" (`areas` = `nara`, `photos` = `false`), "Nạp style" (`build`, `url`), "Vùng xong" (`area` = `nara`, `bytes`), "Kết thúc tải" (`subtitle` = `Xong`). Không có dòng "Vùng xong" cho những vùng đã tải từ trước. Thêm dòng "Nạp style" quanh thứ tự đó là bình thường: app nạp lại style mỗi lần quay lại app. | |
+| 2 | Bản Release. Cài đặt › Hỗ trợ › Nhà phát triển › "Báo thức thử sau 2 phút", rồi ngay "Báo thức thử sau 5 phút". Để báo thức reo, tắt nó, rời app rồi mở lại. Vào trang Log. | "Đặt báo thức" (`ride` = `debug.wake`, `at` là giờ UTC dạng `…T…Z`, `source` = `ride`), rồi "Đổi báo thức" với `at` muộn hơn 3 phút; sau khi mở lại: "Bỏ báo thức đã qua" cho `debug.wake`. Không dòng nào có "Ga thử". | |
 | 3 | Hai máy đã ghép, cả hai bật đồng bộ và mở JP27 ở gần nhau. Trên máy này ghi một khoản chi có ghi chú (ví dụ "bánh cá thử log") và tự gõ tên một quán không có trong dữ liệu. Đợi máy kia nhận. Vào trang Log của máy này. | "Kết nối máy kia", "Gửi sổ chi" (`peer`, `rows`), "Máy kia đã lưu sổ chi"; có thể có "Nhận sổ chi" (`rows`, `rejected`, `changed`). `peer` là 8 chữ số hex, giống nhau ở mọi dòng của cùng máy kia. | |
 | 4 | Trang Log › "Xuất log", mở file `.zip` trong Tệp. Mở các `.jsonl` của hôm nay (ứng dụng đọc văn bản, hoặc trên Mac), tìm tên máy kia (như ở trang đồng bộ), tên máy này, "bánh cá thử log" và tên quán đã gõ ở bước 3. | Không thấy chữ nào trong số đó ở bất kỳ file nào. | |
 | 5 | Trong chuyến, có quyền vị trí "Luôn luôn": tới một điểm có vòng geofence của ngày (quán ăn, ga). Vào trang Log. | "Đặt geofence" (`count`, `added`, `removed`) lúc vòng đổi; "Vào vùng" với `place` (id), `kind` và `at` có đúng hai chữ số sau dấu chấm (ví dụ `35.69,139.69`). Không có dòng "Ra vùng": app chỉ theo dõi lúc vào vòng. | |
@@ -93,7 +94,7 @@ Làm trên bản cài mới (xoá app JP27 trước bước 1), Wi‑Fi, trừ k
 | 6 | Dòng Gói nghe tiếng Nhật (nếu ghi "Chưa tải"): chạm "Tải". | Dòng ghi "Đang tải x%", tăng khoảng mỗi giây, rồi "Sẵn sàng". Sau đó tab Sổ tay › Nghe bắt đầu nghe ngay, không tải gì thêm. Máy không có tiếng Nhật cho nghe (nếu có máy như thế): "Máy này chưa nghe được tiếng Nhật", không có nút. | |
 | 7 | Gói nghe chưa có (máy khác, hoặc Cài đặt iPhone › Chung › Dung lượng: không xoá được thì bỏ bước này). Bật Chế độ máy bay, chạm "Tải" ở Gói nghe. | Nút bị mờ khi máy bay; nếu bấm được trước khi mất mạng: dòng ghi lý do lỗi hoặc "Chờ có mạng", không treo "Đang tải 0%" mãi. | |
 | 8 | Có mạng. Mở trang Fuji và để thẻ "Mây lúc này" tải; mở vài thẻ chỗ ngắm. Quay lại Dùng khi mất sóng. | Dự báo mây ghi "Chưa mới · x/32 nơi · cập nhật <giờ Nhật>" (giờ của dự báo cũ nhất; thêm "ngày d/m" nếu không phải hôm nay ở Nhật). | |
-| 9 | Đổi Giao diện của máy (Sáng ↔ Tối) khi đang ở trang Hôm nay, rồi về Dùng khi mất sóng. | Ảnh bản đồ các ngày đếm lại theo chế độ mới (ngày không có ảnh bìa đổi ảnh bản đồ theo sáng tối), số có thể giảm; không treo, không lỗi. | |
+| 9 | Giao diện của app ở "Tự động". Đổi Giao diện của máy (Sáng ↔ Tối) khi đang ở trang Hôm nay, rồi về Dùng khi mất sóng. Rồi đặt Giao diện của app là Sáng hoặc Tối và làm lại. | Ngày không có ảnh bìa là ngày 12 (chỉ có ga KIX): ảnh bản đồ của nó đổi theo sáng tối của máy. Khi "Tự động", ngày 12 vẫn được đếm nếu đã có ảnh bản đồ của một trong hai chế độ, nên số của Ảnh bản đồ các ngày không giảm vì đổi chế độ. Khi Sáng hoặc Tối, ngày 12 chỉ được đếm với ảnh của đúng chế độ đó. Không treo, không lỗi. | |
 | 10 | Mở Log (Task 7) hoặc Console sau các bước trên. | Nhóm `offline` có dòng "Sẵn sàng khi mất sóng" với `item`, `state` mỗi khi một mục đổi loại trạng thái (không phải mỗi phần trăm); "Tải gói nghe tiếng Nhật" `start`/`installed`. Không có chữ người dùng gõ. | |
 | 11 | **Chỉ kiểm được từ 4/10/2027** (14 ngày trước chuyến, theo đồng hồ thật; Chạy thử không đổi được). Khi còn mục thiếu, mở Cài đặt. Rồi làm cho đủ, mở lại. | Cần xem có "Chưa sẵn sàng khi mất sóng", chạm vào mở Dùng khi mất sóng; khi bản đồ cũ thì chỉ có "Bản đồ offline cần tải lại". Khi mọi mục sẵn sàng (hoặc không hỗ trợ): dòng biến mất. Sau 29/10/2027 (giờ Nhật) không còn hiện. | |
 
@@ -109,6 +110,11 @@ Fuji, Dự báo mây có nút "Tải" riêng khi còn thiếu.
 
 Trước bước 1: bản cài mới, đã mở trang Hôm nay, trang Fuji, một thẻ chỗ ngắm không có ảnh chụp và một thẻ có ảnh chụp
 (§ 5 bước 2), để các mục không còn "Mở … một lần". Wi‑Fi, trừ khi bước ghi khác.
+
+Bước 5, 8 và 9: làm cả lượt trong một chế độ sáng tối, hoặc đặt Cài đặt › Trải nghiệm › Giao diện là Sáng hay Tối. Khi
+"Tự động", ngày 12 (không có ảnh bìa) theo sáng tối của máy. Nếu chế độ đã đổi từ bước 1, Ảnh bản đồ các ngày vẫn ghi
+"Sẵn sàng" (ảnh của chế độ kia vẫn được đếm), nhưng mở ngày 12 thì bản đồ của nó được vẽ lúc đó (từ gói khi mất sóng),
+nên không hiện ngay.
 
 | # | Bước | Mong đợi | Kết quả |
 | --- | --- | --- | --- |
@@ -127,6 +133,7 @@ Trước bước 1: bản cài mới, đã mở trang Hôm nay, trang Fuji, mộ
 | 13 | Mở Log (Task 7) sau các bước trên. | Nhóm `offline` có: "Tải tất cả" (`plan`, `expensive`); "Bắt đầu tải" và "Kết thúc tải" có `extras`, `everything`; mỗi phần "Bắt đầu phần tải" (`part`, `total`) và "Xong phần tải" (`part`, `done`, `total`, `paused`), một cặp cho mỗi lần chạy: không có hai dòng "Bắt đầu phần tải" của cùng một phần mà không có "Xong phần tải" ở giữa; "Chờ mạng để tải tiếp", "Chờ mở app để vẽ tiếp" mỗi lần chờ một dòng (không phải mỗi giây); "Dừng phần tải" khi dừng. Không có một dòng cho mỗi ảnh, không có toạ độ, không có chữ người dùng gõ. | |
 | 14 | Xoá app, cài lại, làm phần "Trước bước 1". "Tải tất cả"; khi Live Activity ghi "Fuji x/69" (x lớn hơn 0), bật Chế độ máy bay rồi về màn hình chính, xem Live Activity. Tắt Chế độ máy bay, đợi một phút ở ngoài app, xem lại. Mở app. | Khi máy bay: Live Activity ghi "Fuji x/69 · chờ mạng". Có mạng lại ở ngoài app: "Fuji x/69 · chờ mở app", hoặc dự báo chạy trước với "Fuji x/69" vẫn giữ số (không còn "Fuji" trơn). Mở app: đi tiếp tới "Xong". | |
 | 15 | Sau bước 1, đợi hơn 12 giờ (Dự báo mây hết mới, các dòng khác vẫn "Sẵn sàng"). Bấm "Tải tất cả". | Xong sau vài giây, không vẽ lại ảnh nào. Log có "Bắt đầu phần tải" và "Xong phần tải" cho `dayMaps` và `fuji`, `done` bằng `total`; dòng việc tải ghi "Xong". | |
+| 16 | Sau bước 1 ("Xong"). Hỗ trợ › Kiểm tra › "Chạy kiểm tra", xem dòng Bộ nhớ; hoặc Cài đặt iPhone › Cài đặt chung › Dung lượng iPhone › JP27. Rồi, sau một lúc máy thiếu chỗ trống (ví dụ quay video tới khi iOS báo gần đầy, rồi xoá video đó), bật Chế độ máy bay, mở trang Fuji và vài thẻ chỗ ngắm. | Ảnh địa hình Fuji và dự báo nằm trong dữ liệu của app (`Application Support/Fuji`, `Application Support/Forecast`), không trong bộ nhớ đệm iOS được xoá: "app dùng" (hay "Tài liệu & Dữ liệu") gồm cả chúng. Sau khi máy thiếu chỗ, khi máy bay: thẻ Fuji vẫn có ảnh địa hình, thẻ mây vẫn hiện dự báo đã tải; Dùng khi mất sóng vẫn ghi Ảnh địa hình Fuji "Sẵn sàng". Lần mở app đầu tiên sau bản cập nhật này có dòng log "Xoá thư mục cũ" (`folder` = `Caches/Fuji`, `Caches/Forecast`) nếu bản cũ đã lưu. | |
 
 ## § 7 — Task 7: Kiểm tra, trang Log, Nhà phát triển trong Release
 
@@ -138,7 +145,7 @@ phải qua hộp "Bật giả lỗi?". Công cụ giả lỗi chỉ nằm trong 
 
 | # | Bước | Mong đợi | Kết quả |
 | --- | --- | --- | --- |
-| 1 | Bản Release. Cài đặt › Hỗ trợ › Nhà phát triển. Đếm công cụ: báo thức thử 2 và 5 phút, Báo thức trong hệ thống, Thông báo Đã tới thử (hai kiểu), Giả lỗi lưu, Giả lỗi đọc sổ chi, Thử ghi trùng chỉ số, Chi tiết kiểm tra ở màn đi tàu, Vị trí lúc, So khung bản đồ, Ảnh bản đồ đã lưu, So màu ảnh, Fuji: chỉ ảnh địa hình, Ảnh địa hình Fuji đã lưu (nút Xoá), Đo khung hình bản đồ. Chọn "Giả lỗi lưu: Mọi lần lưu". Lần đầu bấm "Huỷ", lần sau bấm "Bật". Quay về trang chính. Bấm "Tắt" trên dải đỏ. Bật lại "Mọi lần lưu", rồi vuốt tắt hẳn app và mở lại. | Đủ công cụ, không ô biểu tượng nào trống. Chọn xong thì hiện hộp "Bật giả lỗi?" / "Lưu sẽ báo lỗi tới khi tắt hoặc mở lại app.". Sau "Huỷ", ô vẫn ghi "Tắt" và trang chính không có dải đỏ. Sau "Bật", Cần xem có dải đỏ "Đang giả lỗi lưu" (nền đỏ, chữ trắng, đọc được ở cả Sáng và Tối). "Tắt" làm dải đỏ mất ngay. Mở lại app thì không có dải đỏ và Nhà phát triển ghi "Tắt". | |
+| 1 | Bản Release. Cài đặt › Hỗ trợ › Nhà phát triển. Đếm công cụ: báo thức thử 2 và 5 phút, Báo thức trong hệ thống, Thông báo Đã tới thử (hai kiểu), Giả lỗi lưu, Giả lỗi đọc sổ chi, Thử ghi trùng chỉ số, Chi tiết kiểm tra ở màn đi tàu, Vị trí lúc, So khung bản đồ, Ảnh bản đồ đã lưu, So màu ảnh: mới và cũ, Fuji: chỉ ảnh địa hình, Ảnh địa hình Fuji đã lưu (nút Xoá), Đo khung hình bản đồ. Chọn "Giả lỗi lưu: Mọi lần lưu". Lần đầu bấm "Huỷ", lần sau bấm "Bật". Quay về trang chính. Bấm "Tắt" trên dải đỏ. Bật lại "Mọi lần lưu", rồi vuốt tắt hẳn app và mở lại. | Đủ công cụ, không ô biểu tượng nào trống. Chọn xong thì hiện hộp "Bật giả lỗi?" / "Lưu sẽ báo lỗi tới khi tắt hoặc mở lại app.". Sau "Huỷ", ô vẫn ghi "Tắt" và trang chính không có dải đỏ. Sau "Bật", Cần xem có dải đỏ "Đang giả lỗi lưu" (nền đỏ, chữ trắng, đọc được ở cả Sáng và Tối). "Tắt" làm dải đỏ mất ngay. Mở lại app thì không có dải đỏ và Nhà phát triển ghi "Tắt". | |
 | 2 | Bản Release. Bật "Giả lỗi lưu: Lần lưu tới" (bấm "Bật"). Quay về trang chính: có dải đỏ. Đánh dấu một điểm đã đi. Quay lại Cài đặt. Rồi bật "Giả lỗi đọc sổ chi", xoá một khoản chi (vuốt trong tab Chi tiêu), tắt công cụ. | Lần đánh dấu báo lỗi lưu ("Giả lỗi lưu (Nhà phát triển)") một lần. Dải đỏ tự mất, không cần bấm Tắt. Bật đọc sổ chi thì hộp ghi "Đọc sổ chi sẽ báo lỗi tới khi tắt hoặc mở lại app.". Xoá khoản chi thì báo lỗi "Giả lỗi đọc sổ chi (Nhà phát triển)" và khoản chi vẫn còn. | |
 | 3 | Có mạng (Wi‑Fi). Hỗ trợ › Kiểm tra › "Chạy kiểm tra". Rồi bật Chế độ máy bay (tắt cả Wi‑Fi), chạy lại. Rồi tắt Chế độ máy bay, nối một Wi‑Fi phải đăng nhập (khách sạn, quán cà phê) mà chưa đăng nhập, chạy lại nếu có dịp. Vào trang Log. | Mỗi lần có 8 dòng theo thứ tự: Quyền, Dùng khi mất sóng, Bộ nhớ, Sổ ghi chép, Nhắc giờ và báo thức, Đồng bộ, Mạng, Đồng hồ, mỗi dòng có ✓, ! hay ✕. Có mạng: Mạng ✓ "Bản đồ và dự báo trả lời". Chế độ máy bay: Mạng ! "Không có mạng", xong ngay, không chờ 10 giây. Wi‑Fi chưa đăng nhập: Mạng ! "Wi‑Fi chuyển sang trang khác (cần đăng nhập?)" hoặc ✕ "… không trả lời". Dòng Kiểm tra ở trang chính ghi đúng câu tổng hợp của lần sau cùng. Log nhóm `check`: "Chạy kiểm tra", 8 dòng "Kết quả kiểm tra" (`id`, `line`; mức trùng mức của kiểm tra), "Kiểm tra xong" (`summary`). Dòng Đồng bộ không có tên máy kia. | |
 | 4 | Hỗ trợ › Kiểm tra, xem dòng Bộ nhớ. So với Cài đặt iPhone › Cài đặt chung › Dung lượng iPhone › JP27 (Tài liệu & Dữ liệu) và Dùng khi mất sóng › "Đã tải". | "Trống … · app dùng … · gói bản đồ …". "App dùng" gần với "Tài liệu & Dữ liệu" của iOS (không gấp đôi). "Gói bản đồ" bằng "Đã tải" và không lớn hơn "app dùng" (khi Toàn tuyến và các vùng chồng nhau, nó bị chặn ở "app dùng"). Bấm Chạy kiểm tra thì trang không giật. | |

@@ -85,6 +85,15 @@ public enum Readiness {
         return from <= now && now < until
     }
 
+    /// Whether a day's map picture counts the day ready, from what is on disk (R-640): the picture in the scheme its
+    /// page is in now (`own`), or the same picture in the other scheme (`other`). A day whose page sets its own scheme
+    /// (a photograph's colour, or Giao diện on Sáng or Tối) needs `own`. A day whose page follows the system's light and
+    /// dark (no photograph, Giao diện on "Tự động") turns with sunrise and sunset, and either scheme counts for it: the
+    /// day page draws it live from the packs with no signal, so Tải tất cả draws nothing for it while one is there.
+    public static func dayMapReady(own: Bool, other: Bool, followsSystem: Bool) -> Bool {
+        own || (followsSystem && other)
+    }
+
     /// ready, or never to be: what does not count as missing (here, and at the end of Tải tất cả: `OfflineJob.result`)
     static func settled(_ state: ReadyState?) -> Bool {
         switch state {

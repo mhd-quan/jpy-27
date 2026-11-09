@@ -65,10 +65,34 @@ final class JP27AppDelegate: NSObject, UIApplicationDelegate {
         Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20, keeping: keptMaps) }
         // the album pages' pictures (Caches/Ambient) likewise, the least recently used going first
         Task(priority: .utility) { await PhotoCache.trimAmbient(toBytes: 40 << 20) }
-        // and the Fuji terrain's (Caches/Fuji), each picture with its points, those kept for no signal spared
+        // and the Fuji terrain's (Application Support/Fuji), each picture with its points, those kept for no signal spared
         let keptFuji = FujiTerrainPictures.offlineKeep
         Task(priority: .utility) { await FujiTerrainPictures.trim(toBytes: 40 << 20, keeping: keptFuji) }
+        // where the Fuji pictures and the forecasts were kept before they moved out of Caches
+        Task(priority: .utility) { await RetiredCaches.remove() }
         return true
+    }
+}
+
+/// The Caches folders the app kept the Fuji terrain pictures and the forecasts in before R-640 moved them to
+/// Application Support, out of iOS's purge, for no signal. Deleted at launch while they are there, off the main
+/// thread, so once in effect; nothing is moved from them (a Tải tất cả draws and fetches them again). A delete that
+/// fails is logged, and tried again at the next launch.
+nonisolated enum RetiredCaches {
+    static let names = ["Fuji", "Forecast"]
+
+    @concurrent static func remove() async {
+        let files = FileManager.default
+        for name in names {
+            let url = URL.cachesDirectory.appending(path: name, directoryHint: .isDirectory)
+            guard files.fileExists(atPath: url.path(percentEncoded: false)) else { continue }
+            do {
+                try files.removeItem(at: url)
+                AppLog.info(.offline, "Xoá thư mục cũ", ["folder": "Caches/\(name)"])
+            } catch {
+                AppLog.warning(.offline, "Không xoá được thư mục cũ", ["folder": "Caches/\(name)", "error": error.localizedDescription])
+            }
+        }
     }
 }
 

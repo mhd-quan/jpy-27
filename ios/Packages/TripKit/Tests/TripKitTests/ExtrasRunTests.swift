@@ -203,6 +203,25 @@ import Testing
         #expect(run.held.isEmpty); #expect(run.paused.isEmpty)
     }
 
+    @Test func everythingAfterAStopAsksForWhatIsHeldToo() {
+        // R-638: a stop, a kill, and every row ready again (the forecasts fresh): forEverything leaves the forecasts out
+        let ready = Dictionary(uniqueKeysWithValues: ReadyItem.allCases.map { ($0, ReadyState.ready) })
+        let members = Set(OfflineExtra.allCases)
+        var stopped = ExtrasRun()
+        stopped.request(members)
+        stopped.pause()
+        var back = ExtrasRun()
+        back.restore(members, held: stopped.held)
+        // what a restore holds is always the job's: the app asks for it again as it is
+        #expect(back.held.isSubset(of: members))
+        var without = back
+        without.request(OfflineExtra.forEverything(ready))
+        #expect(without.paused == [.forecasts])
+        // with what is held: nothing stays stopped
+        back.request(OfflineExtra.forEverything(ready).union(back.held))
+        #expect(back.held.isEmpty); #expect(back.paused.isEmpty); #expect(back.next == .dayMaps)
+    }
+
     @Test func anEndOnAPartOverChangesNothing() {
         var run = ExtrasRun()
         run.request([.fuji])

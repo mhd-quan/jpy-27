@@ -2,9 +2,9 @@ import Foundation
 import Testing
 @testable import TripKit
 
-/// The Fuji terrain's picture (`FujiTerrainSnapshot` in the app): its name in `Caches/Fuji`, the fingerprint kept
-/// beside it that tells a stale one from the right one, the launch trim, and when the live map goes under the
-/// picture and the picture comes off it.
+/// The Fuji terrain's picture (`FujiTerrainSnapshot` in the app): its name in `Application Support/Fuji`, the
+/// fingerprint kept beside it that tells a stale one from the right one, the launch trim, and when the live map goes
+/// under the picture and the picture comes off it.
 @Suite struct TerrainPictureTests {
     private let summit = Coordinate(35.36064, 138.72743)
     private let camera = TerrainPicture.Camera(center: Coordinate(35.25, 138.95), distance: 52_000, heading: 308, pitch: 58)
