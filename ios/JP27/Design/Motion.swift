@@ -18,16 +18,25 @@ nonisolated enum Motion {
     }
     /// a long move the eye follows: a camera flight, the dial drawing
     static let travel: Animation = .smooth(duration: 1.0)
-    /// one photograph giving way to the next where it stands: the cover turning, short like the TV app's. A fade, so
-    /// Reduce Motion keeps it, like `arrive`
-    static let crossfade: Animation = .easeInOut(duration: 0.3)
+    /// one photograph giving way to the next where it stands: the cover turning, short like the TV app's (its turns
+    /// take 0.22–0.33 s), on a spring with no bounce, so a turn let go of mid-drag goes on at the finger's speed and
+    /// none overshoots. A fade (the cover's drift goes under Reduce Motion, not the fade), so Reduce Motion keeps it,
+    /// like `arrive`
+    static let crossfade: Animation = .interpolatingSpring(crossfadeSpring)
+    /// the same, let go of mid-drag: `velocity` in parts of the way left a second, as `settle(velocity:)`
+    static func crossfade(velocity: Double) -> Animation {
+        .interpolatingSpring(crossfadeSpring, initialVelocity: velocity)
+    }
+    /// the spring `crossfade` runs on, for working out where a turn stands while it runs (`HomeCoverTurn.now`)
+    static let crossfadeSpring = Spring(duration: 0.32, bounce: 0)
 
     /// The short ease that stands in for a spring or a `pick` under Reduce Motion: `arrive`'s curve on purpose.
     private static let short: Animation = arrive
 
     /// The same under Reduce Motion: springs and `pick` become a short ease, `arrive` and `crossfade` stay,
     /// `travel` becomes none (nil: the change jumps). Anything that is not `arrive`, `crossfade` or `travel`,
-    /// `settle(velocity:)` included, takes the short ease.
+    /// `settle(velocity:)` included, takes the short ease. (`crossfade(velocity:)` is a fade like `crossfade` and goes
+    /// unreduced; given here, it would take the short ease.)
     ///
     /// Apply it to the bare token and chain modifiers after it, because it matches by `Animation ==`:
     /// `Motion.reduced(Motion.travel, reduce)?.delay(0.1)`, never `Motion.reduced(Motion.travel.delay(0.1), reduce)`
