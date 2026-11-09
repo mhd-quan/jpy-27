@@ -89,6 +89,8 @@ import TripKit
         followedAt = Shared.now
         lastPush = .distantPast
         self.ride = ride
+        // the screen kept on while it is followed, when Settings says so
+        model.keepAwakeForRide()
         let tracker = RideTracker(ride: ride, store: model.store)
         self.tracker = tracker
         timetableAlarm = WakePlanner(store: model.store).alarm(for: ride)

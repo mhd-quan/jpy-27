@@ -43,13 +43,32 @@ subsystem `tech.delphyra.jp27`).
 
 Các dòng đọc ở trang Log (Task 7), hoặc trước đó bằng Console trên máy Mac (subsystem `tech.delphyra.jp27`). Không
 dòng nào được mang tên máy, chữ người dùng gõ hay nói, hay toạ độ chưa làm tròn: máy kia hiện bằng `peer`, 8 chữ số
-hex đầu của dấu vân tay khoá của nó. Báo thức thử nằm ở Cài đặt › Chẩn đoán, chỉ có ở bản Debug cho tới Task 7 (ở
-đó đổi thành Nhà phát triển, có ở mọi bản), nên bước 2 làm trên bản Debug.
+hex đầu của dấu vân tay khoá của nó. Báo thức thử nằm ở Cài đặt › Nhà phát triển (Task 4), chỉ có ở bản Debug cho tới
+Task 7 (từ đó có ở mọi bản), nên bước 2 làm trên bản Debug.
 
 | # | Bước | Mong đợi | Kết quả |
 | --- | --- | --- | --- |
 | 1 | Có mạng. Cài đặt › Dùng khi mất sóng › tải một vùng chưa có (ví dụ Nara), đợi tới "Đã tải". Vào trang Log. | Theo thứ tự: "Bắt đầu tải" (`areas` = `nara`, `photos` = `false`), "Nạp style" (`build`, `url`), "Vùng xong" (`area` = `nara`, `bytes`), "Kết thúc tải" (`subtitle` = `Xong`). Không có dòng "Vùng xong" cho những vùng đã tải từ trước. | |
-| 2 | Bản Debug. Cài đặt › Chẩn đoán › "Báo thức thử sau 2 phút", rồi ngay "Báo thức thử sau 5 phút". Để báo thức reo, tắt nó, rời app rồi mở lại. Vào trang Log. | "Đặt báo thức" (`ride` = `debug.wake`, `at` là giờ UTC dạng `…T…Z`, `source` = `ride`), rồi "Đổi báo thức" với `at` muộn hơn 3 phút; sau khi mở lại: "Bỏ báo thức đã qua" cho `debug.wake`. Không dòng nào có "Ga thử". | |
+| 2 | Bản Debug. Cài đặt › Nhà phát triển › "Báo thức thử sau 2 phút", rồi ngay "Báo thức thử sau 5 phút". Để báo thức reo, tắt nó, rời app rồi mở lại. Vào trang Log. | "Đặt báo thức" (`ride` = `debug.wake`, `at` là giờ UTC dạng `…T…Z`, `source` = `ride`), rồi "Đổi báo thức" với `at` muộn hơn 3 phút; sau khi mở lại: "Bỏ báo thức đã qua" cho `debug.wake`. Không dòng nào có "Ga thử". | |
 | 3 | Hai máy đã ghép, cả hai bật đồng bộ và mở JP27 ở gần nhau. Trên máy này ghi một khoản chi có ghi chú (ví dụ "bánh cá thử log") và tự gõ tên một quán không có trong dữ liệu. Đợi máy kia nhận. Vào trang Log của máy này. | "Kết nối máy kia", "Gửi sổ chi" (`peer`, `rows`), "Máy kia đã lưu sổ chi"; có thể có "Nhận sổ chi" (`rows`, `rejected`, `changed`). `peer` là 8 chữ số hex, giống nhau ở mọi dòng của cùng máy kia. | |
 | 4 | Trang Log › "Xuất log", mở file `.zip` trong Tệp. Mở các `.jsonl` của hôm nay (ứng dụng đọc văn bản, hoặc trên Mac), tìm tên máy kia (như ở trang đồng bộ), tên máy này, "bánh cá thử log" và tên quán đã gõ ở bước 3. | Không thấy chữ nào trong số đó ở bất kỳ file nào. | |
 | 5 | Trong chuyến, có quyền vị trí "Luôn luôn": tới một điểm có vòng geofence của ngày (quán ăn, ga). Vào trang Log. | "Đặt geofence" (`count`, `added`, `removed`) lúc vòng đổi; "Vào vùng" với `place` (id), `kind` và `at` có đúng hai chữ số sau dấu chấm (ví dụ `35.69,139.69`). Không có dòng "Ra vùng": app chỉ theo dõi lúc vào vòng. | |
+
+## § 4 — Task 4: Cài đặt theo trang, ô biểu tượng, Trải nghiệm, Riêng tư
+
+Ô biểu tượng giờ vẽ glyph co vừa khung giữa của ô (18 pt trong ô 30 pt ở Cài đặt; nửa ô ở `GlyphTile`) và cắt theo
+góc ô, nên không glyph nào tràn ra được dù rộng hay cỡ chữ lớn. Kính và bóng địa hình nay là tuỳ chọn thật (khoá mới
+`map.glass`, `map.relief`; công tắc cũ trong Chẩn đoán không được đọc lại, nên bóng địa hình bắt đầu ở Tắt). Giữ màn
+hình sáng đi qua một chỗ (`KeepAwake`) nhận hai lý do: thẻ câu đưa nhân viên xem, và chuyến đang theo dõi khi công
+tắc bật; vẫn giữ khi bật Nguồn điện thấp (người dùng đã chọn).
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | **Duyệt thiết kế.** Chụp màn ở chế độ Sáng và Tối, ở cỡ chữ mặc định và cỡ lớn nhất (Cài đặt iPhone › Trợ năng › Màn hình & cỡ chữ › Chữ lớn hơn, bật cỡ trợ năng, kéo hết): trang chính của Cài đặt (cả nhóm Cần xem nếu có), Giao diện, Bản đồ (ô "Bóng địa hình" là `mountain.2`, chỗ từng tràn), Quyền, Nhật ký vị trí, Nhà phát triển (bản Debug có thêm công cụ); và các màn dùng `GlyphTile`: Hôm nay (nút "Chạy thử một ngày trong chuyến", thẻ nhật ký, thẻ hỏi quyền vị trí), Sổ tay (ô tình huống, sổ tay hướng dẫn), Lịch trình (các liên kết dưới ngày), trang Fuji (ô tàu), thẻ địa điểm trên tab Bản đồ, Chi tiêu (ô danh mục, đồng bộ sổ chi). | Mọi glyph nằm gọn trong ô của nó, không chạm mép, độ đậm như nhau; ô vẫn 30×30 dù cỡ chữ lớn nhất. Không ô nào trống (tên glyph sai thì ô trống: `circle.lefthalf.filled`, `hand.raised.fill`, `sun.max.fill`, `hammer.fill`, `map.fill` là tên mới). | |
+| 2 | Cài đặt › Trải nghiệm › Bản đồ, tắt "Kính trên bản đồ" (không bật "Đo khung hình bản đồ"). Mở tab Bản đồ. | Panel, dải ngày và các nút trên bản đồ có nền đặc, không còn kính. Bật lại: kính trở lại. Dòng Bản đồ ở trang chính ghi "Không kính", rồi "Kính". | |
+| 3 | Cũng trang đó, bật "Bóng địa hình", có mạng. Mở tab Bản đồ và trang một ngày ở vùng núi (Hakone, Fuji). Rồi bật Chế độ máy bay, mở lại một vùng đã tải. | Có mạng: có bóng núi trên mọi bản đồ; trang chính ghi "Kính · bóng núi". Máy bay: bản đồ vẫn vẽ như thường, chỉ không có bóng núi (ô độ cao không nằm trong gói), app không báo lỗi. | |
+| 4 | Cài đặt › Trải nghiệm › "Đọc tiếng Nhật": Chậm. Vào Sổ tay, chạm nút đọc của một câu; giữ lâu nút đó; mở thẻ câu toàn màn và chạm nút loa. Rồi đặt Bình thường, giữ lâu nút đọc. | Khi Chậm: cả chạm, giữ lâu và nút loa của thẻ đều đọc chậm. Khi Bình thường: chạm đọc thường, giữ lâu ("Đọc chậm") vẫn chậm. | |
+| 5 | Bật "Giữ màn hình sáng khi đi tàu" (Tự động khoá của iPhone đặt 30 giây hay 1 phút). Theo dõi một chuyến (thật hoặc Chạy thử), để máy yên 5 phút với app trên màn. Rồi bấm kết thúc chuyến, để yên. | Khi theo dõi: màn không tự khoá. Sau khi kết thúc: màn khoá sau thời gian Tự động khoá của máy. | |
+| 6 | Theo dõi một chuyến với công tắc bật, mở một thẻ câu toàn màn (Sổ tay), vào Cài đặt tắt công tắc giữ sáng rồi quay lại thẻ (hoặc kết thúc chuyến trong lúc thẻ mở), để yên. Rồi đóng thẻ. | Thẻ vẫn giữ màn sáng. Đóng thẻ, không còn chuyến giữ sáng: màn khoá theo cài đặt máy. | |
+| 7 | Tắt một quyền trong Cài đặt của iPhone (ví dụ Ảnh: Không). Mở Cài đặt của app. Chạm "1 quyền đang tắt" ở Cần xem, bấm "Mở Cài đặt", cho phép lại, quay về app. | Riêng tư › Quyền ghi "4/5 đã bật", Cần xem có "1 quyền đang tắt". Sau khi cho phép lại, trang Quyền vẫn mở (không tự lùi về trang chính) và dòng Ảnh có dấu tích; lùi về: dòng Cần xem đã mất, Quyền ghi "5/5 đã bật". | |
+| 8 | Trang chính, cuối trang. Đổi Giao diện, kính, bóng địa hình, tốc độ đọc, giữ sáng, nhật ký vị trí, một ngày thay thế, bắt đầu rồi dừng Chạy thử. Vào trang Log (Task 7) hoặc Console. | Chân trang ghi "JP27 <phiên bản> (<build>) · Dữ liệu nghiên cứu ngày …". Mỗi lần đổi một dòng nhóm `settings`: "Giao diện", "Kính trên bản đồ", "Bóng địa hình", "Đọc tiếng Nhật", "Giữ màn hình sáng khi đi tàu", "Nhật ký vị trí", "Ngày thay thế", "Chạy thử", mỗi dòng một `value` là lựa chọn (`dark`, `false`, `slow`, `on`, khoá ngày…), không có chữ tự gõ. | |

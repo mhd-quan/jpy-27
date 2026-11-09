@@ -451,11 +451,19 @@ struct GlyphTile: View {
     var size: CGFloat = 30
 
     var body: some View {
+        let shape = RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+        // the glyph fitted into half the tile and cut at its edge, as `SettingsIcon` does: drawn at a font
+        // size, a wide one spilled out of the tile. Half keeps an ordinary glyph about the size the old
+        // 0.48 font gave it; only the wide ones shrink
         Image(systemName: symbol)
-            .font(.system(size: size * 0.48, weight: .semibold))
+            .resizable()
+            .scaledToFit()
+            .fontWeight(.semibold)
             .foregroundStyle(.white)
+            .frame(width: size * 0.5, height: size * 0.5)
             .frame(width: size, height: size)
-            .background(tint.gradient, in: .rect(cornerRadius: size * 0.28, style: .continuous))
+            .background(tint.gradient, in: shape)
+            .clipShape(shape)
             .accessibilityHidden(true)
     }
 }

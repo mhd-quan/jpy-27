@@ -150,20 +150,42 @@ enum AppSheet: Identifiable, Hashable {
         didSet {
             Shared.alternatives = alternatives
             // the widget plans its own days by these when the app has no snapshot for it
-            if alternatives != oldValue { widgetOutdated = true }
+            if alternatives != oldValue {
+                widgetOutdated = true
+                AppLog.info(.settings, "Ngày thay thế", ["value": alternatives.isEmpty ? "none" : alternatives.sorted().joined(separator: ",")])
+            }
             forgetRetry()
             refresh(reschedule: true)
         }
     }
 
-    /// The location journal's switch (Settings › Nhật ký): stays and the walked trace are kept only
-    /// with it on, and only during the trip (`journalPolicy`).
+    /// The location journal's switch (Settings › Riêng tư › Nhật ký vị trí): stays and the walked trace
+    /// are kept only with it on, and only during the trip (`journalPolicy`).
     var journalEnabled: Bool = Shared.journalEnabled {
         didSet {
             Shared.journalEnabled = journalEnabled
+            if journalEnabled != oldValue { AppLog.info(.settings, "Nhật ký vị trí", ["value": "\(journalEnabled)"]) }
             // visits are watched off the trip days only for the journal
             location.applyBackgroundWatch()
         }
+    }
+
+    /// Settings › Trải nghiệm › Giữ màn hình sáng khi đi tàu: while a ride is followed and the app is on
+    /// screen, the screen does not lock itself (`keepAwakeForRide`). Off by default. It holds under Low
+    /// Power Mode as well: the owner turned it on.
+    var keepAwakeOnRide: Bool = UserDefaults.standard.bool(forKey: KeepAwake.rideKey) {
+        didSet {
+            UserDefaults.standard.set(keepAwakeOnRide, forKey: KeepAwake.rideKey)
+            if keepAwakeOnRide != oldValue { AppLog.info(.settings, "Giữ màn hình sáng khi đi tàu", ["value": "\(keepAwakeOnRide)"]) }
+            keepAwakeForRide()
+        }
+    }
+
+    /// The ride's reason to keep the screen on, as the switch, the ride followed and the app on screen say
+    /// now: called when any of them changes (`activate`, `deactivate`, `RideLiveService.select`,
+    /// `rideEnded`, the switch). The phrase card's reason is its own (`KeepAwake`).
+    func keepAwakeForRide() {
+        KeepAwake.set(.ride, keepAwakeOnRide && live.ride != nil && !asleep)
     }
 
     /// The Today question about the journal, once answered (`@AppStorage`, the app's own defaults).
@@ -175,7 +197,7 @@ enum AppSheet: Identifiable, Hashable {
     /// after it only Settings can change it. Today's card and the Settings row share it.
     nonisolated static let locationAskedAlwaysKey = "location.askedAlways"
 
-    /// Bumped each time location history is deleted, for what counts it (Settings › Chẩn đoán).
+    /// Bumped each time location history is deleted, for what counts it (Settings › Nhật ký vị trí).
     private(set) var historyDeletions = 0
 
     /// Seconds added to the real clock while rehearsing, by `RehearsalClock`'s rule: whole minutes,
@@ -219,7 +241,10 @@ enum AppSheet: Identifiable, Hashable {
             live.clockMoved(model: self)
         }
         // a rehearsal starts or ends: its own records
-        if was != rehearsing { switchRecords() }
+        if was != rehearsing {
+            AppLog.info(.settings, "Chạy thử", ["value": rehearsing ? "on" : "off"])
+            switchRecords()
+        }
         refresh(reschedule: true)
     }
 
@@ -361,6 +386,7 @@ enum AppSheet: Identifiable, Hashable {
         }
         asleep = false
         AppLog.info(.app, "Vào app")
+        keepAwakeForRide()
         // what was set while away, made to match the system's: an alarm the app was killed before
         // saving is taken back, one that rang is forgotten (before the plan sets what is missing)
         alarms.reconcile()
@@ -427,6 +453,7 @@ enum AppSheet: Identifiable, Hashable {
         AppLog.foreground(false)
         AppLog.info(.app, "Rời app")
         asleep = true
+        keepAwakeForRide()
         clockTask?.cancel()
         clockTask = nil
         motion.stop()
@@ -566,6 +593,7 @@ enum AppSheet: Identifiable, Hashable {
     /// it is still ahead; the re-plans its hold kept back happen now. Under the lock screen, under a
     /// background task.
     func rideEnded() {
+        keepAwakeForRide()
         refresh(reschedule: true)
         if inBackground { finishRescheduleInBackground() }
     }
@@ -600,7 +628,7 @@ enum AppSheet: Identifiable, Hashable {
     }
 
     /// How many times reminders, geofences and alarms were set again since launch, for Settings ›
-    /// Chẩn đoán; read when shown, not observed.
+    /// Nhà phát triển; read when shown, not observed.
     var reschedules: Int { rescheduler.runs }
 
     /// Alarms from the timetable for the long train rides of today and tomorrow (`WakePlanner`:
@@ -1274,7 +1302,7 @@ enum AppSheet: Identifiable, Hashable {
         Shared.defaults.set(true, forKey: Shared.Key.journalPurged)
     }
 
-    /// The stays and trace points in the records the app reads now, for Settings › Chẩn đoán; nil
+    /// The stays and trace points in the records the app reads now, for Settings › Nhật ký vị trí; nil
     /// when they could not be counted.
     func locationHistoryCount() -> (visits: Int, traces: Int)? {
         guard let visits = try? context.fetchCount(FetchDescriptor<Visit>()),

@@ -633,7 +633,7 @@ actor PhotoCache {
 
 #if DEBUG
 extension PhotoCache {
-    /// For the device check of Task 5.1a (Settings › Chẩn đoán › So màu ảnh): how far the tone read from
+    /// For the device check of Task 5.1a (Settings › Nhà phát triển › So màu ảnh): how far the tone read from
     /// the decode an album page draws (`derive`) strays from the one the 96 px thumbnail gave before
     /// (0,02 a channel at most passes), and, as the fallback, how far the tone of the veil's 160 px
     /// base, before its blur, strays. Read from the bundle; nothing is kept.
@@ -1175,11 +1175,12 @@ enum HeroExporter {
         synth.delegate = self
     }
 
-    func say(_ ja: String, slow: Bool = false) {
+    /// Reads `ja`; `slow` true for "Đọc chậm", nil for the pace chosen in Settings (`SpeechPace`).
+    func say(_ ja: String, slow: Bool? = nil) {
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         let u = AVSpeechUtterance(string: ja)
         u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
-        u.rate = slow ? 0.38 : AVSpeechUtteranceDefaultSpeechRate
+        u.rate = (slow ?? (SpeechPace.current == .slow)) ? SpeechPace.slowRate : AVSpeechUtteranceDefaultSpeechRate
         asked += 1
         let line = asked
         waiting = (line, u)
@@ -1210,6 +1211,30 @@ enum HeroExporter {
         speaking = nil
         voice.set(false)
         AudioSessionController.send(.speakerDone)
+    }
+}
+
+/// Settings › Trải nghiệm › Đọc tiếng Nhật: the pace of the plain read button (a tap, the show card, a station's
+/// announcement). "Đọc chậm" is slow whatever is chosen.
+nonisolated enum SpeechPace: String, CaseIterable, Identifiable, Sendable {
+    case normal, slow
+
+    static let key = "talk.pace"
+    /// the slow reading's rate, for "Đọc chậm" and for this choice
+    static let slowRate: Float = 0.38
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .normal: "Bình thường"
+        case .slow: "Chậm"
+        }
+    }
+
+    /// as stored by the Settings picker (`@AppStorage`, the standard defaults); normal when unset
+    static var current: SpeechPace {
+        UserDefaults.standard.string(forKey: key).flatMap(SpeechPace.init(rawValue:)) ?? .normal
     }
 }
 

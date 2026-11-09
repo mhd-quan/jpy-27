@@ -42,8 +42,7 @@ struct MapTab: View {
     @State private var picks = 0
     /// a place's card opened from the map: a stop already on show, tapped again
     @State private var opened = 0
-    /// Settings › Chẩn đoán: with the frame readings on, the overlays can be drawn without glass
-    @AppStorage(MapPacer.readingsKey) private var readings = false
+    /// Settings › Bản đồ › Kính trên bản đồ: off, the overlays are drawn without glass
     @AppStorage(MapPacer.glassKey) private var glass = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -121,7 +120,7 @@ struct MapTab: View {
                 .padding(.trailing, 12)
                 .opacity(stage == .large ? 0 : 1)
             }
-            .environment(\.mapGlass, glass || !readings)
+            .environment(\.mapGlass, glass)
         }
         .onAppear {
             consumeDay()
@@ -515,8 +514,8 @@ private nonisolated struct MapGlassKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    /// Whether the panel, the day strip and the buttons over the map are glass (always, unless the
-    /// frame readings are on and Settings › Chẩn đoán › Kính trên bản đồ is off).
+    /// Whether the panel, the day strip and the buttons over the map are glass (unless Settings › Bản đồ
+    /// › Kính trên bản đồ is off).
     nonisolated var mapGlass: Bool {
         get { self[MapGlassKey.self] }
         set { self[MapGlassKey.self] = newValue }

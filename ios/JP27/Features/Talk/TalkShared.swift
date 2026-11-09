@@ -95,8 +95,9 @@ struct TalkShowCard: View {
         .overlay(alignment: .top) { controls }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
-        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
-        .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
+        // the screen stays on while the card is up, whatever else keeps it on or lets it go (`KeepAwake`)
+        .onAppear { KeepAwake.set(.showCard, true) }
+        .onDisappear { KeepAwake.set(.showCard, false) }
         .accessibilityElement(children: .contain)
     }
 
