@@ -63,6 +63,12 @@ struct TalkSentence: Identifiable, Hashable {
 
     var isListening: Bool { state == .listening }
 
+    /// The transcriber the listener runs, made in one place: the system picks the assets from the module's
+    /// configuration, so the offline readiness (`OfflineReadiness`) asks about, and installs, exactly these.
+    nonisolated static func transcriber(locale: Locale) -> SpeechTranscriber {
+        SpeechTranscriber(locale: locale, transcriptionOptions: [], reportingOptions: [.volatileResults], attributeOptions: [])
+    }
+
     func toggle() async {
         if isListening { await stop() } else { await start() }
     }
@@ -75,26 +81,35 @@ struct TalkSentence: Identifiable, Hashable {
         let allowed = await AVAudioApplication.requestRecordPermission()
         guard mine == attempt else { return }
         guard allowed else {
+            AppLog.warning(.talk, "Không nghe được", ["status": "mic"])
             state = .unavailable("Cần quyền micro trong Cài đặt để nghe.")
             return
         }
         let supported = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "ja-JP"))
         guard mine == attempt else { return }
         guard let locale = supported else {
+            AppLog.warning(.talk, "Không nghe được", ["status": "locale"])
             state = .unavailable("Máy này chưa nghe được tiếng Nhật.")
             return
         }
-        let transcriber = SpeechTranscriber(locale: locale, transcriptionOptions: [], reportingOptions: [.volatileResults], attributeOptions: [])
+        let transcriber = Self.transcriber(locale: locale)
+        // which step a failure below came from, for the log
+        var step = "asset"
         do {
             // the Japanese model downloads once, then works with no signal
             if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
                 try await request.downloadAndInstall()
+                AppLog.info(.talk, "Cài gói nghe tiếng Nhật", ["status": "installed"])
             }
             guard mine == attempt else { return }
             guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber]) else {
-                if mine == attempt { state = .unavailable("Không mở được micro.") }
+                if mine == attempt {
+                    AppLog.error(.talk, "Không nghe được", ["status": "format"])
+                    state = .unavailable("Không mở được micro.")
+                }
                 return
             }
+            step = "analyzer"
             guard mine == attempt else { return }
             let analyzer = SpeechAnalyzer(modules: [transcriber])
             let (stream, continuation) = AsyncStream<AnalyzerInput>.makeStream()
@@ -106,12 +121,14 @@ struct TalkSentence: Identifiable, Hashable {
             try await analyzer.start(inputSequence: stream)
             // stopped while the analyzer started: stop() has finished it, the microphone stays off
             guard mine == attempt else { return }
+            step = "audio"
             try await startAudio(feeding: continuation, as: format, listen: mine)
             // stopped while the session was set up: stop() gave it back, the microphone stays off
             guard mine == attempt else { return }
             state = .listening
         } catch {
             guard mine == attempt else { return }
+            AppLog.error(.talk, "Không nghe được", ["status": "start", "step": step, "error": error.localizedDescription])
             await stop()
             state = .unavailable("Không bắt đầu nghe được.")
         }

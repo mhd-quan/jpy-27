@@ -408,6 +408,8 @@ lại thì xoá app và bắt đầu lại từ A.
 
 ## Task 3.1a — Bản đồ offline: style bất biến theo build trên site
 
+*Không còn áp dụng:* từ Task 1 của kế hoạch 9/11/2026 gói lấy style từ app, không từ site; phát hành app không cần deploy site trước.
+
 **Quy tắc phát hành (bắt buộc).** Deploy site trước khi phát hành app. Từ Task 3.1b, app tải gói offline từ style
 bất biến mà nó được build cùng: `https://jpy27.delphyra.tech/map/jp27-light@<jp27:build>.json`, với `<jp27:build>`
 lấy từ `metadata["jp27:build"]` của `public/map/jp27-light.json` trong app (dạng `<build tile>-<8 hex>`, ví dụ
@@ -419,11 +421,12 @@ lấy từ `metadata["jp27:build"]` của `public/map/jp27-light.json` trong app
 
 ## Task 3.1b — Bản đồ offline: "Xong" chỉ khi từng vùng xong, gói biết build tile nó giữ
 
-**Chuẩn bị.** Site đã deploy với file `@` của build này (Task 3.1a bước 1). Bản mới: build của task này, Debug (bước
+**Chuẩn bị.** ~~Site đã deploy với file `@` của build này (Task 3.1a bước 1).~~ *(Không còn cần: style nằm trong app từ kế hoạch 9/11/2026.)* Bản mới: build của task này, Debug (bước
 3 cần "Giả style khác bản"; các bước khác như Release). Dòng trên cùng của Cài đặt › Dùng khi mất sóng là dòng của
 lần tải: đang chạy thì "Bản đồ 0/1 vùng · 42%", xong thì "Xong", "Đã dừng" hoặc "Bản đồ 8/10 vùng · 2 lỗi".
 1. **Không tạo được vùng thì không "Xong".** Cài đặt iOS › Developer › Network Link Conditioner › "100% Loss", bật.
    Trong app: Dùng khi mất sóng › một vùng chưa tải (ví dụ Nara) › Tải; dòng Nara ghi "Đang chuẩn bị…". Rời app ngay.
+   - *Không còn áp dụng:* từ Task 1 của kế hoạch 9/11/2026 tạo vùng không cần mạng (style nằm trong app): dưới "100% Loss" Nara được tạo ngay rồi chờ tải ("Đang tải · 0 %", "Chờ có mạng" hoặc "Không kết nối được, đang thử lại"), không ra lỗi và lần tải không kết thúc.
    - Ngoài app, xem Live Activity. **Đạt** khi, trong khoảng 20 giây, nó kết thúc với dòng "Bản đồ 0/1 vùng · 1 lỗi"
      (không phải "Xong"), thanh không đầy.
    - Mở lại app, vào Cài đặt › Dùng khi mất sóng. **Đạt** khi dòng Nara ghi "Không kết nối được máy chủ bản đồ" màu cam
@@ -437,6 +440,7 @@ lần tải: đang chạy thì "Bản đồ 0/1 vùng · 42%", xong thì "Xong",
      Activity (nếu đã rời app) vẫn chạy.
    - Tắt Chế độ máy bay. **Đạt** khi Tokyo tải tiếp tới "Đã tải" và dòng lần tải ghi "Xong".
 3. **Site không có style của app** (bản Debug). Cài đặt › Chẩn đoán › Giả style khác bản: bật. Tải một vùng chưa có.
+   - *Không còn áp dụng:* công tắc "Giả style khác bản" đã bỏ ở Task 1 của kế hoạch 9/11/2026 (style của gói nằm trong app, không hỏi site nữa).
    - **Đạt** khi dòng vùng ghi "Bản đồ trên web khác bản trong app — cập nhật app hoặc thử lại sau" với "Thử lại", và
      dòng lần tải ghi "Bản đồ 0/1 vùng · 1 lỗi".
    - Tắt công tắc, bấm "Thử lại". **Đạt** khi vùng tải xong.
@@ -459,6 +463,7 @@ lần tải: đang chạy thì "Bản đồ 0/1 vùng · 42%", xong thì "Xong",
      trở lại chỗ cũ và đi tiếp; dòng lần tải hiện tiến độ rồi "Xong".
 7. **Dừng, xoá trong lúc "Đang chuẩn bị…".** Network Link Conditioner: chọn một hồ sơ chậm (ví dụ "Very Bad Network";
    nếu "Đang chuẩn bị…" qua nhanh quá, thêm hồ sơ riêng với Downlink và Uplink Delay 3000 ms), bật. Xoá Nara nếu đã có.
+   - *Không còn áp dụng:* từ Task 1 của kế hoạch 9/11/2026 "Đang chuẩn bị…" chỉ kéo dài vài phần nghìn giây dù mạng chậm hay "100% Loss" (style nạp từ app, không hỏi mạng), nên không bấm kịp trong lúc đó.
    - Bấm Tải ở Nara, rồi bấm vòng khi dòng còn ghi "Đang chuẩn bị…". **Đạt** khi dòng đổi ngay sang "Tạm dừng · 0 %"
      và dòng trên cùng ghi "Đã dừng" (không phải "1 lỗi"). Bấm vòng lần nữa. **Đạt** khi Nara chuẩn bị rồi tải tới
      "Đã tải", và dòng trên cùng ghi "Xong".

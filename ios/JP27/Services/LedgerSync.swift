@@ -121,6 +121,8 @@ import UIKit
     @ObservationIgnored private var lastTouch = Date.distantPast
     /// keys said "not now" to, until the app opens again
     @ObservationIgnored private var declined: Set<Data> = []
+    /// what each repeating line last said, by line and peer (`once`)
+    @ObservationIgnored private var said: [String: String] = [:]
 
     /// A phone on the other end of a connection, as its greeting said, and the key the two share.
     private struct Peer {
@@ -199,6 +201,7 @@ import UIKit
     func setPaused(_ on: Bool) {
         guard on != paused else { return }
         paused = on
+        if on { AppLog.info(.sync, "Đồng bộ tạm dừng khi chạy thử", ["paused": "true"]) } else { AppLog.info(.sync, "Đồng bộ chạy lại sau khi chạy thử", ["paused": "false"]) }
         for k in peers.keys { peers[k]?.session.paused = on }
         if on { end() }
     }
@@ -239,6 +242,7 @@ import UIKit
     }
 
     func unpair(_ p: Partner) {
+        AppLog.info(.sync, "Bỏ ghép máy", ["peer": Self.peerTag(p.key)])
         paired.removeAll { $0.id == p.id }
         savePaired()
         if nearby?.id == p.id { nearby = nil; distance = nil }
@@ -247,6 +251,7 @@ import UIKit
     /// Pins the key of a phone connected now: from here on it is this phone's partner.
     private func pair(_ key: Data) {
         guard let peer = peers.values.first(where: { $0.key == key }) else { return }
+        AppLog.info(.sync, "Ghép máy", ["peer": Self.peerTag(key)])
         if let i = paired.firstIndex(where: { $0.key == key }) {
             paired[i].name = peer.name
         } else {
@@ -267,11 +272,45 @@ import UIKit
     /// A paired phone connected: say which install this is, then send the ledger.
     private func connected(_ k: Int) {
         guard let peer = peers[k], let p = partner(peer) else { return }
+        AppLog.info(.sync, "Kết nối máy kia", ["peer": Self.peerTag(peer.key)])
+        // a new connection: what repeats on it is said afresh
+        unsay(peer: Self.peerTag(peer.key))
         nearby = p
         distance = closeness[k]
         seal(.intro(install: SpendLedgerFile.installID), to: k)
         // the ledger follows once its digest is worked out; nothing waits for it
         Task { await push(to: k, force: true) }
+    }
+
+    /// The other phone in the log: the first 8 hex digits of its key's fingerprint (`SyncIdentity.fingerprint`),
+    /// never its name. "none" for a phone paired before messages were signed.
+    private static func peerTag(_ key: Data?) -> String {
+        guard let key else { return "none" }
+        return String(SyncIdentity.fingerprint(key).map { String(format: "%02x", $0) }.joined().prefix(8))
+    }
+
+    /// Whether to log a line about one peer that a failing write would repeat at every heartbeat (15 s), on
+    /// both phones: said again only when `value` (a reason, a row count) is not the one said last for that
+    /// line and peer. Cleared by a success (`unsay`): the written ledger, the other phone's ack, a new connection.
+    private func once(_ line: Repeated, peer: String, _ value: String) -> Bool {
+        let key = "\(line) \(peer)"
+        guard said[key] != value else { return false }
+        said[key] = value
+        return true
+    }
+
+    private func unsay(_ lines: [Repeated] = Repeated.allCases, peer: String) {
+        for line in lines { said["\(line) \(peer)"] = nil }
+    }
+
+    /// The lines `once` holds back.
+    private enum Repeated: CaseIterable {
+        /// "Không lưu được sổ chi máy kia gửi", by reason
+        case unsaved
+        /// "Máy kia không lưu được sổ chi", by reason
+        case refused
+        /// "Gửi sổ chi", by the number of rows sent
+        case sent
     }
 
     private func savePaired() {
@@ -351,6 +390,7 @@ import UIKit
         case .disconnected(let k):
             // its sync session goes with it: what the other phone held, and what was on its way
             let gone = peers.removeValue(forKey: k)
+            if let gone { AppLog.info(.sync, "Mất kết nối máy kia", ["peer": Self.peerTag(gone.key)]) }
             nonces[k] = nil
             sessions.removeValue(forKey: k)?.invalidate()
             closeness[k] = nil
@@ -402,6 +442,7 @@ import UIKit
             if partner(peer) != nil {
                 connected(k)
             } else if !declined.contains(key) {
+                AppLog.info(.sync, "Máy chưa ghép xin kết nối", ["peer": Self.peerTag(key)])
                 asking = Partner(install: "", name: peer.name, key: key)
                 askingCode = SyncIdentity.code(with: key)
             }
@@ -437,12 +478,18 @@ import UIKit
                 let changes = try Ledger.merge(clean, into: context).changes
                 // dropped here too: a merge that changed only the pairs kept apart posts no save
                 if !changes.isEmpty { changed() }
+                // counts only: never a row's note or place name, never the phone's name
+                let fields = ["peer": Self.peerTag(peer.key), "rows": "\(remote.records.count)", "rejected": "\(left.count)", "changed": "\(changes.upserts.count + changes.deletions.count)"]
+                if left.isEmpty { AppLog.info(.sync, "Nhận sổ chi", fields) } else { AppLog.warning(.sync, "Nhận sổ chi", fields) }
+                unsay([.unsaved], peer: Self.peerTag(peer.key))
             } catch {
                 // not written, so not synced: nothing stamped, the records as they were; the other
                 // phone is told why (`.nack`) and sends it again at its next heartbeat
                 let reason = error.localizedDescription
                 failure = reason
-                SyncLink.log.error("ledger from a paired phone not written: \(reason, privacy: .public)")
+                // the other phone sends it again at every heartbeat: the same reason is said once
+                let tag = Self.peerTag(peer.key)
+                if once(.unsaved, peer: tag, reason) { AppLog.error(.sync, "Không lưu được sổ chi máy kia gửi", ["peer": tag, "error": reason]) }
             }
             // their ledger, held there, ends a failure of theirs only when it is this phone's as it is now
             // (`cached`: dropped by a merge that changed something)
@@ -460,6 +507,9 @@ import UIKit
             // failure of theirs when they hold it (`peerHas(current:)`), and it is stamped against it, or
             // an ack landing in that moment would never stamp
             _ = await snapshot()
+            AppLog.info(.sync, "Máy kia đã lưu sổ chi", ["peer": Self.peerTag(peer.key)])
+            // written there: its failure is over, and the next ledger sent is said again
+            unsay([.refused, .sent], peer: Self.peerTag(peer.key))
             peers[k]?.session.peerHas(LedgerDigest(digest), current: cached?.digest)
             confirm(k)
         case .nack(let digest, let reason):
@@ -467,13 +517,19 @@ import UIKit
             // sent again at the next heartbeat, not from here: a write that keeps failing costs one
             // ledger every 15 s, not a loop
             peers[k]?.session.peerFailed(LedgerDigest(digest), reason: reason)
-            SyncLink.log.error("ledger not written on the paired phone: \(reason, privacy: .public)")
+            // the other phone's `localizedDescription` of its failed write, nothing else (`.state` above), cut short
+            // and once for each reason: this phone sends again at every heartbeat
+            let tag = Self.peerTag(peer.key)
+            let text = String(reason.prefix(200))
+            if once(.refused, peer: tag, text) { AppLog.error(.sync, "Máy kia không lưu được sổ chi", ["peer": tag, "error": text]) }
         case .touched:
             if partner(peer) != nil {
+                AppLog.info(.sync, "Chạm hai máy", ["peer": Self.peerTag(peer.key)])
                 felt()
                 await push(to: k, force: true)
             } else if let d = closeness[k], d < 0.3 {
                 // the touch is the yes, on this side too, when this side measured it as well
+                AppLog.info(.sync, "Chạm hai máy", ["peer": Self.peerTag(peer.key)])
                 felt()
                 pair(peer.key)
             }
@@ -543,6 +599,13 @@ import UIKit
     /// The ledger and its digest, from one snapshot; noted as sent only once the radio took it.
     private func sendLedger(_ mine: Snapshot, to k: Int) {
         if seal(.state(mine.state, digest: mine.digest.value), to: k) {
+            // said once for each number of rows until the other phone acks (`unsay`): a write that keeps
+            // failing there brings the same ledger back every 15 s
+            if let peer = peers[k] {
+                let tag = Self.peerTag(peer.key)
+                let rows = "\(mine.state.records.count)"
+                if once(.sent, peer: tag, rows) { AppLog.info(.sync, "Gửi sổ chi", ["peer": tag, "rows": rows]) }
+            }
             peers[k]?.session.didSend(mine.digest, at: Date())
         }
     }
@@ -559,12 +622,12 @@ import UIKit
         do {
             state = try Ledger.state(context)
         } catch {
-            SyncLink.log.error("ledger could not be read: \(error.localizedDescription, privacy: .public)")
+            AppLog.error(.sync, "Không đọc được sổ chi", ["error": error.localizedDescription])
             return nil
         }
         let taken = generation
         guard let digest = await Self.digest(state) else {
-            SyncLink.log.error("ledger could not be encoded for its digest")
+            AppLog.error(.sync, "Không tính được dấu sổ chi")
             return nil
         }
         let s = Snapshot(state: state, digest: digest)
@@ -608,6 +671,7 @@ import UIKit
         if let metres, metres < 0.3 { Haptic.prepare(.done) }
         guard let metres, metres < Self.touch, Date().timeIntervalSince(lastTouch) > 4, let peer = peers[k] else { return }
         lastTouch = Date()
+        AppLog.info(.sync, "Chạm hai máy", ["peer": Self.peerTag(peer.key)])
         felt()
         seal(.touched, to: k)
         if partner(peer) != nil {
@@ -860,8 +924,6 @@ nonisolated final class SyncLink: NSObject, @unchecked Sendable, MCSessionDelega
 
     /// `_jp27-sync._tcp` and `_udp` in NSBonjourServices
     static let service = "jp27-sync"
-    /// what went wrong with the sync, in the device log (Console, subsystem tech.delphyra.jp27)
-    static let log = Logger(subsystem: "tech.delphyra.jp27", category: "sync")
 
     private let me: MCPeerID
     /// this phone's key fingerprint, sent with its invitations
@@ -913,7 +975,7 @@ nonisolated final class SyncLink: NSObject, @unchecked Sendable, MCSessionDelega
             return true
         } catch {
             let reason = error.localizedDescription
-            Self.log.error("send failed: \(reason, privacy: .public)")
+            AppLog.error(.sync, "Không gửi được sổ chi", ["error": reason])
             return false
         }
     }

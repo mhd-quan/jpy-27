@@ -216,6 +216,32 @@ import Testing
         }
     }
 
+    @Test func trimSparesThePicturesKeptForNoSignal() {
+        // what Tải tất cả drew weeks before the trip is never opened before it is needed: kept, whatever its age
+        let files = [stored("1-a.jpg", 100), stored("1-a.json", 10), stored("2-b.jpg", 100, minutes: 1), stored("2-b.json", 10, minutes: 1),
+                     stored("3-c.jpg", 100, minutes: 2), stored("3-c.json", 10, minutes: 2)]
+        #expect(SnapshotKey.evicted(files, toBytes: 220) == ["1-a.jpg", "1-a.json"])
+        // kept, it still counts toward the budget: the next one goes in its place
+        #expect(SnapshotKey.evicted(files.shuffled(), toBytes: 220, keeping: ["1-a"]) == ["2-b.jpg", "2-b.json"])
+        // the kept ones over the budget by themselves: every other one goes, they stay
+        #expect(SnapshotKey.evicted(files, toBytes: 100, keeping: ["1-a", "3-c"]) == ["2-b.jpg", "2-b.json"])
+        #expect(SnapshotKey.evicted(files, toBytes: 0, keeping: ["1-a", "2-b", "3-c"]).isEmpty)
+        // a name kept that is not in the folder changes nothing; the old format goes all the same
+        #expect(SnapshotKey.evicted(files + [stored("1-a.png", 5)], toBytes: 220, keeping: ["9-z", "1-a.png"]) == ["1-a.jpg", "1-a.json", "1-a.png"])
+        #expect(SnapshotKey.evicted(files + [stored("1-a.png", 5)], toBytes: 220, keeping: ["1-a"]) == ["1-a.png", "2-b.jpg", "2-b.json"])
+        // under the budget nothing goes, kept or not
+        #expect(SnapshotKey.evicted(files, toBytes: 330, keeping: ["2-b"]).isEmpty)
+    }
+
+    @Test func aPicturesStemIsWhatTheTrimGroupsItsFilesBy() {
+        let key = SnapshotKey(frameID: "day-3", hash: "k2j")
+        #expect(key.stem == "day-3-k2j")
+        #expect(SnapshotKey.parse(key.fileName).map { "\($0.frameID)-\($0.hash)" } == key.stem)
+        #expect(SnapshotKey.parse(key.pointsFileName).map { "\($0.frameID)-\($0.hash)" } == key.stem)
+        let files = [stored(key.fileName, 100), stored(key.pointsFileName, 10), stored("x-y.jpg", 100, minutes: 1)]
+        #expect(SnapshotKey.evicted(files, toBytes: 150, keeping: [key.stem]) == ["x-y.jpg"])
+    }
+
     /// The one pair-eviction loop of the folder trims (`SnapshotKey.evicted`, `TerrainPicture.evicted`): files grouped
     /// by the stem the cache's rule reads from each name, a name it rejects neither counted nor deleted.
     @Test func pairEvictionGroupsFilesByTheStemItIsGiven() {
@@ -231,5 +257,8 @@ import Testing
         #expect(SnapshotKey.evictedPairs(files.shuffled(), toBytes: 200, stem: stem) == ["b.one"])
         #expect(SnapshotKey.evictedPairs(files, toBytes: 250, stem: stem).isEmpty)
         #expect(SnapshotKey.evictedPairs(files.reversed(), toBytes: 0, stem: stem) == ["a.one", "a.two", "b.one"])
+        // a group kept is counted, never deleted
+        #expect(SnapshotKey.evictedPairs(files, toBytes: 200, keeping: ["b"], stem: stem) == ["a.one", "a.two"])
+        #expect(SnapshotKey.evictedPairs(files, toBytes: 0, keeping: ["a", "b"], stem: stem).isEmpty)
     }
 }

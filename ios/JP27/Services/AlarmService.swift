@@ -17,9 +17,38 @@ final class AlarmKitScheduler: AlarmScheduling {
     func requestAuthorization() async throws -> Bool {
         switch AlarmManager.shared.authorizationState {
         case .authorized: return true
-        case .denied: return false
-        default: return try await AlarmManager.shared.requestAuthorization() == .authorized
+        case .denied:
+            saidDenied()
+            return false
+        default:
+            let granted: Bool
+            do {
+                granted = try await AlarmManager.shared.requestAuthorization() == .authorized
+                authFailure = nil
+            } catch {
+                // a followed ride asks again at every fix while the state stays undetermined: the same
+                // failure is said once, until the system answers
+                let reason = error.localizedDescription
+                if authFailure != reason {
+                    authFailure = reason
+                    AppLog.error(.alarm, "Không xin được quyền báo thức", ["error": reason])
+                }
+                throw error
+            }
+            if !granted { saidDenied() }
+            return granted
         }
+    }
+
+    /// once a launch: a followed ride asks again at every fix that moves its alarm
+    private var deniedSaid = false
+    /// the last failure of asking for permission said, until the system answers
+    private var authFailure: String?
+
+    private func saidDenied() {
+        guard !deniedSaid else { return }
+        deniedSaid = true
+        AppLog.warning(.alarm, "Không có quyền báo thức")
     }
 
     func schedule(id: UUID, request: WakeRequest) async throws {
@@ -33,16 +62,42 @@ final class AlarmKitScheduler: AlarmScheduling {
             tintColor: .accentColor
         )
         let configuration = AlarmManager.AlarmConfiguration<AlightAlarm>(schedule: .fixed(request.at), attributes: attributes)
-        _ = try await AlarmManager.shared.schedule(id: id, configuration: configuration)
+        do {
+            _ = try await AlarmManager.shared.schedule(id: id, configuration: configuration)
+            failing[request.rideID] = nil
+        } catch {
+            // a followed ride asks again at every fix that moves its alarm: the same failure is said once
+            let reason = error.localizedDescription
+            if failing[request.rideID] != reason {
+                failing[request.rideID] = reason
+                AppLog.error(.alarm, "Không đặt được báo thức", ["ride": request.rideID, "at": AlarmService.stamp(request.at), "error": reason])
+            }
+            throw error
+        }
     }
 
+    /// the failure last said for each ride's alarm, until one is set
+    private var failing: [String: String] = [:]
+
     func cancel(id: UUID) throws {
-        try AlarmManager.shared.cancel(id: id)
+        do {
+            try AlarmManager.shared.cancel(id: id)
+        } catch {
+            AppLog.error(.alarm, "Không huỷ được báo thức", ["error": error.localizedDescription])
+            throw error
+        }
     }
 
     func systemAlarms() throws -> [UUID: SystemAlarmState] {
         var states: [UUID: SystemAlarmState] = [:]
-        for alarm in try AlarmManager.shared.alarms {
+        let alarms: [Alarm]
+        do {
+            alarms = try AlarmManager.shared.alarms
+        } catch {
+            AppLog.error(.alarm, "Không đọc được báo thức", ["error": error.localizedDescription])
+            throw error
+        }
+        for alarm in alarms {
             states[alarm.id] = Self.state(of: alarm)
         }
         return states
@@ -111,9 +166,35 @@ final class AlarmKitScheduler: AlarmScheduling {
         noticed = Shared.defaults.dictionary(forKey: Self.noticedKey) as? [String: Date] ?? [:]
         // a rehearsal sets no real alarm: its times are not real ones
         core = WakeAlarms(scheduler: scheduler, saved: saved, rehearsing: { Shared.rehearsing }, onChange: { [weak self] slots in
+            if let self { AlarmService.logChanges(from: self.scheduled, to: slots) }
             self?.scheduled = slots
             self?.save(slots)
         })
+    }
+
+    /// What changed in the alarms set, one line per ride that changed: set, moved, cancelled, or let go
+    /// of once past its time (rung). A slot that only took another source keeps its alarm, and says nothing.
+    private static func logChanges(from old: [String: AlarmSlot], to new: [String: AlarmSlot]) {
+        let now = Date()
+        for (ride, slot) in new.sorted(by: { $0.key < $1.key }) {
+            if let was = old[ride] {
+                if was.id != slot.id { AppLog.info(.alarm, "Đổi báo thức", ["ride": ride, "at": stamp(slot.at), "source": slot.source.rawValue]) }
+            } else {
+                AppLog.info(.alarm, "Đặt báo thức", ["ride": ride, "at": stamp(slot.at), "source": slot.source.rawValue])
+            }
+        }
+        for (ride, slot) in old.sorted(by: { $0.key < $1.key }) where new[ride] == nil {
+            if slot.at > now {
+                AppLog.info(.alarm, "Huỷ báo thức", ["ride": ride, "at": stamp(slot.at), "source": slot.source.rawValue])
+            } else {
+                AppLog.info(.alarm, "Bỏ báo thức đã qua", ["ride": ride, "at": stamp(slot.at), "source": slot.source.rawValue])
+            }
+        }
+    }
+
+    /// An alarm's time in the log: ISO 8601, UTC, to the second (the real clock, which alarms ring on).
+    nonisolated static func stamp(_ date: Date) -> String {
+        Date.ISO8601FormatStyle().format(date)
     }
 
     private func save(_ slots: [String: AlarmSlot]) {
@@ -150,7 +231,7 @@ final class AlarmKitScheduler: AlarmScheduling {
 
     var authorized: Bool { scheduler.isAuthorized }
 
-    /// An error is shown in Settings › Chẩn đoán and counts as a no.
+    /// An error is shown in Cài đặt › Cần xem and counts as a no.
     @discardableResult
     func requestAuthorization() async -> Bool {
         await core.requestAuthorization()
@@ -194,7 +275,6 @@ final class AlarmKitScheduler: AlarmScheduling {
         core.reconcile()
     }
 
-    #if DEBUG
     /// What AlarmKit holds for the app right now, by state ("đang reo 1 · đang chờ 2"), for the
     /// device checks.
     func systemAlarmsSummary() -> String {
@@ -209,8 +289,7 @@ final class AlarmKitScheduler: AlarmScheduling {
                 return count > 0 ? "\(name) \(count)" : nil
             }.joined(separator: " · ")
         } catch {
-            return "Không đọc được: \(error)"
+            return "Không đọc được: \(error.localizedDescription)"
         }
     }
-    #endif
 }

@@ -10,7 +10,7 @@ import UniformTypeIdentifiers
 /// The terrain from `camera`, with the viewpoints' pins and lines of sight to the summit, as a page shows it.
 ///
 /// The picture (`FujiTerrainPictures`):
-/// - comes from memory in the first frame, from `Caches/Fuji` when read;
+/// - comes from memory in the first frame, from `Application Support/Fuji` when read;
 /// - is otherwise drawn once the page has come on screen, with a steady network, out of Low Power Mode.
 ///
 /// The live map (`FujiTerrainMap`):
@@ -34,17 +34,20 @@ struct FujiTerrainSnapshot: View {
     /// the page's light or dark when it is laid on a colour of its own (`AmbientCanvas.scheme`); nil: the
     /// environment's
     let scheme: ColorScheme?
+    /// where on its page the picture sits, for the sizes kept for the offline readiness (`FujiTerrainPictures.lastSizes`)
+    let slot: FujiTerrainPictures.Slot?
     /// the scheme the page opened in, held while it comes on screen: a page colour read during the zoom changes the
     /// picture once the zoom is over, never inside it (as `StaticTripMap`)
     @State private var opened: ColorScheme?
 
     init(camera: FujiCamera.Shot, spots: [FujiGuide.Spot], selection: String?, plotInset: EdgeInsets = EdgeInsets(),
-         scheme: ColorScheme? = nil) {
+         scheme: ColorScheme? = nil, slot: FujiTerrainPictures.Slot? = nil) {
         self.camera = camera
         self.spots = spots
         self.selection = selection
         self.plotInset = plotInset
         self.scheme = scheme
+        self.slot = slot
         _opened = State(initialValue: scheme)
     }
 
@@ -63,6 +66,13 @@ struct FujiTerrainSnapshot: View {
             if geo.size.width >= 1, geo.size.height >= 1 {
                 TerrainLayers(camera: camera, spots: spots, selection: selection, plotInset: plotInset,
                               size: geo.size, scale: scale, dark: dark, settled: settled)
+                    // the size this slot is drawn at, kept for the offline readiness (written only when it changes)
+                    .onChange(of: geo.size, initial: true) { _, size in
+                        if let slot { FujiTerrainPictures.keep(size, scale: scale, for: slot) }
+                    }
+                    .onChange(of: scale) { _, scale in
+                        if let slot { FujiTerrainPictures.keep(geo.size, scale: scale, for: slot) }
+                    }
             }
         }
     }
@@ -347,10 +357,12 @@ nonisolated struct FujiTerrainPicture: Sendable {
 ///
 /// Where they are kept:
 /// - in memory, 32 MB;
-/// - on disk in `Caches/Fuji`: `<stem>.heic` (JPEG where the encoder has no HEIC), and beside it `<stem>.json`,
-///   which holds the projected points and the fingerprint (`TerrainPicture`);
+/// - on disk in `Application Support/Fuji`, which iOS does not purge (kept for no signal), out of the iCloud backup:
+///   `<stem>.heic` (JPEG where the encoder has no HEIC), and beside it `<stem>.json`, which holds the projected points
+///   and the fingerprint (`TerrainPicture`);
 /// - a picture read back with another fingerprint is a miss, drawn again under the same name;
-/// - the folder is held to 40 MB at launch (`trim`). They can always be drawn again.
+/// - the folder is held to 40 MB at launch (`trim`), never the pictures Tải tất cả kept for no signal. With a signal
+///   they can always be drawn again.
 ///
 /// One drawing per picture (name and fingerprint) at a time, shared by whoever asks. It is cancelled when the last of
 /// them stops waiting, or after 15 s. One drawn with no signal is not kept on disk: its tiles may be missing.
@@ -358,13 +370,9 @@ nonisolated struct FujiTerrainPicture: Sendable {
 @Observable final class FujiTerrainPictures {
     static let shared = FujiTerrainPictures()
 
-    #if DEBUG
-    /// Settings › Chẩn đoán › "Fuji: chỉ ảnh địa hình" (Debug, not kept): the picture alone, never the live map, so
+    /// Cài đặt › Hỗ trợ › Nhà phát triển › "Fuji: chỉ ảnh địa hình" (not kept: off at every launch): the picture alone, never the live map, so
     /// what the snapshotter draws can be looked at (the 5.3 spike)
     static var pictureOnly = false
-    #else
-    static let pictureOnly = false
-    #endif
 
     /// A picture asked for: the camera and the viewpoints, at a size, scale and scheme, with its name and fingerprint
     /// made once.
@@ -476,6 +484,192 @@ nonisolated struct FujiTerrainPicture: Sendable {
         keep(saved, for: request)
         Self.mark(request.stem, "disk")
         return saved
+    }
+
+    // MARK: For no signal (Tải tất cả)
+
+    /// Whether the picture, with this fingerprint, is on disk: what a launch with no signal finds, and what the offline
+    /// readiness counts. Memory is not asked; only the small `.json` is read (its fingerprint compared, as `read` does),
+    /// the picture's file is only looked for, nothing is decoded or kept and its last use is left as it is.
+    func isOnDisk(_ request: Request) async -> Bool {
+        await Self.onDisk(request.stem, fingerprint: request.fingerprint)
+    }
+
+    /// Draws the picture for use with no signal unless it is on disk, and waits for its files: true once they are
+    /// there. One making per picture: a page's under way is joined (as one more waiter, so the page leaving does not
+    /// stop it), and this one is a making too, which a card opened meanwhile joins instead of starting a second
+    /// snapshotter. Nothing is kept in memory: the seventy or so pictures Tải tất cả draws in turn would push out what
+    /// the open pages show. Stored only when `keep()` still holds once it is drawn (the signal held, the app stayed in
+    /// front: MapKit answers only there, and a drawing the app left comes back with nothing after the 15 s cap).
+    func drawForKeeping(_ request: Request, keep: () -> Bool) async -> Bool {
+        let stem = request.stem, fingerprint = request.fingerprint
+        if await Self.onDisk(stem, fingerprint: fingerprint) { return true }
+        let key = request.key
+        let making: Making
+        if var running = makings[key] {
+            running.waiters += 1
+            makings[key] = running
+            making = running
+        } else {
+            serial += 1
+            making = Making(id: serial, task: Task { await self.drawnForKeeping(request) }, waiters: 1)
+            makings[key] = making
+        }
+        let picture = await making.task.value
+        if makings[key]?.id == making.id { makings[key] = nil }
+        guard let picture, keep() else { return false }
+        Self.mark(stem, "kept")
+        await Self.store(picture, stem: stem, fingerprint: fingerprint)
+        return await Self.onDisk(stem, fingerprint: fingerprint)
+    }
+
+    /// Tải tất cả's making: drawn (it was not on disk), not kept in memory nor written here (`drawForKeeping` writes it
+    /// when `keep()` holds).
+    private func drawnForKeeping(_ request: Request) async -> FujiTerrainPicture? {
+        guard let drawn = await draw(request) else { return nil }
+        return FujiTerrainPicture(image: drawn.image, summit: drawn.summit, points: drawn.points)
+    }
+
+    /// The pictures Tải tất cả drew for no signal, by stem: the launch trim spares them (a card's other scheme is never
+    /// read, so it would be the first to go). Each pass's set replaces the last.
+    static var offlineKeep: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: offlineKeepKey) ?? []) }
+        set { UserDefaults.standard.set(newValue.sorted(), forKey: offlineKeepKey) }
+    }
+
+    private static let offlineKeepKey = "offline.keep.fuji"
+
+    // MARK: What the offline readiness counts
+
+    /// Where a picture sits, each drawn at its own size: the Fuji page's hero (an area), a viewpoint's card whose hero
+    /// it is (a viewpoint with no photographs), and the 220 pt map under a card's photographs ("Tia ngắm").
+    nonisolated enum Slot: String, Codable, CaseIterable, Sendable {
+        case area, spot, sight
+
+        /// what to open so this slot's size is measured
+        var setup: String {
+            switch self {
+            case .area: "Mở trang Fuji một lần"
+            case .spot: "Mở một chỗ ngắm chưa có ảnh chụp"
+            case .sight: "Mở một chỗ ngắm có ảnh chụp"
+            }
+        }
+    }
+
+    /// The sizes kept, `"fuji.sizes"`: each slot's in points, and the screen's scale.
+    private nonisolated struct Sizes: Codable, Equatable {
+        var area: [Double]?
+        var spot: [Double]?
+        var sight: [Double]?
+        var scale: Double?
+
+        subscript(slot: Slot) -> [Double]? {
+            get {
+                switch slot {
+                case .area: area
+                case .spot: spot
+                case .sight: sight
+                }
+            }
+            set {
+                switch slot {
+                case .area: area = newValue
+                case .spot: spot = newValue
+                case .sight: sight = newValue
+                }
+            }
+        }
+    }
+
+    private static let sizesKey = "fuji.sizes"
+
+    private static var savedSizes: Sizes {
+        guard let data = UserDefaults.standard.data(forKey: sizesKey),
+              let sizes = try? JSONDecoder().decode(Sizes.self, from: data) else { return Sizes() }
+        return sizes
+    }
+
+    /// A size read back: two finite numbers, at least a point each. Anything else is no size.
+    private static func size(_ xy: [Double]?) -> CGSize? {
+        guard let xy, xy.count == 2, xy[0].isFinite, xy[1].isFinite, xy[0] >= 1, xy[1] >= 1 else { return nil }
+        return CGSize(width: xy[0], height: xy[1])
+    }
+
+    /// The sizes each slot was drawn at last, and the screen's scale: nil until a page with that slot was opened, or
+    /// when what is kept cannot be read back.
+    static var lastSizes: (area: CGSize?, spot: CGSize?, sight: CGSize?, scale: CGFloat?) {
+        let s = savedSizes
+        let scale = s.scale.flatMap { $0.isFinite && $0 >= 1 && $0 <= 4 ? CGFloat($0) : nil }
+        return (size(s.area), size(s.spot), size(s.sight), scale)
+    }
+
+    /// Keeps the size `slot` is drawn at (`FujiTerrainSnapshot`), written only when it changed.
+    static func keep(_ size: CGSize, scale: CGFloat, for slot: Slot) {
+        guard size.width >= 1, size.height >= 1, size.width.isFinite, size.height.isFinite, scale.isFinite, scale >= 1 else { return }
+        var s = savedSizes
+        let old = s
+        s[slot] = [Double(size.width), Double(size.height)]
+        s.scale = Double(scale)
+        guard s != old, let data = try? JSONEncoder().encode(s) else { return }
+        UserDefaults.standard.set(data, forKey: sizesKey)
+    }
+
+    /// Where a viewpoint's card draws its terrain: as the card's hero when it has no photographs, else under them.
+    /// `FujiSpotPage.photos`' rule: none of its own, and none of its place's.
+    static func slot(of spot: FujiGuide.Spot, store: TripStore) -> Slot {
+        spot.images.isEmpty && (store.place(spot.id)?.images ?? []).isEmpty ? .spot : .sight
+    }
+
+    /// The pictures the pages draw, for use without signal: every area's hero (`FujiHero`) and every viewpoint's card
+    /// (`FujiSightMap`), light and dark (R-600: a card's scheme follows its photograph's colour, not the Appearance
+    /// setting), except a card with no photograph, which is always on Fuji's dusk (`schemes(of:)`), at the sizes kept. The cameras, viewpoints and summits are the views' own:
+    /// - a hero: `Shot.area(area, spots: the area's, summit: guide's summit)`, drawn with the area's viewpoints;
+    /// - a card: `.spot(spot, summit: FujiSight.summit)`, drawn with that viewpoint alone;
+    /// - both named with the guide's summit (`TerrainLayers`).
+    /// Or the first slot a page uses whose size is not known yet (area, spot, sight), to be opened once first.
+    static func wanted(guide: FujiGuide, store: TripStore) -> Wanted {
+        let sizes = lastSizes
+        let summit = guide.summit.coordinate
+        let used = Set([Slot.area] + guide.spots.map { slot(of: $0, store: store) })
+        let kept: [Slot: CGSize?] = [.area: sizes.area, .spot: sizes.spot, .sight: sizes.sight]
+        let measured = kept.compactMapValues { $0 }
+        if let first = Slot.allCases.first(where: { used.contains($0) && measured[$0] == nil }) { return .needs(first) }
+        guard let scale = sizes.scale else { return .needs(.area) }
+        var out: [Request] = []
+        for area in FujiArea.allCases {
+            let shown = guide.spots.filter { area.contains($0) }
+            let shot = FujiCamera.Shot.area(area, spots: shown, summit: summit)
+            for dark in [false, true] {
+                if let size = measured[.area],
+                   let r = Request(camera: shot, spots: shown, summit: summit, size: size, scale: scale, dark: dark) { out.append(r) }
+            }
+        }
+        for spot in guide.spots {
+            let shot = FujiCamera.Shot.spot(spot, summit: FujiSight.summit)
+            let card = slot(of: spot, store: store)
+            for dark in schemes(of: card) {
+                if let size = measured[card],
+                   let r = Request(camera: shot, spots: [spot], summit: summit, size: size, scale: scale, dark: dark) { out.append(r) }
+            }
+        }
+        return .pictures(out)
+    }
+
+    /// The schemes a slot is ever shown in, as dark or not. An area's hero follows the Appearance; a card with photographs
+    /// follows its first photograph's colour: both. A card with none is laid on Fuji's dusk (`FujiSpotAlbum.canvas`), so
+    /// only that one.
+    private static func schemes(of slot: Slot) -> [Bool] {
+        switch slot {
+        case .area, .sight: [false, true]
+        case .spot: [AmbientCanvas.dusk.scheme == .dark]
+        }
+    }
+
+    /// `wanted`'s answer.
+    enum Wanted {
+        /// a page to open first, for this slot's size
+        case needs(Slot)
+        case pictures([Request])
     }
 
     /// The blurred copy under the Fuji page hero's name (`DetailHero(backdrop:)`), made from `picture` when there is
@@ -628,10 +822,14 @@ nonisolated struct FujiTerrainPicture: Sendable {
 
     // MARK: On disk, off the main thread
 
-    /// `Caches/Fuji`: this cache's own folder, the only place it writes or deletes.
+    /// `Application Support/Fuji`, the only place it writes or deletes: kept for no signal, where iOS does not purge
+    /// as it does Caches (a MapKit snapshot cannot be drawn again offline), but out of the iCloud backup (drawn again).
     private nonisolated static let folder: URL = {
-        let url = URL.cachesDirectory.appending(path: "Fuji", directoryHint: .isDirectory)
+        var url = URL.applicationSupportDirectory.appending(path: "Fuji", directoryHint: .isDirectory)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? url.setResourceValues(values)
         return url
     }()
 
@@ -659,6 +857,13 @@ nonisolated struct FujiTerrainPicture: Sendable {
         try? FileManager.default.setAttributes([.modificationDate: Date()], ofItemAtPath: file.path(percentEncoded: false))
         let shown = image.preparingForDisplay() ?? image
         return FujiTerrainPicture(image: shown, summit: point(stored.summit), points: stored.spots.compactMapValues { Self.point($0) })
+    }
+
+    /// `isOnDisk`: the `.json` beside the picture with the fingerprint asked for, and the picture's file.
+    @concurrent private nonisolated static func onDisk(_ stem: String, fingerprint: String) async -> Bool {
+        guard let json = try? Data(contentsOf: folder.appendingPathComponent("\(stem).json")),
+              let stored = try? JSONDecoder().decode(StoredPoints.self, from: json), stored.fingerprint == fingerprint else { return false }
+        return FileManager.default.fileExists(atPath: folder.appendingPathComponent("\(stem).\(format.ext)").path(percentEncoded: false))
     }
 
     private nonisolated static func point(_ xy: [Double]?) -> CGPoint? {
@@ -692,7 +897,8 @@ nonisolated struct FujiTerrainPicture: Sendable {
 
     /// At launch: the least recently used pictures, each with its `.json`, until the folder's fit in `budget` bytes
     /// (`TerrainPicture.evicted`). Only names from this folder's own listing that the cache made; the folder stays.
-    @concurrent nonisolated static func trim(toBytes budget: Int) async {
+    /// Never one of `keeping` (`offlineKeep`).
+    @concurrent nonisolated static func trim(toBytes budget: Int, keeping: Set<String> = []) async {
         let files = FileManager.default
         let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
         guard let urls = try? files.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys) else { return }
@@ -701,13 +907,12 @@ nonisolated struct FujiTerrainPicture: Sendable {
             return TerrainPicture.StoredFile(name: url.lastPathComponent, bytes: values.fileSize ?? 0,
                                              used: values.contentModificationDate ?? .distantPast)
         }
-        for name in TerrainPicture.evicted(listed, toBytes: budget) {
+        for name in TerrainPicture.evicted(listed, toBytes: budget, keeping: keeping) {
             try? files.removeItem(at: folder.appendingPathComponent(name, isDirectory: false))
         }
     }
 
-    #if DEBUG
-    /// Settings › Chẩn đoán (Debug): the pictures on disk and what the folder's own files hold, "6 ảnh HEIC · 2,1 MB".
+    /// Cài đặt › Hỗ trợ › Nhà phát triển: the pictures on disk and what the folder's own files hold, "6 ảnh HEIC · 2,1 MB".
     @concurrent nonisolated static func usage() async -> String {
         let keys: [URLResourceKey] = [.fileSizeKey]
         let urls = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys)) ?? []
@@ -717,8 +922,8 @@ nonisolated struct FujiTerrainPicture: Sendable {
         return "\(pictures) ảnh \(format.ext.uppercased()) · " + ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
     }
 
-    /// Settings › Chẩn đoán › Xoá (Debug): every picture, in memory and in `Caches/Fuji` (the cache's own files only),
-    /// so the next page draws its picture afresh.
+    /// Cài đặt › Hỗ trợ › Nhà phát triển › Xoá: every picture, in memory and in `Application Support/Fuji` (the cache's
+    /// own files only), so the next page draws its picture afresh.
     func clear() async {
         memory.removeAllObjects()
         backdrops = [:]
@@ -733,5 +938,4 @@ nonisolated struct FujiTerrainPicture: Sendable {
             try? files.removeItem(at: folder.appendingPathComponent(name, isDirectory: false))
         }
     }
-    #endif
 }

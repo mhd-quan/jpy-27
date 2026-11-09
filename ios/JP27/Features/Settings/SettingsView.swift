@@ -1,575 +1,239 @@
-import CoreLocation
-import Photos
 import SwiftUI
 import TripKit
-import UIKit
-import WeatherKit
 
-/// Laid out like the system's Settings: who the app is for at the top, then what is changed most
-/// (how it looks, what it may use), then the trip's own switches, each a row with its current value
-/// that opens a page, so the first screen reads as a summary instead of a wall of controls.
+/// Laid out like the system's Settings: the trip at the top, then what needs a look (only when something
+/// does), then the trip's own switches, how the app looks and reads, what it may use and keep, the offline
+/// downloads, and help. Each row carries its current value; most open a page one level down
+/// (`SettingsRoute`), so the first screen reads as a summary instead of a wall of controls.
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
+    @AppStorage(Appearance.key) private var appearance: Appearance = .system
+    @AppStorage(MapPacer.glassKey) private var glass = true
+    @AppStorage(MapPacer.reliefKey) private var relief = false
+    @AppStorage(SpeechPace.key) private var pace: SpeechPace = .normal
+    /// AlarmKit and ActivityKit permissions are read, not observed: read again each time this page shows
+    @State private var permissionTick = 0
+    /// what the log takes on disk (`AppLog.usage`), read each time this page shows
+    @State private var logBytes: Int?
 
     var body: some View {
+        @Bindable var model = model
+        let _ = permissionTick
+        let permissions = PermissionStates(model)
         NavigationStack {
             Form {
                 SettingsHeader()
-                AppearanceSection()
-                PermissionsSection()
+                attention(permissions)
                 TripSection()
-                JournalSection()
-                if let problem = Records.problem {
-                    Section {
+                Section {
+                    NavigationLink(value: SettingsRoute.appearance) {
+                        SettingsLabel(title: "Giao diện", symbol: "circle.lefthalf.filled", tint: .blue, value: appearance.label)
+                    }
+                    NavigationLink(value: SettingsRoute.map) {
+                        SettingsLabel(title: "Bản đồ", symbol: "map.fill", tint: .teal,
+                                      value: MapOptionsSection.summary(glass: glass, relief: relief))
+                    }
+                    Picker(selection: $pace) {
+                        ForEach(SpeechPace.allCases) { Text($0.label).tag($0) }
+                    } label: {
                         Label {
-                            Text(problem).font(.subheadline)
+                            Text("Đọc tiếng Nhật")
                         } icon: {
-                            SettingsIcon(symbol: "exclamationmark.triangle.fill", tint: .red)
+                            SettingsIcon(symbol: "speaker.wave.2.fill", tint: .pink)
                         }
-                        if let file = Records.unreadable {
-                            ShareLink(item: file) {
-                                Label("Gửi file sổ cũ để cứu dữ liệu", systemImage: "square.and.arrow.up")
-                            }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: pace) { _, p in AppLog.info(.settings, "Đọc tiếng Nhật", ["value": p.rawValue]) }
+                    Toggle(isOn: $model.keepAwakeOnRide) {
+                        Label {
+                            Text("Giữ màn hình sáng khi đi tàu")
+                        } icon: {
+                            SettingsIcon(symbol: "sun.max.fill", tint: .orange)
                         }
-                    } header: {
-                        Text("Sổ ghi chép")
+                    }
+                } header: {
+                    Text("Trải nghiệm")
+                } footer: {
+                    Text("Đọc tiếng Nhật: tốc độ của nút đọc. Giữ sáng: chỉ khi đang theo dõi chuyến.")
+                }
+                Section("Riêng tư") {
+                    NavigationLink(value: SettingsRoute.permissions) {
+                        SettingsLabel(title: "Quyền", symbol: "hand.raised.fill", tint: .blue,
+                                      value: "\(permissions.on)/\(permissions.all.count) đã bật")
+                    }
+                    NavigationLink(value: SettingsRoute.journal) {
+                        SettingsLabel(title: "Nhật ký vị trí", symbol: "book.pages.fill", tint: .indigo,
+                                      value: model.journalEnabled ? "Bật" : "Tắt")
                     }
                 }
                 Section {
-                    NavigationLink {
-                        SettingsPage(title: "Dùng khi mất sóng") { OfflineSection() }
-                    } label: {
+                    NavigationLink(value: SettingsRoute.offline) {
                         SettingsLabel(title: "Dùng khi mất sóng", symbol: "arrow.down.circle.fill", tint: .blue, value: offlineValue)
                     }
-                    NavigationLink {
-                        SettingsPage(title: "Nguồn") { SourcesSection() }
-                    } label: {
+                }
+                Section {
+                    NavigationLink(value: SettingsRoute.checks) {
+                        SettingsLabel(title: "Kiểm tra", symbol: "checkmark.seal.fill", tint: .green, value: CheckRun.shared.summary)
+                    }
+                    NavigationLink(value: SettingsRoute.log) {
+                        SettingsLabel(title: "Log", symbol: "doc.text.fill", tint: .gray,
+                                      value: logBytes.map { ByteCountFormatter.string(fromByteCount: Int64($0), countStyle: .file) })
+                    }
+                    NavigationLink(value: SettingsRoute.metrics) {
+                        SettingsLabel(title: "Số đo", symbol: "chart.bar.xaxis", tint: .indigo)
+                    }
+                    NavigationLink(value: SettingsRoute.sources) {
                         SettingsLabel(title: "Nguồn và ghi công", symbol: "books.vertical.fill", tint: .brown)
                     }
+                    NavigationLink(value: SettingsRoute.developer) {
+                        SettingsLabel(title: "Nhà phát triển", symbol: "hammer.fill", tint: .gray)
+                    }
+                } header: {
+                    Text("Hỗ trợ")
                 } footer: {
-                    Text("Dữ liệu nghiên cứu ngày \(model.store.trip.meta.researched).")
+                    Text("JP27 \(Self.version) (\(Self.build)) · Dữ liệu nghiên cứu ngày \(model.store.trip.meta.researched).")
                 }
-                DiagnosticsSection()
             }
+            .navigationDestination(for: SettingsRoute.self) { SettingsDestination(route: $0) }
             .progressiveEdges()
             .navigationTitle("Cài đặt")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { CloseButton() }
             .onAppear {
+                permissionTick += 1
                 if model.offline.areas.isEmpty { model.offline.configure(store: model.store) }
+                Task { logBytes = await AppLog.usage() }
             }
+            // the notification permission as it is now, for the Quyền value and "Cần xem"
+            .task { await model.notifications.refreshStatus() }
+            // what is ready for no signal, for "Dùng khi mất sóng" and "Cần xem"
+            .task { await model.downloads.readiness.refresh() }
         }
     }
 
-    /// "Đang tải 42%", "4/10 vùng · 182 MB", or "Chưa tải"
-    private var offlineValue: String {
-        let offline = model.offline
-        if model.downloads.busy { return "Đang tải \(Int(model.downloads.fraction * 100))%" }
-        if !offline.stale.isEmpty { return "Cần tải lại" }
-        guard offline.totalBytes > 0 else { return "Chưa tải" }
-        let size = ByteCountFormatter.string(fromByteCount: Int64(offline.totalBytes), countStyle: .file)
-        return "\(offline.complete.count)/\(offline.areas.count) vùng · \(size)"
-    }
-}
-
-// MARK: - Diagnostics
-
-/// What the map really draws, measured on the phone: for a jerky map, numbers instead of guesses.
-/// And what the alarms last ran into, and how often reminders, geofences and alarms were set again.
-private struct DiagnosticsSection: View {
-    @Environment(AppModel.self) private var model
-    @AppStorage(MapPacer.readingsKey) private var readings = false
-    @AppStorage(MapPacer.glassKey) private var glass = true
-    @AppStorage(MapPacer.reliefKey) private var relief = false
-    #if DEBUG
-    /// what AlarmKit listed, the last time it was asked
-    @State private var systemAlarms: String?
-    /// `Records.failSaves`, as the picker shows it (read again on coming back: "Lần lưu tới" turns
-    /// itself off)
-    @State private var failSaves = Records.failSaves
-    /// `Records.failReads`, as the switch shows it
-    @State private var failReads = Records.failReads
-    /// what the last `uniqueProbe` found
-    @State private var unique: String?
-    /// `OfflineMaps.fakeOtherStyle`, as the switch shows it
-    @State private var fakeStyle = OfflineMaps.fakeOtherStyle
-    /// the latest fix taken (`LocationService.fixedAt`), read on opening the page and on a tap
-    @State private var lastFix: String?
-    /// what `Caches/MapSnapshots` holds, read on opening the page
-    @State private var mapPictures: String?
-    /// how far the photos' tones moved from the 96 px thumbnail, the last time it was asked
-    @State private var toneDrift: String?
-    /// `FujiTerrainPictures.pictureOnly`, as the switch shows it
-    @State private var fujiPictureOnly = FujiTerrainPictures.pictureOnly
-    /// what `Caches/Fuji` holds, read on opening the page and after "Xoá"
-    @State private var fujiPictures: String?
-    #endif
-    /// the location history's rows, counted when the page opens (nil: not counted, or unreadable)
-    @State private var history: (visits: Int, traces: Int)?
-
-    var body: some View {
-        Section {
-            NavigationLink {
-                SettingsPage(title: "Số đo") { MetricsSection() }
-            } label: {
-                SettingsLabel(title: "Số đo", symbol: "chart.bar.xaxis", tint: .indigo)
-            }
-            Toggle(isOn: $readings) {
-                Label {
-                    Text("Đo khung hình bản đồ")
-                } icon: {
-                    SettingsIcon(symbol: "speedometer", tint: .gray)
+    /// Cần xem: only what needs a look now, each row leading to where it is put right. A pretend failure of Nhà
+    /// phát triển first, as a red band that turns it off; then the records that failed to open, with their file to
+    /// send for rescue.
+    @ViewBuilder private func attention(_ permissions: PermissionStates) -> some View {
+        let pretending = Records.pretending
+        let problem = Records.problem
+        let stale = !model.offline.stale.isEmpty
+        let alarm = model.alarms.lastError
+        // stale maps have their own row, which says more
+        let unready = !stale && offlineUnready
+        if pretending || problem != nil || permissions.off > 0 || stale || alarm != nil || unready {
+            Section("Cần xem") {
+                if pretending {
+                    PretendBand()
                 }
-            }
-            if readings {
-                Toggle(isOn: $glass) {
+                if let problem {
                     Label {
-                        Text("Kính trên bản đồ")
+                        Text(problem).font(.subheadline)
                     } icon: {
-                        SettingsIcon(symbol: "rectangle.on.rectangle", tint: .teal)
+                        SettingsIcon(symbol: "exclamationmark.triangle.fill", tint: .red)
+                    }
+                    if let file = Records.unreadable {
+                        ShareLink(item: file) {
+                            Label("Gửi file sổ cũ để cứu dữ liệu", systemImage: "square.and.arrow.up")
+                        }
                     }
                 }
-                Toggle(isOn: $relief) {
+                if permissions.off > 0 {
+                    NavigationLink(value: SettingsRoute.permissions) {
+                        SettingsLabel(title: "\(permissions.off) quyền đang tắt", symbol: "hand.raised.fill", tint: .red)
+                    }
+                }
+                if stale {
+                    NavigationLink(value: SettingsRoute.offline) {
+                        SettingsLabel(title: "Bản đồ offline cần tải lại", symbol: "arrow.down.circle.fill", tint: .orange)
+                    }
+                }
+                if unready {
+                    NavigationLink(value: SettingsRoute.offline) {
+                        SettingsLabel(title: "Chưa sẵn sàng khi mất sóng", symbol: "arrow.down.circle.fill", tint: .orange)
+                    }
+                }
+                if let alarm {
                     Label {
-                        Text("Bóng địa hình")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Lỗi báo thức gần nhất")
+                            Text(alarm).font(.footnote).foregroundStyle(.secondary)
+                        }
                     } icon: {
-                        SettingsIcon(symbol: "mountain.2", tint: .brown)
+                        SettingsIcon(symbol: "alarm.fill", tint: .red)
                     }
                 }
             }
-            if let problem = model.alarms.lastError {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Lỗi báo thức gần nhất")
-                        Text(problem).font(.footnote).foregroundStyle(.secondary)
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "exclamationmark.triangle.fill", tint: .red)
-                }
-            }
-            // since launch, as of when this page opened: one per return to the app before the trip
-            LabeledContent {
-                Text("\(model.reschedules) lần").monospacedDigit()
-            } label: {
-                Label {
-                    Text("Đặt lại nhắc giờ, geofence, báo thức")
-                } icon: {
-                    SettingsIcon(symbol: "arrow.triangle.2.circlepath", tint: .gray)
-                }
-            }
-            // what the location journal holds (Visit, Trace rows), in the records the app reads now
-            LabeledContent {
-                Text(history.map { "\($0.visits) · \($0.traces)" } ?? "—").monospacedDigit()
-            } label: {
-                Label {
-                    Text("Lịch sử vị trí: chỗ ghé · điểm vết")
-                } icon: {
-                    SettingsIcon(symbol: "point.topleft.down.to.point.bottomright.curvepath", tint: .gray)
-                }
-            }
-            .onAppear { history = model.locationHistoryCount() }
-            // counted again after "Xoá lịch sử vị trí", on the same page
-            .onChange(of: model.historyDeletions) { history = model.locationHistoryCount() }
-            #if DEBUG
-            testAlarm(minutes: 2)
-            testAlarm(minutes: 5)
-            Button {
-                systemAlarms = model.alarms.systemAlarmsSummary()
-            } label: {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Báo thức trong hệ thống")
-                        if let systemAlarms {
-                            Text(systemAlarms).font(.footnote).foregroundStyle(.secondary)
-                        }
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "list.bullet", tint: .gray)
-                }
-            }
-            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 1.4
-            Picker(selection: $failSaves) {
-                ForEach(Records.FailSaves.allCases) { Text($0.label).tag($0) }
-            } label: {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Giả lỗi lưu")
-                        Text("Lần lưu tới: một lần báo lỗi rồi thôi. Mọi lần lưu: tới khi tắt").font(.footnote).foregroundStyle(.secondary)
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "xmark.octagon", tint: .red)
-                }
-            }
-            .onChange(of: failSaves) { _, choice in Records.failSaves = choice }
-            .onAppear { failSaves = Records.failSaves }
-            Toggle(isOn: $failReads) {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Giả lỗi đọc sổ chi")
-                        Text("Mọi lần đọc sổ chi để ghi hay để đồng bộ báo lỗi, tới khi tắt").font(.footnote).foregroundStyle(.secondary)
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "xmark.octagon", tint: .red)
-                }
-            }
-            .onChange(of: failReads) { _, on in Records.failReads = on }
-            .onAppear { failReads = Records.failReads }
-            Button {
-                unique = model.uniqueProbe()
-            } label: {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Thử ghi trùng chỉ số")
-                        if let unique {
-                            Text(unique).font(.footnote).foregroundStyle(.secondary)
-                        }
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "square.on.square", tint: .gray)
-                }
-            }
-            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 2.1c
-            testArrived(asBeforeIDs: false)
-            testArrived(asBeforeIDs: true)
-            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 3.1b
-            Toggle(isOn: $fakeStyle) {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Giả style khác bản")
-                        Text("Vùng tải mới xin một style site không có, như khi app mới hơn site").font(.footnote).foregroundStyle(.secondary)
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "map", tint: .red)
-                }
-            }
-            .onChange(of: fakeStyle) { _, on in OfflineMaps.fakeOtherStyle = on }
-            .onAppear { fakeStyle = OfflineMaps.fakeOtherStyle }
-            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Bước 0: fixes still taken after
-            // the phone's clock was set back (`Presence.takes`)
-            Button {
-                lastFix = lastFixSummary()
-            } label: {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Vị trí lúc")
-                        Text(lastFix ?? "—").font(.footnote).monospacedDigit().foregroundStyle(.secondary)
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "location", tint: .gray)
-                }
-            }
-            .onAppear { lastFix = lastFixSummary() }
-            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 4.1: a picture and the live map that replaces
-            // it frame the same view; marking stops adds no picture
-            NavigationLink {
-                MapFrameCheck()
-            } label: {
-                Label {
-                    Text("So khung bản đồ")
-                } icon: {
-                    SettingsIcon(symbol: "map", tint: .teal)
-                }
-            }
-            LabeledContent {
-                Text(mapPictures ?? "—").monospacedDigit()
-            } label: {
-                Label {
-                    Text("Ảnh bản đồ đã lưu")
-                } icon: {
-                    SettingsIcon(symbol: "photo.on.rectangle", tint: .gray)
-                }
-            }
-            .task { mapPictures = await MapSnapshots.usage() }
-            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 5.1a: the tone of a photo read from the decode its
-            // page draws, against the one the 96 px thumbnail gave before
-            Button {
-                let photos = toneDriftPhotos()
-                toneDrift = "Đang so \(photos.count) ảnh…"
-                Task { toneDrift = await PhotoCache.toneDrift(photos) }
-            } label: {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("So màu ảnh: mới và cũ")
-                        if let toneDrift {
-                            Text(toneDrift).font(.footnote).foregroundStyle(.secondary)
-                        }
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "eyedropper", tint: .gray)
-                }
-            }
-            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 5.3: what MapKit's snapshotter draws of the terrain,
-            // with no live map coming in under it (not kept)
-            Toggle(isOn: $fujiPictureOnly) {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Fuji: chỉ ảnh địa hình")
-                        Text("Trang Fuji và thẻ điểm ngắm chỉ hiện ảnh chụp sẵn, không mở bản đồ thật, tới khi tắt hoặc mở lại app").font(.footnote).foregroundStyle(.secondary)
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "mountain.2", tint: Palette.fuji)
-                }
-            }
-            .onChange(of: fujiPictureOnly) { _, on in FujiTerrainPictures.pictureOnly = on }
-            .onAppear { fujiPictureOnly = FujiTerrainPictures.pictureOnly }
-            LabeledContent {
-                HStack(spacing: 12) {
-                    Text(fujiPictures ?? "—").monospacedDigit()
-                    // only the folder's own pictures, and those in memory: the next page draws its picture afresh
-                    Button("Xoá", role: .destructive) {
-                        Task {
-                            await FujiTerrainPictures.shared.clear()
-                            fujiPictures = await FujiTerrainPictures.usage()
-                        }
-                    }
-                    .buttonStyle(.borderless)
-                }
-            } label: {
-                Label {
-                    Text("Ảnh địa hình Fuji đã lưu")
-                } icon: {
-                    SettingsIcon(symbol: "photo.on.rectangle", tint: .gray)
-                }
-            }
-            .task { fujiPictures = await FujiTerrainPictures.usage() }
-            #endif
-        } header: {
-            Text("Chẩn đoán")
-        } footer: {
-            Text(readings
-                ? "Ở góc bản đồ: mỗi khung main thread mất bao lâu, chia ra CPU tự làm và thời gian ngồi chờ GPU trả khung; GPU bận đến đâu; bản đồ giữ main thread bao nhiêu phần trăm. Tắt Kính trên bản đồ để thấy phần kính tốn. Bóng địa hình bật lại lớp đổ bóng núi mà bản đồ của app đã bỏ (nó bắt main thread chờ GPU cho từng mảnh địa hình đã tải, mỗi khung): bật lên rồi lướt bản đồ một lúc để so số chờ."
-                : "Hiện ở góc bản đồ thời gian của từng khung hình, để biết bản đồ giật vì đâu.")
         }
     }
 
-    #if DEBUG
-    /// For "So màu ảnh": the day covers (JPEG, the most shrunk when a tone is read) first, then bundled place
-    /// photos by name, twenty in all
-    private func toneDriftPhotos() -> [Photo] {
-        let covers = HomeCovers.byDay.keys.sorted().compactMap { HomeCovers.byDay[$0]?.photo }
-        let places = model.store.places.values.compactMap(\.hero).filter(\.isBundled).sorted { $0.src < $1.src }
-        var seen = Set<String>()
-        return Array((covers + places).filter { seen.insert($0.src).inserted }.prefix(20))
+    /// "Sẵn sàng", "Thiếu 2 mục", "Đang tải 42%" or "Cần tải lại" (`Readiness.summary`); nothing until what is ready
+    /// has been read once, unless a download or stale maps already tell
+    private var offlineValue: String? {
+        let downloads = model.downloads
+        let stale = !model.offline.stale.isEmpty
+        guard downloads.readiness.checked || downloads.busy || stale else { return nil }
+        return Readiness.summary(downloads.readiness.states, mapsStale: stale, downloading: downloads.busy ? downloads.fraction : nil)
     }
 
-    /// "7:20:05 · ±12 m": when the latest fix used was taken, on the phone's clock, and how precise it was
-    private func lastFixSummary() -> String? {
-        guard let at = model.location.fixedAt else { return nil }
-        let c = Calendar.current.dateComponents([.hour, .minute, .second], from: at)
-        let time = "\(c.hour ?? 0):\(String(format: "%02d", c.minute ?? 0)):\(String(format: "%02d", c.second ?? 0))"
-        guard let accuracy = model.location.horizontalAccuracy else { return time }
-        return "\(time) · ±\(Int(accuracy.rounded())) m"
+    /// Not all ready for no signal, from 14 days before the trip to its end by the real clock (never the rehearsal's:
+    /// the trip itself is what it gets ready for).
+    private var offlineUnready: Bool {
+        let meta = model.store.trip.meta
+        guard model.downloads.readiness.checked, let value = offlineValue, value != Readiness.ready else { return false }
+        return Readiness.watching(now: Date(), start: meta.start, end: meta.end)
     }
 
-    /// A "Đã tới" notification, now, for the first food stop not yet done of the day the app shows
-    /// (`focusDay`): as this build posts it on entering the stop's circle, or as builds before item ids
-    /// did (the day and the index only). The first marks the stop; the second must mark nothing.
-    private func testArrived(asBeforeIDs: Bool) -> some View {
-        Button {
-            let day = model.focusDay
-            guard let (i, stop) = day.stops.first(where: { model.store.place($0.stop.place)?.kind == .food && !model.isDone(day, $0.index) }),
-                  let place = model.store.place(stop.place) else { return }
-            Task {
-                if asBeforeIDs {
-                    await model.notifications.arrivedAsBeforeIDs(at: place, day: day.key, index: i)
-                } else {
-                    await model.notifications.arrived(at: place, store: model.store, people: model.people, item: ItemRef(day: day.key, id: day.items[i].id))
-                }
-            }
-        } label: {
+    private static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+    private static let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
+}
+
+/// The page each `SettingsRoute` opens.
+private struct SettingsDestination: View {
+    let route: SettingsRoute
+
+    var body: some View {
+        switch route {
+        case .alternatives: SettingsPage(title: "Ngày thay thế") { AlternativesSection() }
+        case .pace: SettingsPage(title: "Đi bộ") { PaceSection() }
+        case .rehearsal: SettingsPage(title: "Chạy thử") { RehearsalSection() }
+        case .appearance: SettingsPage(title: "Giao diện") { AppearanceSection() }
+        case .map: SettingsPage(title: "Bản đồ") { MapOptionsSection() }
+        case .permissions: SettingsPage(title: "Quyền") { PermissionsSection() }
+        case .journal: SettingsPage(title: "Nhật ký vị trí") { JournalSection() }
+        case .offline: OfflinePage()
+        case .offlineMaps: OfflineMapsPage()
+        case .checks: SettingsPage(title: "Kiểm tra") { ChecksPage() }
+        case .log: LogPage()
+        case .metrics: SettingsPage(title: "Số đo") { MetricsSection() }
+        case .sources: SettingsPage(title: "Nguồn") { SourcesSection() }
+        case .developer: SettingsPage(title: "Nhà phát triển") { DeveloperSection() }
+        }
+    }
+}
+
+/// "Đang giả lỗi lưu": a pretend failure of Nhà phát triển is on (saves or ledger reads), in the system's red, with
+/// its "Tắt" that turns both off at once.
+private struct PretendBand: View {
+    var body: some View {
+        HStack {
             Label {
-                Text(asBeforeIDs ? "Thông báo Đã tới thử, kiểu cũ" : "Thông báo Đã tới thử")
+                Text("Đang giả lỗi lưu").fontWeight(.semibold)
             } icon: {
-                SettingsIcon(symbol: "checkmark.circle", tint: asBeforeIDs ? Color.gray : Color.green)
+                Image(systemName: "xmark.octagon.fill")
             }
+            Spacer()
+            Button("Tắt") {
+                Records.failSaves = .off
+                Records.failReads = false
+                AppLog.info(.dev, "Tắt giả lỗi")
+            }
+            .buttonStyle(.borderless)
+            .fontWeight(.semibold)
         }
-    }
-
-    /// A real alarm for a ride that does not exist, set the way a followed ride sets one (asks for
-    /// permission, replaces only once set), for the device checks in
-    /// docs/superpowers/checklists/2026-11-device-phase1-3.md. Two lengths on the same ride: the
-    /// second moves the first by more than two minutes, so it is a replacement.
-    private func testAlarm(minutes: Double) -> some View {
-        Button {
-            Task { await model.alarms.alight(rideID: "debug.wake", station: "Ga thử", at: Date().addingTimeInterval(minutes * 60)) }
-        } label: {
-            Label {
-                Text("Báo thức thử sau \(Int(minutes)) phút")
-            } icon: {
-                SettingsIcon(symbol: "alarm", tint: .orange)
-            }
-        }
-    }
-    #endif
-}
-
-/// What MetricKit reported about the app on this phone, a day at a time, as kept in
-/// `Caches/metrics` (`MetricsInbox`): hitches, launch time, and each measured transition from the tap
-/// to its end (`Perf`). The payloads' own JSON can be shared, for a closer look on a computer.
-private struct MetricsSection: View {
-    @State private var stored: (digests: [MetricsDigest], payloads: [URL])?
-
-    var body: some View {
-        Group {
-            if let stored {
-                if stored.digests.isEmpty {
-                    Section {
-                        Text("Chưa có số đo. iOS gửi số đo của ngày trước mỗi ngày một lần, sau khi app được dùng.")
-                            .foregroundStyle(.secondary)
-                    }
-                } else {
-                    Section {
-                        ForEach(stored.digests, id: \.end) { day in
-                            LabeledContent {
-                                VStack(alignment: .trailing, spacing: 2) {
-                                    Text("cuộn \(Self.ratio(day.scrollHitches)) · mọi lúc \(Self.ratio(day.hitches))")
-                                    Text("mở app \(Self.ms(PerfStats.median(day.launch)))")
-                                        .font(.footnote)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .monospacedDigit()
-                            } label: {
-                                Text(Self.day(day.begin))
-                            }
-                        }
-                    } header: {
-                        Text("Theo ngày")
-                    } footer: {
-                        Text("Giật khi cuộn và giật trong mọi chuyển động, tính bằng ms mỗi giây chuyển động. Mở app: trung vị tới khung đầu tiên.")
-                    }
-                    Section {
-                        ForEach(Self.transitions(stored.digests), id: \.name) { t in
-                            LabeledContent {
-                                VStack(alignment: .trailing, spacing: 2) {
-                                    Text(Self.ms(PerfStats.median(t.buckets)))
-                                    Text("\(t.count) lần · giật \(Self.ratio(t.hitches))")
-                                        .font(.footnote)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .monospacedDigit()
-                            } label: {
-                                Text(t.name).font(.subheadline.monospaced())
-                            }
-                        }
-                    } header: {
-                        Text("Chuyển cảnh")
-                    } footer: {
-                        Text("Từ lúc chạm tới khi lần đo khép lại: trung vị của mọi ngày còn giữ. Mọi cách khép đều được tính: chuyển cảnh xong, bị chuyển cảnh sau thay, hết 1 giây chờ hay quá giờ. Trong Instruments, thông điệp kết thúc của mỗi lần cho biết cách khép. Giật: trung bình theo số lần, trong lúc chuyển.")
-                    }
-                }
-                if !stored.payloads.isEmpty {
-                    Section {
-                        ShareLink(items: stored.payloads) {
-                            Label("Chia sẻ JSON", systemImage: "square.and.arrow.up")
-                        }
-                    } footer: {
-                        Text("Bản gốc MetricKit gửi, \(stored.payloads.count) ngày gần nhất.")
-                    }
-                }
-            } else {
-                Section {
-                    ProgressView()
-                }
-            }
-        }
-        .task { stored = await MetricsInbox.stored() }
-    }
-
-    /// one transition name over every day kept
-    private struct Measured {
-        let name: String
-        let count: Int
-        let buckets: [PerfStats.Bucket]
-        let hitches: MetricsDigest.Ratio?
-    }
-
-    /// The days merged per name, names in order: the buckets put together (`PerfStats.median` merges
-    /// equal ones), the hitch ratio averaged by count.
-    private static func transitions(_ digests: [MetricsDigest]) -> [Measured] {
-        let byName = Dictionary(grouping: digests.flatMap(\.signposts), by: \.name)
-        return byName.keys.sorted().map { name -> Measured in
-            let days = byName[name] ?? []
-            let rated = days.filter { $0.hitches != nil && $0.count > 0 }
-            let weight = rated.reduce(0) { $0 + $1.count }
-            let hitches = rated.first.map { first in
-                MetricsDigest.Ratio(
-                    value: rated.reduce(0.0) { $0 + ($1.hitches?.value ?? 0) * Double($1.count) } / Double(max(weight, 1)),
-                    unit: first.hitches?.unit ?? ""
-                )
-            }
-            return Measured(name: name, count: days.reduce(0) { $0 + $1.count }, buckets: days.flatMap(\.buckets), hitches: hitches)
-        }
-    }
-
-    /// "2,1 ms/s", or "—": MetricKit gives hitch ratios in ms per s, and its unit's symbol is English, so it is not shown
-    private static func ratio(_ r: MetricsDigest.Ratio?) -> String {
-        guard let r else { return "—" }
-        return "\(Fmt.decimal(r.value, digits: 1)) ms/s"
-    }
-
-    /// "640 ms", or "—"
-    private static func ms(_ value: Double?) -> String {
-        guard let value else { return "—" }
-        return "\(Fmt.decimal(value, digits: 0)) ms"
-    }
-
-    /// "7/11"
-    private static func day(_ date: Date) -> String {
-        let c = Calendar.current.dateComponents([.day, .month], from: date)
-        return "\(c.day ?? 0)/\(c.month ?? 0)"
-    }
-}
-
-// MARK: - Building blocks
-
-/// The coloured tile in front of a settings row, as in the system's Settings.
-private struct SettingsIcon: View {
-    let symbol: String
-    let tint: Color
-
-    var body: some View {
-        Image(systemName: symbol)
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundStyle(.white)
-            .frame(width: 30, height: 30)
-            .background(tint.gradient, in: .rect(cornerRadius: 8, style: .continuous))
-            .accessibilityHidden(true)
-    }
-}
-
-/// A row that opens a page: tile, title, and the current value on the trailing side.
-private struct SettingsLabel: View {
-    let title: String
-    let symbol: String
-    let tint: Color
-    var value: String?
-
-    var body: some View {
-        LabeledContent {
-            if let value {
-                Text(value).monospacedDigit().lineLimit(1)
-            }
-        } label: {
-            Label {
-                Text(title)
-            } icon: {
-                SettingsIcon(symbol: symbol, tint: tint)
-            }
-        }
-    }
-}
-
-/// A page one level down: its own form, and the close button still at the far right.
-private struct SettingsPage<Content: View>: View {
-    let title: String
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        Form { content }
-            .progressiveEdges()
-            .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar { CloseButton() }
+        .foregroundStyle(.white)
+        .tint(.white)
+        .listRowBackground(Color.red)
     }
 }
 
@@ -607,106 +271,6 @@ private struct SettingsHeader: View {
     }
 }
 
-// MARK: - Appearance
-
-/// Automatic, light or dark, picked from three small screens, as in Display & Brightness.
-private struct AppearanceSection: View {
-    @AppStorage(Appearance.key) private var appearance: Appearance = .system
-
-    var body: some View {
-        Section {
-            HStack(alignment: .top, spacing: 0) {
-                ForEach(Appearance.allCases) { a in
-                    Button {
-                        appearance = a
-                    } label: {
-                        AppearanceChoice(appearance: a, on: appearance == a)
-                    }
-                    // a row holding several buttons: without a plain style the whole row is one tap
-                    .buttonStyle(.plain)
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .padding(.vertical, 10)
-            .sensoryFeedback(.pick, trigger: appearance)
-        } header: {
-            Text("Giao diện")
-        } footer: {
-            Text("Tự động đổi sáng, tối theo iPhone, cả bản đồ.")
-        }
-    }
-}
-
-private struct AppearanceChoice: View {
-    let appearance: Appearance
-    let on: Bool
-
-    var body: some View {
-        VStack(spacing: 10) {
-            thumb
-                .frame(width: 60, height: 100)
-                .shadow(color: .black.opacity(0.14), radius: 4, y: 2)
-            Text(appearance.label)
-                .font(.subheadline)
-            Image(systemName: on ? "checkmark.circle.fill" : "circle")
-                .font(.title3)
-                .foregroundStyle(on ? AnyShapeStyle(Palette.sun) : AnyShapeStyle(.tertiary))
-                .contentTransition(.symbolEffect(.replace))
-        }
-        .contentShape(.rect)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(appearance.label)
-        .accessibilityAddTraits(on ? [.isButton, .isSelected] : .isButton)
-    }
-
-    @ViewBuilder private var thumb: some View {
-        switch appearance {
-        case .light:
-            AppearanceThumb().environment(\.colorScheme, .light)
-        case .dark:
-            AppearanceThumb().environment(\.colorScheme, .dark)
-        case .system:
-            ZStack {
-                AppearanceThumb().environment(\.colorScheme, .light)
-                AppearanceThumb().environment(\.colorScheme, .dark)
-                    .mask(LowerRightHalf())
-            }
-        }
-    }
-}
-
-/// A screen of the app in miniature: paper, the red disc, a title, two cards.
-private struct AppearanceThumb: View {
-    var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 11, style: .continuous)
-        shape
-            .fill(Palette.paper)
-            .overlay(alignment: .topLeading) {
-                VStack(alignment: .leading, spacing: 5) {
-                    Circle().fill(Palette.sun).frame(width: 12, height: 12)
-                    Capsule().fill(.primary.opacity(0.8)).frame(width: 32, height: 4)
-                    Capsule().fill(.secondary.opacity(0.6)).frame(width: 22, height: 3)
-                    RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Palette.card).frame(height: 24)
-                    RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Palette.card).frame(height: 16)
-                }
-                .padding(8)
-            }
-            .clipShape(shape)
-            .overlay { shape.strokeBorder(.separator, lineWidth: 0.5) }
-    }
-}
-
-private nonisolated struct LowerRightHalf: Shape {
-    func path(in r: CGRect) -> Path {
-        Path { p in
-            p.move(to: CGPoint(x: r.maxX, y: r.minY))
-            p.addLine(to: CGPoint(x: r.maxX, y: r.maxY))
-            p.addLine(to: CGPoint(x: r.minX, y: r.maxY))
-            p.closeSubpath()
-        }
-    }
-}
-
 // MARK: - Trip
 
 /// The trip's own switches, each summarised by its value and opened on a page.
@@ -718,723 +282,19 @@ private struct TripSection: View {
         Section("Chuyến đi") {
             if !alts.isEmpty {
                 let on = alts.filter { model.alternatives.contains($0.key) }.count
-                NavigationLink {
-                    SettingsPage(title: "Ngày thay thế") { AlternativesSection() }
-                } label: {
+                NavigationLink(value: SettingsRoute.alternatives) {
                     SettingsLabel(title: "Ngày thay thế", symbol: "arrow.triangle.swap", tint: .orange,
                                   value: on == 0 ? "Theo lịch gốc" : "\(on) ngày đổi")
                 }
             }
-            NavigationLink {
-                SettingsPage(title: "Đi bộ") { PaceSection() }
-            } label: {
+            NavigationLink(value: SettingsRoute.pace) {
                 SettingsLabel(title: "Tốc độ đi bộ", symbol: "figure.walk", tint: .green,
                               value: "\(Fmt.decimal(3.9 * model.pace.factor, digits: 1)) km/h")
             }
-            NavigationLink {
-                SettingsPage(title: "Chạy thử") { RehearsalSection() }
-            } label: {
+            NavigationLink(value: SettingsRoute.rehearsal) {
                 SettingsLabel(title: "Chạy thử", symbol: "clock.arrow.circlepath", tint: .purple,
                               value: model.rehearsing ? "Đang chạy" : "Tắt")
             }
-        }
-    }
-}
-
-// MARK: - Journal
-
-/// The location journal: its switch, and the history deleted on request.
-private struct JournalSection: View {
-    @Environment(AppModel.self) private var model
-    @State private var confirming = false
-    /// how many rows the last "Xoá lịch sử vị trí" deleted
-    @State private var deleted: Int?
-
-    var body: some View {
-        @Bindable var model = model
-        Section {
-            Toggle(isOn: $model.journalEnabled) {
-                Label {
-                    Text("Ghi nhật ký vị trí")
-                } icon: {
-                    SettingsIcon(symbol: "book.pages.fill", tint: .indigo)
-                }
-            }
-            Button(role: .destructive) {
-                confirming = true
-            } label: {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Xoá lịch sử vị trí")
-                        if let deleted {
-                            Text(deleted == 0 ? "Không còn gì để xoá" : "Đã xoá \(deleted) mục")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                } icon: {
-                    SettingsIcon(symbol: "trash", tint: .red)
-                }
-            }
-            .alert("Xoá lịch sử vị trí?", isPresented: $confirming) {
-                Button("Xoá", role: .destructive, action: delete)
-                Button("Huỷ", role: .cancel) {}
-            } message: {
-                Text("Mọi chỗ đã ghé và vết đường đi đã ghi trên máy này. Dấu đã đi và điểm bỏ vẫn giữ.")
-            }
-        } header: {
-            Text("Nhật ký")
-        } footer: {
-            Text("Chỉ trong 18–29/10/2027, chỉ trên máy này")
-        }
-    }
-
-    private func delete() {
-        let before = model.saveIssue?.id
-        let n = model.purgeLocationHistory(outsideTripOnly: false)
-        // a write that failed is told by the alert, not as a count
-        deleted = model.saveIssue?.id == before ? n : nil
-    }
-}
-
-// MARK: - Permissions
-
-private struct PermissionsSection: View {
-    @Environment(AppModel.self) private var model
-    @Environment(\.openURL) private var openURL
-    /// AlarmKit and ActivityKit states are read, not observed: bump to re-read after a request
-    @State private var tick = 0
-    /// iOS's upgrade to "Always" was asked once (here or on Today): Settings from then on
-    @AppStorage(AppModel.locationAskedAlwaysKey) private var askedAlways = false
-
-    var body: some View {
-        Section("Quyền") {
-            location
-            PermissionRow(
-                title: "Thông báo", detail: "Nhắc giờ tàu, xe, đặt bàn", symbol: "bell.badge.fill", tint: .red,
-                state: model.notifications.authorized ? .on : (model.notifications.undetermined ? .ask : .off),
-                action: { Task { await model.notifications.requestAuthorization(); await model.notifications.refreshStatus(); if !model.notifications.authorized { openSettings() } } })
-            PermissionRow(
-                title: "Báo thức", detail: "Đánh thức trước ga cần xuống", symbol: "alarm.fill", tint: .orange,
-                state: alarmsState,
-                action: { Task { if !(await model.alarms.requestAuthorization()) { openSettings() }; tick += 1 } })
-            PermissionRow(
-                title: "Ảnh", detail: "Gắn ảnh vào nhật ký mỗi tối", symbol: "photo.on.rectangle.angled", tint: .indigo,
-                state: photosState,
-                action: {
-                    if model.photos.status == .notDetermined {
-                        Task { await model.photos.request() }
-                    } else {
-                        openSettings()
-                    }
-                })
-            PermissionRow(
-                title: "Live Activities", detail: "Ga kế, lúc xuống, Fuji bên nào", symbol: "dot.radiowaves.left.and.right", tint: .teal,
-                state: liveState,
-                action: openSettings)
-        }
-        .task { await model.notifications.refreshStatus() }
-    }
-
-    private var location: some View {
-        let status = model.location.authorization
-        let state: PermissionRow.State = switch status {
-        case .authorizedAlways: .on
-        case .authorizedWhenInUse: .partial("Khi dùng app")
-        case .notDetermined: .ask
-        default: .off
-        }
-        return PermissionRow(
-            title: "Vị trí luôn bật", detail: "Nhắc khi tới quán, tới ga", symbol: "location.fill", tint: .blue,
-            state: state,
-            action: {
-                switch status {
-                case .notDetermined: model.location.requestWhenInUse()
-                case .authorizedWhenInUse where !askedAlways:
-                    // iOS shows this upgrade once; after that only Settings can change it
-                    askedAlways = true
-                    model.location.requestAlways()
-                default: openSettings()
-                }
-            })
-    }
-
-    private var alarmsState: PermissionRow.State {
-        _ = tick
-        return model.alarms.authorized ? .on : .ask
-    }
-
-    private var liveState: PermissionRow.State {
-        _ = tick
-        return model.live.isAvailable ? .on : .off
-    }
-
-    private var photosState: PermissionRow.State {
-        switch model.photos.status {
-        case .authorized: .on
-        case .limited: .partial("Một phần")
-        case .notDetermined: .ask
-        default: .off
-        }
-    }
-
-    private func openSettings() {
-        if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
-    }
-}
-
-private struct PermissionRow: View {
-    enum State: Equatable {
-        case on, off, ask
-        case partial(String)
-    }
-
-    let title: String
-    let detail: String
-    let symbol: String
-    let tint: Color
-    let state: State
-    let action: () -> Void
-    /// iOS's prompt or Settings opened; on the row, as the button leaves once access is given
-    /// (spelled out: `State` here is the row's own)
-    @SwiftUI.State private var asked = 0
-
-    var body: some View {
-        HStack(spacing: 12) {
-            SettingsIcon(symbol: symbol, tint: tint)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                Text(detail).font(.footnote).foregroundStyle(.secondary)
-            }
-            Spacer(minLength: 8)
-            switch state {
-            case .on:
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-                    .accessibilityLabel("Đã bật")
-            case .partial(let text):
-                Button(text, action: ask)
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-            case .ask:
-                Button("Cho phép", action: ask)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-            case .off:
-                Button("Mở Cài đặt", action: ask)
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-            }
-        }
-        .sensoryFeedback(.press, trigger: asked)
-        .accessibilityElement(children: .combine)
-    }
-
-    private func ask() {
-        asked += 1
-        action()
-    }
-}
-
-// MARK: - Offline
-
-/// Where one area is, as its row says it.
-private enum AreaStatus: Equatable {
-    case checking, idle, stale, complete, preparing
-    case downloading(Double), waiting(Double), paused(Double)
-    /// downloading, and MapLibre's last error, while it tries again
-    case failing(Double, String)
-    /// its pack could not be made: why, and "Thử lại"
-    case failed(String)
-}
-
-/// Downloads belong to the app (`Downloads`), so this page only shows where they are: leave it,
-/// use the rest of the app, come back, and it shows the truth.
-private struct OfflineSection: View {
-    @Environment(AppModel.self) private var model
-
-    var body: some View {
-        let offline = model.offline
-        let downloads = model.downloads
-        Group {
-            if downloads.busy || downloads.ended != nil {
-                Section {
-                    JobRow(downloads: downloads)
-                }
-            }
-            Section {
-                if !offline.stale.isEmpty {
-                    Label("Nguồn bản đồ đã đổi, nên \(offline.stale.count) vùng đã tải không còn dùng được khi mất sóng. Tải lại khi có Wi‑Fi.", systemImage: "exclamationmark.triangle.fill")
-                        .font(.footnote)
-                        .foregroundStyle(.orange)
-                }
-                if offline.ready {
-                    ForEach(offline.areas) { area in
-                        AreaRow(
-                            name: area.name,
-                            status: status(area.id),
-                            bytes: offline.bytes[area.id],
-                            download: { downloads.download(area) },
-                            pause: { offline.pause(area.id) },
-                            remove: { offline.remove(area) })
-                    }
-                    if !offline.missing.isEmpty {
-                        Button("Tải tất cả bản đồ") { downloads.downloadAllMaps() }
-                    }
-                } else {
-                    HStack(spacing: 12) {
-                        ProgressView()
-                        Text("Đang đọc các vùng đã tải…").foregroundStyle(.secondary)
-                    }
-                }
-            } header: {
-                Text("Bản đồ")
-            } footer: {
-                if offline.totalBytes > 0 {
-                    Text("Đã tải \(ByteCountFormatter.string(fromByteCount: Int64(offline.totalBytes), countStyle: .file)). Vuốt trái một vùng để xoá.")
-                }
-            }
-            Section {
-                PhotosRow(photos: downloads.photos, online: model.network.raw, download: { downloads.downloadPhotos() })
-            } header: {
-                Text("Ảnh")
-            } footer: {
-                Text("Vẫn tải khi bạn chuyển sang phần khác của app. Bấm tải rồi rời app thì iOS hiện tiến độ trên màn hình khoá và Dynamic Island, tải tiếp đến khi xong; dừng được ngay từ đó.")
-            }
-        }
-        .onAppear { offline.configure(store: model.store) }
-    }
-
-    private func status(_ id: String) -> AreaStatus {
-        let o = model.offline
-        let p = o.progress[id] ?? 0
-        switch o.phases[id] {
-        case nil: return .idle
-        // asked for, its pack not read yet (or not asked how far it is)
-        case .requested?: return .checking
-        case .creating?: return .preparing
-        case .downloading?: return model.network.raw ? .downloading(p) : .waiting(p)
-        case .waitingForNetwork?:
-            if model.network.raw, let problem = o.problems[id] { return .failing(p, problem) }
-            return .waiting(p)
-        case .paused?: return .paused(p)
-        case .complete?: return .complete
-        case .stale?: return .stale
-        case .failed(let reason)?: return .failed(reason)
-        }
-    }
-}
-
-/// The download under way, as one line ("Bản đồ 3/10 vùng · Ảnh 120/180 · 42%"), and once it is over, how
-/// it ended: "Xong" only when everything is there, else what is missing ("Bản đồ 8/10 vùng · 2 lỗi"), or
-/// "Đã dừng".
-private struct JobRow: View {
-    let downloads: Downloads
-
-    var body: some View {
-        HStack(spacing: 12) {
-            if downloads.busy {
-                ProgressView()
-                Text(downloads.progressLine)
-            } else if let ended = downloads.ended {
-                Image(systemName: ended.success ? "checkmark.circle.fill" : ended.paused ? "pause.circle.fill" : "exclamationmark.triangle.fill")
-                    .foregroundStyle(ended.success ? Color.green : ended.paused ? Color.secondary : Color.orange)
-                Text(ended.subtitle)
-            }
-        }
-        .font(.footnote)
-        .monospacedDigit()
-        .contentTransition(.numericText())
-    }
-}
-
-private struct AreaRow: View {
-    let name: String
-    let status: AreaStatus
-    let bytes: UInt64?
-    let download: () -> Void
-    let pause: () -> Void
-    let remove: () -> Void
-    /// on the row: a download starts, or stops
-    @State private var started = 0
-    @State private var stopped = 0
-
-    var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(name)
-                Text(detail)
-                    .font(.footnote)
-                    .foregroundStyle(warning ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
-            }
-            Spacer(minLength: 8)
-            trailing
-        }
-        .sensoryFeedback(.start, trigger: started)
-        .sensoryFeedback(.stop, trigger: stopped)
-        .swipeActions(edge: .trailing) {
-            if hasData {
-                Button("Xoá", systemImage: "trash", role: .destructive, action: remove)
-            }
-        }
-        .contextMenu {
-            if hasData {
-                Button("Xoá", systemImage: "trash", role: .destructive, action: remove)
-            }
-        }
-        .accessibilityElement(children: .contain)
-    }
-
-    @ViewBuilder private var trailing: some View {
-        switch status {
-        case .checking:
-            ProgressView()
-        case .failed:
-            Button("Thử lại") {
-                started += 1
-                download()
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-        case .idle, .stale:
-            Button(status == .stale ? "Tải lại" : "Tải") {
-                started += 1
-                download()
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-        case .complete:
-            ProgressRing(value: 1, mode: .done)
-        case .preparing, .downloading, .waiting, .failing:
-            // as in the App Store: the ring is the stop button
-            Button {
-                stopped += 1
-                pause()
-            } label: {
-                ProgressRing(value: running, mode: .running)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Tạm dừng tải \(name)")
-        case .paused(let p):
-            Button {
-                started += 1
-                download()
-            } label: {
-                ProgressRing(value: p, mode: .paused)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Tải tiếp \(name)")
-        }
-    }
-
-    /// how far a running download is (its pack being made: nothing yet)
-    private var running: Double {
-        switch status {
-        case .downloading(let p), .waiting(let p), .failing(let p, _): p
-        case .checking, .idle, .stale, .complete, .preparing, .paused, .failed: 0
-        }
-    }
-
-    private var size: String? {
-        guard let bytes, bytes > 0 else { return nil }
-        return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
-    }
-
-    private var detail: String {
-        func with(_ head: String, _ p: Double) -> String {
-            ([head, "\(Int(p * 100))%"] + [size].compactMap { $0 }).joined(separator: " · ")
-        }
-        switch status {
-        case .checking: return "Đang kiểm tra…"
-        case .preparing: return "Đang chuẩn bị…"
-        case .idle: return "Chưa tải"
-        case .stale: return "Tải từ nguồn cũ, cần tải lại"
-        case .complete: return ["Đã tải", size].compactMap { $0 }.joined(separator: " · ")
-        case .downloading(let p): return with("Đang tải", p)
-        case .waiting(let p): return with("Chờ có mạng", p)
-        case .paused(let p): return with("Tạm dừng", p)
-        case .failing(let p, let problem): return with(problem, p)
-        case .failed(let reason): return reason
-        }
-    }
-
-    private var warning: Bool {
-        switch status {
-        case .failing, .failed, .stale: true
-        case .checking, .idle, .complete, .preparing, .downloading, .waiting, .paused: false
-        }
-    }
-
-    /// something to remove: a pack, or a request (one that failed is dropped with any older pack)
-    private var hasData: Bool {
-        switch status {
-        case .idle, .checking: false
-        default: true
-        }
-    }
-}
-
-/// The trip's remote photos: how many are on disk, the download under way, what failed.
-private struct PhotosRow: View {
-    let photos: OfflinePhotos
-    let online: Bool
-    let download: () -> Void
-    @State private var started = 0
-    @State private var stopped = 0
-
-    var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Ảnh quán ăn và khách sạn")
-                Text(detail)
-                    .font(.footnote)
-                    .foregroundStyle(photos.failed > 0 && !photos.running ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
-            }
-            Spacer(minLength: 8)
-            if !photos.counted {
-                ProgressView()
-            } else if photos.running {
-                Button {
-                    stopped += 1
-                    photos.pause()
-                } label: {
-                    ProgressRing(value: photos.fraction, mode: .running)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Tạm dừng tải ảnh")
-            } else if photos.complete {
-                ProgressRing(value: 1, mode: .done)
-            } else if photos.saved > 0 {
-                Button {
-                    started += 1
-                    download()
-                } label: {
-                    ProgressRing(value: photos.fraction, mode: .paused)
-                }
-                .buttonStyle(.plain)
-                .disabled(!online)
-                .accessibilityLabel(photos.failed > 0 ? "Thử tải lại ảnh lỗi" : "Tải tiếp ảnh")
-            } else {
-                Button("Tải") {
-                    started += 1
-                    download()
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .disabled(!online)
-            }
-        }
-        .sensoryFeedback(.start, trigger: started)
-        .sensoryFeedback(.stop, trigger: stopped)
-    }
-
-    private var detail: String {
-        guard photos.counted else { return "Đang đếm ảnh đã lưu…" }
-        if photos.running {
-            return "Đang tải · \(photos.saved)/\(photos.total) ảnh" + (photos.failed > 0 ? " · \(photos.failed) lỗi" : "")
-        }
-        if photos.complete { return "Đã lưu đủ \(photos.total) ảnh" }
-        var line = "\(photos.saved)/\(photos.total) ảnh đã lưu"
-        if photos.failed > 0 { line += " · \(photos.failed) ảnh chưa tải được" }
-        if !online { line += " · cần mạng" }
-        return line
-    }
-}
-
-/// A download's ring: filling while it runs (a square in it: tap to stop), an arrow while paused
-/// (tap to go on), a tick when done. As in the App Store and Podcasts.
-private struct ProgressRing: View {
-    enum Mode { case running, paused, done }
-    let value: Double
-    let mode: Mode
-
-    var body: some View {
-        ZStack {
-            Circle().stroke(.fill.tertiary, lineWidth: 2.5)
-            Circle()
-                .trim(from: 0, to: max(0.001, min(1, value)))
-                .stroke(mode == .done ? Color.green : .accentColor, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-            switch mode {
-            case .running:
-                RoundedRectangle(cornerRadius: 1.5).fill(Color.accentColor).frame(width: 8, height: 8)
-            case .paused:
-                Image(systemName: "arrow.down").font(.system(size: 11, weight: .bold)).foregroundStyle(Color.accentColor)
-            case .done:
-                Image(systemName: "checkmark").font(.system(size: 10, weight: .bold)).foregroundStyle(.green)
-            }
-        }
-        .frame(width: 26, height: 26)
-        // a bigger target than the ring, as a button needs
-        .frame(width: 44, height: 44)
-        .contentShape(Rectangle())
-        .animation(Motion.arrive, value: value)
-        .accessibilityValue(Text("\(Int(value * 100))%"))
-    }
-}
-
-// MARK: - Alternative days
-
-private struct AlternativesSection: View {
-    @Environment(AppModel.self) private var model
-
-    var body: some View {
-        let alts = model.store.trip.altDays
-        if !alts.isEmpty {
-            Section {
-                ForEach(alts) { alt in
-                    Toggle(isOn: binding(alt.key)) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(alt.title)
-                            Text("Thay ngày \(alt.replaces ?? alt.n) · \(Fmt.shortDate(alt.date))")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-            } header: {
-                Text("Lịch trình")
-            } footer: {
-                Text("Nhắc giờ, geofence và widget đi theo lựa chọn này.")
-            }
-        }
-    }
-
-    private func binding(_ key: String) -> Binding<Bool> {
-        Binding(
-            get: { model.alternatives.contains(key) },
-            set: { on in
-                if on { model.alternatives.insert(key) } else { model.alternatives.remove(key) }
-            })
-    }
-}
-
-// MARK: - Rehearsal clock
-
-private struct RehearsalSection: View {
-    @Environment(AppModel.self) private var model
-    @State private var picked = Date()
-    @State private var seeded = false
-    /// what the picker was set to, and whether that was the clock as it is: left there, it means
-    /// "now" however long the page stays open
-    @State private var seed = Date()
-    @State private var seededAtNow = false
-
-    private var range: ClosedRange<Date> {
-        let first = model.store.trip.days.first.flatMap { TripTime.midnight($0.date) } ?? Date()
-        let last = model.store.trip.days.last.flatMap { TripTime.midnight($0.date) } ?? Date()
-        return first.addingTimeInterval(-86400) ... last.addingTimeInterval(2 * 86400)
-    }
-
-    var body: some View {
-        Section {
-            DatePicker("Thời điểm", selection: $picked, in: range)
-                .environment(\.timeZone, TripTime.zone)
-            Button("Chạy thử từ thời điểm này") {
-                model.rehearse(at: effectivePick)
-                reseed()
-            }
-            // nothing to start: the picker at the clock as it is, or within a minute of it
-            .disabled(RehearsalClock.start(at: effectivePick, realNow: Date(), current: model.clockOffset) == nil)
-            if model.rehearsing {
-                LabeledContent("Đồng hồ chuyến đi") {
-                    Text(clockLabel(model.now)).monospacedDigit()
-                }
-                Button("Về giờ thật", role: .destructive) {
-                    model.endRehearsal()
-                    reseed()
-                }
-            }
-        } header: {
-            Text("Chạy thử")
-        } footer: {
-            Text("Giờ Nhật. Thông báo, widget và Live Activity chạy theo đồng hồ này. Những gì ghi trong lúc chạy thử (điểm đã đi, điểm bỏ, khoản chi, đồ đã mua) nằm ở một sổ riêng, không sang máy kia, và bị xoá khi về giờ thật.")
-        }
-        .onAppear {
-            guard !seeded else { return }
-            seeded = true
-            reseed()
-        }
-    }
-
-    /// The picker set to the trip clock as it is now (`Shared.now`: `model.now` moves only on the
-    /// minute), within the picker's range.
-    private func reseed() {
-        let now = Shared.now
-        seed = min(max(now, range.lowerBound), range.upperBound)
-        seededAtNow = seed == now
-        picked = seed
-    }
-
-    /// The instant the start button means: the trip clock as it is while the picker is left where it
-    /// was set at now, else what was picked.
-    private var effectivePick: Date {
-        seededAtNow && picked == seed ? Shared.now : picked
-    }
-
-    private func clockLabel(_ d: Date) -> String {
-        let c = TripTime.calendar.dateComponents([.day, .month], from: d)
-        return "\(c.day ?? 0)/\(c.month ?? 0) · \(TripTime.clock(d))"
-    }
-}
-
-// MARK: - Walking pace
-
-private struct PaceSection: View {
-    @Environment(AppModel.self) private var model
-
-    var body: some View {
-        let pace = model.pace
-        Section {
-            LabeledContent("Tốc độ đi bộ") {
-                Text("\(Fmt.decimal(3.9 * pace.factor, digits: 1)) km/h").monospacedDigit()
-            }
-            Text(summary(pace))
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        } header: {
-            Text("Đi bộ")
-        }
-    }
-
-    private func summary(_ pace: PaceModel) -> String {
-        guard pace.minutes >= 1 else { return "Chưa đo. Giờ đi bộ đang tính theo 3,9 km/h trên đường bằng, chậm hơn khi lên dốc." }
-        let delta = Int(((pace.factor - 1) * 100).rounded())
-        let base = "Đo từ \(Int(pace.minutes.rounded())) phút đi bộ."
-        if abs(delta) < 2 { return "Đúng như mô hình. " + base }
-        return (delta > 0 ? "Nhanh hơn mô hình \(delta)%. " : "Chậm hơn mô hình \(-delta)%. ") + base
-    }
-}
-
-// MARK: - Sources
-
-private struct SourcesSection: View {
-    @Environment(AppModel.self) private var model
-
-    var body: some View {
-        Section {
-            LabeledContent("Nghiên cứu", value: model.store.trip.meta.researched)
-            source("Bản đồ: OpenFreeMap", "https://openfreemap.org")
-            source("© OpenStreetMap", "https://www.openstreetmap.org/copyright")
-            source("Ảnh: Wikimedia Commons", "https://commons.wikimedia.org")
-            source("Quán ăn: Tabelog", "https://tabelog.com/en/")
-            Link(destination: model.forecasts.attribution?.legalPageURL ?? URL(string: "https://developer.apple.com/weatherkit/data-source-attribution/")!) {
-                Label("Dự báo:  Weather", systemImage: "cloud.sun")
-            }
-            // the fallback when the build has no WeatherKit entitlement; CC BY 4.0 asks for the credit
-            source("Dự báo: Open-Meteo", "https://open-meteo.com/")
-        } header: {
-            Text("Nguồn")
-        }
-    }
-
-    private func source(_ title: String, _ url: String) -> some View {
-        Link(destination: URL(string: url)!) {
-            Label(title, systemImage: "arrow.up.right.square")
         }
     }
 }

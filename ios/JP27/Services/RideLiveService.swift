@@ -71,6 +71,7 @@ import TripKit
     func select(_ ride: Ride, model: AppModel) {
         guard gate.select(ride.id) else { return }
         Perf.signposter.emitEvent("ride.select")
+        AppLog.info(.ride, "Chọn chuyến", ["ride": ride.id, "rehearsal": "\(model.rehearsing)"])
         // one ride at a time: close the previous one without waiting for it, and let go of it here, so that
         // nothing of this ride (a fix before `begin`, its end) reaches the previous one's activity
         if let old = activity, let last = lastState {
@@ -88,6 +89,8 @@ import TripKit
         followedAt = Shared.now
         lastPush = .distantPast
         self.ride = ride
+        // the screen kept on while it is followed, when Settings says so
+        model.keepAwakeForRide()
         let tracker = RideTracker(ride: ride, store: model.store)
         self.tracker = tracker
         timetableAlarm = WakePlanner(store: model.store).alarm(for: ride)
@@ -117,6 +120,7 @@ import TripKit
             activity = try? Activity.request(attributes: attributes, content: ActivityContent(state: state, staleDate: nil, relevanceScore: 100), pushType: nil)
         }
         lastState = state
+        AppLog.info(.ride, "Bắt đầu theo dõi chuyến", ["ride": ride.id, "activity": "\(activity != nil)"])
         update(model: model)
     }
 
@@ -135,7 +139,7 @@ import TripKit
         if let found, let fixedAt { tracker?.note(offTrackKm: found.offTrackKm, at: fixedAt) }
         if let followedAt, let why = tracker?.ending(arrivedAt: arrivedAt, followedAt: followedAt, tripNow: Shared.now, now: Date()) {
             // an arrival stays on the lock screen a while; a ride left or long past, its content wrong
-            close(ride, model: model, policy: why == .arrived ? .after(Date().addingTimeInterval(Self.arrivedLinger)) : .immediate, byClockMove: false)
+            close(ride, model: model, policy: why == .arrived ? .after(Date().addingTimeInterval(Self.arrivedLinger)) : .immediate, byClockMove: false, reason: "\(why)")
             return
         }
         // a position far off the track says nothing about this ride (still on the platform, or a wrong train)
@@ -187,6 +191,7 @@ import TripKit
             Task { await activity?.update(ActivityContent(state: state, staleDate: Date().addingTimeInterval(600), relevanceScore: state.alight ? 100 : 60)) }
         }
         if s.arrived, !ending {
+            AppLog.info(.ride, "Chuyến tới ga xuống", ["ride": ride.id])
             ending = true
             arrivedAt = Date()
             model.rideArrived(ride)
@@ -203,6 +208,7 @@ import TripKit
     /// Stops following the ride; with `only`, only if that is still the ride followed.
     func end(model: AppModel, immediately: Bool, only rideID: String? = nil) async {
         guard let ride, rideID == nil || ride.id == rideID, let claimed = claim(ride, model: model, byClockMove: false) else { return }
+        AppLog.info(.ride, "Kết thúc chuyến", ["ride": ride.id, "why": immediately ? "button" : "arrival"])
         await release(ride, claimed, model: model, policy: immediately ? .immediate : .after(Date().addingTimeInterval(Self.arrivedLinger)))
     }
 
@@ -211,14 +217,15 @@ import TripKit
     /// kept from starting again (`byClockMove`, decided in `RideClock.endIsKept`); the rehearsal's ended
     /// rides are forgotten, the real ones stay (`EndedRides`). Neither depends on the other's order.
     func clockMoved(model: AppModel) {
-        if let ride { close(ride, model: model, policy: .immediate, byClockMove: true) }
+        if let ride { close(ride, model: model, policy: .immediate, byClockMove: true, reason: "clock") }
         ends.offsetChanged()
     }
 
     /// A ride `RideTracker.ending` says is over, ended from a call that cannot wait for it: often a
     /// fix or a move that woke the app under the lock screen, so iOS waits for the end to be done.
-    private func close(_ ride: Ride, model: AppModel, policy: ActivityUIDismissalPolicy, byClockMove: Bool) {
+    private func close(_ ride: Ride, model: AppModel, policy: ActivityUIDismissalPolicy, byClockMove: Bool, reason: String) {
         guard let claimed = claim(ride, model: model, byClockMove: byClockMove) else { return }
+        AppLog.info(.ride, "Kết thúc chuyến", ["ride": ride.id, "why": reason])
         BackgroundWork.run(name: "Kết thúc chuyến") { await self.release(ride, claimed, model: model, policy: policy) }
     }
 
@@ -300,11 +307,9 @@ import TripKit
         }
     }
 
-    #if DEBUG
     /// When the followed ride ends on its own, by the clock (`RideTracker.deadline`), on the trip's
     /// clock, for the device checks.
     var deadline: Date? { followedAt.flatMap { tracker?.deadline(followedAt: $0) } }
-    #endif
 
     private func makeState(_ s: RideTracker.Status, model: AppModel) -> RideAttributes.ContentState {
         guard let ride else { return .init(next: "", nextJa: "", stopsLeft: 0, progress: 0, arrival: nil, fuji: nil, view: nil, alight: false, arrived: false) }

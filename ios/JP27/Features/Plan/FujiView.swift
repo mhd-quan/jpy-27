@@ -98,7 +98,7 @@ private struct FujiHero: View {
             // the terrain's picture, the live map under it once the page is on screen; a day chosen flies its
             // camera there (`Motion.travel`)
             FujiTerrainSnapshot(camera: shot, spots: shown, selection: nil,
-                                plotInset: EdgeInsets(top: 96, leading: 0, bottom: 180, trailing: 0))
+                                plotInset: EdgeInsets(top: 96, leading: 0, bottom: 180, trailing: 0), slot: .area)
                 .allowsHitTesting(false)
                 // a tap on the picture opens the map, as the button does
                 .overlay {
@@ -383,7 +383,8 @@ private struct FujiSpotAlbum: View {
             VStack(spacing: 0) {
                 Group {
                     if photos.isEmpty {
-                        FujiSightMap(spot: spot, inset: EdgeInsets(top: 96, leading: 24, bottom: 220, trailing: 24), scheme: canvas?.scheme)
+                        FujiSightMap(spot: spot, inset: EdgeInsets(top: 96, leading: 24, bottom: 220, trailing: 24), scheme: canvas?.scheme,
+                                     slot: .spot)
                             .dissolve([(1, 0), (1, 0.55), (0.7, 0.72), (0.25, 0.88), (0, 1)])
                     } else {
                         AmbientHero(photos: photos, page: $page)
@@ -415,7 +416,8 @@ private struct FujiSpotAlbum: View {
                     if !photos.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
                             SectionTitle("Tia ngắm")
-                            FujiSightMap(spot: spot, inset: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16), scheme: canvas?.scheme)
+                            FujiSightMap(spot: spot, inset: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16), scheme: canvas?.scheme,
+                                         slot: .sight)
                                 .frame(height: 220)
                                 .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                         }
@@ -547,10 +549,13 @@ private struct FujiSightMap: View {
     let inset: EdgeInsets
     /// the card's light or dark (`AmbientCanvas.scheme`), nil until its colour is read
     let scheme: ColorScheme?
+    /// the card's hero (no photographs) or the map under its photographs: each kept at its own size for the offline
+    /// readiness (`FujiTerrainPictures.wanted` builds the same camera, viewpoints and summit)
+    let slot: FujiTerrainPictures.Slot
 
     var body: some View {
         FujiTerrainSnapshot(camera: .spot(spot, summit: FujiSight.summit), spots: [spot], selection: spot.id,
-                            plotInset: inset, scheme: scheme)
+                            plotInset: inset, scheme: scheme, slot: slot)
             .allowsHitTesting(false)
     }
 }

@@ -246,12 +246,22 @@ import TripKit
 
         let ids = Set(wanted.map(\.id))
         let current = manager.monitoredRegions
+        var stopped = 0
         for region in current where !ids.contains(region.identifier) {
             manager.stopMonitoring(for: region)
+            stopped += 1
         }
         let have = Set(current.map(\.identifier))
-        guard isAlways, CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) else { return }
-        for f in wanted where !have.contains(f.id) {
+        guard isAlways, CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) else {
+            if stopped > 0 { AppLog.info(.location, "Đặt geofence", ["count": "0", "added": "0", "removed": "\(stopped)"]) }
+            return
+        }
+        let adding = wanted.filter { !have.contains($0.id) }
+        // only when the circles change: this runs at every move of the cursor
+        if stopped > 0 || !adding.isEmpty {
+            AppLog.info(.location, "Đặt geofence", ["count": "\(ids.count)", "added": "\(adding.count)", "removed": "\(stopped)"])
+        }
+        for f in adding {
             let region = CLCircularRegion(
                 center: CLLocationCoordinate2D(latitude: f.center.lat, longitude: f.center.lng),
                 radius: min(f.radius, manager.maximumRegionMonitoringDistance),
@@ -273,6 +283,8 @@ import TripKit
         // forget arrivals older than a day, so the record stays small
         last = last.filter { now.timeIntervalSince1970 - $0.value < 86400 }
         Shared.defaults.set(last, forKey: Self.enteredKey)
+        // the circle's centre is the plan's place, rounded all the same; never the phone's position
+        AppLog.info(.location, "Vào vùng", ["place": fence.placeID, "kind": fence.kind.rawValue, "at": LogRedact.text(fence.center)])
         onFence?(fence, true)
     }
 
@@ -324,7 +336,10 @@ extension LocationService: CLLocationManagerDelegate {
         Task { @MainActor in self.entered(id) }
     }
 
-    nonisolated func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: any Error) {}
+    nonisolated func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: any Error) {
+        // the region's identifier is the fence's kind and place id (`Fence.id`)
+        AppLog.error(.location, "Geofence lỗi", ["fence": region?.identifier ?? "none", "error": error.localizedDescription])
+    }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
         let arrival = visit.arrivalDate == .distantPast ? Date() : visit.arrivalDate

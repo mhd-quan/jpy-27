@@ -110,9 +110,9 @@ struct TripMap: UIViewRepresentable {
     /// a camera move asked for (`camera`) is a flight the eye follows (`Motion.travel`): under Reduce
     /// Motion it jumps. MapLibre keeps its own flight time; travel's 1.0 s does not set it.
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// Settings › Đo khung hình bản đồ: the map's own frame readings, over the map
+    /// Settings › Nhà phát triển › Đo khung hình bản đồ: the map's own frame readings, over the map
     @AppStorage(MapPacer.readingsKey) private var readings = false
-    /// Settings › Chẩn đoán › Bóng địa hình, only while measuring
+    /// Settings › Trải nghiệm › Bản đồ › Bóng địa hình, on every map
     @AppStorage(MapPacer.reliefKey) private var relief = false
 
     func makeCoordinator() -> Coordinator {
@@ -171,7 +171,7 @@ struct TripMap: UIViewRepresentable {
             return
         }
         guard c.loaded else { return }
-        c.showsRelief(readings && relief, in: map)
+        c.showsRelief(relief, in: map)
         c.apply(content, to: map)
         if c.frameID != frameID {
             c.frameID = frameID
@@ -231,7 +231,7 @@ struct TripMap: UIViewRepresentable {
                 applied = nil
                 built = false
                 relief = false
-                showsRelief(parent.readings && parent.relief, in: mapView)
+                showsRelief(parent.relief, in: mapView)
                 apply(parent.content, to: mapView)
                 if let camera = parent.camera {
                     cameraID = camera.id
@@ -306,8 +306,9 @@ struct TripMap: UIViewRepresentable {
 
         /// The hillshade the site draws and the app's style leaves out (scripts/export-ios.mjs: MapLibre
         /// Native renders each elevation tile it has loaded into a texture of its own on every frame, and
-        /// waits for each on the main thread), put back with the site's look while measuring, to see
-        /// with the readings what it costs: off, then on, then browse a while.
+        /// waits for each on the main thread), put back with the site's look when Settings › Bản đồ asks
+        /// for it ("Tốn pin hơn"); with the frame readings on, what it costs shows: off, then on, then browse
+        /// a while. Its elevation tiles come from the network and are in no offline pack.
         func showsRelief(_ on: Bool, in map: MLNMapView) {
             guard on != relief, let style = map.style else { return }
             relief = on
@@ -578,13 +579,16 @@ struct TripMap: UIViewRepresentable {
 /// does not: the panel and the glass over the map go on at 120, and a map held at 60 under them
 /// juddered against them (a recording at "máy nóng" showed it). Only a critical phone holds it.
 final class MapPacer {
+    /// Settings › Nhà phát triển › Đo khung hình bản đồ
     static let readingsKey = "debug.mapFrames"
-    /// Settings › Chẩn đoán, while the readings are on: the panel, the day strip and the buttons over
-    /// the map drawn without glass, to see what the glass costs the map's frames
-    static let glassKey = "debug.mapGlass"
-    /// Settings › Chẩn đoán, while the readings are on: the hillshade the app's style leaves out, put
-    /// back over the map (TripMap.Coordinator.showsRelief)
-    static let reliefKey = "debug.mapRelief"
+    /// Settings › Trải nghiệm › Bản đồ › Kính trên bản đồ, on by default: off, the panel, the day strip and
+    /// the buttons over the Map tab are drawn without glass (also to see what the glass costs the frames).
+    /// Not read from the old `debug.mapGlass` (R-603).
+    static let glassKey = "map.glass"
+    /// Settings › Trải nghiệm › Bản đồ › Bóng địa hình, off by default: the hillshade the app's style
+    /// leaves out, put back over every map (TripMap.Coordinator.showsRelief). Not read from the old
+    /// `debug.mapRelief` (R-603).
+    static let reliefKey = "map.relief"
 
     /// what the map asks for now
     private(set) var target = 60

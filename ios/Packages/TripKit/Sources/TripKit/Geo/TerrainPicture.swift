@@ -1,7 +1,7 @@
 import Foundation
 
 /// A picture of the 3D terrain round Fuji: `FujiTerrainSnapshot` in the app, drawn once by MapKit's
-/// snapshotter and kept in `Caches/Fuji`. This file holds four things.
+/// snapshotter and kept in `Application Support/Fuji`. This file holds four things.
 ///
 /// - Its name: the kind of shot (a day's area or one viewpoint), the size, the scale and the scheme.
 /// - The fingerprint stored beside it: the camera and the points it projects. A picture whose fingerprint
@@ -147,10 +147,11 @@ public enum TerrainPicture {
 
     /// The names to delete so the folder's pictures fit in `budget` bytes, sorted. A picture and its `.json` go
     /// together, counted as one, its use the newer of the two; the least recently used first, ties by stem, while
-    /// over the budget. A name the cache did not make (`parse`) is neither counted nor deleted.
-    public static func evicted(_ files: [StoredFile], toBytes budget: Int) -> [String] {
+    /// over the budget. A name the cache did not make (`parse`) is neither counted nor deleted. A picture whose stem is
+    /// in `keeping` (what Tải tất cả drew for no signal) counts toward the budget and is never deleted.
+    public static func evicted(_ files: [StoredFile], toBytes budget: Int, keeping: Set<String> = []) -> [String] {
         // the rule `MapSnapshots` trims by, with this cache's names
-        SnapshotKey.evictedPairs(files, toBytes: budget) { parse($0)?.stem }
+        SnapshotKey.evictedPairs(files, toBytes: budget, keeping: keeping) { parse($0)?.stem }
     }
 
     // MARK: Picture and live map

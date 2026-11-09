@@ -49,16 +49,50 @@ struct JP27App: App {
 /// behaviour per Apple DTS, and in practice CLMonitor's init asserted on every relaunch.
 final class JP27AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        // every launch, in the foreground or woken in the background
+        let bundle = Bundle.main
+        AppLog.info(.app, "Mở app", [
+            "version": bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
+            "build": bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "",
+            "ios": UIDevice.current.systemVersion,
+        ])
         AppModel.shared.location.start()
-        // the day's hitches, launch times and transitions, delivered once a day (Chẩn đoán › Số đo)
+        // the day's hitches, launch times and transitions, delivered once a day (Hỗ trợ › Số đo)
         MXMetricManager.shared.add(MetricsInbox.shared)
-        // the maps' pictures held to 40 MB, the old format's gone; off the main thread, and nothing waits for it
-        Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20) }
+        // the maps' pictures held to 40 MB, the old format's gone, never those Tải tất cả drew for no signal; off the
+        // main thread, and nothing waits for it
+        let keptMaps = MapSnapshots.offlineKeep
+        Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20, keeping: keptMaps) }
         // the album pages' pictures (Caches/Ambient) likewise, the least recently used going first
         Task(priority: .utility) { await PhotoCache.trimAmbient(toBytes: 40 << 20) }
-        // and the Fuji terrain's (Caches/Fuji), each picture with its points
-        Task(priority: .utility) { await FujiTerrainPictures.trim(toBytes: 40 << 20) }
+        // and the Fuji terrain's (Application Support/Fuji), each picture with its points, those kept for no signal spared
+        let keptFuji = FujiTerrainPictures.offlineKeep
+        Task(priority: .utility) { await FujiTerrainPictures.trim(toBytes: 40 << 20, keeping: keptFuji) }
+        // where the Fuji pictures and the forecasts were kept before they moved out of Caches
+        Task(priority: .utility) { await RetiredCaches.remove() }
         return true
+    }
+}
+
+/// The Caches folders the app kept the Fuji terrain pictures and the forecasts in before R-640 moved them to
+/// Application Support, out of iOS's purge, for no signal. Deleted at launch while they are there, off the main
+/// thread, so once in effect; nothing is moved from them (a Tải tất cả draws and fetches them again). A delete that
+/// fails is logged, and tried again at the next launch.
+nonisolated enum RetiredCaches {
+    static let names = ["Fuji", "Forecast"]
+
+    @concurrent static func remove() async {
+        let files = FileManager.default
+        for name in names {
+            let url = URL.cachesDirectory.appending(path: name, directoryHint: .isDirectory)
+            guard files.fileExists(atPath: url.path(percentEncoded: false)) else { continue }
+            do {
+                try files.removeItem(at: url)
+                AppLog.info(.offline, "Xoá thư mục cũ", ["folder": "Caches/\(name)"])
+            } catch {
+                AppLog.warning(.offline, "Không xoá được thư mục cũ", ["folder": "Caches/\(name)", "error": error.localizedDescription])
+            }
+        }
     }
 }
 

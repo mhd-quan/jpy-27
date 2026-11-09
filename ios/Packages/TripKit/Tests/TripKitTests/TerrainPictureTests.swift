@@ -2,9 +2,9 @@ import Foundation
 import Testing
 @testable import TripKit
 
-/// The Fuji terrain's picture (`FujiTerrainSnapshot` in the app): its name in `Caches/Fuji`, the fingerprint kept
-/// beside it that tells a stale one from the right one, the launch trim, and when the live map goes under the
-/// picture and the picture comes off it.
+/// The Fuji terrain's picture (`FujiTerrainSnapshot` in the app): its name in `Application Support/Fuji`, the
+/// fingerprint kept beside it that tells a stale one from the right one, the launch trim, and when the live map goes
+/// under the picture and the picture comes off it.
 @Suite struct TerrainPictureTests {
     private let summit = Coordinate(35.36064, 138.72743)
     private let camera = TerrainPicture.Camera(center: Coordinate(35.25, 138.95), distance: 52_000, heading: 308, pitch: 58)
@@ -152,6 +152,19 @@ import Testing
         #expect(TerrainPicture.evicted(read + other, toBytes: 150) == gone)
         #expect(TerrainPicture.evicted(read.reversed() + other, toBytes: 150) == gone)
         #expect(TerrainPicture.evicted(other + read.reversed(), toBytes: 150) == gone)
+    }
+
+    @Test func trimSparesThePicturesKeptForNoSignal() {
+        // the scheme a card is not shown in is never read: kept for Tải tất cả all the same
+        let files = [stored("area-4-10x10@1-dark.heic", 100), stored("area-4-10x10@1-dark.json", 10),
+                     stored("spot-a-10x10@1-light.heic", 100, minutes: 1), stored("spot-a-10x10@1-light.json", 10, minutes: 1)]
+        #expect(TerrainPicture.evicted(files, toBytes: 150) == ["area-4-10x10@1-dark.heic", "area-4-10x10@1-dark.json"])
+        #expect(TerrainPicture.evicted(files, toBytes: 150, keeping: ["area-4-10x10@1-dark"])
+            == ["spot-a-10x10@1-light.heic", "spot-a-10x10@1-light.json"])
+        #expect(TerrainPicture.evicted(files, toBytes: 0, keeping: ["area-4-10x10@1-dark", "spot-a-10x10@1-light"]).isEmpty)
+        // the stem the cache names a picture by is the one kept
+        let stem = TerrainPicture.stem(kind: .area, id: "4", width: 10, height: 10, scale: 1, dark: true)
+        #expect(stem.map { TerrainPicture.evicted(files, toBytes: 0, keeping: [$0]) } == ["spot-a-10x10@1-light.heic", "spot-a-10x10@1-light.json"])
     }
 
     @Test func trimTakesAPointsFileLeftWithoutItsPicture() {

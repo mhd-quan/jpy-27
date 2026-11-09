@@ -7,8 +7,10 @@ import TripKit
 import UIKit
 
 /// The basemap and its offline packs. The style is the site's own (src/lib/mapStyle.ts, exported to
-/// public/map/), on OpenFreeMap vector tiles; packs cover each area of the trip so the map works
-/// with no signal. Tiles are shared between styles, so the dark style reads the same packs.
+/// public/map/ and bundled), on OpenFreeMap vector tiles; packs cover each area of the trip, and the whole
+/// route zoomed out, so the map works with no signal. Tiles are shared between styles, so the dark style
+/// reads the same packs. A pack's style is the bundled one, which the app stores in MapLibre's database
+/// under the URL the pack names (`PackStyle`): no site has to serve it.
 ///
 /// A pack holds the tiles of one build, and is tagged with the build its style really held when it was
 /// made (`PackTag`). Where each area is (`phases`) is decided in TripKit, from what MapLibre says of its
@@ -22,6 +24,8 @@ import UIKit
         let name: String
         let sw: Coordinate
         let ne: Coordinate
+        /// the zoom levels its pack holds: 9–16 for an area, 5–10 for the whole route
+        let zoom: ClosedRange<Double>
     }
 
     /// Bundled copy, used by the map view: no network needed to read the style itself. If the tile
@@ -42,14 +46,13 @@ import UIKit
         return pinned ?? TileBuild(template: "pinned")
     }
 
-    /// The bundled style's tile build, and its name (`metadata["jp27:build"]`), which the site keeps that
-    /// very style under for good. Read once, for both (every pack report asks).
+    /// The bundled style's tile build, and its name (`metadata["jp27:build"]`), which a pack of the pinned
+    /// build names its style by (`PackStyle`). Read once, for both (every pack report asks).
     private nonisolated static let bundled: (build: TileBuild?, name: String?) = {
         let style = bundledStyle()
         return (style.flatMap { StyleInfo.build(style: $0) }, style.flatMap { StyleInfo.styleBuild(style: $0) })
     }()
     private static var pinned: TileBuild? { bundled.build }
-    private static var pinnedName: String? { bundled.name }
 
     /// Reads a file: needs no actor. Left on the main actor (the module's default), it could not be
     /// called from `bundled`'s initializer, which runs on none.
@@ -80,17 +83,27 @@ import UIKit
               let url = URL(string: template.replacingOccurrences(of: "{z}/{x}/{y}", with: "0/0/0"))
         else { return true }
         // no answer (offline, a timeout) says nothing about the build
-        guard let status = await fetch(url, timeout: 10)?.status else { return false }
+        guard let status = await fetch(url, timeout: 10)?.status else {
+            AppLog.info(.map, "Kiểm build tile", ["status": "none", "moved": "false"])
+            return false
+        }
         guard status == 404 || status == 410 else {
             // there: the map reads it (another answer says nothing either way)
-            if status == 200, currentTemplate != nil { move(to: nil) }
+            let back = status == 200 && currentTemplate != nil
+            if back { move(to: nil) }
+            AppLog.info(.map, "Kiểm build tile", ["status": "\(status)", "moved": "\(back)"])
             return true
         }
         // gone: the build OpenFreeMap names now
         guard let answer = await fetch(currentTileJSON, timeout: 10), answer.status == 200,
               let current = StyleInfo.build(tileJSON: answer.data)
-        else { return false }
-        if current.template != currentTemplate { move(to: current.template) }
+        else {
+            AppLog.info(.map, "Kiểm build tile", ["status": "\(status)", "moved": "false", "tilejson": "none"])
+            return false
+        }
+        let moves = current.template != currentTemplate
+        if moves { move(to: current.template) }
+        AppLog.info(.map, "Kiểm build tile", ["status": "\(status)", "moved": "\(moves)", "build": current.template])
         return true
     }
 
@@ -105,7 +118,7 @@ import UIKit
         NotificationCenter.default.post(name: tilesChanged, object: nil)
     }
 
-    /// A small file as it is served now (not from a cache: what a pack made now would get). Nil with no answer.
+    /// A small file as it is served now (not from a cache: what the server says today). Nil with no answer.
     private static func fetch(_ url: URL, timeout: TimeInterval) async -> (status: Int, data: Data)? {
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: timeout)
         guard let (data, response) = try? await URLSession.shared.data(for: request),
@@ -125,30 +138,24 @@ import UIKit
         return out
     }
 
-    /// Served by the site: a theme's style, pinned to the bundled build, or on OpenFreeMap's current one.
-    static func remoteStyle(dark: Bool, current: Bool = false) -> URL {
-        URL(string: "https://jpy27.delphyra.tech/map/jp27-\(dark ? "dark" : "light")\(current ? "-current" : "").json")!
+    /// Served by the site: a theme's style, pinned to the bundled build. Only for a bundle without its style
+    /// (`style(dark:)`); the packs never ask the site.
+    static func remoteStyle(dark: Bool) -> URL {
+        URL(string: "https://jpy27.delphyra.tech/map/jp27-\(dark ? "dark" : "light").json")!
     }
 
-    /// What a pack downloads its style from: the very style the app was built with, which the site keeps
-    /// for good under its name (scripts/export-ios.mjs), or, while the map reads OpenFreeMap's current
-    /// build, the site's `-current` style (its TileJSON names the build; it has no lasting copy).
-    private static func packStyle(current: Bool) -> URL {
-        #if DEBUG
-        // Settings › Chẩn đoán › Giả style khác bản: a name the site does not have, as when the app is newer
-        if fakeOtherStyle, !current, let fake = URL(string: "https://jpy27.delphyra.tech/map/jp27-light@debug-00000000.json") { return fake }
-        #endif
-        guard !current, let pinnedName, let url = URL(string: "https://jpy27.delphyra.tech/map/jp27-light@\(pinnedName).json") else {
-            return remoteStyle(dark: false, current: current)
-        }
-        return url
-    }
+    // MARK: The packs' style
 
-    #if DEBUG
-    /// For the device checklist: the next packs are made from a style the site does not have. Not kept
-    /// across launches.
-    static var fakeOtherStyle = false
-    #endif
+    /// Kept until then and never asked again (`mustRevalidate: false`): nothing answers its URL.
+    private static let packStyleExpiry = Date(timeIntervalSince1970: 1_893_456_000) // 2030-01-01 00:00 UTC
+    private static let unstored = "Không nạp được style của bản đồ"
+
+    /// The style a pack is made from, for the pinned build (`currentTemplate` nil) or OpenFreeMap's current
+    /// one. Reads a file and parses JSON: off the main actor.
+    @concurrent private nonisolated static func preparedStyle(currentTemplate: String?) async -> PackStyle.Prepared? {
+        guard let data = bundledStyle() else { return nil }
+        return PackStyle.prepare(bundled: data, pinnedName: bundled.name, currentTemplate: currentTemplate)
+    }
 
     // MARK: The areas
 
@@ -225,11 +232,20 @@ import UIKit
     /// the resources each area's pack had at its last report: one more is the network working again
     @ObservationIgnored private var counted: [String: UInt64] = [:]
     @ObservationIgnored private var watch: NSKeyValueObservation?
+    /// `watch` is being set up: its style stored first (`configure`), so a second call waits for that one
+    @ObservationIgnored private var preparing = false
+    /// The last style stored (`preloadStyle`): put back under a pack's own URL just before the pack resumes
+    /// (`record`). MapLibre links the style to a pack only once the pack is complete (or has found 200
+    /// resources already stored); until then it is a row of the ambient cache, which browsing the map can
+    /// push out, and a pack resumed without it would ask the network for it.
+    @ObservationIgnored private var lastStyle: PackStyle.Prepared?
     /// Each area whose pack is being made, and the number of the make that makes it: from `download` until the
     /// pack is added, or the area fails or is removed. A make that finds another number there (Xoá, then Tải,
     /// during "Đang chuẩn bị…") or none leaves the area alone, so no area gets two packs of one build.
     @ObservationIgnored private var making: [String: Int] = [:]
     @ObservationIgnored private var makes = 0
+    /// when each area's pack error was last logged, and how many were left out since (`logPackError`)
+    @ObservationIgnored private var packErrorLogged: [String: (at: CFTimeInterval, suppressed: Int)] = [:]
 
     override init() {
         super.init()
@@ -240,16 +256,24 @@ import UIKit
         NotificationCenter.default.addObserver(self, selector: #selector(tilesMoved(_:)), name: Self.tilesChanged, object: nil)
     }
 
-    /// One area per region of the plan, framed on its places with a margin.
+    /// One area per region of the plan, framed on its places with a margin, and first the whole route
+    /// zoomed out ("Toàn tuyến"), so the map zoomed out and the picture of a day across areas draw with no
+    /// signal. Set at once: the caller reads them next (`Downloads.back`). The packs are read once the style
+    /// they are made from is stored; each later call (every return to the app) stores it again.
     func configure(store: TripStore) {
         if areas.isEmpty {
             let names = ["tokyo": "Tokyo", "hakone": "Hakone", "kawaguchiko": "Kawaguchiko", "tokaido": "Shizuoka", "ise": "Ise", "toba": "Toba, Tōshijima", "shima": "Shima", "kyoto": "Kyoto, Uji", "nara": "Nara", "osaka": "Osaka, KIX"]
             let grouped = Dictionary(grouping: store.trip.places.filter { $0.role != "alt" || $0.area == "kawaguchiko" }, by: \.area)
-            areas = names.compactMap { id, name in
+            var all: [Area] = names.compactMap { id, name in
                 guard let pts = grouped[id]?.map(\.coordinate), let b = Geo.bounds(pts) else { return nil }
                 let pad = 0.012
-                return Area(id: id, name: name, sw: Coordinate(b.sw.lat - pad, b.sw.lng - pad), ne: Coordinate(b.ne.lat + pad, b.ne.lng + pad))
+                return Area(id: id, name: name, sw: Coordinate(b.sw.lat - pad, b.sw.lng - pad), ne: Coordinate(b.ne.lat + pad, b.ne.lng + pad),
+                            zoom: 9...16)
             }.sorted { $0.name < $1.name }
+            if let whole = OfflineArea.overview(of: all.map { (sw: $0.sw, ne: $0.ne) }) {
+                all.insert(Area(id: OfflineArea.overviewID, name: "Toàn tuyến", sw: whole.sw, ne: whole.ne, zoom: 5...10), at: 0)
+            }
+            areas = all
             // asked for by an earlier build, of an area this one does not have: it could never be made, and
             // would keep a download under way for ever
             let known = Set(areas.map(\.id))
@@ -260,16 +284,69 @@ import UIKit
             }
             for id in Set(phases.keys).subtracting(known) { phases[id] = nil }
         }
-        guard watch == nil else { return }
-        // `packs` is nil until MapLibre has read its database, a moment after it is first asked;
-        // it changes again whenever a pack is added or removed. The handler is @Sendable (on no
-        // actor), and KVO calls it synchronously inside MapLibre's own add and remove, which this
-        // object calls from `download`: so `refresh` runs on the next turn of the main actor, never
-        // in the middle of a download it would start again.
-        watch = MLNOfflineStorage.shared.observe(\.packs, options: [.initial]) { @Sendable [weak self] _, _ in
-            guard let self else { return }
-            Task { @MainActor in self.refresh() }
+        guard watch == nil else {
+            // back in the app: stored again, in case the cache let it go meanwhile (nobody waits for it)
+            Task { _ = await preloadStyle(currentTemplate: Self.currentTemplate) }
+            return
         }
+        guard !preparing else { return }
+        preparing = true
+        Task {
+            // Stored before the packs are read, so a pack resumed at launch (`record`) never asks the
+            // network for its style. Not stored (no bundled style), the packs are still read: an area made
+            // later says why it fails.
+            _ = await preloadStyle(currentTemplate: Self.currentTemplate)
+            // `packs` is nil until MapLibre has read its database, a moment after it is first asked;
+            // it changes again whenever a pack is added or removed. The handler is @Sendable (on no
+            // actor), and KVO calls it synchronously inside MapLibre's own add and remove, which this
+            // object calls from `download`: so `refresh` runs on the next turn of the main actor, never
+            // in the middle of a download it would start again.
+            watch = MLNOfflineStorage.shared.observe(\.packs, options: [.initial]) { @Sendable [weak self] _, _ in
+                guard let self else { return }
+                Task { @MainActor in self.refresh() }
+            }
+        }
+    }
+
+    /// Stores the style a pack of this build is made from (`currentTemplate` nil: the pinned build) in
+    /// MapLibre's database, under the URL the pack will name, and returns it once MapLibre says it is there:
+    /// a pack made or resumed after this reads it from the database. Nil when the app has no style to store,
+    /// or MapLibre said it could not store it.
+    private func preloadStyle(currentTemplate: String?) async -> PackStyle.Prepared? {
+        guard let prepared = await Self.preparedStyle(currentTemplate: currentTemplate), let url = URL(string: prepared.url) else {
+            AppLog.error(.offline, "Nạp style", ["build": currentTemplate ?? "pinned", "reason": "Không có style để nạp"])
+            return nil
+        }
+        let build = prepared.build.template
+        let key = prepared.url
+        // The handler is @Sendable (on no actor) and MapLibre calls it on the main queue
+        // (MLNOfflineStorage.h): it only hands the answer over (and logs a refusal, from plain strings).
+        // MapLibre 7.0.0 always calls it, once.
+        let stored = await withCheckedContinuation { (answer: CheckedContinuation<Bool, Never>) in
+            MLNOfflineStorage.shared.preload(prepared.style, for: url, modificationDate: nil, expirationDate: Self.packStyleExpiry,
+                                             eTag: nil, mustRevalidate: false) { _, error in
+                if let error { AppLog.error(.offline, "Nạp style", ["build": build, "url": key, "error": error.localizedDescription]) }
+                answer.resume(returning: error == nil)
+            }
+        }
+        guard stored else { return nil }
+        AppLog.info(.offline, "Nạp style", ["build": build, "url": key])
+        lastStyle = prepared
+        return prepared
+    }
+
+    /// Puts the last style stored back under the URL this pack names, when it holds the pack's build: the
+    /// pack resumed next finds it. No completion to wait for: MapLibre stores it and resumes the pack on one
+    /// queue, in that order. No style stored yet (a resume in the first moments of a launch): nothing is put
+    /// back and the resume is not held up; the store `configure` asked for is usually ahead of it in that
+    /// queue, but not always (a tap before that store is sent).
+    private func restoreStyle(for tag: PackTag) {
+        guard let last = lastStyle, last.build == tag.build else {
+            AppLog.warning(.offline, "Chưa có style để đặt lại", ["area": tag.area, "build": tag.build.template, "held": lastStyle?.build.template ?? "none"])
+            return
+        }
+        guard let url = URL(string: tag.styleURL) else { return }
+        MLNOfflineStorage.shared.preload(last.style, for: url, modifiedOn: nil, expiresOn: Self.packStyleExpiry, eTag: nil, mustRevalidate: false)
     }
 
     /// Looks at every pack: where each area is (`OfflineArea.settle`), the older packs of an area complete
@@ -362,37 +439,55 @@ import UIKit
         return Set(missing.map(\.id))
     }
 
-    /// Makes the areas' packs (each under its number in `making`), after a look at the style they will
-    /// download: it must be served, and hold the build the map reads, or the pack would hold tiles the map
-    /// never asks for. The map moving to another build during the look reads the style once more
-    /// (`OfflineArea.step`).
+    /// Makes the areas' packs (each under its number in `making`), after storing the style they are made
+    /// from, for the build the map read when asked (`preloadStyle`): the pack then reads it from MapLibre's
+    /// database, never from the network. It must hold the build the map reads, or the pack would hold tiles
+    /// the map never asks for; the map moving to another build during the store stores the style of that
+    /// one (`OfflineArea.step`).
+    ///
+    /// The build is read where a move writes it at once (`Self.mapBuild`, from `map.currentTemplate`, which
+    /// `move(to:)` sets before it posts), not from `mapBuild`, which follows only once `tilesMoved` has
+    /// stored the new style and looked at the packs: a make overlapping a move sees it, and stores again.
     private func make(_ asked: [(area: Area, number: Int)]) async {
         var left = asked
         var again = false
         while true {
-            let askedOn = mapBuild
-            let current = Self.currentTemplate != nil
-            let style = Self.packStyle(current: current)
-            let served = await Self.served(style, current: current)
+            let askedOn = Self.mapBuild
+            let prepared = await preloadStyle(currentTemplate: askedOn == Self.pinned ? nil : askedOn.template)
+            let served: ServedStyle = prepared.map { .files(style: $0.style, tileJSON: nil) } ?? .refused(Self.unstored)
             // after the wait: removed or made again by a later tap meanwhile, nothing to make here
             left = left.filter { still($0.area.id, $0.number) }
             guard !left.isEmpty else { return }
-            // `mapBuild` read after the wait: the map may have moved to another build meanwhile (`refresh`)
-            switch OfflineArea.step(served, mapBuild: mapBuild, askedOn: askedOn, again: again) {
+            // read again after the wait: the map may have moved to another build meanwhile (`move(to:)`)
+            switch OfflineArea.step(served, mapBuild: Self.mapBuild, askedOn: askedOn, again: again) {
             case .add(let build):
+                // a build comes only from a style stored: one URL for the region, its tag and the stored style
+                guard let prepared, let style = URL(string: prepared.url) else {
+                    abandon(left, because: Self.unstored)
+                    return
+                }
                 for (area, number) in left {
-                    add(area, tag: PackTag(area: area.id, build: build, styleURL: style.absoluteString), style: style, number: number)
+                    add(area, tag: PackTag(area: area.id, build: build, styleURL: prepared.url), style: style, number: number)
                 }
                 return
             case .again:
+                AppLog.info(.offline, "Bản đồ đổi build lúc nạp style, nạp lại", ["areas": left.map { $0.area.id }.sorted().joined(separator: ",")])
                 again = true
             case .fail(let reason):
-                for (area, _) in left {
-                    making[area.id] = nil
-                    // paused meanwhile: it stays paused, not failed (and, asked for no more, is not tried again)
-                    if phases[area.id] == .creating { set(area.id, .failed(reason)) }
-                }
+                abandon(left, because: reason)
                 return
+            }
+        }
+    }
+
+    /// The make is over for these areas, and they fail. One paused meanwhile stays paused, not failed (and,
+    /// asked for no more, is not tried again).
+    private func abandon(_ left: [(area: Area, number: Int)], because reason: String) {
+        for (area, _) in left {
+            making[area.id] = nil
+            if phases[area.id] == .creating {
+                set(area.id, .failed(reason))
+                AppLog.error(.offline, "Không tạo được vùng", ["area": area.id, "reason": reason])
             }
         }
     }
@@ -414,24 +509,10 @@ import UIKit
         return true
     }
 
-    private static func served(_ style: URL, current: Bool) async -> ServedStyle {
-        let unreachable = "Không kết nối được máy chủ bản đồ"
-        let failing = "Máy chủ bản đồ đang lỗi"
-        guard let answer = await fetch(style, timeout: 20) else { return .refused(unreachable) }
-        // no such style: the site has not been deployed with this build's yet
-        if answer.status == 404 { return .refused(OfflineArea.otherBuild) }
-        guard answer.status == 200 else { return .refused(failing) }
-        guard current else { return .files(style: answer.data, tileJSON: nil) }
-        // a `-current` pack holds the build OpenFreeMap's TileJSON names when it downloads
-        guard let tiles = await fetch(currentTileJSON, timeout: 20) else { return .refused(unreachable) }
-        guard tiles.status == 200 else { return .refused(failing) }
-        return .files(style: answer.data, tileJSON: tiles.data)
-    }
-
     private func add(_ area: Area, tag: PackTag, style: URL, number: Int) {
         let bounds = MLNCoordinateBounds(sw: CLLocationCoordinate2D(latitude: area.sw.lat, longitude: area.sw.lng),
                                          ne: CLLocationCoordinate2D(latitude: area.ne.lat, longitude: area.ne.lng))
-        let region = MLNTilePyramidOfflineRegion(styleURL: style, bounds: bounds, fromZoomLevel: 9, toZoomLevel: 16)
+        let region = MLNTilePyramidOfflineRegion(styleURL: style, bounds: bounds, fromZoomLevel: area.zoom.lowerBound, toZoomLevel: area.zoom.upperBound)
         let id = area.id
         // Swift imports an Objective-C completion handler as @Sendable, so this closure is on no
         // actor. MapLibre calls it on the main queue (MLNOfflineStorage.mm dispatches it there),
@@ -454,6 +535,7 @@ import UIKit
                 } else if ours, self.phases[id] == .creating {
                     // still asked for: a tap, or the next launch, tries again
                     self.set(id, .failed("Không tạo được vùng tải" + (failure.map { ": \($0)" } ?? "")))
+                    AppLog.error(.offline, "Không tạo được vùng", ["area": id, "reason": failure ?? "Không tạo được vùng tải"])
                 }
             }
         }
@@ -528,11 +610,17 @@ import UIKit
         guard let pack = note.object as? MLNOfflinePack, pack.state != .invalid, let tag = label(of: pack)?.tag,
               tag.build == mapBuild, areas.contains(where: { $0.id == tag.area }) else { return }
         let was = phases[tag.area]
+        // asked for until this report: complete now is complete just now (`record` lets go of the request),
+        // not a pack completed long ago and read again at a launch
+        let asked = requests.contains(tag.area)
         let (phase, show) = record(pack, tag: tag)
         guard show else { return }
         set(tag.area, phase)
         // complete just now: its older packs can go (`refresh`)
-        if case .complete = phase, was != phase { refresh() }
+        if case .complete = phase, was != phase {
+            if asked { AppLog.info(.offline, "Vùng xong", ["area": tag.area, "bytes": "\(pack.progress.countOfBytesCompleted)"]) }
+            refresh()
+        }
     }
 
     /// A tile or the style failed (posted on the main queue too). MapLibre keeps trying; the area
@@ -549,13 +637,35 @@ import UIKit
         case MLNErrorCode.badServerResponse.rawValue: text = "Máy chủ bản đồ đang lỗi, đang thử lại"
         default: text = "Lỗi tải, đang thử lại"
         }
-        if problems[tag.area] != text { problems[tag.area] = text }
+        if problems[tag.area] != text {
+            problems[tag.area] = text
+            logPackError(tag.area, code: error?.code)
+        }
         set(tag.area, record(pack, tag: tag, force: true).phase)
     }
 
-    /// The map moved to another tile build (posted on the main queue by `checkPinnedTiles`).
+    /// "Lỗi gói, đang thử lại", once a minute per area at most: on a network that comes and goes the area's
+    /// problem changes every few seconds, and the log would push older days out. The next line says how many
+    /// were left out.
+    private func logPackError(_ area: String, code: Int?) {
+        let now = CACurrentMediaTime()
+        if let last = packErrorLogged[area], now - last.at < 60 {
+            packErrorLogged[area] = (last.at, last.suppressed + 1)
+            return
+        }
+        var fields = ["area": area, "code": code.map { "\($0)" } ?? "none"]
+        if let skipped = packErrorLogged[area]?.suppressed, skipped > 0 { fields["suppressed"] = "\(skipped)" }
+        packErrorLogged[area] = (now, 0)
+        AppLog.warning(.offline, "Lỗi gói, đang thử lại", fields)
+    }
+
+    /// The map moved to another tile build (posted on the main queue by `checkPinnedTiles`): the style of
+    /// that build stored first, so the packs looked at anew (`refresh`) and resumed have it.
     @objc private func tilesMoved(_ note: Notification) {
-        refresh()
+        Task {
+            _ = await preloadStyle(currentTemplate: Self.currentTemplate)
+            refresh()
+        }
     }
 
     /// Where an area is, from its pack for the map's build (`OfflineArea.phase`). Starts the pack when the
@@ -569,7 +679,8 @@ import UIKit
         var state = PackState(rawValue: pack.state.rawValue) ?? .unknown
         if state == .inactive, requested {
             // asked for and not running: a pack just made (MapLibre hands it over inactive), or one
-            // stopped by a relaunch (packs come back inactive). On.
+            // stopped by a relaunch (packs come back inactive). On, its style put back first.
+            restoreStyle(for: tag)
             pack.resume()
             state = .active
         } else if state == .active, !requested {
@@ -635,14 +746,16 @@ import UIKit
 
 // MARK: - Downloads that outlast the page
 
-/// The trip's downloads (map areas, photos) belong to the app, not to the page that starts them:
-/// they go on while the travellers use the rest of the app, the page shows where they are whenever
-/// it is opened again, and what was asked for and not finished is picked up at the next launch.
+/// The trip's downloads (map areas, photos, the extras: day maps' pictures, Fuji pictures, forecasts) belong
+/// to the app, not to the page that starts them: they go on while the travellers use the rest of the app, the
+/// page shows where they are whenever it is opened again, and what was asked for and not finished is picked
+/// up at the next launch.
 ///
-/// A tap starts a job (`OfflineJob`), or adds to the one under way: its areas, and whether it takes the
-/// photos. It is saved, so a relaunch follows it again. It is over when nothing of it is under way, and
-/// only then said done or not (`OfflineJob.result`): "Xong" only when every area is complete for the
-/// build the map reads and every photo is on disk.
+/// A tap starts a job (`OfflineJob`), or adds to the one under way: its areas, whether it takes the photos,
+/// its extras (`OfflineExtras`), and whether it is Tải tất cả. It is saved, so a relaunch follows it again. It
+/// is over when nothing of it is under way, and only then said done or not (`OfflineJob.result`): "Xong" only
+/// when every area is complete for the build the map reads, every photo is on disk and every extra is all
+/// there; for Tải tất cả, only when the whole readiness list is, as one more look finds it.
 ///
 /// Leaving the app: a download started by a tap runs as a continued processing task (iOS 26), which
 /// the system shows as a Live Activity with its progress and a stop button, and lets run in the
@@ -651,11 +764,19 @@ import UIKit
 @Observable final class Downloads {
     let maps = OfflineMaps()
     let photos = OfflinePhotos()
+    /// what is ready for no signal, the maps and photos above among it (made at its first use: it holds the two)
+    @ObservationIgnored private(set) lazy var readiness = OfflineReadiness(maps: maps, photos: photos)
+    /// the day maps' pictures, the Fuji pictures and the forecasts a job takes (made at its first use, as `readiness`)
+    @ObservationIgnored private(set) lazy var extras = OfflineExtras(maps: maps, photos: photos, readiness: readiness)
 
     /// the download under way: every tap since the last one ended
     private var job: OfflineJob? = nil
     /// how the last one ended, for the page, until the next tap
     private(set) var ended: JobResult? = nil
+    /// Tải tất cả's end, waiting for one more look at the readiness list
+    private var concluding = false
+    /// the Live Activity's bar, which fills what is left of it when the job grows
+    @ObservationIgnored private var bar = JobBar()
     @ObservationIgnored private var task: BGContinuedProcessingTask?
     /// submitted, not started yet
     @ObservationIgnored private var asked = false
@@ -670,17 +791,36 @@ import UIKit
         let saved = Shared.defaults.data(forKey: Self.jobKey).flatMap { try? JSONDecoder().decode(OfflineJob.self, from: $0) }
         let areas = (saved?.areas ?? []).union(maps.requests)
         let withPhotos = saved?.photos ?? false
-        if !areas.isEmpty || withPhotos { job = OfflineJob(areas: areas, photos: withPhotos) }
+        // the extras run again once the app is made (`back`); those stopped before the app was ended stay stopped
+        let more = saved?.extras ?? []
+        let everything = saved?.everything ?? false
+        if !areas.isEmpty || withPhotos || !more.isEmpty {
+            job = OfflineJob(areas: areas, photos: withPhotos, extras: more, everything: everything)
+            extras.restore(more)
+            AppLog.info(.offline, "Tải tiếp việc tải dở", ["areas": areas.sorted().joined(separator: ","), "photos": "\(withPhotos)",
+                                                         "extras": OfflineExtras.names(more), "everything": "\(everything)"])
+        }
     }
 
-    /// Something is still going: an area of the download under way (or one asked for, made again at a
-    /// launch), or the photos.
-    var busy: Bool {
+    /// Something of the job is still going: an area of it (or one asked for, made again at a launch), the
+    /// photos, or one of its extras waiting its turn or under way.
+    private var working: Bool {
         if photos.running { return true }
+        if let job, extras.busy(job.extras) { return true }
         return (job?.areas ?? []).union(maps.requests).contains { maps.phases[$0]?.isUnderWay == true }
     }
 
-    /// How far the download under way is, 0…1: each area weighs one, the photos one more.
+    /// Something is still going, or the end of Tải tất cả waits for one more look at the list.
+    var busy: Bool {
+        working || concluding
+    }
+
+    /// the job's extras, in the list's order
+    private var members: [OfflineExtra] {
+        OfflineExtra.allCases.filter { job?.extras.contains($0) == true }
+    }
+
+    /// How far the download under way is, 0…1: each area weighs one, the photos one more, each extra one more.
     var fraction: Double {
         let areas = job?.areas ?? []
         var sum = maps.fraction(of: areas) * Double(areas.count)
@@ -689,15 +829,38 @@ import UIKit
             sum += photos.fraction
             weight += 1
         }
+        for extra in members {
+            sum += extras.fraction(extra)
+            weight += 1
+        }
         return weight > 0 ? sum / weight : 0
     }
 
-    /// "Bản đồ 3/10 vùng · Ảnh 120/180 · 42%": the download while it runs. How it ended is `ended`.
+    /// "Bản đồ 3/10 vùng · Fuji 12/69 · Dự báo · 42%": the parts of the download not all there yet (one that is
+    /// is left out, so the Live Activity's line reaches the part under way), and how far it is. A part waiting its
+    /// turn shows its last count; the one under way says what it waits for ("chờ mạng", "chờ mở app"). How it ended
+    /// is `ended`.
     var progressLine: String {
         var parts: [String] = []
         let areas = job?.areas ?? []
-        if !areas.isEmpty { parts.append("Bản đồ \(areas.filter(maps.complete.contains).count)/\(areas.count) vùng") }
-        if job?.photos == true || photos.running { parts.append("Ảnh \(photos.saved)/\(photos.total)") }
+        let complete = areas.filter(maps.complete.contains).count
+        if complete < areas.count { parts.append("Bản đồ \(complete)/\(areas.count) vùng") }
+        if job?.photos == true || photos.running, photos.running || !photos.complete { parts.append("Ảnh \(photos.saved)/\(photos.total)") }
+        for extra in members {
+            if case .finished? = extras.run.phases[extra] {
+                // over: said only short of all, with its count
+                guard let s = extras.state(extra), s.done < s.total else { continue }
+            }
+            let count = extras.run.progress(extra).map { " \($0.done)/\($0.total)" } ?? ""
+            switch extra {
+            case .dayMaps: parts.append("Ảnh bản đồ" + count)
+            case .fuji: parts.append("Fuji" + count)
+            case .forecasts: parts.append("Dự báo")
+            }
+            if case .running? = extras.run.phases[extra] {
+                if extras.waitingForNetwork { parts.append("chờ mạng") } else if extras.waitingForApp { parts.append("chờ mở app") }
+            }
+        }
         parts.append("\(Int(fraction * 100))%")
         return parts.joined(separator: " · ")
     }
@@ -718,13 +881,42 @@ import UIKit
         start(areas: [], photos: photos.running)
     }
 
+    /// One extra's own "Tải" on its row: the same run as Tải tất cả's, in the download under way or a new one.
+    func downloadExtra(_ extra: OfflineExtra) {
+        start(areas: [], photos: false, extras: [extra])
+    }
+
+    /// Tải tất cả: every map area missing, the photos, and the day maps, Fuji and the forecasts the readiness list says
+    /// are missing (`Readiness.plan`), in one job with one Live Activity, its end judged by the whole list. The language
+    /// packs are the page's to ask for, just before: their system prompts show over it.
+    func downloadEverything() {
+        let plan = Readiness.plan(readiness.states)
+        let areas = maps.downloadAll()
+        photos.download()
+        // the pictures that read ready with them: their pass only checks the disk, counts them and writes their keep list;
+        // and every part a stop still holds (`ExtrasRun.held`, always parts of this job), the ones already fresh with
+        // them, so none is left stopped under a job that then ends "Đã dừng" with every row ready (R-638); forecasts
+        // run again only where older than an hour (`ForecastService.hours`)
+        let more = OfflineExtra.forEverything(readiness.states).union(extras.run.held)
+        AppLog.info(.offline, "Tải tất cả", ["plan": plan.map(\.rawValue).joined(separator: ","),
+                                             "expensive": "\(AppModel.shared.network.expensive)"])
+        start(areas: areas, photos: photos.running, extras: more, everything: true)
+    }
+
     /// A tap: the download under way takes these too (one Live Activity for all of it), or a new one
-    /// starts. Saved, so a relaunch follows it; followed now, and the system asked to let it finish.
-    private func start(areas: Set<String>, photos withPhotos: Bool) {
-        guard !areas.isEmpty || withPhotos else { return }
-        job = OfflineJob(areas: (job?.areas ?? []).union(areas), photos: (job?.photos ?? false) || withPhotos)
+    /// starts. Saved, so a relaunch follows it; followed now, and the system asked to let it finish. The
+    /// extras are handed over before the first look at the job, so it is not over before they start.
+    private func start(areas: Set<String>, photos withPhotos: Bool, extras more: Set<OfflineExtra> = [], everything: Bool = false) {
+        guard !areas.isEmpty || withPhotos || !more.isEmpty else { return }
+        AppLog.info(.offline, "Bắt đầu tải", ["areas": areas.sorted().joined(separator: ","), "photos": "\(withPhotos)",
+                                             "extras": OfflineExtras.names(more), "everything": "\(everything)"])
+        job = OfflineJob(areas: (job?.areas ?? []).union(areas), photos: (job?.photos ?? false) || withPhotos,
+                         extras: (job?.extras ?? []).union(more), everything: (job?.everything ?? false) || everything)
         ended = nil
         saveJob()
+        extras.request(more)
+        // the bar does not step back: what is done from now on fills what is left of it
+        if let task { bar.grew(fraction: fraction, bar: task.progress.completedUnitCount) }
         keep()
     }
 
@@ -742,6 +934,7 @@ import UIKit
     func back() {
         endGrace()
         forgetUnknownAreas()
+        extras.back()
         if busy || job != nil { tick() }
     }
 
@@ -752,12 +945,15 @@ import UIKit
         let known = Set(maps.areas.map(\.id))
         guard !job.areas.isSubset(of: known) else { return }
         let areas = job.areas.intersection(known)
-        self.job = areas.isEmpty && !job.photos ? nil : OfflineJob(areas: areas, photos: job.photos)
+        self.job = areas.isEmpty && !job.photos && job.extras.isEmpty
+            ? nil : OfflineJob(areas: areas, photos: job.photos, extras: job.extras, everything: job.everything)
         saveJob()
     }
 
-    /// Leaving the app: without a continued task, what still downloads gets the usual half minute.
+    /// Leaving the app: without a continued task, what still downloads gets the usual half minute. A
+    /// picture of the extras drawn across this is drawn again.
     func leaving() {
+        extras.left()
         guard busy, task == nil, grace == .invalid else { return }
         grace = UIApplication.shared.beginBackgroundTask(withName: "Tải dữ liệu offline") {
             // called on the main thread, the time is up: MapLibre picks up where it was next time
@@ -784,6 +980,7 @@ import UIKit
             asked = true
         } catch {
             // not granted now: the downloads still run while the app is open, and for half a minute after
+            AppLog.warning(.offline, "Không xin được tải nền", ["error": error.localizedDescription])
         }
     }
 
@@ -818,7 +1015,8 @@ import UIKit
             return
         }
         task = started
-        started.progress.totalUnitCount = 1000
+        started.progress.totalUnitCount = JobBar.units
+        bar = JobBar()
         // the system's queue again, the moment the task has to stop
         started.expirationHandler = { @Sendable in
             Task { @MainActor in AppModel.shared.downloads.expired() }
@@ -832,9 +1030,11 @@ import UIKit
     /// the downloads pause where they are and say so ("Tiếp tục" picks them up); in it, they go on.
     private func expired() {
         guard let task else { return }
+        AppLog.warning(.offline, "Hệ thống dừng tải nền", ["background": "\(UIApplication.shared.applicationState == .background)"])
         if UIApplication.shared.applicationState == .background {
             maps.pauseAll()
             photos.pause()
+            extras.pause()
         }
         task.setTaskCompleted(success: false)
         self.task = nil
@@ -853,12 +1053,12 @@ import UIKit
 
     /// Returns whether to go on: while something is under way, and until the job can be judged.
     private func report() -> Bool {
-        guard busy || !judgeable else {
-            finish()
+        guard working || !judgeable else {
+            conclude()
             return false
         }
         if let task {
-            let units = Int64(fraction * 1000)
+            let units = bar.units(for: fraction)
             // the system reads a stuck bar as a stuck task: it only moves forward
             if units > task.progress.completedUnitCount { task.progress.completedUnitCount = units }
             let line = progressLine
@@ -871,16 +1071,36 @@ import UIKit
     }
 
     /// Whether how the job stands can be told: its areas' packs read (until then none has a phase worth
-    /// judging) and, when it takes the photos, the photos on disk counted.
+    /// judging), when it takes the photos the photos on disk counted, and its extras each over or stopped.
     private var judgeable: Bool {
         guard let job else { return true }
-        return (job.areas.isEmpty || maps.ready) && (!job.photos || photos.counted)
+        return (job.areas.isEmpty || maps.ready) && (!job.photos || photos.counted) && !extras.busy(job.extras)
+    }
+
+    /// The job can be judged. Tải tất cả first has the readiness list looked at once more (the pictures and the
+    /// forecasts counted again, the packs asked), so its end says what that look finds; what was started
+    /// meanwhile is followed again instead.
+    private func conclude() {
+        guard job?.everything == true else {
+            finish()
+            return
+        }
+        guard !concluding else { return }
+        concluding = true
+        Task {
+            await readiness.refresh()
+            concluding = false
+            if working || !judgeable { tick() } else { finish() }
+        }
     }
 
     /// The job is over: said done only when it is. The Live Activity's last line says how it ended; its
     /// bar is full only on success.
     private func finish() {
-        let result = job?.result(phases: maps.phases, photos: photoState, mapBuild: maps.mapBuild)
+        let result = job.map { job in
+            job.result(phases: maps.phases, photos: photoState, mapBuild: maps.mapBuild, extras: extras.states(job.extras),
+                       ready: readiness.states)
+        }
         if let task {
             if let result {
                 if result.success { task.progress.completedUnitCount = task.progress.totalUnitCount }
@@ -894,9 +1114,16 @@ import UIKit
             asked = false
         }
         endGrace()
+        if let result, let job {
+            let fields = ["areas": job.areas.sorted().joined(separator: ","), "done": "\(result.done)", "failed": result.failed.joined(separator: ","), "photos": "\(job.photos)",
+                          "extras": OfflineExtras.names(job.extras), "everything": "\(job.everything)", "subtitle": result.subtitle]
+            if result.success { AppLog.info(.offline, "Kết thúc tải", fields) } else { AppLog.warning(.offline, "Kết thúc tải", fields) }
+        }
         if let result { ended = result }
         job = nil
         saveJob()
+        // the parts are let go, and a stop kept for them with them
+        extras.forget()
     }
 
     /// The photos as the job's end reads them.

@@ -631,9 +631,8 @@ actor PhotoCache {
     }
 }
 
-#if DEBUG
 extension PhotoCache {
-    /// For the device check of Task 5.1a (Settings › Chẩn đoán › So màu ảnh): how far the tone read from
+    /// For the device check of Task 5.1a (Cài đặt › Hỗ trợ › Nhà phát triển › So màu ảnh): how far the tone read from
     /// the decode an album page draws (`derive`) strays from the one the 96 px thumbnail gave before
     /// (0,02 a channel at most passes), and, as the fallback, how far the tone of the veil's 160 px
     /// base, before its blur, strays. Read from the bundle; nothing is kept.
@@ -665,7 +664,6 @@ extension PhotoCache {
         var text: String { "\(Fmt.decimal(most, digits: 3)) (\(channel)) \(src)" }
     }
 }
-#endif
 
 // MARK: - Prefetch
 
@@ -701,11 +699,37 @@ enum Prefetch {
     /// The page a day opens into, measured on the home (`TodayHome`), which sits in the same navigation stack, under
     /// the same bars, as the day page it pushes: the width, the length `heroFrame` measures
     /// (`containerRelativeFrame`, the scroll view less its safe area), the screen's scale, the system's dark.
-    nonisolated struct Page: Sendable {
+    nonisolated struct Page: Codable, Equatable, Sendable {
         let width: CGFloat
         let length: CGFloat
         let scale: CGFloat
         let dark: Bool
+
+        /// a page that could be one: finite, at least a point each way, a screen's scale
+        var plausible: Bool {
+            width.isFinite && length.isFinite && scale.isFinite && width >= 1 && length >= 1 && scale >= 1 && scale <= 4
+        }
+    }
+
+    private static let pageKey = "prefetch.page"
+
+    /// The page as the home measured it last (`TodayHome`), kept across launches: the size the day maps are
+    /// counted and drawn at for use without signal (`OfflineReadiness`). Nil until measured, or when what is
+    /// kept cannot be read back as a page. Written only when it changes.
+    static var lastPage: Page? {
+        get {
+            guard let data = UserDefaults.standard.data(forKey: pageKey),
+                  let page = try? JSONDecoder().decode(Page.self, from: data), page.plausible else { return nil }
+            return page
+        }
+        set {
+            guard newValue != lastPage else { return }
+            if let newValue, newValue.plausible, let data = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(data, forKey: pageKey)
+            } else if newValue == nil {
+                UserDefaults.standard.removeObject(forKey: pageKey)
+            }
+        }
     }
 
     /// the day page's hero on `page` (`heroFrame(fraction: DayPage.heroFraction)`)
@@ -798,24 +822,77 @@ enum Prefetch {
     /// page's own from the disk (`MapSnapshots.store`).
     private static func dayMap(_ day: Day, photo: Photo?, model: AppModel, moment: Moment, page: Page,
                                ticket: NewestFew<String>.Ticket) async {
-        let size = mapSize(page)
-        guard size.width >= 1 else { return }
-        let system: ColorScheme = page.dark ? .dark : .light
-        // the colour the page will be made with: read when it is made, as here (`PageTone.init`)
-        let canvas = PageTone(photo).canvas(dim: page.dark)
-        let known = photo == nil || canvas != nil
-        let scheme = DayPage.mapScheme(photo: photo, canvas: canvas, system: system) ?? system
-        let printed = await fingerprinted(.day(day, model: model))
-        guard !Task.isCancelled else { return }
-        let request = MapSnapshots.Request(printed, frameID: day.key, insets: DayPage.mapInsets, size: size,
-                                           scale: page.scale, dark: scheme == .dark)
+        guard let ask = await dayMapAsk(day, photo: photo, model: model, page: page), !Task.isCancelled else { return }
+        let request = ask.request
         // read here, after the last wait and just before the draw: a touch that came during the colour or the
         // fingerprint keeps this run from drawing
-        if moment == .rest, known, !touched.contains(ticket) {
+        if moment == .rest, ask.known, !touched.contains(ticket) {
             _ = await MapSnapshots.shared.snapshot(for: request)
         } else {
             _ = await MapSnapshots.shared.stored(request)
         }
+    }
+
+    /// A day's map picture as the offline readiness and Tải tất cả count it. A day whose page sets its own scheme (a
+    /// photograph's colour, or Giao diện on Sáng or Tối) needs the picture in that scheme. One whose page follows the
+    /// system's light and dark (no photograph, Giao diện on "Tự động": day 12 today) turns with sunrise and sunset, and
+    /// a picture of either scheme counts for it (`Readiness.dayMapReady`, R-640). The pruning of a frame's other
+    /// pictures is left as it is (`SnapshotKey.stale`): one picture of the day stays on disk.
+    struct DayMapPicture {
+        /// the picture the day page asks for now: the one drawn when none that counts is on disk
+        let request: MapSnapshots.Request
+        /// the same picture in the other scheme, for a day that follows the system's; nil for any other day
+        let other: MapSnapshots.Request?
+
+        /// Whether a picture that counts is on disk (memory is not asked). The other scheme is looked for only where
+        /// it counts, and only when the page's own is not there.
+        func isOnDisk() async -> Bool {
+            let own = await MapSnapshots.shared.isOnDisk(request)
+            var otherOnDisk = false
+            if !own, let other { otherOnDisk = await MapSnapshots.shared.isOnDisk(other) }
+            return Readiness.dayMapReady(own: own, other: otherOnDisk, followsSystem: other != nil)
+        }
+
+        /// What the launch trim spares for no signal (`MapSnapshots.offlineKeep`): every picture that counts.
+        var stems: [String] {
+            [request.key.stem] + (other.map { [$0.key.stem] } ?? [])
+        }
+    }
+
+    /// The picture of a day's map the day page will ask for on `page` (`PlanDayHeader`'s `StaticTripMap`), for the
+    /// offline readiness count and for drawing it ahead (Task 6), with the other scheme's where it counts too. Nil when
+    /// the page's light or dark cannot be told yet: the day has a photograph whose colour has not been read
+    /// (`PhotoCache.knownTone`), and a picture asked for in the system's scheme then would be the wrong one, and would
+    /// prune the right one once drawn.
+    static func dayMapRequest(_ day: Day, photo: Photo?, model: AppModel, page: Page) async -> DayMapPicture? {
+        guard let ask = await dayMapAsk(day, photo: photo, model: model, page: page), ask.known else { return nil }
+        return DayMapPicture(request: ask.request, other: ask.other)
+    }
+
+    /// What `dayMap` and `dayMapRequest` both ask, made in one place so the two never name different pictures: the
+    /// content, the frame, the insets, the size, the scale and the scheme of the day page's map, and whether that
+    /// scheme is known (no photograph, or its colour read); for a day whose scheme follows the system's, the same
+    /// picture in the other scheme. Nil for a page too narrow for a map.
+    private static func dayMapAsk(_ day: Day, photo: Photo?, model: AppModel, page: Page) async
+        -> (request: MapSnapshots.Request, known: Bool, other: MapSnapshots.Request?)? {
+        let size = mapSize(page)
+        guard size.width >= 1 else { return nil }
+        let system: ColorScheme = page.dark ? .dark : .light
+        // the colour the page will be made with: read when it is made, as here (`PageTone.init`)
+        let canvas = PageTone(photo).canvas(dim: page.dark)
+        let known = photo == nil || canvas != nil
+        let own = DayPage.mapScheme(photo: photo, canvas: canvas, system: system)
+        let scheme = own ?? system
+        // the system's own light and dark, not one Giao diện sets (what `RootView` applies, read as it stores it)
+        let automatic = (Appearance(rawValue: UserDefaults.standard.string(forKey: Appearance.key) ?? "") ?? .system) == .system
+        let printed = await fingerprinted(.day(day, model: model))
+        let request = MapSnapshots.Request(printed, frameID: day.key, insets: DayPage.mapInsets, size: size,
+                                           scale: page.scale, dark: scheme == .dark)
+        let other = own == nil && automatic
+            ? MapSnapshots.Request(printed, frameID: day.key, insets: DayPage.mapInsets, size: size, scale: page.scale,
+                                   dark: scheme != .dark)
+            : nil
+        return (request, known, other)
     }
 
     /// The day's hero: its album picture at the page's hero size; in Low Power Mode, or with no page measured, the
@@ -918,6 +995,10 @@ enum Prefetch {
                     if !Task.isCancelled, let url = queue.next() { group.addTask { await PhotoCache.fetch(url) } }
                 }
             }
+            // the pass is over: one line, never one per photo
+            let stopped = Task.isCancelled
+            let fields = ["saved": "\(saved)", "failed": "\(failed)", "total": "\(list.count)", "paused": "\(stopped)"]
+            if failed > 0 { AppLog.warning(.offline, "Ảnh tải xong", fields) } else { AppLog.info(.offline, "Ảnh tải xong", fields) }
             if !Task.isCancelled, failed == 0 { Shared.defaults.set(false, forKey: Self.wantedKey) }
             // the last ones arrived while it was being paused: nothing is left to go on with
             if saved >= list.count, paused { paused = false }
@@ -1171,11 +1252,12 @@ enum HeroExporter {
         synth.delegate = self
     }
 
-    func say(_ ja: String, slow: Bool = false) {
+    /// Reads `ja`; `slow` true for "Đọc chậm", nil for the pace chosen in Settings (`SpeechPace`).
+    func say(_ ja: String, slow: Bool? = nil) {
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         let u = AVSpeechUtterance(string: ja)
         u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
-        u.rate = slow ? 0.38 : AVSpeechUtteranceDefaultSpeechRate
+        u.rate = (slow ?? (SpeechPace.current == .slow)) ? SpeechPace.slowRate : AVSpeechUtteranceDefaultSpeechRate
         asked += 1
         let line = asked
         waiting = (line, u)
@@ -1206,6 +1288,30 @@ enum HeroExporter {
         speaking = nil
         voice.set(false)
         AudioSessionController.send(.speakerDone)
+    }
+}
+
+/// Settings › Trải nghiệm › Đọc tiếng Nhật: the pace of the plain read button (a tap, the show card, a station's
+/// announcement). "Đọc chậm" is slow whatever is chosen.
+nonisolated enum SpeechPace: String, CaseIterable, Identifiable, Sendable {
+    case normal, slow
+
+    static let key = "talk.pace"
+    /// the slow reading's rate, for "Đọc chậm" and for this choice
+    static let slowRate: Float = 0.38
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .normal: "Bình thường"
+        case .slow: "Chậm"
+        }
+    }
+
+    /// as stored by the Settings picker (`@AppStorage`, the standard defaults); normal when unset
+    static var current: SpeechPace {
+        UserDefaults.standard.string(forKey: key).flatMap(SpeechPace.init(rawValue:)) ?? .normal
     }
 }
 
@@ -1242,8 +1348,6 @@ extension Speaker: AVSpeechSynthesizerDelegate {
     private static var release: Task<Void, Never>?
     /// the system's audio services restarting, watched from the first event on
     private static var resetWatch: (any NSObjectProtocol)?
-    /// what went wrong with the audio session, in the device log (Console, subsystem tech.delphyra.jp27)
-    private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "audio")
 
     /// Decides on `event` now and queues its session work at once, behind everything decided before it. `done`
     /// runs on the main actor once that work has run, even when there was none, with the step that failed.
@@ -1306,9 +1410,9 @@ extension Speaker: AVSpeechSynthesizerDelegate {
         let commands = plan.handle(.failed(failure.failure, generation: generation))
         let step = String(describing: failure.failure.step)
         if commands.contains(where: { if case .retry = $0 { true } else { false } }) {
-            log.notice("audio session \(step, privacy: .public) busy, tried again in \(AudioSessionPlan.busyRetryAfter) ms: \(failure.message, privacy: .public)")
+            AppLog.warning(.talk, "Phiên âm thanh bận, thử lại", ["step": step, "after": "\(AudioSessionPlan.busyRetryAfter)", "error": failure.message])
         } else {
-            log.error("audio session \(step, privacy: .public) failed: \(failure.message, privacy: .public)")
+            AppLog.error(.talk, "Phiên âm thanh lỗi", ["step": step, "error": failure.message])
         }
         // the plan answers a failure with a retry's wait or nothing: no step, and nobody waits on it, so no batch
         let steps = schedule(commands)

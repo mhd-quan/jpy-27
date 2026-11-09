@@ -46,8 +46,35 @@ import WeatherKit
     /// (FujiView asks for two forecasts at once, and one outage fails both)
     private var refusals = FailureStreak()
 
-    private var folder: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("Forecast", isDirectory: true)
+    private var folder: URL { Self.folder }
+
+    /// `Application Support/Forecast`: kept for no signal, where iOS does not purge as it does Caches (a forecast cannot
+    /// be fetched again offline), but out of the iCloud backup (fetched again).
+    private nonisolated static let folder: URL = {
+        var url = URL.applicationSupportDirectory.appending(path: "Forecast", directoryHint: .isDirectory)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? url.setResourceValues(values)
+        return url
+    }()
+
+    /// When the forecast kept for `key` was fetched (the real clock): from memory, else from its file on disk, read
+    /// off the main thread for its date only. Nil when there is none. It loads nothing into `series`, so no forecast
+    /// on screen is drawn again for it.
+    func fetched(_ key: String) async -> Date? {
+        if let s = series[key] { return s.fetched }
+        return await Self.fetchedOnDisk(key)
+    }
+
+    /// Only the date of a kept forecast (`Series.fetched`).
+    private nonisolated struct Stamp: Decodable {
+        let fetched: Date
+    }
+
+    @concurrent private nonisolated static func fetchedOnDisk(_ key: String) async -> Date? {
+        guard let data = try? Data(contentsOf: folder.appendingPathComponent("\(key).json")) else { return nil }
+        return (try? JSONDecoder().decode(Stamp.self, from: data))?.fetched
     }
 
     /// Hours for a key ("summit", or a place id), refreshed when older than an hour and online.
@@ -58,16 +85,23 @@ import WeatherKit
             let ticket = refusals.ticket()
             do {
                 let s = Series(fetched: Date(), hours: try await Self.fromWeatherKit(c), source: .weatherKit)
+                AppLog.info(.forecast, "Dự báo tải xong", ["key": key, "source": Source.weatherKit.rawValue])
                 refusals.succeeded()
                 if attribution == nil { attribution = try? await WeatherService.shared.attribution }
                 return keep(s, as: key)
             } catch {
+                // the description only: a URL error's full text names the request, the place's position in it
+                AppLog.warning(.forecast, "WeatherKit lỗi", ["key": key, "error": error.localizedDescription, "network": "\(Self.isNetwork(error))"])
                 failedWeatherKit(error, ticket: ticket)
             }
         }
         do {
-            return keep(Series(fetched: Date(), hours: try await Self.fromOpenMeteo(c), source: .openMeteo), as: key)
+            let s = Series(fetched: Date(), hours: try await Self.fromOpenMeteo(c), source: .openMeteo)
+            AppLog.info(.forecast, "Dự báo tải xong", ["key": key, "source": Source.openMeteo.rawValue])
+            return keep(s, as: key)
         } catch {
+            // the description only: the URL, with the place's latitude and longitude, stays out
+            AppLog.warning(.forecast, "Không tải được dự báo", ["key": key, "source": Source.openMeteo.rawValue, "error": error.localizedDescription])
             failed = true
             return series[key]?.hours ?? []
         }
@@ -80,10 +114,14 @@ import WeatherKit
         weatherKitRests = Date().addingTimeInterval(5 * 60)
         if let e = error as? WeatherError, case .permissionDenied = e {
             weatherKit = false
+            AppLog.warning(.forecast, "Tạm bỏ WeatherKit", ["why": "permission"])
             return
         }
         guard !Self.isNetwork(error) else { return }
-        if refusals.failed(ticket) >= 2 { weatherKit = false }
+        if refusals.failed(ticket) >= 2 {
+            weatherKit = false
+            AppLog.warning(.forecast, "Tạm bỏ WeatherKit", ["why": "repeated"])
+        }
     }
 
     /// A failure of the connection, not of the service: offline, a timeout, a cancelled request.

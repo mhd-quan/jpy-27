@@ -289,6 +289,21 @@ final class MapSnapshots {
     private var running: [String: Task<MapSnapshot?, Never>] = [:]
     /// the snapshotters' delegates, held while they draw (a snapshotter holds its delegate weakly)
     private var stylers: [ObjectIdentifier: SnapshotStyler] = [:]
+    /// a snapshotter drawing, and its waiter
+    private struct Rendering {
+        let snapshotter: MLNMapSnapshotter
+        let done: CheckedContinuation<MapSnapshot?, Never>
+    }
+
+    /// the snapshotters drawing, by number: whichever of its answer and its cap comes first resumes it
+    private var rendering: [Int: Rendering] = [:]
+    /// numbers the drawings
+    private var serial = 0
+    /// A drawing not back by then is given up. A page-sized picture comes back in seconds, its tiles from the packs or
+    /// the network (MapLibre waits for and retries each tile itself), so one this late is stuck: drawn across the app
+    /// going away, where the snapshotter may never answer, and a page or Tải tất cả waiting on it would wait for the rest
+    /// of the launch. Twice Fuji's 15 s, as a picture here may wait on many tiles over a slow signal.
+    private static let cap: Duration = .seconds(30)
 
     private nonisolated static let folder: URL = {
         let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("MapSnapshots", isDirectory: true)
@@ -308,6 +323,55 @@ final class MapSnapshots {
         keep(saved, as: request.key)
         return saved
     }
+
+    /// The picture and its pins, both on disk: `read` needs the two. Nothing is read, decoded or kept, and the file's
+    /// last use is left as it is. The file names carry the whole key (`SnapshotKey.make` hashes every input, the
+    /// content's fingerprint with them), so the picture and its pins being there is the answer.
+    @concurrent private nonisolated static func onDisk(_ key: SnapshotKey) async -> Bool {
+        let files = FileManager.default
+        return files.fileExists(atPath: folder.appendingPathComponent(key.pointsFileName).path(percentEncoded: false))
+            && files.fileExists(atPath: folder.appendingPathComponent(key.fileName).path(percentEncoded: false))
+    }
+
+    // MARK: For no signal (Tải tất cả)
+
+    /// Whether the picture and its pins are on disk: what a launch with no signal finds, and what the offline
+    /// readiness counts. Memory is not asked.
+    func isOnDisk(_ request: Request) async -> Bool {
+        await Self.onDisk(request.key)
+    }
+
+    /// Draws the picture for use with no signal unless it is on disk, and waits for its files: true once they are
+    /// there. A drawing of the same picture under way (a page's) is waited for, not made twice, and a page asking
+    /// meanwhile shares this one. Nothing is kept in memory: the eighty or so pictures Tải tất cả draws in turn would
+    /// push out what the open pages show. Stored only when `keep()` still holds once it is drawn (the signal held, the
+    /// app stayed in front: a picture drawn while the app went away may be blank).
+    func drawForKeeping(_ request: Request, keep: () -> Bool) async -> Bool {
+        let key = request.key
+        if await Self.onDisk(key) { return true }
+        let name = key.fileName
+        let made: MapSnapshot?
+        if let task = running[name] {
+            made = await task.value
+        } else {
+            let task = Task { await self.render(request) }
+            running[name] = task
+            made = await task.value
+            if running[name] == task { running[name] = nil }
+        }
+        guard let made, keep() else { return false }
+        await Self.store(made, as: key)
+        return await Self.onDisk(key)
+    }
+
+    /// The pictures Tải tất cả drew for no signal, by `SnapshotKey.stem`: the launch trim spares them. Each pass's set
+    /// replaces the last.
+    static var offlineKeep: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: offlineKeepKey) ?? []) }
+        set { UserDefaults.standard.set(newValue.sorted(), forKey: offlineKeepKey) }
+    }
+
+    private static let offlineKeepKey = "offline.keep.maps"
 
     /// The picture from memory, the disk, or drawn now: one drawing per picture at a time.
     func snapshot(for request: Request) async -> MapSnapshot? {
@@ -341,7 +405,10 @@ final class MapSnapshots {
 
     /// On the main thread: MapLibre starts a snapshotter there, and the style work (`SnapshotStyler`)
     /// stays there. The picture shows every stop as not visited (`MapContent.unvisited`); where each pin
-    /// landed is read from the snapshot as it comes back, on the main queue.
+    /// landed is read from the snapshot as it comes back, on the main queue. Whichever comes first resumes the
+    /// waiter once: the answer, or the 30 s cap (`cap`), which also cancels the snapshotter; an answer coming
+    /// later finds nothing to resume and is dropped, never stored. Given up, the picture is nil: a page shows
+    /// none, and Tải tất cả counts it not made in this pass.
     private func render(_ request: Request) async -> MapSnapshot? {
         Perf.mark("map.snapshot")
         let drawn = request.content.unvisited
@@ -357,21 +424,40 @@ final class MapSnapshots {
         defer { stylers[id] = nil }
         let pins = drawn.pins
         let dark = request.dark
+        serial += 1
+        let n = serial
+        let cap = Task { [weak self] in
+            try? await Task.sleep(for: Self.cap)
+            guard !Task.isCancelled else { return }
+            self?.rendered(n, nil)
+        }
+        defer { cap.cancel() }
         return await withCheckedContinuation { (done: CheckedContinuation<MapSnapshot?, Never>) in
-            // started on the main thread, as MapLibre insists; the snapshotter keeps itself alive
-            // until it calls back
+            rendering[n] = Rendering(snapshotter: snapshotter, done: done)
+            // started on the main thread, as MapLibre insists; held in `rendering` until it calls back or is
+            // given up
             snapshotter.start { snapshot, _ in
-                guard let snapshot else {
-                    done.resume(returning: nil)
-                    return
+                var made: MapSnapshot?
+                if let snapshot {
+                    var points: [String: CGPoint] = [:]
+                    for pin in pins where points[pin.id] == nil {
+                        points[pin.id] = snapshot.point(for: CLLocationCoordinate2D(latitude: pin.coordinate.lat, longitude: pin.coordinate.lng))
+                    }
+                    made = MapSnapshot(image: snapshot.image, points: points, dark: dark)
                 }
-                var points: [String: CGPoint] = [:]
-                for pin in pins where points[pin.id] == nil {
-                    points[pin.id] = snapshot.point(for: CLLocationCoordinate2D(latitude: pin.coordinate.lat, longitude: pin.coordinate.lng))
-                }
-                done.resume(returning: MapSnapshot(image: snapshot.image, points: points, dark: dark))
+                let answer = made
+                // called on the main queue (MapLibre's header); the drawings under way are kept on the main actor
+                Task { @MainActor [weak self] in self?.rendered(n, answer) }
             }
         }
+    }
+
+    /// Drawing `n` answered (`made`), or was given up (nil): its waiter resumes, once; given up, the snapshotter
+    /// stops ("Once you call this method, you cannot resume the snapshot"), and MapLibre lets go of its answer.
+    private func rendered(_ n: Int, _ made: MapSnapshot?) {
+        guard let r = rendering.removeValue(forKey: n) else { return }
+        if made == nil { r.snapshotter.cancel() }
+        r.done.resume(returning: made)
     }
 
     /// `MapFraming` (TripKit), as `TripMap.Coordinator.fit` frames the live map: a lone place centred at street
@@ -444,8 +530,9 @@ final class MapSnapshots {
     }
 
     /// At launch: the old format's pictures (`<key>.png`), then the least recently used ones until the
-    /// folder's pictures fit in `budget` bytes (`SnapshotKey.evicted`), in this folder only.
-    @concurrent nonisolated static func trim(toBytes budget: Int) async {
+    /// folder's pictures fit in `budget` bytes (`SnapshotKey.evicted`), in this folder only; never one of `keeping`
+    /// (`offlineKeep`).
+    @concurrent nonisolated static func trim(toBytes budget: Int, keeping: Set<String> = []) async {
         let files = FileManager.default
         let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
         guard let urls = try? files.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys) else { return }
@@ -453,13 +540,12 @@ final class MapSnapshots {
             guard let values = try? url.resourceValues(forKeys: Set(keys)) else { return nil }
             return SnapshotKey.StoredFile(name: url.lastPathComponent, bytes: values.fileSize ?? 0, used: values.contentModificationDate ?? .distantPast)
         }
-        for name in SnapshotKey.evicted(listed, toBytes: budget) {
+        for name in SnapshotKey.evicted(listed, toBytes: budget, keeping: keeping) {
             try? files.removeItem(at: folder.appendingPathComponent(name, isDirectory: false))
         }
     }
 
-    #if DEBUG
-    /// Settings › Chẩn đoán (Debug): the pictures on disk and what the folder holds, "12 ảnh · 3,1 MB".
+    /// Cài đặt › Hỗ trợ › Nhà phát triển: the pictures on disk and what the folder holds, "12 ảnh · 3,1 MB".
     @concurrent nonisolated static func usage() async -> String {
         let keys: [URLResourceKey] = [.fileSizeKey]
         let urls = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys)) ?? []
@@ -470,11 +556,9 @@ final class MapSnapshots {
         if old > 0 { line += " · \(old) ảnh kiểu cũ" }
         return line
     }
-    #endif
 }
 
-#if DEBUG
-/// Settings › Chẩn đoán › So khung bản đồ (Debug): a day's picture and the live map of the same content, at
+/// Cài đặt › Hỗ trợ › Nhà phát triển › So khung bản đồ: a day's picture and the live map of the same content, at
 /// the size and insets of the day's page, one above the other or the live map at half strength over the
 /// picture: both should frame the same view (`MapFraming`), as the live map replaces a picture on a tap.
 struct MapFrameCheck: View {
@@ -523,7 +607,6 @@ struct MapFrameCheck: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
-#endif
 
 /// Puts the trip's layers into a snapshot's style with the code that puts them into a map's.
 final class SnapshotStyler: NSObject, MLNMapSnapshotterDelegate {
