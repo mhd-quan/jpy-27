@@ -242,6 +242,8 @@ Mặc định app theo chế độ sáng, tối của iPhone; Cài đặt có th
 
 Cài đặt xếp như Settings của iOS: đầu trang là chuyến đi (dấu Hinomaru, ngày đi–về, số đêm, các thành phố bằng kanji); rồi Giao diện với ba màn hình thu nhỏ (Tự động chia chéo sáng–tối); Quyền, mỗi dòng có ô biểu tượng màu; Chuyến đi (ngày thay thế, tốc độ đi bộ, chạy thử) và Dùng khi mất sóng, Nguồn: mỗi mục là một dòng hiện giá trị hiện tại, chạm vào mới mở trang riêng.
 
+Cách đọc Hỗ trợ › Số đo (MetricKit, `MetricsInbox`), mà trang chỉ còn một câu: nhóm Theo ngày ghi hai số giật riêng, giật khi cuộn và giật trong mọi chuyển động, đều tính bằng ms mỗi giây chuyển động; mở app là trung vị tới khung đầu tiên. Nhóm Chuyển cảnh tính từ lúc chạm tới khi lần đo khép lại, lấy trung vị của mọi ngày còn giữ. Mọi cách khép đều được tính: chuyển cảnh xong, bị chuyển cảnh sau thay, hết 1 giây chờ hay quá giờ; trong Instruments, thông điệp kết thúc của mỗi lần cho biết cách khép. Giật của một chuyển cảnh là trung bình theo số lần, trong lúc chuyển.
+
 ## Từng yêu cầu dùng gì
 
 | Yêu cầu | Cách làm |

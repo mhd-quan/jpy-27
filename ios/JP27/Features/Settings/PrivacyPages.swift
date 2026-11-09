@@ -221,7 +221,7 @@ struct PermissionStates {
 
     var all: [PermissionRow.State] { [location, notifications, alarms, photos, live] }
     /// "đã bật": given, or given in part ("Khi dùng app", "Một phần")
-    var on: Int { all.filter(\.isOn).count }
+    var on: Int { all.filter { $0.isOn }.count }
     /// "đang tắt": refused, or not asked yet
     var off: Int { all.count - on }
 }

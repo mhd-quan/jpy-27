@@ -75,10 +75,8 @@ struct RehearsalSection: View {
                     reseed()
                 }
             }
-        } header: {
-            Text("Chạy thử")
         } footer: {
-            Text("Giờ Nhật; nhắc, widget và Live Activity chạy theo đồng hồ này, và những gì ghi lúc chạy thử bị xoá khi về giờ thật.")
+            Text("Giờ Nhật; nhắc, widget và Live Activity chạy theo đồng hồ này; những gì ghi lúc chạy thử chỉ ở máy này và bị xoá khi về giờ thật.")
         }
         .onAppear {
             guard !seeded else { return }
@@ -122,8 +120,6 @@ struct PaceSection: View {
             Text(summary(pace))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-        } header: {
-            Text("Đi bộ")
         }
     }
 

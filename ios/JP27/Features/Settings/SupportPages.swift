@@ -135,8 +135,6 @@ struct SourcesSection: View {
             }
             // the fallback when the build has no WeatherKit entitlement; CC BY 4.0 asks for the credit
             source("Dự báo: Open-Meteo", "https://open-meteo.com/")
-        } header: {
-            Text("Nguồn")
         }
     }
 
