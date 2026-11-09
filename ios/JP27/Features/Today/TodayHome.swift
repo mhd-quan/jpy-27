@@ -80,29 +80,20 @@ private struct HomePageMeasure: View {
 
 // MARK: - Cover
 
-/// Photographs of the trip, edge to edge under the status bar and fading into the paper; then the
-/// countdown as the Hinomaru's disc beside the trip's two ends and its dates.
+/// Photographs of the trip, edge to edge under the status bar and fading into the paper (`HomeCoverCarousel`); then
+/// the countdown as the Hinomaru's disc beside the trip's two ends and its dates.
 private struct HomeCover: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
     let days: Int
-    /// the page of the strip the cover rests on (`HomeCoverStrip`); nil until it first appears, in the middle copy
-    @State private var page: Int?
     @State private var risen = false
-    /// the photographs are on screen: off it, nothing turns or drifts
-    @State private var visible = true
-    /// a turn's cross-fade is under way: no page takes a touch, the one coming in being still mostly the one going
-    @State private var turning = false
 
     static let height: CGFloat = 520
 
     var body: some View {
-        let shots = HomePicks.cover(model)
-        let strip = HomeCoverStrip(count: shots.count)
         let trip = model.store.trip
         VStack(alignment: .leading, spacing: 20) {
-            photos(shots, strip)
+            HomeCoverCarousel(shots: HomePicks.cover(model), height: Self.height)
             HStack(alignment: .center, spacing: 18) {
                 HomeSun(days: days, risen: risen)
                 VStack(alignment: .leading, spacing: 4) {
@@ -127,216 +118,7 @@ private struct HomeCover: View {
         }
         .onAppear {
             withAnimation(Motion.arrive.delay(0.1)) { risen = true }
-            // the strip opens on the first cover of its middle copy, with room to go either way; also when the scroll
-            // view has written its first page back before this ran
-            if (page ?? 0) < strip.count { page = strip.start + (page ?? 0) }
         }
-        // a new photograph every few seconds while the cover is in view, round and round: after the last comes the
-        // first, as on the TV app; a swipe restarts the wait. Under a sheet or behind another tab it waits: nothing
-        // turns while you look at something else, and no page turn lands in the middle of a sheet's zoom. (Read here,
-        // not in the body, so opening a sheet does not re-run the cover.)
-        .task(id: "\(page ?? -1)-\(visible)-\(model.lowPower)-\(voiceOver)") {
-            // still under Reduce Motion, and under VoiceOver, where a turn would take away the element being read
-            guard visible, !reduceMotion, !voiceOver, !model.lowPower, shots.count > 1, let at = page else { return }
-            // the next photograph decoded while this one shows, so its fade never shows the grey under it (at once when
-            // the cache has it)
-            _ = await PhotoCache.shared.image(shots[strip.shot(at + 1)].photo, maxPixel: 2400)
-            repeat {
-                try? await Task.sleep(for: .seconds(6))
-            } while !Task.isCancelled && !(model.sheets.isEmpty && model.tab == .today)
-            // Low Power Mode: the covers stay where they are (`model.lowPower` is in the task id: turned off, the flips start again)
-            guard !Task.isCancelled, !model.lowPower else { return }
-            // at an end of the strip, after hours in view: the same cover in the middle copy, where it stands, with no
-            // animation; the task runs again from there
-            guard strip.inside(at) else {
-                page = strip.middle(at)
-                return
-            }
-            turning = true
-            withAnimation(Motion.crossfade) { page = at + 1 }
-        }
-        .task(id: turning) {
-            guard turning else { return }
-            try? await Task.sleep(for: .seconds(0.35))
-            turning = false
-        }
-        // off the screen and far from the middle (after the best part of an hour of turning), the strip goes back to
-        // its middle copy unseen; nearer, it stays, so coming back shows the very view that left
-        .onChange(of: visible) { _, on in
-            if !on, let at = page, strip.far(at) { page = strip.middle(at) }
-        }
-    }
-
-    private func photos(_ shots: [HomeShot], _ strip: HomeCoverStrip) -> some View {
-        let at = page ?? 0
-        let current = strip.shot(at)
-        let height = Self.height
-        return ZStack(alignment: .bottom) {
-            ScrollView(.horizontal) {
-                LazyHStack(spacing: 0) {
-                    ForEach(0..<strip.pages, id: \.self) { i in
-                        let shot = shots[strip.shot(i)]
-                        Button {
-                            model.present(.place(shot.place.id), from: "home.cover.\(i)")
-                        } label: {
-                            // the slow drift is drawn every frame: not in Low Power Mode
-                            HomeCoverPhoto(photo: shot.photo, current: at == i && visible && !model.lowPower)
-                        }
-                        // the place's page starts loading as the finger comes down
-                        .buttonStyle(.pressable(.plain, onPress: { Prefetch.place(shot.place.id, model: model, at: .touch) }))
-                        .containerRelativeFrame(.horizontal)
-                        // every page is drawn where the cover stands, not where the strip has carried it: the page
-                        // coming in from the trailing side fades in over the one under it, so a swipe or a turn is a
-                        // cross-fade on the spot, as on the TV app. The page under it stays whole until it is a full
-                        // width past (so the paper never shows through, even were the effect read only at the turn's
-                        // two ends); a page beyond that, or a width or more ahead, is not drawn
-                        .visualEffect { content, proxy in
-                            let x = proxy.frame(in: .scrollView(axis: .horizontal)).minX
-                            let width = max(1, proxy.size.width)
-                            let shown: Double = x >= width || x < -width ? 0 : x > 0 ? Double(1 - x / width) : 1
-                            return content
-                                .offset(x: -x)
-                                .opacity(shown)
-                        }
-                        // a later page over an earlier one, said rather than left to the stack's drawing order
-                        .zIndex(Double(i))
-                        // drawn on one spot, every page would take the touch: only the one at rest does, and none
-                        // while a turn's photographs cross
-                        .allowsHitTesting(i == at && !turning)
-                        .sheetSource("home.cover.\(i)")
-                        .accessibilityLabel(shot.place.name)
-                        .accessibilityHidden(i != at)
-                        .id(i)
-                    }
-                }
-                .scrollTargetLayout()
-            }
-            .scrollTargetBehavior(.paging)
-            // the page whose middle is in the middle: a swipe changes the name and the dots halfway, either way
-            .scrollPosition(id: $page, anchor: .center)
-            // a swipe ticks as it crosses halfway, where the page in the middle changes; the page turning by itself does not
-            .feelsPages(page)
-            .scrollIndicators(.hidden)
-            .onScrollVisibilityChange(threshold: 0.15) { visible = $0 }
-            // a paper mist under the status bar, and the bottom fading into the page
-            .overlay(alignment: .top) {
-                LinearGradient(colors: [Palette.paper.opacity(0.9), Palette.paper.opacity(0)], startPoint: .top, endPoint: .bottom)
-                    .frame(height: 150)
-                    .allowsHitTesting(false)
-            }
-            .overlay(alignment: .bottom) {
-                LinearGradient(stops: [.init(color: Palette.paper.opacity(0), location: 0), .init(color: Palette.paper.opacity(0.85), location: 0.6), .init(color: Palette.paper, location: 1)], startPoint: .top, endPoint: .bottom)
-                    .frame(height: 170)
-                    .allowsHitTesting(false)
-            }
-            // pulled down, the photograph grows instead of leaving a gap above it, and its mist
-            // and fade grow with it: scaled before them, the mist stayed where the photograph's
-            // top had been and cut a white band across it
-            .visualEffect { content, proxy in
-                let y = proxy.frame(in: .scrollView(axis: .vertical)).minY
-                return content.scaleEffect(y > 0 ? 1 + y / height : 1, anchor: .bottom)
-            }
-
-            if shots.indices.contains(current) {
-                let shot = shots[current]
-                HStack(alignment: .bottom) {
-                    VStack(alignment: .leading, spacing: 1) {
-                        if let ja = shot.place.ja {
-                            Text(ja)
-                                .font(.mincho(19))
-                                .environment(\.locale, Locale(identifier: "ja_JP"))
-                        }
-                        Text("\(shot.place.name) · Ngày \(shot.day.n)")
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(.secondary)
-                        // the licences ask for the photographer's name; it links to the file page
-                        if let credit = shot.photo.credit {
-                            if let page = shot.photo.page.flatMap(URL.init(string:)) {
-                                Link(credit, destination: page)
-                                    .buttonStyle(.pressable(.borderless))
-                                    .font(.caption2)
-                                    .foregroundStyle(.tertiary)
-                            } else {
-                                Text(credit)
-                                    .font(.caption2)
-                                    .foregroundStyle(.tertiary)
-                            }
-                        }
-                    }
-                    .lineLimit(1)
-                    .id(current)
-                    .transition(.opacity)
-                    Spacer()
-                    HStack(spacing: 5) {
-                        ForEach(shots.indices, id: \.self) { i in
-                            Capsule()
-                                .fill(i == current ? Palette.sun : Color.primary.opacity(0.2))
-                                .frame(width: i == current ? 18 : 6, height: 6)
-                        }
-                    }
-                    .padding(.bottom, 6)
-                    .accessibilityHidden(true)
-                    // the dot stretching is a pick
-                    .animation(Motion.reduced(Motion.pick, reduceMotion), value: current)
-                }
-                .padding(.horizontal, Metrics.gutter)
-                // the name fades out and the next one in with the photograph
-                .animation(Motion.crossfade, value: current)
-            }
-        }
-        .frame(height: Self.height)
-    }
-}
-
-/// The covers laid end to end many times over, so the page after the last is the first again and the one before
-/// the first is the last, as on the TV app: neither a swipe nor a turn ever runs back across them all.
-private struct HomeCoverStrip {
-    let count: Int
-    /// copies of the covers: from the middle one, a cover turning by itself every 6 s is two hours from either end,
-    /// and the strip goes back to the middle whenever it leaves the screen
-    static let laps = 201
-
-    var pages: Int { count * Self.laps }
-    /// the first cover of the middle copy
-    var start: Int { count * (Self.laps / 2) }
-
-    /// the cover a page shows
-    func shot(_ page: Int) -> Int {
-        count > 0 ? (page % count + count) % count : 0
-    }
-
-    /// the page of the middle copy that shows the same cover
-    func middle(_ page: Int) -> Int { start + shot(page) }
-
-    /// a page with another after it and before it
-    func inside(_ page: Int) -> Bool { page > 0 && page < pages - 1 }
-
-    /// a quarter of the strip or more from the first cover of the middle copy: fifty tours of the covers
-    func far(_ page: Int) -> Bool { abs(page - start) >= count * (Self.laps / 4) }
-}
-
-private struct HomeCoverPhoto: View {
-    let photo: Photo
-    let current: Bool
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// drawn once already: a page made for the turn that brings it starts at rest and drifts from there, like the others
-    @State private var placed = false
-
-    var body: some View {
-        let drifting = current && placed && !reduceMotion
-        Color.clear
-            .overlay {
-                PlacePhoto(photo: photo, maxPixel: 2400)
-                    // the covers are cut to the screen's own pixels (1290 × 1560): a little over-scan, and a slow
-                    // drift a little closer while the photograph is the one on show. Turned away from, it goes back
-                    // once the next one has covered it, so the photograph fading out holds still
-                    .scaleEffect(drifting ? 1.12 : 1.08)
-                    // motion: one-off the cover's 10 s drift is slower than any token; under Reduce Motion the scale does not change
-                    .animation(drifting ? Animation.easeInOut(duration: 10) : Motion.reduced(Motion.travel, reduceMotion)?.delay(0.4), value: drifting)
-            }
-            .clipped()
-            .contentShape(.rect)
-            .onAppear { placed = true }
     }
 }
 

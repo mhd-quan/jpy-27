@@ -69,6 +69,8 @@ const allowed = [
   '.animation(Motion.reduced( Motion.settle, reduceMotion), value: x)',
   'withAnimation(Motion.arrive) { image = loaded }',
   'withAnimation(Motion.crossfade) { page = at + 1 }',
+  'withAnimation(Motion.crossfade(velocity: v), completionCriteria: .logicallyComplete) { turn = n } completion: { finish(n.id) }',
+  'from + Motion.crossfadeSpring.value(target: change, initialVelocity: v, time: t)',
   '.animation(Motion.reduced(Motion.arrive, reduceMotion), value: x)',
   'withAnimation(nil) { a = 1 }',
   'withAnimation(reduceMotion ? nil : Motion.reduced(Motion.travel, reduceMotion)) { a = 1 }',
