@@ -342,9 +342,10 @@ private struct TodayNextCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .bottomLeading) {
-                PlacePhoto(photo: photoPlace?.hero)
+                // the photograph the place's page opens on
+                PlacePhoto(photo: photoPlace?.leadPhoto)
                     .overlay {
-                        if photoPlace?.hero == nil, let kind = place?.kind {
+                        if photoPlace?.leadPhoto == nil, let kind = place?.kind {
                             Image(systemName: kind.symbol)
                                 .font(.system(size: 48))
                                 .foregroundStyle(.secondary)

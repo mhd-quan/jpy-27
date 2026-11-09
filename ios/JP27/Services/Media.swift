@@ -908,8 +908,9 @@ enum Prefetch {
     }
 
     private static func loadPlace(_ id: String, model: AppModel) async {
-        // the page's first photograph: the one its colour is taken from (`PlanAmbientPage`), and its hero's first page
-        guard let photo = model.store.place(id)?.images.first, await PhotoCache.isOnPhone(photo),
+        // the page's first photograph (`Place.gallery`): the one its colour is taken from (`PlanAmbientPage`), and its
+        // hero's first page
+        guard let photo = model.store.place(id)?.leadPhoto, await PhotoCache.isOnPhone(photo),
               !Task.isCancelled else { return }
         // the decode at the page's size, its veil and its colour, in one derivation; on the phone, so nothing downloads
         _ = await PhotoCache.shared.veil(photo)

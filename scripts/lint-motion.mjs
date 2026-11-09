@@ -1,7 +1,7 @@
 // node scripts/lint-motion.mjs [folder …]   (default: ios/JP27)
 //
 // Every animation of the app is named by what it is for (`Motion`, ios/JP27/Design/Motion.swift: press,
-// pick, arrive, settle, travel) and goes through `Motion.reduced`, which is where Reduce Motion lives
+// pick, arrive, settle, travel, crossfade) and goes through `Motion.reduced`, which is where Reduce Motion lives
 // (Task 5.8). A curve written at the call site (`.snappy`, `.smooth(duration: 0.3)`, a spring), a
 // `withAnimation { }` with no animation named, a keyframe, or a spring/travel token used bare is a second
 // vocabulary that Reduce Motion cannot see. This fails on any line of Swift with one, unless the line (or the
@@ -14,8 +14,8 @@
 //
 // Not flagged: comments and string contents (a marker inside a string is not a marker); `.symbolEffect` /
 // `.contentTransition` arguments (`.bounce`, `.variableColor`); `.soft` scroll edge effects; gradients, and the
-// Charts `.linear` of `interpolationMethod(` and `type:`; `Motion.arrive`, which may be bare (a short ease that
-// Reduce Motion keeps); a `.default` that is not the argument of `withAnimation(` or `.animation(`. Not seen:
+// Charts `.linear` of `interpolationMethod(` and `type:`; `Motion.arrive` and `Motion.crossfade`, which may be bare
+// (fades that Reduce Motion keeps); a `.default` that is not the argument of `withAnimation(` or `.animation(`. Not seen:
 // `.phaseAnimator(`, whose animation lives in a trailing closure that a line-local scan cannot read (the tree has
 // none). UIKit's `UIView.transition` is outside the lint too. Of `Animation`'s own statics, every curve is in
 // CURVE (`interactiveSpring` too) and `.default` in BARE_WITH; not seen are `Animation(_:)` over a CustomAnimation

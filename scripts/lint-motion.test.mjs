@@ -68,6 +68,7 @@ const allowed = [
   'withAnimation(Motion.reduced(Motion.travel, reduceMotion)?.delay(0.1)) { a = 1 }',
   '.animation(Motion.reduced( Motion.settle, reduceMotion), value: x)',
   'withAnimation(Motion.arrive) { image = loaded }',
+  'withAnimation(Motion.crossfade) { page = at + 1 }',
   '.animation(Motion.reduced(Motion.arrive, reduceMotion), value: x)',
   'withAnimation(nil) { a = 1 }',
   'withAnimation(reduceMotion ? nil : Motion.reduced(Motion.travel, reduceMotion)) { a = 1 }',
