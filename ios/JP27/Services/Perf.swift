@@ -134,8 +134,8 @@ nonisolated struct MetricsDigest: Codable, Sendable {
 }
 
 /// Takes MetricKit's daily payloads: each kept in `Caches/metrics` as its JSON (shared from Số đo)
-/// and a digest (shown there), the `PerfStats.kept` newest only. MetricKit does not say which thread
-/// it calls on, so nothing here is on the main actor.
+/// and a digest (shown there), the `PerfStats.kept` newest only; and its crash and hang reports, for
+/// the log. MetricKit does not say which thread it calls on, so nothing here is on the main actor.
 nonisolated final class MetricsInbox: NSObject, MXMetricManagerSubscriber, Sendable {
     static let shared = MetricsInbox()
 
@@ -154,6 +154,28 @@ nonisolated final class MetricsInbox: NSObject, MXMetricManagerSubscriber, Senda
             }
         }
         Self.trim()
+    }
+
+    /// MetricKit's crash, hang and exception reports, delivered at the launch after: a line in the
+    /// log with how many of each kind came (an error when a crash or a hang is among them), and each
+    /// report kept as its JSON in Logs/diagnostics, the 20 newest (`AppLog.keep`). The payloads are
+    /// read here, on MetricKit's thread; only their values go on to the log's writer.
+    func didReceive(_ payloads: [MXDiagnosticPayload]) {
+        guard !payloads.isEmpty else { return }
+        let crashes = payloads.reduce(0) { $0 + ($1.crashDiagnostics?.count ?? 0) }
+        let hangs = payloads.reduce(0) { $0 + ($1.hangDiagnostics?.count ?? 0) }
+        let cpu = payloads.reduce(0) { $0 + ($1.cpuExceptionDiagnostics?.count ?? 0) }
+        let disk = payloads.reduce(0) { $0 + ($1.diskWriteExceptionDiagnostics?.count ?? 0) }
+        let launch = payloads.reduce(0) { $0 + ($1.appLaunchDiagnostics?.count ?? 0) }
+        let fields = ["crashes": "\(crashes)", "hangs": "\(hangs)", "cpu": "\(cpu)", "disk": "\(disk)", "launch": "\(launch)"]
+        if crashes + hangs > 0 {
+            AppLog.error(.metrics, "Báo cáo crash, treo máy", fields)
+        } else {
+            AppLog.warning(.metrics, "Báo cáo chẩn đoán", fields)
+        }
+        let reports = payloads.map { (end: $0.timeStampEnd, json: $0.jsonRepresentation()) }
+        // nobody waits for it: the reports come with the launch, while the app has time
+        Task { await AppLog.keep(diagnostics: reports) }
     }
 
     private static func file(_ stamp: Int, _ kind: PerfStats.FileKind) -> URL {

@@ -352,11 +352,14 @@ enum AppSheet: Identifiable, Hashable {
     /// notifications pulled down, the app switcher glanced at), nothing was stopped: the clock only
     /// catches up.
     func activate() {
+        // in front again: the log's lines wait for company again (AppLog)
+        AppLog.foreground(true)
         guard asleep else {
             refresh(reschedule: false)
             return
         }
         asleep = false
+        AppLog.info(.app, "Vào app")
         // what was set while away, made to match the system's: an alarm the app was killed before
         // saving is taken back, one that rang is forgotten (before the plan sets what is missing)
         alarms.reconcile()
@@ -419,6 +422,9 @@ enum AppSheet: Identifiable, Hashable {
     /// a ride being followed (its background session keeps it alive under the lock screen); visits,
     /// geofences and significant changes still wake the app.
     func deactivate() {
+        // away, iOS may suspend the app any moment: every line from here on is written at once
+        AppLog.foreground(false)
+        AppLog.info(.app, "Rời app")
         asleep = true
         clockTask?.cancel()
         clockTask = nil
@@ -430,6 +436,8 @@ enum AppSheet: Identifiable, Hashable {
         // a tick made just before leaving is still waiting out its 300 ms: finished now, under a
         // background task, not left for the next return
         if !rescheduler.isIdle { finishRescheduleInBackground() }
+        // what this visit logged, all of it on disk before the app is suspended
+        BackgroundWork.run(name: "Ghi log") { await AppLog.flush() }
     }
 
     private func startClock() {

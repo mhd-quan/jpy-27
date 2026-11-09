@@ -49,6 +49,13 @@ struct JP27App: App {
 /// behaviour per Apple DTS, and in practice CLMonitor's init asserted on every relaunch.
 final class JP27AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        // every launch, in the foreground or woken in the background
+        let bundle = Bundle.main
+        AppLog.info(.app, "Mở app", [
+            "version": bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
+            "build": bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "",
+            "ios": UIDevice.current.systemVersion,
+        ])
         AppModel.shared.location.start()
         // the day's hitches, launch times and transitions, delivered once a day (Chẩn đoán › Số đo)
         MXMetricManager.shared.add(MetricsInbox.shared)
