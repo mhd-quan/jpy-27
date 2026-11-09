@@ -94,14 +94,15 @@ private struct PlanPlaceContent: View {
 // MARK: - Photos
 
 /// The place's photographs filling the top of the page, its name and what it is on the soft blur
-/// at their foot (the veil of the photograph shown), the photographer under them.
+/// at their foot (the veil of the photograph shown), the photographer under them. Its `gallery`: the home's
+/// cover first, where it has one.
 private struct PlanPlaceHero: View {
     let place: Place
     @State private var page = 0
     @Environment(\.openURL) private var openURL
 
     var body: some View {
-        let photos = place.images
+        let photos = place.gallery
         DetailHero(title: place.name, subtitle: place.ja, veil: photos.indices.contains(page) ? photos[page] : nil) {
             TabView(selection: $page) {
                 ForEach(photos.indices, id: \.self) { i in
@@ -189,7 +190,7 @@ private struct PlanAmbientPage: View {
     init(place: Place, sources: [(title: String, url: String)]) {
         self.place = place
         self.sources = sources
-        _held = State(initialValue: PageTone(place.images.first))
+        _held = State(initialValue: PageTone(place.gallery.first))
     }
 
     /// The first photograph decides light or dark and the hue for the whole page.
@@ -201,12 +202,14 @@ private struct PlanAmbientPage: View {
         let canvas = self.canvas
         let scheme = canvas?.scheme ?? system
         let fill = canvas?.color ?? Palette.paper
+        // the home's cover first, where the place has one, so the cover tapped is the photograph the page opens on
+        let photos = place.gallery
         ScrollView {
             VStack(spacing: 0) {
-                AmbientHero(photos: place.images, page: $page)
+                AmbientHero(photos: photos, page: $page)
                     .heroFrame(fraction: Self.heroFraction)
                     .overlay(alignment: .bottom) {
-                        PlanAmbientHeadline(place: place, count: place.images.count, page: page, canvas: fill)
+                        PlanAmbientHeadline(place: place, count: photos.count, page: page, canvas: fill)
                     }
                 // laid out as it scrolls in; the hero above stays in the plain stack
                 LazyVStack(alignment: .leading, spacing: Metrics.stack) {
@@ -229,7 +232,7 @@ private struct PlanAmbientPage: View {
                     PlanPlaceUses(place: place)
                     VStack(alignment: .leading, spacing: 10) {
                         PlanLinkChips(links: sources)
-                        AmbientCredit(photos: place.images, page: page)
+                        AmbientCredit(photos: photos, page: page)
                     }
                 }
                 .padding(.horizontal, Metrics.gutter)
@@ -245,7 +248,7 @@ private struct PlanAmbientPage: View {
         .tint(canvas == nil ? nil : Color.primary)
         .environment(\.colorScheme, scheme)
         .detailPage(title: place.name, heroFraction: Self.heroFraction, scheme: canvas?.scheme)
-        .decidesTone($held, of: place.images.first)
+        .decidesTone($held, of: photos.first)
     }
 }
 

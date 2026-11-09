@@ -16,14 +16,17 @@ nonisolated enum Motion {
     static func settle(velocity: Double) -> Animation {
         .interpolatingSpring(duration: 0.38, bounce: 0.14, initialVelocity: velocity)
     }
-    /// a long move the eye follows: a camera flight, the cover turning, the dial drawing
+    /// a long move the eye follows: a camera flight, the dial drawing
     static let travel: Animation = .smooth(duration: 1.0)
+    /// one photograph giving way to the next where it stands: the cover turning, short like the TV app's. A fade, so
+    /// Reduce Motion keeps it, like `arrive`
+    static let crossfade: Animation = .easeInOut(duration: 0.3)
 
     /// The short ease that stands in for a spring or a `pick` under Reduce Motion: `arrive`'s curve on purpose.
     private static let short: Animation = arrive
 
-    /// The same under Reduce Motion: springs and `pick` become a short ease, `arrive` stays,
-    /// `travel` becomes none (nil: the change jumps). Anything that is not `arrive` or `travel`,
+    /// The same under Reduce Motion: springs and `pick` become a short ease, `arrive` and `crossfade` stay,
+    /// `travel` becomes none (nil: the change jumps). Anything that is not `arrive`, `crossfade` or `travel`,
     /// `settle(velocity:)` included, takes the short ease.
     ///
     /// Apply it to the bare token and chain modifiers after it, because it matches by `Animation ==`:
@@ -32,7 +35,7 @@ nonisolated enum Motion {
     /// `scripts/lint-motion.mjs` fails a spring or travel token used outside it.
     static func reduced(_ a: Animation, _ reduce: Bool) -> Animation? {
         guard reduce else { return a }
-        if a == arrive { return a }
+        if a == arrive || a == crossfade { return a }
         if a == travel { return nil }
         return short
     }

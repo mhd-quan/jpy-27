@@ -254,11 +254,12 @@ struct PlaceRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            PlacePhoto(photo: place.hero, maxPixel: 200)
+            // the photograph its page opens on
+            PlacePhoto(photo: place.leadPhoto, maxPixel: 200)
                 .frame(width: 56, height: 56)
                 .clipShape(.rect(cornerRadius: 12, style: .continuous))
                 .overlay(alignment: .center) {
-                    if place.hero == nil {
+                    if place.leadPhoto == nil {
                         Image(systemName: place.kind.symbol).foregroundStyle(.secondary)
                     }
                 }

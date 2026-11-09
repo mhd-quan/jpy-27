@@ -85,22 +85,24 @@ private struct HomePageMeasure: View {
 private struct HomeCover: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
     let days: Int
-    @State private var page: Int? = 0
+    /// the page of the strip the cover rests on (`HomeCoverStrip`); nil until it first appears, in the middle copy
+    @State private var page: Int?
     @State private var risen = false
     /// the photographs are on screen: off it, nothing turns or drifts
     @State private var visible = true
-    /// pages turned by themselves since the cover came into view: one tour of the covers, then it
-    /// rests, so a home left open does not redraw every frame for as long as it stays open
-    @State private var toured = 0
+    /// a turn's cross-fade is under way: no page takes a touch, the one coming in being still mostly the one going
+    @State private var turning = false
 
     static let height: CGFloat = 520
 
     var body: some View {
         let shots = HomePicks.cover(model)
+        let strip = HomeCoverStrip(count: shots.count)
         let trip = model.store.trip
         VStack(alignment: .leading, spacing: 20) {
-            photos(shots)
+            photos(shots, strip)
             HStack(alignment: .center, spacing: 18) {
                 HomeSun(days: days, risen: risen)
                 VStack(alignment: .leading, spacing: 4) {
@@ -125,50 +127,94 @@ private struct HomeCover: View {
         }
         .onAppear {
             withAnimation(Motion.arrive.delay(0.1)) { risen = true }
+            // the strip opens on the first cover of its middle copy, with room to go either way; also when the scroll
+            // view has written its first page back before this ran
+            if (page ?? 0) < strip.count { page = strip.start + (page ?? 0) }
         }
-        // a new photograph every few seconds while the cover is in view; a swipe restarts the wait.
-        // Under a sheet or behind another tab it waits: nothing turns while you look at something
-        // else, and no page turn lands in the middle of a sheet's zoom. (Read here, not in the
-        // body, so opening a sheet does not re-run the cover.)
-        .task(id: "\(page ?? 0)-\(visible)-\(model.lowPower)") {
-            guard visible, !reduceMotion, !model.lowPower, shots.count > 1, toured < shots.count - 1 else { return }
+        // a new photograph every few seconds while the cover is in view, round and round: after the last comes the
+        // first, as on the TV app; a swipe restarts the wait. Under a sheet or behind another tab it waits: nothing
+        // turns while you look at something else, and no page turn lands in the middle of a sheet's zoom. (Read here,
+        // not in the body, so opening a sheet does not re-run the cover.)
+        .task(id: "\(page ?? -1)-\(visible)-\(model.lowPower)-\(voiceOver)") {
+            // still under Reduce Motion, and under VoiceOver, where a turn would take away the element being read
+            guard visible, !reduceMotion, !voiceOver, !model.lowPower, shots.count > 1, let at = page else { return }
+            // the next photograph decoded while this one shows, so its fade never shows the grey under it (at once when
+            // the cache has it)
+            _ = await PhotoCache.shared.image(shots[strip.shot(at + 1)].photo, maxPixel: 2400)
             repeat {
                 try? await Task.sleep(for: .seconds(6))
             } while !Task.isCancelled && !(model.sheets.isEmpty && model.tab == .today)
             // Low Power Mode: the covers stay where they are (`model.lowPower` is in the task id: turned off, the flips start again)
             guard !Task.isCancelled, !model.lowPower else { return }
-            toured += 1
-            withAnimation(Motion.reduced(Motion.travel, reduceMotion)) { page = ((page ?? 0) + 1) % shots.count }
+            // at an end of the strip, after hours in view: the same cover in the middle copy, where it stands, with no
+            // animation; the task runs again from there
+            guard strip.inside(at) else {
+                page = strip.middle(at)
+                return
+            }
+            turning = true
+            withAnimation(Motion.crossfade) { page = at + 1 }
         }
-        .onChange(of: visible) { _, on in if on { toured = 0 } }
+        .task(id: turning) {
+            guard turning else { return }
+            try? await Task.sleep(for: .seconds(0.35))
+            turning = false
+        }
+        // off the screen and far from the middle (after the best part of an hour of turning), the strip goes back to
+        // its middle copy unseen; nearer, it stays, so coming back shows the very view that left
+        .onChange(of: visible) { _, on in
+            if !on, let at = page, strip.far(at) { page = strip.middle(at) }
+        }
     }
 
-    private func photos(_ shots: [HomeShot]) -> some View {
-        let current = min(page ?? 0, max(0, shots.count - 1))
+    private func photos(_ shots: [HomeShot], _ strip: HomeCoverStrip) -> some View {
+        let at = page ?? 0
+        let current = strip.shot(at)
         let height = Self.height
         return ZStack(alignment: .bottom) {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
-                    ForEach(shots.indices, id: \.self) { i in
+                    ForEach(0..<strip.pages, id: \.self) { i in
+                        let shot = shots[strip.shot(i)]
                         Button {
-                            model.present(.place(shots[i].place.id), from: "home.cover.\(i)")
+                            model.present(.place(shot.place.id), from: "home.cover.\(i)")
                         } label: {
                             // the slow drift is drawn every frame: not in Low Power Mode
-                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible && !model.lowPower)
+                            HomeCoverPhoto(photo: shot.photo, current: at == i && visible && !model.lowPower)
                         }
                         // the place's page starts loading as the finger comes down
-                        .buttonStyle(.pressable(.plain, onPress: { Prefetch.place(shots[i].place.id, model: model, at: .touch) }))
+                        .buttonStyle(.pressable(.plain, onPress: { Prefetch.place(shot.place.id, model: model, at: .touch) }))
                         .containerRelativeFrame(.horizontal)
+                        // every page is drawn where the cover stands, not where the strip has carried it: the page
+                        // coming in from the trailing side fades in over the one under it, so a swipe or a turn is a
+                        // cross-fade on the spot, as on the TV app. The page under it stays whole until it is a full
+                        // width past (so the paper never shows through, even were the effect read only at the turn's
+                        // two ends); a page beyond that, or a width or more ahead, is not drawn
+                        .visualEffect { content, proxy in
+                            let x = proxy.frame(in: .scrollView(axis: .horizontal)).minX
+                            let width = max(1, proxy.size.width)
+                            let shown: Double = x >= width || x < -width ? 0 : x > 0 ? Double(1 - x / width) : 1
+                            return content
+                                .offset(x: -x)
+                                .opacity(shown)
+                        }
+                        // a later page over an earlier one, said rather than left to the stack's drawing order
+                        .zIndex(Double(i))
+                        // drawn on one spot, every page would take the touch: only the one at rest does, and none
+                        // while a turn's photographs cross
+                        .allowsHitTesting(i == at && !turning)
                         .sheetSource("home.cover.\(i)")
-                        .accessibilityLabel(shots[i].place.name)
+                        .accessibilityLabel(shot.place.name)
+                        .accessibilityHidden(i != at)
                         .id(i)
                     }
                 }
                 .scrollTargetLayout()
             }
             .scrollTargetBehavior(.paging)
-            .scrollPosition(id: $page)
-            // a swipe ticks as it lands; the page turning by itself does not
+            // the page whose middle is in the middle: a swipe changes the name and the dots halfway, either way
+            .scrollPosition(id: $page, anchor: .center)
+            // a swipe ticks as it crosses halfway, where the page in the middle changes; the page turning by itself does not
             .feelsPages(page)
             .scrollIndicators(.hidden)
             .onScrollVisibilityChange(threshold: 0.15) { visible = $0 }
@@ -230,35 +276,67 @@ private struct HomeCover: View {
                     }
                     .padding(.bottom, 6)
                     .accessibilityHidden(true)
+                    // the dot stretching is a pick
+                    .animation(Motion.reduced(Motion.pick, reduceMotion), value: current)
                 }
                 .padding(.horizontal, Metrics.gutter)
-                .animation(Motion.reduced(Motion.pick, reduceMotion), value: current)
+                // the name fades out and the next one in with the photograph
+                .animation(Motion.crossfade, value: current)
             }
         }
         .frame(height: Self.height)
     }
 }
 
+/// The covers laid end to end many times over, so the page after the last is the first again and the one before
+/// the first is the last, as on the TV app: neither a swipe nor a turn ever runs back across them all.
+private struct HomeCoverStrip {
+    let count: Int
+    /// copies of the covers: from the middle one, a cover turning by itself every 6 s is two hours from either end,
+    /// and the strip goes back to the middle whenever it leaves the screen
+    static let laps = 201
+
+    var pages: Int { count * Self.laps }
+    /// the first cover of the middle copy
+    var start: Int { count * (Self.laps / 2) }
+
+    /// the cover a page shows
+    func shot(_ page: Int) -> Int {
+        count > 0 ? (page % count + count) % count : 0
+    }
+
+    /// the page of the middle copy that shows the same cover
+    func middle(_ page: Int) -> Int { start + shot(page) }
+
+    /// a page with another after it and before it
+    func inside(_ page: Int) -> Bool { page > 0 && page < pages - 1 }
+
+    /// a quarter of the strip or more from the first cover of the middle copy: fifty tours of the covers
+    func far(_ page: Int) -> Bool { abs(page - start) >= count * (Self.laps / 4) }
+}
+
 private struct HomeCoverPhoto: View {
     let photo: Photo
     let current: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// drawn once already: a page made for the turn that brings it starts at rest and drifts from there, like the others
+    @State private var placed = false
 
     var body: some View {
+        let drifting = current && placed && !reduceMotion
         Color.clear
             .overlay {
                 PlacePhoto(photo: photo, maxPixel: 2400)
-                    // the covers are cut to the screen's own pixels (1290 × 1560): just enough
-                    // over-scan for a light parallax (4% each side), and a slow drift a little closer
-                    .scaleEffect(current && !reduceMotion ? 1.12 : 1.08)
+                    // the covers are cut to the screen's own pixels (1290 × 1560): a little over-scan, and a slow
+                    // drift a little closer while the photograph is the one on show. Turned away from, it goes back
+                    // once the next one has covered it, so the photograph fading out holds still
+                    .scaleEffect(drifting ? 1.12 : 1.08)
                     // motion: one-off the cover's 10 s drift is slower than any token; under Reduce Motion the scale does not change
-                    .animation(current ? Animation.easeInOut(duration: 10) : Motion.reduced(Motion.travel, reduceMotion), value: current)
-                    .visualEffect { content, proxy in
-                        content.offset(x: -proxy.frame(in: .scrollView(axis: .horizontal)).minX * 0.04)
-                    }
+                    .animation(drifting ? Animation.easeInOut(duration: 10) : Motion.reduced(Motion.travel, reduceMotion)?.delay(0.4), value: drifting)
             }
             .clipped()
             .contentShape(.rect)
+            .onAppear { placed = true }
     }
 }
 
@@ -1022,6 +1100,28 @@ enum HomeCovers {
         }
         return out
     }()
+
+    /// The cover cut for each place, by place id (a place is the cover of one day at most; the first day wins).
+    static let byPlace: [String: Photo] = {
+        var out: [String: Photo] = [:]
+        for key in byDay.keys.sorted(by: { (Int($0) ?? .max, $0) < (Int($1) ?? .max, $1) }) {
+            guard let pick = byDay[key], out[pick.place] == nil else { continue }
+            out[pick.place] = pick.photo
+        }
+        return out
+    }()
+}
+
+extension Place {
+    /// The place's photographs as its page shows them: the cover cut for it first, where it has one (`HomeCovers`), so a
+    /// cover tapped on the home opens a page on that same photograph; the cover's own Commons file is not shown twice.
+    var gallery: [Photo] {
+        guard let cover = HomeCovers.byPlace[id] else { return images }
+        return [cover] + images.filter { cover.page == nil || $0.page != cover.page }
+    }
+
+    /// The photograph the place's page opens on (`gallery`): what a card or a row that opens the page shows.
+    var leadPhoto: Photo? { HomeCovers.byPlace[id] ?? hero }
 }
 
 /// What the home page shows, picked from the data.
@@ -1057,7 +1157,7 @@ enum HomePicks {
         return (bundled.first { favourites.contains($0.id) } ?? bundled.first { $0.kind == .sight } ?? bundled.first ?? places.first)?.hero
     }
 
-    /// Planned meals with a photograph and a menu, in the order they come.
+    /// Planned meals with a photograph and a menu, in the order they come, every day's (the first twelve stopped at day 5).
     static func meals(_ model: AppModel) -> [HomeMeal] {
         var seen = Set<String>()
         var out: [HomeMeal] = []
@@ -1068,7 +1168,7 @@ enum HomePicks {
                 out.append(HomeMeal(place: p, day: day))
             }
         }
-        return Array(out.prefix(12))
+        return out
     }
 
     /// "18 – 29 tháng 10, 2027"
