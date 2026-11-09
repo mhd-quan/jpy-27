@@ -51,7 +51,9 @@ public enum StyleInfo {
             for key in Array(metadata.keys) where key.hasPrefix("jp27:") { metadata[key] = nil }
             json["metadata"] = metadata.isEmpty ? nil : metadata
         }
-        return try? JSONSerialization.data(withJSONObject: json)
+        // keys sorted: the same bytes every time (a dictionary's order changes from one instance to the next), so a
+        // style stored for a pack is the same at every launch, and tests compare bytes
+        return try? JSONSerialization.data(withJSONObject: json, options: [.sortedKeys])
     }
 
     private static func build(_ tiles: [String]?) -> TileBuild? {

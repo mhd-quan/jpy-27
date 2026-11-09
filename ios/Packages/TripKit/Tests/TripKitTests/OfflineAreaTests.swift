@@ -358,6 +358,13 @@ import Testing
         #expect(!OfflineArea.moved.isEmpty)
     }
 
+    @Test func otherBuildTellsTheUserToReopenTheApp() {
+        #expect(OfflineArea.otherBuild == "Style của bản đồ không khớp bản đang dùng — mở lại app rồi thử lại")
+        // reopening reads the build again; updating the app would not help
+        #expect(OfflineArea.otherBuild.contains("mở lại app"))
+        #expect(!OfflineArea.otherBuild.contains("cập nhật app"))
+    }
+
     @Test func theShippedStylesMakePacksOfTheirBuild() throws {
         let bundled = try Bundle_.data("../public/map/jp27-light.json")
         let pinned = try #require(StyleInfo.build(style: bundled))

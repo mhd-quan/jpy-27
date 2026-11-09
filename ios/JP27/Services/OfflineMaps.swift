@@ -317,8 +317,9 @@ import UIKit
 
     /// Puts the last style stored back under the URL this pack names, when it holds the pack's build: the
     /// pack resumed next finds it. No completion to wait for: MapLibre stores it and resumes the pack on one
-    /// queue, in that order. No style stored yet (a resume in the first moments of a launch): nothing put
-    /// back, and the store already asked for is ahead of the resume in that queue.
+    /// queue, in that order. No style stored yet (a resume in the first moments of a launch): nothing is put
+    /// back and the resume is not held up; the store `configure` asked for is usually ahead of it in that
+    /// queue, but not always (a tap before that store is sent).
     private func restoreStyle(for tag: PackTag) {
         guard let last = lastStyle, last.build == tag.build, let url = URL(string: tag.styleURL) else { return }
         MLNOfflineStorage.shared.preload(last.style, for: url, modifiedOn: nil, expiresOn: Self.packStyleExpiry, eTag: nil, mustRevalidate: false)
@@ -419,18 +420,22 @@ import UIKit
     /// database, never from the network. It must hold the build the map reads, or the pack would hold tiles
     /// the map never asks for; the map moving to another build during the store stores the style of that
     /// one (`OfflineArea.step`).
+    ///
+    /// The build is read where a move writes it at once (`Self.mapBuild`, from `map.currentTemplate`, which
+    /// `move(to:)` sets before it posts), not from `mapBuild`, which follows only once `tilesMoved` has
+    /// stored the new style and looked at the packs: a make overlapping a move sees it, and stores again.
     private func make(_ asked: [(area: Area, number: Int)]) async {
         var left = asked
         var again = false
         while true {
-            let askedOn = mapBuild
+            let askedOn = Self.mapBuild
             let prepared = await preloadStyle(currentTemplate: askedOn == Self.pinned ? nil : askedOn.template)
             let served: ServedStyle = prepared.map { .files(style: $0.style, tileJSON: nil) } ?? .refused(Self.unstored)
             // after the wait: removed or made again by a later tap meanwhile, nothing to make here
             left = left.filter { still($0.area.id, $0.number) }
             guard !left.isEmpty else { return }
-            // `mapBuild` read after the wait: the map may have moved to another build meanwhile (`refresh`)
-            switch OfflineArea.step(served, mapBuild: mapBuild, askedOn: askedOn, again: again) {
+            // read again after the wait: the map may have moved to another build meanwhile (`move(to:)`)
+            switch OfflineArea.step(served, mapBuild: Self.mapBuild, askedOn: askedOn, again: again) {
             case .add(let build):
                 // a build comes only from a style stored: one URL for the region, its tag and the stored style
                 guard let prepared, let style = URL(string: prepared.url) else {
