@@ -58,16 +58,23 @@ import WeatherKit
             let ticket = refusals.ticket()
             do {
                 let s = Series(fetched: Date(), hours: try await Self.fromWeatherKit(c), source: .weatherKit)
+                AppLog.info(.forecast, "Dự báo tải xong", ["key": key, "source": Source.weatherKit.rawValue])
                 refusals.succeeded()
                 if attribution == nil { attribution = try? await WeatherService.shared.attribution }
                 return keep(s, as: key)
             } catch {
+                // the description only: a URL error's full text names the request, the place's position in it
+                AppLog.warning(.forecast, "WeatherKit lỗi", ["key": key, "error": error.localizedDescription, "network": "\(Self.isNetwork(error))"])
                 failedWeatherKit(error, ticket: ticket)
             }
         }
         do {
-            return keep(Series(fetched: Date(), hours: try await Self.fromOpenMeteo(c), source: .openMeteo), as: key)
+            let s = Series(fetched: Date(), hours: try await Self.fromOpenMeteo(c), source: .openMeteo)
+            AppLog.info(.forecast, "Dự báo tải xong", ["key": key, "source": Source.openMeteo.rawValue])
+            return keep(s, as: key)
         } catch {
+            // the description only: the URL, with the place's latitude and longitude, stays out
+            AppLog.warning(.forecast, "Không tải được dự báo", ["key": key, "source": Source.openMeteo.rawValue, "error": error.localizedDescription])
             failed = true
             return series[key]?.hours ?? []
         }
@@ -80,10 +87,14 @@ import WeatherKit
         weatherKitRests = Date().addingTimeInterval(5 * 60)
         if let e = error as? WeatherError, case .permissionDenied = e {
             weatherKit = false
+            AppLog.warning(.forecast, "Tạm bỏ WeatherKit", ["why": "permission"])
             return
         }
         guard !Self.isNetwork(error) else { return }
-        if refusals.failed(ticket) >= 2 { weatherKit = false }
+        if refusals.failed(ticket) >= 2 {
+            weatherKit = false
+            AppLog.warning(.forecast, "Tạm bỏ WeatherKit", ["why": "repeated"])
+        }
     }
 
     /// A failure of the connection, not of the service: offline, a timeout, a cancelled request.

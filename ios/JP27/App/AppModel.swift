@@ -306,6 +306,7 @@ enum AppSheet: Identifiable, Hashable {
             UserDefaults.standard.removeObject(forKey: Self.journalAskedRehearsalKey)
         }
         storeAlert = Records.problem != nil
+        if let problem = Records.problem { AppLog.error(.records, "Sổ mở lỗi", ["problem": problem]) }
         if let data = Shared.defaults.data(forKey: "paceModel"), let p = try? JSONDecoder().decode(PaceModel.self, from: data) {
             pace = p
         } else {
@@ -1058,6 +1059,8 @@ enum AppSheet: Identifiable, Hashable {
     }
 
     private func report(_ what: String, _ failure: SaveFailure, retry: (@MainActor () -> Void)?) {
+        // `what` is always one of the app's own labels ("Khoản chi", "Bỏ điểm"), never text typed
+        AppLog.error(.records, "Không lưu được", ["what": what, "error": failure.localizedDescription])
         let issue = SaveIssue(what: what, error: failure.localizedDescription)
         saveIssue = issue
         self.retry = retry.map { (issue.id, $0) }

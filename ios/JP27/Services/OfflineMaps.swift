@@ -83,17 +83,27 @@ import UIKit
               let url = URL(string: template.replacingOccurrences(of: "{z}/{x}/{y}", with: "0/0/0"))
         else { return true }
         // no answer (offline, a timeout) says nothing about the build
-        guard let status = await fetch(url, timeout: 10)?.status else { return false }
+        guard let status = await fetch(url, timeout: 10)?.status else {
+            AppLog.info(.map, "Kiểm build tile", ["status": "none", "moved": "false"])
+            return false
+        }
         guard status == 404 || status == 410 else {
             // there: the map reads it (another answer says nothing either way)
-            if status == 200, currentTemplate != nil { move(to: nil) }
+            let back = status == 200 && currentTemplate != nil
+            if back { move(to: nil) }
+            AppLog.info(.map, "Kiểm build tile", ["status": "\(status)", "moved": "\(back)"])
             return true
         }
         // gone: the build OpenFreeMap names now
         guard let answer = await fetch(currentTileJSON, timeout: 10), answer.status == 200,
               let current = StyleInfo.build(tileJSON: answer.data)
-        else { return false }
-        if current.template != currentTemplate { move(to: current.template) }
+        else {
+            AppLog.info(.map, "Kiểm build tile", ["status": "\(status)", "moved": "false", "tilejson": "none"])
+            return false
+        }
+        let moves = current.template != currentTemplate
+        if moves { move(to: current.template) }
+        AppLog.info(.map, "Kiểm build tile", ["status": "\(status)", "moved": "\(moves)", "build": current.template])
         return true
     }
 
@@ -234,6 +244,8 @@ import UIKit
     /// during "Đang chuẩn bị…") or none leaves the area alone, so no area gets two packs of one build.
     @ObservationIgnored private var making: [String: Int] = [:]
     @ObservationIgnored private var makes = 0
+    /// when each area's pack error was last logged, and how many were left out since (`logPackError`)
+    @ObservationIgnored private var packErrorLogged: [String: (at: CFTimeInterval, suppressed: Int)] = [:]
 
     override init() {
         super.init()
@@ -301,16 +313,24 @@ import UIKit
     /// a pack made or resumed after this reads it from the database. Nil when the app has no style to store,
     /// or MapLibre said it could not store it.
     private func preloadStyle(currentTemplate: String?) async -> PackStyle.Prepared? {
-        guard let prepared = await Self.preparedStyle(currentTemplate: currentTemplate), let url = URL(string: prepared.url) else { return nil }
+        guard let prepared = await Self.preparedStyle(currentTemplate: currentTemplate), let url = URL(string: prepared.url) else {
+            AppLog.error(.offline, "Nạp style", ["build": currentTemplate ?? "pinned", "reason": "Không có style để nạp"])
+            return nil
+        }
+        let build = prepared.build.template
+        let key = prepared.url
         // The handler is @Sendable (on no actor) and MapLibre calls it on the main queue
-        // (MLNOfflineStorage.h): it only hands the answer over. MapLibre 7.0.0 always calls it, once.
+        // (MLNOfflineStorage.h): it only hands the answer over (and logs a refusal, from plain strings).
+        // MapLibre 7.0.0 always calls it, once.
         let stored = await withCheckedContinuation { (answer: CheckedContinuation<Bool, Never>) in
             MLNOfflineStorage.shared.preload(prepared.style, for: url, modificationDate: nil, expirationDate: Self.packStyleExpiry,
                                              eTag: nil, mustRevalidate: false) { _, error in
+                if let error { AppLog.error(.offline, "Nạp style", ["build": build, "url": key, "error": error.localizedDescription]) }
                 answer.resume(returning: error == nil)
             }
         }
         guard stored else { return nil }
+        AppLog.info(.offline, "Nạp style", ["build": build, "url": key])
         lastStyle = prepared
         return prepared
     }
@@ -321,7 +341,11 @@ import UIKit
     /// back and the resume is not held up; the store `configure` asked for is usually ahead of it in that
     /// queue, but not always (a tap before that store is sent).
     private func restoreStyle(for tag: PackTag) {
-        guard let last = lastStyle, last.build == tag.build, let url = URL(string: tag.styleURL) else { return }
+        guard let last = lastStyle, last.build == tag.build else {
+            AppLog.warning(.offline, "Chưa có style để đặt lại", ["area": tag.area, "build": tag.build.template, "held": lastStyle?.build.template ?? "none"])
+            return
+        }
+        guard let url = URL(string: tag.styleURL) else { return }
         MLNOfflineStorage.shared.preload(last.style, for: url, modifiedOn: nil, expiresOn: Self.packStyleExpiry, eTag: nil, mustRevalidate: false)
     }
 
@@ -447,6 +471,7 @@ import UIKit
                 }
                 return
             case .again:
+                AppLog.info(.offline, "Bản đồ đổi build lúc nạp style, nạp lại", ["areas": left.map { $0.area.id }.sorted().joined(separator: ",")])
                 again = true
             case .fail(let reason):
                 abandon(left, because: reason)
@@ -460,7 +485,10 @@ import UIKit
     private func abandon(_ left: [(area: Area, number: Int)], because reason: String) {
         for (area, _) in left {
             making[area.id] = nil
-            if phases[area.id] == .creating { set(area.id, .failed(reason)) }
+            if phases[area.id] == .creating {
+                set(area.id, .failed(reason))
+                AppLog.error(.offline, "Không tạo được vùng", ["area": area.id, "reason": reason])
+            }
         }
     }
 
@@ -507,6 +535,7 @@ import UIKit
                 } else if ours, self.phases[id] == .creating {
                     // still asked for: a tap, or the next launch, tries again
                     self.set(id, .failed("Không tạo được vùng tải" + (failure.map { ": \($0)" } ?? "")))
+                    AppLog.error(.offline, "Không tạo được vùng", ["area": id, "reason": failure ?? "Không tạo được vùng tải"])
                 }
             }
         }
@@ -581,11 +610,17 @@ import UIKit
         guard let pack = note.object as? MLNOfflinePack, pack.state != .invalid, let tag = label(of: pack)?.tag,
               tag.build == mapBuild, areas.contains(where: { $0.id == tag.area }) else { return }
         let was = phases[tag.area]
+        // asked for until this report: complete now is complete just now (`record` lets go of the request),
+        // not a pack completed long ago and read again at a launch
+        let asked = requests.contains(tag.area)
         let (phase, show) = record(pack, tag: tag)
         guard show else { return }
         set(tag.area, phase)
         // complete just now: its older packs can go (`refresh`)
-        if case .complete = phase, was != phase { refresh() }
+        if case .complete = phase, was != phase {
+            if asked { AppLog.info(.offline, "Vùng xong", ["area": tag.area, "bytes": "\(pack.progress.countOfBytesCompleted)"]) }
+            refresh()
+        }
     }
 
     /// A tile or the style failed (posted on the main queue too). MapLibre keeps trying; the area
@@ -602,8 +637,26 @@ import UIKit
         case MLNErrorCode.badServerResponse.rawValue: text = "Máy chủ bản đồ đang lỗi, đang thử lại"
         default: text = "Lỗi tải, đang thử lại"
         }
-        if problems[tag.area] != text { problems[tag.area] = text }
+        if problems[tag.area] != text {
+            problems[tag.area] = text
+            logPackError(tag.area, code: error?.code)
+        }
         set(tag.area, record(pack, tag: tag, force: true).phase)
+    }
+
+    /// "Lỗi gói, đang thử lại", once a minute per area at most: on a network that comes and goes the area's
+    /// problem changes every few seconds, and the log would push older days out. The next line says how many
+    /// were left out.
+    private func logPackError(_ area: String, code: Int?) {
+        let now = CACurrentMediaTime()
+        if let last = packErrorLogged[area], now - last.at < 60 {
+            packErrorLogged[area] = (last.at, last.suppressed + 1)
+            return
+        }
+        var fields = ["area": area, "code": code.map { "\($0)" } ?? "none"]
+        if let skipped = packErrorLogged[area]?.suppressed, skipped > 0 { fields["suppressed"] = "\(skipped)" }
+        packErrorLogged[area] = (now, 0)
+        AppLog.warning(.offline, "Lỗi gói, đang thử lại", fields)
     }
 
     /// The map moved to another tile build (posted on the main queue by `checkPinnedTiles`): the style of
@@ -728,7 +781,10 @@ import UIKit
         let saved = Shared.defaults.data(forKey: Self.jobKey).flatMap { try? JSONDecoder().decode(OfflineJob.self, from: $0) }
         let areas = (saved?.areas ?? []).union(maps.requests)
         let withPhotos = saved?.photos ?? false
-        if !areas.isEmpty || withPhotos { job = OfflineJob(areas: areas, photos: withPhotos) }
+        if !areas.isEmpty || withPhotos {
+            job = OfflineJob(areas: areas, photos: withPhotos)
+            AppLog.info(.offline, "Tải tiếp việc tải dở", ["areas": areas.sorted().joined(separator: ","), "photos": "\(withPhotos)"])
+        }
     }
 
     /// Something is still going: an area of the download under way (or one asked for, made again at a
@@ -780,6 +836,7 @@ import UIKit
     /// starts. Saved, so a relaunch follows it; followed now, and the system asked to let it finish.
     private func start(areas: Set<String>, photos withPhotos: Bool) {
         guard !areas.isEmpty || withPhotos else { return }
+        AppLog.info(.offline, "Bắt đầu tải", ["areas": areas.sorted().joined(separator: ","), "photos": "\(withPhotos)"])
         job = OfflineJob(areas: (job?.areas ?? []).union(areas), photos: (job?.photos ?? false) || withPhotos)
         ended = nil
         saveJob()
@@ -842,6 +899,7 @@ import UIKit
             asked = true
         } catch {
             // not granted now: the downloads still run while the app is open, and for half a minute after
+            AppLog.warning(.offline, "Không xin được tải nền", ["error": error.localizedDescription])
         }
     }
 
@@ -890,6 +948,7 @@ import UIKit
     /// the downloads pause where they are and say so ("Tiếp tục" picks them up); in it, they go on.
     private func expired() {
         guard let task else { return }
+        AppLog.warning(.offline, "Hệ thống dừng tải nền", ["background": "\(UIApplication.shared.applicationState == .background)"])
         if UIApplication.shared.applicationState == .background {
             maps.pauseAll()
             photos.pause()
@@ -952,6 +1011,10 @@ import UIKit
             asked = false
         }
         endGrace()
+        if let result, let job {
+            let fields = ["areas": job.areas.sorted().joined(separator: ","), "done": "\(result.done)", "failed": result.failed.joined(separator: ","), "photos": "\(job.photos)", "subtitle": result.subtitle]
+            if result.success { AppLog.info(.offline, "Kết thúc tải", fields) } else { AppLog.warning(.offline, "Kết thúc tải", fields) }
+        }
         if let result { ended = result }
         job = nil
         saveJob()

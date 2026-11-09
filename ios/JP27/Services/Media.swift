@@ -918,6 +918,10 @@ enum Prefetch {
                     if !Task.isCancelled, let url = queue.next() { group.addTask { await PhotoCache.fetch(url) } }
                 }
             }
+            // the pass is over: one line, never one per photo
+            let stopped = Task.isCancelled
+            let fields = ["saved": "\(saved)", "failed": "\(failed)", "total": "\(list.count)", "paused": "\(stopped)"]
+            if failed > 0 { AppLog.warning(.offline, "Ảnh tải xong", fields) } else { AppLog.info(.offline, "Ảnh tải xong", fields) }
             if !Task.isCancelled, failed == 0 { Shared.defaults.set(false, forKey: Self.wantedKey) }
             // the last ones arrived while it was being paused: nothing is left to go on with
             if saved >= list.count, paused { paused = false }
@@ -1242,8 +1246,6 @@ extension Speaker: AVSpeechSynthesizerDelegate {
     private static var release: Task<Void, Never>?
     /// the system's audio services restarting, watched from the first event on
     private static var resetWatch: (any NSObjectProtocol)?
-    /// what went wrong with the audio session, in the device log (Console, subsystem tech.delphyra.jp27)
-    private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "audio")
 
     /// Decides on `event` now and queues its session work at once, behind everything decided before it. `done`
     /// runs on the main actor once that work has run, even when there was none, with the step that failed.
@@ -1306,9 +1308,9 @@ extension Speaker: AVSpeechSynthesizerDelegate {
         let commands = plan.handle(.failed(failure.failure, generation: generation))
         let step = String(describing: failure.failure.step)
         if commands.contains(where: { if case .retry = $0 { true } else { false } }) {
-            log.notice("audio session \(step, privacy: .public) busy, tried again in \(AudioSessionPlan.busyRetryAfter) ms: \(failure.message, privacy: .public)")
+            AppLog.warning(.talk, "Phiên âm thanh bận, thử lại", ["step": step, "after": "\(AudioSessionPlan.busyRetryAfter)", "error": failure.message])
         } else {
-            log.error("audio session \(step, privacy: .public) failed: \(failure.message, privacy: .public)")
+            AppLog.error(.talk, "Phiên âm thanh lỗi", ["step": step, "error": failure.message])
         }
         // the plan answers a failure with a retry's wait or nothing: no step, and nobody waits on it, so no batch
         let steps = schedule(commands)

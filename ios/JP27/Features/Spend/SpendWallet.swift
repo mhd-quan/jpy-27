@@ -334,8 +334,16 @@ nonisolated struct SpendLedgerFile: Transferable, Sendable {
         // a file is trusted no more than the other phone: rows the keypad could not have typed, and
         // rows dated far ahead, are left out
         let (clean, screenedOut) = LedgerMerge.screened(LedgerState(records: file.records), now: Date())
-        let before = try Set(Ledger.state(context).records.map(\.id))
-        let (_, changes) = try Ledger.merge(clean, into: context)
+        let before: Set<UUID>
+        let changes: LedgerChanges
+        do {
+            before = try Set(Ledger.state(context).records.map(\.id))
+            changes = try Ledger.merge(clean, into: context).changes
+        } catch {
+            // the alert on the Spend tab says it too (`SpendTab`); the file's name is the user's, not logged
+            AppLog.error(.records, "Không lưu được", ["what": "Nhập file sổ chi", "error": error.localizedDescription])
+            throw error
+        }
         var outcome = Outcome(skipped: file.rejected.count + screenedOut.count, lines: file.rejected.map(\.line))
         for r in changes.upserts {
             if before.contains(r.id) { outcome.updated += 1 } else { outcome.added += 1 }

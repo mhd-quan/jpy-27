@@ -503,6 +503,21 @@ enum Iro {
 
     func refreshStatus() async {
         status = await LanguageAvailability().status(from: Self.source, to: Self.target)
+        // each page has its own translator, asked at every appearance: the log hears of a change only
+        if let status, Self.logged != status {
+            Self.logged = status
+            AppLog.info(.talk, "Gói dịch Nhật–Việt", ["status": "\(status)"])
+        }
+    }
+
+    /// the pack's status as last logged, this launch
+    private static var logged: LanguageAvailability.Status?
+
+    /// An error of the Translation framework in the log: its domain and code, no text of its own (whether
+    /// that text quotes what was being translated is not documented).
+    private static func code(_ error: any Error) -> String {
+        let ns = error as NSError
+        return "\(ns.domain):\(ns.code)"
     }
 
     /// Runs inside `.translationTask`, on the main actor. The session is only touched here, one
@@ -510,7 +525,13 @@ enum Iro {
     func run(_ session: TranslationSession) async {
         if wantsDownload {
             wantsDownload = false
-            try? await session.prepareTranslation()
+            // a refusal is only logged, as `try?` left it before
+            do {
+                try await session.prepareTranslation()
+                AppLog.info(.talk, "Tải gói dịch xong")
+            } catch {
+                AppLog.error(.talk, "Không tải được gói dịch", ["error": Self.code(error)])
+            }
         }
         let jobs = queue
         queue = []
@@ -519,6 +540,8 @@ enum Iro {
                 results.merge(try await TalkBatch.translate(jobs, with: session)) { _, new in new }
             } catch {
                 failed.formUnion(jobs.map { $0.id })
+                // how many, never which: an id of a scanned menu stands for its line of text
+                AppLog.warning(.talk, "Không dịch được", ["count": "\(jobs.count)", "error": Self.code(error)])
             }
         }
         await refreshStatus()

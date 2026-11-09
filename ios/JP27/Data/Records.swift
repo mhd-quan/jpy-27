@@ -1,5 +1,4 @@
 import Foundation
-import os
 import SwiftData
 import TripKit
 
@@ -283,7 +282,12 @@ enum Records {
         else { return }
         let to = ModelContext(main)
         copyRecords(from: ModelContext(side), to: to, history: true)
+        // the line below is the one best-effort save lint-saves knows (scripts/lint-saves.test.mjs), kept as it
+        // is: its failure is said from here, without the error, which `try?` drops
+        var folded = false
+        defer { if !folded { AppLog.warning(.records, "Chưa gộp được sổ phụ") } }
         guard (try? to.save()) != nil else { return } // save: best-effort, the side store stays and is folded in at the next launch
+        folded = true
         let stamp = Int(Date().timeIntervalSince1970)
         for suffix in ["", "-shm", "-wal"] {
             let at = URL(fileURLWithPath: sideURL.path + suffix)
@@ -291,6 +295,7 @@ enum Records {
                 try? fm.moveItem(at: at, to: folder.appending(path: "Trip-side-merged-\(stamp).store" + suffix))
             }
         }
+        AppLog.info(.records, "Đã gộp sổ phụ", ["file": "Trip-side-merged-\(stamp).store"])
     }
 
     // MARK: - Rehearsal
@@ -347,17 +352,15 @@ enum Records {
                 try fm.moveItem(at: at, to: folder.appending(path: "Trip-rehearsal-kept-\(stamp).store" + suffix))
                 moved = true
             } catch {
-                log.error("the rehearsal store's file Trip-rehearsal.store\(suffix, privacy: .public) was not set aside: \(error.localizedDescription, privacy: .public)")
+                AppLog.error(.records, "Không cất được sổ chạy thử cũ", ["file": "Trip-rehearsal.store" + suffix, "error": error.localizedDescription])
                 failure = failure ?? error
             }
         }
         if let failure { throw SaveFailure(underlying: failure) }
         if moved {
-            log.notice("a rehearsal at about now was ended: its store is kept as Trip-rehearsal-kept-\(stamp, privacy: .public).store")
+            AppLog.info(.records, "Đã cất sổ chạy thử cũ", ["file": "Trip-rehearsal-kept-\(stamp).store"])
         }
     }
-
-    private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "records")
 
     /// Every record of one store put into another. Expenses and top-ups that exist there (by id) are
     /// left; the rest are unique by day and index, by item or by id, so inserting one that exists

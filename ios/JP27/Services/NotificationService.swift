@@ -122,12 +122,27 @@ import UserNotifications
             }
         }
         if !stale.isEmpty { center.removePendingNotificationRequests(withIdentifiers: stale) }
+        var added = 0
+        var failed = 0
+        var failure: String?
         for (id, w) in wanted where !kept.contains(id) {
             let interval = w.fire.timeIntervalSinceNow
             guard interval > 1 else { continue }
             // made here, just before it is handed over, as each request always was
             let request = UNNotificationRequest(identifier: id, content: content(w.reminder, fire: w.fire), trigger: UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false))
-            try? await center.add(request)
+            // a request refused is only counted for the log, as `try?` left it before
+            do {
+                try await center.add(request)
+                added += 1
+            } catch {
+                failed += 1
+                failure = failure ?? error.localizedDescription
+            }
+        }
+        if let failure {
+            AppLog.warning(.notify, "Đặt nhắc", ["count": "\(wanted.count)", "added": "\(added)", "removed": "\(stale.count)", "failed": "\(failed)", "error": failure])
+        } else {
+            AppLog.info(.notify, "Đặt nhắc", ["count": "\(wanted.count)", "added": "\(added)", "removed": "\(stale.count)"])
         }
     }
 

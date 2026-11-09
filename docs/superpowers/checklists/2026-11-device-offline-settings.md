@@ -38,3 +38,18 @@ subsystem `tech.delphyra.jp27`).
 | 3 | Trang Log › "Xuất log", lưu vào Tệp. Mở file `.zip` trong Tệp (chạm để giải nén). | File `JP27-log-<ngàyGiờ>.zip` mở được; bên trong có thư mục `JP27-log-…` với `Logs/` (các file `*.jsonl`), `info.json`, và `metrics/` nếu Số đo đã nhận payload nào. Mở một `.jsonl`: mỗi dòng một đối tượng JSON, có `"t":"…Z"` với mili giây. | |
 | 4 | Chỉ khi app từng bị crash hay treo: mở app vào ngày hôm sau (MetricKit gửi báo cáo ở lần mở sau). Vào trang Log, lọc "Lỗi". | Dòng "Báo cáo crash, treo máy" (lỗi) với `crashes`, `hangs`, `cpu`, `disk`, `launch`; file xuất có `Logs/diagnostics/<yyyyMMdd>T<HHmmss>Z.json`. Một báo cáo không có crash hay treo hiện là "Báo cáo chẩn đoán" (cảnh báo). | |
 | 5 | Trong chuyến, quyền vị trí "Luôn luôn", cần dòng "Vào vùng" của Task 3: vuốt tắt hẳn app buổi tối, hôm sau đi tới một điểm của ngày mà không mở app (iOS tự mở app ở nền khi vào vùng). Mở app sau đó, vào trang Log. | Có dòng "Vào vùng" với `place` và `at` (toạ độ làm tròn 0,01°), giờ là lúc tới điểm, dù app không mở lúc đó. | |
+
+## § 3 — Task 3: dòng log của từng việc
+
+Các dòng đọc ở trang Log (Task 7), hoặc trước đó bằng Console trên máy Mac (subsystem `tech.delphyra.jp27`). Không
+dòng nào được mang tên máy, chữ người dùng gõ hay nói, hay toạ độ chưa làm tròn: máy kia hiện bằng `peer`, 8 chữ số
+hex đầu của dấu vân tay khoá của nó. Báo thức thử nằm ở Cài đặt › Chẩn đoán, chỉ có ở bản Debug cho tới Task 7 (ở
+đó đổi thành Nhà phát triển, có ở mọi bản), nên bước 2 làm trên bản Debug.
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | Có mạng. Cài đặt › Dùng khi mất sóng › tải một vùng chưa có (ví dụ Nara), đợi tới "Đã tải". Vào trang Log. | Theo thứ tự: "Bắt đầu tải" (`areas` = `nara`, `photos` = `false`), "Nạp style" (`build`, `url`), "Vùng xong" (`area` = `nara`, `bytes`), "Kết thúc tải" (`subtitle` = `Xong`). Không có dòng "Vùng xong" cho những vùng đã tải từ trước. | |
+| 2 | Bản Debug. Cài đặt › Chẩn đoán › "Báo thức thử sau 2 phút", rồi ngay "Báo thức thử sau 5 phút". Để báo thức reo, tắt nó, rời app rồi mở lại. Vào trang Log. | "Đặt báo thức" (`ride` = `debug.wake`, `at` là giờ UTC dạng `…T…Z`, `source` = `ride`), rồi "Đổi báo thức" với `at` muộn hơn 3 phút; sau khi mở lại: "Bỏ báo thức đã qua" cho `debug.wake`. Không dòng nào có "Ga thử". | |
+| 3 | Hai máy đã ghép, cả hai bật đồng bộ và mở JP27 ở gần nhau. Trên máy này ghi một khoản chi có ghi chú (ví dụ "bánh cá thử log") và tự gõ tên một quán không có trong dữ liệu. Đợi máy kia nhận. Vào trang Log của máy này. | "Kết nối máy kia", "Gửi sổ chi" (`peer`, `rows`), "Máy kia đã lưu sổ chi"; có thể có "Nhận sổ chi" (`rows`, `rejected`, `changed`). `peer` là 8 chữ số hex, giống nhau ở mọi dòng của cùng máy kia. | |
+| 4 | Trang Log › "Xuất log", mở file `.zip` trong Tệp. Mở các `.jsonl` của hôm nay (ứng dụng đọc văn bản, hoặc trên Mac), tìm tên máy kia (như ở trang đồng bộ), tên máy này, "bánh cá thử log" và tên quán đã gõ ở bước 3. | Không thấy chữ nào trong số đó ở bất kỳ file nào. | |
+| 5 | Trong chuyến, có quyền vị trí "Luôn luôn": tới một điểm có vòng geofence của ngày (quán ăn, ga). Vào trang Log. | "Đặt geofence" (`count`, `added`, `removed`) lúc vòng đổi; "Vào vùng" với `place` (id), `kind` và `at` có đúng hai chữ số sau dấu chấm (ví dụ `35.69,139.69`). Không có dòng "Ra vùng": app chỉ theo dõi lúc vào vòng. | |

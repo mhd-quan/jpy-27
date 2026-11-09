@@ -363,6 +363,7 @@ struct LedgerSyncSheet: View {
         } catch {
             unsaved = t
             issue = SaveIssue(what: "Khoản bị gộp nhầm", error: error.localizedDescription)
+            AppLog.error(.records, "Không lưu được", ["what": "Khoản bị gộp nhầm", "error": error.localizedDescription])
             failed.toggle()
             return
         }
