@@ -159,6 +159,25 @@ import Testing
         }
     }
 
+    @Test func tảiTấtCảTakesTheExtrasMissingAndRecountsThePicturesThatAreThere() {
+        // every item ready: the day maps and Fuji still go, only to count from the disk and keep their names from the
+        // launch trim; the forecasts, fresh, do not
+        #expect(OfflineExtra.forEverything(ready()) == [.dayMaps, .fuji])
+        #expect(OfflineExtra.forEverything(ready([.forecasts: .missing(done: 30, total: 32)])) == [.dayMaps, .fuji, .forecasts])
+        // a page to open first: nothing to draw them at, so left out
+        #expect(OfflineExtra.forEverything(ready([.dayMaps: .needsSetup("Mở trang Hôm nay một lần"), .fuji: .needsSetup("Mở trang Fuji một lần")])).isEmpty)
+        // not read yet, missing, under way, failed: taken
+        for state: ReadyState? in [nil, .missing(done: 3, total: 13), .working(0.5), .waitingForNetwork, .failed("x")] {
+            var s = ready()
+            s[.fuji] = state
+            s[.forecasts] = state
+            #expect(OfflineExtra.forEverything(s) == [.dayMaps, .fuji, .forecasts])
+        }
+        // the other items take no extra
+        #expect(OfflineExtra.forEverything(ready([.maps: .missing(done: 0, total: 11), .translation: .missing(done: nil, total: nil)])) == [.dayMaps, .fuji])
+        #expect(OfflineExtra.forEverything(ready([.fuji: .unsupported("x")])) == [.dayMaps])
+    }
+
     @Test func decodesJobSavedBeforeExtras() throws {
         let job = try JSONDecoder().decode(OfflineJob.self, from: Data(#"{"areas":["tokyo"],"photos":true}"#.utf8))
         #expect(job.areas == ["tokyo"]); #expect(job.photos); #expect(job.extras == []); #expect(!job.everything)

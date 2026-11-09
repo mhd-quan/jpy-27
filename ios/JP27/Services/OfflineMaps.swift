@@ -837,8 +837,9 @@ import UIKit
     }
 
     /// "Bản đồ 3/10 vùng · Fuji 12/69 · Dự báo · 42%": the parts of the download not all there yet (one that is
-    /// is left out, so the Live Activity's line reaches the part under way), and how far it is. How it ended is
-    /// `ended`.
+    /// is left out, so the Live Activity's line reaches the part under way), and how far it is. A part waiting its
+    /// turn shows its last count; the one under way says what it waits for ("chờ mạng", "chờ mở app"). How it ended
+    /// is `ended`.
     var progressLine: String {
         var parts: [String] = []
         let areas = job?.areas ?? []
@@ -856,7 +857,9 @@ import UIKit
             case .fuji: parts.append("Fuji" + count)
             case .forecasts: parts.append("Dự báo")
             }
-            if case .running? = extras.run.phases[extra], extras.waitingForApp { parts.append("chờ mở app") }
+            if case .running? = extras.run.phases[extra] {
+                if extras.waitingForNetwork { parts.append("chờ mạng") } else if extras.waitingForApp { parts.append("chờ mở app") }
+            }
         }
         parts.append("\(Int(fraction * 100))%")
         return parts.joined(separator: " · ")
@@ -890,7 +893,8 @@ import UIKit
         let plan = Readiness.plan(readiness.states)
         let areas = maps.downloadAll()
         photos.download()
-        let more = Set(plan.compactMap { OfflineExtra($0) })
+        // the pictures that read ready with them: their pass only checks the disk, counts them and writes their keep list
+        let more = OfflineExtra.forEverything(readiness.states)
         AppLog.info(.offline, "Tải tất cả", ["plan": plan.map(\.rawValue).joined(separator: ","),
                                              "expensive": "\(AppModel.shared.network.expensive)"])
         start(areas: areas, photos: photos.running, extras: more, everything: true)

@@ -16,7 +16,10 @@ import UIKit
 /// - Each picture is waited for on disk before the next is drawn (`drawForKeeping`); nothing is kept in memory. Each
 ///   part ends with a count of what is on disk then, which the job's end reads (`state`), and the names it drew are
 ///   kept from the launch trim (`offlineKeep`).
-/// - A stop (`pause`) is kept across a launch: the app ended before the job comes back with those parts stopped.
+/// - A part asked for again while it runs (`ExtrasRun.again`) stops its pass at the next item and starts it again,
+///   from what is missing, so a change the pass may have missed is seen.
+/// - A stop (`pause`) holds every part of the run, those already over with it, until each is asked for again, and is
+///   kept across a launch: the app ended before the job comes back with them stopped, none run against the stop.
 @Observable final class OfflineExtras {
     private let maps: OfflineMaps
     private let photos: OfflinePhotos
@@ -32,6 +35,8 @@ import UIKit
     @ObservationIgnored private var loop: Task<Void, Never>?
     /// how many times the app went to the background: a picture drawn across one is drawn again
     @ObservationIgnored private var departures = 0
+    /// the parts whose start the log has heard of and not their end: a pass started again says nothing new
+    @ObservationIgnored private var started: Set<OfflineExtra> = []
     /// the parts stopped, kept across a launch
     private static let stoppedKey = "downloads.extrasPaused"
     /// a picture whose drawing the app left, or the signal dropped during, is drawn this many times at most in a pass
@@ -47,33 +52,35 @@ import UIKit
     // MARK: What the job asks
 
     /// At launch, the extras of the job picked up again: waiting their turn, or stopped where the travellers stopped
-    /// them before the app was ended. Nothing runs yet: `back` starts them, once the app is made.
+    /// them before the app was ended, the ones that were over with them (`ExtrasRun.restore`). Nothing runs yet: `back`
+    /// starts them, once the app is made.
     func restore(_ members: Set<OfflineExtra>) {
-        let stopped = Self.stoppedBefore.intersection(members)
-        run.request(members.subtracting(stopped))
-        run.stopped(stopped)
+        run.restore(members, held: Self.stoppedBefore)
+        Self.keepStopped(run.held)
     }
 
-    /// A tap: these parts run (again), from what is missing; a stop kept for them is let go.
+    /// A tap: these parts run (again), from what is missing; a stop kept for them is let go, for them only.
     func request(_ extras: Set<OfflineExtra>) {
         guard !extras.isEmpty else { return }
         run.request(extras)
-        Self.keepStopped(run.paused)
+        Self.keepStopped(run.held)
         go()
     }
 
     /// The system stopped the job away from the app, or the travellers did from its Live Activity: what waits and what
-    /// runs stops where it is (a picture in flight ends first), and stays stopped across a launch.
+    /// runs stops where it is (a picture in flight ends first), and every part of the run, the ones over with it, stays
+    /// stopped across a launch until it is asked for again.
     func pause() {
         let stopping = run.busy(Set(OfflineExtra.allCases))
         run.pause()
-        Self.keepStopped(run.paused)
+        Self.keepStopped(run.held)
         if stopping { AppLog.info(.offline, "Dừng phần tải", ["parts": Self.names(run.paused)]) }
     }
 
     /// The job is over: its parts are let go, and with them the stop kept.
     func forget() {
         run = ExtrasRun()
+        started = []
         Self.keepStopped([])
     }
 
@@ -106,11 +113,12 @@ import UIKit
     }
 
     /// A part as the offline page's row shows it while it waits or runs (the page is open, so the app is in front):
-    /// nil when it does neither, and the row says what the last look found.
+    /// nil when it does neither, and the row says what the last look found. Waiting its turn again, it shows how far
+    /// it had come.
     func live(_ extra: OfflineExtra) -> ReadyState? {
         switch run.phases[extra] {
         case .pending?:
-            return .working(0)
+            return .working(run.fraction(extra))
         case .running?:
             return waitingForNetwork ? .waitingForNetwork : .working(run.fraction(extra))
         case .finished?, .paused?, nil:
@@ -131,7 +139,6 @@ import UIKit
     private func work() async {
         while let extra = nextPart {
             guard run.begin(extra) else { break }
-            AppLog.info(.offline, "Bắt đầu phần tải", ["part": extra.rawValue])
             let count = await pass(extra)
             run.end(extra, count)
             log(extra, count)
@@ -148,9 +155,20 @@ import UIKit
         return run.next
     }
 
+    /// One line as a part starts, once its pass knows how many it has (nil: it cannot be counted). A pass started again
+    /// (asked for again, or after stepping aside for the forecasts) is the same part going on: said once until its end.
+    private func starting(_ extra: OfflineExtra, total: Int?) {
+        guard started.insert(extra).inserted else { return }
+        var fields = ["part": extra.rawValue]
+        if let total { fields["total"] = "\(total)" }
+        AppLog.info(.offline, "Bắt đầu phần tải", fields)
+    }
+
+    /// One line as a part that started ends, over or stopped; one stopped before its start was said is in the stop's.
     private func log(_ extra: OfflineExtra, _ count: ExtrasRun.Count?) {
         switch run.phases[extra] {
         case .finished?, .paused?:
+            guard started.remove(extra) != nil else { return }
             var fields = ["part": extra.rawValue, "paused": "\(run.paused.contains(extra))"]
             if let count {
                 fields["done"] = "\(count.done)"
@@ -246,12 +264,15 @@ import UIKit
     /// the same days, and the same pictures, the readiness list counts.
     private func dayMaps() async -> ExtrasRun.Count? {
         guard let page = Prefetch.lastPage else {
+            starting(.dayMaps, total: nil)
             AppLog.info(.offline, "Không đếm được phần tải", ["part": OfflineExtra.dayMaps.rawValue, "reason": "Mở trang Hôm nay một lần"])
             return nil
         }
         let model = AppModel.shared
         let requests = await dayRequests(model, page: page)
         MapSnapshots.offlineKeep = Set(requests.wanted.map(\.key.stem))
+        starting(.dayMaps, total: requests.days)
+        if run.progress(.dayMaps) == nil { run.counted(.dayMaps, done: 0, total: requests.days) }
         var done = 0
         for request in requests.wanted {
             guard goingOn(.dayMaps) else { break }
@@ -295,12 +316,15 @@ import UIKit
         let requests: [FujiTerrainPictures.Request]
         switch FujiTerrainPictures.wanted(guide: model.guide.fuji, store: model.store) {
         case .needs(let slot):
+            starting(.fuji, total: nil)
             AppLog.info(.offline, "Không đếm được phần tải", ["part": OfflineExtra.fuji.rawValue, "reason": slot.setup])
             return nil
         case .pictures(let wanted):
             requests = wanted
         }
         FujiTerrainPictures.offlineKeep = Set(requests.map(\.stem))
+        starting(.fuji, total: requests.count)
+        if run.progress(.fuji) == nil { run.counted(.fuji, done: 0, total: requests.count) }
         var done = 0
         for request in requests {
             guard goingOn(.fuji) else { break }
@@ -311,11 +335,14 @@ import UIKit
             }
             run.counted(.fuji, done: done, total: requests.count)
         }
+        // counted again from the disk, against the pictures wanted now: a size kept during the pass renames them
+        guard case .pictures(let now) = FujiTerrainPictures.wanted(guide: model.guide.fuji, store: model.store) else { return nil }
+        FujiTerrainPictures.offlineKeep = Set(now.map(\.stem))
         var onDisk = 0
-        for request in requests {
+        for request in now {
             if await FujiTerrainPictures.shared.isOnDisk(request) { onDisk += 1 }
         }
-        return ExtrasRun.Count(done: onDisk, total: requests.count)
+        return ExtrasRun.Count(done: onDisk, total: now.count)
     }
 
     /// The summit's forecast and every viewpoint's, under the keys and at the places the views ask them, each refreshed
@@ -324,6 +351,7 @@ import UIKit
     private func forecasts() async -> ExtrasRun.Count? {
         let model = AppModel.shared
         let keys: [(key: String, at: Coordinate)] = [("summit", FujiSight.summit)] + model.guide.fuji.spots.map { ($0.id, Coordinate($0.lat, $0.lng)) }
+        starting(.forecasts, total: keys.count)
         for (i, place) in keys.enumerated() {
             guard await ready(.forecasts, draws: false) else { break }
             _ = await model.forecasts.hours(place.key, at: place.at, online: model.network.raw)

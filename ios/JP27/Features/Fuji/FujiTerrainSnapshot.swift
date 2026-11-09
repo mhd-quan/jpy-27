@@ -488,39 +488,48 @@ nonisolated struct FujiTerrainPicture: Sendable {
         return saved
     }
 
-    /// Whether the picture, with this fingerprint, is in memory or on disk, for the offline readiness count: only the
-    /// small `.json` is read (its fingerprint compared, as `read` does), the picture's file is only looked for, nothing
-    /// is decoded or kept and its last use is left as it is.
-    func has(_ request: Request) async -> Bool {
-        if cached(request) != nil { return true }
-        return await Self.onDisk(request.stem, fingerprint: request.fingerprint)
-    }
-
     // MARK: For no signal (Tải tất cả)
 
-    /// Whether the picture, with this fingerprint, is on disk: what a launch with no signal finds. Memory is not asked.
+    /// Whether the picture, with this fingerprint, is on disk: what a launch with no signal finds, and what the offline
+    /// readiness counts. Memory is not asked; only the small `.json` is read (its fingerprint compared, as `read` does),
+    /// the picture's file is only looked for, nothing is decoded or kept and its last use is left as it is.
     func isOnDisk(_ request: Request) async -> Bool {
         await Self.onDisk(request.stem, fingerprint: request.fingerprint)
     }
 
     /// Draws the picture for use with no signal unless it is on disk, and waits for its files: true once they are
-    /// there. A making of the same picture under way (a page's) is waited for, not drawn twice. Nothing is kept in
-    /// memory: the seventy or so pictures Tải tất cả draws in turn would push out what the open pages show. Stored only
-    /// when `keep()` still holds once it is drawn (the signal held, the app stayed in front: MapKit answers only there,
-    /// and a drawing the app left comes back with nothing after the 15 s cap).
+    /// there. One making per picture: a page's under way is joined (as one more waiter, so the page leaving does not
+    /// stop it), and this one is a making too, which a card opened meanwhile joins instead of starting a second
+    /// snapshotter. Nothing is kept in memory: the seventy or so pictures Tải tất cả draws in turn would push out what
+    /// the open pages show. Stored only when `keep()` still holds once it is drawn (the signal held, the app stayed in
+    /// front: MapKit answers only there, and a drawing the app left comes back with nothing after the 15 s cap).
     func drawForKeeping(_ request: Request, keep: () -> Bool) async -> Bool {
         let stem = request.stem, fingerprint = request.fingerprint
         if await Self.onDisk(stem, fingerprint: fingerprint) { return true }
-        let picture: FujiTerrainPicture?
-        if let making = makings[request.key] {
-            picture = await making.task.value
+        let key = request.key
+        let making: Making
+        if var running = makings[key] {
+            running.waiters += 1
+            makings[key] = running
+            making = running
         } else {
-            picture = await draw(request).map { FujiTerrainPicture(image: $0.image, summit: $0.summit, points: $0.points) }
+            serial += 1
+            making = Making(id: serial, task: Task { await self.drawnForKeeping(request) }, waiters: 1)
+            makings[key] = making
         }
+        let picture = await making.task.value
+        if makings[key]?.id == making.id { makings[key] = nil }
         guard let picture, keep() else { return false }
         Self.mark(stem, "kept")
         await Self.store(picture, stem: stem, fingerprint: fingerprint)
         return await Self.onDisk(stem, fingerprint: fingerprint)
+    }
+
+    /// Tải tất cả's making: drawn (it was not on disk), not kept in memory nor written here (`drawForKeeping` writes it
+    /// when `keep()` holds).
+    private func drawnForKeeping(_ request: Request) async -> FujiTerrainPicture? {
+        guard let drawn = await draw(request) else { return nil }
+        return FujiTerrainPicture(image: drawn.image, summit: drawn.summit, points: drawn.points)
     }
 
     /// The pictures Tải tất cả drew for no signal, by stem: the launch trim spares them (a card's other scheme is never
@@ -848,7 +857,7 @@ nonisolated struct FujiTerrainPicture: Sendable {
         return FujiTerrainPicture(image: shown, summit: point(stored.summit), points: stored.spots.compactMapValues { Self.point($0) })
     }
 
-    /// `has`: the `.json` beside the picture with the fingerprint asked for, and the picture's file.
+    /// `isOnDisk`: the `.json` beside the picture with the fingerprint asked for, and the picture's file.
     @concurrent private nonisolated static func onDisk(_ stem: String, fingerprint: String) async -> Bool {
         guard let json = try? Data(contentsOf: folder.appendingPathComponent("\(stem).json")),
               let stored = try? JSONDecoder().decode(StoredPoints.self, from: json), stored.fingerprint == fingerprint else { return false }

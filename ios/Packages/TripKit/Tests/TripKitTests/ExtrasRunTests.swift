@@ -143,11 +143,109 @@ import Testing
 
     @Test func aStopKeptAcrossALaunchComesBackPaused() {
         var run = ExtrasRun()
-        run.request([.dayMaps])
-        run.stopped([.fuji, .forecasts])
+        run.restore([.dayMaps, .fuji, .forecasts], held: [.fuji, .forecasts])
         #expect(run.state(.fuji) == ExtraState(done: 0, total: 0, paused: true))
         #expect(!run.busy([.fuji, .forecasts])); #expect(run.busy([.dayMaps, .fuji]))
         #expect(run.paused == [.fuji, .forecasts]); #expect(run.next == .dayMaps)
+        #expect(run.held == [.fuji, .forecasts])
+        // what was kept for a part no longer in the job is let go
+        var other = ExtrasRun()
+        other.restore([.dayMaps], held: [.fuji])
+        #expect(other.phases == [.dayMaps: .pending]); #expect(other.held.isEmpty)
+        // nothing kept: every part waits its turn
+        var fresh = ExtrasRun()
+        fresh.restore([.fuji, .forecasts], held: [])
+        #expect(fresh.phases == [.fuji: .pending, .forecasts: .pending]); #expect(fresh.held.isEmpty)
+    }
+
+    @Test func aStopHoldsEveryPartAcrossAKillTheOnesOverWithThem() {
+        // day maps drawn in front, then Fuji waiting for the app when the Live Activity's stop comes
+        var run = ExtrasRun()
+        let members: Set<OfflineExtra> = [.dayMaps, .fuji, .forecasts]
+        run.request(members)
+        _ = run.begin(.dayMaps)
+        run.end(.dayMaps, Count(done: 13, total: 13))
+        _ = run.begin(.fuji)
+        run.pause()
+        #expect(run.held == members)
+        // the app is ended before the job is judged; at the next launch the job comes back with what was kept
+        var back = ExtrasRun()
+        back.restore(members, held: run.held)
+        #expect(back.next == nil); #expect(!back.busy(members))
+        #expect(back.phases == [.dayMaps: .paused(nil), .fuji: .paused(nil), .forecasts: .paused(nil)])
+        #expect(back.states(members).values.allSatisfy { $0.paused })
+        // a stop with nothing under way holds what was there all the same
+        var over = ExtrasRun()
+        over.request([.forecasts])
+        _ = over.begin(.forecasts)
+        over.end(.forecasts, Count(done: 32, total: 32))
+        over.pause()
+        #expect(over.held == [.forecasts]); #expect(over.phases[.forecasts] == .finished(Count(done: 32, total: 32)))
+    }
+
+    @Test func aRequestLetsGoOfTheStopOnlyForWhatItAsks() {
+        // a row's own Tải after a stop: that part goes on, the others stay stopped, across a launch too
+        var run = ExtrasRun()
+        run.request(Set(OfflineExtra.allCases))
+        _ = run.begin(.dayMaps)
+        run.counted(.dayMaps, done: 4, total: 13)
+        run.pause()
+        run.request([.fuji])
+        #expect(run.held == [.dayMaps, .forecasts])
+        #expect(run.phases == [.dayMaps: .paused(Count(done: 4, total: 13)), .fuji: .pending, .forecasts: .paused(nil)])
+        #expect(run.next == .fuji); #expect(run.busy([.fuji])); #expect(!run.busy([.dayMaps, .forecasts]))
+        #expect(run.paused == [.dayMaps, .forecasts])
+        var back = ExtrasRun()
+        back.restore(Set(OfflineExtra.allCases), held: run.held)
+        #expect(back.next == .fuji); #expect(back.paused == [.dayMaps, .forecasts])
+        // and the rest asked for: nothing is held
+        run.request([.dayMaps, .forecasts])
+        #expect(run.held.isEmpty); #expect(run.paused.isEmpty)
+    }
+
+    @Test func anEndOnAPartOverChangesNothing() {
+        var run = ExtrasRun()
+        run.request([.fuji])
+        _ = run.begin(.fuji)
+        run.end(.fuji, Count(done: 60, total: 69))
+        run.end(.fuji, Count(done: 69, total: 69))
+        run.end(.fuji, nil)
+        #expect(run.phases[.fuji] == .finished(Count(done: 60, total: 69)))
+        #expect(run.state(.fuji) == ExtraState(done: 60, total: 69, paused: false))
+        #expect(run.next == nil)
+    }
+
+    @Test func aPartWaitingItsTurnAgainKeepsItsCount() {
+        // stepping aside for the forecasts, or asked for again: its count stays on the line while it waits
+        var run = ExtrasRun()
+        run.request([.fuji, .forecasts])
+        _ = run.begin(.fuji)
+        run.counted(.fuji, done: 12, total: 69)
+        run.request([.fuji])
+        run.end(.fuji, Count(done: 12, total: 69))
+        #expect(run.phases[.fuji] == .pending)
+        #expect(run.progress(.fuji) == Count(done: 12, total: 69)); #expect(run.fraction(.fuji) == 12.0 / 69)
+        // its next pass shows it until it counts again
+        _ = run.begin(.fuji)
+        #expect(run.phases[.fuji] == .running(nil)); #expect(run.progress(.fuji) == Count(done: 12, total: 69))
+        run.counted(.fuji, done: 13, total: 69)
+        #expect(run.progress(.fuji) == Count(done: 13, total: 69))
+        run.pause()
+        #expect(run.progress(.fuji) == Count(done: 13, total: 69)); #expect(run.state(.fuji) == ExtraState(done: 13, total: 69, paused: true))
+        // never counted: no count
+        #expect(run.progress(.forecasts) == nil); #expect(run.fraction(.forecasts) == 0)
+        // a part asked for again once over keeps its last count while it waits
+        var again = ExtrasRun()
+        again.request([.dayMaps])
+        _ = again.begin(.dayMaps)
+        again.end(.dayMaps, Count(done: 13, total: 13))
+        again.request([.dayMaps])
+        #expect(again.progress(.dayMaps) == Count(done: 13, total: 13)); #expect(again.state(.dayMaps) == nil)
+        // an end with no count keeps the last one known
+        _ = again.begin(.dayMaps)
+        again.end(.dayMaps, nil)
+        #expect(again.phases[.dayMaps] == .finished(nil)); #expect(again.progress(.dayMaps) == Count(done: 13, total: 13))
+        #expect(again.state(.dayMaps) == nil)
     }
 
     @Test func aCountIsKeptOnlyWhereThePartIsUnderWayOrPaused() {
@@ -227,6 +325,12 @@ import Testing
         // and again
         bar.grew(fraction: 0.9, bar: 950)
         #expect(bar.units(for: 0.95) == 975)
+        // grown again and again with nothing done between (taps in a row): the bar stays, then fills what is left
+        var taps = JobBar()
+        taps.grew(fraction: 0.6, bar: 900)
+        taps.grew(fraction: 0.5, bar: taps.units(for: 0.5))
+        taps.grew(fraction: 0.4, bar: taps.units(for: 0.4))
+        #expect(taps.units(for: 0.4) == 900); #expect(taps.units(for: 0.7) == 950); #expect(taps.units(for: 1) == 1000)
         // grown with nothing left: full once done
         var full = JobBar()
         full.grew(fraction: 1, bar: 400)

@@ -289,6 +289,21 @@ final class MapSnapshots {
     private var running: [String: Task<MapSnapshot?, Never>] = [:]
     /// the snapshotters' delegates, held while they draw (a snapshotter holds its delegate weakly)
     private var stylers: [ObjectIdentifier: SnapshotStyler] = [:]
+    /// a snapshotter drawing, and its waiter
+    private struct Rendering {
+        let snapshotter: MLNMapSnapshotter
+        let done: CheckedContinuation<MapSnapshot?, Never>
+    }
+
+    /// the snapshotters drawing, by number: whichever of its answer and its cap comes first resumes it
+    private var rendering: [Int: Rendering] = [:]
+    /// numbers the drawings
+    private var serial = 0
+    /// A drawing not back by then is given up. A page-sized picture comes back in seconds, its tiles from the packs or
+    /// the network (MapLibre waits for and retries each tile itself), so one this late is stuck: drawn across the app
+    /// going away, where the snapshotter may never answer, and a page or Tải tất cả waiting on it would wait for the rest
+    /// of the launch. Twice Fuji's 15 s, as a picture here may wait on many tiles over a slow signal.
+    private static let cap: Duration = .seconds(30)
 
     private nonisolated static let folder: URL = {
         let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("MapSnapshots", isDirectory: true)
@@ -309,15 +324,9 @@ final class MapSnapshots {
         return saved
     }
 
-    /// Whether the picture is in memory or on disk, for the offline readiness count: nothing is read, decoded or
-    /// kept, and the file's last use is left as it is. The file names carry the whole key (`SnapshotKey.make` hashes
-    /// every input, the content's fingerprint with them), so the picture and its pins being there is the answer.
-    func has(_ request: Request) async -> Bool {
-        if cached(request.key) != nil { return true }
-        return await Self.onDisk(request.key)
-    }
-
-    /// The picture and its pins, both on disk: `read` needs the two.
+    /// The picture and its pins, both on disk: `read` needs the two. Nothing is read, decoded or kept, and the file's
+    /// last use is left as it is. The file names carry the whole key (`SnapshotKey.make` hashes every input, the
+    /// content's fingerprint with them), so the picture and its pins being there is the answer.
     @concurrent private nonisolated static func onDisk(_ key: SnapshotKey) async -> Bool {
         let files = FileManager.default
         return files.fileExists(atPath: folder.appendingPathComponent(key.pointsFileName).path(percentEncoded: false))
@@ -326,7 +335,8 @@ final class MapSnapshots {
 
     // MARK: For no signal (Tải tất cả)
 
-    /// Whether the picture and its pins are on disk: what a launch with no signal finds. Memory is not asked.
+    /// Whether the picture and its pins are on disk: what a launch with no signal finds, and what the offline
+    /// readiness counts. Memory is not asked.
     func isOnDisk(_ request: Request) async -> Bool {
         await Self.onDisk(request.key)
     }
@@ -395,7 +405,10 @@ final class MapSnapshots {
 
     /// On the main thread: MapLibre starts a snapshotter there, and the style work (`SnapshotStyler`)
     /// stays there. The picture shows every stop as not visited (`MapContent.unvisited`); where each pin
-    /// landed is read from the snapshot as it comes back, on the main queue.
+    /// landed is read from the snapshot as it comes back, on the main queue. Whichever comes first resumes the
+    /// waiter once: the answer, or the 30 s cap (`cap`), which also cancels the snapshotter; an answer coming
+    /// later finds nothing to resume and is dropped, never stored. Given up, the picture is nil: a page shows
+    /// none, and Tải tất cả counts it not made in this pass.
     private func render(_ request: Request) async -> MapSnapshot? {
         Perf.mark("map.snapshot")
         let drawn = request.content.unvisited
@@ -411,21 +424,40 @@ final class MapSnapshots {
         defer { stylers[id] = nil }
         let pins = drawn.pins
         let dark = request.dark
+        serial += 1
+        let n = serial
+        let cap = Task { [weak self] in
+            try? await Task.sleep(for: Self.cap)
+            guard !Task.isCancelled else { return }
+            self?.rendered(n, nil)
+        }
+        defer { cap.cancel() }
         return await withCheckedContinuation { (done: CheckedContinuation<MapSnapshot?, Never>) in
-            // started on the main thread, as MapLibre insists; the snapshotter keeps itself alive
-            // until it calls back
+            rendering[n] = Rendering(snapshotter: snapshotter, done: done)
+            // started on the main thread, as MapLibre insists; held in `rendering` until it calls back or is
+            // given up
             snapshotter.start { snapshot, _ in
-                guard let snapshot else {
-                    done.resume(returning: nil)
-                    return
+                var made: MapSnapshot?
+                if let snapshot {
+                    var points: [String: CGPoint] = [:]
+                    for pin in pins where points[pin.id] == nil {
+                        points[pin.id] = snapshot.point(for: CLLocationCoordinate2D(latitude: pin.coordinate.lat, longitude: pin.coordinate.lng))
+                    }
+                    made = MapSnapshot(image: snapshot.image, points: points, dark: dark)
                 }
-                var points: [String: CGPoint] = [:]
-                for pin in pins where points[pin.id] == nil {
-                    points[pin.id] = snapshot.point(for: CLLocationCoordinate2D(latitude: pin.coordinate.lat, longitude: pin.coordinate.lng))
-                }
-                done.resume(returning: MapSnapshot(image: snapshot.image, points: points, dark: dark))
+                let answer = made
+                // called on the main queue (MapLibre's header); the drawings under way are kept on the main actor
+                Task { @MainActor [weak self] in self?.rendered(n, answer) }
             }
         }
+    }
+
+    /// Drawing `n` answered (`made`), or was given up (nil): its waiter resumes, once; given up, the snapshotter
+    /// stops ("Once you call this method, you cannot resume the snapshot"), and MapLibre lets go of its answer.
+    private func rendered(_ n: Int, _ made: MapSnapshot?) {
+        guard let r = rendering.removeValue(forKey: n) else { return }
+        if made == nil { r.snapshotter.cancel() }
+        r.done.resume(returning: made)
     }
 
     /// `MapFraming` (TripKit), as `TripMap.Coordinator.fit` frames the live map: a lone place centred at street

@@ -486,6 +486,15 @@ public enum OfflineExtra: String, Codable, Sendable, CaseIterable {
         }
     }
 
+    /// The extras "Tải tất cả" asks for: those of its plan, and the pictures that read ready, whose pass only checks the
+    /// disk, counts them again and writes their keep list (pictures ready through the pages, or under new names).
+    /// A part that needs a page opened first stays out, as in the plan.
+    public static func forEverything(_ s: [ReadyItem: ReadyState]) -> Set<OfflineExtra> {
+        var extras = Set(Readiness.plan(s).compactMap { OfflineExtra($0) })
+        for extra in [OfflineExtra.dayMaps, .fuji] where s[extra.item] == .ready { extras.insert(extra) }
+        return extras
+    }
+
     /// What the end line says of it short of all: how many of how many when that is known, else that it is missing.
     /// A forecast is fresh or not, so it is never counted there.
     func missing(_ count: (done: Int, total: Int)?) -> String {
@@ -520,9 +529,13 @@ public struct ExtraState: Sendable, Equatable {
 /// - The one loop takes `next`, `begin`s it (a second start is refused), `counted`s it as it goes and `end`s it with
 ///   what is on disk, or with nil when it cannot be counted (a page to open first): over, with no state, which the
 ///   job's end reads as not done.
-/// - Asked for again while it runs: once more after this pass, which may have missed the change.
-/// - `pause()` stops what waits and what runs; a picture in flight lands on a part that stays paused. A stop kept across
-///   a launch comes back by `stopped`. A request after a pause goes on from what is missing.
+/// - Asked for again while it runs: `again`, which the app's loop reads at the part's next item, stopping the pass there
+///   and starting it again (`end` puts it back to pending), so a change it may have missed is seen.
+/// - `pause()` stops what waits and what runs; a picture in flight lands on a part that stays paused. A request after a
+///   pause goes on from what is missing.
+/// - A stop holds every part the run knows, the ones already over with it (`held`), until each is asked for again; kept
+///   across a launch, it comes back by `restore`, so a kill after the stop does not run any of them against it.
+/// - A part waiting its turn again (asked for again, or stepping aside) shows the last count it had.
 public struct ExtrasRun: Sendable, Equatable {
     public struct Count: Sendable, Equatable {
         public let done: Int
@@ -546,12 +559,19 @@ public struct ExtrasRun: Sendable, Equatable {
     }
 
     public private(set) var phases: [OfflineExtra: Phase] = [:]
-    /// asked for while running: once more after this pass
+    /// asked for while running: the loop stops the pass at its next item and starts it again
     public private(set) var again: Set<OfflineExtra> = []
+    /// stopped, and not asked for since: every part the run knew at the stop, the ones over with it; kept across a launch
+    public private(set) var held: Set<OfflineExtra> = []
+    /// the last count of each part, shown while it waits its turn again
+    private var last: [OfflineExtra: Count] = [:]
 
     public init() {}
 
+    /// Asks for parts: each waits its turn, or runs again once its pass stops if it is under way. What was held by a
+    /// stop is let go for these only.
     public mutating func request(_ extras: Set<OfflineExtra>) {
+        held.subtract(extras)
         for extra in extras {
             if case .running? = phases[extra] { again.insert(extra) } else { phases[extra] = .pending }
         }
@@ -567,11 +587,16 @@ public struct ExtrasRun: Sendable, Equatable {
             }
         }
         again = []
+        held.formUnion(phases.keys)
     }
 
-    /// Stopped before the app was ended: back paused at launch, not run against the stop.
-    public mutating func stopped(_ extras: Set<OfflineExtra>) {
-        for extra in extras { phases[extra] = .paused(nil) }
+    /// The job's parts at launch: those `held` before the app was ended come back paused, not run against the stop, the
+    /// ones that were over with them; the others wait their turn. What was kept for a part no longer in the job is let go.
+    public mutating func restore(_ members: Set<OfflineExtra>, held kept: Set<OfflineExtra>) {
+        let stopped = members.intersection(kept)
+        request(members.subtracting(stopped))
+        for extra in stopped { phases[extra] = .paused(nil) }
+        held = stopped
     }
 
     /// The part to run next: the first pending one in the list's order.
@@ -592,8 +617,9 @@ public struct ExtrasRun: Sendable, Equatable {
         switch phases[extra] {
         case .running?: phases[extra] = .running(count)
         case .paused?: phases[extra] = .paused(count)
-        case .pending?, .finished?, nil: break
+        case .pending?, .finished?, nil: return
         }
+        last[extra] = count
     }
 
     /// A pass is over, with what is on disk of it (nil: it cannot be counted).
@@ -604,8 +630,9 @@ public struct ExtrasRun: Sendable, Equatable {
         case .paused?:
             phases[extra] = .paused(count)
         case .pending?, .finished?, nil:
-            break
+            return
         }
+        if let count { last[extra] = count }
     }
 
     /// Any of `members` waiting its turn or under way.
@@ -644,24 +671,28 @@ public struct ExtrasRun: Sendable, Equatable {
         return out
     }
 
-    /// What a part has counted, for the page and the progress line.
+    /// What a part has counted, for the page and the progress line: its count, else the last one it had (a part
+    /// waiting its turn again, or a new pass not counted yet). Nil for a part not asked for.
     public func progress(_ extra: OfflineExtra) -> Count? {
         switch phases[extra] {
-        case .running(let count)?, .finished(let count)?, .paused(let count)?: count
-        case .pending?, nil: nil
+        case .running(let count)?, .finished(let count)?, .paused(let count)?: count ?? last[extra]
+        case .pending?: last[extra]
+        case nil: nil
         }
     }
 
-    /// A part's share of the job's bar, 0…1: nothing while it waits, what it has counted while it runs or is paused,
+    /// A part's share of the job's bar, 0…1: what it has counted (or last counted) while it waits, runs or is paused,
     /// and all of it once over with nothing to count or nothing to draw.
     public func fraction(_ extra: OfflineExtra) -> Double {
         switch phases[extra] {
         case .running(let count)?, .paused(let count)?:
-            return count.map(Self.ratio) ?? 0
+            return (count ?? last[extra]).map(Self.ratio) ?? 0
         case .finished(let count)?:
             guard let count, count.total > 0 else { return 1 }
             return Self.ratio(count)
-        case .pending?, nil:
+        case .pending?:
+            return last[extra].map(Self.ratio) ?? 0
+        case nil:
             return 0
         }
     }

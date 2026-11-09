@@ -12,7 +12,9 @@ import TripKit
 ///   disk, no writes; a download's progress moves them through observation alone.
 /// - **read**: the day maps, the Fuji pictures, the forecasts and the two language packs, read from the disk and the
 ///   system by `refresh()`, one run at a time (`Coalescer`), each file check off the main thread. Counting never
-///   draws, decodes or keeps a picture (`MapSnapshots.has`, `FujiTerrainPictures.has`).
+///   draws, decodes or keeps a picture, and counts only what is on disk (`MapSnapshots.isOnDisk`,
+///   `FujiTerrainPictures.isOnDisk`): a picture a page drew with no signal is held only in memory, which a launch with
+///   no signal does not find.
 ///
 /// `refresh()` is asked for on discrete changes only (the page or Settings opening, a download ending, the app coming
 /// back, a pack installed), never on a progress tick.
@@ -110,7 +112,7 @@ import TripKit
             // nil: the page's light or dark cannot be told yet (its photograph's colour is not read), so not ready
             guard let request = await Prefetch.dayMapRequest(day, photo: HomePicks.photo(for: day, store: store), model: model, page: page)
             else { continue }
-            if await MapSnapshots.shared.has(request) { done += 1 }
+            if await MapSnapshots.shared.isOnDisk(request) { done += 1 }
         }
         return done == days.count ? .ready : .missing(done: done, total: days.count)
     }
@@ -123,7 +125,7 @@ import TripKit
         case .pictures(let requests):
             var done = 0
             for request in requests {
-                if await FujiTerrainPictures.shared.has(request) { done += 1 }
+                if await FujiTerrainPictures.shared.isOnDisk(request) { done += 1 }
             }
             return done == requests.count ? .ready : .missing(done: done, total: requests.count)
         }
