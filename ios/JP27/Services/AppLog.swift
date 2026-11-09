@@ -83,6 +83,13 @@ nonisolated enum AppLog {
         await writer.recent(limit: limit, minimum: minimum)
     }
 
+    /// How many day files the last `recent` could not read (Logs/ itself counts as one when it could
+    /// not be listed); 0 when it read them all, and before the first. `recent` shows what it can, so
+    /// the log page says this under its lines: some may be missing.
+    static func unreadable() async -> Int {
+        await writer.unreadable
+    }
+
     /// Bytes the log takes on disk: every file of Logs/, the reports in `diagnostics/` with them. (The
     /// 10 MB cap counts the day files only.)
     static func usage() async -> Int {
@@ -109,28 +116,26 @@ nonisolated enum AppLog {
         await writer.keep(reports)
     }
 
-    /// The log as a .zip in the temporary folder, for the share sheet: "JP27-log-<yyyyMMdd-HHmm>.zip",
-    /// holding Logs/ (the day files, `diagnostics/`), metrics/ (Caches/metrics, MetricKit's daily
-    /// payloads) and `info.json`, which is `info` as given (keys sorted). The caller builds `info` from
-    /// what is not private (version, iOS, model, language, settings, offline readiness, checks): never
-    /// the phone's name (`UIDevice.name`) nor anything the user typed. Everything waiting is written
-    /// first; the zip is made by `NSFileCoordinator`'s `.forUploading`, off the main thread. The
-    /// previous exports' zips are deleted.
+    /// The log as a .zip for the share sheet, in a folder of its own in the temporary folder:
+    /// "tmp/<UUID>/JP27-log-<yyyyMMdd-HHmm>.zip", holding Logs/ (the day files, `diagnostics/`),
+    /// metrics/ (Caches/metrics, MetricKit's daily payloads) and `info.json`, which is `info` as given
+    /// (keys sorted). The caller builds `info` from what is not private (version, iOS, model, language,
+    /// settings, offline readiness, checks): never the phone's name (`UIDevice.name`) nor anything the
+    /// user typed. Everything waiting is written first; the zip is made by `NSFileCoordinator`'s
+    /// `.forUploading`, off the main thread. No export touches another's folder, so two at once, or a
+    /// share sheet still open on an earlier zip, never break each other; nothing here deletes an earlier
+    /// zip: iOS empties the temporary folder.
     @concurrent static func export(info: [String: String]) async throws -> URL {
         let files = FileManager.default
-        let temporary = files.temporaryDirectory
         let name = LogRetention.exportName(Date(), in: .autoupdatingCurrent)
-        // the earlier exports' zips: their share sheets are closed by now; a leftover only costs space
-        for old in (try? files.contentsOfDirectory(at: temporary, includingPropertiesForKeys: nil)) ?? []
-        where old.lastPathComponent.hasPrefix("JP27-log-") && old.pathExtension == "zip" {
-            try? files.removeItem(at: old)
-        }
         // a folder of its own, so a second export within the minute, or one a killed export left, is
         // never in the way
-        let scratch = temporary.appending(path: UUID().uuidString, directoryHint: .isDirectory)
-        // the copies only: the zip has left it before this runs
-        defer { try? files.removeItem(at: scratch) }
-        let work = scratch.appending(path: name, directoryHint: .isDirectory)
+        let own = files.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        let work = own.appending(path: name, directoryHint: .isDirectory)
+        let zip = own.appending(path: name + ".zip", directoryHint: .notDirectory)
+        var moved = false
+        // the copies (the zip has left them before this runs), and the folder too unless it holds the zip
+        defer { try? files.removeItem(at: moved ? work : own) }
         try files.createDirectory(at: work, withIntermediateDirectories: true)
         try await writer.copy(into: work)
         if files.fileExists(atPath: MetricsInbox.folder.path(percentEncoded: false)) {
@@ -139,10 +144,8 @@ nonisolated enum AppLog {
         let about = try JSONSerialization.data(withJSONObject: info, options: [.prettyPrinted, .sortedKeys])
         try about.write(to: work.appending(path: "info.json", directoryHint: .notDirectory), options: .atomic)
 
-        let zip = temporary.appending(path: name + ".zip", directoryHint: .notDirectory)
         var refused: NSError?
         var failed: (any Error)?
-        var moved = false
         // the zip exists only inside the block (the coordinator unlinks it after), so it moves out
         // there; when coordinating fails the block never runs, and `refused` says why
         NSFileCoordinator(filePresenter: nil).coordinate(readingItemAt: work, options: .forUploading, error: &refused) { zipped in
@@ -243,6 +246,11 @@ private actor LogWriter {
     /// day files whose last append failed halfway and could not be taken back: the next line starts
     /// on its own
     private var broken: Set<String> = []
+    /// the day file last found full: said once (`fail`), not on every write until midnight; its lost
+    /// lines are still counted
+    private var fullDay: String?
+    /// day files the last `recent` could not read (`AppLog.unreadable`)
+    private(set) var unreadable = 0
 
     private static let full = "Log hôm nay đã quá 10 MB"
     private static let queueFull = "Hàng đợi log đầy"
@@ -302,7 +310,11 @@ private actor LogWriter {
             }
             if added < end - start {
                 lose(end - start - added, because: Self.full)
-                fail(Self.full)
+                // in the background every line is its own write: one Console error a day, not a line
+                if fullDay != name {
+                    fullDay = name
+                    fail(Self.full)
+                }
             }
             written += added
             start = end
@@ -422,13 +434,9 @@ private actor LogWriter {
     /// The day files past 14 days or 10 MB, deleted (`LogRetention.toDelete`); after every write, so
     /// the folder never stays over the cap until the day changes.
     private func trim() {
-        let files = FileManager.default
-        guard files.fileExists(atPath: folder.path(percentEncoded: false)) else { return }
         let listing: [LogFile]
         do {
-            listing = try files.contentsOfDirectory(at: folder, includingPropertiesForKeys: [.fileSizeKey]).map { url in
-                LogFile(name: url.lastPathComponent, bytes: try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0)
-            }
+            listing = try regularFiles(in: folder)
         } catch {
             fail("Không đọc được thư mục log: \(error.localizedDescription)")
             return
@@ -453,10 +461,24 @@ private actor LogWriter {
     /// (Tokyo to Hanoi) an earlier day's file gets newer lines than a later one.
     func recent(limit: Int, minimum: LogLevel) -> [LogLine] {
         write()
+        unreadable = 0
         guard limit > 0 else { return [] }
+        // a folder or a file that cannot be read is left out: the page shows what it can, and
+        // `unreadable` how many it could not
+        let names: [String]
+        do {
+            names = try dayFiles()
+        } catch {
+            names = []
+            unreadable = 1
+        }
         var found: [(line: LogLine, order: Int)] = []
-        for name in dayFiles() {
-            for line in tail(of: name, limit: limit, minimum: minimum) { found.append((line, found.count)) }
+        for name in names {
+            guard let lines = tail(of: name, limit: limit, minimum: minimum) else {
+                unreadable += 1
+                continue
+            }
+            for line in lines { found.append((line, found.count)) }
         }
         // what no write could take yet: newer than anything on disk
         let held = backlog.drain()
@@ -468,20 +490,20 @@ private actor LogWriter {
     }
 
     /// The day files, by name
-    private func dayFiles() -> [String] {
-        // a folder that cannot be listed reads as empty: the page shows what it can
-        let names = (try? FileManager.default.contentsOfDirectory(atPath: folder.path(percentEncoded: false))) ?? []
-        return names.filter { $0.hasSuffix(".jsonl") }.sorted()
+    private func dayFiles() throws -> [String] {
+        try regularFiles(in: folder).map(\.name).filter { $0.hasSuffix(".jsonl") }.sorted()
     }
 
-    /// The newest `limit` lines at `minimum` or above of the day file `name`, in the file's order. A
-    /// line that does not decode (cut short, from a later build) is skipped.
-    private func tail(of name: String, limit: Int, minimum: LogLevel) -> [LogLine] {
+    /// The newest `limit` lines at `minimum` or above of the day file `name`, in the file's order; nil
+    /// when the file cannot be read. A line that does not decode (cut short, from a later build) is
+    /// skipped.
+    private func tail(of name: String, limit: Int, minimum: LogLevel) -> [LogLine]? {
         let data: Data
         do {
             data = try Data(contentsOf: folder.appending(path: name, directoryHint: .notDirectory))
         } catch {
-            return []
+            // the caller counts it: one file the page could not show
+            return nil
         }
         var lines: [LogLine] = []
         for chunk in data.split(separator: 0x0A).reversed() {
@@ -495,19 +517,23 @@ private actor LogWriter {
     /// Bytes of the regular files in Logs/ and Logs/diagnostics/.
     func usage() -> Int {
         write()
-        // a folder or a size that cannot be read counts nothing: this is a figure to show, not a decision
-        let urls = ((try? regularFiles(in: folder)) ?? []) + ((try? regularFiles(in: reports)) ?? [])
-        return urls.reduce(0) { total, url in
-            total + ((try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
-        }
+        // a folder that cannot be read counts nothing: this is a figure to show, not a decision
+        let all = ((try? regularFiles(in: folder)) ?? []) + ((try? regularFiles(in: reports)) ?? [])
+        return all.reduce(0) { $0 + $1.bytes }
     }
 
-    /// The regular files directly in `directory`; none when it was not made yet.
-    private func regularFiles(in directory: URL) throws -> [URL] {
+    /// The one listing of Logs/ and Logs/diagnostics/: the regular files directly in `directory`, each
+    /// its name there and its size; none when it was not made yet. Which names count is each caller's
+    /// (`LogRetention`, `dayFiles`).
+    private func regularFiles(in directory: URL) throws -> [LogFile] {
         guard FileManager.default.fileExists(atPath: directory.path(percentEncoded: false)) else { return [] }
-        let keys: Set<URLResourceKey> = [.isRegularFileKey]
+        let keys: Set<URLResourceKey> = [.isRegularFileKey, .fileSizeKey]
         return try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: Array(keys))
-            .filter { try $0.resourceValues(forKeys: keys).isRegularFile == true }
+            .compactMap { url in
+                let values = try url.resourceValues(forKeys: keys)
+                guard values.isRegularFile == true else { return nil }
+                return LogFile(name: url.lastPathComponent, bytes: values.fileSize ?? 0)
+            }
     }
 
     // MARK: Clearing, the export, MetricKit
@@ -522,10 +548,14 @@ private actor LogWriter {
         writeError = nil
         failure = nil
         broken = []
+        fullDay = nil
+        unreadable = 0
         // the files only, never the folders: Logs/ keeps its backup flag
         for directory in [folder, reports] {
             do {
-                for url in try regularFiles(in: directory) { remove(url) }
+                for file in try regularFiles(in: directory) {
+                    remove(directory.appending(path: file.name, directoryHint: .notDirectory))
+                }
             } catch {
                 fail("Không đọc được thư mục \(directory.lastPathComponent): \(error.localizedDescription)")
             }
@@ -565,7 +595,7 @@ private actor LogWriter {
         }
         let names: [String]
         do {
-            names = try files.contentsOfDirectory(atPath: reports.path(percentEncoded: false))
+            names = try regularFiles(in: reports).map(\.name)
         } catch {
             fail("Không đọc được thư mục báo cáo chẩn đoán: \(error.localizedDescription)")
             return

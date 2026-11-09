@@ -199,6 +199,32 @@ import Testing
         #expect(LogRetention.toDelete(heavy, today: "2026-11-09.jsonl") == ["2026-11-08.jsonl"])
     }
 
+    @Test func retentionRejectsALongerExtensionWithTheSameLength() {
+        // ".jsonx" is as long as ".jsonl" and starts the same: not a day file, so neither deleted nor counted
+        let all = files([("2026-10-01.jsonx", 1), ("2026-10-01.jsonl", 1), ("2026-11-09.jsonl", 1)])
+        #expect(LogRetention.toDelete(all, today: "2026-11-09.jsonl") == ["2026-10-01.jsonl"])
+    }
+
+    @Test func retentionKnowsACenturyYearIsNotLeap() {
+        // 2100 is divisible by 100 and not by 400: it has no 29 February; 2000 does
+        let all = files([("2100-02-29.jsonl", 1), ("2100-03-30.jsonl", 1)])
+        #expect(LogRetention.toDelete(all, today: "2100-03-30.jsonl") == [])
+        let leap = files([("2000-02-29.jsonl", 1), ("2000-03-30.jsonl", 1)])
+        #expect(LogRetention.toDelete(leap, today: "2000-03-30.jsonl") == ["2000-02-29.jsonl"])
+    }
+
+    @Test func retentionTreatsANegativeSizeAsZero() {
+        // a size read as negative takes nothing off the total: 10_001_000 bytes still over the cap
+        let all = files([("2026-11-07.jsonl", 1000), ("2026-11-08.jsonl", -5_000_000), ("2026-11-09.jsonl", 10_000_000)])
+        #expect(LogRetention.toDelete(all, today: "2026-11-09.jsonl") == ["2026-11-07.jsonl"])
+    }
+
+    @Test func retentionResultIsSortedWhateverTheListingOrder() {
+        // deleted by age, listed in no order: the result is still by name
+        let all = files([("2026-10-03.jsonl", 1), ("2026-10-01.jsonl", 1), ("2026-10-02.jsonl", 1), ("2026-11-09.jsonl", 1)])
+        #expect(LogRetention.toDelete(all, today: "2026-11-09.jsonl") == ["2026-10-01.jsonl", "2026-10-02.jsonl", "2026-10-03.jsonl"])
+    }
+
     @Test func retentionWithoutAValidTodayDeletesNothing() {
         let old = files([("2026-01-01.jsonl", 20_000_000), ("2026-11-09.jsonl", 1)])
         #expect(LogRetention.toDelete(old, today: "notes.txt") == [])
