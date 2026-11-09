@@ -368,13 +368,9 @@ nonisolated struct FujiTerrainPicture: Sendable {
 @Observable final class FujiTerrainPictures {
     static let shared = FujiTerrainPictures()
 
-    #if DEBUG
-    /// Settings › Chẩn đoán › "Fuji: chỉ ảnh địa hình" (Debug, not kept): the picture alone, never the live map, so
+    /// Cài đặt › Hỗ trợ › Nhà phát triển › "Fuji: chỉ ảnh địa hình" (not kept: off at every launch): the picture alone, never the live map, so
     /// what the snapshotter draws can be looked at (the 5.3 spike)
     static var pictureOnly = false
-    #else
-    static let pictureOnly = false
-    #endif
 
     /// A picture asked for: the camera and the viewpoints, at a size, scale and scheme, with its name and fingerprint
     /// made once.
@@ -910,8 +906,7 @@ nonisolated struct FujiTerrainPicture: Sendable {
         }
     }
 
-    #if DEBUG
-    /// Settings › Chẩn đoán (Debug): the pictures on disk and what the folder's own files hold, "6 ảnh HEIC · 2,1 MB".
+    /// Cài đặt › Hỗ trợ › Nhà phát triển: the pictures on disk and what the folder's own files hold, "6 ảnh HEIC · 2,1 MB".
     @concurrent nonisolated static func usage() async -> String {
         let keys: [URLResourceKey] = [.fileSizeKey]
         let urls = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys)) ?? []
@@ -921,7 +916,7 @@ nonisolated struct FujiTerrainPicture: Sendable {
         return "\(pictures) ảnh \(format.ext.uppercased()) · " + ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
     }
 
-    /// Settings › Chẩn đoán › Xoá (Debug): every picture, in memory and in `Caches/Fuji` (the cache's own files only),
+    /// Cài đặt › Hỗ trợ › Nhà phát triển › Xoá: every picture, in memory and in `Caches/Fuji` (the cache's own files only),
     /// so the next page draws its picture afresh.
     func clear() async {
         memory.removeAllObjects()
@@ -937,5 +932,4 @@ nonisolated struct FujiTerrainPicture: Sendable {
             try? files.removeItem(at: folder.appendingPathComponent(name, isDirectory: false))
         }
     }
-    #endif
 }

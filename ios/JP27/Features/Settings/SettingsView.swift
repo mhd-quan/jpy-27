@@ -13,6 +13,8 @@ struct SettingsView: View {
     @AppStorage(SpeechPace.key) private var pace: SpeechPace = .normal
     /// AlarmKit and ActivityKit permissions are read, not observed: read again each time this page shows
     @State private var permissionTick = 0
+    /// what the log takes on disk (`AppLog.usage`), read each time this page shows
+    @State private var logBytes: Int?
 
     var body: some View {
         @Bindable var model = model
@@ -70,6 +72,13 @@ struct SettingsView: View {
                     }
                 }
                 Section {
+                    NavigationLink(value: SettingsRoute.checks) {
+                        SettingsLabel(title: "Kiểm tra", symbol: "checkmark.seal.fill", tint: .green, value: CheckRun.shared.summary)
+                    }
+                    NavigationLink(value: SettingsRoute.log) {
+                        SettingsLabel(title: "Log", symbol: "doc.text.fill", tint: .gray,
+                                      value: logBytes.map { ByteCountFormatter.string(fromByteCount: Int64($0), countStyle: .file) })
+                    }
                     NavigationLink(value: SettingsRoute.metrics) {
                         SettingsLabel(title: "Số đo", symbol: "chart.bar.xaxis", tint: .indigo)
                     }
@@ -93,6 +102,7 @@ struct SettingsView: View {
             .onAppear {
                 permissionTick += 1
                 if model.offline.areas.isEmpty { model.offline.configure(store: model.store) }
+                Task { logBytes = await AppLog.usage() }
             }
             // the notification permission as it is now, for the Quyền value and "Cần xem"
             .task { await model.notifications.refreshStatus() }
@@ -101,16 +111,21 @@ struct SettingsView: View {
         }
     }
 
-    /// Cần xem: only what needs a look now, each row leading to where it is put right. The records that
-    /// failed to open come first, with their file to send for rescue.
+    /// Cần xem: only what needs a look now, each row leading to where it is put right. A pretend failure of Nhà
+    /// phát triển first, as a red band that turns it off; then the records that failed to open, with their file to
+    /// send for rescue.
     @ViewBuilder private func attention(_ permissions: PermissionStates) -> some View {
+        let pretending = Records.pretending
         let problem = Records.problem
         let stale = !model.offline.stale.isEmpty
         let alarm = model.alarms.lastError
         // stale maps have their own row, which says more
         let unready = !stale && offlineUnready
-        if problem != nil || permissions.off > 0 || stale || alarm != nil || unready {
+        if pretending || problem != nil || permissions.off > 0 || stale || alarm != nil || unready {
             Section("Cần xem") {
+                if pretending {
+                    PretendBand()
+                }
                 if let problem {
                     Label {
                         Text(problem).font(.subheadline)
@@ -188,10 +203,37 @@ private struct SettingsDestination: View {
         case .journal: SettingsPage(title: "Nhật ký vị trí") { JournalSection() }
         case .offline: OfflinePage()
         case .offlineMaps: OfflineMapsPage()
+        case .checks: SettingsPage(title: "Kiểm tra") { ChecksPage() }
+        case .log: LogPage()
         case .metrics: SettingsPage(title: "Số đo") { MetricsSection() }
         case .sources: SettingsPage(title: "Nguồn") { SourcesSection() }
         case .developer: SettingsPage(title: "Nhà phát triển") { DeveloperSection() }
         }
+    }
+}
+
+/// "Đang giả lỗi lưu": a pretend failure of Nhà phát triển is on (saves or ledger reads), in the system's red, with
+/// its "Tắt" that turns both off at once.
+private struct PretendBand: View {
+    var body: some View {
+        HStack {
+            Label {
+                Text("Đang giả lỗi lưu").fontWeight(.semibold)
+            } icon: {
+                Image(systemName: "xmark.octagon.fill")
+            }
+            Spacer()
+            Button("Tắt") {
+                Records.failSaves = .off
+                Records.failReads = false
+                AppLog.info(.dev, "Tắt giả lỗi")
+            }
+            .buttonStyle(.borderless)
+            .fontWeight(.semibold)
+        }
+        .foregroundStyle(.white)
+        .tint(.white)
+        .listRowBackground(Color.red)
     }
 }
 

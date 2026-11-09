@@ -232,8 +232,7 @@ import UserNotifications
         try? await center.add(UNNotificationRequest(identifier: "near.\(place.id)", content: content, trigger: nil))
     }
 
-    #if DEBUG
-    /// Settings › Chẩn đoán: a planned food stop's notification as builds before item ids posted it,
+    /// Cài đặt › Hỗ trợ › Nhà phát triển: a planned food stop's notification as builds before item ids posted it,
     /// its "Đã tới" carrying the day and the item's index only (the old keys spelled here on purpose),
     /// for the device checks of Task 2.1c (docs/superpowers/checklists/2026-11-device-phase1-3.md).
     func arrivedAsBeforeIDs(at place: Place, day: String, index: Int) async {
@@ -247,7 +246,6 @@ import UserNotifications
         content.userInfo = ["link": DeepLink.menu(place.id).url.absoluteString, "place": place.id, "day": day, "index": index]
         try? await center.add(UNNotificationRequest(identifier: "near.\(place.id)", content: content, trigger: nil))
     }
-    #endif
 
     /// At the boarding station of a fixed departure: which train, which side, start the Live Activity.
     func atStation(_ station: Place, ride: Ride, departure: String?) async {

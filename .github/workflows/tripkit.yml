@@ -109,13 +109,25 @@ jobs:
       # written by the same code on both, and both must agree
       - name: TripKit tests (macOS)
         run: swift test --package-path ios/Packages/TripKit
+      # The build the owner runs (the scheme's Run is Release): compiled only, no tests. Code that differs by
+      # configuration (`#if DEBUG`, the optimiser's own diagnostics) is caught here, not in an archive on the Mac.
+      # One architecture is enough to compile it
+      - name: Build (Release)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild build -project JP27.xcodeproj -scheme JP27 -configuration Release \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO ARCHS=arm64 \
+            2>&1 | tee "$RUNNER_TEMP/xcodebuild-release.log"
       - name: Warnings
         if: always()
         run: |
           log="$RUNNER_TEMP/xcodebuild.log"
-          touch "$log"
-          # xcodebuild repeats a warning for each pass that sees it
-          grep -E ': warning: ' "$log" | sort -u > "$RUNNER_TEMP/warnings.txt" || true
+          release="$RUNNER_TEMP/xcodebuild-release.log"
+          touch "$log" "$release"
+          # both builds, Debug and Release, counted once: xcodebuild repeats a warning for each pass that sees it,
+          # and the two builds share most of theirs
+          cat "$log" "$release" | grep -E ': warning: ' | sort -u > "$RUNNER_TEMP/warnings.txt" || true
           grep -E '/ios/(JP27|JP27Widgets|Shared)/' "$RUNNER_TEMP/warnings.txt" > "$RUNNER_TEMP/own.txt" || true
           total=$(wc -l < "$RUNNER_TEMP/warnings.txt" | tr -d ' ')
           own=$(wc -l < "$RUNNER_TEMP/own.txt" | tr -d ' ')
@@ -136,5 +148,7 @@ jobs:
         if: always()
         with:
           name: xcodebuild-log
-          path: ${{ runner.temp }}/xcodebuild.log
+          path: |
+            ${{ runner.temp }}/xcodebuild.log
+            ${{ runner.temp }}/xcodebuild-release.log
           retention-days: 7

@@ -5,7 +5,7 @@ import TripKit
 
 // The app's own numbers: how long a transition takes from the tap to the end of its animation, and
 // what MetricKit reports once a day (hitches, launch time, those transitions in the field). Read in
-// Instruments (os_signpost) and in Cài đặt › Chẩn đoán › Số đo; docs/perf/2026-11-baseline.md says
+// Instruments (os_signpost) and in Cài đặt › Hỗ trợ › Số đo; docs/perf/2026-11-baseline.md says
 // which name is which scenario.
 
 enum Perf {

@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import SwiftData
 import TripKit
 
@@ -187,13 +188,16 @@ enum Records {
     /// the file the user can send for a rescue when the main store would not open
     private(set) static var unreadable: URL?
 
-    #if DEBUG
-    /// Settings › Chẩn đoán › "Giả lỗi lưu": which `commit`s fail, before anything is written, as a
-    /// full disk would. The two best-effort copies (the side store folded in, the rehearsal's copy)
-    /// do not commit and are left alone. Off at every launch.
-    static var failSaves = FailSaves.off
+    /// Cài đặt › Hỗ trợ › Nhà phát triển › "Giả lỗi lưu": which `commit`s fail, before anything is written, as a
+    /// full disk would. The two best-effort copies (the side store folded in, the rehearsal's copy) do not commit and
+    /// are left alone. Held in memory only (`PretendFailures`): off at every launch, and the main page's red band and
+    /// the picker follow it, also when "Lần lưu tới" turns itself off.
+    static var failSaves: FailSaves {
+        get { PretendFailures.shared.saves }
+        set { PretendFailures.shared.saves = newValue }
+    }
 
-    nonisolated enum FailSaves: CaseIterable, Identifiable, Sendable {
+    nonisolated enum FailSaves: String, CaseIterable, Identifiable, Sendable {
         case off
         /// the next commit fails, then this goes back to `off`: a "Thử lại" that works
         case next
@@ -211,11 +215,16 @@ enum Records {
         }
     }
 
-    /// Settings › Chẩn đoán › "Giả lỗi đọc sổ chi": every read of the ledger a decision is made on
-    /// (`Ledger.fetch`) fails, as a store that opened but cannot be read would, until switched off.
-    /// Off at every launch.
-    static var failReads = false
-    #endif
+    /// Cài đặt › Hỗ trợ › Nhà phát triển › "Giả lỗi đọc sổ chi": every read of the ledger a decision is made on
+    /// (`Ledger.fetch`) fails, as a store that opened but cannot be read would, until switched off. In memory only:
+    /// off at every launch.
+    static var failReads: Bool {
+        get { PretendFailures.shared.reads }
+        set { PretendFailures.shared.reads = newValue }
+    }
+
+    /// a pretend failure is on: the main page shows its red band
+    static var pretending: Bool { failSaves != .off || failReads }
 
     private static var folder: URL { URL.applicationSupportDirectory }
     static var mainURL: URL { folder.appending(path: "Trip.store") }
@@ -400,14 +409,21 @@ nonisolated struct SaveFailure: LocalizedError {
     var errorDescription: String? { underlying.localizedDescription }
 }
 
-#if DEBUG
+/// The pretend failures of Nhà phát triển (`Records.failSaves`, `failReads`), observable so what shows them redraws
+/// when they change. Never stored: a launch starts with both off (spec 2.4).
+@Observable final class PretendFailures {
+    static let shared = PretendFailures()
+
+    var saves = Records.FailSaves.off
+    var reads = false
+}
+
 /// What `Records.failSaves` makes a save fail with, and `Records.failReads` a read.
 private nonisolated struct PretendFailure: LocalizedError {
     var reading = false
 
-    var errorDescription: String? { reading ? "Giả lỗi đọc sổ chi (Chẩn đoán)" : "Giả lỗi lưu (Chẩn đoán)" }
+    var errorDescription: String? { reading ? "Giả lỗi đọc sổ chi (Nhà phát triển)" : "Giả lỗi lưu (Nhà phát triển)" }
 }
-#endif
 
 /// A write that failed, as the user is told (`AppModel.persist`): what was not saved, and why.
 struct SaveIssue: Identifiable, Equatable {
@@ -421,13 +437,11 @@ extension ModelContext {
     /// throws, so what the screens read matches the disk: no view shows an expense, a mark or a
     /// merged ledger that was never written, and nothing half-written waits for the next save.
     @MainActor func commit() throws(SaveFailure) {
-        #if DEBUG
         if Records.failSaves != .off {
             if Records.failSaves == .next { Records.failSaves = .off }
             rollback()
             throw SaveFailure(underlying: PretendFailure())
         }
-        #endif
         do {
             try save()
         } catch {
@@ -466,9 +480,7 @@ extension Expense {
     /// What `descriptor` finds, for a decision about the money; throws, as a write that failed does,
     /// when the records could not be read.
     static func fetch<T: PersistentModel>(_ descriptor: FetchDescriptor<T>, in context: ModelContext) throws(SaveFailure) -> [T] {
-        #if DEBUG
         if Records.failReads { throw SaveFailure(underlying: PretendFailure(reading: true)) }
-        #endif
         do {
             return try context.fetch(descriptor)
         } catch {

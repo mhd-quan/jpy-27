@@ -231,7 +231,7 @@ final class AlarmKitScheduler: AlarmScheduling {
 
     var authorized: Bool { scheduler.isAuthorized }
 
-    /// An error is shown in Settings › Chẩn đoán and counts as a no.
+    /// An error is shown in Cài đặt › Cần xem and counts as a no.
     @discardableResult
     func requestAuthorization() async -> Bool {
         await core.requestAuthorization()
@@ -275,7 +275,6 @@ final class AlarmKitScheduler: AlarmScheduling {
         core.reconcile()
     }
 
-    #if DEBUG
     /// What AlarmKit holds for the app right now, by state ("đang reo 1 · đang chờ 2"), for the
     /// device checks.
     func systemAlarmsSummary() -> String {
@@ -290,8 +289,7 @@ final class AlarmKitScheduler: AlarmScheduling {
                 return count > 0 ? "\(name) \(count)" : nil
             }.joined(separator: " · ")
         } catch {
-            return "Không đọc được: \(error)"
+            return "Không đọc được: \(error.localizedDescription)"
         }
     }
-    #endif
 }

@@ -1,22 +1,21 @@
 import SwiftUI
 import TripKit
 
-// Nhà phát triển: the frame readings over the map, the reschedule count, and the Debug build's tools.
+// Nhà phát triển, in every build (spec 2.4): the frame readings over the map, the reschedule count, and the tools
+// the device checks use. Each use of a tool is a line of the log (`dev`).
 
-/// What the map really draws, measured on the phone: for a jerky map, numbers instead of guesses. And
-/// how often reminders, geofences and alarms were set again. The tools below those exist only in the
-/// Debug build, until Task 7 of the offline-and-settings plan brings them to every build.
+/// The tools of the device checks, here in Release too, for the build the owner really runs. A pretend failure is
+/// switched on only through "Bật giả lỗi?", never kept past a relaunch (`Records.failSaves`, `failReads`), and the
+/// main page shows a red band while one is on. Deleting the Fuji pictures asks first: Tải tất cả downloaded them.
 struct DeveloperSection: View {
+    /// "Chi tiết kiểm tra ở màn đi tàu": the ride card's lines for the device checks (`RideView`), off by default
+    static let rideDetailsKey = "dev.rideDetails"
+
     @Environment(AppModel.self) private var model
     @AppStorage(MapPacer.readingsKey) private var readings = false
-    #if DEBUG
+    @AppStorage(Self.rideDetailsKey) private var rideDetails = false
     /// what AlarmKit listed, the last time it was asked
     @State private var systemAlarms: String?
-    /// `Records.failSaves`, as the picker shows it (read again on coming back: "Lần lưu tới" turns
-    /// itself off)
-    @State private var failSaves = Records.failSaves
-    /// `Records.failReads`, as the switch shows it
-    @State private var failReads = Records.failReads
     /// what the last `uniqueProbe` found
     @State private var unique: String?
     /// the latest fix taken (`LocationService.fixedAt`), read on opening the page and on a tap
@@ -25,15 +24,27 @@ struct DeveloperSection: View {
     @State private var mapPictures: String?
     /// how far the photos' tones moved from the 96 px thumbnail, the last time it was asked
     @State private var toneDrift: String?
-    /// `FujiTerrainPictures.pictureOnly`, as the switch shows it
+    /// `FujiTerrainPictures.pictureOnly`, as the switch shows it (a static: not observed)
     @State private var fujiPictureOnly = FujiTerrainPictures.pictureOnly
     /// what `Caches/Fuji` holds, read on opening the page and after "Xoá"
     @State private var fujiPictures: String?
-    #endif
+    /// a pretend failure asked for, waiting for "Bật"
+    @State private var pending: Pending?
+    /// "Xoá" of the Fuji pictures asked for, waiting for its confirmation
+    @State private var clearingFuji = false
+
+    /// What "Bật giả lỗi?" would switch on.
+    private enum Pending: Equatable {
+        case saves(Records.FailSaves)
+        case reads
+    }
 
     var body: some View {
         Section {
-            Toggle(isOn: $readings) {
+            Toggle(isOn: Binding(get: { readings }, set: { on in
+                readings = on
+                AppLog.info(.dev, "Đo khung hình bản đồ", ["value": "\(on)"])
+            })) {
                 Label {
                     Text("Đo khung hình bản đồ")
                 } icon: {
@@ -43,7 +54,7 @@ struct DeveloperSection: View {
         } footer: {
             Text("Hiện ở góc bản đồ thời gian của từng khung hình.")
         }
-        Section {
+        Section("Nhắc giờ và báo thức") {
             // since launch, as of when this page opened: one per return to the app before the trip
             LabeledContent {
                 Text("\(model.reschedules) lần").monospacedDigit()
@@ -54,10 +65,10 @@ struct DeveloperSection: View {
                     SettingsIcon(symbol: "arrow.triangle.2.circlepath", tint: .gray)
                 }
             }
-            #if DEBUG
             testAlarm(minutes: 2)
             testAlarm(minutes: 5)
             Button {
+                AppLog.info(.dev, "Báo thức trong hệ thống")
                 systemAlarms = model.alarms.systemAlarmsSummary()
             } label: {
                 Label {
@@ -71,8 +82,20 @@ struct DeveloperSection: View {
                     SettingsIcon(symbol: "list.bullet", tint: .gray)
                 }
             }
-            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 1.4
-            Picker(selection: $failSaves) {
+            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 2.1c
+            testArrived(asBeforeIDs: false)
+            testArrived(asBeforeIDs: true)
+        }
+        Section("Sổ ghi chép") {
+            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 1.4. Off is at once; any other
+            // choice waits for "Bật" (the picker shows the real value meanwhile)
+            Picker(selection: Binding(get: { Records.failSaves }, set: { choice in
+                if choice == .off {
+                    setSaves(.off)
+                } else if choice != Records.failSaves {
+                    pending = .saves(choice)
+                }
+            })) {
                 ForEach(Records.FailSaves.allCases) { Text($0.label).tag($0) }
             } label: {
                 Label {
@@ -84,9 +107,9 @@ struct DeveloperSection: View {
                     SettingsIcon(symbol: "xmark.octagon", tint: .red)
                 }
             }
-            .onChange(of: failSaves) { _, choice in Records.failSaves = choice }
-            .onAppear { failSaves = Records.failSaves }
-            Toggle(isOn: $failReads) {
+            Toggle(isOn: Binding(get: { Records.failReads }, set: { on in
+                if on { pending = .reads } else { setReads(false) }
+            })) {
                 Label {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Giả lỗi đọc sổ chi")
@@ -96,9 +119,8 @@ struct DeveloperSection: View {
                     SettingsIcon(symbol: "xmark.octagon", tint: .red)
                 }
             }
-            .onChange(of: failReads) { _, on in Records.failReads = on }
-            .onAppear { failReads = Records.failReads }
             Button {
+                AppLog.info(.dev, "Thử ghi trùng chỉ số")
                 unique = model.uniqueProbe()
             } label: {
                 Label {
@@ -112,12 +134,29 @@ struct DeveloperSection: View {
                     SettingsIcon(symbol: "square.on.square", tint: .gray)
                 }
             }
-            // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 2.1c
-            testArrived(asBeforeIDs: false)
-            testArrived(asBeforeIDs: true)
+        }
+        // swiping the alert away is "Huỷ"; the choice comes with the button, so the order of the two does not matter
+        .alert("Bật giả lỗi?", isPresented: Binding(get: { pending != nil }, set: { if !$0 { pending = nil } }), presenting: pending) { p in
+            Button("Bật") { apply(p) }
+            Button("Huỷ", role: .cancel) {}
+        } message: { p in
+            Text(p == .reads ? "Đọc sổ chi sẽ báo lỗi tới khi tắt hoặc mở lại app." : "Lưu sẽ báo lỗi tới khi tắt hoặc mở lại app.")
+        }
+        Section("Đi tàu và bản đồ") {
+            Toggle(isOn: Binding(get: { rideDetails }, set: { on in
+                rideDetails = on
+                AppLog.info(.dev, "Chi tiết kiểm tra ở màn đi tàu", ["value": "\(on)"])
+            })) {
+                Label {
+                    Text("Chi tiết kiểm tra ở màn đi tàu")
+                } icon: {
+                    SettingsIcon(symbol: "tram.fill", tint: .gray)
+                }
+            }
             // for docs/superpowers/checklists/2026-11-device-phase1-3.md, Bước 0: fixes still taken after
             // the phone's clock was set back (`Presence.takes`)
             Button {
+                AppLog.info(.dev, "Vị trí lúc")
                 lastFix = lastFixSummary()
             } label: {
                 Label {
@@ -134,6 +173,7 @@ struct DeveloperSection: View {
             // it frame the same view; marking stops adds no picture
             NavigationLink {
                 MapFrameCheck()
+                    .onAppear { AppLog.info(.dev, "So khung bản đồ") }
             } label: {
                 Label {
                     Text("So khung bản đồ")
@@ -151,9 +191,12 @@ struct DeveloperSection: View {
                 }
             }
             .task { mapPictures = await MapSnapshots.usage() }
+        }
+        Section("Ảnh và Fuji") {
             // for docs/perf/2026-11-device-perf-phase4-5.md, Task 5.1a: the tone of a photo read from the decode its
             // page draws, against the one the 96 px thumbnail gave before
             Button {
+                AppLog.info(.dev, "So màu ảnh")
                 let photos = toneDriftPhotos()
                 toneDrift = "Đang so \(photos.count) ảnh…"
                 Task { toneDrift = await PhotoCache.toneDrift(photos) }
@@ -171,7 +214,11 @@ struct DeveloperSection: View {
             }
             // for docs/perf/2026-11-device-perf-phase4-5.md, Task 5.3: what MapKit's snapshotter draws of the terrain,
             // with no live map coming in under it (not kept)
-            Toggle(isOn: $fujiPictureOnly) {
+            Toggle(isOn: Binding(get: { fujiPictureOnly }, set: { on in
+                fujiPictureOnly = on
+                FujiTerrainPictures.pictureOnly = on
+                AppLog.info(.dev, "Fuji: chỉ ảnh địa hình", ["value": "\(on)"])
+            })) {
                 Label {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Fuji: chỉ ảnh địa hình")
@@ -181,19 +228,15 @@ struct DeveloperSection: View {
                     SettingsIcon(symbol: "mountain.2", tint: Palette.fuji)
                 }
             }
-            .onChange(of: fujiPictureOnly) { _, on in FujiTerrainPictures.pictureOnly = on }
             .onAppear { fujiPictureOnly = FujiTerrainPictures.pictureOnly }
             LabeledContent {
                 HStack(spacing: 12) {
                     Text(fujiPictures ?? "—").monospacedDigit()
-                    // only the folder's own pictures, and those in memory: the next page draws its picture afresh
-                    Button("Xoá", role: .destructive) {
-                        Task {
-                            await FujiTerrainPictures.shared.clear()
-                            fujiPictures = await FujiTerrainPictures.usage()
-                        }
-                    }
-                    .buttonStyle(.borderless)
+                    // only the folder's own pictures, and those in memory: the next page draws its picture afresh.
+                    // Not while a download runs: Tải tất cả may be drawing them now
+                    Button("Xoá", role: .destructive) { clearingFuji = true }
+                        .buttonStyle(.borderless)
+                        .disabled(model.downloads.busy)
                 }
             } label: {
                 Label {
@@ -203,11 +246,41 @@ struct DeveloperSection: View {
                 }
             }
             .task { fujiPictures = await FujiTerrainPictures.usage() }
-            #endif
+        }
+        .alert("Xoá ảnh địa hình Fuji?", isPresented: $clearingFuji) {
+            Button("Xoá", role: .destructive) {
+                AppLog.info(.dev, "Xoá ảnh địa hình Fuji")
+                Task {
+                    await FujiTerrainPictures.shared.clear()
+                    fujiPictures = await FujiTerrainPictures.usage()
+                    // Dùng khi mất sóng says what is there now
+                    await model.downloads.readiness.refresh()
+                }
+            }
+            Button("Huỷ", role: .cancel) {}
+        } message: {
+            Text("Trang Fuji khi mất sóng thiếu ảnh tới khi tải lại.")
         }
     }
 
-    #if DEBUG
+    /// Switches on what "Bật giả lỗi?" asked for.
+    private func apply(_ p: Pending) {
+        switch p {
+        case .saves(let choice): setSaves(choice)
+        case .reads: setReads(true)
+        }
+    }
+
+    private func setSaves(_ choice: Records.FailSaves) {
+        Records.failSaves = choice
+        AppLog.info(.dev, "Giả lỗi lưu", ["value": choice.rawValue])
+    }
+
+    private func setReads(_ on: Bool) {
+        Records.failReads = on
+        AppLog.info(.dev, "Giả lỗi đọc sổ chi", ["value": "\(on)"])
+    }
+
     /// For "So màu ảnh": the day covers (JPEG, the most shrunk when a tone is read) first, then bundled place
     /// photos by name, twenty in all
     private func toneDriftPhotos() -> [Photo] {
@@ -234,6 +307,7 @@ struct DeveloperSection: View {
             let day = model.focusDay
             guard let (i, stop) = day.stops.first(where: { model.store.place($0.stop.place)?.kind == .food && !model.isDone(day, $0.index) }),
                   let place = model.store.place(stop.place) else { return }
+            AppLog.info(.dev, "Thông báo Đã tới thử", ["kind": asBeforeIDs ? "old" : "new"])
             Task {
                 if asBeforeIDs {
                     await model.notifications.arrivedAsBeforeIDs(at: place, day: day.key, index: i)
@@ -256,6 +330,7 @@ struct DeveloperSection: View {
     /// second moves the first by more than two minutes, so it is a replacement.
     private func testAlarm(minutes: Double) -> some View {
         Button {
+            AppLog.info(.dev, "Báo thức thử", ["minutes": "\(Int(minutes))"])
             Task { await model.alarms.alight(rideID: "debug.wake", station: "Ga thử", at: Date().addingTimeInterval(minutes * 60)) }
         } label: {
             Label {
@@ -265,5 +340,4 @@ struct DeveloperSection: View {
             }
         }
     }
-    #endif
 }

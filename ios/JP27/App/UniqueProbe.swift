@@ -1,11 +1,10 @@
 import Foundation
 import SwiftData
 
-#if DEBUG
-// Debug only: answers, on the phone, what this build's SwiftData does with a write that breaks
-// `#Unique` (docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 1.4, step 9).
+// Answers, on the phone, what this build's SwiftData does with a write that breaks `#Unique`
+// (docs/superpowers/checklists/2026-11-device-phase1-3.md, Task 1.4, step 9). In every build (spec 2.4).
 extension AppModel {
-    /// Settings › Chẩn đoán › "Thử ghi trùng chỉ số": what this phone's SwiftData does when one write
+    /// Cài đặt › Hỗ trợ › Nhà phát triển › "Thử ghi trùng chỉ số": what this phone's SwiftData does when one write
     /// puts two marks of a day on one index (`#Unique` on day and index), the clash `loadRecords`
     /// writes in two steps to avoid. Two marks on a day no plan has (0 and 1) swap indexes, then one
     /// is moved onto the other's. Says for each whether the write failed or went through, and which
@@ -49,4 +48,3 @@ extension AppModel {
         return [swap, onto].joined(separator: "\n")
     }
 }
-#endif

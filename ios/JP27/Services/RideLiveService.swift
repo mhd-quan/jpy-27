@@ -307,11 +307,9 @@ import TripKit
         }
     }
 
-    #if DEBUG
     /// When the followed ride ends on its own, by the clock (`RideTracker.deadline`), on the trip's
     /// clock, for the device checks.
     var deadline: Date? { followedAt.flatMap { tracker?.deadline(followedAt: $0) } }
-    #endif
 
     private func makeState(_ s: RideTracker.Status, model: AppModel) -> RideAttributes.ContentState {
         guard let ride else { return .init(next: "", nextJa: "", stopsLeft: 0, progress: 0, arrival: nil, fuji: nil, view: nil, alight: false, arrived: false) }

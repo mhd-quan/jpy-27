@@ -10,7 +10,7 @@ enum SettingsRoute: Hashable {
     case appearance, map
     case permissions, journal
     case offline, offlineMaps
-    case metrics, sources, developer
+    case checks, log, metrics, sources, developer
 }
 
 /// The coloured tile in front of a settings row, as in the system's Settings. The glyph is fitted into the

@@ -631,9 +631,8 @@ actor PhotoCache {
     }
 }
 
-#if DEBUG
 extension PhotoCache {
-    /// For the device check of Task 5.1a (Settings › Nhà phát triển › So màu ảnh): how far the tone read from
+    /// For the device check of Task 5.1a (Cài đặt › Hỗ trợ › Nhà phát triển › So màu ảnh): how far the tone read from
     /// the decode an album page draws (`derive`) strays from the one the 96 px thumbnail gave before
     /// (0,02 a channel at most passes), and, as the fallback, how far the tone of the veil's 160 px
     /// base, before its blur, strays. Read from the bundle; nothing is kept.
@@ -665,7 +664,6 @@ extension PhotoCache {
         var text: String { "\(Fmt.decimal(most, digits: 3)) (\(channel)) \(src)" }
     }
 }
-#endif
 
 // MARK: - Prefetch
 

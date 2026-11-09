@@ -545,8 +545,7 @@ final class MapSnapshots {
         }
     }
 
-    #if DEBUG
-    /// Settings › Chẩn đoán (Debug): the pictures on disk and what the folder holds, "12 ảnh · 3,1 MB".
+    /// Cài đặt › Hỗ trợ › Nhà phát triển: the pictures on disk and what the folder holds, "12 ảnh · 3,1 MB".
     @concurrent nonisolated static func usage() async -> String {
         let keys: [URLResourceKey] = [.fileSizeKey]
         let urls = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys)) ?? []
@@ -557,11 +556,9 @@ final class MapSnapshots {
         if old > 0 { line += " · \(old) ảnh kiểu cũ" }
         return line
     }
-    #endif
 }
 
-#if DEBUG
-/// Settings › Chẩn đoán › So khung bản đồ (Debug): a day's picture and the live map of the same content, at
+/// Cài đặt › Hỗ trợ › Nhà phát triển › So khung bản đồ: a day's picture and the live map of the same content, at
 /// the size and insets of the day's page, one above the other or the live map at half strength over the
 /// picture: both should frame the same view (`MapFraming`), as the live map replaces a picture on a tap.
 struct MapFrameCheck: View {
@@ -610,7 +607,6 @@ struct MapFrameCheck: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
-#endif
 
 /// Puts the trip's layers into a snapshot's style with the code that puts them into a map's.
 final class SnapshotStyler: NSObject, MLNMapSnapshotterDelegate {

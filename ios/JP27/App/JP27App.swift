@@ -57,7 +57,7 @@ final class JP27AppDelegate: NSObject, UIApplicationDelegate {
             "ios": UIDevice.current.systemVersion,
         ])
         AppModel.shared.location.start()
-        // the day's hitches, launch times and transitions, delivered once a day (Chẩn đoán › Số đo)
+        // the day's hitches, launch times and transitions, delivered once a day (Hỗ trợ › Số đo)
         MXMetricManager.shared.add(MetricsInbox.shared)
         // the maps' pictures held to 40 MB, the old format's gone, never those Tải tất cả drew for no signal; off the
         // main thread, and nothing waits for it
