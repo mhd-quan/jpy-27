@@ -701,11 +701,37 @@ enum Prefetch {
     /// The page a day opens into, measured on the home (`TodayHome`), which sits in the same navigation stack, under
     /// the same bars, as the day page it pushes: the width, the length `heroFrame` measures
     /// (`containerRelativeFrame`, the scroll view less its safe area), the screen's scale, the system's dark.
-    nonisolated struct Page: Sendable {
+    nonisolated struct Page: Codable, Equatable, Sendable {
         let width: CGFloat
         let length: CGFloat
         let scale: CGFloat
         let dark: Bool
+
+        /// a page that could be one: finite, at least a point each way, a screen's scale
+        var plausible: Bool {
+            width.isFinite && length.isFinite && scale.isFinite && width >= 1 && length >= 1 && scale >= 1 && scale <= 4
+        }
+    }
+
+    private static let pageKey = "prefetch.page"
+
+    /// The page as the home measured it last (`TodayHome`), kept across launches: the size the day maps are
+    /// counted and drawn at for use without signal (`OfflineReadiness`). Nil until measured, or when what is
+    /// kept cannot be read back as a page. Written only when it changes.
+    static var lastPage: Page? {
+        get {
+            guard let data = UserDefaults.standard.data(forKey: pageKey),
+                  let page = try? JSONDecoder().decode(Page.self, from: data), page.plausible else { return nil }
+            return page
+        }
+        set {
+            guard newValue != lastPage else { return }
+            if let newValue, newValue.plausible, let data = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(data, forKey: pageKey)
+            } else if newValue == nil {
+                UserDefaults.standard.removeObject(forKey: pageKey)
+            }
+        }
     }
 
     /// the day page's hero on `page` (`heroFrame(fraction: DayPage.heroFraction)`)
@@ -798,24 +824,41 @@ enum Prefetch {
     /// page's own from the disk (`MapSnapshots.store`).
     private static func dayMap(_ day: Day, photo: Photo?, model: AppModel, moment: Moment, page: Page,
                                ticket: NewestFew<String>.Ticket) async {
+        guard let ask = await dayMapAsk(day, photo: photo, model: model, page: page), !Task.isCancelled else { return }
+        let request = ask.request
+        // read here, after the last wait and just before the draw: a touch that came during the colour or the
+        // fingerprint keeps this run from drawing
+        if moment == .rest, ask.known, !touched.contains(ticket) {
+            _ = await MapSnapshots.shared.snapshot(for: request)
+        } else {
+            _ = await MapSnapshots.shared.stored(request)
+        }
+    }
+
+    /// The picture of a day's map the day page will ask for on `page` (`PlanDayHeader`'s `StaticTripMap`), for the
+    /// offline readiness count and for drawing it ahead (Task 6). Nil when the page's light or dark cannot be told
+    /// yet: the day has a photograph whose colour has not been read (`PhotoCache.knownTone`), and a picture asked
+    /// for in the system's scheme then would be the wrong one, and would prune the right one once drawn.
+    static func dayMapRequest(_ day: Day, photo: Photo?, model: AppModel, page: Page) async -> MapSnapshots.Request? {
+        guard let ask = await dayMapAsk(day, photo: photo, model: model, page: page), ask.known else { return nil }
+        return ask.request
+    }
+
+    /// What `dayMap` and `dayMapRequest` both ask, made in one place so the two never name different pictures: the
+    /// content, the frame, the insets, the size, the scale and the scheme of the day page's map, and whether that
+    /// scheme is known (no photograph, or its colour read). Nil for a page too narrow for a map.
+    private static func dayMapAsk(_ day: Day, photo: Photo?, model: AppModel, page: Page) async -> (request: MapSnapshots.Request, known: Bool)? {
         let size = mapSize(page)
-        guard size.width >= 1 else { return }
+        guard size.width >= 1 else { return nil }
         let system: ColorScheme = page.dark ? .dark : .light
         // the colour the page will be made with: read when it is made, as here (`PageTone.init`)
         let canvas = PageTone(photo).canvas(dim: page.dark)
         let known = photo == nil || canvas != nil
         let scheme = DayPage.mapScheme(photo: photo, canvas: canvas, system: system) ?? system
         let printed = await fingerprinted(.day(day, model: model))
-        guard !Task.isCancelled else { return }
         let request = MapSnapshots.Request(printed, frameID: day.key, insets: DayPage.mapInsets, size: size,
                                            scale: page.scale, dark: scheme == .dark)
-        // read here, after the last wait and just before the draw: a touch that came during the colour or the
-        // fingerprint keeps this run from drawing
-        if moment == .rest, known, !touched.contains(ticket) {
-            _ = await MapSnapshots.shared.snapshot(for: request)
-        } else {
-            _ = await MapSnapshots.shared.stored(request)
-        }
+        return (request, known)
     }
 
     /// The day's hero: its album picture at the page's hero size; in Low Power Mode, or with no page measured, the

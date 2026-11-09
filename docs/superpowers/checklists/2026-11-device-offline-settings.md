@@ -72,3 +72,27 @@ tắc bật; vẫn giữ khi bật Nguồn điện thấp (người dùng đã c
 | 6 | Theo dõi một chuyến với công tắc bật, mở một thẻ câu toàn màn (Sổ tay), vào Cài đặt tắt công tắc giữ sáng rồi quay lại thẻ (hoặc kết thúc chuyến trong lúc thẻ mở), để yên. Rồi đóng thẻ. | Thẻ vẫn giữ màn sáng. Đóng thẻ, không còn chuyến giữ sáng: màn khoá theo cài đặt máy. | |
 | 7 | Tắt một quyền trong Cài đặt của iPhone (ví dụ Ảnh: Không). Mở Cài đặt của app. Chạm "1 quyền đang tắt" ở Cần xem, bấm "Mở Cài đặt", cho phép lại, quay về app. | Riêng tư › Quyền ghi "4/5 đã bật", Cần xem có "1 quyền đang tắt". Sau khi cho phép lại, trang Quyền vẫn mở (không tự lùi về trang chính) và dòng Ảnh có dấu tích; lùi về: dòng Cần xem đã mất, Quyền ghi "5/5 đã bật". | |
 | 8 | Trang chính, cuối trang. Đổi Giao diện, kính, bóng địa hình, tốc độ đọc, giữ sáng, nhật ký vị trí, một ngày thay thế, bắt đầu rồi dừng Chạy thử. Vào trang Log (Task 7) hoặc Console. | Chân trang ghi "JP27 <phiên bản> (<build>) · Dữ liệu nghiên cứu ngày …". Mỗi lần đổi một dòng nhóm `settings`: "Giao diện", "Kính trên bản đồ", "Bóng địa hình", "Đọc tiếng Nhật", "Giữ màn hình sáng khi đi tàu", "Nhật ký vị trí", "Ngày thay thế", "Chạy thử", mỗi dòng một `value` là lựa chọn (`dark`, `false`, `slow`, `on`, khoá ngày…), không có chữ tự gõ. | |
+
+## § 5 — Task 5: Sẵn sàng khi mất sóng — trạng thái 7 mục, gói ngôn ngữ
+
+Cài đặt › Dùng khi mất sóng mở đầu bằng nhóm "Sẵn sàng khi mất sóng": Bản đồ, Ảnh bản đồ các ngày, Ảnh quán, khách
+sạn, Ảnh địa hình Fuji, Dự báo mây, Gói dịch Nhật–Việt, Gói nghe tiếng Nhật. Danh sách vùng nay ở trang con "Bản đồ
+offline" (chạm dòng Bản đồ). Dòng "Dùng khi mất sóng" ở trang chính ghi "Sẵn sàng", "Thiếu N mục", "Đang tải 42%"
+hoặc "Cần tải lại". Ảnh bản đồ các ngày, Fuji và dự báo chỉ tải được bằng "Tải tất cả" (Task 6); ở đây chỉ kiểm
+trạng thái của chúng. Ảnh Fuji được đếm cả sáng lẫn tối cho mỗi thẻ chỗ ngắm và mỗi khu (khoảng 70 ảnh).
+
+Làm trên bản cài mới (xoá app JP27 trước bước 1), Wi‑Fi, trừ khi bước ghi khác.
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | Bản cài mới, **chưa mở** trang Fuji hay thẻ chỗ ngắm nào. Mở Cài đặt › Dùng khi mất sóng. | Trong chốc lát các dòng ghi "Đang kiểm tra…", rồi: Ảnh bản đồ các ngày ghi "x/y ngày" (trang Hôm nay đã hiện lúc mở app) hoặc "Mở trang Hôm nay một lần"; Ảnh địa hình Fuji ghi "Mở trang Fuji một lần"; Dự báo mây ghi "Chưa mới · 0/32 nơi"; trang chính ghi "Thiếu N mục". | |
+| 2 | Mở trang Fuji (tab Lịch trình › Fuji), quay lại trang Dùng khi mất sóng. Rồi mở thẻ chỗ ngắm **không có ảnh chụp**: hiện chỉ có Fujisan Yume no Ōhashi (ngày 5; đầu thẻ là địa hình), quay lại. Rồi mở thẻ một chỗ ngắm **có ảnh chụp** (ví dụ Tháp Chūreitō: có mục "Tia ngắm"), quay lại. | Sau trang Fuji: "Mở một chỗ ngắm chưa có ảnh chụp". Sau thẻ không ảnh: "Mở một chỗ ngắm có ảnh chụp". Sau thẻ có ảnh: "x/70 ảnh" (x nhỏ: chỉ những ảnh đã vẽ khi mở). | |
+| 3 | Dòng Bản đồ: chạm vào. Trên "Bản đồ offline", tải "Toàn tuyến" và một vùng nhỏ (Nara). Vuốt trái một vùng đã tải. Quay lại trong lúc đang tải. | Trang con có đủ vùng như trước, "Toàn tuyến" đầu tiên; vuốt trái hiện "Xoá", giữ lâu hiện menu "Xoá", chạm "Tải" và vòng có rung như trước. Ở trang Dùng khi mất sóng, dòng Bản đồ ghi "Đang tải x%" rồi "2/11 vùng · <dung lượng>"; trang chính ghi "Đang tải x%" khi đang tải. | |
+| 4 | Dòng Ảnh quán, khách sạn: chạm "Tải" (hay vòng). Đợi xong. | Dòng tới "Đã lưu đủ N ảnh"; trước đó vòng chạy và dừng được như trước. | |
+| 5 | Dòng Gói dịch Nhật–Việt (nếu ghi "Chưa tải"): chạm "Tải". | iOS hiện **hộp xác nhận của nó** đúng một lần (không hai hộp chồng nhau), phủ trên trang này. Xác nhận, đợi: dòng tới "Sẵn sàng" (có thể cần ra vào trang một lần). Nếu gói đã có từ trước: dòng ghi "Sẵn sàng", không có nút. Máy không dịch được: "Máy này chưa dịch được Nhật sang Việt". | |
+| 6 | Dòng Gói nghe tiếng Nhật (nếu ghi "Chưa tải"): chạm "Tải". | Dòng ghi "Đang tải x%", tăng khoảng mỗi giây, rồi "Sẵn sàng". Sau đó tab Sổ tay › Nghe bắt đầu nghe ngay, không tải gì thêm. Máy không có tiếng Nhật cho nghe (nếu có máy như thế): "Máy này chưa nghe được tiếng Nhật", không có nút. | |
+| 7 | Gói nghe chưa có (máy khác, hoặc Cài đặt iPhone › Chung › Dung lượng: không xoá được thì bỏ bước này). Bật Chế độ máy bay, chạm "Tải" ở Gói nghe. | Nút bị mờ khi máy bay; nếu bấm được trước khi mất mạng: dòng ghi lý do lỗi hoặc "Chờ có mạng", không treo "Đang tải 0%" mãi. | |
+| 8 | Có mạng. Mở trang Fuji và để thẻ "Mây lúc này" tải; mở vài thẻ chỗ ngắm. Quay lại Dùng khi mất sóng. | Dự báo mây ghi "Chưa mới · x/32 nơi · cập nhật <giờ Nhật>" (giờ của dự báo cũ nhất; thêm "ngày d/m" nếu không phải hôm nay ở Nhật). | |
+| 9 | Đổi Giao diện của máy (Sáng ↔ Tối) khi đang ở trang Hôm nay, rồi về Dùng khi mất sóng. | Ảnh bản đồ các ngày đếm lại theo chế độ mới (ngày không có ảnh bìa đổi ảnh bản đồ theo sáng tối), số có thể giảm; không treo, không lỗi. | |
+| 10 | Mở Log (Task 7) hoặc Console sau các bước trên. | Nhóm `offline` có dòng "Sẵn sàng khi mất sóng" với `item`, `state` mỗi khi một mục đổi loại trạng thái (không phải mỗi phần trăm); "Tải gói nghe tiếng Nhật" `start`/`installed`. Không có chữ người dùng gõ. | |
+| 11 | **Chỉ kiểm được từ 4/10/2027** (14 ngày trước chuyến, theo đồng hồ thật; Chạy thử không đổi được). Khi còn mục thiếu, mở Cài đặt. Rồi làm cho đủ, mở lại. | Cần xem có "Chưa sẵn sàng khi mất sóng", chạm vào mở Dùng khi mất sóng; khi bản đồ cũ thì chỉ có "Bản đồ offline cần tải lại". Khi mọi mục sẵn sàng (hoặc không hỗ trợ): dòng biến mất. Sau 29/10/2027 (giờ Nhật) không còn hiện. | |

@@ -63,6 +63,12 @@ struct TalkSentence: Identifiable, Hashable {
 
     var isListening: Bool { state == .listening }
 
+    /// The transcriber the listener runs, made in one place: the system picks the assets from the module's
+    /// configuration, so the offline readiness (`OfflineReadiness`) asks about, and installs, exactly these.
+    nonisolated static func transcriber(locale: Locale) -> SpeechTranscriber {
+        SpeechTranscriber(locale: locale, transcriptionOptions: [], reportingOptions: [.volatileResults], attributeOptions: [])
+    }
+
     func toggle() async {
         if isListening { await stop() } else { await start() }
     }
@@ -86,7 +92,7 @@ struct TalkSentence: Identifiable, Hashable {
             state = .unavailable("Máy này chưa nghe được tiếng Nhật.")
             return
         }
-        let transcriber = SpeechTranscriber(locale: locale, transcriptionOptions: [], reportingOptions: [.volatileResults], attributeOptions: [])
+        let transcriber = Self.transcriber(locale: locale)
         // which step a failure below came from, for the log
         var step = "asset"
         do {

@@ -96,6 +96,8 @@ struct SettingsView: View {
             }
             // the notification permission as it is now, for the Quyền value and "Cần xem"
             .task { await model.notifications.refreshStatus() }
+            // what is ready for no signal, for "Dùng khi mất sóng" and "Cần xem"
+            .task { await model.downloads.readiness.refresh() }
         }
     }
 
@@ -105,7 +107,9 @@ struct SettingsView: View {
         let problem = Records.problem
         let stale = !model.offline.stale.isEmpty
         let alarm = model.alarms.lastError
-        if problem != nil || permissions.off > 0 || stale || alarm != nil {
+        // stale maps have their own row, which says more
+        let unready = !stale && offlineUnready
+        if problem != nil || permissions.off > 0 || stale || alarm != nil || unready {
             Section("Cần xem") {
                 if let problem {
                     Label {
@@ -129,6 +133,11 @@ struct SettingsView: View {
                         SettingsLabel(title: "Bản đồ offline cần tải lại", symbol: "arrow.down.circle.fill", tint: .orange)
                     }
                 }
+                if unready {
+                    NavigationLink(value: SettingsRoute.offline) {
+                        SettingsLabel(title: "Chưa sẵn sàng khi mất sóng", symbol: "arrow.down.circle.fill", tint: .orange)
+                    }
+                }
                 if let alarm {
                     Label {
                         VStack(alignment: .leading, spacing: 2) {
@@ -143,14 +152,21 @@ struct SettingsView: View {
         }
     }
 
-    /// "Đang tải 42%", "4/10 vùng · 182 MB", or "Chưa tải"
-    private var offlineValue: String {
-        let offline = model.offline
-        if model.downloads.busy { return "Đang tải \(Int(model.downloads.fraction * 100))%" }
-        if !offline.stale.isEmpty { return "Cần tải lại" }
-        guard offline.totalBytes > 0 else { return "Chưa tải" }
-        let size = ByteCountFormatter.string(fromByteCount: Int64(offline.totalBytes), countStyle: .file)
-        return "\(offline.complete.count)/\(offline.areas.count) vùng · \(size)"
+    /// "Sẵn sàng", "Thiếu 2 mục", "Đang tải 42%" or "Cần tải lại" (`Readiness.summary`); nothing until what is ready
+    /// has been read once, unless a download or stale maps already tell
+    private var offlineValue: String? {
+        let downloads = model.downloads
+        let stale = !model.offline.stale.isEmpty
+        guard downloads.readiness.checked || downloads.busy || stale else { return nil }
+        return Readiness.summary(downloads.readiness.states, mapsStale: stale, downloading: downloads.busy ? downloads.fraction : nil)
+    }
+
+    /// Not all ready for no signal, from 14 days before the trip to its end by the real clock (never the rehearsal's:
+    /// the trip itself is what it gets ready for).
+    private var offlineUnready: Bool {
+        let meta = model.store.trip.meta
+        guard model.downloads.readiness.checked, let value = offlineValue, value != Readiness.ready else { return false }
+        return Readiness.watching(now: Date(), start: meta.start, end: meta.end)
     }
 
     private static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
@@ -170,7 +186,8 @@ private struct SettingsDestination: View {
         case .map: SettingsPage(title: "Bản đồ") { MapOptionsSection() }
         case .permissions: SettingsPage(title: "Quyền") { PermissionsSection() }
         case .journal: SettingsPage(title: "Nhật ký vị trí") { JournalSection() }
-        case .offline: SettingsPage(title: "Dùng khi mất sóng") { OfflinePage() }
+        case .offline: OfflinePage()
+        case .offlineMaps: OfflineMapsPage()
         case .metrics: SettingsPage(title: "Số đo") { MetricsSection() }
         case .sources: SettingsPage(title: "Nguồn") { SourcesSection() }
         case .developer: SettingsPage(title: "Nhà phát triển") { DeveloperSection() }

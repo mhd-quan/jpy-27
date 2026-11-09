@@ -34,17 +34,20 @@ struct FujiTerrainSnapshot: View {
     /// the page's light or dark when it is laid on a colour of its own (`AmbientCanvas.scheme`); nil: the
     /// environment's
     let scheme: ColorScheme?
+    /// where on its page the picture sits, for the sizes kept for the offline readiness (`FujiTerrainPictures.lastSizes`)
+    let slot: FujiTerrainPictures.Slot?
     /// the scheme the page opened in, held while it comes on screen: a page colour read during the zoom changes the
     /// picture once the zoom is over, never inside it (as `StaticTripMap`)
     @State private var opened: ColorScheme?
 
     init(camera: FujiCamera.Shot, spots: [FujiGuide.Spot], selection: String?, plotInset: EdgeInsets = EdgeInsets(),
-         scheme: ColorScheme? = nil) {
+         scheme: ColorScheme? = nil, slot: FujiTerrainPictures.Slot? = nil) {
         self.camera = camera
         self.spots = spots
         self.selection = selection
         self.plotInset = plotInset
         self.scheme = scheme
+        self.slot = slot
         _opened = State(initialValue: scheme)
     }
 
@@ -63,6 +66,13 @@ struct FujiTerrainSnapshot: View {
             if geo.size.width >= 1, geo.size.height >= 1 {
                 TerrainLayers(camera: camera, spots: spots, selection: selection, plotInset: plotInset,
                               size: geo.size, scale: scale, dark: dark, settled: settled)
+                    // the size this slot is drawn at, kept for the offline readiness (written only when it changes)
+                    .onChange(of: geo.size, initial: true) { _, size in
+                        if let slot { FujiTerrainPictures.keep(size, scale: scale, for: slot) }
+                    }
+                    .onChange(of: scale) { _, scale in
+                        if let slot { FujiTerrainPictures.keep(geo.size, scale: scale, for: slot) }
+                    }
             }
         }
     }
@@ -478,6 +488,134 @@ nonisolated struct FujiTerrainPicture: Sendable {
         return saved
     }
 
+    /// Whether the picture, with this fingerprint, is in memory or on disk, for the offline readiness count: only the
+    /// small `.json` is read (its fingerprint compared, as `read` does), the picture's file is only looked for, nothing
+    /// is decoded or kept and its last use is left as it is.
+    func has(_ request: Request) async -> Bool {
+        if cached(request) != nil { return true }
+        return await Self.onDisk(request.stem, fingerprint: request.fingerprint)
+    }
+
+    // MARK: What the offline readiness counts
+
+    /// Where a picture sits, each drawn at its own size: the Fuji page's hero (an area), a viewpoint's card whose hero
+    /// it is (a viewpoint with no photographs), and the 220 pt map under a card's photographs ("Tia ngắm").
+    nonisolated enum Slot: String, Codable, CaseIterable, Sendable {
+        case area, spot, sight
+
+        /// what to open so this slot's size is measured
+        var setup: String {
+            switch self {
+            case .area: "Mở trang Fuji một lần"
+            case .spot: "Mở một chỗ ngắm chưa có ảnh chụp"
+            case .sight: "Mở một chỗ ngắm có ảnh chụp"
+            }
+        }
+    }
+
+    /// The sizes kept, `"fuji.sizes"`: each slot's in points, and the screen's scale.
+    private nonisolated struct Sizes: Codable, Equatable {
+        var area: [Double]?
+        var spot: [Double]?
+        var sight: [Double]?
+        var scale: Double?
+
+        subscript(slot: Slot) -> [Double]? {
+            get {
+                switch slot {
+                case .area: area
+                case .spot: spot
+                case .sight: sight
+                }
+            }
+            set {
+                switch slot {
+                case .area: area = newValue
+                case .spot: spot = newValue
+                case .sight: sight = newValue
+                }
+            }
+        }
+    }
+
+    private static let sizesKey = "fuji.sizes"
+
+    private static var savedSizes: Sizes {
+        guard let data = UserDefaults.standard.data(forKey: sizesKey),
+              let sizes = try? JSONDecoder().decode(Sizes.self, from: data) else { return Sizes() }
+        return sizes
+    }
+
+    /// A size read back: two finite numbers, at least a point each. Anything else is no size.
+    private static func size(_ xy: [Double]?) -> CGSize? {
+        guard let xy, xy.count == 2, xy[0].isFinite, xy[1].isFinite, xy[0] >= 1, xy[1] >= 1 else { return nil }
+        return CGSize(width: xy[0], height: xy[1])
+    }
+
+    /// The sizes each slot was drawn at last, and the screen's scale: nil until a page with that slot was opened, or
+    /// when what is kept cannot be read back.
+    static var lastSizes: (area: CGSize?, spot: CGSize?, sight: CGSize?, scale: CGFloat?) {
+        let s = savedSizes
+        let scale = s.scale.flatMap { $0.isFinite && $0 >= 1 && $0 <= 4 ? CGFloat($0) : nil }
+        return (size(s.area), size(s.spot), size(s.sight), scale)
+    }
+
+    /// Keeps the size `slot` is drawn at (`FujiTerrainSnapshot`), written only when it changed.
+    static func keep(_ size: CGSize, scale: CGFloat, for slot: Slot) {
+        guard size.width >= 1, size.height >= 1, size.width.isFinite, size.height.isFinite, scale.isFinite, scale >= 1 else { return }
+        var s = savedSizes
+        let old = s
+        s[slot] = [Double(size.width), Double(size.height)]
+        s.scale = Double(scale)
+        guard s != old, let data = try? JSONEncoder().encode(s) else { return }
+        UserDefaults.standard.set(data, forKey: sizesKey)
+    }
+
+    /// Where a viewpoint's card draws its terrain: as the card's hero when it has no photographs, else under them.
+    /// `FujiSpotPage.photos`' rule: none of its own, and none of its place's.
+    static func slot(of spot: FujiGuide.Spot, store: TripStore) -> Slot {
+        spot.images.isEmpty && (store.place(spot.id)?.images ?? []).isEmpty ? .spot : .sight
+    }
+
+    /// The pictures the pages draw, for use without signal: every area's hero (`FujiHero`) and every viewpoint's card
+    /// (`FujiSightMap`), each light and dark (R-600: a card's scheme follows its photograph's colour, not the
+    /// Appearance setting), at the sizes kept. The cameras, viewpoints and summits are the views' own:
+    /// - a hero: `Shot.area(area, spots: the area's, summit: guide's summit)`, drawn with the area's viewpoints;
+    /// - a card: `.spot(spot, summit: FujiSight.summit)`, drawn with that viewpoint alone;
+    /// - both named with the guide's summit (`TerrainLayers`).
+    /// Or the first slot a page uses whose size is not known yet (area, spot, sight), to be opened once first.
+    static func wanted(guide: FujiGuide, store: TripStore) -> Wanted {
+        let sizes = lastSizes
+        let summit = guide.summit.coordinate
+        let used = Set([Slot.area] + guide.spots.map { slot(of: $0, store: store) })
+        let kept: [Slot: CGSize?] = [.area: sizes.area, .spot: sizes.spot, .sight: sizes.sight]
+        let measured = kept.compactMapValues { $0 }
+        if let first = Slot.allCases.first(where: { used.contains($0) && measured[$0] == nil }) { return .needs(first) }
+        guard let scale = sizes.scale else { return .needs(.area) }
+        var out: [Request] = []
+        for dark in [false, true] {
+            for area in FujiArea.allCases {
+                let shown = guide.spots.filter { area.contains($0) }
+                let shot = FujiCamera.Shot.area(area, spots: shown, summit: summit)
+                if let size = measured[.area],
+                   let r = Request(camera: shot, spots: shown, summit: summit, size: size, scale: scale, dark: dark) { out.append(r) }
+            }
+            for spot in guide.spots {
+                let shot = FujiCamera.Shot.spot(spot, summit: FujiSight.summit)
+                if let size = measured[slot(of: spot, store: store)],
+                   let r = Request(camera: shot, spots: [spot], summit: summit, size: size, scale: scale, dark: dark) { out.append(r) }
+            }
+        }
+        return .pictures(out)
+    }
+
+    /// `wanted`'s answer.
+    enum Wanted {
+        /// a page to open first, for this slot's size
+        case needs(Slot)
+        case pictures([Request])
+    }
+
     /// The blurred copy under the Fuji page hero's name (`DetailHero(backdrop:)`), made from `picture` when there is
     /// none of it yet: `PhotoCache.derive`'s 160 px veil, off the main thread (the tone it also samples is not used).
     /// It is made by the rule of 5.2's photograph veil, `HeroFoot.derivesVeil`, whose inputs this fits. The terrain's
@@ -659,6 +797,13 @@ nonisolated struct FujiTerrainPicture: Sendable {
         try? FileManager.default.setAttributes([.modificationDate: Date()], ofItemAtPath: file.path(percentEncoded: false))
         let shown = image.preparingForDisplay() ?? image
         return FujiTerrainPicture(image: shown, summit: point(stored.summit), points: stored.spots.compactMapValues { Self.point($0) })
+    }
+
+    /// `has`: the `.json` beside the picture with the fingerprint asked for, and the picture's file.
+    @concurrent private nonisolated static func onDisk(_ stem: String, fingerprint: String) async -> Bool {
+        guard let json = try? Data(contentsOf: folder.appendingPathComponent("\(stem).json")),
+              let stored = try? JSONDecoder().decode(StoredPoints.self, from: json), stored.fingerprint == fingerprint else { return false }
+        return FileManager.default.fileExists(atPath: folder.appendingPathComponent("\(stem).\(format.ext)").path(percentEncoded: false))
     }
 
     private nonisolated static func point(_ xy: [Double]?) -> CGPoint? {

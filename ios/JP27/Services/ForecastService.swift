@@ -46,8 +46,28 @@ import WeatherKit
     /// (FujiView asks for two forecasts at once, and one outage fails both)
     private var refusals = FailureStreak()
 
-    private var folder: URL {
+    private var folder: URL { Self.folder }
+
+    private nonisolated static var folder: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("Forecast", isDirectory: true)
+    }
+
+    /// When the forecast kept for `key` was fetched (the real clock): from memory, else from its file on disk, read
+    /// off the main thread for its date only. Nil when there is none. It loads nothing into `series`, so no forecast
+    /// on screen is drawn again for it.
+    func fetched(_ key: String) async -> Date? {
+        if let s = series[key] { return s.fetched }
+        return await Self.fetchedOnDisk(key)
+    }
+
+    /// Only the date of a kept forecast (`Series.fetched`).
+    private nonisolated struct Stamp: Decodable {
+        let fetched: Date
+    }
+
+    @concurrent private nonisolated static func fetchedOnDisk(_ key: String) async -> Date? {
+        guard let data = try? Data(contentsOf: folder.appendingPathComponent("\(key).json")) else { return nil }
+        return (try? JSONDecoder().decode(Stamp.self, from: data))?.fetched
     }
 
     /// Hours for a key ("summit", or a place id), refreshed when older than an hour and online.

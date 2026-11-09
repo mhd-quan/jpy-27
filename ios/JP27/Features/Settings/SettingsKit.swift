@@ -9,7 +9,7 @@ enum SettingsRoute: Hashable {
     case alternatives, pace, rehearsal
     case appearance, map
     case permissions, journal
-    case offline
+    case offline, offlineMaps
     case metrics, sources, developer
 }
 

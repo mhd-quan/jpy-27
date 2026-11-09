@@ -309,6 +309,21 @@ final class MapSnapshots {
         return saved
     }
 
+    /// Whether the picture is in memory or on disk, for the offline readiness count: nothing is read, decoded or
+    /// kept, and the file's last use is left as it is. The file names carry the whole key (`SnapshotKey.make` hashes
+    /// every input, the content's fingerprint with them), so the picture and its pins being there is the answer.
+    func has(_ request: Request) async -> Bool {
+        if cached(request.key) != nil { return true }
+        return await Self.onDisk(request.key)
+    }
+
+    /// The picture and its pins, both on disk: `read` needs the two.
+    @concurrent private nonisolated static func onDisk(_ key: SnapshotKey) async -> Bool {
+        let files = FileManager.default
+        return files.fileExists(atPath: folder.appendingPathComponent(key.pointsFileName).path(percentEncoded: false))
+            && files.fileExists(atPath: folder.appendingPathComponent(key.fileName).path(percentEncoded: false))
+    }
+
     /// The picture from memory, the disk, or drawn now: one drawing per picture at a time.
     func snapshot(for request: Request) async -> MapSnapshot? {
         let name = request.key.fileName

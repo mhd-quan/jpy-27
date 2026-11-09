@@ -762,6 +762,8 @@ import UIKit
 @Observable final class Downloads {
     let maps = OfflineMaps()
     let photos = OfflinePhotos()
+    /// what is ready for no signal, the maps and photos above among it (made at its first use: it holds the two)
+    @ObservationIgnored private(set) lazy var readiness = OfflineReadiness(maps: maps, photos: photos)
 
     /// the download under way: every tap since the last one ended
     private var job: OfflineJob? = nil

@@ -1,7 +1,7 @@
 import SwiftUI
 import TripKit
 
-// Dùng khi mất sóng: the map areas and the trip's photos, downloaded for when there is no signal.
+// Dùng khi mất sóng: what is ready for no signal, item by item, and the map areas one level down.
 
 // MARK: - Offline
 
@@ -15,20 +15,205 @@ private enum AreaStatus: Equatable {
     case failed(String)
 }
 
-/// Downloads belong to the app (`Downloads`), so this page only shows where they are: leave it,
-/// use the rest of the app, come back, and it shows the truth.
+/// What is ready for no signal, item by item (`OfflineReadiness`), each with its state and, while it is missing, its
+/// own download. Downloads belong to the app (`Downloads`), so this page only shows where they are: leave it, use
+/// the rest of the app, come back, and it shows the truth. The map areas are one level down (`OfflineMapsPage`).
 struct OfflinePage: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.scenePhase) private var scenePhase
+    /// the translation pack's download, whose system prompt comes up over this page
+    @State private var translator = TalkTranslator()
 
     var body: some View {
-        let offline = model.offline
         let downloads = model.downloads
-        Group {
+        let readiness = downloads.readiness
+        let states = readiness.states
+        SettingsPage(title: "Dùng khi mất sóng") {
             if downloads.busy || downloads.ended != nil {
                 Section {
                     JobRow(downloads: downloads)
                 }
             }
+            Section {
+                ForEach(ReadyItem.allCases, id: \.self) { item in
+                    row(item, states[item])
+                }
+            } header: {
+                Text("Sẵn sàng khi mất sóng")
+            } footer: {
+                Text("Vẫn tải khi rời trang hay rời app; dừng được từ màn hình khoá.")
+            }
+        }
+        // the one host of the translation pack's prompt: the page itself, never a row (a section's modifier goes to
+        // each of its rows, and a row scrolled away can be torn down with its task)
+        .talkTranslation(translator)
+        .onAppear { model.offline.configure(store: model.store) }
+        // what is read from the disk and the system, again on each change that can move it, never on a progress tick
+        .task { await readiness.refresh() }
+        .onChange(of: downloads.busy) { _, busy in
+            if !busy { Task { await readiness.refresh() } }
+        }
+        .onChange(of: translator.needsDownload) { Task { await readiness.refresh() } }
+        .onChange(of: translator.unsupported) { Task { await readiness.refresh() } }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Task { await readiness.refresh() } }
+        }
+    }
+
+    @ViewBuilder private func row(_ item: ReadyItem, _ state: ReadyState?) -> some View {
+        let downloads = model.downloads
+        let online = model.network.raw
+        switch item {
+        case .maps:
+            // the areas, each with its own download, one level down
+            NavigationLink(value: SettingsRoute.offlineMaps) {
+                ReadyRow(title: Self.title(item), detail: mapsDetail(state), state: state)
+            }
+        case .photos:
+            PhotosRow(photos: downloads.photos, online: online, download: { downloads.downloadPhotos() })
+        case .translation:
+            // iOS asks before it downloads (its own prompt, over this page)
+            let download = ReadyRow.Action(online: online, run: { translator.download() })
+            ReadyRow(title: Self.title(item), detail: Self.detail(item, state), state: state,
+                     action: Self.fetchable(state) ? download : nil)
+        case .speech:
+            let install = ReadyRow.Action(online: online, run: { Task { await downloads.readiness.installSpeech() } })
+            ReadyRow(title: Self.title(item), detail: Self.detail(item, state), state: state,
+                     action: Self.fetchable(state) ? install : nil)
+        case .forecasts:
+            ReadyRow(title: Self.title(item), detail: forecastsDetail(state), state: state)
+        case .dayMaps, .fuji:
+            // drawn ahead by "Tải tất cả" (Task 6)
+            ReadyRow(title: Self.title(item), detail: Self.detail(item, state), state: state)
+        }
+    }
+
+    /// The row's name.
+    static func title(_ item: ReadyItem) -> String {
+        switch item {
+        case .maps: "Bản đồ"
+        case .dayMaps: "Ảnh bản đồ các ngày"
+        case .photos: "Ảnh quán, khách sạn"
+        case .fuji: "Ảnh địa hình Fuji"
+        case .forecasts: "Dự báo mây"
+        case .translation: "Gói dịch Nhật–Việt"
+        case .speech: "Gói nghe tiếng Nhật"
+        }
+    }
+
+    /// "Sẵn sàng", "3/11 vùng", "Chưa tải", "Đang tải 42%", "Chờ có mạng", or the reason given.
+    static func detail(_ item: ReadyItem, _ state: ReadyState?) -> String {
+        guard let state else { return "Đang kiểm tra…" }
+        switch state {
+        case .ready: return Readiness.ready
+        case .missing(let done?, let total?):
+            switch item {
+            case .maps: return "\(done)/\(total) vùng"
+            case .dayMaps: return "\(done)/\(total) ngày"
+            case .photos, .fuji: return "\(done)/\(total) ảnh"
+            case .forecasts: return "Chưa mới · \(done)/\(total) nơi"
+            case .translation, .speech: return "Chưa tải"
+            }
+        case .missing: return "Chưa tải"
+        // a download the system runs by itself does not say how far it is
+        case .working(let p): return p > 0 ? "Đang tải \(Int(p * 100))%" : "Đang tải"
+        case .waitingForNetwork: return "Chờ có mạng"
+        case .failed(let why), .unsupported(let why), .needsSetup(let why): return why
+        }
+    }
+
+    /// Missing, or failed: there is something to download.
+    static func fetchable(_ state: ReadyState?) -> Bool {
+        switch state {
+        case .missing?, .failed?: true
+        case nil, .ready?, .working?, .waitingForNetwork?, .unsupported?, .needsSetup?: false
+        }
+    }
+
+    /// with the areas' size on disk, when there is any
+    private func mapsDetail(_ state: ReadyState?) -> String {
+        let bytes = model.offline.totalBytes
+        let head = Self.detail(.maps, state)
+        guard bytes > 0 else { return head }
+        return head + " · " + ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
+    }
+
+    /// with the oldest forecast's time, in Japan ("cập nhật 9:05"), and its day when that is not today
+    private func forecastsDetail(_ state: ReadyState?) -> String {
+        let head = Self.detail(.forecasts, state)
+        guard state != nil, let oldest = model.downloads.readiness.oldestForecast else { return head }
+        var when = "cập nhật \(TripTime.clock(oldest))"
+        let day = TripTime.isoDate(of: oldest)
+        if day != TripTime.isoDate(of: Date()) { when += " ngày \(Fmt.shortDate(day))" }
+        return head + " · " + when
+    }
+}
+
+/// One item of the readiness list: its name, its state in words, and its download while there is one to start.
+private struct ReadyRow: View {
+    /// a download to start, off without a network
+    struct Action {
+        let online: Bool
+        let run: () -> Void
+    }
+
+    let title: String
+    let detail: String
+    let state: ReadyState?
+    var action: Action? = nil
+    @State private var started = 0
+
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                Text(detail)
+                    .font(.footnote)
+                    .foregroundStyle(warning ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            }
+            Spacer(minLength: 8)
+            trailing
+        }
+        .sensoryFeedback(.start, trigger: started)
+    }
+
+    @ViewBuilder private var trailing: some View {
+        if let action {
+            Button("Tải") {
+                started += 1
+                action.run()
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .disabled(!action.online)
+        } else {
+            switch state {
+            case nil, .working?:
+                ProgressView()
+            case .ready?:
+                ProgressRing(value: 1, mode: .done)
+            case .missing?, .waitingForNetwork?, .failed?, .unsupported?, .needsSetup?:
+                EmptyView()
+            }
+        }
+    }
+
+    private var warning: Bool {
+        if case .failed? = state { return true }
+        return false
+    }
+}
+
+/// The map areas, each with its own download: "Toàn tuyến" first, then every region.
+struct OfflineMapsPage: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        let offline = model.offline
+        let downloads = model.downloads
+        SettingsPage(title: "Bản đồ offline") {
             Section {
                 if !offline.stale.isEmpty {
                     Label("Nguồn bản đồ đã đổi, nên \(offline.stale.count) vùng đã tải không còn dùng được khi mất sóng. Tải lại khi có Wi‑Fi.", systemImage: "exclamationmark.triangle.fill")
@@ -59,15 +244,6 @@ struct OfflinePage: View {
                         Text("Đang đọc các vùng đã tải…").foregroundStyle(.secondary)
                     }
                 }
-            } header: {
-                Text("Bản đồ")
-            }
-            Section {
-                PhotosRow(photos: downloads.photos, online: model.network.raw, download: { downloads.downloadPhotos() })
-            } header: {
-                Text("Ảnh")
-            } footer: {
-                Text("Vẫn tải khi rời trang hay rời app; dừng được từ màn hình khoá.")
             }
         }
         .onAppear { offline.configure(store: model.store) }
@@ -255,7 +431,7 @@ private struct PhotosRow: View {
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Ảnh quán ăn và khách sạn")
+                Text(OfflinePage.title(.photos))
                 Text(detail)
                     .font(.footnote)
                     .foregroundStyle(photos.failed > 0 && !photos.running ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))

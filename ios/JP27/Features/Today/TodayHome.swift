@@ -39,13 +39,7 @@ struct TodayHome: View {
         .padding(.bottom, 40)
         // the size of the page a day card pushes (`heroFrame`'s rule, in the same stack under the same bars), for
         // the day's prefetch; kept where nothing is drawn from it, so measuring re-renders nothing
-        .background {
-            Color.clear
-                .containerRelativeFrame([.horizontal, .vertical])
-                .onGeometryChange(for: CGSize.self) { $0.size } action: { probe.size = $0 }
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-        }
+        .background { HomePageMeasure(probe: probe) }
         .phraseCover($shown)
     }
 }
@@ -54,6 +48,34 @@ struct TodayHome: View {
 /// day page a card pushes, which sits in the same navigation stack with the same top edge ignored. Not observed.
 final class HomePageProbe {
     var size: CGSize?
+}
+
+/// Measures the day page for `HomePageProbe`, and keeps it with the screen's scale and the system's dark as
+/// `Prefetch.lastPage`, which the offline readiness counts the day maps at. Its own view, so the scale and scheme it
+/// reads re-render only it, never the home.
+private struct HomePageMeasure: View {
+    @Environment(\.displayScale) private var scale
+    @Environment(\.colorScheme) private var scheme
+    let probe: HomePageProbe
+
+    var body: some View {
+        Color.clear
+            .containerRelativeFrame([.horizontal, .vertical])
+            .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
+                probe.size = size
+                keep(size)
+            }
+            .onChange(of: scheme) { keep(probe.size) }
+            .onChange(of: scale) { keep(probe.size) }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+
+    /// Kept only once measured (a first layout can report nothing) and only when it differs (`lastPage` checks).
+    private func keep(_ size: CGSize?) {
+        guard let size, size.width >= 1, size.height >= 1 else { return }
+        Prefetch.lastPage = Prefetch.Page(width: size.width, length: size.height, scale: scale, dark: scheme == .dark)
+    }
 }
 
 // MARK: - Cover
