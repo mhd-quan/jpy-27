@@ -291,7 +291,7 @@ Bậc **T2**.
 - [ ] **Step 1: Test hỏng** `ReadinessTests`:
   - `allReadyIsReady`: mọi mục `.ready` → `"Sẵn sàng"`.
   - `unsupportedDoesNotCount`: `speech: .unsupported(…)`, còn lại ready → `"Sẵn sàng"`.
-  - `countsWhatIsMissing`: `photos: .missing(done: 3, total: 9)`, `translation: .missing(nil, nil)` → `"Thiếu 2 mục"`.
+  - `countsWhatIsMissing`: `photos: .missing(done: 3, total: 9)`, `translation: .missing(done: nil, total: nil)` → `"Thiếu 2 mục"`.
   - `downloadingWins`: `downloading: 0.424` → `"Đang tải 42%"` (cả khi `mapsStale`).
   - `staleMapsBeforeCount`: `mapsStale: true`, không tải → `"Cần tải lại"`.
   - `planOrder`: mọi mục thiếu → `[.translation, .speech, .photos, .maps, .dayMaps, .fuji, .forecasts]`; mục ready hay unsupported bị bỏ; `needsSetup` bị bỏ.
@@ -340,7 +340,7 @@ Bậc **T1** (việc nền dài, lưu qua lần mở app, Live Activity).
   - `decodesJobSavedBeforeExtras`: `{"areas":["tokyo"],"photos":true}` → `extras == []`.
   - `extrasMustFinishForSuccess`: mọi vùng xong, ảnh xong, `extras: [.dayMaps: ExtraState(done: 20, total: 24, paused: false)]` → `success == false`, subtitle chứa `"Ảnh bản đồ 20/24 ngày"`.
   - `extrasDoneIsSuccess`: mọi extra `done == total` → `"Xong"`.
-  - `extraSubtitles`: fuji `60/70` → `"Fuji 60/70 ảnh"`; forecasts `0/1` → `"Dự báo chưa mới"`.
+  - `extraSubtitles`: fuji `60/70` → `"Fuji 60/70 ảnh"`; forecasts có `done < total` → `"Dự báo chưa mới"`. Chỉ extra có trong `job.extras` được xét; một extra của việc mà `extras:` không có trạng thái thì tính là chưa xong.
   - `pausedExtraIsPaused`: một extra `paused: true` → `"Đã dừng"`.
 - [ ] **Step 2–4:** chạy hỏng, viết, PASS.
 - [ ] **Step 5: `OfflineExtras`** (`@Observable final class`, sở hữu bởi `Downloads`): chạy lần lượt `dayMaps`, `fuji`, `forecasts` của việc tải, chỉ khi không vùng nào và ảnh không còn chạy, và khi `network.raw`; mất mạng thì chờ (`waitingForNetwork`) rồi đi tiếp khi có lại.
