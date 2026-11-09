@@ -1203,10 +1203,14 @@ struct PlacePhoto: View {
 enum HeroExporter {
     static func exportIfNeeded(store: TripStore) async {
         // 2: the first version counted itself done with photos still missing (offline at first launch)
-        let version = "2:\(store.trip.places.count)"
-        guard Shared.defaults.string(forKey: "heroes") != version else { return }
+        // 3: a place with a home cover shows the cover, the photograph its page opens on (`Place.leadPhoto`)
+        let version = "3:\(store.trip.places.count)"
+        let before = Shared.defaults.string(forKey: "heroes")
+        guard before != version else { return }
         let ids = Set(store.trip.days.flatMap(\.items).compactMap { $0.stop?.place } + store.trip.altDays.flatMap(\.items).compactMap { $0.stop?.place })
-        let photos: [(String, Photo)] = ids.compactMap { id in store.place(id)?.hero.map { (id, $0) } }
+        let photos: [(String, Photo)] = ids.compactMap { id in store.place(id)?.leadPhoto.map { (id, $0) } }
+        // made before version 3 from the Commons photograph: written again from the cover
+        let redo: Set<String> = before?.hasPrefix("3:") == true ? [] : Set(ids.filter { HomeCovers.byPlace[$0] != nil })
         let complete = await Task.detached(priority: .utility) { () -> Bool in
             var folder = Shared.heroes
             try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
@@ -1217,7 +1221,7 @@ enum HeroExporter {
             var complete = true
             for (id, photo) in photos {
                 let target = Shared.hero(id)
-                if FileManager.default.fileExists(atPath: target.path) { continue }
+                if FileManager.default.fileExists(atPath: target.path), !redo.contains(id) { continue }
                 guard let image = await PhotoCache.decodeLocal(photo, maxPixel: 800), let jpeg = image.jpegData(compressionQuality: 0.72),
                       (try? jpeg.write(to: target, options: .atomic)) != nil
                 else {
