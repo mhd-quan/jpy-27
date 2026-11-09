@@ -421,7 +421,7 @@ lấy từ `metadata["jp27:build"]` của `public/map/jp27-light.json` trong app
 
 ## Task 3.1b — Bản đồ offline: "Xong" chỉ khi từng vùng xong, gói biết build tile nó giữ
 
-**Chuẩn bị.** Site đã deploy với file `@` của build này (Task 3.1a bước 1). Bản mới: build của task này, Debug (bước
+**Chuẩn bị.** ~~Site đã deploy với file `@` của build này (Task 3.1a bước 1).~~ *(Không còn cần: style nằm trong app từ kế hoạch 9/11/2026.)* Bản mới: build của task này, Debug (bước
 3 cần "Giả style khác bản"; các bước khác như Release). Dòng trên cùng của Cài đặt › Dùng khi mất sóng là dòng của
 lần tải: đang chạy thì "Bản đồ 0/1 vùng · 42%", xong thì "Xong", "Đã dừng" hoặc "Bản đồ 8/10 vùng · 2 lỗi".
 1. **Không tạo được vùng thì không "Xong".** Cài đặt iOS › Developer › Network Link Conditioner › "100% Loss", bật.
