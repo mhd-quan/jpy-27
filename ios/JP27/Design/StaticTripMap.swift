@@ -324,6 +324,45 @@ final class MapSnapshots {
             && files.fileExists(atPath: folder.appendingPathComponent(key.fileName).path(percentEncoded: false))
     }
 
+    // MARK: For no signal (Tải tất cả)
+
+    /// Whether the picture and its pins are on disk: what a launch with no signal finds. Memory is not asked.
+    func isOnDisk(_ request: Request) async -> Bool {
+        await Self.onDisk(request.key)
+    }
+
+    /// Draws the picture for use with no signal unless it is on disk, and waits for its files: true once they are
+    /// there. A drawing of the same picture under way (a page's) is waited for, not made twice, and a page asking
+    /// meanwhile shares this one. Nothing is kept in memory: the eighty or so pictures Tải tất cả draws in turn would
+    /// push out what the open pages show. Stored only when `keep()` still holds once it is drawn (the signal held, the
+    /// app stayed in front: a picture drawn while the app went away may be blank).
+    func drawForKeeping(_ request: Request, keep: () -> Bool) async -> Bool {
+        let key = request.key
+        if await Self.onDisk(key) { return true }
+        let name = key.fileName
+        let made: MapSnapshot?
+        if let task = running[name] {
+            made = await task.value
+        } else {
+            let task = Task { await self.render(request) }
+            running[name] = task
+            made = await task.value
+            if running[name] == task { running[name] = nil }
+        }
+        guard let made, keep() else { return false }
+        await Self.store(made, as: key)
+        return await Self.onDisk(key)
+    }
+
+    /// The pictures Tải tất cả drew for no signal, by `SnapshotKey.stem`: the launch trim spares them. Each pass's set
+    /// replaces the last.
+    static var offlineKeep: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: offlineKeepKey) ?? []) }
+        set { UserDefaults.standard.set(newValue.sorted(), forKey: offlineKeepKey) }
+    }
+
+    private static let offlineKeepKey = "offline.keep.maps"
+
     /// The picture from memory, the disk, or drawn now: one drawing per picture at a time.
     func snapshot(for request: Request) async -> MapSnapshot? {
         let name = request.key.fileName
@@ -459,8 +498,9 @@ final class MapSnapshots {
     }
 
     /// At launch: the old format's pictures (`<key>.png`), then the least recently used ones until the
-    /// folder's pictures fit in `budget` bytes (`SnapshotKey.evicted`), in this folder only.
-    @concurrent nonisolated static func trim(toBytes budget: Int) async {
+    /// folder's pictures fit in `budget` bytes (`SnapshotKey.evicted`), in this folder only; never one of `keeping`
+    /// (`offlineKeep`).
+    @concurrent nonisolated static func trim(toBytes budget: Int, keeping: Set<String> = []) async {
         let files = FileManager.default
         let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
         guard let urls = try? files.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys) else { return }
@@ -468,7 +508,7 @@ final class MapSnapshots {
             guard let values = try? url.resourceValues(forKeys: Set(keys)) else { return nil }
             return SnapshotKey.StoredFile(name: url.lastPathComponent, bytes: values.fileSize ?? 0, used: values.contentModificationDate ?? .distantPast)
         }
-        for name in SnapshotKey.evicted(listed, toBytes: budget) {
+        for name in SnapshotKey.evicted(listed, toBytes: budget, keeping: keeping) {
             try? files.removeItem(at: folder.appendingPathComponent(name, isDirectory: false))
         }
     }

@@ -59,12 +59,15 @@ final class JP27AppDelegate: NSObject, UIApplicationDelegate {
         AppModel.shared.location.start()
         // the day's hitches, launch times and transitions, delivered once a day (Chẩn đoán › Số đo)
         MXMetricManager.shared.add(MetricsInbox.shared)
-        // the maps' pictures held to 40 MB, the old format's gone; off the main thread, and nothing waits for it
-        Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20) }
+        // the maps' pictures held to 40 MB, the old format's gone, never those Tải tất cả drew for no signal; off the
+        // main thread, and nothing waits for it
+        let keptMaps = MapSnapshots.offlineKeep
+        Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20, keeping: keptMaps) }
         // the album pages' pictures (Caches/Ambient) likewise, the least recently used going first
         Task(priority: .utility) { await PhotoCache.trimAmbient(toBytes: 40 << 20) }
-        // and the Fuji terrain's (Caches/Fuji), each picture with its points
-        Task(priority: .utility) { await FujiTerrainPictures.trim(toBytes: 40 << 20) }
+        // and the Fuji terrain's (Caches/Fuji), each picture with its points, those kept for no signal spared
+        let keptFuji = FujiTerrainPictures.offlineKeep
+        Task(priority: .utility) { await FujiTerrainPictures.trim(toBytes: 40 << 20, keeping: keptFuji) }
         return true
     }
 }

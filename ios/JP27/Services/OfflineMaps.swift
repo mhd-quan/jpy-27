@@ -746,14 +746,16 @@ import UIKit
 
 // MARK: - Downloads that outlast the page
 
-/// The trip's downloads (map areas, photos) belong to the app, not to the page that starts them:
-/// they go on while the travellers use the rest of the app, the page shows where they are whenever
-/// it is opened again, and what was asked for and not finished is picked up at the next launch.
+/// The trip's downloads (map areas, photos, the extras: day maps' pictures, Fuji pictures, forecasts) belong
+/// to the app, not to the page that starts them: they go on while the travellers use the rest of the app, the
+/// page shows where they are whenever it is opened again, and what was asked for and not finished is picked
+/// up at the next launch.
 ///
-/// A tap starts a job (`OfflineJob`), or adds to the one under way: its areas, and whether it takes the
-/// photos. It is saved, so a relaunch follows it again. It is over when nothing of it is under way, and
-/// only then said done or not (`OfflineJob.result`): "Xong" only when every area is complete for the
-/// build the map reads and every photo is on disk.
+/// A tap starts a job (`OfflineJob`), or adds to the one under way: its areas, whether it takes the photos,
+/// its extras (`OfflineExtras`), and whether it is Tải tất cả. It is saved, so a relaunch follows it again. It
+/// is over when nothing of it is under way, and only then said done or not (`OfflineJob.result`): "Xong" only
+/// when every area is complete for the build the map reads, every photo is on disk and every extra is all
+/// there; for Tải tất cả, only when the whole readiness list is, as one more look finds it.
 ///
 /// Leaving the app: a download started by a tap runs as a continued processing task (iOS 26), which
 /// the system shows as a Live Activity with its progress and a stop button, and lets run in the
@@ -764,11 +766,17 @@ import UIKit
     let photos = OfflinePhotos()
     /// what is ready for no signal, the maps and photos above among it (made at its first use: it holds the two)
     @ObservationIgnored private(set) lazy var readiness = OfflineReadiness(maps: maps, photos: photos)
+    /// the day maps' pictures, the Fuji pictures and the forecasts a job takes (made at its first use, as `readiness`)
+    @ObservationIgnored private(set) lazy var extras = OfflineExtras(maps: maps, photos: photos, readiness: readiness)
 
     /// the download under way: every tap since the last one ended
     private var job: OfflineJob? = nil
     /// how the last one ended, for the page, until the next tap
     private(set) var ended: JobResult? = nil
+    /// Tải tất cả's end, waiting for one more look at the readiness list
+    private var concluding = false
+    /// the Live Activity's bar, which fills what is left of it when the job grows
+    @ObservationIgnored private var bar = JobBar()
     @ObservationIgnored private var task: BGContinuedProcessingTask?
     /// submitted, not started yet
     @ObservationIgnored private var asked = false
@@ -783,20 +791,36 @@ import UIKit
         let saved = Shared.defaults.data(forKey: Self.jobKey).flatMap { try? JSONDecoder().decode(OfflineJob.self, from: $0) }
         let areas = (saved?.areas ?? []).union(maps.requests)
         let withPhotos = saved?.photos ?? false
-        if !areas.isEmpty || withPhotos {
-            job = OfflineJob(areas: areas, photos: withPhotos)
-            AppLog.info(.offline, "Tải tiếp việc tải dở", ["areas": areas.sorted().joined(separator: ","), "photos": "\(withPhotos)"])
+        // the extras run again once the app is made (`back`); those stopped before the app was ended stay stopped
+        let more = saved?.extras ?? []
+        let everything = saved?.everything ?? false
+        if !areas.isEmpty || withPhotos || !more.isEmpty {
+            job = OfflineJob(areas: areas, photos: withPhotos, extras: more, everything: everything)
+            extras.restore(more)
+            AppLog.info(.offline, "Tải tiếp việc tải dở", ["areas": areas.sorted().joined(separator: ","), "photos": "\(withPhotos)",
+                                                         "extras": OfflineExtras.names(more), "everything": "\(everything)"])
         }
     }
 
-    /// Something is still going: an area of the download under way (or one asked for, made again at a
-    /// launch), or the photos.
-    var busy: Bool {
+    /// Something of the job is still going: an area of it (or one asked for, made again at a launch), the
+    /// photos, or one of its extras waiting its turn or under way.
+    private var working: Bool {
         if photos.running { return true }
+        if let job, extras.busy(job.extras) { return true }
         return (job?.areas ?? []).union(maps.requests).contains { maps.phases[$0]?.isUnderWay == true }
     }
 
-    /// How far the download under way is, 0…1: each area weighs one, the photos one more.
+    /// Something is still going, or the end of Tải tất cả waits for one more look at the list.
+    var busy: Bool {
+        working || concluding
+    }
+
+    /// the job's extras, in the list's order
+    private var members: [OfflineExtra] {
+        OfflineExtra.allCases.filter { job?.extras.contains($0) == true }
+    }
+
+    /// How far the download under way is, 0…1: each area weighs one, the photos one more, each extra one more.
     var fraction: Double {
         let areas = job?.areas ?? []
         var sum = maps.fraction(of: areas) * Double(areas.count)
@@ -805,15 +829,35 @@ import UIKit
             sum += photos.fraction
             weight += 1
         }
+        for extra in members {
+            sum += extras.fraction(extra)
+            weight += 1
+        }
         return weight > 0 ? sum / weight : 0
     }
 
-    /// "Bản đồ 3/10 vùng · Ảnh 120/180 · 42%": the download while it runs. How it ended is `ended`.
+    /// "Bản đồ 3/10 vùng · Fuji 12/69 · Dự báo · 42%": the parts of the download not all there yet (one that is
+    /// is left out, so the Live Activity's line reaches the part under way), and how far it is. How it ended is
+    /// `ended`.
     var progressLine: String {
         var parts: [String] = []
         let areas = job?.areas ?? []
-        if !areas.isEmpty { parts.append("Bản đồ \(areas.filter(maps.complete.contains).count)/\(areas.count) vùng") }
-        if job?.photos == true || photos.running { parts.append("Ảnh \(photos.saved)/\(photos.total)") }
+        let complete = areas.filter(maps.complete.contains).count
+        if complete < areas.count { parts.append("Bản đồ \(complete)/\(areas.count) vùng") }
+        if job?.photos == true || photos.running, photos.running || !photos.complete { parts.append("Ảnh \(photos.saved)/\(photos.total)") }
+        for extra in members {
+            if case .finished? = extras.run.phases[extra] {
+                // over: said only short of all, with its count
+                guard let s = extras.state(extra), s.done < s.total else { continue }
+            }
+            let count = extras.run.progress(extra).map { " \($0.done)/\($0.total)" } ?? ""
+            switch extra {
+            case .dayMaps: parts.append("Ảnh bản đồ" + count)
+            case .fuji: parts.append("Fuji" + count)
+            case .forecasts: parts.append("Dự báo")
+            }
+            if case .running? = extras.run.phases[extra], extras.waitingForApp { parts.append("chờ mở app") }
+        }
         parts.append("\(Int(fraction * 100))%")
         return parts.joined(separator: " · ")
     }
@@ -834,14 +878,38 @@ import UIKit
         start(areas: [], photos: photos.running)
     }
 
+    /// One extra's own "Tải" on its row: the same run as Tải tất cả's, in the download under way or a new one.
+    func downloadExtra(_ extra: OfflineExtra) {
+        start(areas: [], photos: false, extras: [extra])
+    }
+
+    /// Tải tất cả: every map area missing, the photos, and the day maps, Fuji and the forecasts the readiness list says
+    /// are missing (`Readiness.plan`), in one job with one Live Activity, its end judged by the whole list. The language
+    /// packs are the page's to ask for, just before: their system prompts show over it.
+    func downloadEverything() {
+        let plan = Readiness.plan(readiness.states)
+        let areas = maps.downloadAll()
+        photos.download()
+        let more = Set(plan.compactMap { OfflineExtra($0) })
+        AppLog.info(.offline, "Tải tất cả", ["plan": plan.map(\.rawValue).joined(separator: ","),
+                                             "expensive": "\(AppModel.shared.network.expensive)"])
+        start(areas: areas, photos: photos.running, extras: more, everything: true)
+    }
+
     /// A tap: the download under way takes these too (one Live Activity for all of it), or a new one
-    /// starts. Saved, so a relaunch follows it; followed now, and the system asked to let it finish.
-    private func start(areas: Set<String>, photos withPhotos: Bool) {
-        guard !areas.isEmpty || withPhotos else { return }
-        AppLog.info(.offline, "Bắt đầu tải", ["areas": areas.sorted().joined(separator: ","), "photos": "\(withPhotos)"])
-        job = OfflineJob(areas: (job?.areas ?? []).union(areas), photos: (job?.photos ?? false) || withPhotos)
+    /// starts. Saved, so a relaunch follows it; followed now, and the system asked to let it finish. The
+    /// extras are handed over before the first look at the job, so it is not over before they start.
+    private func start(areas: Set<String>, photos withPhotos: Bool, extras more: Set<OfflineExtra> = [], everything: Bool = false) {
+        guard !areas.isEmpty || withPhotos || !more.isEmpty else { return }
+        AppLog.info(.offline, "Bắt đầu tải", ["areas": areas.sorted().joined(separator: ","), "photos": "\(withPhotos)",
+                                             "extras": OfflineExtras.names(more), "everything": "\(everything)"])
+        job = OfflineJob(areas: (job?.areas ?? []).union(areas), photos: (job?.photos ?? false) || withPhotos,
+                         extras: (job?.extras ?? []).union(more), everything: (job?.everything ?? false) || everything)
         ended = nil
         saveJob()
+        extras.request(more)
+        // the bar does not step back: what is done from now on fills what is left of it
+        if let task { bar.grew(fraction: fraction, bar: task.progress.completedUnitCount) }
         keep()
     }
 
@@ -859,6 +927,7 @@ import UIKit
     func back() {
         endGrace()
         forgetUnknownAreas()
+        extras.back()
         if busy || job != nil { tick() }
     }
 
@@ -869,12 +938,15 @@ import UIKit
         let known = Set(maps.areas.map(\.id))
         guard !job.areas.isSubset(of: known) else { return }
         let areas = job.areas.intersection(known)
-        self.job = areas.isEmpty && !job.photos ? nil : OfflineJob(areas: areas, photos: job.photos)
+        self.job = areas.isEmpty && !job.photos && job.extras.isEmpty
+            ? nil : OfflineJob(areas: areas, photos: job.photos, extras: job.extras, everything: job.everything)
         saveJob()
     }
 
-    /// Leaving the app: without a continued task, what still downloads gets the usual half minute.
+    /// Leaving the app: without a continued task, what still downloads gets the usual half minute. A
+    /// picture of the extras drawn across this is drawn again.
     func leaving() {
+        extras.left()
         guard busy, task == nil, grace == .invalid else { return }
         grace = UIApplication.shared.beginBackgroundTask(withName: "Tải dữ liệu offline") {
             // called on the main thread, the time is up: MapLibre picks up where it was next time
@@ -936,7 +1008,8 @@ import UIKit
             return
         }
         task = started
-        started.progress.totalUnitCount = 1000
+        started.progress.totalUnitCount = JobBar.units
+        bar = JobBar()
         // the system's queue again, the moment the task has to stop
         started.expirationHandler = { @Sendable in
             Task { @MainActor in AppModel.shared.downloads.expired() }
@@ -954,6 +1027,7 @@ import UIKit
         if UIApplication.shared.applicationState == .background {
             maps.pauseAll()
             photos.pause()
+            extras.pause()
         }
         task.setTaskCompleted(success: false)
         self.task = nil
@@ -972,12 +1046,12 @@ import UIKit
 
     /// Returns whether to go on: while something is under way, and until the job can be judged.
     private func report() -> Bool {
-        guard busy || !judgeable else {
-            finish()
+        guard working || !judgeable else {
+            conclude()
             return false
         }
         if let task {
-            let units = Int64(fraction * 1000)
+            let units = bar.units(for: fraction)
             // the system reads a stuck bar as a stuck task: it only moves forward
             if units > task.progress.completedUnitCount { task.progress.completedUnitCount = units }
             let line = progressLine
@@ -990,16 +1064,36 @@ import UIKit
     }
 
     /// Whether how the job stands can be told: its areas' packs read (until then none has a phase worth
-    /// judging) and, when it takes the photos, the photos on disk counted.
+    /// judging), when it takes the photos the photos on disk counted, and its extras each over or stopped.
     private var judgeable: Bool {
         guard let job else { return true }
-        return (job.areas.isEmpty || maps.ready) && (!job.photos || photos.counted)
+        return (job.areas.isEmpty || maps.ready) && (!job.photos || photos.counted) && !extras.busy(job.extras)
+    }
+
+    /// The job can be judged. Tải tất cả first has the readiness list looked at once more (the pictures and the
+    /// forecasts counted again, the packs asked), so its end says what that look finds; what was started
+    /// meanwhile is followed again instead.
+    private func conclude() {
+        guard job?.everything == true else {
+            finish()
+            return
+        }
+        guard !concluding else { return }
+        concluding = true
+        Task {
+            await readiness.refresh()
+            concluding = false
+            if working || !judgeable { tick() } else { finish() }
+        }
     }
 
     /// The job is over: said done only when it is. The Live Activity's last line says how it ended; its
     /// bar is full only on success.
     private func finish() {
-        let result = job?.result(phases: maps.phases, photos: photoState, mapBuild: maps.mapBuild)
+        let result = job.map { job in
+            job.result(phases: maps.phases, photos: photoState, mapBuild: maps.mapBuild, extras: extras.states(job.extras),
+                       ready: readiness.states)
+        }
         if let task {
             if let result {
                 if result.success { task.progress.completedUnitCount = task.progress.totalUnitCount }
@@ -1014,12 +1108,15 @@ import UIKit
         }
         endGrace()
         if let result, let job {
-            let fields = ["areas": job.areas.sorted().joined(separator: ","), "done": "\(result.done)", "failed": result.failed.joined(separator: ","), "photos": "\(job.photos)", "subtitle": result.subtitle]
+            let fields = ["areas": job.areas.sorted().joined(separator: ","), "done": "\(result.done)", "failed": result.failed.joined(separator: ","), "photos": "\(job.photos)",
+                          "extras": OfflineExtras.names(job.extras), "everything": "\(job.everything)", "subtitle": result.subtitle]
             if result.success { AppLog.info(.offline, "Kết thúc tải", fields) } else { AppLog.warning(.offline, "Kết thúc tải", fields) }
         }
         if let result { ended = result }
         job = nil
         saveJob()
+        // the parts are let go, and a stop kept for them with them
+        extras.forget()
     }
 
     /// The photos as the job's end reads them.

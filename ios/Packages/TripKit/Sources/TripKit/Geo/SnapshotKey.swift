@@ -223,20 +223,25 @@ public struct SnapshotKey: Hashable, Sendable {
         }
     }
 
+    /// What the folder trim groups the picture's two files by, and keeps it by: `<frameID>-<hash>`.
+    public var stem: String { "\(frameID)-\(hash)" }
+
     /// The names to delete so the folder's pictures fit in `budget` bytes, sorted: every file of the old
     /// format (`.png`), then whole pictures (the jpg and its json together), least recently used first. A
-    /// name the cache did not make is neither counted nor deleted.
-    public static func evicted(_ files: [StoredFile], toBytes budget: Int) -> [String] {
+    /// name the cache did not make is neither counted nor deleted. A picture whose `stem` is in `keeping` (what
+    /// Tải tất cả drew for no signal) counts toward the budget and is never deleted.
+    public static func evicted(_ files: [StoredFile], toBytes budget: Int, keeping: Set<String> = []) -> [String] {
         let old = files.filter { $0.name.hasSuffix(".png") }.map(\.name)
-        let pictures = evictedPairs(files, toBytes: budget) { name in parse(name).map { "\($0.frameID)-\($0.hash)" } }
+        let pictures = evictedPairs(files, toBytes: budget, keeping: keeping) { name in parse(name).map { "\($0.frameID)-\($0.hash)" } }
         return (old + pictures).sorted()
     }
 
     /// The one pair-eviction rule of the folder trims (`evicted` here, `TerrainPicture.evicted`). Files are grouped by
     /// the stem `stem` reads from each name; nil is a name the cache did not make, neither counted nor deleted. A group
     /// is as large as its files together and as recent as its newest one. Whole groups go, the least recently used
-    /// first and ties by stem, while the total is over `budget`. The names, sorted.
-    static func evictedPairs(_ files: [StoredFile], toBytes budget: Int, stem: (String) -> String?) -> [String] {
+    /// first and ties by stem, while the total is over `budget`; a group whose stem is in `keeping` counts toward it
+    /// and never goes. The names, sorted.
+    static func evictedPairs(_ files: [StoredFile], toBytes budget: Int, keeping: Set<String> = [], stem: (String) -> String?) -> [String] {
         var pictures: [String: (bytes: Int, used: Date, names: [String])] = [:]
         for f in files {
             guard let key = stem(f.name) else { continue }
@@ -249,7 +254,7 @@ public struct SnapshotKey: Hashable, Sendable {
         var total = pictures.values.reduce(0) { $0 + $1.bytes }
         var out: [String] = []
         let oldestFirst = pictures.sorted { ($0.value.used, $0.key) < ($1.value.used, $1.key) }
-        for (_, p) in oldestFirst where total > budget {
+        for (key, p) in oldestFirst where total > budget && !keeping.contains(key) {
             out += p.names
             total -= p.bytes
         }

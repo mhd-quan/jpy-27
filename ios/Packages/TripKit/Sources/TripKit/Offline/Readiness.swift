@@ -85,8 +85,8 @@ public enum Readiness {
         return from <= now && now < until
     }
 
-    /// ready, or never to be: what does not count as missing
-    private static func settled(_ state: ReadyState?) -> Bool {
+    /// ready, or never to be: what does not count as missing (here, and at the end of Tải tất cả: `OfflineJob.result`)
+    static func settled(_ state: ReadyState?) -> Bool {
         switch state {
         case .ready?, .unsupported?: true
         case nil, .missing?, .working?, .waitingForNetwork?, .failed?, .needsSetup?: false

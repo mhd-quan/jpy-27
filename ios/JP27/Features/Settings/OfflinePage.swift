@@ -16,48 +16,106 @@ private enum AreaStatus: Equatable {
 }
 
 /// What is ready for no signal, item by item (`OfflineReadiness`), each with its state and, while it is missing, its
-/// own download. Downloads belong to the app (`Downloads`), so this page only shows where they are: leave it, use
-/// the rest of the app, come back, and it shows the truth. The map areas are one level down (`OfflineMapsPage`).
+/// own download; and "Tải tất cả", which takes everything missing in one job. Downloads belong to the app
+/// (`Downloads`), so this page only shows where they are: leave it, use the rest of the app, come back, and it shows
+/// the truth. The map areas are one level down (`OfflineMapsPage`).
 struct OfflinePage: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
     /// the translation pack's download, whose system prompt comes up over this page
     @State private var translator = TalkTranslator()
+    /// Tải tất cả on mobile data: asked first
+    @State private var asking = false
+    /// "Tải luôn": Tải tất cả starts once the question has gone, so the translation pack's prompt is not lost to it
+    @State private var confirmed = false
+    /// Tải tất cả started (its haptic)
+    @State private var started = 0
 
     var body: some View {
         let downloads = model.downloads
         let readiness = downloads.readiness
         let states = readiness.states
+        let plan = Readiness.plan(states)
         SettingsPage(title: "Dùng khi mất sóng") {
-            if downloads.busy || downloads.ended != nil {
+            if downloads.busy || downloads.ended != nil || !plan.isEmpty {
                 Section {
-                    JobRow(downloads: downloads)
+                    if downloads.busy || downloads.ended != nil {
+                        JobRow(downloads: downloads)
+                    }
+                    // a tap during a job adds what is missing and not under way
+                    if !plan.isEmpty {
+                        Button("Tải tất cả") {
+                            if model.network.expensive { asking = true } else { downloadEverything() }
+                        }
+                        .disabled(!model.network.raw || !readiness.checked)
+                        .sensoryFeedback(.start, trigger: started)
+                    }
                 }
             }
             Section {
                 ForEach(ReadyItem.allCases, id: \.self) { item in
-                    row(item, states[item])
+                    row(item, shown(item, states))
                 }
             } header: {
                 Text("Sẵn sàng khi mất sóng")
             } footer: {
-                Text("Vẫn tải khi rời trang hay rời app; dừng được từ màn hình khoá.")
+                Text("Vẫn tải khi rời trang hay rời app; ảnh bản đồ và Fuji chỉ vẽ khi app mở. Dừng được từ màn hình khoá.")
             }
         }
         // the one host of the translation pack's prompt: the page itself, never a row (a section's modifier goes to
         // each of its rows, and a row scrolled away can be torn down with its task)
         .talkTranslation(translator)
+        // on the page too, for the same reason
+        .alert("Đang dùng dữ liệu di động", isPresented: $asking) {
+            Button("Tải luôn") { confirmed = true }
+            Button("Đợi Wi‑Fi", role: .cancel) {}
+        } message: {
+            Text("Bản đồ và ảnh có thể tốn vài trăm MB.")
+        }
+        .onChange(of: asking) { _, up in
+            // the question gone, on the next turn: a system prompt over an alert going away can be dropped
+            guard !up, confirmed else { return }
+            confirmed = false
+            Task { downloadEverything() }
+        }
         .onAppear { model.offline.configure(store: model.store) }
         // what is read from the disk and the system, again on each change that can move it, never on a progress tick
         .task { await readiness.refresh() }
         .onChange(of: downloads.busy) { _, busy in
             if !busy { Task { await readiness.refresh() } }
         }
+        .onChange(of: downloads.ended) { Task { await readiness.refresh() } }
         .onChange(of: translator.needsDownload) { Task { await readiness.refresh() } }
         .onChange(of: translator.unsupported) { Task { await readiness.refresh() } }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await readiness.refresh() } }
         }
+    }
+
+    /// Tải tất cả: the language packs first, while the page is open (each asks with its own prompt over it; asked
+    /// again when they are there, nothing shows), then the job (`Downloads.downloadEverything`). A pack not read yet
+    /// is asked for too.
+    private func downloadEverything() {
+        let downloads = model.downloads
+        let plan = Readiness.plan(downloads.readiness.states)
+        started += 1
+        if plan.contains(.translation) { translator.download() }
+        if plan.contains(.speech) { Task { await downloads.readiness.installSpeech() } }
+        downloads.downloadEverything()
+    }
+
+    /// What a row shows: for the day maps, Fuji and the forecasts, the download's own state while it waits or runs
+    /// (the last look is older than that); else the last look.
+    private func shown(_ item: ReadyItem, _ states: [ReadyItem: ReadyState]) -> ReadyState? {
+        if let extra = OfflineExtra(item), let live = model.downloads.extras.live(extra) { return live }
+        return states[item]
+    }
+
+    /// The day maps', Fuji's and the forecasts' own "Tải" while they are missing: the same run as Tải tất cả's.
+    private func fetch(_ item: ReadyItem, _ state: ReadyState?, online: Bool) -> ReadyRow.Action? {
+        guard Self.fetchable(state), let extra = OfflineExtra(item) else { return nil }
+        let downloads = model.downloads
+        return ReadyRow.Action(online: online, run: { downloads.downloadExtra(extra) })
     }
 
     @ViewBuilder private func row(_ item: ReadyItem, _ state: ReadyState?) -> some View {
@@ -81,10 +139,12 @@ struct OfflinePage: View {
             ReadyRow(title: Self.title(item), detail: Self.detail(item, state), state: state,
                      action: Self.fetchable(state) ? install : nil)
         case .forecasts:
-            ReadyRow(title: Self.title(item), detail: forecastsDetail(state), state: state)
+            ReadyRow(title: Self.title(item), detail: forecastsDetail(state), state: state,
+                     action: fetch(item, state, online: online))
         case .dayMaps, .fuji:
-            // drawn ahead by "Tải tất cả" (Task 6)
-            ReadyRow(title: Self.title(item), detail: Self.detail(item, state), state: state)
+            // drawn while the app is open, one at a time (`OfflineExtras`)
+            ReadyRow(title: Self.title(item), detail: Self.detail(item, state), state: state,
+                     action: fetch(item, state, online: online))
         }
     }
 

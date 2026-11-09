@@ -329,22 +329,55 @@ extension OfflineArea {
     }
 }
 
-/// One download the travellers started (a tap): its areas and whether it takes the photos. Saved, so
-/// it is picked up again at the next launch.
+/// One download the travellers started (a tap): its areas, whether it takes the photos, and its extras (the day maps'
+/// pictures, the Fuji pictures, the forecasts). Saved, so it is picked up again at the next launch. `everything`: it
+/// is Tải tất cả, judged at its end by the whole readiness list.
 public struct OfflineJob: Codable, Sendable {
     public let areas: Set<String>
     public let photos: Bool
+    public let extras: Set<OfflineExtra>
+    /// started by Tải tất cả: "Xong" only when every item of the list is ready (or this phone cannot have it)
+    public let everything: Bool
 
-    public init(areas: Set<String>, photos: Bool) {
+    public init(areas: Set<String>, photos: Bool, extras: Set<OfflineExtra> = [], everything: Bool = false) {
         self.areas = areas
         self.photos = photos
+        self.extras = extras
+        self.everything = everything
     }
 
-    /// How the job ended (or stands): a success only when every area holds the map's build and, when
-    /// the job takes the photos, every photo is on disk and they were not paused. A job without the
-    /// photos does not look at them. Its end line names what is missing: the areas failed, the ones removed
-    /// during the job ("1 vùng đã xoá"), the photos not on disk.
-    public func result(phases: [String: AreaPhase], photos state: PhotoState, mapBuild: TileBuild) -> JobResult {
+    private enum CodingKeys: String, CodingKey {
+        case areas, photos, extras, everything
+    }
+
+    /// A job saved before the extras has neither key: no extras, not everything. A name this build does not know (a
+    /// later build's, read after going back to this one) is dropped, and a value it cannot read is none: the areas and
+    /// the photos are never lost over them. An earlier build reads the two keys it knows and passes over the others.
+    public init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        areas = try c.decode(Set<String>.self, forKey: .areas)
+        photos = try c.decode(Bool.self, forKey: .photos)
+        let names = (try? c.decodeIfPresent([String].self, forKey: .extras)) ?? []
+        extras = Set(names.compactMap(OfflineExtra.init(rawValue:)))
+        everything = (try? c.decodeIfPresent(Bool.self, forKey: .everything)) ?? false
+    }
+
+    /// How the job ended (or stands).
+    ///
+    /// A success only when every area holds the map's build, and, when the job takes them: every photo is on disk and
+    /// they were not paused; each of its extras was counted (`extras`, the app's states) with all of it there and not
+    /// paused. An extra of the job with no state is not done; an extra not of the job is not looked at, nor are the
+    /// photos of a job without them. A job of Tải tất cả (`everything`) is also judged by the readiness list as one more
+    /// look found it after the job (`ready`): every item ready or one this phone cannot have, an item not read counting
+    /// as not ready.
+    ///
+    /// Its end line is "Xong", else "Đã dừng" when anything was stopped, else what is missing, in the list's order: the
+    /// maps ("Bản đồ 7/10 vùng", the areas failed, the ones removed during the job), the photos ("12 ảnh chưa tải được"),
+    /// the day maps ("Ảnh bản đồ 12/13 ngày"), Fuji ("Fuji 60/69 ảnh"), the forecasts ("Dự báo chưa mới"), then for
+    /// Tải tất cả the language packs ("Gói dịch chưa tải", "Gói nghe chưa tải"). Each item is said once: by the job's
+    /// own count when it has one short of all, else by the look's ("chưa tải" when it could not count it).
+    public func result(phases: [String: AreaPhase], photos state: PhotoState, mapBuild: TileBuild,
+                       extras states: [OfflineExtra: ExtraState] = [:], ready: [ReadyItem: ReadyState] = [:]) -> JobResult {
         let photos = self.photos ? state : .finished
         // the failed ones are among those left; either count may be the larger one the app knows
         let photosLeft = max(photos.left, photos.failed)
@@ -362,7 +395,19 @@ public struct OfflineJob: Codable, Sendable {
             case .requested, .creating, .downloading, .waitingForNetwork: break
             }
         }
-        let success = done == areas.count && photosLeft == 0 && !photos.paused
+        // the job's own extras, in the list's order (a set's order changes from one run to the next)
+        let members = OfflineExtra.allCases.filter(extras.contains)
+        var extrasDone = true
+        for extra in members {
+            guard let s = states[extra] else {
+                extrasDone = false
+                continue
+            }
+            if s.paused { paused = true }
+            if s.paused || s.done < s.total { extrasDone = false }
+        }
+        let unready: Set<ReadyItem> = everything ? Set(ReadyItem.allCases.filter { !Readiness.settled(ready[$0]) }) : []
+        let success = done == areas.count && photosLeft == 0 && !photos.paused && extrasDone && unready.isEmpty
         let subtitle: String
         if success {
             subtitle = "Xong"
@@ -370,13 +415,292 @@ public struct OfflineJob: Codable, Sendable {
             subtitle = "Đã dừng"
         } else {
             var parts: [String] = []
-            if !areas.isEmpty { parts.append("Bản đồ \(done)/\(areas.count) vùng") }
+            // the job's areas, unless they are all there and the look finds the maps are not (an area of the route the
+            // job did not take): then the look's count
+            if !areas.isEmpty && !(done == areas.count && unready.contains(.maps)) {
+                parts.append("Bản đồ \(done)/\(areas.count) vùng")
+            } else if unready.contains(.maps) {
+                parts.append(Self.short(ready[.maps]).map { "Bản đồ \($0.done)/\($0.total) vùng" } ?? "Bản đồ chưa tải")
+            }
             if !failed.isEmpty { parts.append("\(failed.count) lỗi") }
             if removed > 0 { parts.append("\(removed) vùng đã xoá") }
-            if photosLeft > 0 { parts.append("\(photosLeft) ảnh chưa tải được") }
+            if photosLeft > 0 {
+                parts.append("\(photosLeft) ảnh chưa tải được")
+            } else if unready.contains(.photos) {
+                parts.append(Self.short(ready[.photos]).map { "\($0.total - $0.done) ảnh chưa tải được" } ?? "Ảnh quán, khách sạn chưa tải")
+            }
+            for extra in OfflineExtra.allCases {
+                if extras.contains(extra) {
+                    guard let s = states[extra] else {
+                        // not counted by the job: the look's count when it is Tải tất cả and has one
+                        parts.append(extra.missing(everything ? Self.short(ready[extra.item]) : nil))
+                        continue
+                    }
+                    if s.done < s.total {
+                        parts.append(extra.missing((s.done, s.total)))
+                        continue
+                    }
+                }
+                if unready.contains(extra.item) { parts.append(extra.missing(Self.short(ready[extra.item]))) }
+            }
+            if unready.contains(.translation) { parts.append("Gói dịch chưa tải") }
+            if unready.contains(.speech) { parts.append("Gói nghe chưa tải") }
             subtitle = parts.joined(separator: " · ")
         }
         return JobResult(success: success, done: done, failed: failed.sorted(), paused: paused, subtitle: subtitle)
+    }
+
+    /// The count of an item the look found short of all, when it could count it.
+    private static func short(_ state: ReadyState?) -> (done: Int, total: Int)? {
+        guard case .missing(let done?, let total?)? = state, done < total else { return nil }
+        return (done, total)
+    }
+}
+
+/// What a download takes besides the map areas and the photos: the items of the readiness list the app makes itself.
+/// Saved with the job by their raw values.
+public enum OfflineExtra: String, Codable, Sendable, CaseIterable {
+    /// each day's map picture, at the page size measured last
+    case dayMaps
+    /// the Fuji terrain pictures of every viewpoint card and area hero
+    case fuji
+    /// the cloud forecasts of the summit and every viewpoint
+    case forecasts
+
+    /// Its item on the readiness list.
+    public var item: ReadyItem {
+        switch self {
+        case .dayMaps: .dayMaps
+        case .fuji: .fuji
+        case .forecasts: .forecasts
+        }
+    }
+
+    /// The extra an item of the readiness list is; nil for the maps, the photos and the language packs, which are not.
+    public init?(_ item: ReadyItem) {
+        switch item {
+        case .dayMaps: self = .dayMaps
+        case .fuji: self = .fuji
+        case .forecasts: self = .forecasts
+        case .maps, .photos, .translation, .speech: return nil
+        }
+    }
+
+    /// What the end line says of it short of all: how many of how many when that is known, else that it is missing.
+    /// A forecast is fresh or not, so it is never counted there.
+    func missing(_ count: (done: Int, total: Int)?) -> String {
+        switch self {
+        case .dayMaps: count.map { "Ảnh bản đồ \($0.done)/\($0.total) ngày" } ?? "Ảnh bản đồ chưa tải"
+        case .fuji: count.map { "Fuji \($0.done)/\($0.total) ảnh" } ?? "Fuji chưa tải"
+        case .forecasts: "Dự báo chưa mới"
+        }
+    }
+}
+
+/// An extra of a job as the app has it when the job ends: what is on disk of it (fresh, for the forecasts) of how
+/// many, and whether it was stopped.
+public struct ExtraState: Sendable, Equatable {
+    public let done: Int
+    public let total: Int
+    /// stopped by the travellers or by the system
+    public let paused: Bool
+
+    public init(done: Int, total: Int, paused: Bool) {
+        self.done = done
+        self.total = total
+        self.paused = paused
+    }
+}
+
+/// The extras of the downloads (`OfflineExtras` in the app) as they run: one part at a time, in the list's order
+/// (`OfflineExtra.allCases`), from the moment each is asked for to its end.
+///
+/// - Asked for, a part is pending, and busy from then on: a job whose maps and photos are already there does not end
+///   before its first picture, nor between two parts.
+/// - The one loop takes `next`, `begin`s it (a second start is refused), `counted`s it as it goes and `end`s it with
+///   what is on disk, or with nil when it cannot be counted (a page to open first): over, with no state, which the
+///   job's end reads as not done.
+/// - Asked for again while it runs: once more after this pass, which may have missed the change.
+/// - `pause()` stops what waits and what runs; a picture in flight lands on a part that stays paused. A stop kept across
+///   a launch comes back by `stopped`. A request after a pause goes on from what is missing.
+public struct ExtrasRun: Sendable, Equatable {
+    public struct Count: Sendable, Equatable {
+        public let done: Int
+        public let total: Int
+
+        public init(done: Int, total: Int) {
+            self.done = done
+            self.total = total
+        }
+    }
+
+    public enum Phase: Sendable, Equatable {
+        /// asked for, waiting its turn
+        case pending
+        /// under way, with what it has counted so far
+        case running(Count?)
+        /// over: what was on disk at its end; nil, it could not be counted
+        case finished(Count?)
+        /// stopped where it was
+        case paused(Count?)
+    }
+
+    public private(set) var phases: [OfflineExtra: Phase] = [:]
+    /// asked for while running: once more after this pass
+    public private(set) var again: Set<OfflineExtra> = []
+
+    public init() {}
+
+    public mutating func request(_ extras: Set<OfflineExtra>) {
+        for extra in extras {
+            if case .running? = phases[extra] { again.insert(extra) } else { phases[extra] = .pending }
+        }
+    }
+
+    /// The travellers or the system stopped the job: what waits and what runs stops where it is.
+    public mutating func pause() {
+        for (extra, phase) in phases {
+            switch phase {
+            case .pending: phases[extra] = .paused(nil)
+            case .running(let count): phases[extra] = .paused(count)
+            case .finished, .paused: break
+            }
+        }
+        again = []
+    }
+
+    /// Stopped before the app was ended: back paused at launch, not run against the stop.
+    public mutating func stopped(_ extras: Set<OfflineExtra>) {
+        for extra in extras { phases[extra] = .paused(nil) }
+    }
+
+    /// The part to run next: the first pending one in the list's order.
+    public var next: OfflineExtra? {
+        OfflineExtra.allCases.first { phases[$0] == .pending }
+    }
+
+    /// Starts a pending part; false for any other.
+    public mutating func begin(_ extra: OfflineExtra) -> Bool {
+        guard phases[extra] == .pending else { return false }
+        phases[extra] = .running(nil)
+        return true
+    }
+
+    /// How far a part under way (or paused while its picture was in flight) is.
+    public mutating func counted(_ extra: OfflineExtra, done: Int, total: Int) {
+        let count = Count(done: done, total: total)
+        switch phases[extra] {
+        case .running?: phases[extra] = .running(count)
+        case .paused?: phases[extra] = .paused(count)
+        case .pending?, .finished?, nil: break
+        }
+    }
+
+    /// A pass is over, with what is on disk of it (nil: it cannot be counted).
+    public mutating func end(_ extra: OfflineExtra, _ count: Count?) {
+        switch phases[extra] {
+        case .running?:
+            phases[extra] = again.remove(extra) == nil ? .finished(count) : .pending
+        case .paused?:
+            phases[extra] = .paused(count)
+        case .pending?, .finished?, nil:
+            break
+        }
+    }
+
+    /// Any of `members` waiting its turn or under way.
+    public func busy(_ members: Set<OfflineExtra>) -> Bool {
+        members.contains { extra in
+            switch phases[extra] {
+            case .pending?, .running?: true
+            case .finished?, .paused?, nil: false
+            }
+        }
+    }
+
+    /// The parts stopped, to keep across a launch.
+    public var paused: Set<OfflineExtra> {
+        Set(phases.keys.filter { extra in
+            if case .paused? = phases[extra] { true } else { false }
+        })
+    }
+
+    /// What the job's end reads of a part: its count once over, or its pause (0 of 0 when never counted). Nil while it
+    /// waits or runs, and for a part over that could not be counted: not done.
+    public func state(_ extra: OfflineExtra) -> ExtraState? {
+        switch phases[extra] {
+        case .finished(let count?)?: ExtraState(done: count.done, total: count.total, paused: false)
+        case .paused(let count)?: ExtraState(done: count?.done ?? 0, total: count?.total ?? 0, paused: true)
+        case .finished(nil)?, .pending?, .running?, nil: nil
+        }
+    }
+
+    /// `state` of each of `members` that has one.
+    public func states(_ members: Set<OfflineExtra>) -> [OfflineExtra: ExtraState] {
+        var out: [OfflineExtra: ExtraState] = [:]
+        for extra in members {
+            if let state = state(extra) { out[extra] = state }
+        }
+        return out
+    }
+
+    /// What a part has counted, for the page and the progress line.
+    public func progress(_ extra: OfflineExtra) -> Count? {
+        switch phases[extra] {
+        case .running(let count)?, .finished(let count)?, .paused(let count)?: count
+        case .pending?, nil: nil
+        }
+    }
+
+    /// A part's share of the job's bar, 0…1: nothing while it waits, what it has counted while it runs or is paused,
+    /// and all of it once over with nothing to count or nothing to draw.
+    public func fraction(_ extra: OfflineExtra) -> Double {
+        switch phases[extra] {
+        case .running(let count)?, .paused(let count)?:
+            return count.map(Self.ratio) ?? 0
+        case .finished(let count)?:
+            guard let count, count.total > 0 else { return 1 }
+            return Self.ratio(count)
+        case .pending?, nil:
+            return 0
+        }
+    }
+
+    private static func ratio(_ count: Count) -> Double {
+        guard count.total > 0 else { return 0 }
+        return min(1, max(0, Double(count.done) / Double(count.total)))
+    }
+}
+
+/// The Live Activity's bar of a job (`units` of it). The system reads a bar that does not move as a task that is
+/// stuck, so it only moves forward; when the job grows (a tap adds to it), its fraction falls, and what is done from
+/// then on fills what is left of the bar, from where it stood.
+public struct JobBar: Sendable, Equatable {
+    public static let units: Int64 = 1000
+    /// where the bar stood when the job last grew, and the job's fraction then
+    private var from: Int64 = 0
+    private var fractionFrom: Double = 0
+
+    public init() {}
+
+    /// The job grew to `fraction` with the bar at `bar`.
+    public mutating func grew(fraction: Double, bar: Int64) {
+        from = min(Self.units, max(0, bar))
+        fractionFrom = Self.clamped(fraction)
+    }
+
+    /// The bar for the job at `fraction`, 0…`units`: never below where it stood when the job last grew.
+    public func units(for fraction: Double) -> Int64 {
+        let f = Self.clamped(fraction)
+        let room = 1 - fractionFrom
+        let share = room > 0 ? max(0, f - fractionFrom) / room : (f >= 1 ? 1 : 0)
+        // the millionth added keeps a share that is whole in decimal whole in binary (0.05 / 0.1 is 0.4999…)
+        return min(Self.units, from + Int64((share * Double(Self.units - from) + 1e-6).rounded(.down)))
+    }
+
+    /// 0…1; a value out of range or not a number is held to the range
+    private static func clamped(_ x: Double) -> Double {
+        x.isFinite ? min(1, max(0, x)) : 0
     }
 }
 

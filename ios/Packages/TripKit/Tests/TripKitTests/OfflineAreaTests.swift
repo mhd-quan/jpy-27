@@ -127,6 +127,274 @@ import Testing
         #expect(back.areas == job.areas); #expect(back.photos)
     }
 
+    // MARK: The extras: day maps, Fuji, forecasts
+
+    /// every area of `job` complete, the photos on disk
+    func ended(_ job: OfflineJob, extras: [OfflineExtra: ExtraState] = [:], ready: [ReadyItem: ReadyState] = [:],
+               photos: PhotoState = .finished) -> JobResult {
+        job.result(phases: Dictionary(uniqueKeysWithValues: job.areas.map { ($0, AreaPhase.complete(build)) }), photos: photos,
+                   mapBuild: build, extras: extras, ready: ready)
+    }
+
+    /// every item ready, with `changes` over it
+    func ready(_ changes: [ReadyItem: ReadyState] = [:]) -> [ReadyItem: ReadyState] {
+        var all = Dictionary(uniqueKeysWithValues: ReadyItem.allCases.map { ($0, ReadyState.ready) })
+        all.merge(changes) { _, new in new }
+        return all
+    }
+
+    let allDone: [OfflineExtra: ExtraState] = [
+        .dayMaps: ExtraState(done: 13, total: 13, paused: false),
+        .fuji: ExtraState(done: 69, total: 69, paused: false),
+        .forecasts: ExtraState(done: 32, total: 32, paused: false),
+    ]
+
+    @Test func anExtraIsAnItemOfTheReadinessList() {
+        // the raw values are saved with the job
+        #expect(OfflineExtra.allCases.map(\.rawValue) == ["dayMaps", "fuji", "forecasts"])
+        #expect(OfflineExtra.allCases.map(\.item) == [.dayMaps, .fuji, .forecasts])
+        for item in ReadyItem.allCases {
+            let extra = OfflineExtra(item)
+            #expect(extra?.item == ([.dayMaps, .fuji, .forecasts].contains(item) ? item : nil))
+        }
+    }
+
+    @Test func decodesJobSavedBeforeExtras() throws {
+        let job = try JSONDecoder().decode(OfflineJob.self, from: Data(#"{"areas":["tokyo"],"photos":true}"#.utf8))
+        #expect(job.areas == ["tokyo"]); #expect(job.photos); #expect(job.extras == []); #expect(!job.everything)
+    }
+
+    @Test func aJobWithExtrasIsSavedAndReadBackAndAnOlderBuildStillReadsIt() throws {
+        let job = OfflineJob(areas: ["tokyo"], photos: true, extras: [.dayMaps, .forecasts], everything: true)
+        let data = try JSONEncoder().encode(job)
+        let back = try JSONDecoder().decode(OfflineJob.self, from: data)
+        #expect(back.areas == ["tokyo"]); #expect(back.photos); #expect(back.extras == [.dayMaps, .forecasts]); #expect(back.everything)
+        let plain = try JSONDecoder().decode(OfflineJob.self, from: JSONEncoder().encode(OfflineJob(areas: [], photos: false, extras: [.fuji])))
+        #expect(plain.extras == [.fuji]); #expect(!plain.everything); #expect(plain.areas.isEmpty); #expect(!plain.photos)
+        // the form an earlier build reads: its two keys as they were, the new ones beside them
+        struct Earlier: Decodable { let areas: Set<String>; let photos: Bool }
+        let earlier = try JSONDecoder().decode(Earlier.self, from: data)
+        #expect(earlier.areas == ["tokyo"]); #expect(earlier.photos)
+    }
+
+    @Test func anExtraThisBuildDoesNotKnowIsDroppedNotTheJob() throws {
+        func read(_ json: String) throws -> OfflineJob { try JSONDecoder().decode(OfflineJob.self, from: Data(json.utf8)) }
+        // a later build's name, read after a downgrade: the others and the areas stay
+        let later = try read(#"{"areas":["tokyo"],"photos":true,"extras":["fuji","tides","dayMaps"],"everything":true}"#)
+        #expect(later.extras == [.fuji, .dayMaps]); #expect(later.areas == ["tokyo"]); #expect(later.photos); #expect(later.everything)
+        // garbled values: no extras, not everything, the rest kept
+        for json in [#"{"areas":["kyoto"],"photos":true,"extras":"fuji","everything":"yes"}"#,
+                     #"{"areas":["kyoto"],"photos":true,"extras":[1,2],"everything":null}"#,
+                     #"{"areas":["kyoto"],"photos":true,"extras":null}"#] {
+            let job = try read(json)
+            #expect(job.extras == []); #expect(!job.everything); #expect(job.areas == ["kyoto"]); #expect(job.photos)
+        }
+    }
+
+    @Test func extrasMustFinishForSuccess() {
+        let job = OfflineJob(areas: ["tokyo"], photos: true, extras: [.dayMaps])
+        let r = ended(job, extras: [.dayMaps: ExtraState(done: 20, total: 24, paused: false)])
+        #expect(!r.success); #expect(!r.paused); #expect(r.done == 1); #expect(r.failed.isEmpty)
+        #expect(r.subtitle.contains("Ảnh bản đồ 20/24 ngày"))
+        #expect(r.subtitle == "Bản đồ 1/1 vùng · Ảnh bản đồ 20/24 ngày")
+        // the extras alone are the job
+        let alone = ended(OfflineJob(areas: [], photos: false, extras: [.dayMaps]), extras: [.dayMaps: ExtraState(done: 20, total: 24, paused: false)])
+        #expect(!alone.success); #expect(alone.subtitle == "Ảnh bản đồ 20/24 ngày")
+        // one short of all
+        let one = ended(OfflineJob(areas: [], photos: false, extras: [.fuji]), extras: [.fuji: ExtraState(done: 68, total: 69, paused: false)])
+        #expect(!one.success); #expect(one.subtitle == "Fuji 68/69 ảnh")
+    }
+
+    @Test func extrasDoneIsSuccess() {
+        let job = OfflineJob(areas: ["tokyo"], photos: true, extras: [.dayMaps, .fuji, .forecasts])
+        #expect(ended(job, extras: allDone) == JobResult(success: true, done: 1, failed: [], paused: false, subtitle: "Xong"))
+        // nothing to draw is nothing missing, and a count over its total is all there
+        let none = ended(OfflineJob(areas: [], photos: false, extras: [.dayMaps, .fuji]),
+                         extras: [.dayMaps: ExtraState(done: 0, total: 0, paused: false), .fuji: ExtraState(done: 70, total: 69, paused: false)])
+        #expect(none == JobResult(success: true, done: 0, failed: [], paused: false, subtitle: "Xong"))
+        // the extras done do not make up for the rest
+        let photos = ended(job, extras: allDone, photos: PhotoState(failed: 0, left: 2, paused: false))
+        #expect(!photos.success); #expect(photos.subtitle == "Bản đồ 1/1 vùng · 2 ảnh chưa tải được")
+        let maps = job.result(phases: ["tokyo": .failed("x")], photos: .finished, mapBuild: build, extras: allDone)
+        #expect(!maps.success); #expect(maps.subtitle == "Bản đồ 0/1 vùng · 1 lỗi")
+    }
+
+    @Test func extraSubtitles() {
+        let fuji = ended(OfflineJob(areas: [], photos: false, extras: [.fuji]), extras: [.fuji: ExtraState(done: 60, total: 70, paused: false)])
+        #expect(fuji.subtitle == "Fuji 60/70 ảnh"); #expect(!fuji.success)
+        let stale = ended(OfflineJob(areas: [], photos: false, extras: [.forecasts]), extras: [.forecasts: ExtraState(done: 30, total: 32, paused: false)])
+        #expect(stale.subtitle == "Dự báo chưa mới"); #expect(!stale.success)
+        // only the job's own extras are looked at: the others' states, failing or paused, change nothing
+        let others: [OfflineExtra: ExtraState] = [
+            .dayMaps: ExtraState(done: 0, total: 13, paused: false),
+            .fuji: ExtraState(done: 60, total: 70, paused: false),
+            .forecasts: ExtraState(done: 0, total: 32, paused: true),
+        ]
+        let onlyFuji = ended(OfflineJob(areas: [], photos: false, extras: [.fuji]), extras: others)
+        #expect(onlyFuji.subtitle == "Fuji 60/70 ảnh"); #expect(!onlyFuji.paused)
+        #expect(ended(OfflineJob(areas: ["tokyo"], photos: false), extras: others) == JobResult(success: true, done: 1, failed: [], paused: false, subtitle: "Xong"))
+        // an extra of the job with no state is not done, and says so
+        let uncounted = ended(OfflineJob(areas: [], photos: false, extras: [.dayMaps, .fuji, .forecasts]))
+        #expect(!uncounted.success); #expect(!uncounted.paused)
+        #expect(uncounted.subtitle == "Ảnh bản đồ chưa tải · Fuji chưa tải · Dự báo chưa mới")
+        for extra in OfflineExtra.allCases {
+            var some = allDone
+            some[extra] = nil
+            let r = ended(OfflineJob(areas: ["tokyo"], photos: true, extras: Set(OfflineExtra.allCases)), extras: some)
+            #expect(!r.success)
+            #expect(r.subtitle == "Bản đồ 1/1 vùng · " + ["Ảnh bản đồ chưa tải", "Fuji chưa tải", "Dự báo chưa mới"][OfflineExtra.allCases.firstIndex(of: extra)!])
+        }
+    }
+
+    @Test func theEndLineKeepsOneOrderWhateverTheSet() {
+        // a set of three is listed in any order: the line follows the readiness list's
+        let job = OfflineJob(areas: ["tokyo", "kyoto", "nara"], photos: true, extras: [.forecasts, .fuji, .dayMaps])
+        let r = job.result(phases: ["tokyo": .complete(build), "kyoto": .failed("x")], photos: PhotoState(failed: 1, left: 3, paused: false),
+                           mapBuild: build, extras: [
+                               .forecasts: ExtraState(done: 31, total: 32, paused: false),
+                               .fuji: ExtraState(done: 60, total: 69, paused: false),
+                               .dayMaps: ExtraState(done: 12, total: 13, paused: false),
+                           ])
+        #expect(r.subtitle == "Bản đồ 1/3 vùng · 1 lỗi · 1 vùng đã xoá · 3 ảnh chưa tải được · Ảnh bản đồ 12/13 ngày · Fuji 60/69 ảnh · Dự báo chưa mới")
+        #expect(r.done == 1); #expect(r.failed == ["kyoto"]); #expect(!r.paused)
+    }
+
+    @Test func pausedExtraIsPaused() {
+        let job = OfflineJob(areas: ["tokyo"], photos: true, extras: [.dayMaps, .fuji, .forecasts])
+        for extra in OfflineExtra.allCases {
+            // never counted, partway, or all there: a pause the travellers made is a pause
+            for state in [ExtraState(done: 0, total: 0, paused: true), ExtraState(done: 3, total: 13, paused: true), ExtraState(done: 13, total: 13, paused: true)] {
+                var states = allDone
+                states[extra] = state
+                let r = ended(job, extras: states)
+                #expect(!r.success); #expect(r.paused); #expect(r.subtitle == "Đã dừng"); #expect(r.done == 1)
+            }
+        }
+        // paused over the other parts' words
+        let more = job.result(phases: ["tokyo": .failed("x")], photos: PhotoState(failed: 0, left: 5, paused: false), mapBuild: build,
+                              extras: [.fuji: ExtraState(done: 1, total: 69, paused: true)])
+        #expect(more.paused); #expect(more.subtitle == "Đã dừng"); #expect(more.failed == ["tokyo"])
+    }
+
+    // MARK: Tải tất cả: every item, judged after one more look
+
+    @Test func tảiTấtCảIsXongOnlyWhenEveryItemIsReady() {
+        let job = OfflineJob(areas: ["tokyo"], photos: true, extras: Set(OfflineExtra.allCases), everything: true)
+        #expect(ended(job, extras: allDone, ready: ready()) == JobResult(success: true, done: 1, failed: [], paused: false, subtitle: "Xong"))
+        // a phone that cannot have a pack is not missing it
+        let cannot = ready([.translation: .unsupported("Máy này chưa dịch được Nhật sang Việt"), .speech: .unsupported("Máy này chưa nghe được tiếng Nhật")])
+        #expect(ended(job, extras: allDone, ready: cannot).subtitle == "Xong")
+        // the packs: asked for, not there by the end (the job's areas said as every job says them)
+        let packs = ended(job, extras: allDone, ready: ready([.translation: .missing(done: nil, total: nil), .speech: .working(0.4)]))
+        #expect(!packs.success); #expect(!packs.paused); #expect(packs.done == 1)
+        #expect(packs.subtitle == "Bản đồ 1/1 vùng · Gói dịch chưa tải · Gói nghe chưa tải")
+        #expect(ended(job, extras: allDone, ready: ready([.speech: .failed("Không có mạng")])).subtitle == "Bản đồ 1/1 vùng · Gói nghe chưa tải")
+        #expect(ended(job, extras: allDone, ready: ready([.translation: .waitingForNetwork])).subtitle == "Bản đồ 1/1 vùng · Gói dịch chưa tải")
+        // an item not read is not ready
+        var unread = ready()
+        unread[.speech] = nil
+        #expect(ended(job, extras: allDone, ready: unread).subtitle == "Bản đồ 1/1 vùng · Gói nghe chưa tải")
+        #expect(ended(job, extras: allDone, ready: [:]).subtitle
+            == "Bản đồ chưa tải · Ảnh quán, khách sạn chưa tải · Ảnh bản đồ chưa tải · Fuji chưa tải · Dự báo chưa mới · Gói dịch chưa tải · Gói nghe chưa tải")
+    }
+
+    @Test func tảiTấtCảSaysWhatAPageMustBeOpenedForAsMissing() {
+        // not worked (nothing to fetch them at), still judged at the end
+        let job = OfflineJob(areas: [], photos: true, extras: [.forecasts], everything: true)
+        let r = ended(job, extras: [.forecasts: ExtraState(done: 32, total: 32, paused: false)],
+                      ready: ready([.dayMaps: .needsSetup("Mở trang Hôm nay một lần"), .fuji: .needsSetup("Mở trang Fuji một lần")]))
+        #expect(!r.success); #expect(r.subtitle == "Ảnh bản đồ chưa tải · Fuji chưa tải")
+        // counted by the look: their counts
+        let counted = ended(job, extras: [.forecasts: ExtraState(done: 32, total: 32, paused: false)],
+                            ready: ready([.dayMaps: .missing(done: 12, total: 13), .fuji: .missing(done: 60, total: 69), .forecasts: .missing(done: 30, total: 32)]))
+        #expect(counted.subtitle == "Ảnh bản đồ 12/13 ngày · Fuji 60/69 ảnh · Dự báo chưa mới")
+        // a count with a part unknown is no count
+        #expect(ended(job, extras: [.forecasts: ExtraState(done: 32, total: 32, paused: false)], ready: ready([.fuji: .missing(done: 3, total: nil)])).subtitle
+            == "Fuji chưa tải")
+        #expect(ended(job, extras: [.forecasts: ExtraState(done: 32, total: 32, paused: false)], ready: ready([.dayMaps: .missing(done: nil, total: 13)])).subtitle
+            == "Ảnh bản đồ chưa tải")
+    }
+
+    @Test func tảiTấtCảSaysEachItemOnce() {
+        let job = OfflineJob(areas: ["tokyo", "kyoto"], photos: true, extras: Set(OfflineExtra.allCases), everything: true)
+        var states = allDone
+        states[.dayMaps] = ExtraState(done: 12, total: 13, paused: false)
+        states[.fuji] = nil
+        // the job's own count first; the look's count where the job has none
+        let r = job.result(phases: ["tokyo": .complete(build), "kyoto": .downloading(completed: 1, expected: 2)],
+                           photos: PhotoState(failed: 0, left: 3, paused: false), mapBuild: build, extras: states,
+                           ready: ready([.maps: .missing(done: 10, total: 11), .photos: .missing(done: 170, total: 180),
+                                         .dayMaps: .missing(done: 11, total: 13), .fuji: .missing(done: 50, total: 69)]))
+        #expect(r.subtitle == "Bản đồ 1/2 vùng · 3 ảnh chưa tải được · Ảnh bản đồ 12/13 ngày · Fuji 50/69 ảnh")
+        // the job's own parts all there, the look finds less (a picture trimmed, a pack of an old build): the look's words
+        let later = ended(job, extras: allDone, ready: ready([.maps: .missing(done: 10, total: 11), .photos: .missing(done: 170, total: 180),
+                                                               .dayMaps: .missing(done: 11, total: 13), .fuji: .missing(done: 68, total: 69),
+                                                               .forecasts: .missing(done: 31, total: 32)]))
+        #expect(!later.success)
+        #expect(later.subtitle == "Bản đồ 10/11 vùng · 10 ảnh chưa tải được · Ảnh bản đồ 11/13 ngày · Fuji 68/69 ảnh · Dự báo chưa mới")
+        // maps and photos the look cannot count
+        let uncounted = ended(job, extras: allDone, ready: ready([.maps: .failed("x"), .photos: .needsSetup("x")]))
+        #expect(uncounted.subtitle == "Bản đồ chưa tải · Ảnh quán, khách sạn chưa tải")
+        // a count that is all there yet not ready (a photo on disk the list still waits for) is no count
+        let whole = ended(job, extras: allDone, ready: ready([.photos: .missing(done: 180, total: 180), .dayMaps: .missing(done: 13, total: 13)]))
+        #expect(whole.subtitle == "Bản đồ 2/2 vùng · Ảnh quán, khách sạn chưa tải · Ảnh bản đồ chưa tải")
+        // no area in the job (all were there when it started), the maps not ready by the end
+        let noAreas = ended(OfflineJob(areas: [], photos: false, everything: true), ready: ready([.maps: .missing(done: 10, total: 11)]))
+        #expect(!noAreas.success); #expect(noAreas.subtitle == "Bản đồ 10/11 vùng")
+    }
+
+    @Test func tảiTấtCảPausedIsPaused() {
+        let job = OfflineJob(areas: ["tokyo"], photos: true, extras: Set(OfflineExtra.allCases), everything: true)
+        var states = allDone
+        states[.fuji] = ExtraState(done: 12, total: 69, paused: true)
+        let r = ended(job, extras: states, ready: ready([.fuji: .missing(done: 12, total: 69), .translation: .missing(done: nil, total: nil)]))
+        #expect(!r.success); #expect(r.paused); #expect(r.subtitle == "Đã dừng")
+    }
+
+    @Test func aJobThatIsNotTảiTấtCảDoesNotLookAtTheList() {
+        let job = OfflineJob(areas: ["tokyo"], photos: true, extras: Set(OfflineExtra.allCases))
+        let nothing = Dictionary(uniqueKeysWithValues: ReadyItem.allCases.map { ($0, ReadyState.missing(done: 0, total: 5)) })
+        #expect(ended(job, extras: allDone, ready: nothing) == JobResult(success: true, done: 1, failed: [], paused: false, subtitle: "Xong"))
+        #expect(ended(job, extras: allDone, ready: [:]).subtitle == "Xong")
+        // its extras without a state keep their words, not the list's counts
+        #expect(ended(job, extras: [:], ready: nothing).subtitle == "Bản đồ 1/1 vùng · Ảnh bản đồ chưa tải · Fuji chưa tải · Dự báo chưa mới")
+    }
+
+    @Test func theEndLineIsNeverEmpty() {
+        let phases: [[String: AreaPhase]] = [[:], ["tokyo": .complete(build)], ["tokyo": .failed("x")], ["tokyo": .paused], ["tokyo": .waitingForNetwork]]
+        let photoStates = [PhotoState.finished, PhotoState(failed: 1, left: 1, paused: false), PhotoState(failed: 0, left: 4, paused: true)]
+        let extraStates: [ExtraState?] = [nil, ExtraState(done: 0, total: 0, paused: false), ExtraState(done: 2, total: 5, paused: false),
+                                          ExtraState(done: 5, total: 5, paused: false), ExtraState(done: 1, total: 5, paused: true)]
+        let readies: [[ReadyItem: ReadyState]] = [[:], ready(), ready([.translation: .missing(done: nil, total: nil)]),
+                                                  ready([.maps: .missing(done: 1, total: 2), .dayMaps: .needsSetup("x")])]
+        var seen = 0
+        for areas in [Set<String>(), ["tokyo"]] {
+            for photos in [false, true] {
+                for everything in [false, true] {
+                    for extras in [Set<OfflineExtra>(), [.fuji], Set(OfflineExtra.allCases)] {
+                        let job = OfflineJob(areas: areas, photos: photos, extras: extras, everything: everything)
+                        for p in phases {
+                            for s in photoStates {
+                                for e in extraStates {
+                                    for list in readies {
+                                        let states = e.map { e in Dictionary(uniqueKeysWithValues: OfflineExtra.allCases.map { ($0, e) }) } ?? [:]
+                                        let r = job.result(phases: p, photos: s, mapBuild: build, extras: states, ready: list)
+                                        #expect(!r.subtitle.isEmpty)
+                                        #expect(r.success == (r.subtitle == "Xong"))
+                                        #expect(!r.subtitle.hasPrefix(" · ") && !r.subtitle.hasSuffix(" · ") && !r.subtitle.contains(" ·  · "))
+                                        if r.paused { #expect(r.subtitle == "Đã dừng") }
+                                        seen += 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        #expect(seen == 2 * 2 * 2 * 3 * 5 * 3 * 5 * 4)
+    }
+
     // MARK: One area
 
     @Test func completeNeedsTheMaximumKnown() {

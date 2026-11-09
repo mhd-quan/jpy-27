@@ -100,6 +100,8 @@ import TripKit
     private(set) var raw = true
     /// `raw` once it has held 2 s
     private(set) var online = true
+    /// the path costs money (cellular, a Personal Hotspot): Tải tất cả asks first
+    private(set) var expensive = false
     private let monitor = NWPathMonitor()
     @ObservationIgnored private var steady: SteadyValue<Bool>?
 
@@ -111,15 +113,17 @@ import TripKit
         // runs on the monitor's queue, at start and on every change: nonisolated, see MotionService
         monitor.pathUpdateHandler = { @Sendable [weak self] path in
             let ok = path.status == .satisfied
-            Task { @MainActor in self?.took(ok) }
+            let expensive = path.isExpensive
+            Task { @MainActor in self?.took(ok, expensive: expensive) }
         }
         monitor.start(queue: DispatchQueue(label: "jp27.network"))
     }
 
     /// Written only when it changes: views redraw with every write. The path says the same again when only its
     /// interface changes.
-    private func took(_ ok: Bool) {
+    private func took(_ ok: Bool, expensive: Bool) {
         if raw != ok { raw = ok }
+        if self.expensive != expensive { self.expensive = expensive }
         steady?.report(ok)
     }
 }

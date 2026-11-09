@@ -96,3 +96,32 @@ Làm trên bản cài mới (xoá app JP27 trước bước 1), Wi‑Fi, trừ k
 | 9 | Đổi Giao diện của máy (Sáng ↔ Tối) khi đang ở trang Hôm nay, rồi về Dùng khi mất sóng. | Ảnh bản đồ các ngày đếm lại theo chế độ mới (ngày không có ảnh bìa đổi ảnh bản đồ theo sáng tối), số có thể giảm; không treo, không lỗi. | |
 | 10 | Mở Log (Task 7) hoặc Console sau các bước trên. | Nhóm `offline` có dòng "Sẵn sàng khi mất sóng" với `item`, `state` mỗi khi một mục đổi loại trạng thái (không phải mỗi phần trăm); "Tải gói nghe tiếng Nhật" `start`/`installed`. Không có chữ người dùng gõ. | |
 | 11 | **Chỉ kiểm được từ 4/10/2027** (14 ngày trước chuyến, theo đồng hồ thật; Chạy thử không đổi được). Khi còn mục thiếu, mở Cài đặt. Rồi làm cho đủ, mở lại. | Cần xem có "Chưa sẵn sàng khi mất sóng", chạm vào mở Dùng khi mất sóng; khi bản đồ cũ thì chỉ có "Bản đồ offline cần tải lại". Khi mọi mục sẵn sàng (hoặc không hỗ trợ): dòng biến mất. Sau 29/10/2027 (giờ Nhật) không còn hiện. | |
+
+## § 6 — Task 6: Tải tất cả
+
+Trang Dùng khi mất sóng có nút "Tải tất cả" ở nhóm trên cùng (cùng dòng tiến độ của việc tải) khi còn mục thiếu; nút mờ
+khi không có mạng hoặc lúc trang còn đang kiểm tra. Một lần bấm: gói dịch và gói nghe bắt đầu ngay (nếu thiếu), rồi một
+việc tải gồm mọi vùng bản đồ còn thiếu, ảnh quán, khách sạn, ảnh bản đồ các ngày, ảnh địa hình Fuji và dự báo mây, với
+**một** Live Activity. Ảnh bản đồ các ngày và Fuji chỉ vẽ khi app đang mở (rời app thì chờ, Live Activity ghi "chờ mở
+app"); dự báo tải được cả khi rời app. Việc tải chỉ ghi "Xong" khi cả 7 mục đều "Sẵn sàng" (hoặc máy không hỗ trợ); nếu
+không, dòng cuối ghi mục nào thiếu ("Gói dịch chưa tải", "Fuji 60/69 ảnh"…). Ba dòng Ảnh bản đồ các ngày, Ảnh địa hình
+Fuji, Dự báo mây có nút "Tải" riêng khi còn thiếu.
+
+Trước bước 1: bản cài mới, đã mở trang Hôm nay, trang Fuji, một thẻ chỗ ngắm không có ảnh chụp và một thẻ có ảnh chụp
+(§ 5 bước 2), để các mục không còn "Mở … một lần". Wi‑Fi, trừ khi bước ghi khác.
+
+| # | Bước | Mong đợi | Kết quả |
+| --- | --- | --- | --- |
+| 1 | Wi‑Fi. Cài đặt › Dùng khi mất sóng › "Tải tất cả", từ đầu (chưa tải gì). Ở lại trong app đến khi xong; kéo màn hình khoá xuống xem Live Activity vài lần. | Có rung khi bấm. Hộp xác nhận gói dịch của iOS hiện một lần. Live Activity ghi tiến độ, lần lượt có "Bản đồ x/11 vùng", "Ảnh x/y", "Ảnh bản đồ x/13", "Fuji x/69", "Dự báo" và phần trăm; phần đã xong thì không còn ghi; thanh tiến độ không lùi. Mọi dòng tới "Sẵn sàng" (hoặc "Máy này chưa …"). Dòng cuối, ở trang và ở Live Activity: "Xong". | |
+| 2 | Dữ liệu di động (tắt Wi‑Fi). Bấm "Tải tất cả". Chọn "Đợi Wi‑Fi". Bật lại Wi‑Fi, đợi một phút. | Hộp "Đang dùng dữ liệu di động" / "Bản đồ và ảnh có thể tốn vài trăm MB." với "Tải luôn" và "Đợi Wi‑Fi". "Đợi Wi‑Fi": không tải gì, không Live Activity; có Wi‑Fi lại cũng không tự tải. | |
+| 3 | Dữ liệu di động, gói dịch chưa có. Bấm "Tải tất cả" › "Tải luôn". | Hộp hỏi đóng xong mới hiện hộp xác nhận gói dịch của iOS, đúng một lần; việc tải bắt đầu như bước 1. | |
+| 4 | Xoá app, cài lại, làm phần "Trước bước 1". "Tải tất cả"; khi Live Activity ghi "Fuji x/69", về màn hình chính. Đợi 10 s, rồi dừng từ nút trên Live Activity. Mở lại app. Bấm "Tải tất cả" lần nữa. | Khi ở ngoài app: Live Activity ghi "Fuji x/69 · chờ mở app" (hoặc dự báo đang chạy), số Fuji không tăng. Sau khi dừng và mở lại: dòng việc tải ghi "Đã dừng". Bấm lại: đi tiếp từ chỗ thiếu (x không về 0), tới "Xong". | |
+| 5 | Đang vẽ ảnh bản đồ các ngày (Live Activity "Ảnh bản đồ x/13"), về màn hình chính 10 s rồi mở lại app, không dừng. Đợi xong. Bật Chế độ máy bay, mở từng ngày (cả ngày dự phòng). | Mở lại thì việc tải đi tiếp. Không ngày nào có ảnh bản đồ trắng hay trống; ảnh hiện ngay, không chờ. | |
+| 6 | Bắt đầu "Tải tất cả", khi đang vẽ Fuji thì tắt hẳn app (vuốt lên trong trình chuyển app, không dừng gì). Mở lại app, ở lại trong app. | Việc tải tự đi tiếp (không có Live Activity mới) từ chỗ thiếu, rồi dòng việc tải ghi kết quả. Log có "Tải tiếp việc tải dở" với `extras`. | |
+| 7 | Bắt đầu "Tải tất cả", về màn hình chính, dừng từ Live Activity, rồi tắt hẳn app. Mở lại app, ở lại trong app một phút. | Dòng việc tải ghi "Đã dừng"; không vẽ thêm gì (log không có "Bắt đầu phần tải" sau lần mở này). "Tải tất cả" lại thì đi tiếp. | |
+| 8 | Sau bước 1 (mọi dòng "Sẵn sàng"), mở nhiều trang quán và ngày (để thư mục ảnh đầy thêm), tắt hẳn app, hôm sau mở lại (lần mở app dọn thư mục ảnh). Vào Dùng khi mất sóng. | Ảnh bản đồ các ngày và Ảnh địa hình Fuji vẫn "Sẵn sàng". | |
+| 9 | Sau khi xong, bật Chế độ máy bay. Mở từng ngày, trang Fuji, vài thẻ chỗ ngắm (cả có và không có ảnh chụp), tab Sổ tay › Nói chuyện: dịch một câu, bấm nghe. | Đều dùng được: ảnh bản đồ ngày, ảnh địa hình Fuji (sáng và tối theo thẻ), dịch và nghe. Dòng Dự báo mây ghi "Sẵn sàng · cập nhật <giờ Nhật>"; thẻ mây hiện dự báo đã tải. | |
+| 10 | Chỉ dòng Ảnh địa hình Fuji còn thiếu (ví dụ xoá app, cài lại, làm phần "Trước bước 1"): chạm "Tải" ở dòng đó. Làm lại với Ảnh bản đồ các ngày và Dự báo mây. | Mỗi nút bắt đầu một việc tải có Live Activity riêng; dòng ghi "Đang tải x%" khi chạy (không còn nút), rồi "Sẵn sàng"; dòng việc tải ghi "Xong" khi đủ phần đó. | |
+| 11 | Trong lúc vẽ 69 ảnh Fuji (bước 1), xem bộ nhớ trong Xcode (Debug navigator › Memory) hoặc dùng app bình thường. | App không bị hệ thống tắt giữa chừng (không văng); bộ nhớ không tăng mãi theo từng ảnh. | |
+| 12 | Gói nghe đang tải lâu (mạng chậm) khi các phần khác đã xong. | Dòng việc tải có thể ghi "Gói nghe chưa tải" trước khi gói nghe xong; dòng Gói nghe vẫn tới "Sẵn sàng" sau đó. Ghi lại điều thấy được. | |
+| 13 | Mở Log (Task 7) sau các bước trên. | Nhóm `offline` có: "Tải tất cả" (`plan`, `expensive`); "Bắt đầu tải" và "Kết thúc tải" có `extras`, `everything`; mỗi phần "Bắt đầu phần tải" và "Xong phần tải" (`part`, `done`, `total`, `paused`); "Chờ mạng để tải tiếp", "Chờ mở app để vẽ tiếp" mỗi lần chờ một dòng (không phải mỗi giây); "Dừng phần tải" khi dừng. Không có một dòng cho mỗi ảnh, không có toạ độ, không có chữ người dùng gõ. | |
