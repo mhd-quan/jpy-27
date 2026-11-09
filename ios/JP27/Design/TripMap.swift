@@ -59,6 +59,33 @@ nonisolated struct MapContent: Equatable, Sendable {
     var outline: [Coordinate] { routes.flatMap(\.points) + pins.map(\.coordinate) }
 }
 
+extension MapContent {
+    /// What a picture of this content draws, as TripKit's plain values (`SnapshotKey.Shape`).
+    nonisolated var shape: SnapshotKey.Shape {
+        SnapshotKey.Shape(
+            routes: routes.map { SnapshotKey.Route(id: $0.id, points: $0.points, color: $0.color, width: $0.width, dashed: $0.dashed, opacity: $0.opacity, dims: $0.dims) },
+            pins: pins.map { SnapshotKey.Pin(id: $0.id, coordinate: $0.coordinate, kind: $0.kind.rawValue, label: $0.label, number: $0.number, titled: $0.titled) },
+            heat: heat,
+            focus: focus
+        )
+    }
+
+    /// The content as one number, the same on every launch, blind to which stops were visited (the
+    /// picture never shows it, `unvisited`): it reads every point, so whoever builds the content computes
+    /// it once (`FingerprintedContent`).
+    nonisolated var fingerprint: UInt64 { SnapshotKey.fingerprint(shape) }
+
+    /// What a picture draws: the visited stops as stops. Their visit is drawn over the picture
+    /// (`SnapshotPins`), so marking a stop never draws a new picture.
+    nonisolated var unvisited: MapContent {
+        var c = self
+        c.pins = pins.map { p in
+            p.kind == .done ? MapPin(id: p.id, coordinate: p.coordinate, kind: .stop, label: p.label, number: p.number, titled: p.titled) : p
+        }
+        return c
+    }
+}
+
 struct TripMap: UIViewRepresentable {
     var content: MapContent
     var showsUser = true
@@ -76,8 +103,13 @@ struct TripMap: UIViewRepresentable {
     var onSelect: ((String) -> Void)?
     /// the person panned or zoomed the map themselves
     var onUserMove: (() -> Void)?
+    /// the map has drawn its content whole for the first time (`StaticTripMap` lifts its picture then)
+    var onReady: (() -> Void)?
 
     @Environment(\.colorScheme) private var scheme
+    /// a camera move asked for (`camera`) is a flight the eye follows (`Motion.travel`): under Reduce
+    /// Motion it jumps. MapLibre keeps its own flight time; travel's 1.0 s does not set it.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// Settings › Đo khung hình bản đồ: the map's own frame readings, over the map
     @AppStorage(MapPacer.readingsKey) private var readings = false
     /// Settings › Chẩn đoán › Bóng địa hình, only while measuring
@@ -125,9 +157,11 @@ struct TripMap: UIViewRepresentable {
         c.parent = self
         c.showsReadings(readings, on: map)
         map.showsUserLocation = showsUser
+        // a camera move flies (`travel`) or jumps: one answer for every `animated:` below
+        let flies = Motion.reduced(Motion.travel, reduceMotion) != nil
         let inset = chrome ?? .zero
         if map.contentInset != inset {
-            map.setContentInset(inset, animated: c.loaded, completionHandler: nil)
+            map.setContentInset(inset, animated: c.loaded && flies, completionHandler: nil)
         }
         let dark = scheme == .dark
         if c.dark != dark {
@@ -141,16 +175,16 @@ struct TripMap: UIViewRepresentable {
         c.apply(content, to: map)
         if c.frameID != frameID {
             c.frameID = frameID
-            c.frame(map, animated: true)
+            c.frame(map, animated: flies)
         }
         if let focus, focus != c.focus || focusID != c.focusID {
             c.focus = focus
             c.focusID = focusID
-            map.setCenter(CLLocationCoordinate2D(latitude: focus.lat, longitude: focus.lng), zoomLevel: max(map.zoomLevel, 15), animated: true)
+            map.setCenter(CLLocationCoordinate2D(latitude: focus.lat, longitude: focus.lng), zoomLevel: max(map.zoomLevel, 15), animated: flies)
         }
         if let camera, camera.id != c.cameraID {
             c.cameraID = camera.id
-            c.move(map, camera.move)
+            c.move(map, camera.move, animated: flies)
         }
     }
 
@@ -170,6 +204,8 @@ struct TripMap: UIViewRepresentable {
         private var hud: UILabel?
         /// the relief the app's style leaves out, put back over this style to compare frames with it
         private var relief = false
+        /// `onReady` was called (once per map)
+        private var reportedReady = false
         private let pinLayers = MapPin.Kind.allCases.filter { $0 != .halo }.map { "pins-\($0.rawValue)" } + ["pins-titles"]
 
         init(parent: TripMap, dark: Bool) {
@@ -226,6 +262,22 @@ struct TripMap: UIViewRepresentable {
                 }
                 if let hud, let reading = pacer.takeReading() { hud.text = relief ? reading + "\n bóng địa hình đang bật " : reading }
             }
+        }
+
+        /// The map drawn whole (`fullyRendered`: what it asked for loaded and drawn). MLNMapViewDelegate.h puts
+        /// it after `didFinishLoading style`; the hop to the main actor costs at most a frame, which a picture
+        /// lifting off the map does not mind.
+        nonisolated func mapViewDidFinishRenderingMap(_ mapView: MLNMapView, fullyRendered: Bool) {
+            guard fullyRendered else { return }
+            Task { @MainActor in self.drewWhole() }
+        }
+
+        /// Only once the style holds the trip's layers and the camera is framed on them: a map drawn whole
+        /// before that shows the world, or the basemap without the day.
+        private func drewWhole() {
+            guard loaded, !reportedReady else { return }
+            reportedReady = true
+            parent.onReady?()
         }
 
         /// The readings over the map's top corner (a plain label: measuring adds no SwiftUI work).
@@ -315,18 +367,18 @@ struct TripMap: UIViewRepresentable {
             fit(map, parent.content.outline, animated: animated)
         }
 
+        /// `MapFraming` (TripKit), as `MapSnapshots.frame` draws it into a picture.
         private func fit(_ map: MLNMapView, _ pts: [Coordinate], animated: Bool) {
-            guard let b = Geo.bounds(pts) else { return }
-            if pts.count == 1 || (b.ne.lat - b.sw.lat < 0.002 && b.ne.lng - b.sw.lng < 0.002) {
-                map.setCenter(CLLocationCoordinate2D(latitude: (b.sw.lat + b.ne.lat) / 2, longitude: (b.sw.lng + b.ne.lng) / 2), zoomLevel: 15.5, animated: animated)
+            switch MapFraming.of(pts) {
+            case nil:
                 return
+            case .point(let c):
+                map.setCenter(CLLocationCoordinate2D(latitude: c.lat, longitude: c.lng), zoomLevel: MapFraming.pointZoom, animated: animated)
+            case .area(let sw, let ne):
+                let bounds = MLNCoordinateBounds(sw: CLLocationCoordinate2D(latitude: sw.lat, longitude: sw.lng),
+                                                 ne: CLLocationCoordinate2D(latitude: ne.lat, longitude: ne.lng))
+                map.setVisibleCoordinateBounds(bounds, edgePadding: parent.insets, animated: animated, completionHandler: nil)
             }
-            // a short walk is not blown up to street level: at least ~600 m across
-            let mid = (lat: (b.sw.lat + b.ne.lat) / 2, lng: (b.sw.lng + b.ne.lng) / 2)
-            let half = (lat: max((b.ne.lat - b.sw.lat) / 2, 0.0028), lng: max((b.ne.lng - b.sw.lng) / 2, 0.0034))
-            let bounds = MLNCoordinateBounds(sw: CLLocationCoordinate2D(latitude: mid.lat - half.lat, longitude: mid.lng - half.lng),
-                                             ne: CLLocationCoordinate2D(latitude: mid.lat + half.lat, longitude: mid.lng + half.lng))
-            map.setVisibleCoordinateBounds(bounds, edgePadding: parent.insets, animated: animated, completionHandler: nil)
         }
 
         /// Draws the content. The sources and layers are made once per style load; after that a
@@ -340,6 +392,7 @@ struct TripMap: UIViewRepresentable {
 
         /// The same into a style: a map's, or a snapshot's (`MapSnapshots`), drawn once.
         func apply(_ content: MapContent, in style: MLNStyle) {
+            // all this reads is the content (routes, pins with their visits, heat, focus): the same, nothing to do
             guard content != applied else { return }
             if !built { build(style) }
             let old = applied
@@ -571,6 +624,9 @@ final class MapPacer {
         return target
     }
 
+    /// Read from `didRender` at the start of each move and every 24 frames of one, and only when `target > 60`,
+    /// so it needs no observer: turning Low Power Mode on takes effect within about 24 frames of a move, turning
+    /// it off at the next move. (The home cover reads `AppModel.lowPower` instead: nothing re-runs it otherwise.)
     private var allowed: Bool {
         top > 60 && !ProcessInfo.processInfo.isLowPowerModeEnabled
             && ProcessInfo.processInfo.thermalState != .critical
@@ -797,251 +853,4 @@ extension MapContent {
         guard let p = a.detour?.p else { return nil }
         return MapRoute(id: "detour-\(a.place)", points: Polyline.decode(p), color: "#FF9500", width: 3, dashed: true)
     }
-}
-
-// MARK: - Maps only looked at
-
-/// A map that is only looked at, in a page that scrolls (a day, a hotel's neighbourhood, a shopping
-/// slot): MapLibre draws it once into a picture (`MapSnapshots`), kept on disk, instead of a live
-/// map held open in the page, each of which is a Metal surface with its own tiles in memory and its
-/// own display link. With `tapToInteract` a tap puts the live map in its place, to pan and zoom.
-struct StaticTripMap: View {
-    let content: MapContent
-    var insets = UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30)
-    var frameID = ""
-    var tapToInteract = true
-
-    @Environment(\.colorScheme) private var scheme
-    @Environment(\.displayScale) private var displayScale
-    @State private var image: UIImage?
-    @State private var live = false
-
-    var body: some View {
-        if live {
-            TripMap(content: content, showsUser: false, insets: insets, frameID: frameID)
-        } else {
-            GeometryReader { geo in
-                picture(size: geo.size)
-            }
-        }
-    }
-
-    private func picture(size: CGSize) -> some View {
-        let request = MapSnapshots.Request(content: content, insets: insets, size: size, scale: displayScale, dark: scheme == .dark)
-        return Rectangle()
-            .fill(.fill.tertiary)
-            .overlay {
-                if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .transition(.opacity)
-                }
-            }
-            .overlay(alignment: .topTrailing) {
-                if tapToInteract {
-                    Image(systemName: "hand.draw")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .padding(7)
-                        .background(.thinMaterial, in: .circle)
-                        .padding(8)
-                        .accessibilityHidden(true)
-                }
-            }
-            .clipped()
-            .contentShape(.rect)
-            .onTapGesture {
-                guard tapToInteract else { return }
-                withAnimation(.smooth(duration: 0.25)) { live = true }
-            }
-            .accessibilityElement()
-            .accessibilityLabel(Text("Bản đồ"))
-            .accessibilityAddTraits(tapToInteract ? AccessibilityTraits.isButton : AccessibilityTraits())
-            .accessibilityHint(Text(verbatim: tapToInteract ? "Mở bản đồ để kéo và phóng to" : ""))
-            .task(id: request.key) {
-                guard size.width >= 1, size.height >= 1 else { return }
-                if let hit = MapSnapshots.shared.cached(request.key) {
-                    if image !== hit { image = hit }
-                    return
-                }
-                let made = await MapSnapshots.shared.image(for: request)
-                withAnimation(.easeOut(duration: 0.2)) { image = made }
-            }
-    }
-}
-
-/// Pictures of maps (`StaticTripMap`), drawn by MapLibre's snapshotter with the trip's layers put in
-/// as `TripMap` puts them, kept in memory a while and on disk (in Caches: they can always be drawn
-/// again). One drawn with no signal is not kept on disk: its tiles may be missing.
-final class MapSnapshots {
-    static let shared = MapSnapshots()
-
-    struct Request {
-        let content: MapContent
-        let insets: UIEdgeInsets
-        let size: CGSize
-        let scale: CGFloat
-        let dark: Bool
-
-        /// Names the picture across launches (a Hasher's value changes with each launch): what is
-        /// drawn, its size, light or dark, the tile build, and the app's build, whose style it uses.
-        var key: String {
-            var h = FNV()
-            for r in content.routes {
-                h.text(r.id); h.text(r.color); h.number(r.width); h.number(r.opacity)
-                h.number(r.dashed ? 1 : 0); h.number(r.dims ? 1 : 0)
-                for p in r.points { h.number(p.lat); h.number(p.lng) }
-            }
-            for p in content.pins {
-                h.text(p.id); h.text(p.kind.rawValue); h.number(p.coordinate.lat); h.number(p.coordinate.lng)
-                h.text(p.label ?? ""); h.number(Double(p.number ?? -1)); h.number(p.titled ? 1 : 0)
-            }
-            for c in content.heat { h.number(c.lat); h.number(c.lng) }
-            h.text(content.focus ?? "")
-            for v in [insets.top, insets.left, insets.bottom, insets.right, size.width.rounded(), size.height.rounded(), scale] { h.number(Double(v)) }
-            h.number(dark ? 1 : 0)
-            h.text(OfflineMaps.mapBuild.template)
-            h.text(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "")
-            return String(h.value, radix: 36)
-        }
-    }
-
-    /// FNV-1a, 64 bits: the same value for the same bytes on every launch.
-    private struct FNV {
-        var value: UInt64 = 0xcbf2_9ce4_8422_2325
-
-        mutating func byte(_ b: UInt64) {
-            value = (value ^ (b & 0xFF)) &* 0x0000_0100_0000_01B3
-        }
-
-        mutating func text(_ s: String) {
-            for b in s.utf8 { byte(UInt64(b)) }
-            byte(0)
-        }
-
-        mutating func number(_ d: Double) {
-            var bits = d.bitPattern
-            for _ in 0 ..< 8 {
-                byte(bits)
-                bits >>= 8
-            }
-        }
-    }
-
-    private let memory: NSCache<NSString, UIImage> = {
-        let cache = NSCache<NSString, UIImage>()
-        cache.totalCostLimit = 24 * 1024 * 1024
-        return cache
-    }()
-    private var running: [String: Task<UIImage?, Never>] = [:]
-    /// the snapshotters' delegates, held while they draw (a snapshotter holds its delegate weakly)
-    private var stylers: [ObjectIdentifier: SnapshotStyler] = [:]
-
-    private nonisolated static let folder: URL = {
-        let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("MapSnapshots", isDirectory: true)
-        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
-        return url
-    }()
-
-    func cached(_ key: String) -> UIImage? {
-        memory.object(forKey: key as NSString)
-    }
-
-    func image(for request: Request) async -> UIImage? {
-        let key = request.key
-        if let hit = cached(key) { return hit }
-        if let task = running[key] { return await task.value }
-        let task = Task { await self.load(request, key: key) }
-        running[key] = task
-        let image = await task.value
-        running[key] = nil
-        if let image {
-            memory.setObject(image, forKey: key as NSString, cost: Int(image.size.width * image.scale * image.size.height * image.scale * 4))
-        }
-        return image
-    }
-
-    private func load(_ request: Request, key: String) async -> UIImage? {
-        let file = Self.folder.appendingPathComponent(key + ".png")
-        if let saved = await Self.read(file, scale: request.scale) { return saved }
-        guard let made = await render(request) else { return nil }
-        if AppModel.shared.network.online {
-            Task.detached(priority: .utility) {
-                if let data = made.pngData() { try? data.write(to: file, options: .atomic) }
-            }
-        }
-        return made
-    }
-
-    /// Read and decoded off the main thread.
-    @concurrent private nonisolated static func read(_ file: URL, scale: CGFloat) async -> UIImage? {
-        guard let data = try? Data(contentsOf: file), let image = UIImage(data: data, scale: scale) else { return nil }
-        return image.preparingForDisplay() ?? image
-    }
-
-    private func render(_ request: Request) async -> UIImage? {
-        let options = MLNMapSnapshotOptions(styleURL: OfflineMaps.style(dark: request.dark), camera: MLNMapCamera(), size: request.size)
-        options.scale = request.scale
-        options.showsLogo = false
-        Self.frame(request, in: options)
-        let snapshotter = MLNMapSnapshotter(options: options)
-        let styler = SnapshotStyler(content: request.content, dark: request.dark)
-        snapshotter.delegate = styler
-        let id = ObjectIdentifier(styler)
-        stylers[id] = styler
-        defer { stylers[id] = nil }
-        return await withCheckedContinuation { (done: CheckedContinuation<UIImage?, Never>) in
-            // started on the main thread, as MapLibre insists; the snapshotter keeps itself alive
-            // until it calls back
-            snapshotter.start { snapshot, _ in
-                done.resume(returning: snapshot?.image)
-            }
-        }
-    }
-
-    /// The camera `TripMap` would fit to the same content: a point (or a few metres) at street
-    /// level, else everything, at least ~600 m across, with the insets kept clear around it.
-    private static func frame(_ request: Request, in options: MLNMapSnapshotOptions) {
-        let pts = request.content.outline
-        guard let b = Geo.bounds(pts) else { return }
-        if pts.count == 1 || (b.ne.lat - b.sw.lat < 0.002 && b.ne.lng - b.sw.lng < 0.002) {
-            let center = CLLocationCoordinate2D(latitude: (b.sw.lat + b.ne.lat) / 2, longitude: (b.sw.lng + b.ne.lng) / 2)
-            options.camera = MLNMapCamera(lookingAtCenter: center, altitude: 1000, pitch: 0, heading: 0)
-            options.zoomLevel = 15.5
-            return
-        }
-        let mid = (lat: (b.sw.lat + b.ne.lat) / 2, lng: (b.sw.lng + b.ne.lng) / 2)
-        let half = (lat: max((b.ne.lat - b.sw.lat) / 2, 0.0028), lng: max((b.ne.lng - b.sw.lng) / 2, 0.0034))
-        let w = Double(request.size.width), h = Double(request.size.height)
-        let i = request.insets
-        // the bounds grown by the share of the picture the insets take, so the content fills what is left
-        let sx = w / max(1, w - Double(i.left + i.right))
-        let sy = h / max(1, h - Double(i.top + i.bottom))
-        options.coordinateBounds = MLNCoordinateBounds(
-            sw: CLLocationCoordinate2D(latitude: mid.lat - half.lat * sy, longitude: mid.lng - half.lng * sx),
-            ne: CLLocationCoordinate2D(latitude: mid.lat + half.lat * sy, longitude: mid.lng + half.lng * sx))
-    }
-}
-
-/// Puts the trip's layers into a snapshot's style with the code that puts them into a map's.
-final class SnapshotStyler: NSObject, MLNMapSnapshotterDelegate {
-    private let content: MapContent
-    private let painter: TripMap.Coordinator
-
-    init(content: MapContent, dark: Bool) {
-        self.content = content
-        painter = TripMap.Coordinator(parent: TripMap(content: content, showsUser: false, interactive: false), dark: dark)
-    }
-
-    /// On the main thread: MapLibre starts a snapshotter only there (it raises otherwise) and calls
-    /// back on that thread's run loop, which `assumeIsolated` checks. The style is not Sendable (a
-    /// plain NSObject, where the map view's delegate hands over a main-actor UIView), so it crosses
-    /// into the main actor in a box; it never leaves the main thread.
-    nonisolated func mapSnapshotter(_ snapshotter: MLNMapSnapshotter, didFinishLoading style: MLNStyle) {
-        let handed = Handed(style: style)
-        MainActor.assumeIsolated { painter.apply(content, in: handed.style) }
-    }
-
-    private nonisolated struct Handed: @unchecked Sendable { let style: MLNStyle }
 }

@@ -57,6 +57,7 @@ enum SpendSymbols {
 /// or picked from the usual few, so the sheet grows out of its purse without a keyboard rising
 /// into the zoom.
 struct SpendTopupSheet: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     let method: PayMethod
@@ -84,7 +85,7 @@ struct SpendTopupSheet: View {
                         let on = yen == v
                         Button {
                             if yen != v { picked += 1 }
-                            withAnimation(.snappy) { yen = v }
+                            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { yen = v }
                         } label: {
                             Text(Fmt.yen(v))
                                 .font(.subheadline.weight(.semibold))
@@ -188,6 +189,7 @@ struct SpendAmountDisplay: View {
 /// The amount is capped below ten million yen (`Yen.maxEntry`); delete always takes a digit off, so
 /// an amount above the cap can still be brought down.
 struct SpendKeypad: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var amount: Int
     var limit = Yen.maxEntry
     @State private var keys = 0
@@ -244,12 +246,13 @@ struct SpendKeypad: View {
     private func press(_ key: Yen.Key) {
         guard let next = Yen.keyed(amount, key, limit: limit) else { return }
         keys += 1
-        withAnimation(.snappy(duration: 0.25)) { amount = next }
+        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { amount = next }
     }
 }
 
 /// A key of the pad: a quiet tile that lights the moment it is touched and fades as it is let go.
 private struct SpendKeyStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundStyle(.primary)
@@ -257,7 +260,7 @@ private struct SpendKeyStyle: ButtonStyle {
                 Color.primary.opacity(configuration.isPressed ? 0.16 : 0.06),
                 in: .rect(cornerRadius: 16, style: .continuous)
             )
-            .animation(configuration.isPressed ? nil : .easeOut(duration: 0.25), value: configuration.isPressed)
+            .animation(configuration.isPressed ? nil : Motion.reduced(Motion.press, reduceMotion), value: configuration.isPressed)
     }
 }
 

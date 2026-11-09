@@ -1,4 +1,6 @@
+import CoreText
 import Observation
+import os
 import SwiftUI
 // TranslationSession and its Request are not Sendable, yet its methods are @concurrent, so in
 // Swift 6 mode a session handed to a main-actor closure by `.translationTask` cannot be used at all
@@ -47,6 +49,7 @@ private struct TalkPhraseCover: ViewModifier {
     func body(content: Content) -> some View {
         content.fullScreenCover(item: $item) { shown in
             TalkShowCard(item: shown)
+                .settlesTransition()
                 .zoomed(from: shown.source, in: space)
         }
     }
@@ -54,45 +57,37 @@ private struct TalkPhraseCover: ViewModifier {
 
 /// Full screen, black on white, Japanese as large as fits: for the person across the counter.
 /// The rotate button turns the text sideways for a wider line without turning the app.
+///
+/// Each orientation is its own copy (`TalkShowLayout`), laid out once in its own fixed box, its Japanese size
+/// measured once (`TalkShowFit`). Turning swaps the copies (`.id(sideways)`) through `TalkTurn`, which rotates and
+/// fades them and never lays them out again: the text has its final line breaks from the first frame. The card used
+/// to animate one box and its padding, and the text jumped to its new breaks in that first frame while the box and
+/// the rotation were still on their way.
 struct TalkShowCard: View {
     let item: TalkShowItem
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.legibilityWeight) private var weight
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var sideways = false
     /// read aloud, or turned sideways for the person across; standing it back up and closing stay quiet
     @State private var pressed = 0
 
     var body: some View {
         GeometryReader { geo in
-            let box = sideways ? CGSize(width: geo.size.height, height: geo.size.width) : geo.size
-            VStack(spacing: 20) {
-                Text(item.ja)
-                    .font(.system(size: 160, weight: .bold))
-                    .minimumScaleFactor(0.08)
-                    .lineLimit(6)
-                    .multilineTextAlignment(.center)
-                    .environment(\.locale, Locale(identifier: "ja_JP"))
-                if let r = item.romaji {
-                    Text(r)
-                        .font(.title2)
-                        .italic()
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(2)
-                        .foregroundStyle(.black.opacity(0.6))
-                }
-                if let vi = item.vi {
-                    Text(vi)
-                        .font(.body)
-                        .lineLimit(3)
-                        .foregroundStyle(.black.opacity(0.45))
-                }
+            // both orientations on every pass (memo hits after the first), so the one not shown is measured before the tap
+            let upright = TalkShowLayout(item: item, box: geo.size, sideways: false, typeSize: typeSize, weight: weight)
+            let turned = TalkShowLayout(item: item, box: CGSize(width: geo.size.height, height: geo.size.width),
+                                        sideways: true, typeSize: typeSize, weight: weight)
+            ZStack {
+                (sideways ? turned : upright)
+                    .rotationEffect(.degrees(sideways ? 90 : 0))
+                    // framed to the screen before the transition: while both copies are on screen each reports the
+                    // screen's size, so the stack never grows to the turned copy's box and pushes the other aside
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .transition(TalkTurn(degrees: reduceMotion ? 0 : (sideways ? -90 : 90)))
+                    .id(sideways)
             }
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 28)
-            .padding(.vertical, sideways ? 28 : 110)
-            .frame(width: box.width, height: box.height)
-            .rotationEffect(.degrees(sideways ? 90 : 0))
-            .frame(width: geo.size.width, height: geo.size.height)
-            .animation(.smooth(duration: 0.35), value: sideways)
         }
         .foregroundStyle(.black)
         .background(Color.white)
@@ -115,7 +110,8 @@ struct TalkShowCard: View {
                 Spacer()
                 Button {
                     if !sideways { pressed += 1 }
-                    sideways.toggle()
+                    // a card coming to rest in its new orientation
+                    withAnimation(Motion.reduced(Motion.settle, reduceMotion)) { sideways.toggle() }
                 } label: {
                     Image(systemName: "rotate.right").font(.title3.weight(.semibold)).frame(width: 48, height: 48)
                 }
@@ -134,6 +130,188 @@ struct TalkShowCard: View {
         .padding(.horizontal, 20)
         .padding(.top, 12)
         .sensoryFeedback(.press, trigger: pressed)
+    }
+}
+
+/// One orientation of the card: the Japanese at the size measured for this box, its reading and its meaning
+/// below, in a box that never changes. `box` is the screen for the upright copy, the screen turned for the
+/// sideways one (which the card then rotates as a whole).
+private struct TalkShowLayout: View {
+    let item: TalkShowItem
+    let box: CGSize
+    let sideways: Bool
+    /// the Japanese line's point size, measured for this box (remembered by `TalkShowFit`)
+    let jaSize: Int
+
+    init(item: TalkShowItem, box: CGSize, sideways: Bool, typeSize: DynamicTypeSize, weight: LegibilityWeight?) {
+        self.item = item
+        self.box = box
+        self.sideways = sideways
+        jaSize = TalkShowFit.size(of: item, box: box, sideways: sideways, typeSize: typeSize, weight: weight)
+    }
+
+    var body: some View {
+        VStack(spacing: TalkShowFit.spacing) {
+            Text(item.ja)
+                .font(.system(size: CGFloat(jaSize), weight: .bold))
+                // a safety net only, for where SwiftUI's text and UIKit's measurement disagree: the box is fixed
+                // and this copy is laid out once, so it never re-fits during the turn
+                .minimumScaleFactor(0.5)
+                .lineLimit(TalkShowFit.jaLines)
+                .multilineTextAlignment(.center)
+                .environment(\.locale, Locale(identifier: "ja_JP"))
+            if let r = item.romaji {
+                Text(r)
+                    .font(.title2)
+                    .italic()
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(TalkShowFit.romajiLines)
+                    .foregroundStyle(.black.opacity(0.6))
+            }
+            if let vi = item.vi {
+                Text(vi)
+                    .font(.body)
+                    .lineLimit(TalkShowFit.viLines)
+                    .foregroundStyle(.black.opacity(0.45))
+            }
+        }
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, TalkShowFit.across)
+        .padding(.vertical, TalkShowFit.down(sideways: sideways))
+        .frame(width: box.width, height: box.height)
+    }
+}
+
+/// A copy of the card turning in or out: a rotation and a fade, nothing that lays it out again. `degrees` is
+/// where the other orientation stands from this copy: +90 for the upright copy (it comes from sideways and goes
+/// back there), −90 for the sideways one. Both copies are at the same angle at every instant, so one card turns
+/// while its two fixed layouts cross-fade. Under Reduce Motion the card passes 0 and the copies only fade, the
+/// sideways one already sideways; `properties` keeps its default (`hasMotion`), with which the system too replaces
+/// a transition by a fade under Reduce Motion.
+private struct TalkTurn: Transition {
+    let degrees: Double
+
+    func body(content: Content, phase: TransitionPhase) -> some View {
+        content
+            .rotationEffect(.degrees(phase.isIdentity ? 0 : degrees))
+            .opacity(phase.isIdentity ? 1 : 0)
+    }
+}
+
+/// How large the card's Japanese is in one orientation: the largest whole point size in `sizes` at which UIKit's
+/// text system (`NSString.boundingRect`) lays it out within its room in at most `jaLines` lines (`LargestFit`,
+/// at most 8 measurements). The room is the box less the padding, and less the reading and the meaning at the
+/// Dynamic Type size, which is why that size is in the key: the Japanese itself is a fixed size. Remembered per
+/// phrase (its three texts, not its id: a filled template or a heard line can share an id), orientation, box,
+/// Dynamic Type size and Bold Text, up to `bound` entries, then forgotten all at once.
+private enum TalkShowFit {
+    static let sizes = 12...160
+    static let jaLines = 6
+    static let romajiLines = 2
+    static let viLines = 3
+    static let spacing: CGFloat = 20
+    static let across: CGFloat = 28
+    static func down(sideways: Bool) -> CGFloat { sideways ? 28 : 110 }
+    static let bound = 64
+
+    private struct Key: Hashable {
+        let ja: String
+        let romaji: String?
+        let vi: String?
+        let sideways: Bool
+        let typeSize: DynamicTypeSize
+        let bold: Bool
+        let width: Int
+        let height: Int
+    }
+
+    private static var memo: [Key: Int] = [:]
+
+    private static let paragraph: NSParagraphStyle = {
+        let p = NSMutableParagraphStyle()
+        p.alignment = .center
+        p.lineBreakMode = .byWordWrapping
+        // what UILabel uses; that SwiftUI's Text breaks lines the same way is unverified
+        p.lineBreakStrategy = .standard
+        return p
+    }()
+
+    static func size(of item: TalkShowItem, box: CGSize, sideways: Bool, typeSize: DynamicTypeSize,
+                     weight: LegibilityWeight?) -> Int {
+        let bold = weight == .bold
+        let key = Key(ja: item.ja, romaji: item.romaji, vi: item.vi, sideways: sideways, typeSize: typeSize, bold: bold,
+                      width: Int(box.width.rounded()), height: Int(box.height.rounded()))
+        if let known = memo[key] { return known }
+        // the reading and the meaning as SwiftUI draws them: at this Dynamic Type size, bold under Bold Text
+        let traits = UITraitCollection(mutations: { t in
+            t.preferredContentSizeCategory = UIContentSizeCategory(typeSize)
+            t.legibilityWeight = UILegibilityWeight(weight)
+        })
+        let width = box.width - 2 * across
+        var height = box.height - 2 * down(sideways: sideways)
+        if let r = item.romaji {
+            let title2 = UIFont.preferredFont(forTextStyle: .title2, compatibleWith: traits)
+            height -= spacing + measure(r, font: italic(title2), width: width, lines: romajiLines)
+        }
+        if let vi = item.vi {
+            height -= spacing + measure(vi, font: .preferredFont(forTextStyle: .body, compatibleWith: traits),
+                                        width: width, lines: viLines)
+        }
+        // no room left for the Japanese: a first pass before the screen has its size, or a real box that the reading
+        // and the meaning fill (a small phone sideways at an accessibility size). The smallest size, not remembered,
+        // so measured again on every pass and with no `phrase.fit`; there the reading and the meaning can still be cut
+        guard width >= 1, height >= 1 else { return sizes.lowerBound }
+        // SwiftUI draws `.bold` heavier under Bold Text. That it is exactly one step heavier (`.heavy`) is
+        // unverified: no documentation says so (device check § 5.6 row 5)
+        let face: UIFont.Weight = bold ? .heavy : .bold
+        let found = LargestFit.size(in: sizes) { n in
+            fits(item.ja, font: .systemFont(ofSize: CGFloat(n), weight: face), width: width, height: height)
+        }
+        if memo.count >= bound { memo.removeAll() }
+        memo[key] = found
+        let turn = sideways ? "sideways" : "upright"
+        Perf.signposter.emitEvent("phrase.fit", "\(turn, privacy: .public) \(key.width, privacy: .public)x\(key.height, privacy: .public)")
+        return found
+    }
+
+    /// The Japanese at `font` within `width` × `height`, in at most `jaLines` lines. The text is marked Japanese,
+    /// as the card shows it under a ja_JP locale, so that it is measured with the glyph fallback and line breaking
+    /// it is drawn with. That `NSString` drawing uses the language attribute to pick the fallback font is unverified:
+    /// its documentation names localized glyphs and line breaking only. Lines are counted by the height of one line
+    /// of the same text under the same attributes, not by `font.lineHeight`: kana and kanji are drawn in a fallback
+    /// font, whose lines are not the system font's height.
+    private static func fits(_ ja: String, font: UIFont, width: CGFloat, height: CGFloat) -> Bool {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .paragraphStyle: paragraph,
+            NSAttributedString.Key(kCTLanguageAttributeName as String): "ja",
+        ]
+        let r = (ja as NSString).boundingRect(with: CGSize(width: width, height: .greatestFiniteMagnitude),
+                                              options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
+        // fractional, and the width can pass the one asked for (spaces may overhang): rounded up, as Apple says
+        let w = r.width.rounded(.up)
+        let h = r.height.rounded(.up)
+        guard w <= width, h <= height else { return false }
+        // the same glyphs on one unbroken line: its height is one line's, in whatever font they fall back to
+        let unbroken = ja.components(separatedBy: .newlines).joined(separator: " ") as NSString
+        let one = unbroken.boundingRect(with: CGSize(width: CGFloat.greatestFiniteMagnitude, height: .greatestFiniteMagnitude),
+                                        options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
+        return (h / max(one.height, 1)).rounded() <= CGFloat(jaLines)
+    }
+
+    /// The height of a line under the Japanese, at most `lines` lines of `font`.
+    private static func measure(_ text: String, font: UIFont, width: CGFloat, lines: Int) -> CGFloat {
+        let attributes: [NSAttributedString.Key: Any] = [.font: font, .paragraphStyle: paragraph]
+        let r = (text as NSString).boundingRect(with: CGSize(width: max(width, 1), height: .greatestFiniteMagnitude),
+                                                options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
+        return min(r.height.rounded(.up), (CGFloat(lines) * font.lineHeight).rounded(.up))
+    }
+
+    /// `font` in italic, keeping its other traits (bold under Bold Text): SwiftUI's `.italic()` on `.title2`
+    private static func italic(_ font: UIFont) -> UIFont {
+        let d = font.fontDescriptor
+        guard let slanted = d.withSymbolicTraits(d.symbolicTraits.union(.traitItalic)) else { return font }
+        return UIFont(descriptor: slanted, size: font.pointSize)
     }
 }
 

@@ -17,30 +17,53 @@ import UIKit
 /// Decoded photos sit in a cache any thread can read, so a view looks there synchronously and draws
 /// a photo decoded before in its very first frame: no placeholder, no fade, no extra update while a
 /// list scrolls. Reading and decoding run off this actor and off the main thread, side by side.
+///
+/// A photo is decoded once where once will do: a decode is kept under the size it came out at
+/// (`DecodePlan`), so the 800 px of a Commons WebP that the home's day card asked for at 1200 also
+/// serve the day page's 1800; and an album page's veil and tone are derived from the very decode its
+/// photograph is drawn from (`derive`), off this actor. The album page then draws one picture made
+/// from the two (`ambient`), kept in memory and on disk.
 actor PhotoCache {
     static let shared = PhotoCache()
 
-    /// NSCache locks itself. Sized for the home's covers (about 15 MB each at 2400 px) and a few
-    /// pages' photos; the system empties it under memory pressure. A photo decoded large serves the
-    /// smaller asks for it too (`cached`), so the home's day cards draw from the covers' decodes
-    /// instead of holding a second copy of each.
+    /// what an album page asks its photographs at (`AmbientPhoto`): the decode their veil and tone are
+    /// derived from, so they share the photograph's
+    nonisolated static let albumPixel: CGFloat = 1800
+
+    /// NSCache locks itself. Sized for the home's covers (about 8 MB each, whole) and a few pages'
+    /// photos; the system empties it under memory pressure. A decode serves every ask it can
+    /// (`cached`), so the home's day cards and the day pages draw from the covers' decodes instead
+    /// of holding a second copy of each.
     nonisolated(unsafe) private static let memory: NSCache<NSString, UIImage> = {
         let cache = NSCache<NSString, UIImage>()
         cache.totalCostLimit = 128 * 1024 * 1024
         return cache
     }()
-    /// the sizes each photo was decoded at (by src), for `cached` to find a larger one; an entry
-    /// the cache has since let go of is simply a miss
-    private nonisolated static let sizes = OSAllocatedUnfairLock<[String: Set<Int>]>(initialState: [:])
-    /// loads in flight, so two views asking for the same photo share one decode
-    private var loading: [NSString: Task<UIImage?, Never>] = [:]
+    /// the sizes each photo was decoded at (by src), and whether each was the whole photo, for
+    /// `cached` to find one that serves an ask; an entry the cache has since let go of is simply a miss
+    private nonisolated static let decodes = OSAllocatedUnfairLock<[String: [DecodePlan.Size: Bool]]>(initialState: [:])
+    /// loads in flight, by photo and ask, so the views, the veil and the tone asking for the same
+    /// photo share one decode
+    private var loading: [String: Load] = [:]
+    /// numbers the loads, so each clears only its own entry
+    private var loads = 0
+    /// derivations in flight, by photo: a veil and a tone asked for together share one
+    private var deriving: [String: Task<(held: Derived, newTone: Bool), Never>] = [:]
+    /// album pictures being made, by key (`AmbientFrame.key`): the page and a prefetch of it share one, which is
+    /// cancelled when the last of them stops waiting
+    private var composing: [String: Making] = [:]
+    /// the makings so far, numbering each: a waiter that leaves late does not count against a later one
+    private var makings = 0
+    /// the latest write of the tones file: waiting out its second, or writing
+    private var saving: Task<Void, Never>?
     /// photo src → the average of its lower band, kept on disk: a page opened before (or read at
     /// launch, see `warmTones`) is laid on its colour from its first frame instead of fading into it
     /// halfway through the zoom that opens it
     private nonisolated static let tones = OSAllocatedUnfairLock<[String: AmbientTone]>(initialState: readTones())
     /// On the CPU: the veil's input is 160 px, cheaper to blur here than to queue on the GPU, which
-    /// is busy drawing the transition the veil arrives in.
-    private let filters = CIContext(options: [.cacheIntermediates: false, .useSoftwareRenderer: true])
+    /// is busy drawing the transition the veil arrives in. CIContext is thread-safe: every derivation
+    /// shares this one, none of them on this actor.
+    private nonisolated static let filters = CIContext(options: [.cacheIntermediates: false, .useSoftwareRenderer: true])
     /// Downloaded photos, kept for use with no signal: in Application Support, which the system
     /// does not purge as it does Caches, but out of the iCloud backup (they download again).
     private nonisolated static let folder: URL = {
@@ -51,6 +74,35 @@ actor PhotoCache {
         try? url.setResourceValues(values)
         return url
     }()
+    /// The album pictures on disk (`ambient`): one JPEG per photo and hero size, named by `AmbientFrame.fileName`. A
+    /// cache, made again from the photos at any time: in Caches, held to 40 MB at launch (`trimAmbient`).
+    private nonisolated static let ambientFolder: URL = {
+        let url = URL.cachesDirectory.appending(path: "Ambient", directoryHint: .isDirectory)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }()
+
+    /// One decode under way: whether it may download, and its number.
+    private nonisolated struct Load: Sendable {
+        let id: Int
+        let network: Bool
+        let task: Task<UIImage?, Never>
+    }
+
+    /// One decode: the image, and the pixel size of the photo it was read from (nil when ImageIO does
+    /// not say), which tells a copy from the whole photo exactly.
+    nonisolated struct Decode: Sendable {
+        let image: UIImage
+        let source: DecodePlan.Size?
+    }
+
+    /// What an album page lays under and around a photograph, derived from one decode of it.
+    nonisolated struct Derived: Sendable {
+        /// a small, heavily blurred copy, laid under the sharp one where it dissolves into the page
+        let veil: UIImage?
+        /// the colour of its foot (`AmbientTone.sample`)
+        let tone: AmbientTone?
+    }
 
     nonisolated static func bundled(_ src: String) -> URL? {
         Bundle.main.resourceURL?.appendingPathComponent(src)
@@ -62,25 +114,32 @@ actor PhotoCache {
         return folder.appendingPathComponent(String(h, radix: 36) + ".img")
     }
 
-    private nonisolated static func key(_ photo: Photo, _ maxPixel: CGFloat) -> NSString {
-        "\(photo.src)@\(Int(maxPixel))" as NSString
+    /// a decode's name in the cache: the photo and the pixels it came out at
+    private nonisolated static func key(_ photo: Photo, _ size: DecodePlan.Size) -> NSString {
+        "\(photo.src)@\(size.width)x\(size.height)" as NSString
     }
 
-    /// The photo, if it was decoded at this size already, or at a larger one up to twice it (more
-    /// than that costs more to draw than a decode of its own): for a view's first frame.
+    private nonisolated static func veilKey(_ photo: Photo) -> NSString {
+        "\(photo.src)@veil" as NSString
+    }
+
+    /// The photo, if a decode of it serves this size (`DecodePlan.serves`): the whole photo for any
+    /// ask, else a copy at most twice as large as asked (more than that costs more to draw than a
+    /// decode of its own). For a view's first frame.
     nonisolated static func cached(_ photo: Photo, maxPixel: CGFloat = 1200) -> UIImage? {
-        if let hit = memory.object(forKey: key(photo, maxPixel)) { return hit }
-        let want = Int(maxPixel)
-        let larger = sizes.withLock { $0[photo.src]?.filter { $0 > want && $0 <= 2 * want } } ?? []
-        for size in larger.sorted() {
-            if let hit = memory.object(forKey: key(photo, CGFloat(size))) { return hit }
+        let asked = Int(maxPixel)
+        let known = decodes.withLock { $0[photo.src] } ?? [:]
+        // the smallest that serves: every one that does is at least the ask, or else the whole photo
+        let serving = known.filter { DecodePlan.serves(decoded: $0.key, sourceIsFull: $0.value, asked: asked) }.keys
+        for size in serving.sorted(by: { $0.longest < $1.longest }) {
+            if let hit = memory.object(forKey: key(photo, size)) { return hit }
         }
         return nil
     }
 
     /// The photo's veil, if it was blurred already.
     nonisolated static func cachedVeil(_ photo: Photo) -> UIImage? {
-        memory.object(forKey: "\(photo.src)@veil" as NSString)
+        memory.object(forKey: veilKey(photo))
     }
 
     /// The colour of the photo's foot, if it was ever read.
@@ -89,22 +148,57 @@ actor PhotoCache {
     }
 
     func image(_ photo: Photo, maxPixel: CGFloat = 1200) async -> UIImage? {
-        let key = Self.key(photo, maxPixel)
+        await decoded(photo, maxPixel: maxPixel, network: true)
+    }
+
+    /// The photo at this size: from the cache, from a load under way for the same ask, or loaded now
+    /// and kept. A load that may not download (a tone's) is shared too; an ask that may download and
+    /// finds it came back empty loads again, from the network.
+    private func decoded(_ photo: Photo, maxPixel: CGFloat, network: Bool) async -> UIImage? {
         if let hit = Self.cached(photo, maxPixel: maxPixel) { return hit }
-        if let running = loading[key] { return await running.value }
-        let task = Task { await Self.load(photo, maxPixel: maxPixel, network: true) }
-        loading[key] = task
-        let image = await task.value
-        loading[key] = nil
-        if let image {
-            Self.memory.setObject(image, forKey: key, cost: Int(image.size.width * image.scale * image.size.height * image.scale * 4))
-            Self.sizes.withLock { _ = $0[photo.src, default: []].insert(Int(maxPixel)) }
+        let ask = "\(photo.src)@\(Int(maxPixel))"
+        if let running = loading[ask] {
+            let image = await running.task.value
+            guard image == nil, network, !running.network else { return image }
+            // cleared here too, in case its own caller has not run yet: the ask below must not find it
+            if loading[ask]?.id == running.id { loading[ask] = nil }
+            return await decoded(photo, maxPixel: maxPixel, network: true)
         }
+        loads += 1
+        let id = loads
+        // kept as soon as it is decoded, before anyone waiting on it goes on
+        let task = Task { () -> UIImage? in
+            guard let made = await Self.load(photo, maxPixel: maxPixel, network: network) else { return nil }
+            return Self.keep(made, of: photo, asked: maxPixel)
+        }
+        loading[ask] = Load(id: id, network: network, task: task)
+        let image = await task.value
+        if loading[ask]?.id == id { loading[ask] = nil }
         return image
     }
 
+    /// Keeps a decode under the size it came out at, and hands back the one kept: a decode the size of
+    /// one already held (two asks that both got the whole photo) leaves the held one in place, so a
+    /// view drawing it is not handed a new image.
+    private nonisolated static func keep(_ made: Decode, of photo: Photo, asked maxPixel: CGFloat) -> UIImage {
+        let image = made.image
+        guard let cg = image.cgImage else { return image }
+        let size = DecodePlan.Size(width: cg.width, height: cg.height)
+        let full = DecodePlan.isFull(decoded: size, source: made.source, asked: Int(maxPixel))
+        return decodes.withLock { decodes -> UIImage in
+            // the whole photo, once seen to be, stays so: the same pixels from a decode with no size in its header,
+            // asked at exactly the photo's size, cannot tell
+            let wasFull = decodes[photo.src]?[size] ?? false
+            decodes[photo.src, default: [:]][size] = full || wasFull
+            let name = key(photo, size)
+            if let held = memory.object(forKey: name) { return held }
+            memory.setObject(image, forKey: name, cost: cg.width * cg.height * 4)
+            return image
+        }
+    }
+
     /// Reads (from the bundle, the disk, or the network once) and decodes, on a background thread.
-    @concurrent private nonisolated static func load(_ photo: Photo, maxPixel: CGFloat, network: Bool) async -> UIImage? {
+    @concurrent private nonisolated static func load(_ photo: Photo, maxPixel: CGFloat, network: Bool) async -> Decode? {
         var data: Data?
         if photo.isBundled {
             data = bundled(photo.src).flatMap { try? Data(contentsOf: $0) }
@@ -118,6 +212,9 @@ actor PhotoCache {
             }
         }
         guard let data else { return nil }
+        // one per ImageIO decode, for Instruments (os_signpost), named by its photo (a bundle path or a public
+        // URL) and the size asked: a photo on screen is decoded once
+        Perf.signposter.emitEvent("photo.decode", "\(photo.src, privacy: .public) @\(Int(maxPixel), privacy: .public)")
         return downsample(data, maxPixel: maxPixel)
     }
 
@@ -125,17 +222,29 @@ actor PhotoCache {
     /// the background (the widget's photos) that should neither download what nobody asked for nor
     /// push the photos on screen out of memory.
     nonisolated static func decodeLocal(_ photo: Photo, maxPixel: CGFloat) async -> UIImage? {
-        await load(photo, maxPixel: maxPixel, network: false)
+        await load(photo, maxPixel: maxPixel, network: false)?.image
     }
 
-    /// The average colour of the photograph's lower band, read once from a small thumbnail and kept:
-    /// what an ambient page is tinted with, so the photograph dissolves into its own colour.
+    /// Bundled, or downloaded already: read without the network.
+    private nonisolated static func onPhone(_ photo: Photo) -> Bool {
+        if photo.isBundled { return true }
+        guard let url = URL(string: photo.src) else { return false }
+        return FileManager.default.fileExists(atPath: file(for: url).path)
+    }
+
+    /// `onPhone`, looked up off the main thread: what a prefetch (`Prefetch`) may load without the network.
+    @concurrent nonisolated static func isOnPhone(_ photo: Photo) async -> Bool {
+        onPhone(photo)
+    }
+
+    /// The average colour of the photograph's lower band, read once and kept: what an ambient page is
+    /// tinted with, so the photograph dissolves into its own colour. Read from the decode the page
+    /// draws, with the veil; never downloaded for, nor waited on: a photo not on the phone yet leaves
+    /// its page on paper.
     func tone(_ photo: Photo) async -> AmbientTone? {
         if let hit = Self.knownTone(photo) { return hit }
-        guard let small = await image(photo, maxPixel: 96), let cg = small.cgImage, let tone = AmbientTone.sample(cg) else { return nil }
-        Self.tones.withLock { $0[photo.src] = tone }
-        saveTones()
-        return tone
+        guard Self.onPhone(photo) else { return nil }
+        return await derived(photo, network: false)?.tone
     }
 
     /// Reads the colour of every photograph a page opens on, once, in the background, from what is
@@ -143,17 +252,34 @@ actor PhotoCache {
     func warmTones(_ photos: [Photo]) async {
         var seen = Set<String>()
         let missing = photos.filter { seen.insert($0.src).inserted && Self.knownTone($0) == nil }
-        guard !missing.isEmpty else { return }
-        for photo in missing {
-            guard let small = await Self.load(photo, maxPixel: 96, network: false), let cg = small.cgImage,
-                  let tone = AmbientTone.sample(cg) else { continue }
-            Self.tones.withLock { $0[photo.src] = tone }
-        }
-        saveTones()
+        guard !missing.isEmpty, await Self.sampleTones(missing) > 0 else { return }
+        saveTonesSoon()
     }
 
-    /// versioned with `AmbientTone.sample`: a change there reads every photo again
-    private nonisolated static var tonesFile: URL { folder.appendingPathComponent("tones-1.json") }
+    /// The tone of each photo on the phone, from the decode an album page would draw: the one in
+    /// memory, else read and decoded here and not kept, with no veil (some three hundred at launch
+    /// would push the photos on screen out of memory). Each is known as soon as it is read. How many
+    /// were new.
+    @concurrent private nonisolated static func sampleTones(_ photos: [Photo]) async -> Int {
+        var found = 0
+        for photo in photos {
+            var image = cached(photo, maxPixel: albumPixel)
+            if image == nil { image = await load(photo, maxPixel: albumPixel, network: false)?.image }
+            guard let full = image?.cgImage, let tone = AmbientTone.sample(full) else { continue }
+            let new = tones.withLock { tones -> Bool in
+                guard tones[photo.src] == nil else { return false }
+                tones[photo.src] = tone
+                return true
+            }
+            if new { found += 1 }
+        }
+        return found
+    }
+
+    /// 2: read from the decode an album page draws (`derive`), no longer from a 96 px thumbnail. The
+    /// file of version 1 is not read: a cache, read again from the photos (`warmTones` at launch, a
+    /// page as it opens). Versioned with `AmbientTone.sample` too: a change there reads every photo again.
+    private nonisolated static var tonesFile: URL { folder.appendingPathComponent("tones-2.json") }
 
     private nonisolated static func readTones() -> [String: AmbientTone] {
         guard let data = try? Data(contentsOf: tonesFile),
@@ -161,26 +287,310 @@ actor PhotoCache {
         return raw.compactMapValues { $0.count == 3 ? AmbientTone(red: $0[0], green: $0[1], blue: $0[2]) : nil }
     }
 
-    private func saveTones() {
-        let raw = Self.tones.withLock { $0.mapValues { [$0.red, $0.green, $0.blue] } }
+    /// One write of the tones file per round of new tones (a page opening, the launch's warm-up): a
+    /// second after the last new one. Each of these tasks ends only after the one before it, whether it
+    /// writes or was cancelled by a later round, so the writes run one at a time, in the order they were
+    /// asked for, and the file never goes back to an older set.
+    private func saveTonesSoon() {
+        let previous = saving
+        previous?.cancel()
+        saving = Task {
+            // cut short when a later round cancels this one
+            try? await Task.sleep(for: .seconds(1))
+            // before anything else, cancelled or not: a cancelled task that ended at once would let the
+            // next one write beside a write still running before it
+            await previous?.value
+            // a later round took over: it writes, with this one's tones
+            guard !Task.isCancelled else { return }
+            Perf.signposter.emitEvent("photo.tones")
+            await Self.writeTones(Self.tones.withLock { $0 })
+        }
+    }
+
+    @concurrent private nonisolated static func writeTones(_ tones: [String: AmbientTone]) async {
+        let raw = tones.mapValues { [$0.red, $0.green, $0.blue] }
         guard let data = try? JSONEncoder().encode(raw) else { return }
-        try? data.write(to: Self.tonesFile, options: .atomic)
+        try? data.write(to: tonesFile, options: .atomic)
     }
 
     /// A small, heavily blurred copy of the photograph, laid under the sharp one where it dissolves
-    /// into the page. Blurred once, here, so nothing is blurred live while the page scrolls; drawn
-    /// at full width the upscaled blur only gets softer.
+    /// into the page. Blurred once, from the decode the page draws, so nothing is blurred live while
+    /// the page scrolls; drawn at full width the upscaled blur only gets softer.
     func veil(_ photo: Photo) async -> UIImage? {
-        let key = "\(photo.src)@veil" as NSString
-        if let hit = Self.memory.object(forKey: key) { return hit }
-        guard let small = await image(photo, maxPixel: 160), let cg = small.cgImage else { return nil }
-        let input = CIImage(cgImage: cg)
+        if let hit = Self.cachedVeil(photo) { return hit }
+        return await derived(photo, network: true)?.veil
+    }
+
+    /// The photo's veil and tone, derived once from the decode its album page draws (`albumPixel`), off
+    /// this actor: a veil and a tone asked for together share the decode and the derivation.
+    private func derived(_ photo: Photo, network: Bool) async -> Derived? {
+        if let held = Self.held(photo) { return held }
+        guard let full = await decoded(photo, maxPixel: Self.albumPixel, network: network)?.cgImage else { return nil }
+        if let running = deriving[photo.src] { return await running.value.held }
+        // a derivation may have finished while this one was decoding
+        if let held = Self.held(photo) { return held }
+        // kept as soon as it is derived, before anyone waiting on it goes on
+        let task = Task { () -> (held: Derived, newTone: Bool) in
+            let derived = await Self.derive(full)
+            return Self.keep(derived, of: photo)
+        }
+        deriving[photo.src] = task
+        let (held, newTone) = await task.value
+        deriving[photo.src] = nil
+        if newTone { saveTonesSoon() }
+        return held
+    }
+
+    /// both, if both are held already
+    private nonisolated static func held(_ photo: Photo) -> Derived? {
+        guard let veil = cachedVeil(photo), let tone = knownTone(photo) else { return nil }
+        return Derived(veil: veil, tone: tone)
+    }
+
+    /// Keeps what a derivation found that was not held yet, and hands back what is held: a veil
+    /// already drawn stays the one drawn, a tone read before stays the page's colour. Whether the
+    /// tone is new, for the tones file.
+    private nonisolated static func keep(_ derived: Derived, of photo: Photo) -> (held: Derived, newTone: Bool) {
+        var veil = cachedVeil(photo)
+        if veil == nil, let made = derived.veil, let cg = made.cgImage {
+            memory.setObject(made, forKey: veilKey(photo), cost: cg.width * cg.height * 4)
+            veil = made
+        }
+        let (tone, new) = tones.withLock { tones -> (AmbientTone?, Bool) in
+            if let known = tones[photo.src] { return (known, false) }
+            guard let found = derived.tone else { return (nil, false) }
+            tones[photo.src] = found
+            return (found, true)
+        }
+        return (Derived(veil: veil, tone: tone), new)
+    }
+
+    /// The veil and the tone of a photograph, from the decode its page draws, off any actor: the veil is
+    /// the photograph drawn into 160 px and blurred; the tone is read from the whole of it.
+    @concurrent nonisolated static func derive(_ full: CGImage) async -> Derived {
+        Derived(veil: veilBase(full).flatMap(blurred).map { UIImage(cgImage: $0) }, tone: AmbientTone.sample(full))
+    }
+
+    /// The photograph drawn into 160 px on its longest side (never enlarged): what the veil blurs.
+    private nonisolated static func veilBase(_ full: CGImage) -> CGImage? {
+        let scale = min(1, 160 / Double(max(full.width, full.height)))
+        let w = max(1, Int((Double(full.width) * scale).rounded()))
+        let h = max(1, Int((Double(full.height) * scale).rounded()))
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
+                                      space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
+        context.interpolationQuality = .high
+        context.draw(full, in: CGRect(x: 0, y: 0, width: w, height: h))
+        return context.makeImage()
+    }
+
+    private nonisolated static func blurred(_ base: CGImage) -> CGImage? {
+        let input = CIImage(cgImage: base)
         // clamped first, so the edges blur into themselves instead of into transparency
-        let blurred = input.clampedToExtent().applyingGaussianBlur(sigma: 6).cropped(to: input.extent)
-        guard let out = filters.createCGImage(blurred, from: input.extent) else { return nil }
-        let image = UIImage(cgImage: out)
-        Self.memory.setObject(image, forKey: key, cost: out.width * out.height * 4)
+        let soft = input.clampedToExtent().applyingGaussianBlur(sigma: 6).cropped(to: input.extent)
+        return filters.createCGImage(soft, from: input.extent)
+    }
+
+    // MARK: Album pictures
+
+    /// An album page's photograph as one picture, made once: its veil filling the hero and the sharp photo over it,
+    /// fading out from the middle down (`AmbientFrame`), in the hero's shape at the photo's own pixels. The zoom, a
+    /// swipe and a scroll then move a finished picture: no mask, no flattening, nothing drawn again on the way. From
+    /// memory; else from `Caches/Ambient` (made on an earlier launch); else made now from the decode the page draws
+    /// (`albumPixel`, downloaded if need be, as the photo itself is) and its veil, off this actor, and kept in both.
+    /// One making per picture at a time: the page and a prefetch of it share it. It is background work (contract
+    /// § 4.2), so it stops when the last of them stops waiting (the page went away, or shows another photo): it is
+    /// then neither kept nor written, and the next to ask starts again. Not asked for in Low Power Mode, where the
+    /// page shows only a picture made before (`savedAmbient`).
+    func ambient(_ photo: Photo, size: CGSize) async -> UIImage? {
+        guard let frame = Self.frame(size) else { return nil }
+        let key = AmbientFrame.key(src: photo.src, frame: frame)
+        if let hit = Self.memory.object(forKey: key as NSString) { return hit }
+        guard !Task.isCancelled else { return nil }
+        let making: Making
+        if var running = composing[key] {
+            running.waiters += 1
+            composing[key] = running
+            making = running
+        } else {
+            makings += 1
+            making = Making(id: makings, task: Task { await self.composed(photo, frame: frame, key: key) }, waiters: 1)
+            composing[key] = making
+        }
+        let id = making.id
+        let image = await withTaskCancellationHandler {
+            await making.task.value
+        } onCancel: {
+            // called off this actor, at once: the count is kept on it
+            Task { await self.leave(key, making: id) }
+        }
+        if composing[key]?.id == id { composing[key] = nil }
         return image
+    }
+
+    /// The album picture if it was made before: from memory, else from `Caches/Ambient`. Never made here.
+    func savedAmbient(_ photo: Photo, size: CGSize) async -> UIImage? {
+        guard let frame = Self.frame(size) else { return nil }
+        let key = AmbientFrame.key(src: photo.src, frame: frame)
+        if let hit = Self.memory.object(forKey: key as NSString) { return hit }
+        return await readSaved(photo, frame: frame, key: key)
+    }
+
+    /// One making of an album picture, and how many wait for it.
+    private nonisolated struct Making: Sendable {
+        let id: Int
+        let task: Task<UIImage?, Never>
+        var waiters: Int
+    }
+
+    /// A waiter of `ambient` stopped waiting: the making goes on for the others; with none left it is cancelled, and
+    /// whoever asks next starts a new one.
+    private func leave(_ key: String, making id: Int) {
+        guard var making = composing[key], making.id == id else { return }
+        making.waiters -= 1
+        if making.waiters > 0 {
+            composing[key] = making
+        } else {
+            making.task.cancel()
+            composing[key] = nil
+        }
+    }
+
+    /// The album picture, if memory has it: for a view's first frame.
+    nonisolated static func cachedAmbient(_ photo: Photo, size: CGSize) -> UIImage? {
+        guard let key = ambientKey(photo, size: size) else { return nil }
+        return memory.object(forKey: key as NSString)
+    }
+
+    /// The album picture's name (`AmbientFrame.key`): the photo and its hero in whole points; nil for an empty hero.
+    nonisolated static func ambientKey(_ photo: Photo, size: CGSize) -> String? {
+        frame(size).map { AmbientFrame.key(src: photo.src, frame: $0) }
+    }
+
+    private nonisolated static func frame(_ size: CGSize) -> AmbientFrame.Frame? {
+        AmbientFrame.Frame(width: Double(size.width), height: Double(size.height))
+    }
+
+    /// From the disk, else made from the photo, and kept on disk when it is whole (opaque). Cancelled (`leave`): it
+    /// stops after the decode, after the veil or once composed, and keeps and writes nothing. The decode and the veil
+    /// it waited for are shared with the photo's other uses, and kept.
+    private func composed(_ photo: Photo, frame: AmbientFrame.Frame, key: String) async -> UIImage? {
+        if let saved = await readSaved(photo, frame: frame, key: key) { return saved }
+        guard let full = await decoded(photo, maxPixel: Self.albumPixel, network: true)?.cgImage,
+              !Task.isCancelled else { return nil }
+        // the veil from that same decode (and its tone, kept as it is read)
+        let veil = await derived(photo, network: true)?.veil?.cgImage
+        guard !Task.isCancelled, let made = await Self.compose(full, veil: veil, frame: frame),
+              !Task.isCancelled else { return nil }
+        Self.markAmbient(photo, frame, "made")
+        let kept = Self.keepAmbient(made.image, as: key)
+        // nobody waits for the file: the next launch reads it, or makes the picture again
+        let name = AmbientFrame.fileName(key: key)
+        if made.opaque { Task(priority: .utility) { await Self.storeAmbient(kept, as: name) } }
+        return kept
+    }
+
+    /// The picture from `Caches/Ambient`, kept in memory.
+    private func readSaved(_ photo: Photo, frame: AmbientFrame.Frame, key: String) async -> UIImage? {
+        guard let saved = await Self.readAmbient(AmbientFrame.fileName(key: key)) else { return nil }
+        Self.markAmbient(photo, frame, "disk")
+        return Self.keepAmbient(saved, as: key)
+    }
+
+    private nonisolated static func keepAmbient(_ image: UIImage, as key: String) -> UIImage {
+        memory.setObject(image, forKey: key as NSString,
+                         cost: Int(image.size.width * image.scale * image.size.height * image.scale) * 4)
+        return image
+    }
+
+    /// One `photo.ambient` event per album picture made or read from the disk, for Instruments (os_signpost):
+    /// "<src> <width>x<height> made|disk", the hero in points. A page seen before makes none.
+    private nonisolated static func markAmbient(_ photo: Photo, _ frame: AmbientFrame.Frame, _ how: String) {
+        Perf.signposter.emitEvent("photo.ambient", "\(photo.src, privacy: .public) \(frame.width, privacy: .public)x\(frame.height, privacy: .public) \(how, privacy: .public)")
+    }
+
+    /// A picture and whether it is whole: opaque when the veil fills it, the only kind kept on disk (a JPEG has no
+    /// transparency).
+    private nonisolated struct Composite: Sendable {
+        let image: UIImage
+        let opaque: Bool
+    }
+
+    /// The veil filling the frame and the sharp photo over it, fading out under `AmbientFrame.fade`, drawn once into a
+    /// picture of the frame's shape at the photo's own pixels (`AmbientFrame.canvas`), off any actor. The sharp photo
+    /// is drawn at its own size, so the screen samples it as it did when the layers were drawn live. With no veil (its
+    /// blur failed), the faded part is left transparent, over the page's colour.
+    @concurrent private nonisolated static func compose(_ full: CGImage, veil: CGImage?, frame: AmbientFrame.Frame) async -> Composite? {
+        let source = DecodePlan.Size(width: full.width, height: full.height)
+        guard let canvas = AmbientFrame.canvas(source: source, frame: frame),
+              let space = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+        let opaque = veil != nil
+        let alpha = opaque ? CGImageAlphaInfo.noneSkipLast : CGImageAlphaInfo.premultipliedLast
+        guard let context = CGContext(data: nil, width: canvas.width, height: canvas.height, bitsPerComponent: 8,
+                                      bytesPerRow: canvas.width * 4, space: space, bitmapInfo: alpha.rawValue),
+              let fade = fadeGradient(in: space) else { return nil }
+        context.interpolationQuality = .high
+        if let veil {
+            context.draw(veil, in: rect(AmbientFrame.fill(DecodePlan.Size(width: veil.width, height: veil.height), into: canvas)))
+        }
+        let whole = CGRect(x: 0, y: 0, width: canvas.width, height: canvas.height)
+        // the sharp photo on a layer of its own, its alpha multiplied by the fade's (destination-in), then laid over
+        // the veil
+        context.beginTransparencyLayer(in: whole, auxiliaryInfo: nil)
+        context.draw(full, in: rect(AmbientFrame.fill(source, into: canvas)))
+        // destination-in for the fade alone: the layer is laid over the veil in the normal mode, whatever Core
+        // Graphics would do with a blend mode still set when it ends
+        context.saveGState()
+        context.setBlendMode(.destinationIn)
+        // from the picture's top, which a bitmap context puts at y = height, to its bottom at y = 0
+        context.drawLinearGradient(fade, start: CGPoint(x: 0, y: whole.height), end: .zero,
+                                   options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+        context.restoreGState()
+        context.endTransparencyLayer()
+        guard let picture = context.makeImage() else { return nil }
+        return Composite(image: UIImage(cgImage: picture), opaque: opaque)
+    }
+
+    /// `AmbientFrame.fade` as black at each stop's strength: only its alpha counts
+    private nonisolated static func fadeGradient(in space: CGColorSpace) -> CGGradient? {
+        let stops = AmbientFrame.fade
+        let components: [CGFloat] = stops.flatMap { [0, 0, 0, CGFloat($0.shown)] }
+        let locations: [CGFloat] = stops.map { CGFloat($0.at) }
+        return CGGradient(colorSpace: space, colorComponents: components, locations: locations, count: stops.count)
+    }
+
+    private nonisolated static func rect(_ r: AmbientFrame.Rect) -> CGRect {
+        CGRect(x: r.x, y: r.y, width: r.width, height: r.height)
+    }
+
+    /// Read and decoded off any actor; the read is its last use, for the trim.
+    @concurrent private nonisolated static func readAmbient(_ name: String) async -> UIImage? {
+        let file = ambientFolder.appendingPathComponent(name, isDirectory: false)
+        guard let data = try? Data(contentsOf: file), let image = UIImage(data: data) else { return nil }
+        try? FileManager.default.setAttributes([.modificationDate: Date()], ofItemAtPath: file.path(percentEncoded: false))
+        return image.preparingForDisplay() ?? image
+    }
+
+    /// Encoded and written off any actor, whole or not at all; a cache, so a failed write is made again next time.
+    @concurrent private nonisolated static func storeAmbient(_ image: UIImage, as name: String) async {
+        guard let jpeg = image.jpegData(compressionQuality: 0.9) else { return }
+        try? jpeg.write(to: ambientFolder.appendingPathComponent(name, isDirectory: false), options: .atomic)
+    }
+
+    /// At launch: the least recently used pictures go until the folder's pictures fit in `budget` bytes
+    /// (`AmbientFrame.evicted`). In this folder only, and only the pictures' own names from its listing.
+    @concurrent nonisolated static func trimAmbient(toBytes budget: Int) async {
+        let files = FileManager.default
+        let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
+        guard let urls = try? files.contentsOfDirectory(at: ambientFolder, includingPropertiesForKeys: keys) else { return }
+        let listed = urls.compactMap { url -> AmbientFrame.StoredFile? in
+            guard let values = try? url.resourceValues(forKeys: Set(keys)) else { return nil }
+            return AmbientFrame.StoredFile(name: url.lastPathComponent, bytes: values.fileSize ?? 0,
+                                           used: values.contentModificationDate ?? .distantPast)
+        }
+        for name in AmbientFrame.evicted(listed, toBytes: budget) {
+            try? files.removeItem(at: ambientFolder.appendingPathComponent(name, isDirectory: false))
+        }
     }
 
     /// The remote photos not on disk yet.
@@ -198,7 +608,9 @@ actor PhotoCache {
         return (try? data.write(to: disk, options: .atomic)) != nil
     }
 
-    nonisolated static func downsample(_ data: Data, maxPixel: CGFloat) -> UIImage? {
+    /// Decoded to `maxPixel` on its longest side, never enlarged; with the photo's own pixel size, from
+    /// its header (as stored: an EXIF turn swaps the sides, the longest stays the longest).
+    nonisolated static func downsample(_ data: Data, maxPixel: CGFloat) -> Decode? {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
@@ -207,7 +619,231 @@ actor PhotoCache {
             kCGImageSourceThumbnailMaxPixelSize: maxPixel,
         ]
         guard let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
-        return UIImage(cgImage: cg)
+        return Decode(image: UIImage(cgImage: cg), source: pixelSize(of: source))
+    }
+
+    /// The photo's pixel size from its header, nil when ImageIO does not give it.
+    private nonisolated static func pixelSize(of source: CGImageSource) -> DecodePlan.Size? {
+        guard let header = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let width = header[kCGImagePropertyPixelWidth] as? Int, let height = header[kCGImagePropertyPixelHeight] as? Int
+        else { return nil }
+        return DecodePlan.Size(width: width, height: height)
+    }
+}
+
+#if DEBUG
+extension PhotoCache {
+    /// For the device check of Task 5.1a (Settings › Chẩn đoán › So màu ảnh): how far the tone read from
+    /// the decode an album page draws (`derive`) strays from the one the 96 px thumbnail gave before
+    /// (0,02 a channel at most passes), and, as the fallback, how far the tone of the veil's 160 px
+    /// base, before its blur, strays. Read from the bundle; nothing is kept.
+    @concurrent nonisolated static func toneDrift(_ photos: [Photo]) async -> String {
+        var whole = Drift(), base = Drift()
+        var count = 0
+        for photo in photos {
+            guard let thumb = await load(photo, maxPixel: 96, network: false)?.image.cgImage, let old = AmbientTone.sample(thumb),
+                  let full = await load(photo, maxPixel: albumPixel, network: false)?.image.cgImage else { continue }
+            count += 1
+            if let tone = await derive(full).tone { whole.take(tone, against: old, photo) }
+            if let tone = veilBase(full).flatMap(AmbientTone.sample) { base.take(tone, against: old, photo) }
+        }
+        return "\(count) ảnh. Từ ảnh nguyên: lệch \(whole.text). Từ nền 160 px: lệch \(base.text)"
+    }
+
+    /// the largest difference of one channel between two tones, and where
+    private nonisolated struct Drift {
+        var most = 0.0
+        var channel = "—"
+        var src = ""
+
+        mutating func take(_ tone: AmbientTone, against old: AmbientTone, _ photo: Photo) {
+            for (name, d) in [("R", abs(tone.red - old.red)), ("G", abs(tone.green - old.green)), ("B", abs(tone.blue - old.blue))] where d > most {
+                (most, channel, src) = (d, name, photo.src)
+            }
+        }
+
+        var text: String { "\(Fmt.decimal(most, digits: 3)) (\(channel)) \(src)" }
+    }
+}
+#endif
+
+// MARK: - Prefetch
+
+/// A page loaded before it opens, so it opens with its photograph, its colour and its map in the first frame: a
+/// day's page as its card comes to rest in the home's carousel, or as a finger comes down on the card; a place's
+/// page as a finger comes down on the home's cover photo. It asks exactly what the page asks (`DayPage`, the
+/// page's own photo and decode size, its hero's size and its map's key), so what it makes is what the page finds.
+///
+/// Background work (contract § 4.2): at most three at once, the newest winning (`NewestFew`), each a task that can
+/// be cancelled; never the network for a photograph (the page downloads its own when it opens); in Low Power Mode
+/// only on a touch, and no album picture is made (`AmbientPicture` makes none either).
+///
+/// What a cancel reaches: the album picture's making stops once nobody else waits for it (`PhotoCache.ambient`),
+/// and nothing after the step under way starts. A photo's veil and tone, once begun, finish (they are shared, and
+/// kept), and so does a map's picture once drawing (`MapSnapshots.snapshot`, one per key).
+enum Prefetch {
+    /// When it is asked for.
+    enum Moment: String {
+        /// the card came to rest in the middle: the map may be drawn, there is time before a touch
+        case rest
+        /// a finger came down on it: the page is about to open, so nothing is drawn on the main thread now (the map
+        /// only from memory or the disk), and it goes first
+        case touch
+
+        var priority: TaskPriority {
+            switch self {
+            case .rest: .utility
+            case .touch: .userInitiated
+            }
+        }
+    }
+
+    /// The page a day opens into, measured on the home (`TodayHome`), which sits in the same navigation stack, under
+    /// the same bars, as the day page it pushes: the width, the length `heroFrame` measures
+    /// (`containerRelativeFrame`, the scroll view less its safe area), the screen's scale, the system's dark.
+    nonisolated struct Page: Sendable {
+        let width: CGFloat
+        let length: CGFloat
+        let scale: CGFloat
+        let dark: Bool
+    }
+
+    /// the day page's hero on `page` (`heroFrame(fraction: DayPage.heroFraction)`)
+    private static func heroSize(_ page: Page) -> CGSize {
+        CGSize(width: page.width, height: CGFloat(AmbientFrame.heroHeight(length: Double(page.length), fraction: Double(DayPage.heroFraction))))
+    }
+
+    /// the day page's map on `page`: the page less its gutters, `DayPage.mapHeight` tall
+    private static func mapSize(_ page: Page) -> CGSize {
+        CGSize(width: page.width - 2 * Metrics.gutter, height: DayPage.mapHeight)
+    }
+
+    private static var slots = NewestFew<String>(limit: 3)
+    private static var tasks: [NewestFew<String>.Ticket: Task<Void, Never>] = [:]
+    /// runs a touch asked for again while they ran (started at a rest): from then on they draw no map, as a touch
+    /// does not (the page is about to open; a draw already under way is left to finish, the page waits for it)
+    private static var touched: Set<NewestFew<String>.Ticket> = []
+
+    /// The day's page: its photograph's colour, then its map, then its hero. `page` nil (not measured yet): only the
+    /// colour and the decode, no album picture and no map, whose keys need the page's size.
+    static func day(_ key: String, model: AppModel, at moment: Moment, page: Page?) {
+        if moment == .rest, model.lowPower { return }
+        let size = page.map { "\(Int(heroSize($0).width))x\(Int(heroSize($0).height))" } ?? "-"
+        run("day:\(key)", moment, size) { ticket in
+            await Prefetch.loadDay(key, model: model, moment: moment, page: page, ticket: ticket)
+        }
+    }
+
+    /// The place's page, opened as a sheet: the colour, the decode and the veil of its first photograph, none of which
+    /// depends on the sheet's size; its album picture is made when the sheet is up (its size is not known before).
+    static func place(_ id: String, model: AppModel, at moment: Moment) {
+        if moment == .rest, model.lowPower { return }
+        run("place:\(id)", moment, "-") { _ in await Prefetch.loadPlace(id, model: model) }
+    }
+
+    /// Low Power Mode came on: everything under way stops (a touch then loads again).
+    static func cancelAll() {
+        for ticket in slots.removeAll() {
+            tasks.removeValue(forKey: ticket)?.cancel()
+        }
+        touched.removeAll()
+    }
+
+    /// Started, unless it runs already (then raised to this priority); the oldest of three cancelled to make room.
+    private static func run(_ key: String, _ moment: Moment, _ size: String,
+                            _ work: @escaping @MainActor (NewestFew<String>.Ticket) async -> Void) {
+        switch slots.admit(key) {
+        case .running(let ticket):
+            if moment == .touch { touched.insert(ticket) }
+            tasks[ticket]?.escalatePriority(to: moment.priority)
+        case .start(let ticket, let cancelling):
+            if let cancelling {
+                tasks.removeValue(forKey: cancelling)?.cancel()
+                touched.remove(cancelling)
+            }
+            // one per prefetch started, for Instruments (os_signpost): "<key> rest|touch <hero w>x<h>"
+            Perf.signposter.emitEvent("prefetch", "\(key, privacy: .public) \(moment.rawValue, privacy: .public) \(size, privacy: .public)")
+            // on the main actor, as this is: stored before it can run, so its finish always finds it
+            tasks[ticket] = Task(priority: moment.priority) {
+                await work(ticket)
+                Prefetch.finished(ticket)
+            }
+        }
+    }
+
+    private static func finished(_ ticket: NewestFew<String>.Ticket) {
+        slots.finished(ticket)
+        tasks[ticket] = nil
+        touched.remove(ticket)
+    }
+
+    private static func loadDay(_ key: String, model: AppModel, moment: Moment, page: Page?, ticket: NewestFew<String>.Ticket) async {
+        guard let day = model.store.day(key) else { return }
+        // the page's own photograph (`DayView`)
+        let photo = HomePicks.photo(for: day, store: model.store)
+        var local = false
+        if let photo { local = await PhotoCache.isOnPhone(photo) }
+        // the colour first: the page reads it as it is made (`PageTone`), and the map's scheme follows it. From the
+        // phone only, never the network (`tone`), which also decodes the photo at the page's size and blurs its veil
+        if let photo, local { _ = await PhotoCache.shared.tone(photo) }
+        guard !Task.isCancelled else { return }
+        if let page { await dayMap(day, photo: photo, model: model, moment: moment, page: page, ticket: ticket) }
+        guard !Task.isCancelled, let photo, local else { return }
+        await dayHero(photo, page: page, lowPower: model.lowPower)
+    }
+
+    /// The map's picture under the key the page will ask (`StaticTripMap` in `PlanDayHeader`): from memory or the disk,
+    /// and drawn only at a rest, only when the scheme is known (no photograph, or its colour read), and not once a
+    /// touch has asked for the run (`touched`). A picture drawn under another key than the page's would prune the
+    /// page's own from the disk (`MapSnapshots.store`).
+    private static func dayMap(_ day: Day, photo: Photo?, model: AppModel, moment: Moment, page: Page,
+                               ticket: NewestFew<String>.Ticket) async {
+        let size = mapSize(page)
+        guard size.width >= 1 else { return }
+        let system: ColorScheme = page.dark ? .dark : .light
+        // the colour the page will be made with: read when it is made, as here (`PageTone.init`)
+        let canvas = PageTone(photo).canvas(dim: page.dark)
+        let known = photo == nil || canvas != nil
+        let scheme = DayPage.mapScheme(photo: photo, canvas: canvas, system: system) ?? system
+        let printed = await fingerprinted(.day(day, model: model))
+        guard !Task.isCancelled else { return }
+        let request = MapSnapshots.Request(printed, frameID: day.key, insets: DayPage.mapInsets, size: size,
+                                           scale: page.scale, dark: scheme == .dark)
+        // read here, after the last wait and just before the draw: a touch that came during the colour or the
+        // fingerprint keeps this run from drawing
+        if moment == .rest, known, !touched.contains(ticket) {
+            _ = await MapSnapshots.shared.snapshot(for: request)
+        } else {
+            _ = await MapSnapshots.shared.stored(request)
+        }
+    }
+
+    /// The day's hero: its album picture at the page's hero size; in Low Power Mode, or with no page measured, the
+    /// picture made before if any, else the decode the page shows in its place.
+    private static func dayHero(_ photo: Photo, page: Page?, lowPower: Bool) async {
+        if let page, !lowPower {
+            _ = await PhotoCache.shared.ambient(photo, size: heroSize(page))
+            return
+        }
+        if let page, await PhotoCache.shared.savedAmbient(photo, size: heroSize(page)) != nil { return }
+        guard !Task.isCancelled else { return }
+        _ = await PhotoCache.shared.image(photo, maxPixel: PhotoCache.albumPixel)
+    }
+
+    private static func loadPlace(_ id: String, model: AppModel) async {
+        // the page's first photograph: the one its colour is taken from (`PlanAmbientPage`), and its hero's first page
+        guard let photo = model.store.place(id)?.images.first, await PhotoCache.isOnPhone(photo),
+              !Task.isCancelled else { return }
+        // the decode at the page's size, its veil and its colour, in one derivation; on the phone, so nothing downloads
+        _ = await PhotoCache.shared.veil(photo)
+        guard !Task.isCancelled else { return }
+        // the decode, if a veil and a colour read before left it out of memory
+        _ = await PhotoCache.shared.image(photo, maxPixel: PhotoCache.albumPixel)
+    }
+
+    /// The map's content with its fingerprint, which reads every point: off the main thread.
+    @concurrent private nonisolated static func fingerprinted(_ content: MapContent) async -> FingerprintedContent {
+        FingerprintedContent(content)
     }
 }
 
@@ -337,17 +973,6 @@ nonisolated struct AmbientTone: Sendable, Equatable {
         }
         guard total > 0 else { return nil }
         return AmbientTone(red: r / total / 255, green: g / total / 255, blue: b / total / 255)
-    }
-
-    /// An ambient page's colour: the first photograph decides light or dark for the whole page, the
-    /// one on screen moves the hue. A tone read before comes straight from the cache, so a page is
-    /// laid on its colour from its first frame instead of re-colouring itself mid-zoom.
-    static func canvas(_ tones: [Int: AmbientTone], photos: [Photo], page: Int, dim: Bool) -> AmbientCanvas? {
-        func tone(_ i: Int) -> AmbientTone? {
-            tones[i] ?? (photos.indices.contains(i) ? PhotoCache.knownTone(photos[i]) : nil)
-        }
-        guard let first = tone(0) else { return nil }
-        return (tone(page) ?? first).canvas(light: first.prefersLight, dim: dim)
     }
 
     /// Light enough that a page in this colour wants dark type.
@@ -480,7 +1105,7 @@ struct PlacePhoto: View {
                     return
                 }
                 let loaded = await PhotoCache.shared.image(photo, maxPixel: maxPixel)
-                withAnimation(.easeOut(duration: 0.2)) { image = loaded }
+                withAnimation(Motion.arrive) { image = loaded }
             }
     }
 }
@@ -526,7 +1151,8 @@ enum HeroExporter {
 
 // MARK: - Japanese voice
 
-/// Reads Japanese aloud with the on-device voice, so a phrase can be played to staff.
+/// Reads Japanese aloud with the on-device voice, so a phrase can be played to staff. The audio session is not
+/// touched here: `AudioSessionController` decides what it needs, and its queue does it, in order with Nghe's.
 @Observable final class Speaker: NSObject {
     static let shared = Speaker()
     private let synth = AVSpeechSynthesizer()
@@ -535,58 +1161,51 @@ enum HeroExporter {
     /// while the app speaks, so Nghe does not write down the app's own voice (`.measurement` has no
     /// echo cancelling)
     let voice = SpeakingFlag()
+    /// lines asked for so far: only the one asked for last is read
+    @ObservationIgnored private var asked = 0
+    /// the line asked for last, until the session work decided for it has run
+    @ObservationIgnored private var waiting: (line: Int, utterance: AVSpeechUtterance)?
 
     override init() {
         super.init()
         synth.delegate = self
     }
 
-    /// the session was set up for speaking here, so it is ours to hand back when done
-    private var ownsSession = false
-
     func say(_ ja: String, slow: Bool = false) {
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
-        let session = AVAudioSession.sharedInstance()
-        // while Nghe is listening the session records: speak through it as it is (changing the
-        // category would stop the microphone), and leave it to Nghe to end
-        if session.category != .playAndRecord { takeSession() }
         let u = AVSpeechUtterance(string: ja)
         u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
         u.rate = slow ? 0.38 : AVSpeechUtteranceDefaultSpeechRate
+        asked += 1
+        let line = asked
+        waiting = (line, u)
         speaking = ja
         voice.set(true)
-        synth.speak(u)
+        // the Speaker's category (none while Nghe listens: the line goes through its recording session as it
+        // is), set on the audio queue behind whatever was decided before. The line is read once that has run,
+        // so it never starts in another category, nor in a session whose deactivation was already queued.
+        AudioSessionController.send(.speakerWillSpeak) { _ in self.read(line) }
     }
 
-    /// Nghe stopped while a line is being read: the session stays active, moves to the Speaker's own
-    /// category, and is the Speaker's to end once nothing is left to say (`ended`).
-    func adoptSession() {
-        takeSession()
-    }
-
-    /// The Speaker's category, the one place it is set: mixable and ducking what else plays, heard
-    /// with the Ring/Silent switch on silent. The session is then the Speaker's to end.
-    private func takeSession() {
-        // on the main actor, in order with Nghe's (an exception to contract § 4.2 until Task 4.2)
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-        ownsSession = true
-    }
-
-    /// An utterance ended or was cut off: once nothing is left to say, the music ducked for it
-    /// comes back up (`notifyOthersOnDeactivation`); without this it stays low until the app quits.
-    fileprivate func ended(_ text: String) {
-        // the same line again cuts this one off: still speaking it
-        guard !synth.isSpeaking else { return }
-        if speaking == text {
-            speaking = nil
-            voice.set(false)
+    /// The session work decided for `line` has run (a failed category is logged, and the line read all the
+    /// same): it is read, unless another line was asked for since.
+    private func read(_ line: Int) {
+        guard let w = waiting, w.line == line else {
+            // a newer line was asked for; if it was read and ended already, nothing is left to say
+            settle()
+            return
         }
-        guard ownsSession else { return }
-        ownsSession = false
-        // Nghe may have taken the session over meanwhile: it is Nghe's to end then
-        let session = AVAudioSession.sharedInstance()
-        guard session.category != .playAndRecord else { return }
-        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        waiting = nil
+        synth.speak(w.utterance)
+    }
+
+    /// Nothing is being read and no line waits: the session goes back after a beat (the Speaker's release, in
+    /// `AudioSessionController`), and the music ducked for the lines comes back up.
+    fileprivate func settle() {
+        guard speaking != nil, waiting == nil, !synth.isSpeaking else { return }
+        speaking = nil
+        voice.set(false)
+        AudioSessionController.send(.speakerDone)
     }
 }
 
@@ -601,14 +1220,187 @@ nonisolated final class SpeakingFlag: Sendable {
 }
 
 extension Speaker: AVSpeechSynthesizerDelegate {
+    /// An utterance ended, or was cut off by the next line.
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        let text = utterance.speechString
-        Task { @MainActor in self.ended(text) }
+        Task { @MainActor in self.settle() }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        let text = utterance.speechString
-        Task { @MainActor in self.ended(text) }
+        Task { @MainActor in self.settle() }
+    }
+}
+
+// MARK: - Audio session
+
+/// The app's one audio session, shared by the Speaker and Nghe. What to do with it is decided here, on the main
+/// actor and in the order things happen (`AudioSessionPlan`). The session calls run off the main thread, on one
+/// serial queue, in that same order (`AudioSessionQueue`).
+@MainActor enum AudioSessionController {
+    private static var plan = AudioSessionPlan()
+    private static let queue = AudioSessionQueue()
+    /// the wait before the Speaker's release; the plan's generation, not this cancel, makes a stale one harmless
+    private static var release: Task<Void, Never>?
+    /// the system's audio services restarting, watched from the first event on
+    private static var resetWatch: (any NSObjectProtocol)?
+    /// what went wrong with the audio session, in the device log (Console, subsystem tech.delphyra.jp27)
+    private static let log = Logger(subsystem: "tech.delphyra.jp27", category: "audio")
+
+    /// Decides on `event` now and queues its session work at once, behind everything decided before it. `done`
+    /// runs on the main actor once that work has run, even when there was none, with the step that failed.
+    /// Returns the generation the work was decided under: Nghe's ticket after `.listenerStarting`.
+    @discardableResult
+    static func send(_ event: AudioSessionPlan.Event,
+                     done: (@MainActor @Sendable (AudioSessionFailure?) -> Void)? = nil) -> Int {
+        watchReset()
+        let commands = plan.handle(event)
+        let generation = plan.generation
+        run(commands, generation: generation, done: done)
+        return generation
+    }
+
+    private static func run(_ commands: [AudioSessionPlan.Command], generation: Int,
+                            done: (@MainActor @Sendable (AudioSessionFailure?) -> Void)?) {
+        // a batch with no steps still goes through the queue, so `done` runs after every batch before it
+        enqueue(schedule(commands), generation: generation, done: done)
+    }
+
+    /// The waits a decision asks for, started or cancelled here; returns its session steps, in order.
+    private static func schedule(_ commands: [AudioSessionPlan.Command]) -> [AudioSessionPlan.Step] {
+        var steps: [AudioSessionPlan.Step] = []
+        for command in commands {
+            switch command {
+            case .session(let step):
+                steps.append(step)
+            case .cancelRelease:
+                release?.cancel()
+                release = nil
+            case .release(let after, let due):
+                release?.cancel()
+                release = Task {
+                    do { try await Task.sleep(for: .milliseconds(after)) } catch { return }
+                    send(.releaseDue(generation: due))
+                }
+            case .retry(let after, let due):
+                // the wait is on the audio queue; whether the retry is still wanted is decided here
+                queue.after(milliseconds: after) {
+                    Task { @MainActor in send(.retryDue(generation: due)) }
+                }
+            }
+        }
+        return steps
+    }
+
+    private static func enqueue(_ steps: [AudioSessionPlan.Step], generation: Int,
+                                done: (@MainActor @Sendable (AudioSessionFailure?) -> Void)?) {
+        queue.run(steps) { failure in
+            Task { @MainActor in
+                // the plan learns of a failure before anyone waiting on the batch goes on
+                if let failure { failed(failure, generation: generation) }
+                done?(failure)
+            }
+        }
+    }
+
+    /// A step failed: never hidden. A deactivation refused as busy is tried once more; anything else is an error.
+    private static func failed(_ failure: AudioSessionFailure, generation: Int) {
+        let commands = plan.handle(.failed(failure.failure, generation: generation))
+        let step = String(describing: failure.failure.step)
+        if commands.contains(where: { if case .retry = $0 { true } else { false } }) {
+            log.notice("audio session \(step, privacy: .public) busy, tried again in \(AudioSessionPlan.busyRetryAfter) ms: \(failure.message, privacy: .public)")
+        } else {
+            log.error("audio session \(step, privacy: .public) failed: \(failure.message, privacy: .public)")
+        }
+        // the plan answers a failure with a retry's wait or nothing: no step, and nobody waits on it, so no batch
+        let steps = schedule(commands)
+        if !steps.isEmpty { enqueue(steps, generation: plan.generation, done: nil) }
+    }
+
+    /// After a media services reset the session's category is the default again: the plan forgets the one it set.
+    private static func watchReset() {
+        guard resetWatch == nil else { return }
+        resetWatch = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.mediaServicesWereResetNotification, object: nil, queue: .main
+        ) { _ in
+            Task { @MainActor in AudioSessionController.send(.mediaServicesReset) }
+        }
+    }
+}
+
+/// A session step that threw: what the plan learns, and what the log says.
+nonisolated struct AudioSessionFailure: Error {
+    let failure: AudioSessionPlan.Failure
+    let message: String
+}
+
+/// The audio session's calls, off the main thread and in order: one serial queue, one block per batch of the
+/// plan's steps. A batch stops at its first failing step: what follows it was decided on it succeeding.
+nonisolated final class AudioSessionQueue: Sendable {
+    private let queue = DispatchQueue(label: "jp27.audio-session")
+    /// the session's setup from before Nghe (`capturePrior`), given back by `restorePrior`; only the queue's
+    /// blocks touch it
+    private let prior = Mutex<Setup?>(nil)
+
+    nonisolated struct Setup: Sendable {
+        let category: AVAudioSession.Category
+        let mode: AVAudioSession.Mode
+        let options: AVAudioSession.CategoryOptions
+    }
+
+    /// `steps` in one block on the queue, then `done` there with the first failure.
+    func run(_ steps: [AudioSessionPlan.Step], done: @escaping @Sendable (AudioSessionFailure?) -> Void) {
+        queue.async { done(self.execute(steps)) }
+    }
+
+    /// `work` on the queue once `milliseconds` have passed.
+    func after(milliseconds: Int, _ work: @escaping @Sendable () -> Void) {
+        queue.asyncAfter(deadline: .now() + .milliseconds(milliseconds), execute: work)
+    }
+
+    private func execute(_ steps: [AudioSessionPlan.Step]) -> AudioSessionFailure? {
+        let session = AVAudioSession.sharedInstance()
+        for step in steps {
+            do {
+                try execute(step, on: session)
+            } catch {
+                // `AVAudioSession.ErrorCode` is no Error type: the code is read from the NSError
+                let busy = (error as NSError).code == AVAudioSession.ErrorCode.isBusy.rawValue
+                return AudioSessionFailure(failure: AudioSessionPlan.Failure(step: step, busy: busy),
+                                           message: error.localizedDescription)
+            }
+        }
+        return nil
+    }
+
+    private func execute(_ step: AudioSessionPlan.Step, on session: AVAudioSession) throws {
+        switch step {
+        case .setCategory(let setup):
+            let values = Self.values(setup)
+            try session.setCategory(values.category, mode: values.mode, options: values.options)
+        case .capturePrior:
+            let now = Setup(category: session.category, mode: session.mode, options: session.categoryOptions)
+            prior.withLock { $0 = now }
+        case .restorePrior:
+            let kept = prior.withLock { value in
+                let kept = value
+                value = nil
+                return kept
+            }
+            if let kept { try session.setCategory(kept.category, mode: kept.mode, options: kept.options) }
+        case .activate:
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+        case .deactivate:
+            // what another app plays comes back up
+            try session.setActive(false, options: .notifyOthersOnDeactivation)
+        }
+    }
+
+    /// The one place each setup's values are written. The Speaker's: mixable and ducking what else plays, heard
+    /// with the Ring/Silent switch on silent. Nghe's: recording through the speaker, ducking what else plays.
+    private static func values(_ setup: AudioSessionPlan.Setup) -> Setup {
+        switch setup {
+        case .speaker: Setup(category: .playback, mode: .spokenAudio, options: [.duckOthers])
+        case .listener: Setup(category: .playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+        }
     }
 }
 

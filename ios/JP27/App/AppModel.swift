@@ -60,6 +60,22 @@ enum AppSheet: Identifiable, Hashable {
         case .settings: "settings"
         }
     }
+
+    /// The name its opening is measured under (`Perf.transition`), one per kind.
+    var signpost: StaticString {
+        switch self {
+        case .place: "sheet.place"
+        case .ride: "sheet.ride"
+        case .expense: "sheet.expense"
+        case .atPlace: "sheet.atPlace"
+        case .menuScan: "sheet.menuScan"
+        case .listen: "sheet.listen"
+        case .fujiFinder: "sheet.fujiFinder"
+        case .fujiSpot: "sheet.fujiSpot"
+        case .journal: "sheet.journal"
+        case .settings: "sheet.settings"
+        }
+    }
 }
 
 /// The app's state: the plan, the clock, where you are in today, and what was recorded.
@@ -109,10 +125,20 @@ enum AppSheet: Identifiable, Hashable {
     var tab: AppTab = .today
     /// sheets on screen, bottom first; see `present(_:from:)`
     var sheets: [Presented] = []
-    var todayPath = NavigationPath()
-    var planPath = NavigationPath()
-    var talkPath = NavigationPath()
-    var spendPath = NavigationPath()
+    // a push is measured from where its path grows (`NavigationLink(value:)` has no tap hook); the
+    // path cannot say which page was pushed, so the name is the tab's
+    var todayPath = NavigationPath() {
+        didSet { if todayPath.count > oldValue.count { Perf.transition("push.today") } }
+    }
+    var planPath = NavigationPath() {
+        didSet { if planPath.count > oldValue.count { Perf.transition("push.plan") } }
+    }
+    var talkPath = NavigationPath() {
+        didSet { if talkPath.count > oldValue.count { Perf.transition("push.talk") } }
+    }
+    var spendPath = NavigationPath() {
+        didSet { if spendPath.count > oldValue.count { Perf.transition("push.spend") } }
+    }
     /// a place the map should frame next time it shows
     var mapFocus: String?
     /// a day the map should show next time it shows
@@ -218,6 +244,8 @@ enum AppSheet: Identifiable, Hashable {
     @ObservationIgnored private var asleep = true
     /// the pinned tile build was asked about and answered, this launch
     @ObservationIgnored private var tilesChecked = false
+    /// Low Power Mode, followed live (the cover stops and restarts its flips with it)
+    private(set) var lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
 
     var guide: Guide { store.guide! }
     var people: Int { store.trip.meta.people }
@@ -311,6 +339,10 @@ enum AppSheet: Identifiable, Hashable {
         }
         motion.onPace = { [weak self] kmh, minutes in self?.learnPace(kmh: kmh, minutes: minutes) }
         notifications.onAction = { [weak self] in self?.notificationAction($0) }
+        // delivered on whatever thread changed the setting: asked again on the main actor, not trusted from here
+        NotificationCenter.default.addObserver(forName: .NSProcessInfoPowerStateDidChange, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled }
+        }
     }
 
     // MARK: - Lifecycle
@@ -342,7 +374,7 @@ enum AppSheet: Identifiable, Hashable {
             if notifications.undetermined { await notifications.requestAuthorization() }
             await HeroExporter.exportIfNeeded(store: store)
             // once per launch, as soon as it is online and gets an answer
-            if !tilesChecked, network.online { tilesChecked = await OfflineMaps.checkPinnedTiles() }
+            if !tilesChecked, network.raw { tilesChecked = await OfflineMaps.checkPinnedTiles() }
         }
         // the colour of the photograph each page opens on, read once in the background (and kept),
         // so no page re-colours itself while it zooms open
@@ -1346,11 +1378,14 @@ enum AppSheet: Identifiable, Hashable {
             sheets.removeSubrange((i + 1)...)
             return
         }
+        Perf.transition(sheet.signpost)
         sheets.append(Presented(sheet: sheet, source: source))
     }
 
     /// From a link or a notification: this sheet alone, over whatever tab is showing.
     func show(_ sheet: AppSheet) {
+        // already at the bottom: the sheets above it close, nothing opens
+        if sheets.first?.id != sheet.id { Perf.transition(sheet.signpost) }
         sheets = [Presented(sheet: sheet, source: nil)]
     }
 

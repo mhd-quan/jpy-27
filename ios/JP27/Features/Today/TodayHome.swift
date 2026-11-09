@@ -13,6 +13,8 @@ struct TodayHome: View {
     /// the day card the carousel rests on; the metro line follows it and moves it
     @State private var focus: String?
     @State private var shown: TalkShowItem?
+    /// the page a day card opens into, measured here (`HomePageProbe`)
+    @State private var probe = HomePageProbe()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 36) {
@@ -21,7 +23,7 @@ struct TodayHome: View {
             VStack(alignment: .leading, spacing: 18) {
                 HomeChapters(focus: $focus)
                     .padding(.horizontal, Metrics.gutter)
-                HomeDays(focus: $focus)
+                HomeDays(focus: $focus, probe: probe)
             }
             HomeTickets()
             HomeMeals()
@@ -35,8 +37,23 @@ struct TodayHome: View {
                 .padding(.horizontal, Metrics.gutter)
         }
         .padding(.bottom, 40)
+        // the size of the page a day card pushes (`heroFrame`'s rule, in the same stack under the same bars), for
+        // the day's prefetch; kept where nothing is drawn from it, so measuring re-renders nothing
+        .background {
+            Color.clear
+                .containerRelativeFrame([.horizontal, .vertical])
+                .onGeometryChange(for: CGSize.self) { $0.size } action: { probe.size = $0 }
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
         .phraseCover($shown)
     }
+}
+
+/// The home's scroll view less its safe area, as `containerRelativeFrame` measures it: the width and length of the
+/// day page a card pushes, which sits in the same navigation stack with the same top edge ignored. Not observed.
+final class HomePageProbe {
+    var size: CGSize?
 }
 
 // MARK: - Cover
@@ -78,27 +95,28 @@ private struct HomeCover: View {
                         .foregroundStyle(.secondary)
                 }
                 .opacity(risen ? 1 : 0)
-                .offset(y: risen ? 0 : 10)
+                // under Reduce Motion (read at the top of HomeCover) it fades in where it stays, with no rise
+                .offset(y: risen || reduceMotion ? 0 : 10)
             }
             .padding(.horizontal, Metrics.gutter)
             .accessibilityElement(children: .combine)
         }
         .onAppear {
-            withAnimation(.smooth(duration: 0.7).delay(0.1)) { risen = true }
+            withAnimation(Motion.arrive.delay(0.1)) { risen = true }
         }
         // a new photograph every few seconds while the cover is in view; a swipe restarts the wait.
         // Under a sheet or behind another tab it waits: nothing turns while you look at something
         // else, and no page turn lands in the middle of a sheet's zoom. (Read here, not in the
         // body, so opening a sheet does not re-run the cover.)
-        .task(id: "\(page ?? 0)-\(visible)") {
-            guard visible, !reduceMotion, shots.count > 1, toured < shots.count - 1 else { return }
+        .task(id: "\(page ?? 0)-\(visible)-\(model.lowPower)") {
+            guard visible, !reduceMotion, !model.lowPower, shots.count > 1, toured < shots.count - 1 else { return }
             repeat {
                 try? await Task.sleep(for: .seconds(6))
             } while !Task.isCancelled && !(model.sheets.isEmpty && model.tab == .today)
-            // Low Power Mode: the covers stay where they are
-            guard !Task.isCancelled, !ProcessInfo.processInfo.isLowPowerModeEnabled else { return }
+            // Low Power Mode: the covers stay where they are (`model.lowPower` is in the task id: turned off, the flips start again)
+            guard !Task.isCancelled, !model.lowPower else { return }
             toured += 1
-            withAnimation(.smooth(duration: 0.9)) { page = ((page ?? 0) + 1) % shots.count }
+            withAnimation(Motion.reduced(Motion.travel, reduceMotion)) { page = ((page ?? 0) + 1) % shots.count }
         }
         .onChange(of: visible) { _, on in if on { toured = 0 } }
     }
@@ -114,9 +132,10 @@ private struct HomeCover: View {
                             model.present(.place(shots[i].place.id), from: "home.cover.\(i)")
                         } label: {
                             // the slow drift is drawn every frame: not in Low Power Mode
-                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible && !ProcessInfo.processInfo.isLowPowerModeEnabled)
+                            HomeCoverPhoto(photo: shots[i].photo, current: current == i && visible && !model.lowPower)
                         }
-                        .buttonStyle(.pressable(.plain))
+                        // the place's page starts loading as the finger comes down
+                        .buttonStyle(.pressable(.plain, onPress: { Prefetch.place(shots[i].place.id, model: model, at: .touch) }))
                         .containerRelativeFrame(.horizontal)
                         .sheetSource("home.cover.\(i)")
                         .accessibilityLabel(shots[i].place.name)
@@ -178,7 +197,7 @@ private struct HomeCover: View {
                     }
                     .lineLimit(1)
                     .id(current)
-                    .transition(.blurReplace)
+                    .transition(.opacity)
                     Spacer()
                     HStack(spacing: 5) {
                         ForEach(shots.indices, id: \.self) { i in
@@ -191,7 +210,7 @@ private struct HomeCover: View {
                     .accessibilityHidden(true)
                 }
                 .padding(.horizontal, Metrics.gutter)
-                .animation(.smooth(duration: 0.4), value: current)
+                .animation(Motion.reduced(Motion.pick, reduceMotion), value: current)
             }
         }
         .frame(height: Self.height)
@@ -210,7 +229,8 @@ private struct HomeCoverPhoto: View {
                     // the covers are cut to the screen's own pixels (1290 × 1560): just enough
                     // over-scan for a light parallax (4% each side), and a slow drift a little closer
                     .scaleEffect(current && !reduceMotion ? 1.12 : 1.08)
-                    .animation(current ? .easeInOut(duration: 10) : .smooth(duration: 0.5), value: current)
+                    // motion: one-off the cover's 10 s drift is slower than any token; under Reduce Motion the scale does not change
+                    .animation(current ? Animation.easeInOut(duration: 10) : Motion.reduced(Motion.travel, reduceMotion), value: current)
                     .visualEffect { content, proxy in
                         content.offset(x: -proxy.frame(in: .scrollView(axis: .horizontal)).minX * 0.04)
                     }
@@ -243,7 +263,7 @@ private struct HomeSun: View {
         let reading = self.reading
         Button {
             taps += 1
-            withAnimation(.snappy) { unit = (unit + 1) % 3 }
+            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { unit = (unit + 1) % 3 }
         } label: {
             ZStack {
                 Circle().fill(Palette.sun)
@@ -273,12 +293,12 @@ private struct HomeSun: View {
                             ring.scaleEffect(v.scale).opacity(v.opacity)
                         } keyframes: { _ in
                             KeyframeTrack(\.scale) {
-                                LinearKeyframe(1, duration: 0.01)
-                                CubicKeyframe(1.32, duration: 0.7)
+                                LinearKeyframe(1, duration: 0.01) // motion: one-off the ring's own timeline; not drawn under Reduce Motion
+                                CubicKeyframe(1.32, duration: 0.7) // motion: one-off the ring's own timeline; not drawn under Reduce Motion
                             }
                             KeyframeTrack(\.opacity) {
-                                LinearKeyframe(0.7, duration: 0.01)
-                                CubicKeyframe(0, duration: 0.7)
+                                LinearKeyframe(0.7, duration: 0.01) // motion: one-off the ring's own timeline; not drawn under Reduce Motion
+                                CubicKeyframe(0, duration: 0.7) // motion: one-off the ring's own timeline; not drawn under Reduce Motion
                             }
                         }
                 }
@@ -287,7 +307,8 @@ private struct HomeSun: View {
         // the unit turning is a choice: `pick`, not the card's press
         .buttonStyle(.pressable(.settle, felt: false))
         .sensoryFeedback(.pick, trigger: taps)
-        .scaleEffect(risen ? 1 : 0.85)
+        // under Reduce Motion (read at the top of HomeSun) the disc fades in at its size, with no growth
+        .scaleEffect(risen || reduceMotion ? 1 : 0.85)
         .opacity(risen ? 1 : 0)
         .accessibilityLabel("Còn \(days) ngày")
         .accessibilityHint("Đổi đơn vị")
@@ -304,6 +325,7 @@ nonisolated private struct SunRing {
 /// The five cities as stations on one line, each run as long as its nights. Tapping a station
 /// moves the day cards to its first day; scrolling the cards lights the station they are in.
 private struct HomeChapters: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     @Binding var focus: String?
     @State private var drawn = false
@@ -329,7 +351,7 @@ private struct HomeChapters: View {
                         Button {
                             let first = model.days.first { c.days.contains($0.n) }?.key
                             if first != (focus ?? model.days.first?.key) { taps += 1 }
-                            withAnimation(.smooth) { focus = first }
+                            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { focus = first }
                         } label: {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(c.kanji)
@@ -342,7 +364,7 @@ private struct HomeChapters: View {
                                         .fill(c.tint.opacity(on ? 1 : 0.4))
                                         .frame(height: on ? 8 : 6)
                                         .scaleEffect(x: drawn ? 1 : 0.001, anchor: .leading)
-                                        .animation(.spring(response: 0.7, dampingFraction: 0.85).delay(0.12 * Double(i)), value: drawn)
+                                        .animation(Motion.reduced(Motion.travel, reduceMotion)?.delay(0.12 * Double(i)), value: drawn)
                                     Circle()
                                         .fill(Palette.card)
                                         .overlay(Circle().strokeBorder(on ? c.tint : Color.primary, lineWidth: 3.5))
@@ -357,7 +379,7 @@ private struct HomeChapters: View {
                         .accessibilityAddTraits(on ? .isSelected : [])
                     }
                 }
-                .animation(.smooth, value: current?.id)
+                .animation(Motion.reduced(Motion.pick, reduceMotion), value: current?.id)
             }
             .frame(height: 50)
             .sensoryFeedback(.pick, trigger: taps)
@@ -385,10 +407,10 @@ private struct HomeChapters: View {
                 }
                 .buttonStyle(.pressable)
                 .id(c.id)
-                .transition(.blurReplace)
+                .transition(.opacity)
             }
         }
-        .animation(.smooth, value: current?.id)
+        .animation(Motion.arrive, value: current?.id)
         .onAppear { drawn = true }
     }
 
@@ -408,7 +430,10 @@ private struct HomeChapters: View {
 /// day's real path drawn small in the corner. A card opens its day, growing into it.
 private struct HomeDays: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.displayScale) private var scale
+    @Environment(\.colorScheme) private var scheme
     @Binding var focus: String?
+    let probe: HomePageProbe
 
     var body: some View {
         ScrollView(.horizontal) {
@@ -417,7 +442,8 @@ private struct HomeDays: View {
                         NavigationLink(value: Route.day(day.key)) {
                             HomeDayCard(day: day)
                         }
-                        .buttonStyle(.pressable)
+                        // the day's page starts loading as the finger comes down, ahead of anything at rest
+                        .buttonStyle(.pressable(.settle, onPress: { prefetch(day.key, at: .touch) }))
                         .sheetSource("home.day.\(day.key)")
                         // off centre a card shrinks a little and the paper shows through it
                         // (that part is drawn inside the card, see HomeDayCard)
@@ -431,10 +457,22 @@ private struct HomeDays: View {
             }
             .scrollTargetBehavior(.viewAligned)
             .scrollPosition(id: $focus, anchor: .leading)
-            // a station tapped moves the cards quietly: the station has ticked
-            .feelsPages(focus)
+            // a station tapped moves the cards quietly: the station has ticked. At rest, the card the row rests on
+            // starts loading its page: once per rest, not per card a fling passes (not in Low Power Mode, `Prefetch`)
+            .feelsPages(focus) {
+                if let key = focus { prefetch(key, at: .rest) }
+            }
             .contentMargins(.horizontal, Metrics.gutter, for: .scrollContent)
             .scrollIndicators(.hidden)
+            // Low Power Mode: what loads ahead stops; a touch still loads the page it opens
+            .onChange(of: model.lowPower) { _, on in
+                if on { Prefetch.cancelAll() }
+            }
+    }
+
+    private func prefetch(_ key: String, at moment: Prefetch.Moment) {
+        let page = probe.size.map { Prefetch.Page(width: $0.width, length: $0.height, scale: scale, dark: scheme == .dark) }
+        Prefetch.day(key, model: model, at: moment, page: page)
     }
 }
 
@@ -719,6 +757,7 @@ private struct HomeMealCard: View {
 /// One of the trip's own sentences, a different one each day; tapped, it fills the screen for the
 /// person across the counter.
 private struct HomePhrase: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     @Binding var shown: TalkShowItem?
     @State private var turn = 0
@@ -736,7 +775,7 @@ private struct HomePhrase: View {
                         Tag(text: p.use, tint: Palette.sun)
                         Spacer()
                         Button {
-                            withAnimation(.snappy) { turn += 1 }
+                            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { turn += 1 }
                         } label: {
                             Image(systemName: "shuffle")
                                 .font(.subheadline.weight(.semibold))
@@ -768,7 +807,7 @@ private struct HomePhrase: View {
                     .buttonStyle(.pressable(.plain))
                     .sheetSource(item.source)
                     .id(i)
-                    .transition(.blurReplace)
+                    .transition(.opacity)
                     TalkSpeakButton(ja: p.ja, size: 36)
                         .padding(.leading, -8)
                 }
@@ -792,6 +831,7 @@ private struct HomePhrase: View {
 
 /// The guide's checks, now ticked off; kept on the phone.
 private struct HomeChecklist: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     @AppStorage("home.checks") private var doneRaw = ""
 
@@ -806,7 +846,7 @@ private struct HomeChecklist: View {
                 SectionTitle("Trước khi đi", trailing: "\(count)/\(checks.count)")
                 Card {
                     Meter(value: Double(count) / Double(checks.count), tint: Palette.matcha)
-                        .animation(.smooth, value: count)
+                        .animation(Motion.reduced(Motion.pick, reduceMotion), value: count)
                     ForEach(Array(checks.enumerated()), id: \.offset) { i, c in
                         if i > 0 { Divider().padding(.leading, 44) }
                         let on = done.contains(c.when)
@@ -836,7 +876,7 @@ private struct HomeChecklist: View {
     private func toggle(_ key: String) {
         var set = done
         if set.contains(key) { set.remove(key) } else { set.insert(key) }
-        withAnimation(.snappy) { doneRaw = set.sorted().joined(separator: "\n") }
+        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { doneRaw = set.sorted().joined(separator: "\n") }
     }
 }
 

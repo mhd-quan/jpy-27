@@ -782,6 +782,8 @@ trả lại "Đặt tự động" sau các bước đó.
    - Làm lại với công tắc Chuông/Im lặng ở **im lặng**. **Đạt** khi nửa sau của câu vẫn nghe rõ tới hết (không im bặt).
    - **Không đạt** nếu câu bị cắt hay nhạc không to lại: ghi lại, bản sửa đã định sẵn ở report Task 3.4b.
 
+*Trên bản có Task 4.2:* bước 4–7 chạy theo luật của Task 4.2 (session âm thanh ngoài main thread, nhạc to lại khoảng nửa giây sau câu đọc cuối); xem `docs/perf/2026-11-device-perf-phase4-5.md` § 4.2.
+
 ## Task 3.4c — Widget tải lại khi đổi đồng hồ hay ngày thay thế, giờ của widget, nút quyền, dự báo theo giờ thật, nhãn VoiceOver
 
 **Chuẩn bị.** Thêm widget JP27 cỡ vừa và cỡ nhỏ lên màn hình chính, một widget chữ nhật trên màn hình khoá. Ngày máy

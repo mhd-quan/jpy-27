@@ -52,6 +52,9 @@ jobs:
       # two best-effort copies marked as such
       - name: Saves are not silent
         run: node scripts/lint-saves.mjs
+      # every animation is a Motion token through Motion.reduced (Reduce Motion), or says why not
+      - name: Animations are Motion tokens
+        run: node scripts/lint-motion.mjs
       - run: npm run ios:data
       - run: node scripts/check-plan.mjs > ios/Packages/TripKit/Tests/TripKitTests/Fixtures/check-plan.txt
       - name: Exported data is current
@@ -85,6 +88,16 @@ jobs:
       - run: brew install xcodegen
       - run: xcodegen generate
         working-directory: ios
+      # SwiftPM's artifact cache can refuse the MapLibre zip at resolution ("…MapLibre.dynamic.xcframework.zip
+      # already exists in file system"): 4 of the early runs, once on a re-run of the same job. The pin cannot
+      # change that, so on a failure the cached artifacts are cleared and the packages resolved once more
+      - name: Resolve packages
+        working-directory: ios
+        run: |
+          xcodebuild -resolvePackageDependencies -project JP27.xcodeproj -scheme JP27 || {
+            rm -rf ~/Library/Caches/org.swift.swiftpm/artifacts
+            xcodebuild -resolvePackageDependencies -project JP27.xcodeproj -scheme JP27
+          }
       - name: Build
         working-directory: ios
         run: |

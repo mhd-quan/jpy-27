@@ -603,6 +603,9 @@ import UIKit
         guard let k = sessions.first(where: { ObjectIdentifier($0.value) == session })?.key else { return }
         closeness[k] = metres
         if let peer = peers[k], nearby?.key == peer.key { distance = metres }
+        // close enough that a touch may follow (the same 30 cm the pairing reads as measured on this side):
+        // the haptic of the touch is readied, a few seconds each time
+        if let metres, metres < 0.3 { Haptic.prepare(.done) }
         guard let metres, metres < Self.touch, Date().timeIntervalSince(lastTouch) > 4, let peer = peers[k] else { return }
         lastTouch = Date()
         felt()
@@ -615,7 +618,7 @@ import UIKit
     }
 
     private func felt() {
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        Haptic.done()
     }
 
     // MARK: - Status

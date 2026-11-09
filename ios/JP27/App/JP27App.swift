@@ -1,4 +1,5 @@
 import BackgroundTasks
+import MetricKit
 import SwiftData
 import SwiftUI
 import TripKit
@@ -49,6 +50,14 @@ struct JP27App: App {
 final class JP27AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         AppModel.shared.location.start()
+        // the day's hitches, launch times and transitions, delivered once a day (Chẩn đoán › Số đo)
+        MXMetricManager.shared.add(MetricsInbox.shared)
+        // the maps' pictures held to 40 MB, the old format's gone; off the main thread, and nothing waits for it
+        Task(priority: .utility) { await MapSnapshots.trim(toBytes: 40 << 20) }
+        // the album pages' pictures (Caches/Ambient) likewise, the least recently used going first
+        Task(priority: .utility) { await PhotoCache.trimAmbient(toBytes: 40 << 20) }
+        // and the Fuji terrain's (Caches/Fuji), each picture with its points
+        Task(priority: .utility) { await FujiTerrainPictures.trim(toBytes: 40 << 20) }
         return true
     }
 }
@@ -182,6 +191,11 @@ struct RouteHost: View {
     let route: Route
 
     var body: some View {
+        page.settlesTransition()
+    }
+
+    @ViewBuilder
+    private var page: some View {
         switch route {
         case .day(let key): DayView(key: key)
         case .place(let id): PlaceView(id: id)

@@ -9,6 +9,7 @@ import TripKit
 /// stands within its few metres' reach, at the cost of the hottest session the app could run, for
 /// a marker 120 m out.
 struct FujiFinderView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @State private var onScreen = false
@@ -49,10 +50,10 @@ struct FujiFinderView: View {
         .overlay {
             if let sight, arSupported, !onScreen {
                 FujiHeading { FujiTurnHint(sight: sight, heading: $0) }
-                    .transition(.scale(scale: 0.85).combined(with: .opacity))
+                    .transition(reduceMotion ? AnyTransition.opacity : .scale(scale: 0.85).combined(with: .opacity))
             }
         }
-        .animation(.smooth, value: onScreen)
+        .animation(Motion.arrive, value: onScreen)
         .onChange(of: onScreen) { _, visible in
             if !visible { lost = .now } else if Date.now.timeIntervalSince(lost) > 2 { found += 1 }
         }
@@ -81,11 +82,11 @@ struct FujiFinderView: View {
         .onDisappear { model.location.watchHeading(false) }
         .task {
             model.location.resume(for: model)
-            let hours = await model.forecasts.hours("summit", at: FujiSight.summit, online: model.network.online)
+            let hours = await model.forecasts.hours("summit", at: FujiSight.summit, online: model.network.raw)
             // the forecast's hours are real instants: the real clock, also while rehearsing
             let now = model.now.addingTimeInterval(-model.clockOffset)
             let nearest = hours.min { abs($0.date.timeIntervalSince(now)) < abs($1.date.timeIntervalSince(now)) }?.cloud
-            withAnimation(.smooth) { cloud = nearest }
+            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { cloud = nearest }
         }
     }
 }
@@ -163,6 +164,7 @@ private struct FujiInfo: View {
 
 /// When the marker is off screen: which way to turn and by how much.
 private struct FujiTurnHint: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let sight: FujiSight.Sight
     let heading: Double?
 
@@ -173,7 +175,7 @@ private struct FujiTurnHint: View {
                 Image(systemName: "arrow.up")
                     .font(.system(size: 44, weight: .bold))
                     .rotationEffect(.degrees(turn))
-                    .animation(.smooth(duration: 0.3), value: Int(turn))
+                    .animation(Motion.reduced(Motion.pick, reduceMotion), value: Int(turn))
                 Text(abs(turn) < 8 ? "Ngước lên" : "Xoay \(turn > 0 ? "phải" : "trái") \(Int(abs(turn).rounded()))°")
                     .font(.headline)
                     .monospacedDigit()
@@ -209,6 +211,7 @@ private struct FujiWaiting: View {
 
 /// Without world tracking: a compass that points at the summit.
 private struct FujiCompass: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let sight: FujiSight.Sight
     let heading: Double?
 
@@ -228,7 +231,7 @@ private struct FujiCompass: View {
                     .font(.system(size: 64))
                     .foregroundStyle(.tint)
                     .rotationEffect(.degrees(rotation))
-                    .animation(.smooth(duration: 0.3), value: Int(rotation))
+                    .animation(Motion.reduced(Motion.pick, reduceMotion), value: Int(rotation))
             }
             .frame(width: 270, height: 270)
             Text(heading == nil ? "Hướng \(Int(sight.bearing.rounded()))° tính từ Bắc" : "Mũi tên chỉ về đỉnh Fuji")

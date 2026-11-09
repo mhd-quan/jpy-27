@@ -169,35 +169,72 @@ enum FujiCamera {
         Coordinate(a.lat + (b.lat - a.lat) * t, a.lng + (b.lng - a.lng) * t)
     }
 
-    /// An area: for one day, from behind its viewpoints towards the summit; for the whole region,
-    /// whose viewpoints ring the mountain, the web's view from the south-east (bearing −52°).
-    static func area(_ area: FujiArea, spots: [FujiGuide.Spot], summit: Coordinate) -> MapCamera {
-        let points = spots.map(point)
-        guard !points.isEmpty else {
-            return MapCamera(centerCoordinate: cl(summit), distance: 90_000, heading: 308, pitch: pitch)
+    /// One place the camera stands, as plain values: the live map flies to it (`mapCamera`), MapKit's
+    /// snapshotter draws it (`mkCamera`, `FujiTerrainSnapshot`), and its kind, id and numbers name the
+    /// picture kept of it (`TerrainPicture`).
+    nonisolated struct Shot: Hashable, Sendable {
+        let kind: TerrainPicture.Kind
+        /// the area's raw value, or the viewpoint's id
+        let id: String
+        let camera: TerrainPicture.Camera
+
+        /// `<kind>-<id>`: the start of its pictures' names, and the key of its blurred copy
+        var name: String { TerrainPicture.name(kind: kind, id: id) }
+
+        @MainActor var mapCamera: MapCamera {
+            MapCamera(centerCoordinate: FujiCamera.cl(camera.center), distance: camera.distance, heading: camera.heading,
+                      pitch: camera.pitch)
         }
-        let n = Double(points.count)
-        let mid = Coordinate(points.map(\.lat).reduce(0, +) / n, points.map(\.lng).reduce(0, +) / n)
-        let center: Coordinate
-        let heading: Double
-        if area == .all {
-            center = lerp(mid, summit, 0.5)
-            heading = 308
-        } else {
-            center = lerp(mid, summit, 0.42)
-            heading = Geo.bearing(mid, summit)
+
+        /// The snapshotter's camera: the same centre, distance, heading and pitch as `mapCamera`.
+        @MainActor var mkCamera: MKMapCamera {
+            MKMapCamera(lookingAtCenter: FujiCamera.cl(camera.center), fromDistance: camera.distance,
+                        pitch: CGFloat(camera.pitch), heading: camera.heading)
         }
-        let reach = (points + [summit]).map { Geo.km(center, $0) }.max() ?? 30
-        let distance = min(220_000, max(16_000, reach * 2 * 1000 * 1.25))
-        return MapCamera(centerCoordinate: cl(center), distance: distance, heading: heading, pitch: pitch)
+
+        /// An area: for one day, from behind its viewpoints towards the summit; for the whole region,
+        /// whose viewpoints ring the mountain, the web's view from the south-east (bearing −52°).
+        @MainActor static func area(_ area: FujiArea, spots: [FujiGuide.Spot], summit: Coordinate) -> Shot {
+            let points = spots.map(FujiCamera.point)
+            guard !points.isEmpty else {
+                return Shot(kind: .area, id: area.rawValue,
+                            camera: TerrainPicture.Camera(center: summit, distance: 90_000, heading: 308, pitch: FujiCamera.pitch))
+            }
+            let n = Double(points.count)
+            let mid = Coordinate(points.map(\.lat).reduce(0, +) / n, points.map(\.lng).reduce(0, +) / n)
+            let center: Coordinate
+            let heading: Double
+            if area == .all {
+                center = FujiCamera.lerp(mid, summit, 0.5)
+                heading = 308
+            } else {
+                center = FujiCamera.lerp(mid, summit, 0.42)
+                heading = Geo.bearing(mid, summit)
+            }
+            let reach = (points + [summit]).map { Geo.km(center, $0) }.max() ?? 30
+            let distance = min(220_000, max(16_000, reach * 2 * 1000 * 1.25))
+            return Shot(kind: .area, id: area.rawValue,
+                        camera: TerrainPicture.Camera(center: center, distance: distance, heading: heading, pitch: FujiCamera.pitch))
+        }
+
+        /// One viewpoint: standing a little behind it, looking along its line of sight, so the
+        /// viewpoint sits in the foreground and the summit ahead.
+        @MainActor static func spot(_ spot: FujiGuide.Spot, summit: Coordinate) -> Shot {
+            let p = FujiCamera.point(spot)
+            return Shot(kind: .spot, id: spot.id,
+                        camera: TerrainPicture.Camera(center: FujiCamera.lerp(p, summit, 0.38), distance: max(7_000, spot.km * 1000 * 0.8),
+                                                      heading: spot.bearing, pitch: 64))
+        }
     }
 
-    /// One viewpoint: standing a little behind it, looking along its line of sight, so the
-    /// viewpoint sits in the foreground and the summit ahead.
+    /// `Shot.area`'s camera.
+    static func area(_ area: FujiArea, spots: [FujiGuide.Spot], summit: Coordinate) -> MapCamera {
+        Shot.area(area, spots: spots, summit: summit).mapCamera
+    }
+
+    /// `Shot.spot`'s camera.
     static func spot(_ spot: FujiGuide.Spot, summit: Coordinate) -> MapCamera {
-        let p = point(spot)
-        return MapCamera(centerCoordinate: cl(lerp(p, summit, 0.38)), distance: max(7_000, spot.km * 1000 * 0.8),
-                         heading: spot.bearing, pitch: 64)
+        Shot.spot(spot, summit: summit).mapCamera
     }
 }
 
@@ -240,14 +277,27 @@ struct FujiTerrainMap: View {
         .mapStyle(.hybrid(elevation: .realistic, pointsOfInterest: .excludingAll))
         // no controls inside the map: a picture has none, the explorer sets its own beside it
         .mapControls { EmptyView() }
-        .accessibilityLabel("Bản đồ 3D vùng Fuji, với tia ngắm từ từng điểm tới đỉnh")
+        .accessibilityLabel(Self.label)
     }
 
+    static let label = "Bản đồ 3D vùng Fuji, với tia ngắm từ từng điểm tới đỉnh"
+
     private func lineColor(_ s: FujiGuide.Spot) -> Color {
-        s.id == selection ? Palette.sun : Color.white.opacity(s.visible ? 0.85 : 0.6)
+        Self.lineColor(s, selection: selection)
     }
 
     private func lineStyle(_ s: FujiGuide.Spot) -> StrokeStyle {
+        Self.lineStyle(s, selection: selection)
+    }
+
+    /// A line of sight: the sun's colour when chosen, white otherwise, fainter when a ridge is in the way. The
+    /// terrain's picture draws its lines the same way (`FujiTerrainSnapshot`).
+    static func lineColor(_ s: FujiGuide.Spot, selection: String?) -> Color {
+        s.id == selection ? Palette.sun : Color.white.opacity(s.visible ? 0.85 : 0.6)
+    }
+
+    /// Solid when the summit shows, dashed when it is hidden; widest when chosen, thinnest for a place people post from.
+    static func lineStyle(_ s: FujiGuide.Spot, selection: String?) -> StrokeStyle {
         let width: CGFloat = s.id == selection ? 3 : s.role == "popular" ? 1 : 1.6
         return StrokeStyle(lineWidth: width, lineCap: .round, dash: s.visible ? [] : [5, 5])
     }
@@ -273,6 +323,7 @@ struct FujiSummitPin: View {
 
 /// A viewpoint: violet when the summit shows from it, grey when terrain hides it.
 struct FujiSpotPin: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let visible: Bool
     var major = true
     var selected = false
@@ -286,7 +337,7 @@ struct FujiSpotPin: View {
             .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
             .frame(width: d, height: d)
             .overlay { Circle().strokeBorder(.white, lineWidth: selected ? 3 : 2) }
-            .animation(.snappy, value: selected)
+            .animation(Motion.reduced(Motion.pick, reduceMotion), value: selected)
             .accessibilityHidden(true)
     }
 }
@@ -376,7 +427,9 @@ struct FujiCompassPlot: View {
 
 /// The map on its own page: pan, pinch, twist and tilt the terrain; the day's viewpoints run along
 /// the bottom as cards, and choosing one (on the map or by swiping the cards) flies the camera
-/// behind it, looking along its line of sight.
+/// behind it, looking along its line of sight. Without a network the viewpoints round the summit
+/// instead; once the live map has been up it stays until the page goes, whatever the network does
+/// (it keeps the tiles it loaded), so a flaky signal never rebuilds it.
 struct FujiExplorer: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -386,10 +439,14 @@ struct FujiExplorer: View {
     @State private var area: FujiArea
     @State private var selection: String?
     @State private var position: MapCameraPosition
+    /// the live map has been up (`TerrainPicture.mounts`): kept until the page goes. Seeded as the page is
+    /// made, so a page opened online writes nothing while it is pushed
+    @State private var mounted: Bool
 
     init(area: FujiArea, focus: String? = nil, spots: [FujiGuide.Spot], summit: Coordinate) {
         _area = State(initialValue: area)
         _selection = State(initialValue: focus)
+        _mounted = State(initialValue: AppModel.shared.network.online)
         let inArea = spots.filter { area.contains($0) }
         let camera = focus.flatMap { id in spots.first { $0.id == id } }.map { FujiCamera.spot($0, summit: summit) }
             ?? FujiCamera.area(area, spots: inArea, summit: summit)
@@ -402,8 +459,11 @@ struct FujiExplorer: View {
 
     var body: some View {
         let spots = self.spots
+        let online = model.network.online
+        // the live map, once up, stays; its controls with it, the offline label only over the plot
+        let live = TerrainPicture.mounts(mounted: mounted, settled: true, online: online)
         ZStack {
-            if model.network.online {
+            if live {
                 // The map sits in a scroll view that never scrolls. A bar over a page with no scroll
                 // view of its own draws the iOS 27 default edge, the hard ruled strip, and no
                 // modifier on the map reaches it; over a scroll view the bar takes that view's style,
@@ -431,7 +491,7 @@ struct FujiExplorer: View {
             }
         }
         .overlay(alignment: .topTrailing) {
-            if model.network.online {
+            if live {
                 // one column under the bar's camera button, the same width, evenly spaced (each
                 // control has its own size, so each gets the bar button's 44 pt square)
                 VStack(spacing: 10) {
@@ -445,7 +505,7 @@ struct FujiExplorer: View {
             }
         }
         .overlay(alignment: .bottomLeading) {
-            if model.network.online {
+            if live {
                 MapScaleView(scope: mapScope)
                     .padding(.leading, 16)
                     .padding(.bottom, 8)
@@ -453,7 +513,7 @@ struct FujiExplorer: View {
         }
         .mapScope(mapScope)
         .safeAreaInset(edge: .top, spacing: 0) {
-            if !model.network.online {
+            if !live {
                 Label("Không có mạng: các điểm xếp theo hướng và khoảng cách tới đỉnh", systemImage: "wifi.slash")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.85))
@@ -492,6 +552,10 @@ struct FujiExplorer: View {
                 CloseButton()
             }
         }
+        // the network came back to a page opened without one: the live map comes up, and stays
+        .onChange(of: online) { _, on in
+            if on, !mounted { mounted = true }
+        }
         // a viewpoint chosen flies the camera behind it; letting go (a tap on open ground) leaves
         // the camera where the hands put it
         .onChange(of: selection) { _, id in
@@ -510,7 +574,7 @@ struct FujiExplorer: View {
     private func fly(to spot: FujiGuide.Spot?) {
         let summit = model.guide.fuji.summit.coordinate
         let camera = spot.map { FujiCamera.spot($0, summit: summit) } ?? FujiCamera.area(area, spots: spots, summit: summit)
-        withAnimation(reduceMotion ? nil : .smooth(duration: 1.4)) {
+        withAnimation(Motion.reduced(Motion.travel, reduceMotion)) {
             position = .camera(camera)
         }
     }
@@ -518,6 +582,7 @@ struct FujiExplorer: View {
 
 /// The area chips: the whole region or one day. Glass over the map, filled capsules on paper.
 struct FujiAreaChips: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var area: FujiArea
     var onMap = false
 
@@ -567,7 +632,7 @@ struct FujiAreaChips: View {
         .contentShape(.capsule)
 
         let button = Button {
-            withAnimation(.snappy) { area = a }
+            withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { area = a }
         } label: {
             label
         }

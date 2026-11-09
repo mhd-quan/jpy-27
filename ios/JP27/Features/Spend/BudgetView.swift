@@ -6,6 +6,7 @@ import TripKit
 /// Ngân sách: the plan's money by line, food by day, transport fares, and what a different rate or
 /// a few savings do to the total in đồng.
 struct BudgetView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     @Query private var expenses: [Expense]
     @State private var rate: Double = 0
@@ -59,8 +60,8 @@ struct BudgetView: View {
                     .monospacedDigit()
                     .contentTransition(.numericText())
             }
-            .animation(.snappy, value: total)
-            .animation(.snappy, value: rate)
+            .animation(Motion.reduced(Motion.pick, reduceMotion), value: total)
+            .animation(Motion.reduced(Motion.pick, reduceMotion), value: rate)
             Slider(value: $rate, in: 160 ... 200, step: 1) {
                 Text("Tỷ giá")
             } minimumValueLabel: {
@@ -197,7 +198,7 @@ struct BudgetView: View {
                     if i > 0 { Divider() }
                     Button {
                         if Int(s.rate) != Int(rate) { chosen += 1 }
-                        withAnimation(.snappy) { rate = s.rate }
+                        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { rate = s.rate }
                     } label: {
                         HStack(alignment: .top, spacing: 12) {
                             Text("\(Int(s.rate))")

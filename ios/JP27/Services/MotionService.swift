@@ -2,6 +2,7 @@ import CoreMotion
 import Foundation
 import Network
 import Observation
+import TripKit
 
 /// Walking pace from the pedometer, and whether you are walking or riding, from motion activity.
 @Observable final class MotionService {
@@ -87,17 +88,38 @@ import Observation
     }
 }
 
-/// Online or not, for the offline badge and for skipping network work.
+/// Online or not, two ways. `raw` is the path as it is this instant: for network work and for what is
+/// written to disk (a fetch, a picture kept). `online` is what is drawn (a live map or its offline plot, "không
+/// có mạng"): the first report at once, then a change only once it has held 2 s, and only when it differs.
+/// A flaky signal no longer tears a page's live map down and builds it again (`SteadyValue`).
+/// One exception, drawn yet on `raw` (R-312): the state of a download in progress (Settings › Dùng khi mất sóng: "Đang
+/// tải" or "Chờ mạng", a failure shown, the photos button enabled), so a flaky signal flips its line. That is accepted:
+/// the download itself follows `raw`.
 @Observable final class NetworkStatus {
+    /// the path as it is now
+    private(set) var raw = true
+    /// `raw` once it has held 2 s
     private(set) var online = true
     private let monitor = NWPathMonitor()
+    @ObservationIgnored private var steady: SteadyValue<Bool>?
 
     init() {
+        steady = SteadyValue(delay: .seconds(2)) { [weak self] ok in
+            guard let self, online != ok else { return }
+            online = ok
+        }
         // runs on the monitor's queue, at start and on every change: nonisolated, see MotionService
         monitor.pathUpdateHandler = { @Sendable [weak self] path in
             let ok = path.status == .satisfied
-            Task { @MainActor in self?.online = ok }
+            Task { @MainActor in self?.took(ok) }
         }
         monitor.start(queue: DispatchQueue(label: "jp27.network"))
+    }
+
+    /// Written only when it changes: views redraw with every write. The path says the same again when only its
+    /// interface changes.
+    private func took(_ ok: Bool) {
+        if raw != ok { raw = ok }
+        steady?.report(ok)
     }
 }

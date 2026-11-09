@@ -275,7 +275,8 @@ private struct TalkMenuPhoto: View {
                 .lineLimit(2)
                 .padding(.horizontal, 5)
                 .padding(.vertical, 2)
-                .background(.thinMaterial, in: .rect(cornerRadius: 5))
+                // solid, not a material: a menu photo carries dozens of these, each a live blur of the photo
+                .background(Palette.card.opacity(0.9), in: .rect(cornerRadius: 5))
         }
     }
 }

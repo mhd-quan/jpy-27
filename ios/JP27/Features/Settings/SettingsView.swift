@@ -95,12 +95,25 @@ private struct DiagnosticsSection: View {
     @State private var fakeStyle = OfflineMaps.fakeOtherStyle
     /// the latest fix taken (`LocationService.fixedAt`), read on opening the page and on a tap
     @State private var lastFix: String?
+    /// what `Caches/MapSnapshots` holds, read on opening the page
+    @State private var mapPictures: String?
+    /// how far the photos' tones moved from the 96 px thumbnail, the last time it was asked
+    @State private var toneDrift: String?
+    /// `FujiTerrainPictures.pictureOnly`, as the switch shows it
+    @State private var fujiPictureOnly = FujiTerrainPictures.pictureOnly
+    /// what `Caches/Fuji` holds, read on opening the page and after "Xoá"
+    @State private var fujiPictures: String?
     #endif
     /// the location history's rows, counted when the page opens (nil: not counted, or unreadable)
     @State private var history: (visits: Int, traces: Int)?
 
     var body: some View {
         Section {
+            NavigationLink {
+                SettingsPage(title: "Số đo") { MetricsSection() }
+            } label: {
+                SettingsLabel(title: "Số đo", symbol: "chart.bar.xaxis", tint: .indigo)
+            }
             Toggle(isOn: $readings) {
                 Label {
                     Text("Đo khung hình bản đồ")
@@ -246,6 +259,79 @@ private struct DiagnosticsSection: View {
                 }
             }
             .onAppear { lastFix = lastFixSummary() }
+            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 4.1: a picture and the live map that replaces
+            // it frame the same view; marking stops adds no picture
+            NavigationLink {
+                MapFrameCheck()
+            } label: {
+                Label {
+                    Text("So khung bản đồ")
+                } icon: {
+                    SettingsIcon(symbol: "map", tint: .teal)
+                }
+            }
+            LabeledContent {
+                Text(mapPictures ?? "—").monospacedDigit()
+            } label: {
+                Label {
+                    Text("Ảnh bản đồ đã lưu")
+                } icon: {
+                    SettingsIcon(symbol: "photo.on.rectangle", tint: .gray)
+                }
+            }
+            .task { mapPictures = await MapSnapshots.usage() }
+            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 5.1a: the tone of a photo read from the decode its
+            // page draws, against the one the 96 px thumbnail gave before
+            Button {
+                let photos = toneDriftPhotos()
+                toneDrift = "Đang so \(photos.count) ảnh…"
+                Task { toneDrift = await PhotoCache.toneDrift(photos) }
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("So màu ảnh: mới và cũ")
+                        if let toneDrift {
+                            Text(toneDrift).font(.footnote).foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "eyedropper", tint: .gray)
+                }
+            }
+            // for docs/perf/2026-11-device-perf-phase4-5.md, Task 5.3: what MapKit's snapshotter draws of the terrain,
+            // with no live map coming in under it (not kept)
+            Toggle(isOn: $fujiPictureOnly) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Fuji: chỉ ảnh địa hình")
+                        Text("Trang Fuji và thẻ điểm ngắm chỉ hiện ảnh chụp sẵn, không mở bản đồ thật, tới khi tắt hoặc mở lại app").font(.footnote).foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    SettingsIcon(symbol: "mountain.2", tint: Palette.fuji)
+                }
+            }
+            .onChange(of: fujiPictureOnly) { _, on in FujiTerrainPictures.pictureOnly = on }
+            .onAppear { fujiPictureOnly = FujiTerrainPictures.pictureOnly }
+            LabeledContent {
+                HStack(spacing: 12) {
+                    Text(fujiPictures ?? "—").monospacedDigit()
+                    // only the folder's own pictures, and those in memory: the next page draws its picture afresh
+                    Button("Xoá", role: .destructive) {
+                        Task {
+                            await FujiTerrainPictures.shared.clear()
+                            fujiPictures = await FujiTerrainPictures.usage()
+                        }
+                    }
+                    .buttonStyle(.borderless)
+                }
+            } label: {
+                Label {
+                    Text("Ảnh địa hình Fuji đã lưu")
+                } icon: {
+                    SettingsIcon(symbol: "photo.on.rectangle", tint: .gray)
+                }
+            }
+            .task { fujiPictures = await FujiTerrainPictures.usage() }
             #endif
         } header: {
             Text("Chẩn đoán")
@@ -257,6 +343,15 @@ private struct DiagnosticsSection: View {
     }
 
     #if DEBUG
+    /// For "So màu ảnh": the day covers (JPEG, the most shrunk when a tone is read) first, then bundled place
+    /// photos by name, twenty in all
+    private func toneDriftPhotos() -> [Photo] {
+        let covers = HomeCovers.byDay.keys.sorted().compactMap { HomeCovers.byDay[$0]?.photo }
+        let places = model.store.places.values.compactMap(\.hero).filter(\.isBundled).sorted { $0.src < $1.src }
+        var seen = Set<String>()
+        return Array((covers + places).filter { seen.insert($0.src).inserted }.prefix(20))
+    }
+
     /// "7:20:05 · ±12 m": when the latest fix used was taken, on the phone's clock, and how precise it was
     private func lastFixSummary() -> String? {
         guard let at = model.location.fixedAt else { return nil }
@@ -306,6 +401,123 @@ private struct DiagnosticsSection: View {
         }
     }
     #endif
+}
+
+/// What MetricKit reported about the app on this phone, a day at a time, as kept in
+/// `Caches/metrics` (`MetricsInbox`): hitches, launch time, and each measured transition from the tap
+/// to its end (`Perf`). The payloads' own JSON can be shared, for a closer look on a computer.
+private struct MetricsSection: View {
+    @State private var stored: (digests: [MetricsDigest], payloads: [URL])?
+
+    var body: some View {
+        Group {
+            if let stored {
+                if stored.digests.isEmpty {
+                    Section {
+                        Text("Chưa có số đo. iOS gửi số đo của ngày trước mỗi ngày một lần, sau khi app được dùng.")
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Section {
+                        ForEach(stored.digests, id: \.end) { day in
+                            LabeledContent {
+                                VStack(alignment: .trailing, spacing: 2) {
+                                    Text("cuộn \(Self.ratio(day.scrollHitches)) · mọi lúc \(Self.ratio(day.hitches))")
+                                    Text("mở app \(Self.ms(PerfStats.median(day.launch)))")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .monospacedDigit()
+                            } label: {
+                                Text(Self.day(day.begin))
+                            }
+                        }
+                    } header: {
+                        Text("Theo ngày")
+                    } footer: {
+                        Text("Giật khi cuộn và giật trong mọi chuyển động, tính bằng ms mỗi giây chuyển động. Mở app: trung vị tới khung đầu tiên.")
+                    }
+                    Section {
+                        ForEach(Self.transitions(stored.digests), id: \.name) { t in
+                            LabeledContent {
+                                VStack(alignment: .trailing, spacing: 2) {
+                                    Text(Self.ms(PerfStats.median(t.buckets)))
+                                    Text("\(t.count) lần · giật \(Self.ratio(t.hitches))")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .monospacedDigit()
+                            } label: {
+                                Text(t.name).font(.subheadline.monospaced())
+                            }
+                        }
+                    } header: {
+                        Text("Chuyển cảnh")
+                    } footer: {
+                        Text("Từ lúc chạm tới khi lần đo khép lại: trung vị của mọi ngày còn giữ. Mọi cách khép đều được tính: chuyển cảnh xong, bị chuyển cảnh sau thay, hết 1 giây chờ hay quá giờ. Trong Instruments, thông điệp kết thúc của mỗi lần cho biết cách khép. Giật: trung bình theo số lần, trong lúc chuyển.")
+                    }
+                }
+                if !stored.payloads.isEmpty {
+                    Section {
+                        ShareLink(items: stored.payloads) {
+                            Label("Chia sẻ JSON", systemImage: "square.and.arrow.up")
+                        }
+                    } footer: {
+                        Text("Bản gốc MetricKit gửi, \(stored.payloads.count) ngày gần nhất.")
+                    }
+                }
+            } else {
+                Section {
+                    ProgressView()
+                }
+            }
+        }
+        .task { stored = await MetricsInbox.stored() }
+    }
+
+    /// one transition name over every day kept
+    private struct Measured {
+        let name: String
+        let count: Int
+        let buckets: [PerfStats.Bucket]
+        let hitches: MetricsDigest.Ratio?
+    }
+
+    /// The days merged per name, names in order: the buckets put together (`PerfStats.median` merges
+    /// equal ones), the hitch ratio averaged by count.
+    private static func transitions(_ digests: [MetricsDigest]) -> [Measured] {
+        let byName = Dictionary(grouping: digests.flatMap(\.signposts), by: \.name)
+        return byName.keys.sorted().map { name -> Measured in
+            let days = byName[name] ?? []
+            let rated = days.filter { $0.hitches != nil && $0.count > 0 }
+            let weight = rated.reduce(0) { $0 + $1.count }
+            let hitches = rated.first.map { first in
+                MetricsDigest.Ratio(
+                    value: rated.reduce(0.0) { $0 + ($1.hitches?.value ?? 0) * Double($1.count) } / Double(max(weight, 1)),
+                    unit: first.hitches?.unit ?? ""
+                )
+            }
+            return Measured(name: name, count: days.reduce(0) { $0 + $1.count }, buckets: days.flatMap(\.buckets), hitches: hitches)
+        }
+    }
+
+    /// "2,1 ms/s", or "—": MetricKit gives hitch ratios in ms per s, and its unit's symbol is English, so it is not shown
+    private static func ratio(_ r: MetricsDigest.Ratio?) -> String {
+        guard let r else { return "—" }
+        return "\(Fmt.decimal(r.value, digits: 1)) ms/s"
+    }
+
+    /// "640 ms", or "—"
+    private static func ms(_ value: Double?) -> String {
+        guard let value else { return "—" }
+        return "\(Fmt.decimal(value, digits: 0)) ms"
+    }
+
+    /// "7/11"
+    private static func day(_ date: Date) -> String {
+        let c = Calendar.current.dateComponents([.day, .month], from: date)
+        return "\(c.day ?? 0)/\(c.month ?? 0)"
+    }
 }
 
 // MARK: - Building blocks
@@ -783,7 +995,7 @@ private struct OfflineSection: View {
                 }
             }
             Section {
-                PhotosRow(photos: downloads.photos, online: model.network.online, download: { downloads.downloadPhotos() })
+                PhotosRow(photos: downloads.photos, online: model.network.raw, download: { downloads.downloadPhotos() })
             } header: {
                 Text("Ảnh")
             } footer: {
@@ -801,9 +1013,9 @@ private struct OfflineSection: View {
         // asked for, its pack not read yet (or not asked how far it is)
         case .requested?: return .checking
         case .creating?: return .preparing
-        case .downloading?: return model.network.online ? .downloading(p) : .waiting(p)
+        case .downloading?: return model.network.raw ? .downloading(p) : .waiting(p)
         case .waitingForNetwork?:
-            if model.network.online, let problem = o.problems[id] { return .failing(p, problem) }
+            if model.network.raw, let problem = o.problems[id] { return .failing(p, problem) }
             return .waiting(p)
         case .paused?: return .paused(p)
         case .complete?: return .complete
@@ -1060,7 +1272,7 @@ private struct ProgressRing: View {
         // a bigger target than the ring, as a button needs
         .frame(width: 44, height: 44)
         .contentShape(Rectangle())
-        .animation(.easeOut(duration: 0.25), value: value)
+        .animation(Motion.arrive, value: value)
         .accessibilityValue(Text("\(Int(value * 100))%"))
     }
 }

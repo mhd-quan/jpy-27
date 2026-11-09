@@ -417,7 +417,7 @@ private struct SpendDial: View {
                 centre(chosen, planned: planned, spent: spent, planning: planning)
                     .frame(width: SpendRing.inner * 2 - 16)
                     .contentShape(.circle)
-                    .onTapGesture { withAnimation(.snappy) { selected = nil } }
+                    .onTapGesture { withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { selected = nil } }
             }
             .padding(.top, 8)
             .accessibilityElement(children: .combine)
@@ -430,7 +430,7 @@ private struct SpendDial: View {
         .sensoryFeedback(.pick, trigger: selected) { _, new in new != nil }
         .onAppear {
             guard !drawn else { return }
-            if reduceMotion { drawn = true } else { withAnimation(.smooth(duration: 1.1).delay(0.1)) { drawn = true } }
+            withAnimation(Motion.reduced(Motion.travel, reduceMotion)?.delay(0.1)) { drawn = true }
         }
     }
 
@@ -448,8 +448,8 @@ private struct SpendDial: View {
                 }
             }
         }
-        .animation(.smooth(duration: 0.3), value: selected)
-        .animation(.smooth(duration: 0.6), value: Yen.total(arcs.map(\.spent)))
+        .animation(Motion.reduced(Motion.pick, reduceMotion), value: selected)
+        .animation(Motion.reduced(Motion.travel, reduceMotion), value: Yen.total(arcs.map(\.spent)))
     }
 
     private func centre(_ arc: SpendArc?, planned: Int, spent: Int, planning: Bool) -> some View {
@@ -494,7 +494,7 @@ private struct SpendDial: View {
             }
         }
         .multilineTextAlignment(.center)
-        .animation(.snappy, value: arc?.id)
+        .animation(Motion.reduced(Motion.pick, reduceMotion), value: arc?.id)
     }
 
     /// Under a chosen category's figure: its share of the plan before the trip, what is left on it.
@@ -522,7 +522,7 @@ private struct SpendDial: View {
             ForEach(arcs) { a in
                 let on = selected == a.id
                 Button {
-                    withAnimation(.snappy) { selected = on ? nil : a.id }
+                    withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { selected = on ? nil : a.id }
                 } label: {
                     HStack(spacing: 8) {
                         Circle()

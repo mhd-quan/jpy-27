@@ -1,5 +1,7 @@
+import Combine
 import SwiftUI
 import TripKit
+import UIKit
 
 /// Log what was really spent, in a few taps: the amount first, on the sheet's own keypad, so the
 /// sheet grows out of its button with nothing rising into the zoom; everything else guessed from
@@ -9,21 +11,12 @@ import TripKit
 struct ExpenseEditor: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
-    let placeID: String?
-    let yen: Int?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// an expense already logged, to change (on either phone: the later edit wins when they sync)
-    var editing: Expense? = nil
+    let editing: Expense?
 
-    @State private var value = 0
-    @State private var category: SpendCategory = .food
-    @State private var method: PayMethod = .cash
-    @State private var dayKey: String?
-    @State private var place: String?
-    @State private var placeName = ""
-    @State private var note = ""
-    /// the note loaded was longer than `LedgerValidation.maxText`: saving keeps only its start
-    @State private var longNote = false
-    @State private var ready = false
+    /// what the sheet shows, filled in before its first frame (`ExpenseDraft.make`)
+    @State private var draft: ExpenseDraft
     @State private var saved = false
     /// a save that failed: the editor stays, with what was typed, and says why
     @State private var issue: SaveIssue?
@@ -33,8 +26,24 @@ struct ExpenseEditor: View {
     /// places chosen in the list under "Ở đâu"; the place set up on opening stays quiet
     @State private var placePicks = 0
     @FocusState private var writing: Bool
+    /// the pad, out of the way while the system keyboard is up: it leaves and comes back with the keyboard,
+    /// on the keyboard's own timing (`keyboard(_:shows:)`)
+    @State private var padShown = true
+    /// the sheet is being closed by its own buttons: the keyboard going down with it brings no pad back
+    @State private var leaving = Leaving()
 
-    private var day: Day? { dayKey.flatMap { key in model.days.first { $0.key == key } ?? model.store.day(key) } }
+    /// not observed: set on the way out, read only by the keyboard's notifications
+    final class Leaving {
+        var on = false
+    }
+
+    /// `model` is the app's one model, the one the sheet also reads from its environment.
+    init(placeID: String?, yen: Int?, editing: Expense? = nil, model: AppModel = .shared) {
+        self.editing = editing
+        _draft = State(initialValue: ExpenseDraft.make(placeID: placeID, yen: yen, editing: editing, model: model))
+    }
+
+    private var day: Day? { draft.dayKey.flatMap { key in model.days.first { $0.key == key } ?? model.store.day(key) } }
 
     var body: some View {
         NavigationStack {
@@ -43,7 +52,7 @@ struct ExpenseEditor: View {
                     VStack(spacing: 22) {
                         amount
                         categories
-                        Picker("Trả bằng", selection: $method) {
+                        Picker("Trả bằng", selection: $draft.method) {
                             ForEach(PayMethod.allCases) { m in Text(m.label).tag(m) }
                         }
                         .pickerStyle(.segmented)
@@ -55,27 +64,28 @@ struct ExpenseEditor: View {
                 }
                 .scrollBounceBehavior(.basedOnSize)
                 .scrollDismissesKeyboard(.interactively)
-                // the pad steps aside while the note is being typed
-                if !writing {
-                    SpendKeypad(amount: $value)
+                // the pad steps aside while the system keyboard is up (the note being typed)
+                if padShown {
+                    SpendKeypad(amount: $draft.value)
                         .padding(.horizontal, Metrics.gutter)
                         .padding(.top, 8)
                         .padding(.bottom, 12)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
-            .animation(.snappy, value: writing)
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { keyboard($0, shows: true) }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { keyboard($0, shows: false) }
             .background(Palette.paper)
             .progressiveEdges()
             .navigationTitle(editing == nil ? "Ghi chi" : "Sửa khoản chi")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Huỷ", role: .cancel) { dismiss() }
+                    Button("Huỷ", role: .cancel) { leave() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) { save() }
-                        .disabled(!Yen.isValidEntry(value))
+                        .disabled(!Yen.isValidEntry(draft.value))
                 }
             }
             .sensoryFeedback(.done, trigger: saved)
@@ -83,13 +93,13 @@ struct ExpenseEditor: View {
             .saveIssueAlert($issue) { _ in save() }
             // here, not in the list: the list closes as the place is chosen
             .sensoryFeedback(.pick, trigger: placePicks)
-            .onAppear(perform: setUp)
-            .onChange(of: place) { _, id in
+            // only a place chosen in the list: the one the sheet opened on was there before its first frame
+            .onChange(of: draft.place) { _, id in
                 // a new expense takes the kind and the way to pay from its place; an edit keeps its own
-                guard ready, editing == nil, let p = model.store.place(id) else { return }
-                withAnimation(.snappy) {
-                    category = SpendCategory.of(p)
-                    method = Self.method(for: p)
+                guard editing == nil, let p = model.store.place(id) else { return }
+                withAnimation(Motion.reduced(Motion.pick, reduceMotion)) {
+                    draft.category = SpendCategory.of(p)
+                    draft.method = ExpenseDraft.method(for: p)
                 }
             }
         }
@@ -101,13 +111,13 @@ struct ExpenseEditor: View {
     /// The amount, large, with what it is in đồng under it.
     private var amount: some View {
         VStack(spacing: 2) {
-            SpendAmountDisplay(yen: value, size: 60)
-            Text("≈ \(Fmt.vndMillions(value, rate: model.rate)) đồng")
+            SpendAmountDisplay(yen: draft.value, size: 60)
+            Text("≈ \(Fmt.vndMillions(draft.value, rate: model.rate)) đồng")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
                 .contentTransition(.numericText())
-                .opacity(value > 0 ? 1 : 0)
+                .opacity(draft.value > 0 ? 1 : 0)
         }
         .padding(.top, 12)
         .contentShape(.rect)
@@ -121,11 +131,11 @@ struct ExpenseEditor: View {
         return VStack(spacing: 8) {
             HStack(spacing: 0) {
                 ForEach(SpendCategory.allCases) { c in
-                    let on = c == category
+                    let on = c == draft.category
                     let tint = SpendSymbols.color(c, budget: budget)
                     Button {
-                        if c != category { chosen += 1 }
-                        withAnimation(.snappy) { category = c }
+                        if c != draft.category { chosen += 1 }
+                        withAnimation(Motion.reduced(Motion.pick, reduceMotion)) { draft.category = c }
                     } label: {
                         Image(systemName: SpendSymbols.category(c))
                             .font(.system(size: 17, weight: .semibold))
@@ -146,9 +156,9 @@ struct ExpenseEditor: View {
                     .accessibilityAddTraits(on ? .isSelected : [])
                 }
             }
-            Text(category.label)
+            Text(draft.category.label)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(SpendSymbols.color(category, budget: budget))
+                .foregroundStyle(SpendSymbols.color(draft.category, budget: budget))
                 .contentTransition(.interpolate)
                 .accessibilityHidden(true)
         }
@@ -159,13 +169,13 @@ struct ExpenseEditor: View {
     private var details: some View {
         VStack(spacing: 0) {
             NavigationLink {
-                ExpensePlacePicker(day: day, place: $place, placeName: $placeName, picks: $placePicks)
+                ExpensePlacePicker(day: day, place: $draft.place, placeName: $draft.placeName, picks: $placePicks)
             } label: {
                 row(symbol: "mappin.and.ellipse", title: "Ở đâu") {
                     HStack(spacing: 6) {
                         Text(placeLabel)
                             .lineLimit(1)
-                            .foregroundStyle(place == nil && placeName.isEmpty ? .secondary : .primary)
+                            .foregroundStyle(draft.place == nil && draft.placeName.isEmpty ? .secondary : .primary)
                         Image(systemName: "chevron.right")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(.tertiary)
@@ -175,7 +185,7 @@ struct ExpenseEditor: View {
             .buttonStyle(.pressable(.plain))
             Divider().padding(.leading, 48)
             row(symbol: "calendar", title: "Tính vào") {
-                Picker("Tính vào", selection: $dayKey) {
+                Picker("Tính vào", selection: $draft.dayKey) {
                     ForEach(model.days) { d in
                         Text("Ngày \(d.n) · \(Fmt.shortDate(d.date))").tag(Optional(d.key))
                     }
@@ -189,17 +199,17 @@ struct ExpenseEditor: View {
                 Image(systemName: "text.alignleft")
                     .foregroundStyle(.secondary)
                     .frame(width: 24)
-                TextField("Ghi chú", text: $note)
+                TextField("Ghi chú", text: $draft.note)
                     .focused($writing)
-                    .onChange(of: note) { _, text in
-                        if text.count > LedgerValidation.maxText { note = String(text.prefix(LedgerValidation.maxText)) }
+                    .onChange(of: draft.note) { _, text in
+                        if text.count > LedgerValidation.maxText { draft.note = String(text.prefix(LedgerValidation.maxText)) }
                     }
                     .submitLabel(.done)
                     .onSubmit { writing = false }
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 50)
-            if longNote {
+            if draft.longNote {
                 Text("Ghi chú dài hơn 500 ký tự; khi lưu chỉ giữ 500 ký tự đầu.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -226,87 +236,108 @@ struct ExpenseEditor: View {
     }
 
     private var placeLabel: String {
-        if let p = model.store.place(place) { return p.name }
-        if !placeName.isEmpty { return placeName }
+        if let p = model.store.place(draft.place) { return p.name }
+        if !draft.placeName.isEmpty { return draft.placeName }
         return "Không gắn chỗ"
     }
 
-    // MARK: Guesses
-
-    private func setUp() {
-        guard !ready else { return }
-        if let e = editing {
-            // an amount the keypad could not have typed starts again from nothing
-            value = Yen.isValidEntry(e.yen) ? e.yen : 0
-            category = e.spendCategory
-            method = e.payMethod
-            dayKey = e.day
-            place = e.placeID
-            placeName = e.placeName ?? ""
-            note = e.note
-            longNote = e.note.count > LedgerValidation.maxText
-            ready = true
-            return
-        }
-        if let yen, yen > 0 { value = min(yen, Yen.maxEntry) }
-        place = placeID ?? nearestPlanned()
-        let p = model.store.place(place)
-        // the day it counts toward: today on the trip; else the day the place is planned for
-        dayKey = model.today?.key ?? p?.uses.first { use in model.days.contains { $0.key == use.day } }?.day
-        category = p.map { SpendCategory.of($0) } ?? .food
-        method = p.map { Self.method(for: $0) } ?? .cash
-        ready = true
-    }
-
-    /// Today's planned place within 150 m of where you stand.
-    private func nearestPlanned() -> String? {
-        guard let here = model.position, let day = model.today else { return nil }
-        let near = day.stops.compactMap { model.store.place($0.stop.place) }
-            .filter { $0.kind != .station }
-            .map { ($0, Geo.km($0.coordinate, here)) }
-            .min { $0.1 < $1.1 }
-        return near.flatMap { $0.1 <= 0.15 ? $0.0.id : nil }
-    }
-
-    private static func method(for place: Place) -> PayMethod {
-        switch place.payment {
-        case .card: .card
-        default: .cash
-        }
-    }
-
     private func save() {
-        guard Yen.isValidEntry(value) else { return }
+        guard Yen.isValidEntry(draft.value) else { return }
         // held to what the other phone and a file are held to (`LedgerValidation`)
-        let name = String(placeName.trimmingCharacters(in: .whitespaces).prefix(LedgerValidation.maxText))
-        let text = String(note.trimmingCharacters(in: .whitespaces).prefix(LedgerValidation.maxText))
+        let name = String(draft.placeName.trimmingCharacters(in: .whitespaces).prefix(LedgerValidation.maxText))
+        let text = String(draft.note.trimmingCharacters(in: .whitespaces).prefix(LedgerValidation.maxText))
         if let e = editing {
-            e.yen = value
-            e.category = category.rawValue
-            e.method = method.rawValue
-            e.placeID = place
-            e.placeName = place == nil && !name.isEmpty ? name : nil
-            e.day = dayKey
+            e.yen = draft.value
+            e.category = draft.category.rawValue
+            e.method = draft.method.rawValue
+            e.placeID = draft.place
+            e.placeName = draft.place == nil && !name.isEmpty ? name : nil
+            e.day = draft.dayKey
             e.note = text
             e.touch()
             // a failed write takes the edit back on the row; what was typed stays here
-            if model.persist("Khoản chi") { saved.toggle(); dismiss() } else { fail() }
+            if model.persist("Khoản chi") { saved.toggle(); leave() } else { fail() }
             return
         }
-        if model.logExpense(yen: value, category: category, method: method, placeID: place,
-                            placeName: place == nil && !name.isEmpty ? name : nil, day: dayKey,
+        if model.logExpense(yen: draft.value, category: draft.category, method: draft.method, placeID: draft.place,
+                            placeName: draft.place == nil && !name.isEmpty ? name : nil, day: draft.dayKey,
                             note: text) != nil {
             saved.toggle()
-            dismiss()
+            leave()
         } else {
             fail()
         }
+    }
+
+    /// Closes the sheet from its own buttons, the keyboard perhaps still up: the pad stays out while the sheet goes.
+    private func leave() {
+        leaving.on = true
+        dismiss()
+    }
+
+    /// The system keyboard rising or going down: the pad goes the other way, in the same motion. A keyboard of
+    /// another app (on iPad) moves nothing here; one going down as the sheet closes brings no pad back.
+    private func keyboard(_ note: Notification, shows: Bool) {
+        let move = KeypadMove.on(keyboardShows: shows,
+                                 isLocal: note.userInfo?[UIResponder.keyboardIsLocalUserInfoKey] as? Bool,
+                                 padShown: padShown, leaving: leaving.on,
+                                 duration: note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double)
+        guard case .move(let shown, let duration) = move else { return }
+        // motion: one-off the system keyboard's own curve and duration, not a Motion token: the pad moves with the keyboard
+        let curve: Animation? = duration.map { Animation.spring(duration: $0, bounce: 0) }
+        withAnimation(curve) { padShown = shown }
     }
 
     /// Not saved: said here, over the editor, not behind it.
     private func fail() {
         issue = model.takeSaveIssue()
         failed.toggle()
+    }
+}
+
+/// What the editor shows and saves. Filled in when the sheet is made, so its first frame is the last:
+/// an edit starts from the expense, a new one from where you are and the plan.
+nonisolated struct ExpenseDraft: Equatable {
+    var value: Int
+    var category: SpendCategory
+    var method: PayMethod
+    var dayKey: String?
+    var place: String?
+    var placeName: String
+    var note: String
+    /// the note loaded was longer than `LedgerValidation.maxText`: saving keeps only its start
+    var longNote: Bool
+}
+
+extension ExpenseDraft {
+    @MainActor static func make(placeID: String?, yen: Int?, editing: Expense?, model: AppModel) -> ExpenseDraft {
+        if let e = editing {
+            // an amount the keypad could not have typed starts again from nothing; a note too long
+            // shows (and saves) its start, and says so
+            let note = LedgerValidation.seed(note: e.note)
+            return ExpenseDraft(value: Yen.seed(editing: e.yen), category: e.spendCategory, method: e.payMethod,
+                                dayKey: e.day, place: e.placeID, placeName: e.placeName ?? "",
+                                note: note.text, longNote: note.long)
+        }
+        // the place: the one it was opened from, else today's planned place within 150 m of you
+        let place = placeID ?? model.position.flatMap { here in
+            model.today.flatMap { Nearby.plannedStop(near: here, day: $0, store: model.store) }
+        }
+        let p = model.store.place(place)
+        // the day it counts toward: today on the trip; else the day the place is planned for
+        let dayKey = model.today?.key ?? p?.uses.first { use in model.days.contains { $0.key == use.day } }?.day
+        return ExpenseDraft(value: Yen.seed(asked: yen),
+                            category: p.map { SpendCategory.of($0) } ?? .food,
+                            method: p.map { method(for: $0) } ?? .cash,
+                            dayKey: dayKey, place: place, placeName: "", note: "", longNote: false)
+    }
+
+    /// Card where the place says card; cash otherwise ("mixed" included).
+    static func method(for place: Place) -> PayMethod {
+        switch place.payment {
+        case .card: .card
+        default: .cash
+        }
     }
 }
 

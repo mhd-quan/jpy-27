@@ -77,7 +77,7 @@ function blocks(code) {
  * `text` with its comments and what its string literals hold blanked out (newlines kept, so lines keep their
  * numbers), the code inside an interpolation kept: braces and calls are then those of the code.
  */
-function blanked(text) {
+export function blanked(text) {
   let out = '';
   const blank = (s) => s.replace(/[^\n]/g, ' ');
   // where the scan is: code (counting the parentheses an interpolation opened), or a string and its end

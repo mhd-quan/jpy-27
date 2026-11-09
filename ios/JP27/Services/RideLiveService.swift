@@ -4,6 +4,7 @@
 @preconcurrency import ActivityKit
 import Foundation
 import Observation
+import os
 import TripKit
 
 /// Follows one ride: projects the position onto the track, keeps the Live Activity current,
@@ -33,8 +34,9 @@ import TripKit
     /// the arrival on the real clock, to the second, for the Live Activity, whose count-down runs on
     /// the phone's clock (`arrival` is the trip's, for the app)
     @ObservationIgnored private var liveArrival: Date?
-    /// the ride whose end is under way: it is ended once, whichever path gets there first
-    @ObservationIgnored private var closing: String?
+    /// the ride followed, whether it has begun, and whose end is under way: it begins once and is ended once,
+    /// whichever path gets there first (`RideStartGate`)
+    @ObservationIgnored private var gate = RideStartGate()
     /// the rides ended since launch, by any path, one set per clock (`EndedRides`): none starts again
     /// on its own on the clock it ended on (`wasEnded`)
     @ObservationIgnored private var ends = EndedRides()
@@ -55,25 +57,52 @@ import TripKit
     /// may start at once (a change of trains), it replaces this one.
     var hasArrived: Bool { ending }
 
+    /// Follows the ride at once: `select`, then `begin`, for a start nothing is animating (autostart, the station's
+    /// notification).
     func start(_ ride: Ride, model: AppModel) {
-        if self.ride?.id == ride.id { return }
-        // one ride at a time: close the previous one without waiting for it
+        select(ride, model: model)
+        begin(ride.id, model: model)
+    }
+
+    /// The ride becomes the one followed, synchronously and cheaply, inside the tap's animation: what the screen
+    /// shows of it (the button turning into the tracking one, the ride's line, its status) is there in the first
+    /// frame. What costs (the Live Activity, the navigation positions) waits for `begin`. The ride followed already
+    /// changes nothing (`RideStartGate.select`).
+    func select(_ ride: Ride, model: AppModel) {
+        guard gate.select(ride.id) else { return }
+        Perf.signposter.emitEvent("ride.select")
+        // one ride at a time: close the previous one without waiting for it, and let go of it here, so that
+        // nothing of this ride (a fix before `begin`, its end) reaches the previous one's activity
         if let old = activity, let last = lastState {
             Task { await old.end(ActivityContent(state: last, staleDate: nil), dismissalPolicy: .immediate) }
         }
+        activity = nil
+        lastState = nil
         // its alarm, when it is its own (`RideClock`): a rehearsal's ride set none
         if let old = self.ride, clock.endCancelsAlarm(rehearsingNow: model.rehearsing) { model.alarms.cancel(old.id) }
         clock = RideClock(rehearsal: model.rehearsing)
         ending = false
-        status = nil
         arrival = nil
         liveArrival = nil
         arrivedAt = nil
         followedAt = Shared.now
         lastPush = .distantPast
         self.ride = ride
-        tracker = RideTracker(ride: ride, store: model.store)
+        let tracker = RideTracker(ride: ride, store: model.store)
+        self.tracker = tracker
         timetableAlarm = WakePlanner(store: model.store).alarm(for: ride)
+        // where it stands now, from the position already known, the same filter as `update`, so the first frame
+        // has it; nothing is recorded, rung or pushed here (that is `update`'s, from `begin`)
+        status = model.position.flatMap { tracker.status(at: $0) }.flatMap { $0.offTrackKm < RideTracker.offTrack ? $0 : nil }
+    }
+
+    /// The selected ride's Live Activity and navigation positions, then its first update: after the tap's first
+    /// frame (`Task.yield` at the call site). Only for the ride selected, once, and not while its end is under way
+    /// (`RideStartGate.begin`): a begin for a ride replaced, ended or already begun does nothing.
+    func begin(_ rideID: String, model: AppModel) {
+        guard let ride, let tracker, gate.begin(rideID) else { return }
+        let signpost = Perf.signposter.beginInterval("ride.begin")
+        defer { Perf.signposter.endInterval("ride.begin", signpost) }
         model.location.startLive(background: true)
         let after = walkAfter(ride, store: model.store)
         let line = model.store.day(ride.day)?.items.compactMap(\.move).first { $0.leg.id == ride.legs.first }?.leg.line
@@ -82,7 +111,8 @@ import TripKit
             mode: line.flatMap { model.store.line($0)?.mode.rawValue } ?? Mode.train.rawValue,
             from: ride.fromName, to: ride.toName, toJa: ride.stations.last?.ja ?? ride.toName,
             announce: ride.alight?.announce, walkTo: after?.name, walkToID: after?.id)
-        let state = makeState(tracker!.status(km: 0), model: model)
+        // what an update since `select` already made, else the start of the line
+        let state = lastState ?? makeState(tracker.status(km: 0), model: model)
         if isAvailable {
             activity = try? Activity.request(attributes: attributes, content: ActivityContent(state: state, staleDate: nil, relevanceScore: 100), pushType: nil)
         }
@@ -94,7 +124,7 @@ import TripKit
     /// change in the background: each is a moment the app runs, and the ride's end is checked at each
     /// (no timer runs while the app is suspended).
     func update(model: AppModel) {
-        guard let ride, closing != ride.id else { return }
+        guard let ride, !gate.isClosing(ride.id) else { return }
         // the fix's own time: the pace counts from when the train was there, and a call with no new
         // fix (a projection, the GPS lost in a tunnel) adds nothing and moves nothing. With no fix
         // time at all, nothing is recorded: the call's own time would read as the train standing still
@@ -134,7 +164,13 @@ import TripKit
             let canNotify = model.notifications.alertsAuthorized
             switch tracker?.wake(km: s.km, speedKmh: speed, at: fix, notAfter: timetableAlarm?.addingTimeInterval(-model.clockOffset), scheduled: current, now: Date(), canNotify: canNotify) {
             case .alarm(let at)? where current.map({ abs($0.timeIntervalSince(at)) >= 120 }) ?? true:
-                Task { await model.alarms.alight(rideID: ride.id, station: ride.toName, at: at) }
+                let id = ride.id
+                Task {
+                    // another ride picked before this runs has cancelled this one's alarm (`select`): setting it
+                    // now would ring for a station no longer followed
+                    guard self.ride?.id == id else { return }
+                    await model.alarms.alight(rideID: id, station: ride.toName, at: at)
+                }
             case .notice?:
                 if model.alarms.firstNotice(for: ride.id) {
                     // woken by a fix under the lock screen: iOS waits for the notification to be posted
@@ -196,8 +232,7 @@ import TripKit
     /// anything waits, so two ends of one ride never both run, and decided on the clock of this
     /// moment: a rehearsal starting or ending moves the clock and ends the ride in one step.
     private func claim(_ ride: Ride, model: AppModel, byClockMove: Bool) -> Claimed? {
-        guard self.ride?.id == ride.id, closing != ride.id else { return nil }
-        closing = ride.id
+        guard gate.claim(ride.id) else { return nil }
         // a ride ended by any path is not started again on its own on the clock it was followed on
         // (the button on the platform, a taxi after getting off read as a train); one ended because the
         // clock changed is not kept (`RideClock.endIsKept`)
@@ -218,7 +253,7 @@ import TripKit
         // the activity's end above suspends: a ride started meanwhile is not this one's to clear, but
         // the claim is: this ride, followed again later, can be ended again
         guard self.ride?.id == ride.id else {
-            if closing == ride.id { closing = nil }
+            gate.released(ride.id)
             return
         }
         activity = nil
@@ -232,7 +267,7 @@ import TripKit
         arrival = nil
         lastState = nil
         ending = false
-        closing = nil
+        gate.released(ride.id)
         clock = RideClock(rehearsal: false)
         // back to what the moment calls for: the ordinary stream on screen, nothing behind the lock
         // (the navigation stream and its background session end)

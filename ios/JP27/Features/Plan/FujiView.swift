@@ -23,7 +23,8 @@ struct FujiView: View {
                         FujiLegend()
                             .padding(.horizontal, Metrics.gutter)
                     }
-                    VStack(alignment: .leading, spacing: Metrics.stack) {
+                    // the viewpoints, the clouds and the rest, laid out as they scroll in
+                    LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                         ForEach(area == .all ? FujiArea.days : [area]) { a in
                             FujiSpotSection(area: a)
                         }
@@ -59,12 +60,15 @@ struct FujiPageHost: View {
     let page: FujiPage
 
     var body: some View {
-        switch page {
-        case .map(let area, let focus):
-            FujiExplorer(area: area, focus: focus, spots: model.guide.fuji.spots, summit: model.guide.fuji.summit.coordinate)
-        case .kawaguchiko:
-            FujiKawaguchikoPage()
+        Group {
+            switch page {
+            case .map(let area, let focus):
+                FujiExplorer(area: area, focus: focus, spots: model.guide.fuji.spots, summit: model.guide.fuji.summit.coordinate)
+            case .kawaguchiko:
+                FujiKawaguchikoPage()
+            }
         }
+        .settlesTransition()
     }
 }
 
@@ -75,54 +79,55 @@ struct FujiPageHost: View {
 /// (the map to explore, the camera to find the real mountain) at its foot.
 private struct FujiHero: View {
     static let height: CGFloat = 480
-    @Environment(AppModel.self) private var model
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let area: FujiArea
     let spots: [FujiGuide.Spot]
     let summit: Coordinate
-    @State private var position: MapCameraPosition
+    /// the last blurred terrain under the name, kept while the next day's picture is made
+    @State private var lastBackdrop = ShownBackdrop()
 
     init(area: FujiArea, spots: [FujiGuide.Spot], summit: Coordinate) {
         self.area = area
         self.spots = spots
         self.summit = summit
-        _position = State(initialValue: .camera(FujiCamera.area(area, spots: spots.filter { area.contains($0) }, summit: summit)))
     }
 
     var body: some View {
         let shown = spots.filter { area.contains($0) }
-        DetailHero(title: "Fuji", subtitle: "富士山", height: Self.height) {
-            ZStack {
-                if model.network.online {
-                    FujiTerrainMap(spots: shown, position: $position, selection: .constant(nil))
-                } else {
-                    FujiCompassPlot.backdrop
-                    FujiCompassPlot(spots: shown, selection: .constant(nil))
-                        .padding(.top, 96)
-                        .padding(.bottom, 180)
+        let shot = FujiCamera.Shot.area(area, spots: shown, summit: summit)
+        DetailHero(title: "Fuji", subtitle: "富士山", height: Self.height, backdrop: backdrop(for: shot)) {
+            // the terrain's picture, the live map under it once the page is on screen; a day chosen flies its
+            // camera there (`Motion.travel`)
+            FujiTerrainSnapshot(camera: shot, spots: shown, selection: nil,
+                                plotInset: EdgeInsets(top: 96, leading: 0, bottom: 180, trailing: 0))
+                .allowsHitTesting(false)
+                // a tap on the picture opens the map, as the button does
+                .overlay {
+                    NavigationLink(value: FujiPage.map(area, focus: nil)) {
+                        Color.clear.contentShape(.rect)
+                    }
+                    .buttonStyle(.pressable(.plain))
+                    .accessibilityHidden(true)
                 }
-            }
-            .allowsHitTesting(false)
-            // a tap on the picture opens the map, as the button does
-            .overlay {
-                NavigationLink(value: FujiPage.map(area, focus: nil)) {
-                    Color.clear.contentShape(.rect)
-                }
-                .buttonStyle(.pressable(.plain))
-                .accessibilityHidden(true)
-            }
         } foot: {
             VStack(alignment: .leading, spacing: 12) {
                 FujiHeroFacts(seen: shown.filter(\.visible).count)
                 FujiHeroActions(source: "fuji", map: .map(area, focus: nil))
             }
         }
-        .onChange(of: area) {
-            let camera = FujiCamera.area(area, spots: spots.filter { area.contains($0) }, summit: summit)
-            withAnimation(reduceMotion ? nil : .smooth(duration: 1.2)) { position = .camera(camera) }
-        }
     }
 
+    /// The day's terrain, blurred, under the name (`FujiTerrainPictures.backdrop`). Until the next day's is made,
+    /// the last one stays rather than the plain shade for a moment (kept in a box SwiftUI does not observe, so
+    /// keeping it writes nothing a view reads).
+    private func backdrop(for shot: FujiCamera.Shot) -> UIImage? {
+        guard let image = FujiTerrainPictures.shared.backdrop(for: shot) else { return lastBackdrop.image }
+        if lastBackdrop.image !== image { lastBackdrop.image = image }
+        return image
+    }
+
+    private final class ShownBackdrop {
+        var image: UIImage?
+    }
 }
 
 /// "3.776 m · 9 chỗ thấy đỉnh · cách bạn 120 km". Its own view: it reads where you are, and a step
@@ -206,6 +211,7 @@ private struct FujiLegend: View {
 
 /// A day's viewpoints: the planned ones as rows, the places people post from folded underneath.
 private struct FujiSpotSection: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppModel.self) private var model
     let area: FujiArea
     @State private var showsPopular = false
@@ -226,7 +232,7 @@ private struct FujiSpotSection: View {
             }
             if !popular.isEmpty {
                 Card(padding: 14) {
-                    DisclosureGroup(isExpanded: $showsPopular.animation(.snappy)) {
+                    DisclosureGroup(isExpanded: $showsPopular.animation(Motion.reduced(Motion.pick, reduceMotion))) {
                         PlanRows(items: popular) { FujiSpotRow(spot: $0, compact: true) }
                             .padding(.top, 12)
                     } label: {
@@ -316,18 +322,13 @@ private struct FujiKawaguchikoLink: View {
 /// clouds there.
 struct FujiSpotPage: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.colorScheme) private var system
     let id: String
     /// opened over the 3D map, which the map button then goes back to
     var fromMap = false
-    @State private var page = 0
-    /// photo index → the colour of its foot
-    @State private var tones: [Int: AmbientTone] = [:]
-    @State private var heroHeight: CGFloat = 480
 
     var body: some View {
         if let spot = model.guide.fuji.spots.first(where: { $0.id == id }) {
-            content(spot)
+            FujiSpotAlbum(spot: spot, photos: photos(spot), fromMap: fromMap)
         } else {
             ContentUnavailableView("Không có chỗ ngắm này", systemImage: "mountain.2")
                 .toolbar { CloseButton() }
@@ -344,36 +345,57 @@ struct FujiSpotPage: View {
         let scenery = (spot.images + all.filter(isView)).filter { seen.insert($0.src).inserted }
         return scenery.isEmpty ? all : scenery
     }
+}
 
-    /// The first photograph decides light or dark for the whole card; the others only move the hue.
-    private func canvas(_ photos: [Photo]) -> AmbientCanvas? {
-        guard !photos.isEmpty else { return .dusk }
-        return AmbientTone.canvas(tones, photos: photos, page: page, dim: system == .dark)
+/// `FujiSpotPage` for a viewpoint found, with its photographs.
+private struct FujiSpotAlbum: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.colorScheme) private var system
+    let spot: FujiGuide.Spot
+    /// `FujiSpotPage.photos`
+    let photos: [Photo]
+    let fromMap: Bool
+    @State private var page = 0
+    /// the card's colour, from its first photograph, held while the card lives
+    @State private var held: PageTone
+
+    /// the hero's share of the card's height
+    static let heroFraction: CGFloat = 0.56
+
+    init(spot: FujiGuide.Spot, photos: [Photo], fromMap: Bool) {
+        self.spot = spot
+        self.photos = photos
+        self.fromMap = fromMap
+        _held = State(initialValue: PageTone(photos.first))
     }
 
-    private func content(_ spot: FujiGuide.Spot) -> some View {
+    /// The first photograph decides light or dark and the hue for the whole card; with none, Fuji's dusk.
+    private var canvas: AmbientCanvas? {
+        photos.isEmpty ? .dusk : held.canvas(dim: system == .dark)
+    }
+
+    var body: some View {
         let research = model.fujiResearch(spot.id)
         let name = model.fujiName(spot)
         let place = model.store.place(spot.id)
-        let photos = self.photos(spot)
-        let canvas = self.canvas(photos)
-        return ScrollView {
+        let canvas = self.canvas
+        ScrollView {
             VStack(spacing: 0) {
                 Group {
                     if photos.isEmpty {
-                        FujiSightMap(spot: spot, inset: EdgeInsets(top: 96, leading: 24, bottom: 220, trailing: 24))
+                        FujiSightMap(spot: spot, inset: EdgeInsets(top: 96, leading: 24, bottom: 220, trailing: 24), scheme: canvas?.scheme)
                             .dissolve([(1, 0), (1, 0.55), (0.7, 0.72), (0.25, 0.88), (0, 1)])
                     } else {
                         AmbientHero(photos: photos, page: $page)
                     }
                 }
-                .containerRelativeFrame(.vertical) { length, _ in (length * 0.56).rounded() }
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+                .heroFrame(fraction: Self.heroFraction)
                 .overlay(alignment: .bottom) {
                     FujiSpotHeadline(spot: spot, name: name, ja: FujiWords.ja(spot, store: model.store, research: research),
                                      count: photos.count, page: page, fill: (canvas ?? .dusk).color, fromMap: fromMap)
                 }
-                VStack(alignment: .leading, spacing: Metrics.stack) {
+                // laid out as it scrolls in; the hero above stays in the plain stack
+                LazyVStack(alignment: .leading, spacing: Metrics.stack) {
                     FujiSpotVerdict(spot: spot)
                     FujiSpotNumbers(spot: spot)
                     if let pano = model.guide.fuji.panoramas[spot.id] {
@@ -393,7 +415,7 @@ struct FujiSpotPage: View {
                     if !photos.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
                             SectionTitle("Tia ngắm")
-                            FujiSightMap(spot: spot, inset: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                            FujiSightMap(spot: spot, inset: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16), scheme: canvas?.scheme)
                                 .frame(height: 220)
                                 .clipShape(.rect(cornerRadius: Metrics.card, style: .continuous))
                         }
@@ -419,18 +441,9 @@ struct FujiSpotPage: View {
             }
             .padding(.bottom, 32)
         }
-        .ambientPage(canvas, title: name, heroHeight: heroHeight)
+        .ambientPage(canvas, title: name, heroFraction: Self.heroFraction)
+        .decidesTone($held, of: photos.first)
         .toolbar { CloseButton() }
-        .task(id: spot.id) {
-            guard let first = photos.first else { return }
-            // the first one now, for the card to settle on; the rest in one go after
-            if let tone = await PhotoCache.shared.tone(first) { tones[0] = tone }
-            var rest: [Int: AmbientTone] = [:]
-            for i in photos.indices.dropFirst() {
-                if let tone = await PhotoCache.shared.tone(photos[i]) { rest[i] = tone }
-            }
-            tones.merge(rest) { a, _ in a }
-        }
     }
 }
 
@@ -525,32 +538,20 @@ private struct FujiSpotHeadline: View {
     }
 }
 
-/// The viewpoint's line of sight on the 3D terrain, seen from behind it; without a network, the
-/// plot round the summit. A picture: it does not move under a finger.
+/// The viewpoint's line of sight on the 3D terrain, seen from behind it: its picture, the live map under
+/// it once the card is on screen; without a network and with no picture, the plot round the summit. A
+/// picture: it does not move under a finger.
 private struct FujiSightMap: View {
-    @Environment(AppModel.self) private var model
     let spot: FujiGuide.Spot
     /// room the plot leaves round itself (the card's headline sits over the bottom of the hero)
     let inset: EdgeInsets
-    @State private var position: MapCameraPosition
-
-    init(spot: FujiGuide.Spot, inset: EdgeInsets) {
-        self.spot = spot
-        self.inset = inset
-        _position = State(initialValue: .camera(FujiCamera.spot(spot, summit: FujiSight.summit)))
-    }
+    /// the card's light or dark (`AmbientCanvas.scheme`), nil until its colour is read
+    let scheme: ColorScheme?
 
     var body: some View {
-        ZStack {
-            if model.network.online {
-                FujiTerrainMap(spots: [spot], position: $position, selection: .constant(spot.id))
-            } else {
-                FujiCompassPlot.backdrop
-                FujiCompassPlot(spots: [spot], selection: .constant(spot.id))
-                    .padding(inset)
-            }
-        }
-        .allowsHitTesting(false)
+        FujiTerrainSnapshot(camera: .spot(spot, summit: FujiSight.summit), spots: [spot], selection: spot.id,
+                            plotInset: inset, scheme: scheme)
+            .allowsHitTesting(false)
     }
 }
 

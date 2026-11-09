@@ -187,7 +187,8 @@ struct PressableStyle: PrimitiveButtonStyle {
     enum Look {
         /// settles a little under the finger
         case settle
-        /// the plain style: drawn as it is, dimmed while held
+        /// the plain style: drawn as it is; the system dims it while held, unless it reports the press
+        /// (`PlainPressStyle`, which draws the label unchanged)
         case plain
         /// text in the tint colour, as a link
         case borderless
@@ -198,9 +199,12 @@ struct PressableStyle: PrimitiveButtonStyle {
     var look: Look = .settle
     /// false for a button whose action plays a haptic of its own (a choice that ticks `pick`)
     var felt = true
+    /// called as a finger comes down on it (`isPressed` turning true), before it fires: the page it opens starts
+    /// loading (`Prefetch`). Only the `.settle` and `.plain` looks report it.
+    var onPress: (() -> Void)?
 
     func makeBody(configuration: Configuration) -> some View {
-        PressableButton(configuration: configuration, look: look, felt: felt)
+        PressableButton(configuration: configuration, look: look, felt: felt, onPress: onPress)
     }
 }
 
@@ -209,8 +213,8 @@ extension PrimitiveButtonStyle where Self == PressableStyle {
 
     /// `press` in another look: `.pressable(.plain)` for a card that keeps the plain style,
     /// `.pressable(.bordered)` for a NavigationLink drawn as a bordered button.
-    static func pressable(_ look: PressableStyle.Look, felt: Bool = true) -> PressableStyle {
-        PressableStyle(look: look, felt: felt)
+    static func pressable(_ look: PressableStyle.Look, felt: Bool = true, onPress: (() -> Void)? = nil) -> PressableStyle {
+        PressableStyle(look: look, felt: felt, onPress: onPress)
     }
 }
 
@@ -221,6 +225,7 @@ private struct PressableButton: View {
     let configuration: PrimitiveButtonStyleConfiguration
     let look: PressableStyle.Look
     let felt: Bool
+    let onPress: (() -> Void)?
 
     var body: some View {
         let button = Button(role: configuration.role) {
@@ -231,8 +236,13 @@ private struct PressableButton: View {
         }
         Group {
             switch look {
-            case .settle: button.buttonStyle(SettleStyle())
-            case .plain: button.buttonStyle(.plain)
+            case .settle: button.buttonStyle(SettleStyle(felt: felt, onPress: onPress))
+            case .plain:
+                if let onPress {
+                    button.buttonStyle(PlainPressStyle(onPress: onPress))
+                } else {
+                    button.buttonStyle(.plain)
+                }
             case .borderless: button.buttonStyle(.borderless)
             case .bordered: button.buttonStyle(.bordered)
             case .glass: button.buttonStyle(.glass)
@@ -242,10 +252,32 @@ private struct PressableButton: View {
 }
 
 private struct SettleStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// the button plays `press` as it fires: the finger coming down readies it (`Haptic.prepare`)
+    var felt = false
+    var onPress: (() -> Void)?
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.72), value: configuration.isPressed)
+            .animation(Motion.reduced(Motion.press, reduceMotion), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, down in
+                guard down else { return }
+                if felt { Haptic.prepare(.press) }
+                onPress?()
+            }
+    }
+}
+
+/// The plain look for a button that says when a finger comes down: the label drawn as it is, with no effect while
+/// held. The system's plain style cannot be wrapped for this (it is a primitive style, whose configuration has no
+/// `isPressed`), so its dimming under the finger is not there.
+private struct PlainPressStyle: ButtonStyle {
+    let onPress: () -> Void
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .onChange(of: configuration.isPressed) { _, down in if down { onPress() } }
     }
 }
 
@@ -405,7 +437,7 @@ struct FujiScene: View {
             .task {
                 guard image == nil, let photo = FujiPhotograph.photo else { return }
                 let loaded = await PhotoCache.shared.image(photo, maxPixel: 1600)
-                withAnimation(.easeOut(duration: 0.2)) { image = loaded }
+                withAnimation(Motion.arrive) { image = loaded }
             }
             .accessibilityHidden(true)
     }
