@@ -15,7 +15,8 @@ nonisolated struct CheckRunStored: Codable, Sendable {
 /// main page's "Kiểm tra" follows the last one.
 @Observable final class CheckRun {
     static let shared = CheckRun()
-    private static let key = "checks.last"
+    /// read by `load`, which runs on no actor (it is the property's initial value)
+    private nonisolated static let key = "checks.last"
     /// the forecast server, asked at its bare URL: any answer is an answer (`CheckReport.network`)
     private nonisolated static let forecastURL = URL(string: "https://api.open-meteo.com/v1/forecast")!
 
@@ -76,10 +77,7 @@ nonisolated struct CheckRunStored: Codable, Sendable {
     /// "4/5 đã bật · tắt: Ảnh", as the Quyền page counts them
     private func permissions(_ model: AppModel) -> CheckResult {
         let p = PermissionStates(model)
-        let named: [(String, PermissionRow.State)] = [
-            ("Vị trí", p.location), ("Thông báo", p.notifications), ("Báo thức", p.alarms), ("Ảnh", p.photos), ("Live Activities", p.live),
-        ]
-        let off = named.filter { !$0.1.isOn }.map(\.0)
+        let off = p.named.filter { !$0.state.isOn }.map(\.name)
         var line = "\(p.on)/\(p.all.count) đã bật"
         if !off.isEmpty { line += " · tắt: " + off.joined(separator: ", ") }
         return CheckResult(id: .permissions, level: off.isEmpty ? .ok : .warning, line: line)
@@ -93,10 +91,12 @@ nonisolated struct CheckRunStored: Codable, Sendable {
         return CheckResult(id: .records, level: .ok, line: "Mở bình thường")
     }
 
-    /// "12 nhắc đang chờ · đặt lại 3 lần"; the last alarm error is an error.
+    /// "12 nhắc đang chờ · đặt lại 3 lần"; the last alarm error is an error, named by what failed only ("Đặt báo
+    /// thức"): its full text, with the system's error as it came, stays in Cần xem, never in the log or the export.
     private func reminders(_ model: AppModel, pending: Int) -> CheckResult {
         if let error = model.alarms.lastError {
-            return CheckResult(id: .reminders, level: .error, line: "Lỗi báo thức: \(error)")
+            let what = error.components(separatedBy: ": ").first ?? ""
+            return CheckResult(id: .reminders, level: .error, line: "Báo thức lỗi (\(what)), xem Cần xem")
         }
         return CheckResult(id: .reminders, level: .ok, line: "\(pending) nhắc đang chờ · đặt lại \(model.reschedules) lần")
     }
@@ -114,7 +114,8 @@ nonisolated struct CheckRunStored: Codable, Sendable {
 
     /// Free space for what matters to the user (`volumeAvailableCapacityForImportantUsage`), and what the app keeps:
     /// Application Support and Caches, each walked once. MapLibre's database is in Application Support, so the map
-    /// packs are counted there and only named apart (`packBytes`, as Dùng khi mất sóng's "Đã tải"), never added.
+    /// packs are counted there and only named apart (`packBytes`, as Dùng khi mất sóng's "Đã tải"), never added; packs
+    /// that overlap (Toàn tuyến and an area) count their shared tiles in each, so the part is held to the whole.
     @concurrent nonisolated static func space() async -> (free: Int64?, app: Int64) {
         let free = try? URL.homeDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage
         return (free, folderBytes(URL.applicationSupportDirectory) + folderBytes(URL.cachesDirectory))
@@ -123,7 +124,7 @@ nonisolated struct CheckRunStored: Codable, Sendable {
     @concurrent private nonisolated static func storage(packBytes: Int64) async -> CheckResult {
         let (free, app) = await space()
         var line = "app dùng \(bytes(app))"
-        if packBytes > 0 { line += ", trong đó bản đồ \(bytes(packBytes))" }
+        if packBytes > 0 { line += " · gói bản đồ \(bytes(min(packBytes, app)))" }
         guard let free else {
             return CheckResult(id: .storage, level: .warning, line: "Không đọc được chỗ trống · " + line)
         }

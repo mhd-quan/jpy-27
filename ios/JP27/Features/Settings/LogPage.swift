@@ -50,12 +50,18 @@ import UIKit
     /// why the last export failed
     private(set) var failure: String?
 
-    func run(info: [String: String]) async {
+    /// `base` is what the page read on the main actor; the free space and the app's size are added here, off the main
+    /// thread (`CheckRun.space`), once `running` holds: the buttons are off from the tap on.
+    func run(base: [String: String]) async {
         guard !running else { return }
         running = true
         defer { running = false }
         failure = nil
         file = nil
+        var info = base
+        let space = await CheckRun.space()
+        info["freeBytes"] = space.free.map { "\($0)" } ?? "?"
+        info["appBytes"] = "\(space.app)"
         // before the export, which writes everything waiting first: the zip says it was exported
         AppLog.info(.app, "Xuất log")
         do {
@@ -138,13 +144,7 @@ struct LogPage: View {
                 } else {
                     Button {
                         let base = exportInfo()
-                        Task {
-                            var info = base
-                            let space = await CheckRun.space()
-                            info["freeBytes"] = space.free.map { "\($0)" } ?? "?"
-                            info["appBytes"] = "\(space.app)"
-                            await export.run(info: info)
-                        }
+                        Task { await export.run(base: base) }
                     } label: {
                         HStack {
                             Label("Xuất log", systemImage: "doc.zipper")
@@ -183,7 +183,7 @@ struct LogPage: View {
     }
 
     /// What `info.json` holds, read on the main actor: nothing private (never the phone's name, its network name, nor
-    /// anything typed). The free space and the app's size are added off the main thread (`CheckRun.space`).
+    /// anything typed). `LogExport.run` adds the free space and the app's size.
     private func exportInfo() -> [String: String] {
         let downloads = model.downloads
         let stale = !model.offline.stale.isEmpty

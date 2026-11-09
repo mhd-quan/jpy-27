@@ -51,11 +51,35 @@ import TripKit
         #expect(try JSONDecoder().decode([CheckResult].self, from: data) == results)
     }
 
+    /// What `checks.last` and the exported `info.json` hold: the keys and the level as a number stay as they are, so a
+    /// run kept by this build is read by the next.
+    @Test func resultJSONKeysAreStable() throws {
+        let literal = Data(#"{"id":"storage","level":1,"line":"Trống 800 MB"}"#.utf8)
+        let decoded = try JSONDecoder().decode(CheckResult.self, from: literal)
+        #expect(decoded == CheckResult(id: .storage, level: .warning, line: "Trống 800 MB"))
+        let encoded = try JSONEncoder().encode(decoded)
+        let object = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        #expect(Set(object.keys) == ["id", "level", "line"])
+        #expect(object["level"] as? Int == 1)
+        #expect(object["id"] as? String == "storage")
+    }
+
     // MARK: order
 
     @Test func orderedByCheckID() {
         let shuffled = [result(.clock, .ok), result(.network, .error), result(.permissions, .ok), result(.storage, .warning)]
         #expect(CheckReport.ordered(shuffled).map(\.id) == [.permissions, .storage, .network, .clock])
+        let all: [CheckID] = [.sync, .clock, .records, .permissions, .network, .offline, .reminders, .storage]
+        #expect(CheckReport.ordered(all.map { result($0, .ok) }).map(\.id) == CheckID.allCases)
+    }
+
+    @Test func orderedKeepsTheInputOrderOfOneID() {
+        let first = CheckResult(id: .network, level: .ok, line: "first")
+        let second = CheckResult(id: .network, level: .error, line: "second")
+        let third = CheckResult(id: .network, level: .warning, line: "third")
+        let r = CheckReport.ordered([first, result(.clock, .ok), second, result(.permissions, .ok), third])
+        #expect(r.map(\.line) == ["x", "first", "second", "third", "x"])
+        #expect(r.map(\.id) == [.permissions, .network, .network, .network, .clock])
     }
 
     @Test func checkIDsInTheSpecsOrder() {

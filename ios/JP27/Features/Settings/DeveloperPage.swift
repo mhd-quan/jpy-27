@@ -32,6 +32,8 @@ struct DeveloperSection: View {
     @State private var pending: Pending?
     /// "Xoá" of the Fuji pictures asked for, waiting for its confirmation
     @State private var clearingFuji = false
+    /// what the last "Thông báo Đã tới thử" tap found, when it found no stop to post for
+    @State private var arrivedNote: String?
 
     /// What "Bật giả lỗi?" would switch on.
     private enum Pending: Equatable {
@@ -107,6 +109,14 @@ struct DeveloperSection: View {
                     SettingsIcon(symbol: "xmark.octagon", tint: .red)
                 }
             }
+            // on one row (a section's modifier goes to each of its rows); the toggle below asks through it too.
+            // Swiping the alert away is "Huỷ"; the choice comes with the button, so the order of the two does not matter
+            .alert("Bật giả lỗi?", isPresented: Binding(get: { pending != nil }, set: { if !$0 { pending = nil } }), presenting: pending) { p in
+                Button("Bật") { apply(p) }
+                Button("Huỷ", role: .cancel) {}
+            } message: { p in
+                Text(p == .reads ? "Đọc sổ chi sẽ báo lỗi tới khi tắt hoặc mở lại app." : "Lưu sẽ báo lỗi tới khi tắt hoặc mở lại app.")
+            }
             Toggle(isOn: Binding(get: { Records.failReads }, set: { on in
                 if on { pending = .reads } else { setReads(false) }
             })) {
@@ -134,13 +144,6 @@ struct DeveloperSection: View {
                     SettingsIcon(symbol: "square.on.square", tint: .gray)
                 }
             }
-        }
-        // swiping the alert away is "Huỷ"; the choice comes with the button, so the order of the two does not matter
-        .alert("Bật giả lỗi?", isPresented: Binding(get: { pending != nil }, set: { if !$0 { pending = nil } }), presenting: pending) { p in
-            Button("Bật") { apply(p) }
-            Button("Huỷ", role: .cancel) {}
-        } message: { p in
-            Text(p == .reads ? "Đọc sổ chi sẽ báo lỗi tới khi tắt hoặc mở lại app." : "Lưu sẽ báo lỗi tới khi tắt hoặc mở lại app.")
         }
         Section("Đi tàu và bản đồ") {
             Toggle(isOn: Binding(get: { rideDetails }, set: { on in
@@ -246,20 +249,25 @@ struct DeveloperSection: View {
                 }
             }
             .task { fujiPictures = await FujiTerrainPictures.usage() }
-        }
-        .alert("Xoá ảnh địa hình Fuji?", isPresented: $clearingFuji) {
-            Button("Xoá", role: .destructive) {
-                AppLog.info(.dev, "Xoá ảnh địa hình Fuji")
-                Task {
-                    await FujiTerrainPictures.shared.clear()
-                    fujiPictures = await FujiTerrainPictures.usage()
-                    // Dùng khi mất sóng says what is there now
-                    await model.downloads.readiness.refresh()
-                }
+            // on its row: a section's modifier goes to each of its rows
+            .alert("Xoá ảnh địa hình Fuji?", isPresented: $clearingFuji) {
+                Button("Xoá", role: .destructive, action: clearFuji)
+                Button("Huỷ", role: .cancel) {}
+            } message: {
+                Text("Trang Fuji khi mất sóng thiếu ảnh tới khi tải lại.")
             }
-            Button("Huỷ", role: .cancel) {}
-        } message: {
-            Text("Trang Fuji khi mất sóng thiếu ảnh tới khi tải lại.")
+        }
+    }
+
+    /// The Fuji pictures deleted, unless a download began while the confirmation was up (one resumed on its own).
+    private func clearFuji() {
+        guard !model.downloads.busy else { return }
+        AppLog.info(.dev, "Xoá ảnh địa hình Fuji")
+        Task {
+            await FujiTerrainPictures.shared.clear()
+            fujiPictures = await FujiTerrainPictures.usage()
+            // Dùng khi mất sóng says what is there now
+            await model.downloads.readiness.refresh()
         }
     }
 
@@ -305,9 +313,15 @@ struct DeveloperSection: View {
     private func testArrived(asBeforeIDs: Bool) -> some View {
         Button {
             let day = model.focusDay
+            let kind = asBeforeIDs ? "old" : "new"
             guard let (i, stop) = day.stops.first(where: { model.store.place($0.stop.place)?.kind == .food && !model.isDone(day, $0.index) }),
-                  let place = model.store.place(stop.place) else { return }
-            AppLog.info(.dev, "Thông báo Đã tới thử", ["kind": asBeforeIDs ? "old" : "new"])
+                  let place = model.store.place(stop.place) else {
+                AppLog.info(.dev, "Thông báo Đã tới thử", ["kind": kind, "stop": "none"])
+                arrivedNote = "Không có chỗ ăn nào chưa tới"
+                return
+            }
+            AppLog.info(.dev, "Thông báo Đã tới thử", ["kind": kind])
+            arrivedNote = nil
             Task {
                 if asBeforeIDs {
                     await model.notifications.arrivedAsBeforeIDs(at: place, day: day.key, index: i)
@@ -317,7 +331,12 @@ struct DeveloperSection: View {
             }
         } label: {
             Label {
-                Text(asBeforeIDs ? "Thông báo Đã tới thử, kiểu cũ" : "Thông báo Đã tới thử")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(asBeforeIDs ? "Thông báo Đã tới thử, kiểu cũ" : "Thông báo Đã tới thử")
+                    if let arrivedNote {
+                        Text(arrivedNote).font(.footnote).foregroundStyle(.secondary)
+                    }
+                }
             } icon: {
                 SettingsIcon(symbol: "checkmark.circle", tint: asBeforeIDs ? Color.gray : Color.green)
             }

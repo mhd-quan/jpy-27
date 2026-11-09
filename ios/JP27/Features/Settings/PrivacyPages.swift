@@ -219,7 +219,11 @@ struct PermissionStates {
         live = model.live.isAvailable ? .on : .off
     }
 
-    var all: [PermissionRow.State] { [location, notifications, alarms, photos, live] }
+    /// each permission by the name Kiểm tra gives it, in the Quyền page's order: the one list the counts come from
+    var named: [(name: String, state: PermissionRow.State)] {
+        [("Vị trí", location), ("Thông báo", notifications), ("Báo thức", alarms), ("Ảnh", photos), ("Live Activities", live)]
+    }
+    var all: [PermissionRow.State] { named.map(\.state) }
     /// "đã bật": given, or given in part ("Khi dùng app", "Một phần")
     var on: Int { all.filter { $0.isOn }.count }
     /// "đang tắt": refused, or not asked yet
